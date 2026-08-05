@@ -3,9 +3,15 @@ import type { ExecArgs, MedusaContainer } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import jwt from "jsonwebtoken"
 import Scrypt from "scrypt-kdf"
+import { createCommissionRatesWorkflow } from "@mercurjs/core/workflows"
+import {
+  CommissionRateType,
+  MercurModules,
+  type CreateCommissionRateDTO,
+} from "@mercurjs/types"
 import { createAdminUser } from "../helpers/create-admin-user"
 import seedDemoData from "../../apps/api/src/scripts/seed"
-import { GUIDE_ADMIN, GUIDE_CUSTOMER } from "./credentials"
+import { GUIDE_ADMIN, GUIDE_CUSTOMER, GUIDE_SELLER } from "./credentials"
 import { ORDER_SEED_FILE } from "./paths"
 
 // Seeds the ephemeral DB for the docs guide generator. Unlike the minimal
@@ -21,7 +27,34 @@ export async function seedGuides(container: MedusaContainer): Promise<void> {
 
   await seedDemoData({ container, args: [] } as ExecArgs)
 
+  await seedCommissionRule(container)
   await stashOrderPrereqs(container)
+}
+
+// Creates one commission rule (a rate scoped to the demo seller) so the
+// "manage a commission rule" guide has a rule to show in the list.
+async function seedCommissionRule(container: MedusaContainer): Promise<void> {
+  const sellerModule = container.resolve<{
+    listSellers: (filter: object) => Promise<Array<{ id: string; name: string }>>
+  }>(MercurModules.SELLER)
+  const sellers = await sellerModule.listSellers({})
+  const seller =
+    sellers.find((s) => s.name === GUIDE_SELLER.store) ?? sellers[0]
+  if (!seller) {
+    return
+  }
+
+  const rate = {
+    name: `${seller.name} commission`,
+    type: CommissionRateType.PERCENTAGE,
+    value: 12,
+    is_enabled: true,
+    is_default: false,
+    rules: [{ reference: "seller", reference_id: seller.id }],
+  }
+  await createCommissionRatesWorkflow(container).run({
+    input: [rate as unknown as CreateCommissionRateDTO],
+  })
 }
 
 // Creates a storefront customer and captures the publishable key, writing both

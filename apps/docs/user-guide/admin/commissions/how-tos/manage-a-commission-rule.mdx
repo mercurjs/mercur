@@ -1,45 +1,18 @@
 ---
 title: "Manage a Commission Rule"
-sidebarTitle: "Manage a commission rule"
 description: "Edit, enable, disable, or delete an existing commission rule."
 ---
 
-> Review a rule and change its scope, fee, or status.
+Commission rules are managed from the Commissions settings page. Each rule overrides the global commission for its scope, and the most specific matching rule always wins.
 
-## Overview
-
-Once a commission rule exists, you can review it, change its scope or fee, or remove it entirely. Each rule shows a status badge: "Active" rules apply to matching sales, "Inactive" rules do not.
-
-## Step 1: Open the rule
-
-1. Go to "Settings" in the sidebar, then "Commissions".
-2. Choose the rule from the "Commission Rules" list.
-
-This opens the rule detail page, showing its scope, status, and commission.
-
-{/* screenshot: Commission rule detail page */}
-
-## Step 2: Edit the scope or the fee
-
-- To change the title, code, or scope, click the icon in the scope section header and choose "Edit".
-- To change the fee, click the icon in the "Commission" section header and choose "Edit".
-
-Make your changes in the side window, then click "Save".
-
-{/* screenshot: Commission rule edit drawer */}
-
-## Step 3: Delete the rule
-
-If you no longer need the rule, click the icon in the scope section header and choose "Delete", then confirm.
-
-<Warning>
-  Deleting a rule cannot be undone. Sales that the rule covered fall back to a more general rule, or to the global commission.
-</Warning>
-
-## Next steps
-
-<CardGroup cols={2}>
-  <Card title="Edit the global commission" href="/user-guide/admin/commissions/how-tos/edit-the-global-commission">
-    Change the default fee used when no rule matches.
-  </Card>
-</CardGroup>
+<Steps>
+  <Step title="Open the commissions settings">
+    Go to **Settings**, then **Commissions**. Your rules appear in the **Commission Rules** section below the global commission.
+    <Frame>
+      <img src="/images/user-guide/admin/manage-a-commission-rule/step-1.png" alt="Open the commissions settings" />
+    </Frame>
+  </Step>
+  <Step title="Edit, enable, disable, or delete">
+    Open a rule from the **Commission Rules** list to reach its detail page, or use the row's actions menu. From there you can **Edit** the rule's scope and fee, **Enable** or **Disable** it, or **Delete** it. A disabled rule stops applying without being removed, so you can turn it back on later.
+  </Step>
+</Steps>

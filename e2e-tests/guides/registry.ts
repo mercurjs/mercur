@@ -1,6 +1,7 @@
 import type { GuideDefinition } from "./define-guide"
 import createACommissionRule from "./definitions/create-a-commission-rule"
 import editTheGlobalCommission from "./definitions/edit-the-global-commission"
+import manageACommissionRule from "./definitions/manage-a-commission-rule"
 import createAnAttribute from "./definitions/create-an-attribute"
 import managePossibleValues from "./definitions/manage-possible-values"
 import submitAProduct from "./definitions/submit-a-product"
@@ -19,6 +20,7 @@ import processAReturn from "./definitions/process-a-return"
 export const GUIDES: GuideDefinition[] = [
   createACommissionRule,
   editTheGlobalCommission,
+  manageACommissionRule,
   createAnAttribute,
   managePossibleValues,
   submitAProduct,
