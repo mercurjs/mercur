@@ -4,10 +4,10 @@ sidebarTitle: "Home"
 description: "The open-source enterprise marketplace platform built on Medusa."
 ---
 
-Mercur adds a governed marketplace layer to Medusa: sellers, offers, commissions,
-order splitting, and payouts, with role-based access and an auditable change
-pipeline. Start with the guides below, or jump straight into the platform
-capabilities and the API.
+Mercur is the open-source enterprise marketplace platform built on Medusa. It adds
+sellers, offers, commissions, order splitting, and payouts on top of Medusa's
+commerce engine, with role-based access and an auditable change pipeline, on
+infrastructure you own.
 
 <iframe
   className="w-full aspect-video"
@@ -21,31 +21,52 @@ capabilities and the API.
 ## Get started
 
 <CardGroup cols={2}>
-  <Card title="Overview" icon="download" href="/learn/introduction">
-    Set up Mercur and run a marketplace locally.
+  <Card title="Overview" icon="book-open" href="/learn/introduction">
+    Install Mercur, tour the panels, and watch a multi-vendor order flow.
+  </Card>
+  <Card title="Why Mercur" icon="lightbulb" href="/learn/why-mercur">
+    Governance, ownership, and composability without a closed platform.
   </Card>
   <Card title="Architecture" icon="sitemap" href="/learn/architecture">
     How Mercur layers the marketplace domain on Medusa.
   </Card>
   <Card title="Build with AI" icon="robot" href="/resources/ai/overview">
-    Bundled docs, agent skills, and the MCP server.
+    Version-matched docs, agent skills, and the MCP server.
   </Card>
 </CardGroup>
 
-## Platform
+## Explore the platform
 
-<CardGroup cols={2}>
+Each marketplace capability is its own module, with concepts, server guides, and a
+data-model reference.
+
+<CardGroup cols={3}>
   <Card title="Store" icon="store" href="/platform/store/overview">
-    Govern who sells, with role-based access and a governed account lifecycle.
+    Govern who sells, with role-based access and an account lifecycle.
+  </Card>
+  <Card title="Catalog" icon="layer-group" href="/platform/catalog/overview">
+    One shared master catalog that every store sells against.
   </Card>
   <Card title="Offer" icon="tag" href="/platform/offer/overview">
-    How a seller lists against a shared master product.
+    A seller's listing against a master product, with its own price and stock.
+  </Card>
+  <Card title="Attribute" icon="sliders" href="/platform/attribute/overview">
+    A typed attribute catalog that also drives variant axes.
+  </Card>
+  <Card title="Product Edit" icon="clipboard-check" href="/platform/product-edit/overview">
+    The auditable change pipeline behind every catalog edit.
+  </Card>
+  <Card title="Order Group" icon="diagram-project" href="/platform/order-group/overview">
+    How a single cart splits into per-seller orders.
   </Card>
   <Card title="Commission" icon="percent" href="/platform/commission/overview">
-    Policy-based commission rules and per-order commission lines.
+    Policy-based rules and per-order commission lines.
   </Card>
   <Card title="Payout" icon="wallet" href="/platform/payout/overview">
     Split settlement and provider-driven payouts.
+  </Card>
+  <Card title="Review" icon="star" href="/platform/review/overview">
+    Product and seller reviews with moderation.
   </Card>
 </CardGroup>
 
@@ -53,30 +74,34 @@ capabilities and the API.
 
 <CardGroup cols={2}>
   <Card title="How-Tos" icon="wrench" href="/resources/best-practices/overview">
-    Server, panels, and blocks: build the Mercur way.
-  </Card>
-  <Card title="AI tools" icon="robot" href="/resources/ai/overview">
-    Bundled docs, agent skills, and the MCP server.
-  </Card>
-  <Card title="Self-host" icon="server" href="/resources/deployment/self-host">
-    Deploy Mercur on your own infrastructure.
+    Extend the server and both panels the Mercur way.
   </Card>
   <Card title="Integrations" icon="plug" href="/resources/integrations/overview">
     Stripe Connect and installable blocks.
   </Card>
+  <Card title="Self-host" icon="server" href="/resources/deployment/self-host">
+    Deploy Mercur on your own infrastructure.
+  </Card>
+  <Card title="Blocks" icon="cube" href="/resources/tutorials/add-a-block">
+    Install features as source code you own.
+  </Card>
 </CardGroup>
 
-## Reference
+## API reference
+
+Fully typed routes for every audience. Start with the
+[API conventions](/references/api/conventions) for authentication, seller scoping,
+and field selection.
 
 <CardGroup cols={2}>
-  <Card title="API conventions" icon="book" href="/references/api/conventions">
-    Authentication, seller scoping, pagination, and field selection.
-  </Card>
   <Card title="Admin API" icon="shield-halved" href="/references/api/admin">
     Operator routes under <code>/admin/*</code>.
   </Card>
   <Card title="Vendor API" icon="store" href="/references/api/vendor">
     Seller-scoped routes under <code>/vendor/*</code>.
+  </Card>
+  <Card title="Store API" icon="bag-shopping" href="/references/api/store">
+    Storefront routes under <code>/store/*</code>.
   </Card>
   <Card title="Panel extensions" icon="puzzle-piece" href="/references/panel-extensions/overview">
     Widgets, custom fields, and custom pages.
