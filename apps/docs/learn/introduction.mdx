@@ -79,6 +79,18 @@ bun dev
 A Mercur project ships three role-based surfaces, one per audience. Each is backed
 by the same marketplace modules and governed by role-based access.
 
+<Frame caption="A quick walkthrough of the operator and seller panels.">
+  <video
+    autoPlay
+    muted
+    loop
+    playsInline
+    controls
+    className="w-full aspect-video"
+    src="/images/platform-walkthrough.mp4"
+  />
+</Frame>
+
 ### Admin Panel
 
 The operator dashboard at `/dashboard`. This is where you run the marketplace.
@@ -125,6 +137,10 @@ payout. A single customer cart can hold items from several sellers.
 
 The operator sees the whole order group; each seller sees only its slice. Every
 step is governed by the same roles and recorded for audit.
+
+<Frame caption="The Admin Panel Orders view. Each row is an order group, and a multi-vendor cart splits into per-seller orders across one or more stores.">
+  <img src="/images/admin-orders-order-groups.png" alt="Admin Panel Orders list showing order groups, each spanning one or more stores" />
+</Frame>
 
 ## Next steps
 
