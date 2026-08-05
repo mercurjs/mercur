@@ -17,7 +17,7 @@
     "dark": "#6D28D9"
   },
   "appearance": {
-    "default": "dark"
+    "default": "light"
   },
   "topbarLinks": [
     {
@@ -36,6 +36,7 @@
         "groups": [
           {
             "group": "Welcome",
+            "icon": "hand-wave",
             "pages": [
               "home",
               "learn/introduction",
@@ -54,6 +55,7 @@
           },
           {
             "group": "Legal",
+            "icon": "scale-balanced",
             "pages": [
               "telemetry"
             ]
