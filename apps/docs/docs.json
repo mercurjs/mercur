@@ -39,11 +39,6 @@
             "pages": [
               "home",
               "learn/introduction",
-              "learn/concepts",
-              "learn/architecture",
-              "learn/security-and-governance",
-              "learn/mirakl-alternative",
-              "resources/tutorials/first-marketplace",
               {
                 "group": "Build with AI",
                 "pages": [
@@ -51,7 +46,8 @@
                   "resources/ai/skills",
                   "resources/ai/mcp"
                 ]
-              }
+              },
+              "learn/architecture"
             ]
           },
           {
