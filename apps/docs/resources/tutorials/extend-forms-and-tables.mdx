@@ -1,22 +1,22 @@
 ---
 title: "How to Extend Forms and Tables"
 sidebarTitle: "Extend Forms & Tables"
-description: "Add validated fields to built-in forms, replace fields in detail sections, and add list columns with defineCustomFieldsConfig and createFormHelper."
+description: "Add validated fields, detail-section displays, and list columns to a built-in model from a single file with defineCustomFieldsConfig."
 ---
 
-`defineCustomFieldsConfig` is Mercur's model-scoped extension surface: from one file per model, you add validated fields to built-in create/edit forms, replace/remove/add fields in detail sections, and add columns to the list table, all wired into the built-in page, all typed against the model's generated registry.
+`defineCustomFieldsConfig` is Mercur's model-scoped extension surface. From one file per model you add validated fields to built-in create and edit forms, replace, remove, or add fields in detail sections, and add columns to the list table. Everything wires into the built-in page and stays typed against the model's generated registry.
 
 <Info>
-  **UI, not schema.** This helper is a *panel* surface. It renders, validates, and displays fields. It does not create database columns. To *store* extra data, use the backend [Custom Fields module](/rc/resources/customization/custom-fields) or your own API route/workflow. In the MVP, panel custom fields for `product` are submitted under `additional_data` and persisted onto the product's `metadata`.
+  **UI, not schema.** This helper is a panel surface. It renders, validates, and displays fields. It does not create database columns. To store extra data, use the backend [Custom Fields module](/rc/resources/customization/custom-fields) or your own API route or workflow. In the MVP, panel custom fields for `product` are submitted under `additional_data` and persisted onto the product's `metadata`.
 </Info>
 
 ## What you'll build
 
-An `ERP ID` field on the vendor product edit form, shown in the product's detail section and as a list-table column, from a single `src/custom-fields/product.tsx`.
+An `ERP ID` field on the vendor product edit form, shown in the product's detail section and as a list-table column, all from a single `src/custom-fields/product.tsx`.
 
-## Register the typed targets (once)
+## Register the typed targets
 
-Models, form zones, display zones, and built-in field ids are typed per panel. Register them once (shipped by `create-mercur-app`):
+Models, form zones, display zones, and built-in field ids are typed per panel. You register them once, and `create-mercur-app` ships this reference for you.
 
 ```typescript apps/vendor/src/extension-targets.d.ts
 /// <reference types="@mercurjs/vendor/extension-targets" />
@@ -26,7 +26,7 @@ Models, form zones, display zones, and built-in field ids are typed per panel. R
 
 <Steps>
   <Step title="Create the model file">
-    Drop `src/custom-fields/<model>.tsx` and default-export a `defineCustomFieldsConfig`. `createFormHelper` (from `@mercurjs/dashboard-shared`) turns a Zod schema into an input type + validation:
+    Drop `src/custom-fields/<model>.tsx` and default-export a `defineCustomFieldsConfig`. `createFormHelper` from `@mercurjs/dashboard-shared` turns a Zod schema into an input type plus validation.
 
     ```tsx apps/vendor/src/custom-fields/product.tsx
     import { defineCustomFieldsConfig } from "@mercurjs/dashboard-sdk"
@@ -54,10 +54,11 @@ Models, form zones, display zones, and built-in field ids are typed per panel. R
     })
     ```
   </Step>
-  <Step title="Add a detail-section display">
-    `displays[]` targets a detail-page section by its `zone` id. Keyed by field `id`, an entry **adds**, **replaces**, or **removes** a field:
 
-    ```tsx
+  <Step title="Add a detail-section display">
+    `displays[]` targets a detail-page section by its `zone` id. Keyed by field `id`, an entry adds, replaces, or removes a field.
+
+    ```tsx apps/vendor/src/custom-fields/product.tsx
     import { Text } from "@medusajs/ui"
 
     // ...inside defineCustomFieldsConfig:
@@ -90,12 +91,15 @@ Models, form zones, display zones, and built-in field ids are typed per panel. R
     ],
     ```
 
-    Built-in field ids (like `subtitle`, `handle`, `status`, `title`) autocomplete from the panel's generated `CustomFieldsRegistry`; an unknown id is treated as an added row.
+    <Tip>
+      Built-in field ids such as `subtitle`, `handle`, `status`, and `title` autocomplete from the panel's generated `CustomFieldsRegistry`. An unknown id is treated as an added row.
+    </Tip>
   </Step>
-  <Step title="Add a list column">
-    The `list` block extends the model's list table. Add or override columns by id, hide built-in columns, and reorder:
 
-    ```tsx
+  <Step title="Add a list column">
+    The `list` block extends the model's list table. Add or override columns by id, hide built-in columns, and reorder.
+
+    ```tsx apps/vendor/src/custom-fields/product.tsx
     // ...inside defineCustomFieldsConfig:
     list: {
       columns: [
@@ -112,14 +116,15 @@ Models, form zones, display zones, and built-in field ids are typed per panel. R
     },
     ```
   </Step>
+
   <Step title="Reload the panel">
-    Open the vendor portal. The product **edit** drawer shows the ERP ID field (validated on submit and persisted via `additional_data`), the detail **general** section shows the ERP ID row (with `subtitle` removed and `handle` re-rendered), and the product **list** shows the ERP column.
+    Open the vendor portal. The product edit drawer shows the ERP ID field, validated on submit and persisted via `additional_data`. The detail general section shows the ERP ID row, with `subtitle` removed and `handle` re-rendered. The product list shows the ERP column.
   </Step>
 </Steps>
 
-## The `createFormHelper` surface
+## The createFormHelper surface
 
-`createFormHelper<T>()` exposes a Zod-based surface that drives both the input type and its validation:
+`createFormHelper<T>()` exposes a Zod-based surface that drives both the input type and its validation.
 
 ```ts
 const form = createFormHelper<T>()
@@ -134,11 +139,11 @@ form.define({
 })
 ```
 
-Fields render through the standard `Form.Field → Form.Item` chain (never a raw `Controller`) and participate in the existing `TabbedForm` / `RouteDrawer` submit and validation flow.
+Fields render through the standard `Form.Field → Form.Item` chain, never a raw `Controller`. They participate in the existing `TabbedForm` and `RouteDrawer` submit and validation flow.
 
 ## Linked-module data
 
-To read data from a linked module alongside the entity, declare it with `link`; those relations are fetched with the entity and become available to columns and displays:
+To read data from a linked module alongside the entity, declare it with `link`. Those relations are fetched with the entity and become available to columns and displays.
 
 ```ts
 export default defineCustomFieldsConfig({
@@ -150,12 +155,14 @@ export default defineCustomFieldsConfig({
 })
 ```
 
-The SDK derives the fetch query from `link` and merges it into the built-in query with the `+`/`-` convention. You never hand-write the field list.
+<Note>
+  The SDK derives the fetch query from `link` and merges it into the built-in query with the `+` and `-` convention. You never hand-write the field list.
+</Note>
 
 ## Verify
 
 1. The ERP ID field renders in the product edit drawer and validates on submit.
-2. Saving persists the value (visible on reload) via `additional_data` → `metadata`.
+2. Saving persists the value, visible on reload, via `additional_data` to `metadata`.
 3. The detail general section shows the ERP row, hides `subtitle`, and re-renders `handle`.
 4. The product list shows the ERP column, hides `collection`, and reorders columns.
 5. Set `zone: "nope"` in `forms`. `bun run lint` (tsc) fails against the model's registry.
@@ -164,16 +171,16 @@ The SDK derives the fetch query from `link` and merges it into the built-in quer
 
 <AccordionGroup>
   <Accordion title="Which models and zones are available?">
-    Today: the `product` model in the vendor portal, with form zone `edit` and display zone `general`. The valid set per panel is generated into `CustomFieldsRegistry` in `extension-targets.d.ts`. Autocomplete `model` / `zone` to see what's mounted.
+    Today: the `product` model in the vendor portal, with form zone `edit` and display zone `general`. The valid set per panel is generated into `CustomFieldsRegistry` in `extension-targets.d.ts`. Autocomplete `model` and `zone` to see what's mounted.
   </Accordion>
   <Accordion title="Where is the value actually stored?">
-    In the MVP, product custom fields are submitted under `additional_data` and persisted onto `product.metadata`. `defineCustomFieldsConfig` itself doesn't create a column. For durable, queryable storage model it with the backend [Custom Fields module](/rc/resources/customization/custom-fields) or a custom route/workflow.
+    In the MVP, product custom fields are submitted under `additional_data` and persisted onto `product.metadata`. `defineCustomFieldsConfig` itself doesn't create a column. For durable, queryable storage, model it with the backend [Custom Fields module](/rc/resources/customization/custom-fields) or a custom route or workflow.
   </Accordion>
   <Accordion title="Can I extend the onboarding wizard?">
-    That's the same helper with `zone: "onboarding"` and `tab` set to a wizard step id (vendor only). It's designed but not mounted in the current MVP. The runtime host exists; the wizard mount is a follow-up.
+    That's the same helper with `zone: "onboarding"` and `tab` set to a wizard step id (vendor only). It's designed but not mounted in the current MVP. The runtime host exists. The wizard mount is a follow-up.
   </Accordion>
   <Accordion title="Can a block ship custom fields?">
-    Yes. A [block](/rc/learn/blocks) can include `src/custom-fields/` files in its `vendor_ui` / `admin_ui` entry, aggregated like the host app's.
+    Yes. A [block](/rc/learn/blocks) can include `src/custom-fields/` files in its `vendor_ui` or `admin_ui` entry, aggregated like the host app's.
   </Accordion>
 </AccordionGroup>
 

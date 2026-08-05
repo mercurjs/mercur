@@ -46,6 +46,8 @@ Creates multiple offers at once; the whole batch is validated and processed toge
     </ParamField>
     <ParamField body="ean" type="string">EAN barcode.</ParamField>
     <ParamField body="upc" type="string">UPC barcode.</ParamField>
+    <ParamField body="manage_inventory" type="boolean" default="true">Whether stock is tracked for the offer. Set to `false` to sell without inventory checks.</ParamField>
+    <ParamField body="allow_backorder" type="boolean" default="false">Whether the offer can be purchased when it is out of stock.</ParamField>
     <ParamField body="metadata" type="object">Custom key-value pairs.</ParamField>
   </Expandable>
 </ParamField>
@@ -57,6 +59,8 @@ Creates multiple offers at once; the whole batch is validated and processed toge
     <ResponseField name="id" type="string">The offer's ID.</ResponseField>
     <ResponseField name="variant_id" type="string">ID of the listed product variant.</ResponseField>
     <ResponseField name="sku" type="string">The seller's SKU for the listing.</ResponseField>
+    <ResponseField name="manage_inventory" type="boolean">Whether stock is tracked for the offer.</ResponseField>
+    <ResponseField name="allow_backorder" type="boolean">Whether the offer can be purchased when it is out of stock.</ResponseField>
     <ResponseField name="prices" type="object[]">The offer's prices.</ResponseField>
     <ResponseField name="inventory_items" type="object[]">Linked inventory items.</ResponseField>
   </Expandable>

@@ -1,34 +1,52 @@
 ---
 title: "Panel extensions"
 sidebarTitle: "Overview"
-description: "The file-based helpers for extending the admin and vendor panels: defineWidgetConfig, defineNavigationConfig, defineCustomFieldsConfig, and createFormHelper, plus the exact props passed to every component you supply."
+description: "Customize the admin and vendor panels with pages, widgets, custom fields, and navigation, without forking them."
 ---
 
-Panel extensions let you customize the Admin and Vendor panels without forking them.
+Panel extensions let you customize the Admin and Vendor panels without forking
+them. You drop a file into a panel's `src/` folder and the SDK registers it at
+build time. There is no manifest to maintain and no core code to patch.
 
-You drop a file into a panel's `src/` and one of four helpers registers it at
-build time: `defineWidgetConfig` attaches a component to a zone,
-`defineCustomFieldsConfig` extends a model's forms and tables,
-`defineNavigationConfig` reshapes the sidebar, and `createFormHelper` types a
-form's fields and values. The [Extend forms and tables](/rc/resources/tutorials/extend-forms-and-tables),
-[Add a widget](/rc/resources/tutorials/add-a-widget), and
-[Customize navigation](/rc/resources/tutorials/customize-navigation) tutorials
-walk through building an extension. These pages document the exact config shape of
-each helper and the props each component you pass in receives at render time.
+## What you can add
+
+Each extension is a file in a known location. The file's folder decides what it
+does.
+
+- **Pages:** add a route and a page with a `page.tsx` under `src/routes/`.
+- **Widgets:** render a component in a slot on a built-in page with `defineWidgetConfig`.
+- **Custom fields:** add fields, rows, and columns to a built-in model with `defineCustomFieldsConfig`.
+- **Navigation:** reorder, hide, or relabel sidebar items with `defineNavigationConfig`.
+
+## File conventions
+
+An extension is discovered by its location under a panel's `src/`. The folder is
+the surface, so there is no registration step beyond creating the file.
+
+| Path                     | Adds                                     | Documented in                                                 |
+| ------------------------ | ---------------------------------------- | ------------------------------------------------------------- |
+| `src/routes/**/page.tsx` | A page and route                         | [Create a new page](/references/panel-extensions/create-page) |
+| `src/widgets/**`         | A widget on a zone                       | [Widgets](/references/panel-extensions/widgets)               |
+| `src/custom-fields/**`   | Model form, display, and list extensions | [Custom Fields](/references/panel-extensions/custom-fields)   |
+| `src/_navigation.ts`     | Sidebar overrides                        | [Create a new page](/references/panel-extensions/create-page) |
+| `src/i18n/index.ts`      | Translation resources                    | Default-exports the i18n resource map                         |
+
+Widgets and custom fields crawl subfolders, so group related files however you
+like. Navigation is a single host-owned file, not a folder crawl.
 
 ## Separate apps, no surface field
 
 Admin (`@mercurjs/admin`, port 7000) and vendor (`@mercurjs/vendor`, port 7001)
-are separate Vite apps. A file dropped under a panel's `src/` targets that panel,
-so the folder you author in is the surface and there is no `surface` field to set.
-The helpers are the same in both. Import the config helpers from
+are separate Vite apps. A file under a panel's `src/` targets that panel, so the
+folder you author in is the surface. There is no `surface` field to set. The
+helpers are the same in both. Import the config helpers from
 `@mercurjs/dashboard-sdk` and `createFormHelper` from `@mercurjs/dashboard-shared`.
 
 ## Typed targets
 
 Zone ids, nav item ids, models, and built-in field ids are typed per panel from a
 generated `extension-targets.d.ts`. Reference it once per host app so every
-extension file type-checks with no per-file import:
+extension file type-checks with no per-file import.
 
 ```typescript apps/vendor/src/extension-targets.d.ts
 /// <reference types="@mercurjs/vendor/extension-targets" />
@@ -39,34 +57,34 @@ extension file type-checks with no per-file import:
 ```
 
 A wrong `zone`, `model`, or nav `id` fails `tsc` (`bun run lint`) rather than
-silently no-op'ing at runtime.
+silently doing nothing at runtime.
 
 ## Persistence
 
 <Warning>
   **The MVP is a UI surface only.** Custom fields render, validate, and display
   through the built-in forms, sections, and tables. There is no generic core-side
-  write path. For `product`, values are submitted under `additional_data` and
-  persisted onto `metadata`. To store data for other models, wire your own
-  route or workflow, or use the backend
+  write path. For `product`, values submit under `additional_data` and persist
+  onto `metadata`. To store data for other models, wire your own route or
+  workflow, or use the backend
   [Custom Fields module](/rc/resources/customization/custom-fields).
 </Warning>
 
-## Explore the helpers
+## Explore the extensions
 
 <CardGroup cols={2}>
   <Card title="Widgets" href="/references/panel-extensions/widgets">
-    Attach a React component to a named zone with `defineWidgetConfig`.
+    Render a component in a named zone with `defineWidgetConfig`.
   </Card>
   <Card title="Custom Fields" href="/references/panel-extensions/custom-fields">
-    Add form fields, section displays, and list columns with `defineCustomFieldsConfig`.
+    Add form fields, detail rows, and list columns with `defineCustomFieldsConfig`.
   </Card>
   <Card title="Create a new page" href="/references/panel-extensions/create-page">
-    Register navigation and forms with `defineNavigationConfig` and `createFormHelper`.
+    Add a route with file-based routing, then register it in the sidebar.
   </Card>
 </CardGroup>
 
-## Related
+## Related guides
 
 <CardGroup cols={2}>
   <Card title="Extend forms and tables" href="/rc/resources/tutorials/extend-forms-and-tables">

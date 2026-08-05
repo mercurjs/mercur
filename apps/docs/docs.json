@@ -32,11 +32,12 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Learn",
+        "tab": "Start",
         "groups": [
           {
-            "group": "Get started",
+            "group": "Welcome",
             "pages": [
+              "home",
               "learn/introduction",
               "learn/installation",
               "learn/concepts",
@@ -47,24 +48,15 @@
             ]
           },
           {
-            "group": "Marketplace concepts",
+            "group": "Migrate",
             "pages": [
-              "learn/sellers",
-              "learn/seller-members",
-              "learn/products",
-              "learn/offers",
-              "learn/attributes",
-              "learn/product-requests",
-              "learn/order-groups",
-              "learn/commissions",
-              "learn/payouts"
+              "learn/migration-to-2-0"
             ]
           },
           {
-            "group": "Blocks",
+            "group": "Legal",
             "pages": [
-              "learn/blocks",
-              "learn/registry"
+              "telemetry"
             ]
           }
         ]
@@ -752,33 +744,97 @@
             "group": "Admin Panel",
             "pages": [
               "user-guide/admin/overview",
-              "user-guide/admin/stores"
+              "user-guide/admin/stores",
+              {
+                "group": "Commissions",
+                "pages": [
+                  "user-guide/admin/commissions/overview",
+                  {
+                    "group": "How-tos",
+                    "pages": [
+                      "user-guide/admin/commissions/how-tos/edit-the-global-commission",
+                      "user-guide/admin/commissions/how-tos/create-a-commission-rule",
+                      "user-guide/admin/commissions/how-tos/manage-a-commission-rule"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Product Requests",
+                "pages": [
+                  "user-guide/admin/product-requests/overview",
+                  {
+                    "group": "How-tos",
+                    "pages": [
+                      "user-guide/admin/product-requests/how-tos/review-a-new-product",
+                      "user-guide/admin/product-requests/how-tos/review-a-product-edit"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Product Attributes",
+                "pages": [
+                  "user-guide/admin/attributes/overview",
+                  {
+                    "group": "How-tos",
+                    "pages": [
+                      "user-guide/admin/attributes/how-tos/create-an-attribute",
+                      "user-guide/admin/attributes/how-tos/manage-possible-values"
+                    ]
+                  }
+                ]
+              }
             ]
           },
           {
             "group": "Vendor Panel",
             "pages": [
               "user-guide/vendor/overview",
-              "user-guide/vendor/stores"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Migration",
-        "groups": [
-          {
-            "group": "Migration",
-            "pages": [
-              "migration/overview",
-              "migration/from-2-0-to-2-1",
-              "migration/from-1-x-to-2-0"
-            ]
-          },
-          {
-            "group": "Legal",
-            "pages": [
-              "telemetry"
+              "user-guide/vendor/onboarding",
+              "user-guide/vendor/stores",
+              {
+                "group": "Offers",
+                "pages": [
+                  "user-guide/vendor/offers/overview",
+                  {
+                    "group": "How-tos",
+                    "pages": [
+                      "user-guide/vendor/offers/how-tos/create-an-offer",
+                      "user-guide/vendor/offers/how-tos/update-prices-and-stock"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Products",
+                "pages": [
+                  "user-guide/vendor/products/overview",
+                  {
+                    "group": "How-tos",
+                    "pages": [
+                      "user-guide/vendor/products/how-tos/submit-a-product",
+                      "user-guide/vendor/products/how-tos/edit-a-product"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Orders",
+                "pages": [
+                  "user-guide/vendor/orders/overview",
+                  {
+                    "group": "How-tos",
+                    "pages": [
+                      "user-guide/vendor/orders/how-tos/fulfill-an-order",
+                      "user-guide/vendor/orders/how-tos/ship-an-order",
+                      "user-guide/vendor/orders/how-tos/mark-an-order-as-delivered",
+                      "user-guide/vendor/orders/how-tos/refund-an-order",
+                      "user-guide/vendor/orders/how-tos/process-a-return"
+                    ]
+                  }
+                ]
+              }
             ]
           }
         ]
@@ -1145,39 +1201,39 @@
     },
     {
       "source": "/migrations/overview",
-      "destination": "/migration/overview"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/rc/migrations/overview",
-      "destination": "/migration/overview"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/v2/migrations/overview",
-      "destination": "/migration/overview"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/migrations/from-2-0-to-2-1",
-      "destination": "/migration/from-2-0-to-2-1"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/rc/migrations/from-2-0-to-2-1",
-      "destination": "/migration/from-2-0-to-2-1"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/v2/migrations/from-2-0-to-2-1",
-      "destination": "/migration/from-2-0-to-2-1"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/migrations/from-1-x-to-2-0",
-      "destination": "/migration/from-1-x-to-2-0"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/rc/migrations/from-1-x-to-2-0",
-      "destination": "/migration/from-1-x-to-2-0"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/v2/migrations/from-1-x-to-2-0",
-      "destination": "/migration/from-1-x-to-2-0"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/user-guides/admin/stores",
@@ -1218,6 +1274,30 @@
     {
       "source": "/v2/:slug*",
       "destination": "/:slug*"
+    },
+    {
+      "source": "/migration/overview",
+      "destination": "/learn/migration-to-2-0"
+    },
+    {
+      "source": "/migration/from-1-x-to-2-0",
+      "destination": "/learn/migration-to-2-0"
+    },
+    {
+      "source": "/migration/from-2-0-to-2-1",
+      "destination": "/learn/migration-to-2-0"
+    },
+    {
+      "source": "/rc/migration/overview",
+      "destination": "/learn/migration-to-2-0"
+    },
+    {
+      "source": "/rc/migration/from-1-x-to-2-0",
+      "destination": "/learn/migration-to-2-0"
+    },
+    {
+      "source": "/rc/migration/from-2-0-to-2-1",
+      "destination": "/learn/migration-to-2-0"
     }
   ],
   "footer": {

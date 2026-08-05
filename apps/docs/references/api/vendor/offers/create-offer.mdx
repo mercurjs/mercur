@@ -64,6 +64,14 @@ Creates the seller's offer for a variant: the seller's SKU, shipping profile, pr
   UPC barcode.
 </ParamField>
 
+<ParamField body="manage_inventory" type="boolean" default="true">
+  Whether stock is tracked for the offer. Set to `false` to sell without inventory checks.
+</ParamField>
+
+<ParamField body="allow_backorder" type="boolean" default="false">
+  Whether the offer can be purchased when it is out of stock.
+</ParamField>
+
 <ParamField body="metadata" type="object">
   Custom key-value pairs.
 </ParamField>
@@ -78,6 +86,8 @@ Creates the seller's offer for a variant: the seller's SKU, shipping profile, pr
     <ResponseField name="product_id" type="string">ID of the parent product.</ResponseField>
     <ResponseField name="shipping_profile_id" type="string">ID of the shipping profile.</ResponseField>
     <ResponseField name="sku" type="string">The seller's SKU for this listing.</ResponseField>
+    <ResponseField name="manage_inventory" type="boolean">Whether stock is tracked for the offer.</ResponseField>
+    <ResponseField name="allow_backorder" type="boolean">Whether the offer can be purchased when it is out of stock.</ResponseField>
     <ResponseField name="prices" type="object[]">Offer prices with `id`, `amount`, `currency_code`, `min_quantity`, `max_quantity`, and `price_rules`.</ResponseField>
     <ResponseField name="inventory_items" type="object[]">Linked inventory items with `id`, `inventory_item_id`, `required_quantity`, and `sku`.</ResponseField>
   </Expandable>
@@ -129,6 +139,8 @@ const { offer } = await client.vendor.offers.mutate({
     "product_id": "prod_01HXYZ",
     "shipping_profile_id": "sp_01HXYZ",
     "sku": "ACME-SHIRT-M",
+    "manage_inventory": true,
+    "allow_backorder": false,
     "prices": [
       { "id": "price_01HXYZ", "amount": 2500, "currency_code": "usd" }
     ],

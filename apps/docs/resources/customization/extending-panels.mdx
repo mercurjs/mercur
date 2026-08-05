@@ -1,40 +1,42 @@
 ---
 title: "How to Extend the Panels"
 sidebarTitle: "Extend the Panels"
-description: "Add pages, inject widgets, customize navigation, and extend forms and tables in the admin and vendor panels."
+description: "Add pages, widgets, navigation overrides, and form and table fields to the admin and vendor panels without forking."
 ---
 
-Both the admin panel and vendor portal use the same SDK (`@mercurjs/dashboard-sdk`). Customization is **file-based and convention-driven**. You add pages, widgets, and field extensions by dropping files under `src/`, and configure navigation through a single file. Nothing is registered by hand; the SDK crawls your `src/` at build time and wires everything in.
+Both the admin panel and the vendor portal run on the same SDK, `@mercurjs/dashboard-sdk`. You customize them by dropping files under `src/`.
+
+Customization is file-based and convention-driven. You add pages, widgets, and field extensions by placing files under `src/`, and you shape navigation through a single file. Nothing is registered by hand. The SDK crawls your `src/` at build time and wires everything in.
 
 <Info>
-  **Coming from Medusa?** The extension model is deliberately Medusa-shaped. The helpers you know, such as `defineWidgetConfig`, `defineRouteConfig`, `defineCustomFieldsConfig`, and `createFormHelper`, all exist here, re-exported from `@mercurjs/dashboard-sdk` (without Medusa's `unstable_` prefix). What's different: Mercur ships **two** panels (admin *and* vendor) from one framework, so a file only ever targets the panel it lives in (there is no `surface` field), and widget zones carry a `before | after` placement suffix on the zone id. Everything is additive by default. Your contribution augments the built-in page instead of replacing it.
+  **Coming from Medusa?** The extension model is deliberately Medusa-shaped. The helpers you know, such as `defineWidgetConfig`, `defineRouteConfig`, `defineCustomFieldsConfig`, and `createFormHelper`, all exist here, re-exported from `@mercurjs/dashboard-sdk` (without Medusa's `unstable_` prefix). Two things differ. Mercur ships two panels (admin and vendor) from one framework, so a file only ever targets the panel it lives in (there is no `surface` field), and widget zones carry a `before | after` placement suffix on the zone id. Everything is additive by default: your contribution augments the built-in page instead of replacing it.
 </Info>
 
 ## The extension mechanisms
 
-Every panel customization is **additive**. You augment a built-in page without owning it. One concern per file, discovered by the build-time crawl:
+Every panel customization is additive. You augment a built-in page without owning it. Each file handles one concern and is discovered by the build-time crawl:
 
 - **Widgets:** inject a React component at a named zone on a built-in page (`defineWidgetConfig`).
 - **Navigation:** reorder, hide, relabel, or re-parent built-in sidebar items (`defineNavigationConfig`).
-- **Custom fields:** add validated fields to built-in forms, replace/remove/add fields in detail sections, and add columns to list tables (`defineCustomFieldsConfig` + `createFormHelper`).
+- **Custom fields:** add validated fields to built-in forms, replace, remove, or add fields in detail sections, and add columns to list tables (`defineCustomFieldsConfig` plus `createFormHelper`).
 - **Pages:** add a brand-new screen with a drop-in `page.tsx` route.
 
 <Note>
   Additive tools leave the rest of the built-in page completely intact, including data fetching, filters, pagination, and i18n. A widget, a nav override, or a custom field changes only the spot you target.
 </Note>
 
-## Choosing your extension mechanism
+## Choose your extension mechanism
 
-Rule of thumb: **injecting UI into an existing page? Use a widget. Adding data to a form or section? Use a custom field. Reshaping the sidebar? Use the navigation file. Adding a whole new screen? Drop in a route.**
+Use this rule of thumb. Injecting UI into an existing page? Use a widget. Adding data to a form or section? Use a custom field. Reshaping the sidebar? Use the navigation file. Adding a whole new screen? Drop in a route.
 
 | You want to… | Use | Why it's the right tool |
 |--------------|-----|------------------------|
 | Show a banner, panel, or CTA on a built-in page | A **widget** (`defineWidgetConfig`) | Renders at a named zone; the rest of the page is untouched. See [Add a widget](/rc/resources/tutorials/add-a-widget) |
-| Add a field to a built-in form, or add/replace/remove a field in a detail section | A **custom field** (`defineCustomFieldsConfig`) | Validated field wired into the existing form/section. See [Extend forms and tables](/rc/resources/tutorials/extend-forms-and-tables) |
+| Add a field to a built-in form, or add, replace, or remove a field in a detail section | A **custom field** (`defineCustomFieldsConfig`) | Validated field wired into the existing form or section. See [Extend forms and tables](/rc/resources/tutorials/extend-forms-and-tables) |
 | Add or override a column on a built-in list table | The `list` block of a **custom field** file | Model-scoped column extension. See [Extend forms and tables](/rc/resources/tutorials/extend-forms-and-tables) |
-| Reorder / hide / relabel / re-parent sidebar items | The **navigation** file (`defineNavigationConfig`) | One host-owned `_navigation.ts`. See [Customize navigation](/rc/resources/tutorials/customize-navigation) |
+| Reorder, hide, relabel, or re-parent sidebar items | The **navigation** file (`defineNavigationConfig`) | One host-owned `_navigation.ts`. See [Customize navigation](/rc/resources/tutorials/customize-navigation) |
 | Add a new screen or feature | A drop-in `page.tsx` route | New URL, auto-registered, sidebar entry via `config`. See [Add a page](/rc/resources/tutorials/custom-panel-page) |
-| Reuse a feature across projects | A [block](/rc/learn/blocks) | Ships API + admin + vendor files installable with `mercurjs add` |
+| Reuse a feature across projects | A [block](/rc/learn/blocks) | Ships API, admin, and vendor files installable with `mercurjs add` |
 
 ## Set up
 
@@ -42,7 +44,7 @@ All configuration lives in the panel app's Vite config. There is no separate `me
 
 <Steps>
   <Step title="Register the plugin">
-    Add `mercurDashboardPlugin` to the panel app's `vite.config.ts`. The only required option is `medusaConfigPath`. The plugin reads panel paths and ports from your API's Medusa config:
+    Add `mercurDashboardPlugin` to the panel app's `vite.config.ts`. The only required option is `medusaConfigPath`. The plugin reads panel paths and ports from your API's Medusa config.
 
     ```typescript vite.config.ts
     import { defineConfig } from 'vite'
@@ -64,16 +66,16 @@ All configuration lives in the panel app's Vite config. There is no separate `me
     Projects created with `create-mercur-app` ship with this already wired for both panels.
   </Step>
   <Step title="Pass environment values explicitly">
-    The plugin doesn't read `.env` itself. Load environment variables in `vite.config.ts` (e.g. with Vite's `loadEnv`) and pass them into the plugin options, as the starter template does with `backendUrl`.
+    The plugin doesn't read `.env` itself. Load environment variables in `vite.config.ts` (for example with Vite's `loadEnv`) and pass them into the plugin options, as the starter template does with `backendUrl`.
   </Step>
   <Step title="Register typed extension targets (once per panel)">
-    Widgets, navigation, and custom fields target **typed ids** (zone ids, nav item ids, model field ids) that each panel package generates from its own built-in pages and ships as `@mercurjs/{admin,vendor}/extension-targets`. Register them once so the ids resolve in every extension file, with a single ambient reference in your app's `src`:
+    Widgets, navigation, and custom fields target typed ids (zone ids, nav item ids, model field ids) that each panel package generates from its own built-in pages and ships as `@mercurjs/{admin,vendor}/extension-targets`. Register them once so the ids resolve in every extension file, with a single ambient reference in your app's `src`.
 
     ```typescript apps/vendor/src/extension-targets.d.ts
     /// <reference types="@mercurjs/vendor/extension-targets" />
     ```
 
-    (For the admin app, reference `@mercurjs/admin/extension-targets`.) With this file present, a typo in a zone, model, field, or nav id fails `tsc` instead of silently doing nothing at runtime. `create-mercur-app` ships this file already.
+    For the admin app, reference `@mercurjs/admin/extension-targets` instead. With this file present, a typo in a zone, model, field, or nav id fails `tsc` instead of silently doing nothing at runtime. `create-mercur-app` ships this file already.
   </Step>
   <Step title="Restart after config changes">
     Options are applied at build time through virtual modules. Adding or removing routes, widgets, and custom-field files hot-reloads automatically, but changes to the plugin options (in `vite.config.ts`) require a dev-server restart.
@@ -95,7 +97,7 @@ All configuration lives in the panel app's Vite config. There is no separate `me
 
 ## Widgets
 
-Inject a React component at a named zone on a built-in page. Drop a file under `src/widgets/`, export the component as the default and a `config` built with `defineWidgetConfig`:
+A widget injects a React component at a named zone on a built-in page. Drop a file under `src/widgets/`, export the component as the default and a `config` built with `defineWidgetConfig`.
 
 ```tsx src/widgets/product-list-banner.tsx
 import { defineWidgetConfig } from "@mercurjs/dashboard-sdk"
@@ -116,9 +118,9 @@ export default function ProductListBanner() {
 }
 ```
 
-The zone id is `<domain>.<view>.<placement>`. The placement is the last segment:
+The zone id reads `<domain>.<view>.<placement>`. The placement is the last segment:
 
-- `before` / `after`: stack your widget before or after the built-in content (multiple widgets stack in registration order).
+- `before` / `after`: stack your widget before or after the built-in content. Multiple widgets stack in registration order.
 
 Zones mounted today (**vendor portal**):
 
@@ -131,7 +133,7 @@ The full set of valid zones is typed as `WidgetZoneId` and generated into each p
 
 ## Navigation
 
-Custom drop-in routes place their own sidebar item via `defineRouteConfig` (see [Add a page](#add-a-page)). To reshape the **built-in** sidebar items, author a single host-owned file, `src/_navigation.ts`:
+Custom drop-in routes place their own sidebar item via `defineRouteConfig` (see [Add a page](#add-a-page)). To reshape the built-in sidebar items, author a single host-owned file, `src/_navigation.ts`.
 
 ```ts src/_navigation.ts
 import { defineNavigationConfig } from "@mercurjs/dashboard-sdk"
@@ -147,15 +149,15 @@ export default defineNavigationConfig({
 })
 ```
 
-- `id` targets any built-in item, top-level routes *or* nested children, by its stable id, typed as `NavItemId`.
-- `rank` orders an item within its parent; `hidden` removes it from the sidebar; `label` / `icon` relabel it; `nested` re-parents it (`nested: null` promotes to top level, typed against `NavParentId`).
-- Navigation is a **single host-owned file**. Installed blocks cannot reorder the sidebar, so it stays one source of truth. It does not change custom routes, which still place themselves via `defineRouteConfig`.
+- `id` targets any built-in item, top-level routes or nested children, by its stable id, typed as `NavItemId`.
+- `rank` orders an item within its parent, `hidden` removes it from the sidebar, `label` and `icon` relabel it, and `nested` re-parents it (`nested: null` promotes to top level, typed against `NavParentId`).
+- Navigation is a single host-owned file. Installed blocks cannot reorder the sidebar, so it stays one source of truth. It does not change custom routes, which still place themselves via `defineRouteConfig`.
 
 Walk through it in [Customize navigation](/rc/resources/tutorials/customize-navigation).
 
 ## Custom fields
 
-Add validated fields to a model's built-in create/edit forms, replace/remove/add fields in its detail sections, and add columns to its list table, all from one model-scoped file. Drop `src/custom-fields/<model>.tsx` and default-export a `defineCustomFieldsConfig`:
+A custom field adds validated fields to a model's built-in create and edit forms, replaces, removes, or adds fields in its detail sections, and adds columns to its list table, all from one model-scoped file. Drop `src/custom-fields/<model>.tsx` and default-export a `defineCustomFieldsConfig`.
 
 ```tsx src/custom-fields/product.tsx
 import { defineCustomFieldsConfig } from "@mercurjs/dashboard-sdk"
@@ -199,22 +201,22 @@ export default defineCustomFieldsConfig({
 })
 ```
 
-- `forms[]` adds validated fields to a form `zone` (`create` / `edit` / `organize` / …). Input type and validation come from a Zod schema via `createFormHelper`; fields render through the standard `Form.Field` chain and participate in the existing submit + validation flow.
-- `displays[]` targets detail-page sections: keyed by field `id`, an entry **adds** a read-only row (unknown id), **replaces** a built-in field's render (matching id + `component`), or **removes** it (matching id + `component: null`).
-- `list` extends the model's list table: add/override columns by id, hide via `viewDefaults.columnVisibility`, reorder via `viewDefaults.columnOrder`.
-- Everything is typed against the panel-generated `CustomFieldsRegistry`. Valid `model`, `zone`, and built-in field ids autocomplete; an invalid target fails `tsc`.
+- `forms[]` adds validated fields to a form `zone` (`create`, `edit`, `organize`, and so on). Input type and validation come from a Zod schema via `createFormHelper`. Fields render through the standard `Form.Field` chain and participate in the existing submit and validation flow.
+- `displays[]` targets detail-page sections, keyed by field `id`. An entry **adds** a read-only row (unknown id), **replaces** a built-in field's render (matching id plus `component`), or **removes** it (matching id plus `component: null`).
+- `list` extends the model's list table: add or override columns by id, hide via `viewDefaults.columnVisibility`, reorder via `viewDefaults.columnOrder`.
+- Everything is typed against the panel-generated `CustomFieldsRegistry`. Valid `model`, `zone`, and built-in field ids autocomplete, and an invalid target fails `tsc`.
 
 <Warning>
-  **Panel custom fields vs. the Custom Fields module.** `defineCustomFieldsConfig` (this section) is a **UI** surface. It renders, validates, and displays fields in the panels. It does not create database columns. To *store* extra data on an entity, use the backend [Custom Fields module](/rc/resources/customization/custom-fields), or wire your own API route/workflow. In the MVP, panel custom fields for `product` are submitted under `additional_data` and persisted onto the product's `metadata`.
+  **Panel custom fields vs. the Custom Fields module.** `defineCustomFieldsConfig` (this section) is a UI surface. It renders, validates, and displays fields in the panels. It does not create database columns. To store extra data on an entity, use the backend [Custom Fields module](/rc/resources/customization/custom-fields), or wire your own API route or workflow. In the MVP, panel custom fields for `product` are submitted under `additional_data` and persisted onto the product's `metadata`.
 </Warning>
 
-Full walkthrough (forms, sections, list columns): [Extend forms and tables](/rc/resources/tutorials/extend-forms-and-tables).
+For the full walkthrough (forms, sections, and list columns), see [Extend forms and tables](/rc/resources/tutorials/extend-forms-and-tables).
 
 ## Add a page
 
 <Steps>
   <Step title="Create the route file">
-    Create a `page.tsx` inside `src/routes/` and export a default React component. The route is determined by the file path:
+    Create a `page.tsx` inside `src/routes/` and export a default React component. The route is determined by the file path.
 
     ```tsx src/routes/reviews/page.tsx
     import { Star } from "@medusajs/icons"
@@ -237,7 +239,7 @@ Full walkthrough (forms, sections, list columns): [Extend forms and tables](/rc/
     | Property | Type | Description |
     |----------|------|-------------|
     | `label` | `string` | **Required.** Text shown in the sidebar menu |
-    | `icon` | `ComponentType` | Icon component (e.g. from `@medusajs/icons`) |
+    | `icon` | `ComponentType` | Icon component (for example from `@medusajs/icons`) |
     | `rank` | `number` | Sort order (lower numbers appear first) |
     | `nested` | `string` | Parent path for nested menu items |
     | `translationNs` | `string` | i18n namespace for the label |
@@ -251,12 +253,12 @@ Full walkthrough (forms, sections, list columns): [Extend forms and tables](/rc/
 </Steps>
 
 <Info>
-  **Matching paths replace, new paths append.** If your route's path matches a built-in page (e.g. `src/routes/products/page.tsx` → `/products`), your page **replaces** the built-in one. Any other path is added alongside the built-in routes. Delete the file and the built-in page returns. To change *part* of a built-in page without owning it, prefer a widget or a custom field.
+  **Matching paths replace, new paths append.** If your route's path matches a built-in page (for example `src/routes/products/page.tsx` maps to `/products`), your page **replaces** the built-in one. Any other path is added alongside the built-in routes. Delete the file and the built-in page returns. To change part of a built-in page without owning it, prefer a widget or a custom field.
 </Info>
 
 ### Routing conventions
 
-File paths map to URL routes automatically:
+File paths map to URL routes automatically.
 
 | File path | Route | Description |
 |-----------|-------|-------------|
@@ -270,7 +272,7 @@ File paths map to URL routes automatically:
 
 ## Branding
 
-Set `name` and `logo` in the plugin options to customize the sidebar header:
+Set `name` and `logo` in the plugin options to customize the sidebar header.
 
 ```typescript vite.config.ts
 mercurDashboardPlugin({
@@ -330,7 +332,7 @@ mercurDashboardPlugin({
     Yes. `defineWidgetConfig` is re-exported from `@mercurjs/dashboard-sdk` and drives file-based widgets under `src/widgets/`. The difference from Medusa is the `before | after` placement suffix on the zone id and that each panel ships its own typed zone set. See [Add a widget](/rc/resources/tutorials/add-a-widget).
   </Accordion>
   <Accordion title="How do I add a field to a built-in form or detail page?">
-    Use `defineCustomFieldsConfig` in `src/custom-fields/<model>.tsx`. `forms[]` adds validated fields to create/edit forms, and `displays[]` adds/replaces/removes fields in detail sections. See [Extend forms and tables](/rc/resources/tutorials/extend-forms-and-tables).
+    Use `defineCustomFieldsConfig` in `src/custom-fields/<model>.tsx`. `forms[]` adds validated fields to create and edit forms, and `displays[]` adds, replaces, or removes fields in detail sections. See [Extend forms and tables](/rc/resources/tutorials/extend-forms-and-tables).
   </Accordion>
   <Accordion title="How do I change just one part of a built-in page?">
     For a spot inside the page (a banner, an extra field, a column), use a [widget](#widgets) or a [custom field](#custom-fields). The rest of the page keeps all its behavior.
@@ -339,13 +341,13 @@ mercurDashboardPlugin({
     A sidebar item is only generated when the route file exports a `config` object with a `label`. Also check that the file is named exactly `page.tsx` (or `.ts`/`.jsx`/`.js`) under `src/routes/` and has a **default** export. Files without one are skipped entirely.
   </Accordion>
   <Accordion title="Why does my widget / custom field / nav override not type-check?">
-    Make sure the panel's typed targets are registered with a single `src/extension-targets.d.ts` containing `/// <reference types="@mercurjs/vendor/extension-targets" />` (or the admin equivalent). Without it, zone/model/nav ids aren't known to TypeScript. `create-mercur-app` ships this file.
+    Make sure the panel's typed targets are registered with a single `src/extension-targets.d.ts` containing `/// <reference types="@mercurjs/vendor/extension-targets" />` (or the admin equivalent). Without it, zone, model, and nav ids aren't known to TypeScript. `create-mercur-app` ships this file.
   </Accordion>
   <Accordion title="Is there a mercur.config.ts file?">
     No. All panel configuration is passed inline to `mercurDashboardPlugin()` in `vite.config.ts`. If you've seen references to a separate config file, they're outdated.
   </Accordion>
   <Accordion title="Does this apply to both the admin panel and the vendor portal?">
-    Both panels use the same SDK and conventions, and a file only targets the panel it lives in. Which built-in zones, models, and nav ids exist differs per panel (each ships its own `extension-targets.d.ts`). Today the widget zones and product custom fields are mounted in the **vendor** portal; navigation overrides work in both.
+    Both panels use the same SDK and conventions, and a file only targets the panel it lives in. Which built-in zones, models, and nav ids exist differs per panel (each ships its own `extension-targets.d.ts`). Today the widget zones and product custom fields are mounted in the **vendor** portal, and navigation overrides work in both.
   </Accordion>
 </AccordionGroup>
 

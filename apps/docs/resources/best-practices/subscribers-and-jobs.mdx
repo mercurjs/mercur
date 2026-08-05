@@ -1,16 +1,16 @@
 ---
 title: "How to React to Events and Schedule Jobs"
 sidebarTitle: "Subscribers & Jobs"
-description: "React to events and run periodic work safely: fetch from { id }, mutate via workflows, log-don't-throw, idempotency and loop guards, cron jobs."
+description: "Run work outside the request cycle: react to events with subscribers, run periodic work with scheduled jobs, and always mutate through workflows."
 ---
 
-Subscribers and scheduled jobs are the two ways work happens *outside* a request. Both follow the same core rule as everything else: **they never mutate directly. They run a [workflow](/rc/resources/best-practices/workflows).**
+Subscribers and scheduled jobs are the two ways work happens outside a request. Both follow the same core rule as everything else: they never mutate directly, they run a [workflow](/rc/resources/best-practices/workflows).
 
 ## Subscribers: react to events
 
-A subscriber listens for a domain event (emitted by a workflow via `emitEventStep`) and runs an asynchronous side effect: send a notification, sync a search index, create a link. It lives in `src/subscribers/` and exports a handler plus a `config` naming the event.
+A subscriber listens for a domain event (emitted by a workflow via `emitEventStep`) and runs an asynchronous side effect, such as sending a notification, syncing a search index, or creating a link. It lives in `src/subscribers/` and exports a handler plus a `config` naming the event.
 
-```ts title="src/subscribers/brand-created.ts"
+```ts apps/api/src/subscribers/brand-created.ts
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 
 export default async function brandCreatedHandler({
@@ -29,10 +29,12 @@ export const config: SubscriberConfig = {
 ### Fetch full data from `{ id }`
 
 <Warning>
-  Event payloads carry **ids, not entities.** A subscriber receives `{ id }` (sometimes a couple of ids) and must fetch the full record it needs via Query. Never rely on a fat event payload. It goes stale and couples the emitter to every consumer's needs.
+  Event payloads carry ids, not entities. A subscriber receives `{ id }` (sometimes a couple of ids) and must fetch the full record it needs via Query. Never rely on a fat event payload. It goes stale and couples the emitter to every consumer's needs.
 </Warning>
 
-```ts
+Fetch what you need through Query, keyed by the id on the event.
+
+```ts apps/api/src/subscribers/brand-created.ts
 const query = container.resolve(ContainerRegistrationKeys.QUERY)
 const { data: [brand] } = await query.graph({
   entity: "brand",
@@ -43,9 +45,9 @@ const { data: [brand] } = await query.graph({
 
 ### Mutate via workflows, never directly
 
-If the subscriber needs to change data, it runs a workflow, same as a route would. The subscriber is the trigger; the workflow is the work.
+If the subscriber needs to change data, it runs a workflow, same as a route would. The subscriber is the trigger. The workflow is the work.
 
-```ts
+```ts apps/api/src/subscribers/brand-created.ts
 await createBrandNotificationWorkflow(container).run({
   input: { brand_id: brand.id },
 })
@@ -54,10 +56,10 @@ await createBrandNotificationWorkflow(container).run({
 ### Log, don't throw
 
 <Warning>
-  A subscriber runs detached from the request. Throwing doesn't surface to a user. It just fails silently or spams retries. **Catch errors and log them** (resolve the `logger`), then decide explicitly whether to rethrow for a retry or swallow.
+  A subscriber runs detached from the request. Throwing does not surface to a user. It just fails silently or spams retries. Catch errors and log them (resolve the `logger`), then decide explicitly whether to rethrow for a retry or swallow.
 </Warning>
 
-```ts
+```ts apps/api/src/subscribers/brand-created.ts
 const logger = container.resolve("logger")
 try {
   await doWork()
@@ -68,9 +70,9 @@ try {
 
 ### Idempotency and loop guards
 
-Events can be delivered more than once, and a subscriber that mutates data can re-trigger the very event it listens to. Two defences:
+Events can be delivered more than once, and a subscriber that mutates data can re-trigger the very event it listens to. You have two defences:
 
-- **Idempotency:** make the handler safe to run twice. Check current state before acting (e.g. "is this product already linked to a brand?" before creating the link), or clear the marker that triggered the work so a redelivered event finds nothing left to do.
+- **Idempotency:** make the handler safe to run twice. Check current state before acting (for example, "is this product already linked to a brand?" before creating the link), or clear the marker that triggered the work so a redelivered event finds nothing left to do.
 - **Loop guards:** if handling event X causes a mutation that emits X again, gate on a condition that becomes false after the first run, or key off a marker you set. Never emit the same event unconditionally from its own subscriber.
 
 <Tip>
@@ -79,9 +81,9 @@ Events can be delivered more than once, and a subscriber that mutates data can r
 
 ## Scheduled jobs: periodic work
 
-A scheduled job runs on a cron interval to do time-based work: poll for records that became ready, reconcile drifted counters, emit a "settle now" event. It lives in `src/jobs/`, exports a handler taking the container, and a `config` with a `name` and a cron `schedule`.
+A scheduled job runs on a cron interval to do time-based work, such as polling for records that became ready, reconciling drifted counters, or emitting a "settle now" event. It lives in `src/jobs/`, exports a handler taking the container, and a `config` with a `name` and a cron `schedule`.
 
-```ts title="src/jobs/deactivate-stale-brands.ts"
+```ts apps/api/src/jobs/deactivate-stale-brands.ts
 import { MedusaContainer } from "@medusajs/framework/types"
 
 export default async function deactivateStaleBrands(container: MedusaContainer) {
@@ -110,19 +112,21 @@ export const config = {
 
 ### When to use a job vs a subscriber
 
+Pick the trigger that matches how the work starts.
+
 | Trigger | Use |
 | --- | --- |
 | "Something happened" (a workflow emitted an event) | **Subscriber** |
 | "It's time" / "poll for anything that became ready" | **Scheduled job** |
 
-A time-based pipeline often combines both: a daily job finds records that became eligible and emits an event (say `brand.review_due`), and a *subscriber* turns each event into a workflow run. Polling for "what's ready" is the job; reacting to each item is the subscriber.
+A time-based pipeline often combines both: a daily job finds records that became eligible and emits an event (say `brand.review_due`), and a subscriber turns each event into a workflow run. Polling for "what's ready" is the job. Reacting to each item is the subscriber.
 
 ### Job best practices
 
-- **Do the work in batches** and bound result sets. A job that `SELECT`s an unbounded table will eventually time out. Page through with `LIMIT`/`OFFSET` or a cursor.
-- **Idempotent by design:** a job re-runs on every tick; it must only act on records still needing action (filter on the not-yet-processed state).
-- **Mutations run workflows**, reads run Query, same as everywhere.
-- **Log a summary** each run (how many processed) so drift is visible.
+- **Batch and bound result sets:** a job that `SELECT`s an unbounded table will eventually time out. Page through with `LIMIT`/`OFFSET` or a cursor.
+- **Idempotent by design:** a job re-runs on every tick, so it must only act on records still needing action (filter on the not-yet-processed state).
+- **Mutations run workflows:** reads run Query, same as everywhere.
+- **Log a summary:** report how many records processed each run so drift is visible.
 
 ## Checklist
 
@@ -132,3 +136,11 @@ A time-based pipeline often combines both: a daily job finds records that became
 - Job exports `{ name, schedule }`; cron is correct (UTC).
 - Job filters to records still needing work, batches large sets, and logs a summary.
 - Neither a subscriber nor a job writes to the database outside a workflow.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Workflows" href="/rc/resources/best-practices/workflows">
+    Do all mutations through a workflow so subscribers and jobs stay thin triggers.
+  </Card>
+</CardGroup>

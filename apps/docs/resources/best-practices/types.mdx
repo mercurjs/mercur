@@ -1,32 +1,32 @@
 ---
 title: "How to Use Shared Types"
 sidebarTitle: "Use Shared Types"
-description: "Type the panels against your own backend extensions: augment framework DTOs with declaration merging so every SDK endpoint carries your custom data."
+description: "Type the panels against your own backend extensions by augmenting framework DTOs with declaration merging."
 ---
 
-The panels are fully typed against the API through `@mercurjs/types` and the typed SDK. When you extend the backend by adding [custom fields](/rc/resources/best-practices/custom-fields), a [linked module](/rc/resources/best-practices/module-links), or an extra field on a DTO, those additions aren't in the shipped types yet. You close the gap in the **frontend** with a small declaration-merging `.d.ts` file. Do that once and *every* SDK call that returns the entity carries your field, typed.
+The panels are fully typed against the API through `@mercurjs/types` and the typed SDK. When you extend the backend with [custom fields](/rc/resources/best-practices/custom-fields), a [linked module](/rc/resources/best-practices/module-links), or an extra field on a DTO, those additions are not in the shipped types yet. You close the gap in the frontend with a small declaration-merging `.d.ts` file. Write it once, and every SDK call that returns the entity carries your field, typed.
 
 <Warning>
-  **Never use `any` to paper over a missing field.** Casting a response to `any` (or `as { custom_fields: … }` at each call site) throws away type-checking and has to be repeated everywhere. Augment the type once instead.
+  Never use `any` to paper over a missing field. Casting a response to `any`, or to `as { custom_fields: … }` at each call site, throws away type-checking and has to be repeated everywhere. Augment the type once instead.
 </Warning>
 
 ## The scenario: a custom field, typed end-to-end
 
-Say you added a custom field on the backend, for example `is_featured` on `product` (see [Custom fields](/rc/resources/best-practices/custom-fields)). The value now comes back from the API, but the panel's `ProductDTO` doesn't know about it, so `product.is_featured` is a type error.
+Say you added a custom field on the backend, such as `is_featured` on `product` (see [Custom fields](/rc/resources/best-practices/custom-fields)). The value now comes back from the API, but the panel's `ProductDTO` does not know about it, so `product.is_featured` is a type error.
 
 Fix it in the panel with a declaration-merging file.
 
 ### Why merging works here
 
-The `ProductDTO` the SDK returns ultimately resolves to Medusa's upstream `ProductDTO`, which is declared as an **`interface`** in `@medusajs/types`. Interfaces are open, so you can **merge into it** with `declare module "@medusajs/types"`.
+The `ProductDTO` the SDK returns ultimately resolves to Medusa's upstream `ProductDTO`, which is declared as an `interface` in `@medusajs/types`. Interfaces are open, so you can merge into it with `declare module "@medusajs/types"`.
 
-Because everything downstream refers back to that same interface (`@mercurjs/types`, the SDK response wrappers like `AdminProductResponse` and list responses, and the panel hooks), your added members appear in all of them at once. You augment in one place and every product-returning endpoint is typed.
+Everything downstream refers back to that same interface: `@mercurjs/types`, the SDK response wrappers such as `AdminProductResponse` and list responses, and the panel hooks. Your added members appear in all of them at once. You augment in one place and every product-returning endpoint is typed.
 
 ### Add the `.d.ts` in the panel
 
-Drop a declaration file anywhere under the panel's `src/` (it's picked up by the app's `tsconfig`):
+Drop a declaration file anywhere under the panel's `src/`. It is picked up by the app's `tsconfig`.
 
-```ts title="apps/vendor/src/types/custom-fields.d.ts"
+```ts apps/vendor/src/types/custom-fields.d.ts
 import "@medusajs/types"
 
 declare module "@medusajs/types" {
@@ -39,17 +39,17 @@ declare module "@medusajs/types" {
 ```
 
 <Warning>
-  Two rules or the augmentation silently does nothing:
+  Follow two rules, or the augmentation silently does nothing:
 
-  - The module name in `declare module "..."` must be the package that declares the interface you're merging into. Here that's `@medusajs/types`, the owner of `UpstreamProductDTO`, **not** `@mercurjs/types` (which only aliases it).
-  - The file must be a module. Add an `import "@medusajs/types"` (or a trailing `export {}`) so TypeScript treats it as one.
+  - The module name in `declare module "..."` must be the package that declares the interface you are merging into. Here that is `@medusajs/types`, the owner of `UpstreamProductDTO`, not `@mercurjs/types`, which only aliases it.
+  - The file must be a module. Add an `import "@medusajs/types"`, or a trailing `export {}`, so TypeScript treats it as one.
 </Warning>
 
 ### Now the whole SDK is typed
 
 With that one file in place, no cast is needed anywhere:
 
-```ts title="Every product endpoint carries the field"
+```ts Every product endpoint carries the field
 const { products } = await sdk.vendor.products.query()
 products[0].custom_fields?.is_featured // ✅ typed, no cast
 
@@ -58,16 +58,16 @@ product.custom_fields?.is_featured     // ✅ typed everywhere ProductDTO flows
 ```
 
 <Tip>
-  Types and runtime are separate concerns: this `.d.ts` makes the field *typed*, but it only *arrives* if the fetch asks for it. Let the [custom-fields `link` / registry merge](/rc/resources/best-practices/custom-fields#the-extension-api-link-property) add the fields to the built-in panel fetches rather than hand-adding `+field.*`. The vendor product query in particular rejects arbitrary `*`-relation overrides.
+  Types and runtime are separate concerns. This `.d.ts` makes the field typed, but it only arrives if the fetch asks for it. Let the [custom-fields `link` / registry merge](/rc/resources/best-practices/custom-fields#the-extension-api-link-property) add the fields to the built-in panel fetches rather than hand-adding `+field.*`. The vendor product query in particular rejects arbitrary `*`-relation overrides.
 </Tip>
 
 ## Linked data resolves the same way
 
-The augmentation isn't limited to a custom field's own value. It's how you make **linked-module data** typed too. When a [custom-fields config](/rc/resources/best-practices/custom-fields#the-extension-api-link-property) declares a `link`, the panel fetches that module's data alongside the entity ([panel extensions](/references/panel-extensions/overview)): `link: "brand"` merges `brand.*` into the built-in product fetch for you, with no hand-written field list.
+The augmentation is not limited to a custom field's own value. It is how you make linked-module data typed too. When a [custom-fields config](/rc/resources/best-practices/custom-fields#the-extension-api-link-property) declares a `link`, the panel fetches that module's data alongside the entity (see [panel extensions](/references/panel-extensions/overview)). A `link: "brand"` merges `brand.*` into the built-in product fetch for you, with no hand-written field list.
 
-Pair that one config line with a matching augmentation, and the linked data is both **present at runtime** and **typed everywhere `ProductDTO` is imported**:
+Pair that one config line with a matching augmentation, and the linked data is both present at runtime and typed everywhere `ProductDTO` is imported.
 
-```ts title="src/custom-fields/product.tsx: declare the link (runtime)"
+```ts src/custom-fields/product.tsx: declare the link (runtime)
 export default defineCustomFieldsConfig({
   model: "product",
   link: "brand", // brand.* is fetched with every product
@@ -79,7 +79,7 @@ export default defineCustomFieldsConfig({
 })
 ```
 
-```ts title="src/types/brand.d.ts: declare the shape (types)"
+```ts src/types/brand.d.ts: declare the shape (types)
 import "@medusajs/types"
 
 declare module "@medusajs/types" {
@@ -89,7 +89,7 @@ declare module "@medusajs/types" {
 }
 ```
 
-Now any code that imports `ProductDTO` (a page, a hook, a column renderer) sees `product.brand` resolved, with the data already fetched by the `link`:
+Now any code that imports `ProductDTO`, whether a page, a hook, or a column renderer, sees `product.brand` resolved, with the data already fetched by the `link`:
 
 ```ts
 const { product } = await sdk.vendor.products.$id.query({ $id: id })
@@ -97,7 +97,7 @@ product.brand?.name // ✅ present (via link) and typed (via augmentation)
 ```
 
 <Tip>
-  The `link` does the fetching, the `.d.ts` does the typing. You write each once, per model, and every product-returning endpoint in the panel is covered. This is the payoff of augmentation: register the relationship in one place, consume it as a plain typed property everywhere.
+  The `link` does the fetching, the `.d.ts` does the typing. You write each once, per model, and every product-returning endpoint in the panel is covered. This is the payoff of augmentation: register the relationship in one place, then consume it as a plain typed property everywhere.
 </Tip>
 
 ## Where each type goes
@@ -115,7 +115,21 @@ product.brand?.name // ✅ present (via link) and typed (via augmentation)
 ## Checklist
 
 - No `any`, and no per-call-site casts for extended data.
-- Backend additions typed in the panel via a `.d.ts` merging into the **framework** interface that owns the DTO.
-- Augmentation files name the correct package and are real modules (`import`/`export {}`).
+- Backend additions typed in the panel via a `.d.ts` merging into the framework interface that owns the DTO.
+- Augmentation files name the correct package and are real modules (`import` / `export {}`).
 - Extended fields are requested with `+field.*` so they actually arrive.
 - Shipped types imported from `@mercurjs/types`; one-off shapes inferred from Zod.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Custom fields" href="/rc/resources/best-practices/custom-fields">
+    Add fields, rows, actions, and columns to a built-in model, and declare a `link`.
+  </Card>
+  <Card title="Module links" href="/rc/resources/best-practices/module-links">
+    Link a custom module to a built-in entity and fetch its data alongside.
+  </Card>
+  <Card title="Panel extensions" href="/references/panel-extensions/overview">
+    See how the panel fetches linked module data alongside the entity.
+  </Card>
+</CardGroup>
