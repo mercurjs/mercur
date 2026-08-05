@@ -1,6 +1,6 @@
 ---
 title: "Overview"
-description: "Set up Mercur and get a multi-vendor marketplace running locally."
+description: "Set up Mercur, tour the operator and seller panels, and see how a multi-vendor order flows."
 ---
 
 ## What is Mercur
@@ -74,31 +74,57 @@ cd <your-project-name>
 bun dev
 ```
 
-## Add Mercur to an existing project
+## Tour the platform
 
-If you already have a Medusa project, initialize Mercur in it. This creates a
-`blocks.json` configuration file.
+A Mercur project ships three role-based surfaces, one per audience. Each is backed
+by the same marketplace modules and governed by role-based access.
 
-```bash
-bunx @mercurjs/cli@latest init
-```
+### Admin Panel
 
-From there you add features as blocks. See [Add a block](/resources/tutorials/add-a-block).
+The operator dashboard at `/dashboard`. This is where you run the marketplace.
 
-## What you get
+- **Govern sellers:** approve, suspend, or terminate stores, and manage their members and roles.
+- **Review catalog changes:** every seller edit lands in an approval queue as an attributed, immutable change you confirm or decline.
+- **Set the economics:** configure commission rules across products, categories, and sellers.
+- **Watch the money:** see orders across every seller and monitor payouts marketplace-wide.
 
-A Mercur project ships three role-based surfaces backed by the marketplace
-modules.
+### Vendor Panel
 
-- **Admin Panel** (`/dashboard`): the operator dashboard for sellers, catalog, orders, commissions, and payouts.
-- **Vendor Panel** (`/seller`): the seller portal for a store's own offers, orders, and payouts.
-- **Store API** (`/store/*`): the storefront API for discovery, multi-vendor carts, and checkout.
+The seller portal at `/seller`, scoped so a seller only ever sees its own store.
 
-Underneath, the platform modules own each domain: **Store** (sellers, teams,
-RBAC), **Catalog** and **Offer** (the shared master catalog and per-seller
-listings), **Commission** and **Payout** (settlement), **Order Group** (the
-multi-vendor order split), **Product Edit** (the auditable change pipeline), and
-**Review**.
+- **List products:** create offers against the shared catalog with a seller's own SKU, price, inventory, and shipping.
+- **Fulfill orders:** view, fulfill, and refund orders, and handle returns.
+- **Get paid:** complete provider onboarding and track payouts.
+- **Run a team:** invite members and assign roles.
+
+### Store API
+
+The storefront API under `/store/*` that your customer-facing frontend talks to.
+It exposes marketplace discovery (sellers and offers) and a cart that can span
+multiple sellers, then splits it into per-seller orders at checkout.
+
+## How a multi-vendor order flows
+
+The clearest way to see what the platform does is to follow one order from cart to
+payout. A single customer cart can hold items from several sellers.
+
+<Steps>
+  <Step title="One cart, many sellers">
+    A customer adds offers from different sellers to a single cart through the Store API.
+  </Step>
+  <Step title="Checkout splits the cart">
+    Completing the cart runs the split-order workflow. Items are grouped by seller, and a separate order is created for each, all linked under one order group with a shared display id.
+  </Step>
+  <Step title="Commissions are calculated">
+    For each order, Mercur resolves the matching commission rule and records the commission lines. All arithmetic uses arbitrary precision, so totals stay exact.
+  </Step>
+  <Step title="Each seller is settled">
+    Payment is split across the per-seller orders, and each seller's earnings settle to their connected account through the payout provider, minus commission.
+  </Step>
+</Steps>
+
+The operator sees the whole order group; each seller sees only its slice. Every
+step is governed by the same roles and recorded for audit.
 
 ## Next steps
 

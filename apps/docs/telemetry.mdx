@@ -39,7 +39,7 @@ When you run CLI commands (`create`, `init`, `add`, `registry:build`), the follo
 ### Using the CLI
 
 ```bash
-mercurjs telemetry --disable
+bunx @mercurjs/cli@latest telemetry --disable
 ```
 
 ### Using an environment variable
@@ -53,7 +53,7 @@ This is useful for CI/CD environments or shared configurations.
 ### Check current status
 
 ```bash
-mercurjs telemetry
+bunx @mercurjs/cli@latest telemetry
 ```
 
 ## Where Data Goes
@@ -63,5 +63,5 @@ Telemetry events are sent to `https://telemetry.mercurjs.com`. The data is used 
 ## Re-enabling Telemetry
 
 ```bash
-mercurjs telemetry --enable
+bunx @mercurjs/cli@latest telemetry --enable
 ```
