@@ -38,8 +38,8 @@
             "group": "Welcome",
             "pages": [
               "home",
-              "learn/why-mercur",
               "learn/introduction",
+              "learn/why-mercur",
               {
                 "group": "Build with AI",
                 "pages": [
