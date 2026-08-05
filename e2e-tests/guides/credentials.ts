@@ -10,4 +10,8 @@ export const GUIDE_ADMIN = {
 export const GUIDE_SELLER = {
   email: "seller@mercur.dev",
   password: "supersecret",
+  // After login the vendor panel shows /store-select; this is the primary demo
+  // seller's store name (from apps/api/src/scripts/seed.ts) that loginToPanel
+  // clicks to set the active-store context.
+  store: "Sole Society",
 }

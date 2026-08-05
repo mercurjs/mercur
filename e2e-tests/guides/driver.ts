@@ -31,12 +31,23 @@ export function resolveLocator(page: Page, target: Target): Locator {
 export async function loginToPanel(
   page: Page,
   baseUrl: string,
-  creds: { email: string; password: string }
+  creds: { email: string; password: string; store?: string }
 ): Promise<void> {
   await page.goto(`${baseUrl}/login`)
   const loginPage = new LoginPage(page)
   await loginPage.login(creds.email, creds.password)
   await page.waitForURL((url) => !url.pathname.startsWith("/login"))
+
+  // The vendor panel lands on /store-select after login: a seller must pick a
+  // store to set the active-store context before any seller-scoped route loads.
+  // The selection is persisted server-side, so it survives the full-page goto
+  // navigations that guide steps use.
+  if (creds.store && page.url().includes("/store-select")) {
+    const store = page.getByRole("button", { name: creds.store })
+    await store.waitFor({ state: "visible" })
+    await store.click()
+    await page.waitForURL((url) => !url.pathname.includes("/store-select"))
+  }
 }
 
 // Removes any previously generated screenshots for a guide so a shortened or
@@ -55,27 +66,19 @@ export interface RenderedStep {
   imageSrc: string | null
 }
 
-// Adds a temporary outline to an element so it stands out in the screenshot,
-// then returns a cleanup function that removes it.
+// Brings the highlighted element into view so it is well framed in the
+// screenshot. No visual outline is drawn, so screenshots stay clean.
 async function applyHighlight(locator: Locator): Promise<() => Promise<void>> {
-  const handle = await locator.elementHandle()
+  // A short bounded wait so a highlight for a missing/optional element is a
+  // genuine no-op instead of throwing or blocking the default action timeout.
+  const handle = await locator.elementHandle({ timeout: 2000 }).catch(() => null)
   if (!handle) {
     return async () => {}
   }
-  const previous = await handle.evaluate((el: HTMLElement) => {
-    const prev = el.style.outline
-    el.style.outline = "3px solid #7C3AED"
-    el.style.outlineOffset = "2px"
+  await handle.evaluate((el: HTMLElement) => {
     el.scrollIntoView({ block: "center", behavior: "instant" as ScrollBehavior })
-    return prev
   })
   return async () => {
-    await handle.evaluate(
-      (el: HTMLElement, prev: string) => {
-        el.style.outline = prev
-      },
-      previous
-    )
     await handle.dispose()
   }
 }

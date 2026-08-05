@@ -1,40 +1,36 @@
 ---
 title: "Manage an Attribute's Possible Values"
-sidebarTitle: "Manage possible values"
 description: "Add or reorder the values sellers can choose from for a select attribute."
 ---
 
-> Keep the choices behind a Single Select or Multi Select attribute up to date.
+For select attributes (Single Select and Multi Select), the possible values are the choices sellers pick from when they fill in a product. You can add new values or change the order they appear in at any time. This guide manages the possible values of an existing attribute from the Admin Panel.
 
-## Overview
-
-For select attributes ("Single Select" and "Multi Select"), the possible values are the choices sellers pick from. You can add new values or change their display order at any time.
-
-## Step 1: Open the attribute
-
-1. Go to "Settings" in the sidebar, then "Attributes".
-2. Choose the attribute from the list.
-
-{/* screenshot: Attribute detail page showing possible values */}
-
-## Step 2: Add or reorder values
-
-Use the section actions to:
-
-- Create a new possible value.
-- Edit an existing value.
-- Edit the ranking that controls the order values appear in.
-
-{/* screenshot: Create / edit possible value drawer */}
-
-<Warning>
-  A possible value cannot be deleted while a seller is using it on a product variant. Ask the seller to update their products first.
-</Warning>
-
-## Next steps
-
-<CardGroup cols={2}>
-  <Card title="Create an attribute" href="/user-guide/admin/attributes/how-tos/create-an-attribute">
-    Add another attribute to your catalog.
-  </Card>
-</CardGroup>
+<Steps>
+  <Step title="Open the Attributes settings">
+    Go to **Settings**, then **Attributes** in the sidebar. The page lists every product attribute in your catalog, along with its handle and type.
+    <Frame>
+      <img src="/images/user-guide/admin/manage-possible-values/step-1.png" alt="Open the Attributes settings" />
+    </Frame>
+  </Step>
+  <Step title="Open a select attribute">
+    Choose a **Single Select** or **Multi Select** attribute from the list, since only those types have possible values. Selecting a row opens the attribute's detail page.
+  </Step>
+  <Step title="Review the possible values">
+    The **Possible values** section lists each value and its rank. From here you can **Create** a new value, **Edit ranking** to change the order the values appear in, or use a value's row menu to edit or delete it.
+    <Frame>
+      <img src="/images/user-guide/admin/manage-possible-values/step-3.png" alt="Review the possible values" />
+    </Frame>
+  </Step>
+  <Step title="Open the create-values form">
+    Select **Create** in the **Possible values** section. The form opens on the **Values** step, where you add one or more new values.
+  </Step>
+  <Step title="Add one or more values">
+    Enter a value, and use **Add value** to add more rows. Drag the handle to reorder rows before continuing.
+    <Frame>
+      <img src="/images/user-guide/admin/manage-possible-values/step-5.png" alt="Add one or more values" />
+    </Frame>
+  </Step>
+  <Step title="Organize the ranking and save">
+    Select **Continue** to reach **Organize Ranking**, drag the values into the order sellers should see them, then select **Save**. To change a single existing value instead, use its row menu and choose **Edit**; to reorder without adding values, use **Edit ranking**.
+  </Step>
+</Steps>

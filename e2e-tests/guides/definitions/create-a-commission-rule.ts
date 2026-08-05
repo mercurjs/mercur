@@ -24,7 +24,7 @@ export default defineGuide({
       title: "Open the commissions settings",
       body: "Go to **Settings**, then **Commissions** in the sidebar. The page shows your global commission and any rules you have created. Select **Create** in the **Commission Rules** section to start a new one.",
       goto: "/settings/commissions",
-      waitFor: { testid: "commissions-page" },
+      waitFor: { role: "link", name: "Create" },
       highlight: { role: "link", name: "Create" },
       shot: "full",
     },
@@ -37,13 +37,10 @@ export default defineGuide({
     {
       title: "Enter the rule details",
       body: "In **Details**, enter a **Title** you will recognise later and a unique **Code**. Then open **Type** to choose the scope: a store, a product type, a category, or a store combined with one of those. Depending on the scope, select the specific stores, product types, or categories the rule applies to.",
-      waitFor: { testid: "commission-rule-code-input" },
+      waitFor: { label: "Title" },
       fill: [
         { target: { label: "Title" }, value: "Electronics stores" },
-        {
-          target: { testid: "commission-rule-code-input" },
-          value: "electronics-stores",
-        },
+        { target: { label: "Code" }, value: "electronics-stores" },
       ],
       highlight: { testid: "commission-rule-scope-type-select" },
       shot: "viewport",

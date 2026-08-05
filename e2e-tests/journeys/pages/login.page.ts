@@ -12,8 +12,10 @@ export class LoginPage {
 
   constructor(private readonly page: Page) {
     this.emailInput = page.getByRole("textbox", { name: "Email" })
-    this.passwordInput = page.getByPlaceholder("Password")
-    this.submitButton = page.getByRole("button", { name: /continue with email/i })
+    // The password Input has no placeholder and type="password" carries no ARIA
+    // role, so target it by type. Works for both admin and vendor login.
+    this.passwordInput = page.locator('input[type="password"]')
+    this.submitButton = page.getByRole("button", { name: /log in/i })
     this.errorMessage = page.getByRole("alert")
   }
 
