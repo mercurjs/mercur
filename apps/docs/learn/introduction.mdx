@@ -1,73 +1,81 @@
 ---
-title: "Introduction"
-description: "Mercur is the open-source enterprise marketplace platform built on Medusa."
+title: "Overview"
+description: "Set up Mercur and get a multi-vendor marketplace running locally."
 ---
-
-Mercur is the open-source **enterprise marketplace platform** built on Medusa. It
-gives a marketplace operator the governance to run a multi-vendor business at
-scale: role-based access control, an auditable change pipeline, approval
-workflows, and multi-vendor settlement. It stays composable, API-first, and
-AI-native, and you run it on your own infrastructure with full code ownership.
 
 ## What is Mercur
 
-Medusa provides the commerce engine: products, pricing, carts, orders,
-fulfillment, and events. Mercur builds the marketplace domain layer on top:
-sellers and their teams, onboarding, the catalog change pipeline, commissions,
-reviews, returns, order splitting, and vendor payouts, plus dedicated Admin,
-Vendor, and Store APIs.
+Mercur is the open-source enterprise marketplace platform built on Medusa. Medusa
+provides the commerce engine (products, pricing, carts, orders, fulfillment, and
+payments), and Mercur adds the marketplace layer on top: sellers and their teams,
+onboarding, the catalog change pipeline, commissions, order splitting, and vendor
+payouts.
 
-It ships three optional interfaces:
+It gives a marketplace operator real governance: role-based access control, an
+auditable change pipeline, and per-seller settlement, while staying composable,
+API-first, and fully code-owned. You run it on your own infrastructure.
 
-- an **Admin Panel** for marketplace operators
-- a **Vendor Portal** for seller teams
-- a **Storefront** ready for marketplace scenarios
+## Install
 
-## Enterprise-grade governance
+Create a new project with the CLI. It downloads a template, installs
+dependencies, creates and migrates the database, seeds data, and starts the dev
+server.
 
-Running a marketplace means governing who sells, what they change, and how they
-get paid. Mercur builds that in.
+<Steps>
+  <Step title="Check the requirements">
+    Node.js v20+, Bun v1.3+, Git, and PostgreSQL v14+. See [Installation](/learn/installation) for a Docker one-liner to run Postgres locally.
+  </Step>
+  <Step title="Create a project">
+    ```bash
+    bun create mercur-app@latest
+    ```
 
-- **Role-based access control:** members belong to sellers with roles resolved per store, backed by the roles module Mercur registers out of the box. Access to one store never leaks into another.
-- **An auditable change pipeline:** every catalog edit flows through immutable, attributed change records with an approval queue, so you always know who changed what and who approved it.
-- **Approval governance:** seller onboarding and product changes move through explicit lifecycles that an operator controls.
-- **Settlement you control:** per-seller commissions, order splitting, and provider-driven payouts (with KYC handled by the payout provider) settle each seller independently.
-- **Full code ownership:** blocks are copied into your project as source, so you own every line and can host it anywhere, with no black-box dependencies.
+    The CLI prompts for a project name and a template (`basic` or `plugin`), then sets everything up for you.
+  </Step>
+  <Step title="Open your marketplace">
+    Once the server is running, the surfaces are available at:
 
-See [Security and governance](/learn/security-and-governance) for the full picture.
+    | Surface | URL |
+    | --- | --- |
+    | API | `http://localhost:9000` |
+    | Admin Panel | `http://localhost:9000/dashboard` |
+    | Vendor Panel | `http://localhost:9000/seller` |
 
-## Why Mercur
+    The CLI opens the admin setup page so you can create your first operator account.
+  </Step>
+</Steps>
 
-Composable, open, and code-owned is not a step down from enterprise. It is how
-Mercur is a better enterprise choice than a closed platform.
+For the full setup, database options, and how to initialize Mercur in an existing
+Medusa project, see [Installation](/learn/installation).
 
-- **Composable and code-native:** install only the modules, workflows, API routes, and UI extensions you need, and modify any of them without forking.
-- **Open-core, MIT-licensed:** no transaction fees, no commercial lock-in, and no constraints on how your marketplace behaves.
-- **Own the whole stack:** you hold the entire codebase and deploy it on your own infrastructure.
+## What you get
 
-## AI-native, enterprise-governed
+A Mercur project ships three role-based surfaces backed by the marketplace
+modules.
 
-Mercur is built so AI agents can extend your marketplace within guardrails, not by
-generating loose code from scratch. Every surface an agent touches has a
-machine-checkable contract, so a change is correct by construction or it fails to
-compile.
+- **Admin Panel** (`/dashboard`): the operator dashboard for sellers, catalog, orders, commissions, and payouts.
+- **Vendor Panel** (`/seller`): the seller portal for a store's own offers, orders, and payouts.
+- **Store API** (`/store/*`): the storefront API for discovery, multi-vendor carts, and checkout.
 
-- **Typed contracts:** the generated API client means an agent reads real types, not documentation that may be stale. Wrong calls do not compile.
-- **Composable blocks:** features are discrete units an agent can inspect before installing and verify after.
-- **Workflow hooks:** an agent extends core flows such as `complete-cart-with-split-orders` through hooks, not by patching source.
-- **File-based routing:** an agent adds an admin or vendor page by creating a file, and the dashboard SDK registers it.
-- **Bundled, version-matched docs:** agents read docs shipped inside your project, so they build from your installed version, not training data.
+Underneath, the platform modules own each domain: **Store** (sellers, teams,
+RBAC), **Catalog** and **Offer** (the shared master catalog and per-seller
+listings), **Commission** and **Payout** (settlement), **Order Group** (the
+multi-vendor order split), **Product Edit** (the auditable change pipeline), and
+**Review**.
 
-Connect your environment:
+## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Building with AI" href="/resources/ai/overview">
-    How Mercur bundles version-matched docs so agents build from accurate APIs.
+  <Card title="Core concepts" icon="lightbulb" href="/learn/concepts">
+    Sellers, offers, order groups, commissions, and payouts.
   </Card>
-  <Card title="Skills" href="/resources/ai/skills">
-    Add the official Medusa agent skills on top of the bundled docs.
+  <Card title="Security & governance" icon="shield-halved" href="/learn/security-and-governance">
+    Access control, the audit trail, and data ownership.
   </Card>
-  <Card title="MCP server" href="/resources/ai/mcp">
-    Let your AI tool search Mercur docs in real time.
+  <Card title="Platform" icon="cubes" href="/platform/store/overview">
+    Every marketplace capability, with its data models and workflows.
+  </Card>
+  <Card title="Build with AI" icon="robot" href="/resources/ai/overview">
+    Bundled docs, agent skills, and the MCP server.
   </Card>
 </CardGroup>
