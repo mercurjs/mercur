@@ -421,6 +421,17 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 prepareOfferInventoryInput
             )
 
+            // Native reserveInventoryStep rejects the extra `manage_inventory`
+            // key, so strip it and drop unmanaged offers before reserving.
+            const reservableInventoryItems = transform(
+                { formatedInventoryItems },
+                ({ formatedInventoryItems }) => ({
+                    items: formatedInventoryItems.items
+                        .filter((item) => item.manage_inventory)
+                        .map(({ manage_inventory: _manage_inventory, ...item }) => item),
+                })
+            )
+
             const updateCompletedAt = transform(
                 { cart: cartData.data },
                 ({ cart }) => {
@@ -542,7 +553,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
 
             parallelize(
                 updateCartsStep([updateCompletedAt]),
-                reserveInventoryStep(formatedInventoryItems),
+                reserveInventoryStep(reservableInventoryItems),
                 registerUsageStep(promotionUsage),
                 emitEventStep({
                     eventName: OrderWorkflowEvents.PLACED,

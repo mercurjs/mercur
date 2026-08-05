@@ -4901,11 +4901,28 @@
                 "successToast"
               ],
               "additionalProperties": false
+            },
+            "inventory": {
+              "type": "object",
+              "properties": {
+                "manageInventoryHint": {
+                  "type": "string"
+                },
+                "allowBackordersHint": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "manageInventoryHint",
+                "allowBackordersHint"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [
             "edit",
-            "shipping"
+            "shipping",
+            "inventory"
           ],
           "additionalProperties": false
         },
@@ -4947,13 +4964,82 @@
             },
             "empty": {
               "type": "string"
+            },
+            "itemsHeading": {
+              "type": "string"
+            },
+            "kitHeading": {
+              "type": "string"
+            },
+            "defineHint": {
+              "type": "string"
+            },
+            "itemPlaceholder": {
+              "type": "string"
+            },
+            "quantityPlaceholder": {
+              "type": "string"
+            },
+            "manageItemsAction": {
+              "type": "string"
+            },
+            "manageItemsButton": {
+              "type": "string"
+            },
+            "notManagedTitle": {
+              "type": "string"
+            },
+            "notManagedDesc": {
+              "type": "string"
+            },
+            "editVariant": {
+              "type": "string"
+            },
+            "noItemsTitle": {
+              "type": "string"
+            },
+            "noItemsDesc": {
+              "type": "string"
+            },
+            "itemsManageSuccessToast": {
+              "type": "string"
+            },
+            "validation": {
+              "type": "object",
+              "properties": {
+                "itemId": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "itemId",
+                "quantity"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [
             "header",
             "description",
             "successToast",
-            "empty"
+            "empty",
+            "itemsHeading",
+            "kitHeading",
+            "defineHint",
+            "itemPlaceholder",
+            "quantityPlaceholder",
+            "manageItemsAction",
+            "manageItemsButton",
+            "notManagedTitle",
+            "notManagedDesc",
+            "editVariant",
+            "noItemsTitle",
+            "noItemsDesc",
+            "itemsManageSuccessToast",
+            "validation"
           ],
           "additionalProperties": false
         },
@@ -5096,6 +5182,12 @@
             "variantsCount_other": {
               "type": "string"
             },
+            "manageInventory": {
+              "type": "string"
+            },
+            "allowBackorders": {
+              "type": "string"
+            },
             "store": {
               "type": "string"
             }
@@ -5121,6 +5213,8 @@
             "enabled",
             "variantsCount_one",
             "variantsCount_other",
+            "manageInventory",
+            "allowBackorders",
             "store"
           ],
           "additionalProperties": false

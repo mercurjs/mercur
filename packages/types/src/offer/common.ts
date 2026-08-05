@@ -51,6 +51,8 @@ export interface OfferDTO {
   sku: string
   ean: string | null
   upc: string | null
+  manage_inventory: boolean
+  allow_backorder: boolean
   created_by: string
   metadata: Record<string, unknown> | null
   created_at: Date

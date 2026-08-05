@@ -25,6 +25,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Generate GitHub release changelog
+        if: ${{ !contains(github.ref_name, 'canary') && !contains(github.ref_name, 'rc') }}
         continue-on-error: true
         run: |
           PREV_TAG=$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)
