@@ -1,33 +1,27 @@
 ---
 title: "Mark an Order as Delivered"
-sidebarTitle: "Mark as delivered"
-description: "Record that the customer has received a shipped order."
+description: "Record that a shipment has reached the customer."
 ---
 
-> Close the loop on a shipment once it reaches the customer.
+Marking a fulfillment as delivered records that the customer has received their items. You do this from the order's detail page after the fulfillment has shipped.
 
-## Overview
-
-When the customer has received a shipped order, you can record it as delivered. This keeps the order's status accurate for you and the customer.
-
-## Step 1: Open the order
-
-1. Go to "Orders" in the sidebar.
-2. Open the order and find the shipped fulfillment.
-
-{/* screenshot: /orders/:id detail page with a shipped fulfillment */}
-
-## Step 2: Mark as delivered
-
-1. Click "Mark as delivered".
-2. Confirm the action.
-
-{/* screenshot: Mark as delivered confirmation */}
-
-## Next steps
-
-<CardGroup cols={2}>
-  <Card title="Process a return" href="/user-guide/vendor/orders/how-tos/process-a-return">
-    Handle a return if the customer sends items back.
-  </Card>
-</CardGroup>
+<Steps>
+  <Step title="Open the orders list">
+    Go to **Orders** in the sidebar. The page lists the orders that include your products. Select the order you want to work on.
+    <Frame>
+      <img src="/images/user-guide/vendor/mark-an-order-as-delivered/step-1.png" alt="Open the orders list" />
+    </Frame>
+  </Step>
+  <Step title="Open the order">
+    Selecting a row opens the order's detail page, where you manage fulfillment, shipping, payments, and returns for your part of the order.
+  </Step>
+  <Step title="Review the order">
+    The detail page shows the order's items, customer, payments, and fulfillment status. Work from here.
+    <Frame>
+      <img src="/images/user-guide/vendor/mark-an-order-as-delivered/step-3.png" alt="Review the order" />
+    </Frame>
+  </Step>
+  <Step title="Mark the fulfillment as delivered">
+    In the **Fulfillment** section, open the actions menu for the shipped fulfillment and choose **Mark as delivered**. This completes the fulfillment lifecycle for those items.
+  </Step>
+</Steps>

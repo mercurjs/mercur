@@ -7,6 +7,11 @@ import submitAProduct from "./definitions/submit-a-product"
 import editAProduct from "./definitions/edit-a-product"
 import createAnOffer from "./definitions/create-an-offer"
 import updatePricesAndStock from "./definitions/update-prices-and-stock"
+import fulfillAnOrder from "./definitions/fulfill-an-order"
+import shipAnOrder from "./definitions/ship-an-order"
+import markAnOrderAsDelivered from "./definitions/mark-an-order-as-delivered"
+import refundAnOrder from "./definitions/refund-an-order"
+import processAReturn from "./definitions/process-a-return"
 
 // Every guide the generator produces. Add one `defineGuide({...})` per User
 // Guide page and register it here. See README.md for the workflow and
@@ -20,4 +25,9 @@ export const GUIDES: GuideDefinition[] = [
   editAProduct,
   createAnOffer,
   updatePricesAndStock,
+  fulfillAnOrder,
+  shipAnOrder,
+  markAnOrderAsDelivered,
+  refundAnOrder,
+  processAReturn,
 ]

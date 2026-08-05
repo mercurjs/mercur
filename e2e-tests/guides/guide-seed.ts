@@ -1,7 +1,12 @@
+import { writeFileSync } from "fs"
 import type { ExecArgs, MedusaContainer } from "@medusajs/framework/types"
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import jwt from "jsonwebtoken"
+import Scrypt from "scrypt-kdf"
 import { createAdminUser } from "../helpers/create-admin-user"
 import seedDemoData from "../../apps/api/src/scripts/seed"
-import { GUIDE_ADMIN } from "./credentials"
+import { GUIDE_ADMIN, GUIDE_CUSTOMER } from "./credentials"
+import { ORDER_SEED_FILE } from "./paths"
 
 // Seeds the ephemeral DB for the docs guide generator. Unlike the minimal
 // login-only e2e seed, this loads the full apps/api demo catalog (sellers,
@@ -15,4 +20,58 @@ export async function seedGuides(container: MedusaContainer): Promise<void> {
   })
 
   await seedDemoData({ container, args: [] } as ExecArgs)
+
+  await stashOrderPrereqs(container)
+}
+
+// Creates a storefront customer and captures the publishable key, writing both
+// to ORDER_SEED_FILE. global-setup reads this after the server is up and places
+// an order over the store API (the checkout endpoints are HTTP-only), so the
+// vendor order guides have a real order to screenshot.
+async function stashOrderPrereqs(container: MedusaContainer): Promise<void> {
+  const apiKeyModule = container.resolve(Modules.API_KEY)
+  const keys = await apiKeyModule.listApiKeys({ type: "publishable" })
+  const publishableKey = keys[0]?.token
+  if (!publishableKey) {
+    return
+  }
+
+  const authModule = container.resolve(Modules.AUTH)
+  const customerModule = container.resolve(Modules.CUSTOMER)
+
+  const customer = await customerModule.createCustomers({
+    email: GUIDE_CUSTOMER.email,
+    first_name: GUIDE_CUSTOMER.first_name,
+    last_name: GUIDE_CUSTOMER.last_name,
+  })
+
+  const passwordHash = await Scrypt.kdf(GUIDE_CUSTOMER.password, {
+    logN: 15,
+    r: 8,
+    p: 1,
+  })
+  const authIdentity = await authModule.createAuthIdentities({
+    provider_identities: [
+      {
+        provider: "emailpass",
+        entity_id: GUIDE_CUSTOMER.email,
+        provider_metadata: { password: passwordHash.toString("base64") },
+      },
+    ],
+    app_metadata: { customer_id: customer.id },
+  })
+
+  const config = container.resolve(ContainerRegistrationKeys.CONFIG_MODULE)
+  const { jwtSecret, jwtOptions } = config.projectConfig.http
+  const customerToken = jwt.sign(
+    {
+      actor_id: customer.id,
+      actor_type: "customer",
+      auth_identity_id: authIdentity.id,
+    },
+    jwtSecret as string,
+    { expiresIn: "1d", ...jwtOptions }
+  )
+
+  writeFileSync(ORDER_SEED_FILE, JSON.stringify({ publishableKey, customerToken }))
 }

@@ -1,38 +1,27 @@
 ---
 title: "Refund an Order"
-sidebarTitle: "Refund an order"
-description: "Return money to the customer for a captured payment."
+description: "Return money to the customer for an order."
 ---
 
-> Give the customer some or all of their money back.
+You refund a customer from the order's detail page. A refund returns part or all of a captured payment for the order.
 
-## Overview
-
-You can refund a customer from the order's payment section once the payment has been captured. A refund returns money to the customer's original payment method.
-
-## Step 1: Open the order
-
-1. Go to "Orders" in the sidebar.
-2. Open the order you want to refund.
-
-{/* screenshot: /orders/:id detail page, Payment section */}
-
-## Step 2: Create a refund
-
-1. In the payment section, open the actions menu and choose "Create refund".
-2. In the side window, enter the amount to refund and an optional reason.
-3. Save to issue the refund.
-
-{/* screenshot: Create refund drawer */}
-
-<Note>
-  Refunds are available once a payment has been captured and the order is not already fully refunded.
-</Note>
-
-## Next steps
-
-<CardGroup cols={2}>
-  <Card title="Process a return" href="/user-guide/vendor/orders/how-tos/process-a-return">
-    Refunds often go together with taking items back.
-  </Card>
-</CardGroup>
+<Steps>
+  <Step title="Open the orders list">
+    Go to **Orders** in the sidebar. The page lists the orders that include your products. Select the order you want to work on.
+    <Frame>
+      <img src="/images/user-guide/vendor/refund-an-order/step-1.png" alt="Open the orders list" />
+    </Frame>
+  </Step>
+  <Step title="Open the order">
+    Selecting a row opens the order's detail page, where you manage fulfillment, shipping, payments, and returns for your part of the order.
+  </Step>
+  <Step title="Review the order">
+    The detail page shows the order's items, customer, payments, and fulfillment status. Work from here.
+    <Frame>
+      <img src="/images/user-guide/vendor/refund-an-order/step-3.png" alt="Review the order" />
+    </Frame>
+  </Step>
+  <Step title="Create the refund">
+    In the **Payments** section, open the actions menu and choose **Refund**. Enter the amount to refund and a reason, then confirm. The refund is issued against the order's captured payment.
+  </Step>
+</Steps>

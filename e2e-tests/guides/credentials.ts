@@ -15,3 +15,12 @@ export const GUIDE_SELLER = {
   // clicks to set the active-store context.
   store: "Sole Society",
 }
+
+// A storefront customer created by guide-seed.ts so global-setup can place an
+// order over the store API. Order guides then have a real order to screenshot.
+export const GUIDE_CUSTOMER = {
+  email: "customer@mercur.dev",
+  password: "supersecret",
+  first_name: "Demo",
+  last_name: "Customer",
+}

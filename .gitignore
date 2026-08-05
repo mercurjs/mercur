@@ -43,3 +43,4 @@ packages/modules/*
 
 # Local spec tracker (not versioned)
 docs/specs/
+e2e-tests/.order-seed.json
