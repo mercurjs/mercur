@@ -38,6 +38,7 @@
             "group": "Welcome",
             "pages": [
               "home",
+              "learn/why-mercur",
               "learn/introduction",
               {
                 "group": "Build with AI",
@@ -47,12 +48,7 @@
                   "resources/ai/mcp"
                 ]
               },
-              "learn/architecture"
-            ]
-          },
-          {
-            "group": "Migrate",
-            "pages": [
+              "learn/architecture",
               "learn/migration-to-2-0"
             ]
           },

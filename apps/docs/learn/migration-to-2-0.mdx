@@ -8,10 +8,6 @@ description: "Port an existing Mercur 1.x project to 2.x, the latest release."
 
 Mercur 2.0 replaces the monolithic plugin architecture (`@mercurjs/b2c-core`) with a block-based model (`@mercurjs/core` plus registry blocks). This guide is about porting your existing 1.x code to a 2.x project. For setting up a fresh project instead, see [Installation](/learn/introduction), which already uses the latest names.
 
-<Tip>
-If you use an AI agent or IDE (Claude Code, Cursor, or similar), your project includes a `migration-guide` skill that can analyze your 1.x project and walk you through the migration step by step.
-</Tip>
-
 ## Before you start
 
 Most users do not need to migrate much. Core and the official registry blocks cover most standard marketplace functionality, and the admin and vendor panels ship 34+ pages out of the box. You only need to port your own custom modules, workflows, routes, and any domain-specific dashboard pages that core does not already provide.
