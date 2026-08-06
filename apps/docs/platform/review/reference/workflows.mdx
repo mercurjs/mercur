@@ -1,0 +1,31 @@
+---
+title: "Workflows"
+sidebarTitle: "Workflows"
+description: "Review workflows for creating, moderating, responding, and deleting."
+---
+
+This reference lists the workflows for the Review domain. Import them from
+`@mercurjs/core/workflows` and run them against the Medusa container.
+
+## Review workflows
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `createReviewWorkflow` | `{ order_id, reference, reference_id, rating, customer_note?, customer_id }` | Validate and create a review, linking it to its target, order, and customer |
+| `updateReviewWorkflow` | `{ id, rating?, customer_note?, seller_note?, status? }` | Update a review, including moderating its `status` |
+| `respondReviewWorkflow` | `{ id, seller_note }` | Attach a store's single response to a review |
+| `deleteReviewWorkflow` | `id` | Soft-delete a review (restorable on rollback) |
+
+Each workflow supports compensation: `createReviewWorkflow` deletes the review it
+created on failure, `updateReviewWorkflow` and `respondReviewWorkflow` restore the
+previous values, and `deleteReviewWorkflow` restores the soft-deleted row.
+
+<Note>
+  `createReviewWorkflow` validates that the order belongs to the customer and
+  that the target hasn't already been reviewed on that order. `respondReviewWorkflow`
+  refuses to overwrite an existing response.
+</Note>
+
+To work with records directly instead of through a workflow, see the
+[Service reference](/platform/review/reference/service). To run side effects when
+a review changes, see the [Event reference](/platform/review/reference/events).

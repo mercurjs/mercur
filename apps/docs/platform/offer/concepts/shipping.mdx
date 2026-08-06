@@ -1,0 +1,48 @@
+---
+title: "Shipping"
+sidebarTitle: "Shipping"
+description: "How an offer carries its own shipping profile."
+---
+
+In this document, you'll learn how an offer determines how its items ship.
+
+## Shipping profile
+
+Every offer points at a store's own **shipping profile** through its
+`shipping_profile_id` field, joined via the read-only `offer ↔ shipping_profile`
+link. The profile is what ties the offer's items to the store's shipping options
+at checkout, so each store fulfills its slice of a multi-seller cart with its own
+rates.
+
+```ts
+await createOffersWorkflow(container).run({
+  input: {
+    offers: [
+      {
+        seller_id: "sel_123",
+        created_by: "mem_123",
+        variant_id: "variant_123",
+        shipping_profile_id: "sp_123",
+        sku: "ACME-WIDGET-01",
+        prices: [{ amount: 2500, currency_code: "usd" }],
+        inventory_items: [{ stock_levels: [{ location_id: "sloc_1", stocked_quantity: 50 }] }],
+      },
+    ],
+  },
+})
+```
+
+## Master products carry no profile
+
+Master products live in the shared catalog and have no shipping profile of their
+own. To keep multi-seller carts from losing their shipping methods on refresh,
+`createOffersWorkflow` links the offer's **master product** to the offer's
+shipping profile. The product↔profile link is one-to-one, so the first offer's
+profile wins for a given master product. Later offers (including other stores'
+offers on the same product) skip the link if a profile is already attached.
+
+<Note>
+  The one-to-one product↔profile link is a checkout-refresh accommodation, not
+  the source of truth for how a store ships. Each offer still carries its own
+  `shipping_profile_id`, which is what drives that store's fulfillment.
+</Note>

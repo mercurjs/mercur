@@ -1,0 +1,212 @@
+---
+title: "Widgets"
+sidebarTitle: "Widgets"
+description: "Render a React component in a fixed slot on a built-in admin or vendor page."
+---
+
+A widget is a React component that renders in a named slot on a built-in page.
+Use a widget to show extra information or an action next to the data a page
+already displays, such as a payout summary on the order detail page.
+
+You add a widget by dropping a file into a panel's `src/widgets/` folder. The SDK
+finds it at build time. There is no manifest to edit and no route to register.
+
+## Create a widget
+
+<Steps>
+  <Step title="Add a widget file">
+    Create a file anywhere under `src/widgets/` in the panel you want to extend.
+    The file name is up to you.
+
+    ```tsx apps/vendor/src/widgets/product-list-banner.tsx
+    import { defineWidgetConfig } from "@mercurjs/dashboard-sdk"
+    import { Container, Text } from "@medusajs/ui"
+
+    const ProductListBanner = () => {
+      return (
+        <Container>
+          <Text>Welcome to your catalog.</Text>
+        </Container>
+      )
+    }
+
+    export default ProductListBanner
+    ```
+  </Step>
+
+  <Step title="Target a zone with `defineWidgetConfig`">
+    Export a `config` that names the zone to render in. The last segment of the
+    zone id, `before` or `after`, sets the placement.
+
+    ```tsx apps/vendor/src/widgets/product-list-banner.tsx
+    export const config = defineWidgetConfig({
+      zone: "product.list.before",
+    })
+    ```
+
+    Zone ids are typed. A zone that does not exist fails `tsc` (`bun run lint`),
+    so you cannot target a page that has no slot. See [Available zones](#vendor-zones)
+    for the full list.
+  </Step>
+
+  <Step title="Run the panel">
+    Start the panel and open the page you targeted. The widget renders in its
+    zone.
+
+    ```bash Terminal
+    bun run dev
+    ```
+
+    The vendor panel runs on `http://localhost:7001` and the admin panel on
+    `http://localhost:7000`.
+  </Step>
+</Steps>
+
+## Configuration
+
+`defineWidgetConfig` takes one object.
+
+| Field  | Type                             | Description                                                              |
+| ------ | -------------------------------- | ----------------------------------------------------------------------- |
+| `zone` | `WidgetZoneId \| WidgetZoneId[]` | The zone or zones to render in. Multiple widgets in one zone stack in registration order. |
+| `id`   | `string` (optional)              | A stable id. Derived from the file path at build time when omitted.     |
+
+## Component props
+
+The widget component receives a single prop.
+
+| Prop   | Type      | Description                                                                                     |
+| ------ | --------- | ---------------------------------------------------------------------------------------------- |
+| `data` | `unknown` | The zone's contextual entity, such as the loaded product on a `product.detail.*` zone. Undefined on list and public zones that have no single entity. |
+
+```tsx
+import { Container } from "@medusajs/ui"
+import type { HttpTypes } from "@medusajs/types"
+
+const ProductDetailNote = ({ data }: { data?: HttpTypes.AdminProduct }) => (
+  <Container>{data?.title}</Container>
+)
+```
+
+<Note>
+  The public `login.logo`, `login.before`, and `login.after` zones render before
+  authentication and receive no `data`.
+</Note>
+
+## Zone ids
+
+A zone id reads `<domain>.<view>.<placement>`.
+
+- **Domain** is the page family, such as `product`, `orders`, or `customers`.
+- **View** is the surface within that family: `list` for a list page, or
+  `detail.main` and `detail.side` for the two columns of a detail page.
+- **Placement** is `before` or `after`. It is the last segment and decides
+  whether the widget renders above or below the target.
+
+Each surface in the tables below expands to two zone ids. The `product` detail
+main column, for example, gives you `product.detail.main.before` and
+`product.detail.main.after`.
+
+## Vendor zones
+
+Widgets in `@mercurjs/vendor` (`apps/vendor`) can target these surfaces. Each cell
+expands to a `.before` and an `.after` zone.
+
+| Domain             | List | Detail main | Detail side | Other |
+| ------------------ | :--: | :---------: | :---------: | ----- |
+| `campaigns`        |  ✓   |      ✓      |      ✓      |       |
+| `categories`       |  ✓   |      ✓      |      ✓      |       |
+| `collections`      |  ✓   |      ✓      |             |       |
+| `customer-groups`  |  ✓   |      ✓      |             |       |
+| `customers`        |  ✓   |      ✓      |      ✓      |       |
+| `inventory`        |  ✓   |      ✓      |      ✓      |       |
+| `locations`        |  ✓   |      ✓      |      ✓      |       |
+| `offer-variants`   |      |      ✓      |      ✓      |       |
+| `offers`           |  ✓   |      ✓      |      ✓      |       |
+| `orders`           |  ✓   |      ✓      |      ✓      | `detail.summary` |
+| `payouts`          |  ✓   |      ✓      |             |       |
+| `price-lists`      |  ✓   |      ✓      |      ✓      |       |
+| `product`          |  ✓   |      ✓      |      ✓      |       |
+| `product-tags`     |  ✓   |      ✓      |             |       |
+| `product-types`    |  ✓   |      ✓      |             |       |
+| `product-variants` |      |      ✓      |             |       |
+| `profile`          |      |      ✓      |             |       |
+| `promotions`       |  ✓   |      ✓      |      ✓      |       |
+| `regions`          |  ✓   |      ✓      |             |       |
+| `reservations`     |  ✓   |      ✓      |      ✓      |       |
+| `return-reasons`   |  ✓   |             |             |       |
+| `shipping-profiles`|  ✓   |      ✓      |             |       |
+| `tax-regions`      |  ✓   |      ✓      |             | `province.detail.main` |
+| `team`             |  ✓   |             |             |       |
+
+### Vendor public and setup zones
+
+These sit outside the list and detail shape. The `login.*` zones render before
+authentication and receive no `data`.
+
+| Zone base       | Ids                                             | Renders                            |
+| --------------- | ----------------------------------------------- | ---------------------------------- |
+| `login.logo`    | `login.logo.before`, `login.logo.after`         | Around the logo on the login page. |
+| `login.before`  | `login.before.before`, `login.before.after`     | Before the login form.             |
+| `login.after`   | `login.after.before`, `login.after.after`       | After the login form.              |
+| `seller.setup`  | `seller.setup.before`, `seller.setup.after`     | Around the store setup step.       |
+
+## Admin zones
+
+Widgets in `@mercurjs/admin` (`apps/admin-test`) can target these surfaces. Each
+cell expands to a `.before` and an `.after` zone.
+
+| Domain                  | List | Detail main | Detail side | Other |
+| ----------------------- | :--: | :---------: | :---------: | ----- |
+| `api-keys`              |  ✓   |      ✓      |             |       |
+| `attributes`            |  ✓   |      ✓      |             |       |
+| `campaigns`             |  ✓   |      ✓      |      ✓      |       |
+| `categories`            |  ✓   |      ✓      |      ✓      |       |
+| `collections`           |  ✓   |      ✓      |             |       |
+| `commissions`           |  ✓   |      ✓      |             |       |
+| `customer-groups`       |  ✓   |      ✓      |             |       |
+| `customers`             |  ✓   |      ✓      |      ✓      |       |
+| `inventory`             |  ✓   |      ✓      |      ✓      |       |
+| `locations`             |  ✓   |      ✓      |      ✓      |       |
+| `marketplace`           |      |      ✓      |             |       |
+| `offer-variants`        |      |      ✓      |      ✓      |       |
+| `offers`                |  ✓   |      ✓      |      ✓      |       |
+| `orders`                |  ✓   |      ✓      |      ✓      |       |
+| `payouts`               |  ✓   |      ✓      |             |       |
+| `price-lists`           |  ✓   |      ✓      |      ✓      |       |
+| `product`               |      |      ✓      |      ✓      |       |
+| `products`              |  ✓   |             |             |       |
+| `product-tags`          |  ✓   |      ✓      |             |       |
+| `product-types`         |  ✓   |      ✓      |             |       |
+| `product-variants`      |      |      ✓      |      ✓      |       |
+| `profile`               |      |      ✓      |             |       |
+| `promotions`            |  ✓   |      ✓      |      ✓      |       |
+| `refund-reasons`        |  ✓   |             |             |       |
+| `regions`               |  ✓   |      ✓      |             |       |
+| `reservation`           |  ✓   |      ✓      |      ✓      |       |
+| `return-reasons`        |  ✓   |             |             |       |
+| `sales-channels`        |  ✓   |      ✓      |             |       |
+| `shipping-option-types` |  ✓   |      ✓      |             |       |
+| `shipping-profiles`     |  ✓   |      ✓      |             |       |
+| `stores`                |  ✓   |      ✓      |      ✓      |       |
+| `tax-regions`           |  ✓   |      ✓      |             | `province.detail.main` |
+| `users`                 |  ✓   |      ✓      |             |       |
+
+<Note>
+  Admin splits the product list and product detail across two domains. List zones
+  are `products.list.*` (plural) and detail zones are `product.detail.*`
+  (singular). Vendor uses `product` for both. Detail-page reservation zones are
+  `reservation.*` (singular) in admin and `reservations.*` (plural) in vendor.
+  Follow the tables above rather than guessing the pluralization.
+</Note>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Custom Fields" href="/references/panel-extensions/custom-fields">
+    Add fields, section rows, and list columns to a built-in model.
+  </Card>
+  <Card title="Create a new page" href="/references/panel-extensions/create-page">
+    Add a route with file-based routing and register it in the sidebar.
+  </Card>
+</CardGroup>

@@ -1,17 +1,20 @@
 ---
-title: "Build your own block"
-description: "Author a reusable feature as a block — backend, panel UI, and docs — build it into a registry, and install it into any Mercur project."
+title: "How to Build a Block"
+sidebarTitle: "Build a Block"
+description: "Author a reusable feature as a block covering backend, panel UI, and docs, then build it into a registry and install it into any Mercur project."
 ---
 
-Blocks are how features travel between Mercur projects: not as npm packages you depend on, but as **source code copied into the target project**. Anything you've built once — a module, workflows, routes, panel pages — can be packaged as a block, published through a registry, and installed with `mercurjs add`. This tutorial builds a minimal "announcements" block and ships it through your own registry.
+Blocks are how features travel between Mercur projects. You ship them as source code copied into the target project, not as npm packages you depend on.
+
+Anything you build once, such as a module, workflows, routes, or panel pages, can be packaged as a block, published through a registry, and installed with `mercurjs add`. This tutorial builds a minimal "announcements" block and ships it through your own registry.
 
 <Info>
-  **Blocks are source, not dependencies.** When someone installs your block, they get the files — editable, diffable, theirs. Updates are opt-in via `mercurjs diff` and `add --overwrite`, never forced through a lockfile. That's the trade: you give up automatic upgrades, users gain full ownership. Design blocks so they're readable after install.
+  **Blocks are source, not dependencies.** When someone installs your block, they get the files: editable, diffable, theirs. Updates are opt-in via `mercurjs diff` and `add --overwrite`, never forced through a lockfile. That is the trade: you give up automatic upgrades, and users gain full ownership. Design blocks so they read cleanly after install.
 </Info>
 
 ## What you'll build
 
-An `announcements` block containing a module (data model + service), a vendor API route, and a vendor portal page — built into registry JSON and installed into a Mercur project.
+You build an `announcements` block containing a module (data model and service), a vendor API route, and a vendor portal page. Then you build it into registry JSON and install it into a Mercur project.
 
 ## File types and where they land
 
@@ -44,9 +47,11 @@ Each file in a block carries a `type` that maps to an alias in the consumer's `b
                 └── page.tsx               # vendor portal page
     ```
 
-    Write the files exactly as they should land in a consumer's project — real imports, real Medusa module definitions. The build step resolves imports and rewrites them to the consumer's path aliases at install time. For the panel page, use the same conventions as any [custom panel page](/rc/resources/tutorials/custom-panel-page): a default export plus a `config` for the sidebar entry.
+    Write the files exactly as they should land in a consumer's project: real imports, real Medusa module definitions. The build step resolves imports and rewrites them to the consumer's path aliases at install time. For the panel page, use the same conventions as any [custom panel page](/rc/resources/tutorials/custom-panel-page): a default export plus a `config` for the sidebar entry.
   </Step>
   <Step title="Declare it in registry.json">
+    Add one entry per block to the `items` array.
+
     ```json registry.json
     {
       "$schema": "https://registry.mercurjs.com/registry.json",
@@ -70,20 +75,22 @@ Each file in a block carries a `type` that maps to an alias in the consumer's `b
     }
     ```
 
-    Two fields do the heavy lifting: **`type`** on each file decides where it lands, and **`docs`** is the markdown shown after install. Put every manual step in `docs` — module registration, migrations, middleware, codegen. It's the only instruction the installer sees.
+    Two fields do the heavy lifting. **`type`** on each file decides where the file lands, and **`docs`** is the markdown shown after install. Put every manual step in `docs`: module registration, migrations, middleware, codegen. It is the only instruction the installer sees.
   </Step>
   <Step title="Build the registry">
-    ```bash
+    Run the CLI build from the registry root.
+
+    ```bash Terminal
     bunx @mercurjs/cli@latest build
     ```
 
-    This reads `registry.json`, resolves each block's imports, embeds file contents, and writes one JSON per block into `r/` — `r/announcements.json`, plus an index `r/registry.json`.
+    This reads `registry.json`, resolves each block's imports, embeds file contents, and writes one JSON per block into `r/`: `r/announcements.json`, plus an index `r/registry.json`.
   </Step>
   <Step title="Host it">
-    Serve the `r/` directory from any static host (GitHub Pages, Vercel, S3 — anything that makes `{name}.json` publicly reachable).
+    Serve the `r/` directory from any static host (GitHub Pages, Vercel, S3, or anything that makes `{name}.json` publicly reachable).
   </Step>
   <Step title="Install it into a project">
-    In a consumer project, register your registry in `blocks.json` and install:
+    In a consumer project, register your registry in `blocks.json`.
 
     ```json blocks.json
     {
@@ -93,7 +100,9 @@ Each file in a block carries a `type` that maps to an alias in the consumer's `b
     }
     ```
 
-    ```bash
+    Then install the block.
+
+    ```bash Terminal
     bunx @mercurjs/cli@latest add @my-org/announcements
     ```
 
@@ -103,19 +112,21 @@ Each file in a block carries a `type` that maps to an alias in the consumer's `b
 
 ## Verify
 
+Confirm the block built and installed correctly:
+
 1. `r/announcements.json` exists after the build and embeds every file's content.
 2. In the consumer project, the files landed under the alias-mapped paths and imports resolve.
 3. After following your own `docs` steps (module registration, migrations, codegen), `bun run build` passes and the vendor portal shows the Announcements page.
-4. `bunx @mercurjs/cli@latest diff @my-org/announcements` reports no changes — the installed copy matches the registry.
+4. `bunx @mercurjs/cli@latest diff @my-org/announcements` reports no changes. The installed copy matches the registry.
 
 ## FAQ
 
 <AccordionGroup>
   <Accordion title="How do I depend on another block or an npm package?">
-    Other blocks go in `registryDependencies` (e.g. `@my-org/reviews`) — the CLI installs them in order automatically. NPM packages go in `dependencies`; the build also auto-detects them from your imports, so you rarely list transitive ones by hand.
+    Other blocks go in `registryDependencies` (for example `@my-org/reviews`). The CLI installs them in order automatically. NPM packages go in `dependencies`. The build also auto-detects them from your imports, so you rarely list transitive ones by hand.
   </Accordion>
   <Accordion title="Can I make the registry private?">
-    Yes — use the object form with headers in the consumer's `blocks.json`: `{ "url": "…/{name}.json", "headers": { "Authorization": "Bearer ${REGISTRY_TOKEN}" } }`. The env var is resolved from the installer's environment. See [Registry](/rc/learn/registry).
+    Yes. Use the object form with headers in the consumer's `blocks.json`: `{ "url": "…/{name}.json", "headers": { "Authorization": "Bearer ${REGISTRY_TOKEN}" } }`. The env var is resolved from the installer's environment. See [Registry](/rc/learn/registry).
   </Accordion>
   <Accordion title="How do consumers get updates to my block?">
     They run `mercurjs diff <block>` to compare their local copy against your registry, then `add --overwrite` to take the new version. Because blocks are source, consumers with local edits merge deliberately rather than being force-upgraded.

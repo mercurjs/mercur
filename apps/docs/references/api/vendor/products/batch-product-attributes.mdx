@@ -44,7 +44,7 @@ Stages attribute operations as a pending change request instead of applying them
   <Expandable title="properties">
     <ParamField body="id" type="string" required>The attribute's ID.</ParamField>
     <ParamField body="title" type="string">New attribute title.</ParamField>
-    <ParamField body="add" type="(string | object)[]">Values to select — plain strings or `{ "value": "..." }` objects.</ParamField>
+    <ParamField body="add" type="(string | object)[]">Values to select, plain strings or `{ "value": "..." }` objects.</ParamField>
     <ParamField body="remove" type="string[]">Value IDs to deselect.</ParamField>
     <ParamField body="value" type="string | number | boolean">New scalar value for `text`, `unit`, or `toggle` attributes.</ParamField>
   </Expandable>

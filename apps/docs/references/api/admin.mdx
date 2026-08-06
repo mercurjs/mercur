@@ -1,11 +1,11 @@
 ---
 title: "Admin API"
-description: "Operator routes under /admin/* — sellers, commissions, payouts, master catalog, and marketplace-wide orders."
+description: "Operator routes under /admin/* for sellers, commissions, payouts, master catalog, and marketplace-wide orders."
 ---
 
-The Admin API is the marketplace operator's surface. It extends Medusa's standard admin routes with the marketplace domains below; everything else (regions, currencies, users, API keys, …) comes from Medusa core unchanged.
+The Admin API is the marketplace operator's surface.
 
-Authentication and shared conventions are covered in [API conventions](/rc/references/api/conventions).
+It extends Medusa's standard admin routes with the marketplace domains below. Everything else, such as regions, currencies, users, or API keys, comes from Medusa core unchanged. Authentication and shared conventions are covered in [API conventions](/rc/references/api/conventions).
 
 ## Sellers
 
@@ -52,7 +52,7 @@ Authentication and shared conventions are covered in [API conventions](/rc/refer
 
 ## Products (master catalog)
 
-Products are shared catalog records — see the [master products model](/rc/references/modules/product-edit#the-master-products-model).
+Products are shared catalog records. See [master products](/platform/catalog/concepts/master-products).
 
 | Method | Path | Purpose |
 | --- | --- | --- |
@@ -130,5 +130,4 @@ Mercur extends the Medusa RMA routes so they respect seller boundaries:
 
 <CardGroup cols={2}>
   <Card title="Vendor API" href="/rc/references/api/vendor" />
-  <Card title="API Client" href="/rc/tools/api-client" />
 </CardGroup>

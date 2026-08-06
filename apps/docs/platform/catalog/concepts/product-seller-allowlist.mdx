@@ -1,0 +1,48 @@
+---
+title: "The store allowlist"
+sidebarTitle: "The allowlist"
+description: "The product_seller link that controls which stores may sell a master product."
+---
+
+In this document, you'll learn how Mercur controls which stores are allowed to
+sell a shared master product.
+
+## Product seller
+
+Since the catalog is shared, Mercur needs a way to say *which* stores may sell a
+given master product. That's the **product–seller allowlist**: a many-to-many
+link between Medusa's `Product` and Mercur's `Seller`, stored in the
+`product_seller` table.
+
+```ts
+const { data: products } = await query.graph({
+  entity: "product",
+  fields: ["id", "title", "sellers.id", "sellers.name"],
+  filters: { id: "prod_123" },
+})
+```
+
+A store appears in a product's `sellers` list only if it has been allowlisted.
+Being on the allowlist is what lets a store create an
+[offer](/platform/offer/overview) against the master product. Without it, the
+store cannot list that product for sale.
+
+<Note>
+  The allowlist link is created automatically for the submitting store when a
+  product is created with `seller_ids`, and managed afterwards with
+  `linkSellersToProductWorkflow`. See
+  [Allowlist stores](/platform/catalog/guides/allowlist-stores).
+</Note>
+
+## Category allowlist
+
+Product categories carry the same pattern through the `category_seller` link. It
+is a many-to-many association between `ProductCategory` and `Seller` that scopes
+which categories a store is associated with. Manage it with
+`linkSellersToProductCategoryWorkflow`.
+
+<Tip>
+  The allowlist governs the **right to sell**, not the sale itself. A store on
+  the allowlist still has to create an offer to actually list the product.
+  Allowlisting alone doesn't put anything on the storefront.
+</Tip>

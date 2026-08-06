@@ -1,0 +1,65 @@
+---
+title: "Order commission lines"
+sidebarTitle: "Order commission lines"
+description: "Per-order commission lines, how they're computed, and BigNumber precision."
+---
+
+This page covers how commission is recorded on an order and kept in sync as the
+order changes.
+
+## Commission line
+
+A commission line is the resolved commission for a single order line. It's
+represented by the `CommissionLine` data model (table `commission_line`, id
+prefix `comline`). Each line anchors to either an item (`item_id`) or a shipping
+method (`shipping_method_id`). It records the rate that matched
+(`commission_rate_id`, `code`), the applied `rate`, and the computed `amount`.
+
+```ts
+// A commission line, as written by the refresh workflow
+{
+  item_id: "ordli_123",
+  shipping_method_id: null,
+  commission_rate_id: "comrate_123",
+  code: "standard-a1b2c3",
+  rate: 10,
+  amount: 250, // 10% of a 2500 subtotal
+  description: null,
+}
+```
+
+Lines are generated automatically during checkout. When the cart is split into
+per-seller orders, `refreshOrderCommissionLinesWorkflow` runs against each new
+order. Shipping lines carry a `"Shipping Commission"` description. Item lines
+carry none.
+
+## Recomputed on change
+
+Commission lines are **derived** data, not a one-time snapshot. The lines are
+recomputed whenever an order's composition changes, such as when an order edit
+is confirmed, a return is received, or a claim or exchange is created. That
+keeps the seller's commission tracking what the customer actually kept.
+
+The refresh is **idempotent**: it deletes any existing lines for the affected
+items and shipping methods, then inserts the freshly computed set. Re-running it
+never duplicates lines.
+
+<Note>
+  Computed lines carry no `id`. The module's `upsertCommissionLines` deletes by
+  anchor (`item_id` / `shipping_method_id`) before inserting, which is what
+  makes repeated refreshes safe.
+</Note>
+
+## BigNumber precision
+
+All commission arithmetic uses Medusa's `MathBN` (BigNumber). It's arbitrary
+precision, so percentages and per-currency amounts never accumulate
+floating-point error. A percentage amount is `subtotal × value ÷ 100`. A fixed
+amount is the per-currency value (or the fallback `value`). Each is computed in
+BigNumber before being stored.
+
+<Tip>
+  Commission lines feed the payout pipeline: when a seller's payout is
+  calculated, the order's commission lines are read straight from the commission
+  module and deducted from the amount transferred to the seller.
+</Tip>

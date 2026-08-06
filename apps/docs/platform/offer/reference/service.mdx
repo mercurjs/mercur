@@ -1,0 +1,53 @@
+---
+title: "Service reference"
+sidebarTitle: "Service"
+description: "The Offer module service and its methods for working with records directly."
+---
+
+The Offer module exposes a service you can resolve from the Medusa container to
+read and write records directly, without going through a workflow. Use it inside
+custom services, subscribers, or scheduled jobs.
+
+```ts
+import { MercurModules } from "@mercurjs/types"
+
+const offerModuleService = container.resolve(MercurModules.OFFER)
+
+const [offers, count] = await offerModuleService.listAndCountOffers({
+  seller_id: "sel_123",
+})
+```
+
+## Generated methods
+
+The `Offer` model gets a standard set of auto-generated methods:
+
+| Method | Description |
+| --- | --- |
+| `createOffers(data)` | Create one or more offers |
+| `retrieveOffer(id, config?)` | Retrieve an offer by id |
+| `listOffers(filters?, config?)` | List offers matching filters |
+| `listAndCountOffers(filters?, config?)` | List offers with a total count |
+| `updateOffers(data)` | Update one or more offers |
+| `deleteOffers(ids)` | Delete one or more offers |
+
+## Group by seller
+
+`listOffers` and `listAndCountOffers` accept a `group_by_seller` filter. When
+set, the service collapses offers to one row per `(product, seller)` group and
+populates `variant_count` and `offer_ids` on each returned offer.
+
+```ts
+const [grouped] = await offerModuleService.listAndCountOffers({
+  product_id: "prod_123",
+  group_by_seller: true,
+})
+```
+
+<Warning>
+  The service writes the `offer` row and its computed fields directly. It does
+  **not** create the offer's prices, inventory items, or module links, and it
+  does **not** emit events or run compensation. Prefer the
+  [workflows](/platform/offer/reference/workflows) for anything that must wire up
+  pricing, inventory, or links.
+</Warning>

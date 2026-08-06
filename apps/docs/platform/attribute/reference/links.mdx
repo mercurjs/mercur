@@ -1,0 +1,45 @@
+---
+title: "Links to other modules"
+sidebarTitle: "Links"
+description: "How the Attribute (Product Attribute) domain links to products, categories, and options."
+---
+
+Modules in Mercur never reference each other directly. They're connected through
+**module links**. The Product Attribute module links into Medusa's product module
+in several ways: to products, to categories, and, for variant axes, to product
+options through mirror links. Once a link is defined, you retrieve related records
+with `query.graph` using the link alias.
+
+```ts
+const { data: products } = await query.graph({
+  entity: "product",
+  fields: ["id", "title", "scoped_attributes.*"],
+})
+```
+
+## Products
+
+| Link | Table | Relationship |
+| --- | --- | --- |
+| **Product → attribute** (`scoped_attributes`) | None | Read-only; a product's inline (product-scoped) attributes, resolved from `ProductAttribute.product_id` |
+| **Product ↔ attribute value** | `product_attribute_value_link` | Many-to-many pivot; the values selected on a product |
+
+## Categories
+
+| Link | Table | Relationship |
+| --- | --- | --- |
+| **Attribute ↔ category** (`categories`) | `product_category_attribute` | Many-to-many; the product categories an attribute is associated with |
+
+## Product options (mirror links)
+
+| Link | FK | Relationship |
+| --- | --- | --- |
+| **Attribute → option** | `ProductAttribute.product_option_id` | Read-only 1:1; the mirror `ProductOption` for a variant-axis attribute |
+| **Value → option value** | `ProductAttributeValue.product_option_value_id` | Read-only 1:1; the mirror `ProductOptionValue` for an axis value |
+
+<Note>
+  The mirror links (Attribute → option, Value → option value) and the product
+  scope link (`scoped_attributes`) are **read-only**. They're resolved from the
+  FK on the owning record and can't be written through the link itself. The
+  workflows keep the mirror in sync when axis attributes and values change.
+</Note>

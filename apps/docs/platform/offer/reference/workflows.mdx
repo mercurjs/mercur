@@ -1,0 +1,38 @@
+---
+title: "Workflows"
+sidebarTitle: "Workflows"
+description: "Offer workflows for creating, updating, deleting, and batching inventory."
+---
+
+This reference lists the workflows for the Offer domain. Import them from
+`@mercurjs/core/workflows` and run them against the Medusa container.
+
+## Offer workflows
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `createOffersWorkflow` | `{ offers[], additional_data? }` | Create offers with prices, inventory, and links |
+| `updateOffersWorkflow` | `{ offers[], additional_data? }` | Update offer rows and rewrite their price ladders |
+| `deleteOffersWorkflow` | `{ ids[], additional_data? }` | Delete offers |
+| `batchOfferInventoryItemsWorkflow` | `{ offer_id, create?, update?, delete?, additional_data? }` | Add, update, and detach an offer's inventory-item links |
+
+## Hooks
+
+Each workflow exposes hooks so you can extend it without forking:
+
+| Workflow | Hooks |
+| --- | --- |
+| `createOffersWorkflow` | `validate`, `offersCreated` |
+| `updateOffersWorkflow` | `validate`, `offersUpdated` |
+| `deleteOffersWorkflow` | `offersDeleted` |
+| `batchOfferInventoryItemsWorkflow` | `validate`, `offerInventoryItemsBatched` |
+
+## Behavior notes
+
+- **Prices** are written on the master variant's shared price set, each row scoped by an `offer_id` `PriceRule`. On update, supplying `prices` replaces the ladder with the given rows; omitting it leaves prices untouched.
+- **Inventory** items passed to `createOffersWorkflow` are created and linked to the offer (and the store) in the same run. Every offer needs at least one.
+- Workflows run with compensation, so a failed create rolls back the inventory items, prices, and links it had already created.
+
+To work with records directly instead of through a workflow, see the
+[Service reference](/platform/offer/reference/service). To run side effects when
+an offer changes, see the [Event reference](/platform/offer/reference/events).

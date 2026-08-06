@@ -1,0 +1,48 @@
+---
+title: "Event reference"
+sidebarTitle: "Events"
+description: "Events that drive the payout pipeline, for subscribers and side effects."
+---
+
+The Payout domain is event-driven. Scheduled jobs emit events, and subscribers
+react to them to capture payments and transfer funds. Subscribe to these events
+to run your own side effects, such as notifications, ledger syncing, or follow-up
+workflows, instead of polling.
+
+```ts title="src/subscribers/payout-requested.ts"
+import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+
+export default async function payoutRequestedHandler({
+  event,
+  container,
+}: SubscriberArgs<{ order_id: string }>) {
+  const orderId = event.data.order_id
+  // ...notify the seller, write to an external ledger, etc.
+}
+
+export const config: SubscriberConfig = {
+  event: "payout.requested",
+}
+```
+
+## Pipeline events
+
+| Event | Emitted when | Handled by |
+| --- | --- | --- |
+| `order.capture_requested` | Capture check finds an order ready to capture | The payment-capture subscriber runs `capturePaymentWorkflow` |
+| `order.authorization_expired` | Capture check finds an authorization that already expired | Order is flagged so it isn't retried |
+| `payout.requested` | Daily job finds a captured order not yet paid out | The transfer subscriber runs `createPayoutWorkflow` |
+
+## Webhook events
+
+| Event | Emitted when | Handled by |
+| --- | --- | --- |
+| `payout.webhook_received` | A provider webhook arrives | The `payout-webhook` subscriber runs `processPayoutForWebhookWorkflow` |
+
+<Note>
+  `order.capture_requested`, `order.authorization_expired`, and
+  `payout.requested` are defined on the `PayoutEvents` enum in `@mercurjs/types`.
+  The webhook subscriber resolves `payout.webhook_received` to a provider action
+  before updating status. See
+  [Account lifecycle](/platform/payout/concepts/account-lifecycle).
+</Note>

@@ -1,17 +1,23 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "aspen",
+  "theme": "maple",
   "name": "MercurJS Documentation",
-  "description": "Mercur is an open-source AI-native marketplace framework built on MedusaJS v2. It provides block-based architecture for building multi-vendor marketplaces with seller management, commissions, order splitting, payouts, admin panel, and vendor portal. Code is copied directly into your project — full ownership, no black-box dependencies.",
+  "description": "Mercur is the open-source enterprise marketplace platform. Composable, API-first, and AI-native, it runs on your own infrastructure with role-based access control, an auditable change pipeline, and full code ownership. It powers multi-vendor sellers, commissions, order splitting, and payouts, with an admin panel and a vendor portal, on a proven Medusa commerce core.",
   "logo": {
     "dark": "/logo.svg",
     "light": "/logo_dark.svg"
   },
   "favicon": "/favicon.png",
+  "fonts": {
+    "family": "Inter"
+  },
   "colors": {
-    "primary": "#3139FB",
-    "light": "#9BA0FF",
-    "dark": "#2A31D8"
+    "primary": "#7C3AED",
+    "light": "#8B5CF6",
+    "dark": "#6D28D9"
+  },
+  "appearance": {
+    "default": "light"
   },
   "topbarLinks": [
     {
@@ -24,953 +30,813 @@
     "url": "https://www.mercurjs.com"
   },
   "navigation": {
-    "versions": [
+    "tabs": [
       {
-        "version": "2.2.0",
-        "default": true,
-        "tabs": [
+        "tab": "Start",
+        "groups": [
           {
-            "tab": "Learn",
-            "groups": [
+            "group": "Welcome",
+            "icon": "hand-wave",
+            "pages": [
+              "home",
+              "learn/introduction",
+              "learn/why-mercur",
               {
-                "group": "Get started",
-                "pages": [
-                  "learn/introduction",
-                  "learn/installation",
-                  "learn/concepts",
-                  "learn/architecture",
-                  "learn/mirakl-alternative"
-                ]
-              },
-              {
-                "group": "Marketplace concepts",
-                "pages": [
-                  "learn/sellers",
-                  "learn/seller-members",
-                  "learn/products",
-                  "learn/offers",
-                  "learn/attributes",
-                  "learn/product-requests",
-                  "learn/order-groups",
-                  "learn/commissions",
-                  "learn/payouts"
-                ]
-              },
-              {
-                "group": "Blocks",
-                "pages": [
-                  "learn/blocks",
-                  "learn/registry"
-                ]
-              }
-            ]
-          },
-          {
-            "tab": "Resources",
-            "groups": [
-              {
-                "group": "Tutorials",
-                "pages": [
-                  "resources/tutorials/first-marketplace",
-                  {
-                    "group": "Panels",
-                    "pages": [
-                      "resources/tutorials/custom-panel-page",
-                      "resources/tutorials/add-a-widget",
-                      "resources/tutorials/add-order-detail-button",
-                      "resources/tutorials/extend-forms-and-tables",
-                      "resources/tutorials/extend-onboarding",
-                      "resources/tutorials/store-setup-checklist",
-                      "resources/tutorials/customize-navigation",
-                      "resources/tutorials/custom-api-route"
-                    ]
-                  },
-                  {
-                    "group": "Marketplace operations",
-                    "pages": [
-                      "resources/tutorials/configure-commissions",
-                      "resources/tutorials/seller-payouts-stripe",
-                      "resources/tutorials/handle-product-requests"
-                    ]
-                  },
-                  {
-                    "group": "Catalog",
-                    "pages": [
-                      "resources/tutorials/attributes-and-variant-axes",
-                      "resources/tutorials/master-products-and-offers",
-                      "resources/tutorials/import-export-products"
-                    ]
-                  },
-                  {
-                    "group": "Blocks",
-                    "pages": [
-                      "resources/tutorials/add-a-block",
-                      "resources/tutorials/build-a-block"
-                    ]
-                  }
-                ]
-              },
-              {
-                "group": "Customization",
-                "pages": [
-                  "resources/customization/extending-panels",
-                  "resources/customization/custom-fields",
-                  "resources/customization/extend-a-workflow"
-                ]
-              },
-              {
-                "group": "Integrations",
-                "pages": [
-                  "resources/integrations/stripe-connect",
-                  "resources/integrations/search",
-                  "resources/integrations/notifications"
-                ]
-              },
-              {
-                "group": "Best practices",
-                "pages": [
-                  "resources/best-practices/overview",
-                  "resources/best-practices/modules",
-                  "resources/best-practices/module-links",
-                  "resources/best-practices/workflows",
-                  "resources/best-practices/api-routes",
-                  "resources/best-practices/subscribers-and-jobs",
-                  "resources/best-practices/types",
-                  "resources/best-practices/custom-fields",
-                  "resources/best-practices/frontend"
-                ]
-              },
-              {
-                "group": "Deployment",
-                "pages": [
-                  "resources/deployment/medusa-cloud"
-                ]
-              },
-              {
-                "group": "Building with AI",
+                "group": "Build with AI",
                 "pages": [
                   "resources/ai/overview",
-                  "resources/ai/llms",
+                  "resources/ai/skills",
                   "resources/ai/mcp"
                 ]
-              }
+              },
+              "learn/architecture",
+              "learn/migration-to-2-0"
             ]
           },
           {
-            "tab": "Tools",
-            "groups": [
-              {
-                "group": "Tools",
-                "pages": [
-                  "tools/cli",
-                  "tools/api-client",
-                  "tools/dashboard-sdk"
-                ]
-              }
+            "group": "Legal",
+            "icon": "scale-balanced",
+            "pages": [
+              "telemetry"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "Platform",
+        "groups": [
           {
-            "tab": "References",
-            "groups": [
+            "group": "Store",
+            "icon": "store",
+            "pages": [
+              "platform/store/overview",
               {
-                "group": "Overview",
+                "group": "Concepts",
                 "pages": [
-                  "references/overview"
+                  "platform/store/concepts/store-entity",
+                  "platform/store/concepts/team",
+                  "platform/store/concepts/lifecycle"
                 ]
               },
               {
-                "group": "Panel Extension API",
+                "group": "Guides",
                 "pages": [
-                  "references/panel-extension-api"
+                  "platform/store/guides/create-a-store",
+                  "platform/store/guides/moderate-a-store",
+                  "platform/store/guides/manage-the-team"
                 ]
               },
               {
-                "group": "Modules",
+                "group": "Reference",
                 "pages": [
-                  "references/modules/seller",
-                  "references/modules/commission",
-                  "references/modules/payout",
-                  "references/modules/offer",
-                  "references/modules/product-attribute",
-                  "references/modules/product-edit",
-                  "references/modules/media",
-                  "references/modules/search",
-                  "references/modules/custom-fields"
-                ]
-              },
-              {
-                "group": "Admin API",
-                "pages": [
-                  "references/api/conventions",
-                  "references/api/admin",
-                  {
-                    "group": "Sellers",
-                    "pages": [
-                      "references/api/admin/sellers/list-sellers",
-                      "references/api/admin/sellers/create-seller",
-                      "references/api/admin/sellers/retrieve-seller",
-                      "references/api/admin/sellers/update-seller",
-                      "references/api/admin/sellers/approve-seller",
-                      "references/api/admin/sellers/suspend-seller",
-                      "references/api/admin/sellers/unsuspend-seller",
-                      "references/api/admin/sellers/terminate-seller",
-                      "references/api/admin/sellers/unterminate-seller",
-                      "references/api/admin/sellers/upsert-seller-address",
-                      "references/api/admin/sellers/upsert-payment-details",
-                      "references/api/admin/sellers/upsert-professional-details",
-                      "references/api/admin/sellers/delete-professional-details",
-                      "references/api/admin/sellers/list-seller-products",
-                      "references/api/admin/sellers/list-seller-members",
-                      "references/api/admin/sellers/add-seller-member",
-                      "references/api/admin/sellers/remove-seller-member",
-                      "references/api/admin/sellers/invite-seller-member",
-                      "references/api/admin/sellers/list-member-invites",
-                      "references/api/admin/sellers/delete-member-invite",
-                      "references/api/admin/sellers/resend-member-invite"
-                    ]
-                  },
-                  {
-                    "group": "Members",
-                    "pages": [
-                      "references/api/admin/members/list-members"
-                    ]
-                  },
-                  {
-                    "group": "Commission Rates",
-                    "pages": [
-                      "references/api/admin/commission-rates/list-commission-rates",
-                      "references/api/admin/commission-rates/create-commission-rate",
-                      "references/api/admin/commission-rates/retrieve-commission-rate",
-                      "references/api/admin/commission-rates/update-commission-rate",
-                      "references/api/admin/commission-rates/delete-commission-rate",
-                      "references/api/admin/commission-rates/batch-commission-rules"
-                    ]
-                  },
-                  {
-                    "group": "Payouts",
-                    "pages": [
-                      "references/api/admin/payouts/list-payouts",
-                      "references/api/admin/payouts/retrieve-payout"
-                    ]
-                  },
-                  {
-                    "group": "Offers",
-                    "pages": [
-                      "references/api/admin/offers/list-offers",
-                      "references/api/admin/offers/retrieve-offer",
-                      "references/api/admin/offers/delete-offer",
-                      "references/api/admin/offers/batch-create-offers"
-                    ]
-                  },
-                  {
-                    "group": "Products",
-                    "pages": [
-                      "references/api/admin/products/list-products",
-                      "references/api/admin/products/create-product",
-                      "references/api/admin/products/retrieve-product",
-                      "references/api/admin/products/update-product",
-                      "references/api/admin/products/delete-product",
-                      "references/api/admin/products/preview-product",
-                      "references/api/admin/products/confirm-product",
-                      "references/api/admin/products/reject-product",
-                      "references/api/admin/products/request-product-changes",
-                      "references/api/admin/products/set-product-sellers",
-                      "references/api/admin/products/batch-product-attributes",
-                      "references/api/admin/products/list-product-variants",
-                      "references/api/admin/products/create-product-variant",
-                      "references/api/admin/products/retrieve-product-variant",
-                      "references/api/admin/products/update-product-variant",
-                      "references/api/admin/products/delete-product-variant"
-                    ]
-                  },
-                  {
-                    "group": "Product Changes",
-                    "pages": [
-                      "references/api/admin/product-changes/confirm-product-change",
-                      "references/api/admin/product-changes/cancel-product-change"
-                    ]
-                  },
-                  {
-                    "group": "Product Attributes",
-                    "pages": [
-                      "references/api/admin/product-attributes/list-product-attributes",
-                      "references/api/admin/product-attributes/create-product-attribute",
-                      "references/api/admin/product-attributes/retrieve-product-attribute",
-                      "references/api/admin/product-attributes/update-product-attribute",
-                      "references/api/admin/product-attributes/delete-product-attribute",
-                      "references/api/admin/product-attributes/create-attribute-value",
-                      "references/api/admin/product-attributes/update-attribute-value",
-                      "references/api/admin/product-attributes/delete-attribute-value"
-                    ]
-                  },
-                  {
-                    "group": "Orders",
-                    "pages": [
-                      "references/api/admin/orders/list-orders",
-                      "references/api/admin/orders/get-order-commission-lines",
-                      "references/api/admin/orders/get-order-order-group"
-                    ]
-                  },
-                  {
-                    "group": "Order Groups",
-                    "pages": [
-                      "references/api/admin/order-groups/list-order-groups",
-                      "references/api/admin/order-groups/retrieve-order-group"
-                    ]
-                  }
-                ]
-              },
-              {
-                "group": "Vendor API",
-                "pages": [
-                  "references/api/vendor",
-                  {
-                    "group": "Sellers",
-                    "pages": [
-                      "references/api/vendor/sellers/create-seller",
-                      "references/api/vendor/sellers/list-sellers",
-                      "references/api/vendor/sellers/select-seller",
-                      "references/api/vendor/sellers/retrieve-current-seller",
-                      "references/api/vendor/sellers/update-current-seller",
-                      "references/api/vendor/sellers/upsert-seller-address",
-                      "references/api/vendor/sellers/upsert-payment-details",
-                      "references/api/vendor/sellers/upsert-professional-details",
-                      "references/api/vendor/sellers/delete-professional-details",
-                      "references/api/vendor/sellers/list-seller-members",
-                      "references/api/vendor/sellers/invite-seller-member",
-                      "references/api/vendor/sellers/update-member-role",
-                      "references/api/vendor/sellers/remove-seller-member",
-                      "references/api/vendor/sellers/retrieve-current-seller-member",
-                      "references/api/vendor/sellers/list-member-invites"
-                    ]
-                  },
-                  {
-                    "group": "Members",
-                    "pages": [
-                      "references/api/vendor/members/retrieve-current-member",
-                      "references/api/vendor/members/update-current-member",
-                      "references/api/vendor/members/accept-member-invite"
-                    ]
-                  },
-                  {
-                    "group": "Products",
-                    "pages": [
-                      "references/api/vendor/products/list-products",
-                      "references/api/vendor/products/create-product",
-                      "references/api/vendor/products/retrieve-product",
-                      "references/api/vendor/products/update-product",
-                      "references/api/vendor/products/delete-product",
-                      "references/api/vendor/products/preview-product",
-                      "references/api/vendor/products/cancel-product-change",
-                      "references/api/vendor/products/batch-product-attributes",
-                      "references/api/vendor/products/list-product-variants",
-                      "references/api/vendor/products/create-product-variant",
-                      "references/api/vendor/products/retrieve-product-variant",
-                      "references/api/vendor/products/update-product-variant",
-                      "references/api/vendor/products/delete-product-variant",
-                      "references/api/vendor/product-variants/list-variants"
-                    ]
-                  },
-                  {
-                    "group": "Product Attributes",
-                    "pages": [
-                      "references/api/vendor/product-attributes/list-product-attributes",
-                      "references/api/vendor/product-attributes/retrieve-product-attribute"
-                    ]
-                  },
-                  {
-                    "group": "Offers",
-                    "pages": [
-                      "references/api/vendor/offers/list-offers",
-                      "references/api/vendor/offers/create-offer",
-                      "references/api/vendor/offers/retrieve-offer",
-                      "references/api/vendor/offers/update-offer",
-                      "references/api/vendor/offers/delete-offer",
-                      "references/api/vendor/offers/batch-create-offers",
-                      "references/api/vendor/offers/batch-offer-inventory-items"
-                    ]
-                  },
-                  {
-                    "group": "Orders",
-                    "pages": [
-                      "references/api/vendor/orders/list-orders",
-                      "references/api/vendor/orders/retrieve-order",
-                      "references/api/vendor/orders/preview-order",
-                      "references/api/vendor/orders/list-order-changes",
-                      "references/api/vendor/orders/get-order-commission-lines",
-                      "references/api/vendor/orders/complete-order",
-                      "references/api/vendor/orders/cancel-order",
-                      "references/api/vendor/orders/create-fulfillment",
-                      "references/api/vendor/orders/cancel-fulfillment",
-                      "references/api/vendor/orders/mark-fulfillment-delivered",
-                      "references/api/vendor/orders/create-shipment"
-                    ]
-                  },
-                  {
-                    "group": "Payouts",
-                    "pages": [
-                      "references/api/vendor/payouts/list-payouts",
-                      "references/api/vendor/payouts/retrieve-payout",
-                      "references/api/vendor/payout-accounts/retrieve-payout-account",
-                      "references/api/vendor/payout-accounts/create-payout-account",
-                      "references/api/vendor/payout-accounts/retrieve-payout-account-by-id",
-                      "references/api/vendor/payout-accounts/create-onboarding"
-                    ]
-                  }
-                ]
-              },
-              {
-                "group": "Store API",
-                "pages": [
-                  "references/api/store",
-                  {
-                    "group": "Products",
-                    "pages": [
-                      "references/api/store/products/list-products",
-                      "references/api/store/products/retrieve-product",
-                      "references/api/store/product-categories/list-product-categories",
-                      "references/api/store/product-categories/retrieve-product-category",
-                      "references/api/store/product-attributes/list-product-attributes",
-                      "references/api/store/product-attributes/retrieve-product-attribute"
-                    ]
-                  },
-                  {
-                    "group": "Sellers",
-                    "pages": [
-                      "references/api/store/sellers/list-sellers",
-                      "references/api/store/sellers/retrieve-seller"
-                    ]
-                  },
-                  {
-                    "group": "Offers",
-                    "pages": [
-                      "references/api/store/offers/list-offers",
-                      "references/api/store/offers/retrieve-offer"
-                    ]
-                  },
-                  {
-                    "group": "Search",
-                    "pages": [
-                      "references/api/store/search/search"
-                    ]
-                  },
-                  {
-                    "group": "Carts",
-                    "pages": [
-                      "references/api/store/carts/add-line-item",
-                      "references/api/store/carts/add-shipping-methods",
-                      "references/api/store/carts/apply-promotions",
-                      "references/api/store/carts/complete-cart",
-                      "references/api/store/shipping-options/list-shipping-options"
-                    ]
-                  },
-                  {
-                    "group": "Order Groups",
-                    "pages": [
-                      "references/api/store/order-groups/list-order-groups",
-                      "references/api/store/order-groups/retrieve-order-group"
-                    ]
-                  }
-                ]
-              },
-              {
-                "group": "Workflows",
-                "pages": [
-                  "references/workflows/overview",
-                  {
-                    "group": "Seller",
-                    "pages": [
-                      "references/workflows/seller/create-sellers",
-                      "references/workflows/seller/create-seller-account",
-                      "references/workflows/seller/create-seller-defaults",
-                      "references/workflows/seller/update-sellers",
-                      "references/workflows/seller/delete-sellers",
-                      "references/workflows/seller/approve-seller",
-                      "references/workflows/seller/suspend-seller",
-                      "references/workflows/seller/unsuspend-seller",
-                      "references/workflows/seller/terminate-seller",
-                      "references/workflows/seller/unterminate-seller",
-                      "references/workflows/seller/update-seller-address",
-                      "references/workflows/seller/update-seller-payment-details",
-                      "references/workflows/seller/update-seller-professional-details",
-                      "references/workflows/seller/delete-seller-professional-details",
-                      "references/workflows/seller/invite-seller"
-                    ]
-                  },
-                  {
-                    "group": "Member",
-                    "pages": [
-                      "references/workflows/member/add-seller-member",
-                      "references/workflows/member/remove-seller-member",
-                      "references/workflows/member/update-member",
-                      "references/workflows/member/update-member-role",
-                      "references/workflows/member/create-member-invites",
-                      "references/workflows/member/accept-member-invite",
-                      "references/workflows/member/resend-member-invite",
-                      "references/workflows/member/delete-member-invite"
-                    ]
-                  },
-                  {
-                    "group": "Cart",
-                    "pages": [
-                      "references/workflows/cart/complete-cart-with-split-orders",
-                      "references/workflows/cart/add-seller-shipping-method-to-cart",
-                      "references/workflows/cart/list-seller-shipping-options-for-cart",
-                      "references/workflows/cart/update-cart-seller-promotions"
-                    ]
-                  },
-                  {
-                    "group": "Order Group",
-                    "pages": [
-                      "references/workflows/order-group/get-order-group-detail",
-                      "references/workflows/order-group/get-order-groups-list"
-                    ]
-                  },
-                  {
-                    "group": "Commission",
-                    "pages": [
-                      "references/workflows/commission/create-commission-rates",
-                      "references/workflows/commission/update-commission-rates",
-                      "references/workflows/commission/delete-commission-rates",
-                      "references/workflows/commission/batch-commission-rules",
-                      "references/workflows/commission/refresh-order-commission-lines"
-                    ]
-                  },
-                  {
-                    "group": "Payout",
-                    "pages": [
-                      "references/workflows/payout/create-payout-account",
-                      "references/workflows/payout/create-onboarding",
-                      "references/workflows/payout/create-payout",
-                      "references/workflows/payout/process-payout-for-webhook"
-                    ]
-                  },
-                  {
-                    "group": "Product",
-                    "pages": [
-                      "references/workflows/product/create-products",
-                      "references/workflows/product/confirm-products",
-                      "references/workflows/product/reject-product",
-                      "references/workflows/product/request-product-change",
-                      "references/workflows/product/link-sellers-to-product",
-                      "references/workflows/product/link-sellers-to-product-category"
-                    ]
-                  },
-                  {
-                    "group": "Product Edit",
-                    "pages": [
-                      "references/workflows/product-edit/create-product-change",
-                      "references/workflows/product-edit/stage-product-change",
-                      "references/workflows/product-edit/confirm-product-change",
-                      "references/workflows/product-edit/auto-confirm-product-change",
-                      "references/workflows/product-edit/cancel-product-change",
-                      "references/workflows/product-edit/reject-product-change"
-                    ]
-                  },
-                  {
-                    "group": "Product Attribute",
-                    "pages": [
-                      "references/workflows/product-attribute/create-and-link-product-attributes-to-product",
-                      "references/workflows/product-attribute/add-product-attributes-to-product",
-                      "references/workflows/product-attribute/remove-product-attributes-from-product",
-                      "references/workflows/product-attribute/update-product-attributes-on-product",
-                      "references/workflows/product-attribute/create-product-attributes",
-                      "references/workflows/product-attribute/update-product-attributes",
-                      "references/workflows/product-attribute/delete-product-attributes",
-                      "references/workflows/product-attribute/create-product-attribute-values",
-                      "references/workflows/product-attribute/update-product-attribute-values",
-                      "references/workflows/product-attribute/upsert-product-attribute-values",
-                      "references/workflows/product-attribute/delete-product-attribute-values"
-                    ]
-                  },
-                  {
-                    "group": "Offer",
-                    "pages": [
-                      "references/workflows/offer/create-offers",
-                      "references/workflows/offer/update-offers",
-                      "references/workflows/offer/delete-offers",
-                      "references/workflows/offer/batch-offer-inventory-items"
-                    ]
-                  },
-                  {
-                    "group": "Media",
-                    "pages": [
-                      "references/workflows/media/set-category-images",
-                      "references/workflows/media/set-collection-images"
-                    ]
-                  },
-                  {
-                    "group": "Order",
-                    "pages": [
-                      "references/workflows/order/create-order-fulfillment",
-                      "references/workflows/order/cancel-order-fulfillment",
-                      "references/workflows/order/confirm-return-receive",
-                      "references/workflows/order/confirm-claim-request",
-                      "references/workflows/order/confirm-exchange-request",
-                      "references/workflows/order/confirm-order-edit-request"
-                    ]
-                  }
-                ]
-              },
-              {
-                "group": "Configuration",
-                "pages": [
-                  "references/configuration"
+                  "platform/store/reference/data-models",
+                  "platform/store/reference/links",
+                  "platform/store/reference/workflows",
+                  "platform/store/reference/service",
+                  "platform/store/reference/events"
                 ]
               }
             ]
           },
           {
-            "tab": "User Guide",
-            "groups": [
+            "group": "Catalog",
+            "icon": "grid-2",
+            "pages": [
+              "platform/catalog/overview",
               {
-                "group": "Admin Panel",
+                "group": "Concepts",
                 "pages": [
-                  "user-guide/admin/overview",
-                  "user-guide/admin/stores"
+                  "platform/catalog/concepts/master-products",
+                  "platform/catalog/concepts/product-seller-allowlist",
+                  "platform/catalog/concepts/status-lifecycle",
+                  "platform/catalog/concepts/variants-categories-collections"
                 ]
               },
               {
-                "group": "Vendor Panel",
+                "group": "Guides",
                 "pages": [
-                  "user-guide/vendor/overview",
-                  "user-guide/vendor/stores"
+                  "platform/catalog/guides/create-a-master-product",
+                  "platform/catalog/guides/allowlist-stores",
+                  "platform/catalog/guides/publish-or-reject-a-product"
+                ]
+              },
+              {
+                "group": "Reference",
+                "pages": [
+                  "platform/catalog/reference/data-models",
+                  "platform/catalog/reference/links",
+                  "platform/catalog/reference/workflows",
+                  "platform/catalog/reference/service",
+                  "platform/catalog/reference/events"
                 ]
               }
             ]
           },
           {
-            "tab": "Migration",
-            "groups": [
+            "group": "Offer",
+            "icon": "tag",
+            "pages": [
+              "platform/offer/overview",
               {
-                "group": "Migration",
+                "group": "Concepts",
                 "pages": [
-                  "migration/overview",
-                  "migration/from-2-0-to-2-1",
-                  "migration/from-1-x-to-2-0"
+                  "platform/offer/concepts/what-is-an-offer",
+                  "platform/offer/concepts/pricing-and-inventory",
+                  "platform/offer/concepts/shipping"
                 ]
               },
               {
-                "group": "Legal",
+                "group": "Guides",
                 "pages": [
-                  "telemetry"
+                  "platform/offer/guides/create-an-offer",
+                  "platform/offer/guides/bulk-create-offers",
+                  "platform/offer/guides/manage-offer-inventory"
+                ]
+              },
+              {
+                "group": "Reference",
+                "pages": [
+                  "platform/offer/reference/data-models",
+                  "platform/offer/reference/links",
+                  "platform/offer/reference/workflows",
+                  "platform/offer/reference/service",
+                  "platform/offer/reference/events"
                 ]
               }
             ]
           },
           {
-            "tab": "Changelog",
-            "groups": [
+            "group": "Attribute",
+            "icon": "sliders",
+            "pages": [
+              "platform/attribute/overview",
               {
-                "group": "Changelog",
-                "pages": []
+                "group": "Concepts",
+                "pages": [
+                  "platform/attribute/concepts/attribute-types",
+                  "platform/attribute/concepts/variant-axes",
+                  "platform/attribute/concepts/global-vs-inline"
+                ]
+              },
+              {
+                "group": "Guides",
+                "pages": [
+                  "platform/attribute/guides/create-an-attribute",
+                  "platform/attribute/guides/attach-attributes-to-a-product",
+                  "platform/attribute/guides/create-a-variant-axis"
+                ]
+              },
+              {
+                "group": "Reference",
+                "pages": [
+                  "platform/attribute/reference/data-models",
+                  "platform/attribute/reference/links",
+                  "platform/attribute/reference/workflows",
+                  "platform/attribute/reference/service",
+                  "platform/attribute/reference/events"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Product Edit",
+            "icon": "pen-to-square",
+            "pages": [
+              "platform/product-edit/overview",
+              {
+                "group": "Concepts",
+                "pages": [
+                  "platform/product-edit/concepts/change-pipeline",
+                  "platform/product-edit/concepts/change-actions",
+                  "platform/product-edit/concepts/status-and-auto-confirm"
+                ]
+              },
+              {
+                "group": "Guides",
+                "pages": [
+                  "platform/product-edit/guides/edit-a-product",
+                  "platform/product-edit/guides/confirm-or-decline-a-change",
+                  "platform/product-edit/guides/request-a-revision"
+                ]
+              },
+              {
+                "group": "Reference",
+                "pages": [
+                  "platform/product-edit/reference/data-models",
+                  "platform/product-edit/reference/links",
+                  "platform/product-edit/reference/workflows",
+                  "platform/product-edit/reference/service",
+                  "platform/product-edit/reference/events"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Order Group",
+            "icon": "layer-group",
+            "pages": [
+              "platform/order-group/overview",
+              {
+                "group": "Concepts",
+                "pages": [
+                  "platform/order-group/concepts/the-order-group",
+                  "platform/order-group/concepts/order-splitting",
+                  "platform/order-group/concepts/computed-totals"
+                ]
+              },
+              {
+                "group": "Guides",
+                "pages": [
+                  "platform/order-group/guides/retrieve-an-order-group",
+                  "platform/order-group/guides/list-order-groups",
+                  "platform/order-group/guides/split-a-cart"
+                ]
+              },
+              {
+                "group": "Reference",
+                "pages": [
+                  "platform/order-group/reference/data-models",
+                  "platform/order-group/reference/links",
+                  "platform/order-group/reference/workflows",
+                  "platform/order-group/reference/service",
+                  "platform/order-group/reference/events"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Commission",
+            "icon": "percent",
+            "pages": [
+              "platform/commission/overview",
+              {
+                "group": "Concepts",
+                "pages": [
+                  "platform/commission/concepts/rules-and-rates",
+                  "platform/commission/concepts/rule-matching",
+                  "platform/commission/concepts/order-commission-lines"
+                ]
+              },
+              {
+                "group": "Guides",
+                "pages": [
+                  "platform/commission/guides/create-a-rate",
+                  "platform/commission/guides/batch-update-rules",
+                  "platform/commission/guides/refresh-order-commission-lines"
+                ]
+              },
+              {
+                "group": "Reference",
+                "pages": [
+                  "platform/commission/reference/data-models",
+                  "platform/commission/reference/links",
+                  "platform/commission/reference/workflows",
+                  "platform/commission/reference/service",
+                  "platform/commission/reference/events"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Payout",
+            "icon": "wallet",
+            "pages": [
+              "platform/payout/overview",
+              {
+                "group": "Concepts",
+                "pages": [
+                  "platform/payout/concepts/accounts-and-onboarding",
+                  "platform/payout/concepts/account-lifecycle",
+                  "platform/payout/concepts/payout-pipeline"
+                ]
+              },
+              {
+                "group": "Guides",
+                "pages": [
+                  "platform/payout/guides/create-a-payout-account",
+                  "platform/payout/guides/start-provider-onboarding",
+                  "platform/payout/guides/process-a-provider-webhook"
+                ]
+              },
+              {
+                "group": "Reference",
+                "pages": [
+                  "platform/payout/reference/data-models",
+                  "platform/payout/reference/links",
+                  "platform/payout/reference/workflows",
+                  "platform/payout/reference/service",
+                  "platform/payout/reference/events"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Review",
+            "icon": "star",
+            "pages": [
+              "platform/review/overview",
+              {
+                "group": "Concepts",
+                "pages": [
+                  "platform/review/concepts/the-review-model",
+                  "platform/review/concepts/product-vs-seller-reviews",
+                  "platform/review/concepts/ratings-and-moderation"
+                ]
+              },
+              {
+                "group": "Guides",
+                "pages": [
+                  "platform/review/guides/create-a-review",
+                  "platform/review/guides/moderate-a-review",
+                  "platform/review/guides/respond-to-a-review",
+                  "platform/review/guides/compute-aggregate-ratings"
+                ]
+              },
+              {
+                "group": "Reference",
+                "pages": [
+                  "platform/review/reference/data-models",
+                  "platform/review/reference/links",
+                  "platform/review/reference/workflows",
+                  "platform/review/reference/service",
+                  "platform/review/reference/events"
+                ]
               }
             ]
           }
         ]
       },
       {
-        "version": "1.x",
-        "tabs": [
+        "tab": "Build",
+        "groups": [
           {
-            "tab": "Docs",
-            "groups": [
+            "group": "How-Tos",
+            "icon": "wrench",
+            "pages": [
+              "resources/best-practices/overview",
               {
-                "group": "Quick start",
+                "group": "Server",
                 "pages": [
-                  "v1/introduction",
-                  "v1/get-started"
+                  "resources/best-practices/modules",
+                  "resources/best-practices/module-links",
+                  "resources/best-practices/workflows",
+                  "resources/customization/extend-a-workflow",
+                  "resources/best-practices/api-routes",
+                  "resources/tutorials/custom-api-route",
+                  "resources/best-practices/subscribers-and-jobs",
+                  "resources/best-practices/custom-fields",
+                  "resources/best-practices/types",
+                  "resources/tutorials/attributes-and-variant-axes",
+                  "resources/tutorials/master-products-and-offers"
                 ]
               },
               {
-                "group": "Components",
+                "group": "Panels",
                 "pages": [
-                  "v1/components/backend",
-                  "v1/components/admin-panel",
-                  "v1/components/vendor-panel",
-                  "v1/components/storefront"
+                  "resources/customization/extending-panels",
+                  "resources/tutorials/add-a-widget",
+                  "resources/tutorials/custom-panel-page",
+                  "resources/tutorials/add-order-detail-button",
+                  "resources/tutorials/extend-forms-and-tables",
+                  "resources/tutorials/customize-navigation",
+                  "resources/tutorials/extend-onboarding",
+                  "resources/best-practices/frontend"
                 ]
               },
               {
-                "group": "Core Concepts",
+                "group": "Blocks",
                 "pages": [
-                  "v1/core-concepts/seller",
-                  "v1/core-concepts/order-splitting",
-                  "v1/core-concepts/payouts",
-                  "v1/core-concepts/commission",
-                  "v1/core-concepts/marketplace-settings",
-                  "v1/core-concepts/requests",
-                  "v1/core-concepts/reviews",
-                  "v1/core-concepts/notifications"
+                  "resources/tutorials/add-a-block",
+                  "resources/tutorials/build-a-block"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Integrations",
+            "icon": "plug",
+            "pages": [
+              "resources/integrations/overview",
+              "resources/integrations/stripe-connect"
+            ]
+          },
+          {
+            "group": "Deployment",
+            "icon": "rocket",
+            "pages": [
+              "resources/deployment/self-host",
+              "resources/deployment/medusa-cloud"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "references/overview"
+            ]
+          },
+          {
+            "group": "Panel extensions",
+            "pages": [
+              "references/panel-extensions/overview",
+              "references/panel-extensions/custom-fields",
+              "references/panel-extensions/widgets",
+              "references/panel-extensions/create-page"
+            ]
+          },
+          {
+            "group": "Admin API",
+            "pages": [
+              "references/api/conventions",
+              "references/api/admin",
+              {
+                "group": "Sellers",
+                "pages": [
+                  "references/api/admin/sellers/list-sellers",
+                  "references/api/admin/sellers/create-seller",
+                  "references/api/admin/sellers/retrieve-seller",
+                  "references/api/admin/sellers/update-seller",
+                  "references/api/admin/sellers/approve-seller",
+                  "references/api/admin/sellers/suspend-seller",
+                  "references/api/admin/sellers/unsuspend-seller",
+                  "references/api/admin/sellers/terminate-seller",
+                  "references/api/admin/sellers/unterminate-seller",
+                  "references/api/admin/sellers/upsert-seller-address",
+                  "references/api/admin/sellers/upsert-payment-details",
+                  "references/api/admin/sellers/upsert-professional-details",
+                  "references/api/admin/sellers/delete-professional-details",
+                  "references/api/admin/sellers/list-seller-products",
+                  "references/api/admin/sellers/list-seller-members",
+                  "references/api/admin/sellers/add-seller-member",
+                  "references/api/admin/sellers/remove-seller-member",
+                  "references/api/admin/sellers/invite-seller-member",
+                  "references/api/admin/sellers/list-member-invites",
+                  "references/api/admin/sellers/delete-member-invite",
+                  "references/api/admin/sellers/resend-member-invite"
                 ]
               },
               {
-                "group": "Product",
+                "group": "Members",
                 "pages": [
-                  "v1/product/framework",
-                  "v1/product/core-commerce-modules",
-                  "v1/product/core-infrastructure-modules",
+                  "references/api/admin/members/list-members"
+                ]
+              },
+              {
+                "group": "Commission Rates",
+                "pages": [
+                  "references/api/admin/commission-rates/list-commission-rates",
+                  "references/api/admin/commission-rates/create-commission-rate",
+                  "references/api/admin/commission-rates/retrieve-commission-rate",
+                  "references/api/admin/commission-rates/update-commission-rate",
+                  "references/api/admin/commission-rates/delete-commission-rate",
+                  "references/api/admin/commission-rates/batch-commission-rules"
+                ]
+              },
+              {
+                "group": "Payouts",
+                "pages": [
+                  "references/api/admin/payouts/list-payouts",
+                  "references/api/admin/payouts/retrieve-payout"
+                ]
+              },
+              {
+                "group": "Offers",
+                "pages": [
+                  "references/api/admin/offers/list-offers",
+                  "references/api/admin/offers/retrieve-offer",
+                  "references/api/admin/offers/delete-offer",
+                  "references/api/admin/offers/batch-create-offers"
+                ]
+              },
+              {
+                "group": "Products",
+                "pages": [
+                  "references/api/admin/products/list-products",
+                  "references/api/admin/products/create-product",
+                  "references/api/admin/products/retrieve-product",
+                  "references/api/admin/products/update-product",
+                  "references/api/admin/products/delete-product",
+                  "references/api/admin/products/preview-product",
+                  "references/api/admin/products/confirm-product",
+                  "references/api/admin/products/reject-product",
+                  "references/api/admin/products/request-product-changes",
+                  "references/api/admin/products/set-product-sellers",
+                  "references/api/admin/products/batch-product-attributes",
+                  "references/api/admin/products/list-product-variants",
+                  "references/api/admin/products/create-product-variant",
+                  "references/api/admin/products/retrieve-product-variant",
+                  "references/api/admin/products/update-product-variant",
+                  "references/api/admin/products/delete-product-variant"
+                ]
+              },
+              {
+                "group": "Product Changes",
+                "pages": [
+                  "references/api/admin/product-changes/confirm-product-change",
+                  "references/api/admin/product-changes/cancel-product-change"
+                ]
+              },
+              {
+                "group": "Product Attributes",
+                "pages": [
+                  "references/api/admin/product-attributes/list-product-attributes",
+                  "references/api/admin/product-attributes/create-product-attribute",
+                  "references/api/admin/product-attributes/retrieve-product-attribute",
+                  "references/api/admin/product-attributes/update-product-attribute",
+                  "references/api/admin/product-attributes/delete-product-attribute",
+                  "references/api/admin/product-attributes/create-attribute-value",
+                  "references/api/admin/product-attributes/update-attribute-value",
+                  "references/api/admin/product-attributes/delete-attribute-value"
+                ]
+              },
+              {
+                "group": "Orders",
+                "pages": [
+                  "references/api/admin/orders/list-orders",
+                  "references/api/admin/orders/get-order-commission-lines",
+                  "references/api/admin/orders/get-order-order-group"
+                ]
+              },
+              {
+                "group": "Order Groups",
+                "pages": [
+                  "references/api/admin/order-groups/list-order-groups",
+                  "references/api/admin/order-groups/retrieve-order-group"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Vendor API",
+            "pages": [
+              "references/api/vendor",
+              {
+                "group": "Sellers",
+                "pages": [
+                  "references/api/vendor/sellers/create-seller",
+                  "references/api/vendor/sellers/list-sellers",
+                  "references/api/vendor/sellers/select-seller",
+                  "references/api/vendor/sellers/retrieve-current-seller",
+                  "references/api/vendor/sellers/update-current-seller",
+                  "references/api/vendor/sellers/upsert-seller-address",
+                  "references/api/vendor/sellers/upsert-payment-details",
+                  "references/api/vendor/sellers/upsert-professional-details",
+                  "references/api/vendor/sellers/delete-professional-details",
+                  "references/api/vendor/sellers/list-seller-members",
+                  "references/api/vendor/sellers/invite-seller-member",
+                  "references/api/vendor/sellers/update-member-role",
+                  "references/api/vendor/sellers/remove-seller-member",
+                  "references/api/vendor/sellers/retrieve-current-seller-member",
+                  "references/api/vendor/sellers/list-member-invites"
+                ]
+              },
+              {
+                "group": "Members",
+                "pages": [
+                  "references/api/vendor/members/retrieve-current-member",
+                  "references/api/vendor/members/update-current-member",
+                  "references/api/vendor/members/accept-member-invite"
+                ]
+              },
+              {
+                "group": "Products",
+                "pages": [
+                  "references/api/vendor/products/list-products",
+                  "references/api/vendor/products/create-product",
+                  "references/api/vendor/products/retrieve-product",
+                  "references/api/vendor/products/update-product",
+                  "references/api/vendor/products/delete-product",
+                  "references/api/vendor/products/preview-product",
+                  "references/api/vendor/products/cancel-product-change",
+                  "references/api/vendor/products/batch-product-attributes",
+                  "references/api/vendor/products/list-product-variants",
+                  "references/api/vendor/products/create-product-variant",
+                  "references/api/vendor/products/retrieve-product-variant",
+                  "references/api/vendor/products/update-product-variant",
+                  "references/api/vendor/products/delete-product-variant",
+                  "references/api/vendor/product-variants/list-variants"
+                ]
+              },
+              {
+                "group": "Product Attributes",
+                "pages": [
+                  "references/api/vendor/product-attributes/list-product-attributes",
+                  "references/api/vendor/product-attributes/retrieve-product-attribute"
+                ]
+              },
+              {
+                "group": "Offers",
+                "pages": [
+                  "references/api/vendor/offers/list-offers",
+                  "references/api/vendor/offers/create-offer",
+                  "references/api/vendor/offers/retrieve-offer",
+                  "references/api/vendor/offers/update-offer",
+                  "references/api/vendor/offers/delete-offer",
+                  "references/api/vendor/offers/batch-create-offers",
+                  "references/api/vendor/offers/batch-offer-inventory-items"
+                ]
+              },
+              {
+                "group": "Orders",
+                "pages": [
+                  "references/api/vendor/orders/list-orders",
+                  "references/api/vendor/orders/retrieve-order",
+                  "references/api/vendor/orders/preview-order",
+                  "references/api/vendor/orders/list-order-changes",
+                  "references/api/vendor/orders/get-order-commission-lines",
+                  "references/api/vendor/orders/complete-order",
+                  "references/api/vendor/orders/cancel-order",
+                  "references/api/vendor/orders/create-fulfillment",
+                  "references/api/vendor/orders/cancel-fulfillment",
+                  "references/api/vendor/orders/mark-fulfillment-delivered",
+                  "references/api/vendor/orders/create-shipment"
+                ]
+              },
+              {
+                "group": "Payouts",
+                "pages": [
+                  "references/api/vendor/payouts/list-payouts",
+                  "references/api/vendor/payouts/retrieve-payout",
+                  "references/api/vendor/payout-accounts/retrieve-payout-account",
+                  "references/api/vendor/payout-accounts/create-payout-account",
+                  "references/api/vendor/payout-accounts/retrieve-payout-account-by-id",
+                  "references/api/vendor/payout-accounts/create-onboarding"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Store API",
+            "pages": [
+              "references/api/store",
+              {
+                "group": "Products",
+                "pages": [
+                  "references/api/store/products/list-products",
+                  "references/api/store/products/retrieve-product",
+                  "references/api/store/product-categories/list-product-categories",
+                  "references/api/store/product-categories/retrieve-product-category",
+                  "references/api/store/product-attributes/list-product-attributes",
+                  "references/api/store/product-attributes/retrieve-product-attribute"
+                ]
+              },
+              {
+                "group": "Sellers",
+                "pages": [
+                  "references/api/store/sellers/list-sellers",
+                  "references/api/store/sellers/retrieve-seller"
+                ]
+              },
+              {
+                "group": "Offers",
+                "pages": [
+                  "references/api/store/offers/list-offers",
+                  "references/api/store/offers/retrieve-offer"
+                ]
+              },
+              {
+                "group": "Search",
+                "pages": []
+              },
+              {
+                "group": "Carts",
+                "pages": [
+                  "references/api/store/carts/add-line-item",
+                  "references/api/store/carts/add-shipping-methods",
+                  "references/api/store/carts/apply-promotions",
+                  "references/api/store/carts/complete-cart",
+                  "references/api/store/shipping-options/list-shipping-options"
+                ]
+              },
+              {
+                "group": "Order Groups",
+                "pages": [
+                  "references/api/store/order-groups/list-order-groups",
+                  "references/api/store/order-groups/retrieve-order-group"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "references/configuration"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "User Guide",
+        "groups": [
+          {
+            "group": "Admin Panel",
+            "pages": [
+              "user-guide/admin/overview",
+              "user-guide/admin/stores",
+              {
+                "group": "Commissions",
+                "pages": [
+                  "user-guide/admin/commissions/overview",
                   {
-                    "group": "Mercur marketplace modules",
+                    "group": "How-tos",
                     "pages": [
-                      {
-                        "group": "Core",
-                        "pages": [
-                          {
-                            "group": "Attribute module",
-                            "pages": [
-                              "v1/product/modules/b2c-core/attribute/attribute-concept",
-                              "v1/product/modules/b2c-core/attribute/attribute-links",
-                              "v1/product/modules/b2c-core/attribute/attributes-data-models-ref",
-                              "v1/product/modules/b2c-core/attribute/attributes-services"
-                            ]
-                          },
-                          {
-                            "group": "Configuration module",
-                            "pages": [
-                              "v1/product/modules/b2c-core/configuration/configuration-concept",
-                              "v1/product/modules/b2c-core/configuration/configuration-data-models-ref",
-                              "v1/product/modules/b2c-core/configuration/configuration-services"
-                            ]
-                          },
-                          {
-                            "group": "Marketplace module",
-                            "pages": [
-                              "v1/product/modules/b2c-core/marketplace/marketplace-concept",
-                              "v1/product/modules/b2c-core/marketplace/marketplace-links",
-                              "v1/product/modules/b2c-core/marketplace/marketplace-data-model-reference",
-                              "v1/product/modules/b2c-core/marketplace/marketplace-service"
-                            ]
-                          },
-                          {
-                            "group": "Payout module",
-                            "pages": [
-                              "v1/product/modules/b2c-core/payout/payout-concept",
-                              "v1/product/modules/b2c-core/payout/payout-links",
-                              "v1/product/modules/b2c-core/payout/payout-data-model-reference",
-                              "v1/product/modules/b2c-core/payout/payout-services"
-                            ]
-                          },
-                          {
-                            "group": "Secondary Category Module",
-                            "pages": [
-                              "v1/product/modules/b2c-core/secondary-categories/secondary-categories-concept",
-                              "v1/product/modules/b2c-core/secondary-categories/secondary-category-links",
-                              "v1/product/modules/b2c-core/secondary-categories/sec-cat-data-model-reference",
-                              "v1/product/modules/b2c-core/secondary-categories/secondary-category-services"
-                            ]
-                          },
-                          {
-                            "group": "Seller module",
-                            "pages": [
-                              "v1/product/modules/b2c-core/seller/seller-concept",
-                              "v1/product/modules/b2c-core/seller/seller-module-options",
-                              "v1/product/modules/b2c-core/seller/seller-links",
-                              "v1/product/modules/b2c-core/seller/seller-data-model-reference",
-                              "v1/product/modules/b2c-core/seller/seller-services"
-                            ]
-                          },
-                          {
-                            "group": "Split Order Payment Module",
-                            "pages": [
-                              "v1/product/modules/b2c-core/split-order-payment/split-order-payment-concept",
-                              "v1/product/modules/b2c-core/split-order-payment/split-order-links",
-                              "v1/product/modules/b2c-core/split-order-payment/split-order-data-model-reference",
-                              "v1/product/modules/b2c-core/split-order-payment/split-order-services"
-                            ]
-                          },
-                          {
-                            "group": "Taxcode module",
-                            "pages": [
-                              "v1/product/modules/b2c-core/taxcode/taxcode-concept",
-                              "v1/product/modules/b2c-core/taxcode/taxcode-links",
-                              "v1/product/modules/b2c-core/taxcode/taxcode-data-model-reference",
-                              "v1/product/modules/b2c-core/taxcode/taxcode-services"
-                            ]
-                          },
-                          {
-                            "group": "Wishlist module",
-                            "pages": [
-                              "v1/product/modules/b2c-core/wishlist/wishlist-concept",
-                              "v1/product/modules/b2c-core/wishlist/wishlist-links",
-                              "v1/product/modules/b2c-core/wishlist/wishlist-data-model-reference",
-                              "v1/product/modules/b2c-core/wishlist/wishlist-services"
-                            ]
-                          }
-                        ]
-                      },
-                      {
-                        "group": "Commission",
-                        "pages": [
-                          {
-                            "group": "Commission module",
-                            "pages": [
-                              "v1/product/modules/commission/commission/commission-concept",
-                              "v1/product/modules/commission/commission/commission-data-model-reference",
-                              "v1/product/modules/commission/commission/commission-services"
-                            ]
-                          }
-                        ]
-                      },
-                      {
-                        "group": "Requests",
-                        "pages": [
-                          {
-                            "group": "Request module",
-                            "pages": [
-                              "v1/product/modules/requests/requests/requests-concept",
-                              "v1/product/modules/requests/requests/requests-links",
-                              "v1/product/modules/requests/requests/request-data-model-reference",
-                              "v1/product/modules/requests/requests/requests-services"
-                            ]
-                          },
-                          {
-                            "group": "Order Return Request module",
-                            "pages": [
-                              "v1/product/modules/requests/order-return-request/order-return-request",
-                              "v1/product/modules/requests/order-return-request/order-return-request-links",
-                              "v1/product/modules/requests/order-return-request/order-return-request-data-model-reference",
-                              "v1/product/modules/requests/order-return-request/order-return-request-services"
-                            ]
-                          }
-                        ]
-                      },
-                      {
-                        "group": "Reviews",
-                        "pages": [
-                          {
-                            "group": "Reviews module",
-                            "pages": [
-                              "v1/product/modules/reviews/reviews/reviews-concept",
-                              "v1/product/modules/reviews/reviews/review-links",
-                              "v1/product/modules/reviews/reviews/review-data-model-reference",
-                              "v1/product/modules/reviews/reviews/review-service"
-                            ]
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  {
-                    "group": "Workflows",
-                    "pages": [
-                      {
-                        "group": "Core",
-                        "pages": [
-                          "v1/docs/product/workflows/core/price-list-workflows",
-                          "v1/docs/product/workflows/core/attribute",
-                          "v1/docs/product/workflows/core/campaign-workflows",
-                          "v1/docs/product/workflows/core/cart-workflows",
-                          "v1/docs/product/workflows/core/configuration-workflows",
-                          "v1/docs/product/workflows/core/customer-groups-workflows",
-                          "v1/docs/product/workflows/core/fulfillment-set-workflows",
-                          "v1/docs/product/workflows/core/order-workflows",
-                          "v1/docs/product/workflows/core/order-set-workflows",
-                          "v1/docs/product/workflows/core/payout-workflows",
-                          "v1/docs/product/workflows/core/product-workflows",
-                          "v1/docs/product/workflows/core/promotions-workflows",
-                          "v1/docs/product/workflows/core/seller-workflows",
-                          "v1/docs/product/workflows/core/split-order-payment",
-                          "v1/docs/product/workflows/core/wishlist-workflows",
-                          "v1/docs/product/workflows/core/common-workflows",
-                          "v1/docs/product/workflows/core/hooks"
-                        ]
-                      },
-                      {
-                        "group": "Commission",
-                        "pages": [
-                          "v1/docs/product/workflows/commission/commission-workflows"
-                        ]
-                      },
-                      {
-                        "group": "Requests",
-                        "pages": [
-                          "v1/docs/product/workflows/requests/requests",
-                          "v1/docs/product/workflows/requests/order-return-request-workflows"
-                        ]
-                      },
-                      {
-                        "group": "Reviews",
-                        "pages": [
-                          "v1/docs/product/workflows/reviews/review-workflows"
-                        ]
-                      }
-                    ]
-                  },
-                  "v1/docs/product/js-sdk",
-                  "v1/docs/product/api",
-                  {
-                    "group": "Events",
-                    "pages": [
-                      "v1/docs/product/events/core-events",
-                      "v1/docs/product/events/request-events",
-                      "v1/docs/product/events/reviews-events"
-                    ]
-                  },
-                  {
-                    "group": "Scheduled Jobs",
-                    "pages": [
-                      "v1/docs/product/scheduled-jobs/core-scheduled-jobs"
-                    ]
-                  },
-                  {
-                    "group": "Subscribers",
-                    "pages": [
-                      "v1/docs/product/subscribers/core",
-                      "v1/docs/product/subscribers/commission",
-                      "v1/docs/product/subscribers/requests",
-                      "v1/docs/product/subscribers/reviews"
+                      "user-guide/admin/commissions/how-tos/edit-the-global-commission",
+                      "user-guide/admin/commissions/how-tos/create-a-commission-rule",
+                      "user-guide/admin/commissions/how-tos/manage-a-commission-rule"
                     ]
                   }
                 ]
               },
               {
-                "group": "Integrations",
+                "group": "Product Requests",
                 "pages": [
-                  "v1/integrations/algolia",
-                  "v1/integrations/resend",
-                  "v1/integrations/stripe"
+                  "user-guide/admin/product-requests/overview",
+                  {
+                    "group": "How-tos",
+                    "pages": [
+                      "user-guide/admin/product-requests/how-tos/review-a-new-product",
+                      "user-guide/admin/product-requests/how-tos/review-a-product-edit"
+                    ]
+                  }
                 ]
               },
               {
-                "group": "Deployment",
+                "group": "Product Attributes",
                 "pages": [
-                  "v1/medusa-cloud"
-                ]
-              },
-              {
-                "group": "Development",
-                "pages": [
-                  "v1/development/set-up"
-                ]
-              },
-              {
-                "group": "Help",
-                "pages": [
-                  "v1/help/llm",
-                  "v1/help/mcp",
-                  "v1/help/support"
+                  "user-guide/admin/attributes/overview",
+                  {
+                    "group": "How-tos",
+                    "pages": [
+                      "user-guide/admin/attributes/how-tos/create-an-attribute",
+                      "user-guide/admin/attributes/how-tos/manage-possible-values"
+                    ]
+                  }
                 ]
               }
             ]
           },
           {
-            "tab": "API Reference",
-            "groups": [
+            "group": "Vendor Panel",
+            "pages": [
+              "user-guide/vendor/overview",
+              "user-guide/vendor/onboarding",
+              "user-guide/vendor/stores",
               {
-                "group": "API Documentation",
-                "openapi": "v1/api-reference/combined.oas.json"
+                "group": "Offers",
+                "pages": [
+                  "user-guide/vendor/offers/overview",
+                  {
+                    "group": "How-tos",
+                    "pages": [
+                      "user-guide/vendor/offers/how-tos/create-an-offer",
+                      "user-guide/vendor/offers/how-tos/update-prices-and-stock"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Products",
+                "pages": [
+                  "user-guide/vendor/products/overview",
+                  {
+                    "group": "How-tos",
+                    "pages": [
+                      "user-guide/vendor/products/how-tos/submit-a-product",
+                      "user-guide/vendor/products/how-tos/edit-a-product"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Orders",
+                "pages": [
+                  "user-guide/vendor/orders/overview",
+                  {
+                    "group": "How-tos",
+                    "pages": [
+                      "user-guide/vendor/orders/how-tos/fulfill-an-order",
+                      "user-guide/vendor/orders/how-tos/ship-an-order",
+                      "user-guide/vendor/orders/how-tos/mark-an-order-as-delivered",
+                      "user-guide/vendor/orders/how-tos/refund-an-order",
+                      "user-guide/vendor/orders/how-tos/process-a-return"
+                    ]
+                  }
+                ]
               }
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "Changelog",
+        "groups": [
           {
-            "tab": "Changelog",
-            "groups": [
-              {
-                "group": "Changelog",
-                "pages": []
-              }
-            ]
+            "group": "Changelog",
+            "pages": []
           }
         ]
       }
@@ -1279,15 +1145,15 @@
     },
     {
       "source": "/ai-development/llms",
-      "destination": "/resources/ai/llms"
+      "destination": "/resources/ai/overview"
     },
     {
       "source": "/rc/ai-development/llms",
-      "destination": "/resources/ai/llms"
+      "destination": "/resources/ai/overview"
     },
     {
       "source": "/v2/ai-development/llms",
-      "destination": "/resources/ai/llms"
+      "destination": "/resources/ai/overview"
     },
     {
       "source": "/ai-development/mcp",
@@ -1327,39 +1193,39 @@
     },
     {
       "source": "/migrations/overview",
-      "destination": "/migration/overview"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/rc/migrations/overview",
-      "destination": "/migration/overview"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/v2/migrations/overview",
-      "destination": "/migration/overview"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/migrations/from-2-0-to-2-1",
-      "destination": "/migration/from-2-0-to-2-1"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/rc/migrations/from-2-0-to-2-1",
-      "destination": "/migration/from-2-0-to-2-1"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/v2/migrations/from-2-0-to-2-1",
-      "destination": "/migration/from-2-0-to-2-1"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/migrations/from-1-x-to-2-0",
-      "destination": "/migration/from-1-x-to-2-0"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/rc/migrations/from-1-x-to-2-0",
-      "destination": "/migration/from-1-x-to-2-0"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/v2/migrations/from-1-x-to-2-0",
-      "destination": "/migration/from-1-x-to-2-0"
+      "destination": "/learn/migration-to-2-0"
     },
     {
       "source": "/user-guides/admin/stores",
@@ -1386,62 +1252,6 @@
       "destination": "/user-guide/vendor/stores"
     },
     {
-      "source": "/core-concepts/marketplace-settings",
-      "destination": "/v1/core-concepts/marketplace-settings"
-    },
-    {
-      "source": "/core-concepts/requests",
-      "destination": "/v1/core-concepts/requests"
-    },
-    {
-      "source": "/core-concepts/reviews",
-      "destination": "/v1/core-concepts/reviews"
-    },
-    {
-      "source": "/core-concepts/notifications",
-      "destination": "/v1/core-concepts/notifications"
-    },
-    {
-      "source": "/components/:slug*",
-      "destination": "/v1/components/:slug*"
-    },
-    {
-      "source": "/product/:slug*",
-      "destination": "/v1/product/:slug*"
-    },
-    {
-      "source": "/docs/:slug*",
-      "destination": "/v1/docs/:slug*"
-    },
-    {
-      "source": "/development/:slug*",
-      "destination": "/v1/development/:slug*"
-    },
-    {
-      "source": "/integrations/:slug*",
-      "destination": "/v1/integrations/:slug*"
-    },
-    {
-      "source": "/essentials/:slug*",
-      "destination": "/v1/essentials/:slug*"
-    },
-    {
-      "source": "/help/:slug*",
-      "destination": "/v1/help/:slug*"
-    },
-    {
-      "source": "/api-reference/:slug*",
-      "destination": "/v1/api-reference/:slug*"
-    },
-    {
-      "source": "/snippets/:slug*",
-      "destination": "/v1/snippets/:slug*"
-    },
-    {
-      "source": "/try-the-api",
-      "destination": "/v1/try-the-api"
-    },
-    {
       "source": "/rc",
       "destination": "/learn/introduction"
     },
@@ -1456,6 +1266,30 @@
     {
       "source": "/v2/:slug*",
       "destination": "/:slug*"
+    },
+    {
+      "source": "/migration/overview",
+      "destination": "/learn/migration-to-2-0"
+    },
+    {
+      "source": "/migration/from-1-x-to-2-0",
+      "destination": "/learn/migration-to-2-0"
+    },
+    {
+      "source": "/migration/from-2-0-to-2-1",
+      "destination": "/learn/migration-to-2-0"
+    },
+    {
+      "source": "/rc/migration/overview",
+      "destination": "/learn/migration-to-2-0"
+    },
+    {
+      "source": "/rc/migration/from-1-x-to-2-0",
+      "destination": "/learn/migration-to-2-0"
+    },
+    {
+      "source": "/rc/migration/from-2-0-to-2-1",
+      "destination": "/learn/migration-to-2-0"
     }
   ],
   "footer": {
@@ -1481,8 +1315,8 @@
   },
   "background": {
     "color": {
-      "light": "#F7F7F9",
-      "dark": "#0B0B12"
+      "light": "#FFFFFF",
+      "dark": "#0C0A12"
     }
   }
 }

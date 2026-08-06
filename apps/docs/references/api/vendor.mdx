@@ -1,9 +1,11 @@
 ---
 title: "Vendor API"
-description: "Seller-scoped routes under /vendor/* — every request operates on the authenticated member's selected seller."
+description: "Seller-scoped routes under /vendor/* where every request operates on the authenticated member's selected seller."
 ---
 
-The Vendor API is the seller's surface. Every route is scoped to one seller through the member authentication and `x-seller-id` mechanism described in [API conventions](/rc/references/api/conventions#vendor) — a seller can never read or mutate another seller's data.
+The Vendor API is the seller's surface.
+
+Every route is scoped to one seller through the member authentication and `x-seller-id` mechanism described in [API conventions](/rc/references/api/conventions#vendor). A seller can never read or mutate another seller's data.
 
 ## Account and team
 
@@ -24,7 +26,7 @@ The Vendor API is the seller's surface. Every route is scoped to one seller thro
 
 ## Products and offers
 
-Products are shared master records: updates stage a [change request](/rc/references/modules/product-edit) rather than writing directly, and the list shows products the seller created plus published, unrestricted products.
+Products are shared master records. Updates stage a [change request](/platform/product-edit/overview) rather than writing directly, and the list shows products the seller created plus published, unrestricted products.
 
 | Method | Path | Purpose |
 | --- | --- | --- |
@@ -43,7 +45,7 @@ Products are shared master records: updates stage a [change request](/rc/referen
 
 ### Catalog taxonomy (read-only)
 
-`GET /vendor/product-categories[/:id]`, `/vendor/product-tags[/:id]`, `/vendor/product-types[/:id]`, `/vendor/product-attributes[/:id]`, `/vendor/collections[/:id]` — plus `POST /vendor/product-categories/:id/products` and `POST /vendor/collections/:id/products` to place own products.
+`GET /vendor/product-categories[/:id]`, `/vendor/product-tags[/:id]`, `/vendor/product-types[/:id]`, `/vendor/product-attributes[/:id]`, and `/vendor/collections[/:id]`. Use `POST /vendor/product-categories/:id/products` and `POST /vendor/collections/:id/products` to place own products.
 
 ## Orders and fulfillment
 
@@ -146,5 +148,4 @@ Full RMA suites exist per domain, following the same action pattern Medusa uses 
 
 <CardGroup cols={2}>
   <Card title="Store API" href="/rc/references/api/store" />
-  <Card title="API Client" href="/rc/tools/api-client" />
 </CardGroup>

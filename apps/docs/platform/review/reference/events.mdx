@@ -1,0 +1,61 @@
+---
+title: "Event reference"
+sidebarTitle: "Events"
+description: "Running side effects as reviews are created, moderated, and answered."
+---
+
+The Review workflows handle validation, links, moderation, and compensation. They
+do **not** currently emit their own domain events. There is no `review.created`
+or `review.published` event to subscribe to today.
+
+To run side effects when a review changes, wrap the review workflows in your own
+route or workflow and run the follow-up logic there, or emit your own event and
+subscribe to it.
+
+## Emit your own event
+
+Emit an event alongside the workflow, then handle it in a subscriber:
+
+```ts title="src/api/custom/route.ts"
+import { Modules } from "@medusajs/framework/utils"
+import { createReviewWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req, res) {
+  const { result } = await createReviewWorkflow(req.scope).run({
+    input: req.body,
+  })
+
+  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
+  await eventBus.emit({ name: "review.created", data: { id: result.id } })
+
+  res.status(201).json({ review: result })
+}
+```
+
+```ts title="src/subscribers/review-created.ts"
+import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+
+export default async function reviewCreatedHandler({
+  event,
+  container,
+}: SubscriberArgs<{ id: string }>) {
+  const reviewId = event.data.id
+  // ...notify the store, update a search index, etc.
+}
+
+export const config: SubscriberConfig = {
+  event: "review.created",
+}
+```
+
+<Note>
+  Because the module ships no events of its own, the event name in the example
+  above is one **you** define. Keep it consistent across the emit site and the
+  subscriber.
+</Note>
+
+## React without an event
+
+For side effects that must run transactionally with the review change, add a step
+to your own workflow that wraps the review workflow, rather than relying on an
+event. Events are handled asynchronously and outside the workflow's compensation.

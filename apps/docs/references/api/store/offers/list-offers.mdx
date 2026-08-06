@@ -7,7 +7,7 @@ description: "Retrieve seller offers with per-offer calculated prices."
 Returns a paginated list of offers from visible sellers whose products are published.
 
 <Note>
-  Customer authentication is optional. When a customer token is provided, the customer's group memberships enter the pricing context used for `calculated_price`. Prices are computed per offer (each offer scopes the variant's price set by an `offer_id` rule) only when `calculated_price` is in `fields` and a pricing context (`region_id`, `country_code`, or `cart_id`) resolves. Requesting `inventory_quantity` or `in_stock` requires a single sales channel — either configured on the publishable key or passed as `sales_channel_id`.
+  Customer authentication is optional. When a customer token is provided, the customer's group memberships enter the pricing context used for `calculated_price`. Prices are computed per offer (each offer scopes the variant's price set by an `offer_id` rule) only when `calculated_price` is in `fields` and a pricing context (`region_id`, `country_code`, or `cart_id`) resolves. Requesting `inventory_quantity` or `in_stock` requires a single sales channel: either configured on the publishable key or passed as `sales_channel_id`.
 </Note>
 
 ## Query parameters

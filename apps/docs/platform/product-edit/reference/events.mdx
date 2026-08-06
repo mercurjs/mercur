@@ -1,0 +1,47 @@
+---
+title: "Event reference"
+sidebarTitle: "Events"
+description: "Events emitted by the Product Edit domain, for subscribers and side effects."
+---
+
+The Product Edit domain emits events as changes move through the pipeline.
+Subscribe to them to run side effects instead of polling. Use them to notify a
+vendor, sync external systems, or kick off follow-up workflows.
+
+```ts title="src/subscribers/product-change-confirmed.ts"
+import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+
+export default async function productChangeConfirmedHandler({
+  event,
+  container,
+}: SubscriberArgs<{ id: string }>) {
+  const changeId = event.data.id
+  // ...notify the vendor, sync search, etc.
+}
+
+export const config: SubscriberConfig = {
+  event: "product-change.confirmed",
+}
+```
+
+## Change events
+
+| Event | Emitted when | Payload |
+| --- | --- | --- |
+| `product-change.created` | A change is staged | `{ id }` |
+| `product-change.confirmed` | A change is confirmed | `{ id }` |
+| `product-change.declined` | A change is declined | `{ id }` |
+| `product-change.canceled` | A change is canceled | `{ id }` |
+
+## Revision events
+
+| Event | Emitted when | Payload |
+| --- | --- | --- |
+| `product.change-requested` | An operator requests a revision | `{ id, message, actor_id }` |
+
+<Note>
+  `product.change-requested` carries the **product** id (not a change id) along
+  with the operator's `message` and `actor_id`, because a revision request is
+  recorded against the product's audit trail rather than resolving a pending
+  change.
+</Note>

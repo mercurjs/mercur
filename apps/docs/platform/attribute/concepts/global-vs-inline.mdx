@@ -1,0 +1,50 @@
+---
+title: "Global vs inline & filtering"
+sidebarTitle: "Global vs inline"
+description: "Catalog-wide attributes, product-scoped attributes, and storefront filtering."
+---
+
+In this document, you'll learn the difference between global and inline
+attributes and how an attribute becomes a storefront filter.
+
+## Scope
+
+Every `ProductAttribute` is either **global** or **inline**, decided by its
+`product_id` field:
+
+| Scope | `product_id` | Meaning |
+| --- | --- | --- |
+| Global | `null` | A catalog entry, reusable across any product, listed in the operator's attribute catalog |
+| Inline | set | A one-off attribute scoped to a single product, created from that product's form and hidden from the global catalog |
+
+```ts
+// Global: reusable across the catalog
+{ name: "Material", type: "single_select", values: [{ name: "Cotton" }] }
+
+// Inline: scoped to one product, created as it's attached
+{ title: "Gift wrap", type: "toggle", product_id: "prod_123" }
+```
+
+A global attribute is defined once and attached to many products. An inline
+attribute is created in the same step it is attached and only ever describes that
+one product. It is useful for the occasional one-off field that doesn't belong in
+the shared vocabulary.
+
+<Note>
+  Attributes describe products in the **shared master catalog**. They are never
+  owned by a store. A seller sells against a master product through an offer, and
+  the product's attributes come from the catalog, not from the seller.
+</Note>
+
+## Filtering
+
+An attribute with `is_filterable` set to `true` is exposed as a storefront
+filter, letting shoppers narrow the catalog by its values. Leave it `false` for
+descriptive-only attributes that shouldn't appear as facets.
+
+<Tip>
+  Filtering pairs naturally with variant axes: a filterable `multi_select` axis
+  like Color both generates variants and lets shoppers filter by them. A
+  descriptive `text` attribute like Care instructions is usually left
+  non-filterable.
+</Tip>

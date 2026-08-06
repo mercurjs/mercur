@@ -1,22 +1,23 @@
 ---
-title: "API routes"
-description: "Thin HTTP adapters — typed request/response generics, Zod validation with createFindParams, filterable fields, middlewares as filters, and queryConfig."
+title: "How to Create an API Route"
+sidebarTitle: "Create an API Route"
+description: "Write API routes as thin HTTP adapters that type both sides, validate with Zod, and scope reads through middlewares and queryConfig."
 ---
 
-An API route is a thin adapter between HTTP and the rest of the system. Its whole job is: validate the request, run a [workflow](/rc/resources/best-practices/workflows) (for writes) or a [Query](/rc/resources/best-practices/workflows#the-query-engine) (for reads), and shape the response. No business logic lives here.
+An API route is a thin adapter between HTTP and the rest of the system. It validates the request, runs a [workflow](/rc/resources/best-practices/workflows) for writes or a [Query](/rc/resources/best-practices/workflows#the-query-engine) for reads, and shapes the response. No business logic lives here.
 
 <Note>
-  Routes are [Medusa file-based API routes](https://docs.medusajs.com/learn/fundamentals/api-routes): a `route.ts` under `src/api/**` exports handlers named after HTTP verbs, and a sibling `middlewares.ts` wires validation and filters. Examples below use a custom **Brand** module exposed under `/admin/brands`.
+  Routes are [Medusa file-based API routes](https://docs.medusajs.com/learn/fundamentals/api-routes). A `route.ts` under `src/api/**` exports handlers named after HTTP verbs, and a sibling `middlewares.ts` wires validation and filters. Examples below use a custom **Brand** module exposed under `/admin/brands`.
 </Note>
 
 ## Type both the request and the response
 
-Every handler is typed on **both** sides — mirror how Medusa's own routes are written:
+Type every handler on both sides. Mirror how Medusa's own routes are written:
 
-- `AuthenticatedMedusaRequest<TBodyOrQuery>` — the generic is the validated **body** (writes) or **query params** (reads) type.
-- `MedusaResponse<TResponse>` — the generic is the **response shape**, so `res.json(...)` is checked and the SDK infers a real return type instead of `unknown`.
+- **`AuthenticatedMedusaRequest<TBodyOrQuery>`:** the generic is the validated body for writes or the query params type for reads.
+- **`MedusaResponse<TResponse>`:** the generic is the response shape, so `res.json(...)` is checked and the SDK infers a real return type instead of `unknown`.
 
-```ts title="src/api/admin/brands/route.ts"
+```ts src/api/admin/brands/route.ts
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
@@ -64,13 +65,13 @@ export const POST = async (
 ```
 
 <Warning>
-  Don't leave `MedusaResponse` bare. An untyped response means `res.json({...})` accepts anything and the typed SDK resolves that endpoint to an empty/`unknown` response — the exact opposite of the point of the typed client. Always pass the response generic.
+  Don't leave `MedusaResponse` bare. An untyped response means `res.json({...})` accepts anything and the typed SDK resolves that endpoint to an empty or `unknown` response, the exact opposite of the point of the typed client. Always pass the response generic.
 </Warning>
 
 ## Only `GET`, `POST`, `DELETE`
 
 <Warning>
-  Mercur routes use **only** `GET`, `POST`, and `DELETE`. There is no `PUT` or `PATCH` — model an update as a `POST` to the resource. Keeping to three verbs is what keeps the typed SDK (`.query` / `.mutate` / `.delete`) consistent across every route.
+  Mercur routes use only `GET`, `POST`, and `DELETE`. There is no `PUT` or `PATCH`. Model an update as a `POST` to the resource. Keeping to three verbs is what keeps the typed SDK (`.query` / `.mutate` / `.delete`) consistent across every route.
 </Warning>
 
 | Verb | Meaning | SDK method |
@@ -81,11 +82,11 @@ export const POST = async (
 
 ## Validation with Zod + exported types
 
-Validation happens in `middlewares.ts` via `validateAndTransformBody` / `validateAndTransformQuery`, and every schema exports its inferred type so the handler generic and the SDK share one source of truth.
+Validation happens in `middlewares.ts` via `validateAndTransformBody` / `validateAndTransformQuery`. Every schema exports its inferred type so the handler generic and the SDK share one source of truth.
 
-**Bodies** are plain Zod objects:
+Bodies are plain Zod objects:
 
-```ts title="src/api/admin/brands/validators.ts"
+```ts src/api/admin/brands/validators.ts
 import { z } from "zod"
 
 export const AdminCreateBrand = z.object({
@@ -96,9 +97,9 @@ export const AdminCreateBrand = z.object({
 export type AdminCreateBrandType = z.infer<typeof AdminCreateBrand>
 ```
 
-**List/read params** use the framework helpers — `createFindParams` (pagination + `fields` + `order`) and `createSelectParams` (retrieve) — rather than a hand-rolled object. This is what wires pagination and field selection consistently across every route:
+List and read params use the framework helpers `createFindParams` (pagination, `fields`, and `order`) and `createSelectParams` (retrieve) rather than a hand-rolled object. This wires pagination and field selection consistently across every route:
 
-```ts title="src/api/admin/brands/validators.ts"
+```ts src/api/admin/brands/validators.ts
 import { createFindParams, createOperatorMap } from "@medusajs/medusa/api/utils/validators"
 
 export const AdminGetBrandsParams = createFindParams({
@@ -117,13 +118,13 @@ export const AdminGetBrandsParams = createFindParams({
 export type AdminGetBrandsParamsType = z.infer<typeof AdminGetBrandsParams>
 ```
 
-The handler then trusts `req.validatedBody` / the validated query to already match those types — never re-validate inside the handler.
+The handler then trusts `req.validatedBody` and the validated query to already match those types. Never re-validate inside the handler.
 
 ## List vs retrieve
 
-A list route (`GET /admin/brands`) and a retrieve route (`GET /admin/brands/:id`) select fields the same way but differ in their params helper and response shape. Retrieve uses `createSelectParams` (field selection only — no pagination or filters) and returns a single entity:
+A list route (`GET /admin/brands`) and a retrieve route (`GET /admin/brands/:id`) select fields the same way but differ in their params helper and response shape. Retrieve uses `createSelectParams` (field selection only, no pagination or filters) and returns a single entity:
 
-```ts title="src/api/admin/brands/[id]/route.ts"
+```ts src/api/admin/brands/[id]/route.ts
 export const GET = async (
   req: AuthenticatedMedusaRequest<AdminGetBrandParamsType>,
   res: MedusaResponse<AdminBrandResponse>
@@ -146,18 +147,18 @@ export const GET = async (
 }
 ```
 
-```ts title="src/api/admin/brands/validators.ts — retrieve params"
+```ts src/api/admin/brands/validators.ts: retrieve params
 import { createSelectParams } from "@medusajs/medusa/api/utils/validators"
 
 export const AdminGetBrandParams = createSelectParams()
 export type AdminGetBrandParamsType = z.infer<typeof AdminGetBrandParams>
 ```
 
-Both share the same `defaults` idea but declare them separately in the query config (`list` vs `retrieve`) — see [`queryConfig`](/rc/resources/best-practices/api-routes#queryconfig-and-field-selection) below.
+Both share the same `defaults` idea but declare them separately in the query config (`list` vs `retrieve`). See [`queryConfig`](/rc/resources/best-practices/api-routes#queryconfig-and-field-selection) below.
 
 ## Filterable fields
 
-`req.filterableFields` is the **parsed, validated filter set** produced by `validateAndTransformQuery` from the query params above. Only fields your validator declares can appear there — an unknown query param is dropped, not passed through. The handler forwards it straight to Query:
+`req.filterableFields` is the parsed, validated filter set produced by `validateAndTransformQuery` from the query params above. Only fields your validator declares can appear there. An unknown query param is dropped, not passed through. The handler forwards it straight to Query:
 
 ```ts
 const { data: brands, metadata } = await query.graph({
@@ -169,14 +170,14 @@ const { data: brands, metadata } = await query.graph({
 ```
 
 <Tip>
-  This is why filtering is declarative and safe: to make a field filterable you add it to the validator; to scope a request you inject onto `req.filterableFields` in middleware (next section). The handler never builds a `where` clause by hand.
+  This is why filtering is declarative and safe. To make a field filterable you add it to the validator. To scope a request you inject onto `req.filterableFields` in middleware (next section). The handler never builds a `where` clause by hand.
 </Tip>
 
 ## Middlewares as filters
 
-Middlewares aren't only for validation — they're where you inject **scoping filters** so handlers stay ignorant of the rule. A small middleware writes onto `req.filterableFields`; because the handler already forwards that to Query, the scope is applied without the handler knowing. For example, force `GET /admin/brands` to only ever return active rows:
+Middlewares aren't only for validation. They're where you inject scoping filters so handlers stay ignorant of the rule. A small middleware writes onto `req.filterableFields`, and because the handler already forwards that to Query, the scope is applied without the handler knowing. For example, force `GET /admin/brands` to only ever return active rows:
 
-```ts title="src/api/admin/brands/middlewares.ts"
+```ts src/api/admin/brands/middlewares.ts
 import {
   MedusaRequest,
   MedusaResponse,
@@ -205,28 +206,28 @@ export const adminBrandsMiddlewares = [
 ```
 
 <Tip>
-  Injecting a filter in middleware means a new route on the same resource is scoped by construction, not by remembering to add a filter. This works with `query.graph` because `is_active` lives on the **brand's own module**.
+  Injecting a filter in middleware means a new route on the same resource is scoped by construction, not by remembering to add a filter. This works with `query.graph` because `is_active` lives on the brand's own module.
 </Tip>
 
 <Warning>
-  You can only filter this way on a field that belongs to the entity's **own module**. Filtering by a **linked** module's field (e.g. products by their `brand`) does **not** work with `query.graph` — Query aggregates modules after the fact, so there's no join to filter on. Cross-module filtering requires the [Index Module](/rc/resources/best-practices/module-links#filtering-by-a-linked-field--the-index-module) and `query.index`.
+  You can only filter this way on a field that belongs to the entity's own module. Filtering by a linked module's field (e.g. products by their `brand`) does not work with `query.graph`. Query aggregates modules after the fact, so there's no join to filter on. Cross-module filtering requires the [Index Module](/rc/resources/best-practices/module-links#filtering-by-a-linked-field--the-index-module) and `query.index`.
 </Warning>
 
 ## Trust the auth middleware
 
-Authentication and actor resolution happen in middleware (`authenticate`), so by the time your handler runs the actor is already established — **trust it**. Read identity from the request context, never from the body:
+Authentication and actor resolution happen in middleware (`authenticate`), so by the time your handler runs the actor is already established. Trust it. Read identity from the request context, never from the body:
 
 ```ts
 const userId = req.auth_context.actor_id // set by the authenticate middleware
 ```
 
 <Warning>
-  Don't re-derive or re-check identity inside handlers, and don't read user/owner ids from the request body — always take them from `req.auth_context` (or a context object a scoping middleware populated). Trusting the middleware keeps authorization in one place.
+  Don't re-derive or re-check identity inside handlers, and don't read user or owner ids from the request body. Always take them from `req.auth_context` (or a context object a scoping middleware populated). Trusting the middleware keeps authorization in one place.
 </Warning>
 
 ## Vendor routes: `seller_context`
 
-Every route under `/vendor/*` is **already authenticated and seller-scoped** — you don't wire auth yourself. By the time your handler runs, the caller is a verified seller member and the request carries a `req.seller_context` you can trust:
+Every route under `/vendor/*` is already authenticated and seller-scoped. You don't wire auth yourself. By the time your handler runs, the caller is a verified seller member and the request carries a `req.seller_context` you can trust:
 
 ```ts
 export const POST = async (
@@ -239,12 +240,12 @@ export const POST = async (
 }
 ```
 
-`req.seller_context` gives you `seller_id`, `currency_code`, and the `seller_member` — all verified, so you never re-check membership in a handler.
+`req.seller_context` gives you `seller_id`, `currency_code`, and the `seller_member`, all verified, so you never re-check membership in a handler.
 
 <Warning>
-  Never take a `seller_id` from the request body or query to decide ownership — that's caller-supplied. The **only** authoritative seller is `req.seller_context.seller_id`. To scope a vendor list route to the caller's data, add the `filterBySellerId()` middleware and every query is constrained automatically — no per-handler `where`:
+  Never take a `seller_id` from the request body or query to decide ownership. That's caller-supplied. The only authoritative seller is `req.seller_context.seller_id`. To scope a vendor list route to the caller's data, add the `filterBySellerId()` middleware and every query is constrained automatically, with no per-handler `where`:
 
-  ```ts title="src/api/vendor/offers/middlewares.ts"
+  ```ts src/api/vendor/offers/middlewares.ts
   import { filterBySellerId } from "@mercurjs/core/..."
 
   {
@@ -262,7 +263,7 @@ export const POST = async (
 
 `validateAndTransformQuery` takes a query config that controls which `fields` are selectable, `isList`, and default pagination. The handler reads the resolved selection from `req.queryConfig.fields` and pagination from `req.queryConfig.pagination`.
 
-```ts title="src/api/admin/brands/query-config.ts"
+```ts src/api/admin/brands/query-config.ts
 export const adminBrandQueryConfig = {
   list: {
     defaults: ["id", "name", "is_active", "created_at"],
@@ -275,14 +276,14 @@ export const adminBrandQueryConfig = {
 ```
 
 <Warning>
-  **`fields` replaces defaults unless prefixed.** An unprefixed field in the request's `fields` param *replaces* the route's default set; prefix with `+`/`-` to merge (e.g. `+brand.name`) or base fields like `thumbnail` silently drop. This is the `medusa-fields-param` gotcha.
+  **`fields` replaces defaults unless prefixed.** An unprefixed field in the request's `fields` param *replaces* the route's default set. Prefix with `+`/`-` to merge (e.g. `+brand.name`), or base fields like `thumbnail` silently drop. This is the `medusa-fields-param` gotcha.
 </Warning>
 
 ## Response types
 
-Declare the response shapes next to the route (or in `@mercurjs/types` for shared ones) and use them as the `MedusaResponse` generic — the SDK reads these to type `.query()` / `.mutate()` returns:
+Declare the response shapes next to the route (or in `@mercurjs/types` for shared ones) and use them as the `MedusaResponse` generic. The SDK reads these to type `.query()` and `.mutate()` returns:
 
-```ts title="src/api/admin/brands/types.ts"
+```ts src/api/admin/brands/types.ts
 import { PaginatedResponse } from "@medusajs/framework/types"
 
 export interface AdminBrandResponse {
@@ -296,11 +297,22 @@ export type AdminBrandListResponse = PaginatedResponse<{
 
 ## Checklist for a route
 
-- Handler is thin: validate → run workflow (writes) or `query.graph` (reads) → respond.
-- **Both** generics set: `AuthenticatedMedusaRequest<TBody|TQuery>` and `MedusaResponse<TResponse>` — never a bare `MedusaResponse`.
-- Only `GET` / `POST` / `DELETE` exported; updates are `POST`.
-- Query params built with `createFindParams` / `createSelectParams`; bodies with Zod; inferred types exported.
-- Filterable fields declared in the validator; scoping injected via a `filterableFields` middleware, not inlined.
-- Identity read from `req.auth_context`, never the body. On vendor routes, the authoritative seller is `req.seller_context.seller_id` (set by `ensureSellerMiddleware`); scope reads with `filterBySellerId()`.
-- `fields` prefixed with `+`/`-` to merge; defaults declared in `queryConfig`.
+- Handler is thin: validate, run a workflow (writes) or `query.graph` (reads), then respond.
+- Both generics set: `AuthenticatedMedusaRequest<TBody|TQuery>` and `MedusaResponse<TResponse>`, never a bare `MedusaResponse`.
+- Only `GET` / `POST` / `DELETE` exported. Updates are `POST`.
+- Query params built with `createFindParams` / `createSelectParams`, bodies with Zod, and inferred types exported.
+- Filterable fields declared in the validator. Scoping injected via a `filterableFields` middleware, not inlined.
+- Identity read from `req.auth_context`, never the body. On vendor routes, the authoritative seller is `req.seller_context.seller_id` (set by `ensureSellerMiddleware`). Scope reads with `filterBySellerId()`.
+- `fields` prefixed with `+`/`-` to merge. Defaults declared in `queryConfig`.
 - No mutations outside a workflow.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Workflows" href="/rc/resources/best-practices/workflows">
+    Run business logic and the Query engine behind your routes.
+  </Card>
+  <Card title="Module links" href="/rc/resources/best-practices/module-links#filtering-by-a-linked-field--the-index-module">
+    Filter by a linked field with the Index Module and `query.index`.
+  </Card>
+</CardGroup>

@@ -1,0 +1,99 @@
+---
+title: "The payout pipeline"
+sidebarTitle: "The payout pipeline"
+description: "Capture check, payment capture, daily payout, transfer, and the provider interface."
+---
+
+In this document, you'll learn how an authorized payment becomes a transfer to a
+seller, and how the provider interface fits in.
+
+## Payout
+
+A payout is a single transfer of a seller's earnings for one order. It is
+represented by the `Payout` data model (table `payout`, id prefix `pout`). Its
+`amount` is the order total minus the order's commission lines, and it belongs to
+the seller's `PayoutAccount`.
+
+```ts
+// createPayoutWorkflow computes the seller's share
+const amount = MathBN.sub(order.total, totalCommission)
+```
+
+The flow is designed to run automatically. Scheduled jobs and event-driven
+subscribers move each order from authorized payment to settled transfer with no
+manual step.
+
+<Note>
+  The payout **workflows** (`createPayoutWorkflow`, `createPayoutAccountWorkflow`,
+  `createOnboardingWorkflow`, `processPayoutForWebhookWorkflow`) and the provider
+  **webhook subscriber** ship in `@mercurjs/core`. The **scheduled jobs** that
+  drive capture and daily payout are wired up in your project (under
+  `apps/api/src/jobs`), along with the `order.capture_requested` and
+  `payout.requested` events they emit. The steps below describe that intended
+  pipeline and its integration points, not jobs bundled in the core plugin.
+</Note>
+
+## 1. Capture check (every 15 min)
+
+A scheduled job scans for orders ready for capture. An order qualifies when its
+payment is `authorized`, the seller has an `ACTIVE` payout account, the order
+meets the required fulfillment status (default `fulfilled`), and no payout
+exists yet. As the capture deadline nears (authorization window minus safety
+buffer), it emits `order.capture_requested`. If the authorization already
+expired, it emits `order.authorization_expired`.
+
+## 2. Payment capture (event-driven)
+
+A subscriber listens for `order.capture_requested` and runs Medusa's
+`capturePaymentWorkflow` to capture the authorized payment. On success, the order
+is marked captured. On failure, it's flagged so it isn't retried.
+
+## 3. Daily payout (1 AM UTC)
+
+A daily job scans captured orders that haven't been paid out and emits
+`payout.requested` for each one. An order qualifies when its payment is captured,
+no payout exists yet, and the seller's account is `ACTIVE`.
+
+## 4. Transfer (event-driven)
+
+A subscriber listens for `payout.requested` and runs `createPayoutWorkflow`,
+which loads the order with its seller, payout account, and commission lines,
+computes the seller's share, calls the provider to initiate the transfer, and
+creates a `Payout` record linked to the seller.
+
+<Note>
+  The order id is used as the payout's `idempotency_key`, so a re-emitted
+  `payout.requested` event never produces a duplicate transfer.
+</Note>
+
+## The provider interface
+
+Every external operation goes through the `IPayoutProvider` contract, and the
+module registers **exactly one** provider. Stripe Connect ships out of the box.
+Any other processor implements the same four methods.
+
+| Method | Purpose |
+| --- | --- |
+| `createPayoutAccount` | Create the connected account with the provider |
+| `createOnboarding` | Produce onboarding data (e.g. a Stripe onboarding link) |
+| `createPayout` | Initiate a transfer to the seller |
+| `getWebhookActionAndData` | Parse a raw webhook into a `PayoutWebhookResult` |
+
+<Tip>
+  Provider-specific values, such as account ids, onboarding URLs, or transfer
+  references, are stored in the `data` JSON fields and never interpreted by the
+  module. The same code path works for any provider.
+</Tip>
+
+## Configuration
+
+The pipeline's timing is tunable via the payout module options in
+`medusa-config.ts`:
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `disabled` | `false` | Disable both scheduled jobs |
+| `authorizationWindowMs` | 7 days | How long a payment authorization stays valid |
+| `sellerActionWindowMs` | 72 hours | Time a seller has to fulfill before the order is rejected |
+| `captureSafetyBufferMs` | 24 hours | Margin before authorization expiry to trigger capture |
+| `requiredFulfillmentStatus` | `"fulfilled"` | Minimum fulfillment status before an order is eligible |

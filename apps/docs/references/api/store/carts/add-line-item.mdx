@@ -4,7 +4,7 @@ api: "POST /store/carts/{id}/line-items"
 description: "Add a seller offer to the cart as a line item."
 ---
 
-Adds an item to the cart by offer — Mercur resolves the offer's variant and stamps the `offer_id` on the line item so the cart can later split into per-seller orders.
+Adds an item to the cart by offer. Mercur resolves the offer's variant and stamps the `offer_id` on the line item so the cart can later split into per-seller orders.
 
 <Note>
   Unlike vanilla Medusa, this route takes an `offer_id` instead of a `variant_id`; an unknown offer returns a `404`.

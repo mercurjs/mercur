@@ -1,0 +1,66 @@
+---
+title: "Change actions"
+sidebarTitle: "Change actions"
+description: "The typed actions that make up a change and the details they carry."
+---
+
+In this document, you'll learn how the individual operations inside a change are
+modeled.
+
+## Product change action
+
+Each operation inside a change is a `ProductChangeAction` (table
+`product_change_action`, id prefix `prodchact`). An action belongs to a parent
+`ProductChange`, targets a `product_id`, and names the operation in its `action`
+field. The operation's payload lives in the `details` JSON, and an `applied`
+boolean records whether it has already been written to the product.
+
+```ts
+const action = {
+  product_id: "prod_123",
+  action: "UPDATE",
+  details: { field: "title", value: "New title" },
+}
+```
+
+Actions carry an autoincrementing `ordering` so a change with several operations
+applies them deterministically.
+
+## Action types
+
+The `action` field is one of the `ProductChangeActionType` values. Each type
+reads a different shape out of `details`:
+
+| Action | `details` shape | Applies |
+| --- | --- | --- |
+| `UPDATE` | `{ field, value }` | A single product field update |
+| `STATUS_CHANGE` | `{ status }` | A product status change |
+| `VARIANT_ADD` | `{ variant }` | Create a variant |
+| `VARIANT_UPDATE` | `{ variant_id, fields }` | Update a variant (scalars + image links) |
+| `VARIANT_REMOVE` | `{ variant_id }` | Delete a variant |
+| `ATTRIBUTE_ADD` | `{ attribute }` | Attach a product attribute |
+| `ATTRIBUTE_UPDATE` | `{ update }` | Change an attached attribute |
+| `ATTRIBUTE_REMOVE` | `{ attribute_id }` | Detach an attribute |
+| `PRODUCT_ADD` | None | Record a product creation in the trail |
+| `PRODUCT_DELETE` | None | Delete the product |
+| `CHANGE_REQUESTED` | `{ message }` | Record an operator revision request |
+
+<Note>
+  `CHANGE_REQUESTED` mutates nothing. It's an audit-only marker for a revision
+  request. The operator's message rides on both the action's `details.message`
+  and the parent change's `external_note`. See
+  [Status & auto-confirm](/platform/product-edit/concepts/status-and-auto-confirm).
+</Note>
+
+## How actions apply
+
+When a change is confirmed, its **not-yet-applied** actions are bucketed by type
+and dispatched to the matching Medusa workflows in one pass: product updates,
+variant creates/updates/deletes, and the attribute batch. Each action is then
+flipped to `applied: true` so a re-run never applies it twice.
+
+<Tip>
+  Audit-trail changes (publish approvals, revision requests) are stored with
+  their actions already `applied`, so confirming them is a no-op on the product
+  itself. They exist purely as history.
+</Tip>

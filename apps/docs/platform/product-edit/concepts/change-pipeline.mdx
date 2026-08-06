@@ -1,0 +1,69 @@
+---
+title: "The change pipeline"
+sidebarTitle: "The change pipeline"
+description: "The ProductChange record, its immutability, and the audit trail."
+---
+
+In this document, you'll learn how a product edit is captured and why the
+pipeline is built on immutable records.
+
+## Product change
+
+A product change is a single reviewable edit to one product, represented by the
+`ProductChange` data model (table `product_change`, id prefix `prodch`). It
+references the target product through `product_id`, carries the `status` of the
+review, and records who created and resolved it (`created_by`, `confirmed_by`,
+`declined_by`, `canceled_by`) with matching timestamps.
+
+```ts
+const productChangeModuleService = container.resolve(MercurModules.PRODUCT_EDIT)
+
+const change = await productChangeModuleService.retrieveProductChange(id, {
+  relations: ["actions"],
+})
+```
+
+A change owns one or more `ProductChangeAction` records (`actions`). The change
+is the reviewable unit; the actions are the individual operations it will apply.
+See [Change actions](/platform/product-edit/concepts/change-actions).
+
+<Note>
+  A product can have **only one active (pending) change at a time**. Staging a
+  new change while one is still pending is rejected. The vendor resolves or
+  cancels the open change first.
+</Note>
+
+## Immutability & the audit trail
+
+A change is never rewritten in place. It is created, its actions are appended,
+and it is resolved by moving `status` forward and stamping the actor and time.
+Because nothing is overwritten, the set of `ProductChange` rows on a product is a
+durable history of who changed what and who approved it.
+
+Some events aren't vendor edits at all, such as a publish approval or a revision
+request. They still belong in the history. Those are recorded as changes created
+already `confirmed`, so the audit trail captures them without waiting on review.
+
+```ts
+await recordProductAuditChangeWorkflow(container).run({
+  input: {
+    actor_id: "user_123",
+    changes: [
+      {
+        product_id: "prod_123",
+        external_note: "Approved for publish",
+        actions: [
+          { product_id: "prod_123", action: "STATUS_CHANGE", details: { status: "published" } },
+        ],
+      },
+    ],
+  },
+})
+```
+
+<Tip>
+  Read a product's full history through the read-only `product.changes` link
+  (see the [Links reference](/platform/product-edit/reference/links)) rather than
+  querying the module directly. The link keeps the audit trail attached to the
+  product.
+</Tip>

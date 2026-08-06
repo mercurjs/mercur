@@ -1,0 +1,64 @@
+---
+title: "The order group"
+sidebarTitle: "The order group"
+description: "The aggregate record over a multi-seller purchase, its display id, and cart link."
+---
+
+This page covers the order group record and how it aggregates the per-seller
+orders created from a single cart.
+
+## Order group
+
+An order group is the shopper-facing wrapper over a multi-seller purchase. It is
+represented by the `OrderGroup` data model (table `order_group`, id prefix
+`og`). When a cart containing offers from more than one seller is completed, the
+cart is split into one child order per seller. All of those orders are attached
+to a single group.
+
+```ts
+const OrderGroup = model.define("order_group", {
+  id: model.id({ prefix: "og" }).primaryKey(),
+  display_id: model.autoincrement(),
+  seller_count: model.number().computed(),
+  customer_id: model.text().nullable(),
+  total: model.bigNumber().computed(),
+  cart_id: model.text(),
+})
+```
+
+The group carries a human-readable `display_id`, an auto-incrementing integer,
+so shoppers and operators can reference the purchase without exposing the
+internal id. `customer_id` records who placed it. `seller_count` and `total`
+are computed at read time. See [Computed totals](/platform/order-group/concepts/computed-totals).
+
+<Note>
+  A group is created even for a single-seller cart, so every completed
+  marketplace order has exactly one parent group regardless of how many sellers
+  it spans.
+</Note>
+
+## The cart link
+
+Each group holds a `cart_id` pointing back to the cart it was created from. This
+is exposed as a **read-only** link to the Cart module. The cart is frozen
+(`completed_at` is set) the moment the split runs, so the reference is a
+historical record, not something you write through.
+
+```ts
+const { data: groups } = await query.graph({
+  entity: "order_group",
+  fields: ["id", "display_id", "cart.id", "orders.id"],
+})
+```
+
+<Tip>
+  Because the cart is immutable after checkout, the `cart_id` is safe to treat as
+  a stable audit pointer to the exact basket the shopper paid for.
+</Tip>
+
+## Child orders
+
+The group doesn't store line items itself. Those live on the child `Order`
+records, linked through the `order_group_order` table. Loading a group's
+`orders.*` gives you each seller's slice, each with its own fulfillment, payment,
+returns, and refunds.

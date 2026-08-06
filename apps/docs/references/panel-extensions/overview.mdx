@@ -1,0 +1,102 @@
+---
+title: "Panel extensions"
+sidebarTitle: "Overview"
+description: "Customize the admin and vendor panels with pages, widgets, custom fields, and navigation, without forking them."
+---
+
+Panel extensions let you customize the Admin and Vendor panels without forking
+them. You drop a file into a panel's `src/` folder and the SDK registers it at
+build time. There is no manifest to maintain and no core code to patch.
+
+## What you can add
+
+Each extension is a file in a known location. The file's folder decides what it
+does.
+
+- **Pages:** add a route and a page with a `page.tsx` under `src/routes/`.
+- **Widgets:** render a component in a slot on a built-in page with `defineWidgetConfig`.
+- **Custom fields:** add fields, rows, and columns to a built-in model with `defineCustomFieldsConfig`.
+- **Navigation:** reorder, hide, or relabel sidebar items with `defineNavigationConfig`.
+
+## File conventions
+
+An extension is discovered by its location under a panel's `src/`. The folder is
+the surface, so there is no registration step beyond creating the file.
+
+| Path                     | Adds                                     | Documented in                                                 |
+| ------------------------ | ---------------------------------------- | ------------------------------------------------------------- |
+| `src/routes/**/page.tsx` | A page and route                         | [Create a new page](/references/panel-extensions/create-page) |
+| `src/widgets/**`         | A widget on a zone                       | [Widgets](/references/panel-extensions/widgets)               |
+| `src/custom-fields/**`   | Model form, display, and list extensions | [Custom Fields](/references/panel-extensions/custom-fields)   |
+| `src/_navigation.ts`     | Sidebar overrides                        | [Create a new page](/references/panel-extensions/create-page) |
+| `src/i18n/index.ts`      | Translation resources                    | Default-exports the i18n resource map                         |
+
+Widgets and custom fields crawl subfolders, so group related files however you
+like. Navigation is a single host-owned file, not a folder crawl.
+
+## Separate apps, no surface field
+
+Admin (`@mercurjs/admin`, port 7000) and vendor (`@mercurjs/vendor`, port 7001)
+are separate Vite apps. A file under a panel's `src/` targets that panel, so the
+folder you author in is the surface. There is no `surface` field to set. The
+helpers are the same in both. Import the config helpers from
+`@mercurjs/dashboard-sdk` and `createFormHelper` from `@mercurjs/dashboard-shared`.
+
+## Typed targets
+
+Zone ids, nav item ids, models, and built-in field ids are typed per panel from a
+generated `extension-targets.d.ts`. Reference it once per host app so every
+extension file type-checks with no per-file import.
+
+```typescript apps/vendor/src/extension-targets.d.ts
+/// <reference types="@mercurjs/vendor/extension-targets" />
+```
+
+```typescript apps/admin-test/src/extension-targets.d.ts
+/// <reference types="@mercurjs/admin/extension-targets" />
+```
+
+A wrong `zone`, `model`, or nav `id` fails `tsc` (`bun run lint`) rather than
+silently doing nothing at runtime.
+
+## Persistence
+
+<Warning>
+  **The MVP is a UI surface only.** Custom fields render, validate, and display
+  through the built-in forms, sections, and tables. There is no generic core-side
+  write path. For `product`, values submit under `additional_data` and persist
+  onto `metadata`. To store data for other models, wire your own route or
+  workflow, or use the backend
+  [Custom Fields module](/rc/resources/customization/custom-fields).
+</Warning>
+
+## Explore the extensions
+
+<CardGroup cols={2}>
+  <Card title="Widgets" href="/references/panel-extensions/widgets">
+    Render a component in a named zone with `defineWidgetConfig`.
+  </Card>
+  <Card title="Custom Fields" href="/references/panel-extensions/custom-fields">
+    Add form fields, detail rows, and list columns with `defineCustomFieldsConfig`.
+  </Card>
+  <Card title="Create a new page" href="/references/panel-extensions/create-page">
+    Add a route with file-based routing, then register it in the sidebar.
+  </Card>
+</CardGroup>
+
+## Related guides
+
+<CardGroup cols={2}>
+  <Card title="Extend forms and tables" href="/rc/resources/tutorials/extend-forms-and-tables">
+    Step-by-step build with `defineCustomFieldsConfig`.
+  </Card>
+  <Card title="Add a widget" href="/rc/resources/tutorials/add-a-widget">
+    Inject a component into a zone.
+  </Card>
+  <Card title="Customize navigation" href="/rc/resources/tutorials/customize-navigation">
+    Reorder and hide sidebar items.
+  </Card>
+  <Card title="Custom Fields module" href="/resources/best-practices/custom-fields">
+    The backend storage layer.
+  </Card>
+</CardGroup>

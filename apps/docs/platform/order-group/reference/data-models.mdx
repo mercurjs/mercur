@@ -1,0 +1,40 @@
+---
+title: "Data models"
+sidebarTitle: "Data models"
+description: "The data model owned by the Order Group domain."
+---
+
+The Order Group domain is owned by the **Seller module**. There is no separate
+order-group module. This reference lists its data model and fields. For the full
+module overview, see the [Order Group overview](/platform/order-group/overview).
+
+## OrderGroup
+
+Table `order_group`, id prefix `og`. The aggregate over the per-seller orders
+created from a single cart.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | text | Primary key (prefix `og`) |
+| `display_id` | integer | Auto-incrementing, human-readable reference |
+| `customer_id` | text | Nullable; who placed the group |
+| `cart_id` | text | The originating cart (read-only link to Cart) |
+| `seller_count` | number | **Computed**: distinct sellers with a child order |
+| `total` | bigNumber | **Computed**: sum of child order totals |
+| `created_at` / `updated_at` | dateTime | Timestamps |
+| `deleted_at` | dateTime | Nullable; soft-delete marker |
+
+Relations: `orders` (one-to-many through the `order_group_order` link table),
+`cart` (read-only, via `cart_id`).
+
+<Note>
+  `seller_count` and `total` are marked `computed()`. They hold no value on the
+  row and are aggregated from the group's child orders each time it's read. See
+  [Computed totals](/platform/order-group/concepts/computed-totals).
+</Note>
+
+<Warning>
+  The `cart_id` link is **read-only**. The cart is frozen (`completed_at` is set)
+  the moment the split runs, so it's a historical reference and can't be written
+  through the group.
+</Warning>

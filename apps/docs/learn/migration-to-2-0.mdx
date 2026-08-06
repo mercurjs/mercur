@@ -1,0 +1,187 @@
+---
+title: "Migration to 2.0"
+sidebarTitle: "Migration to 2.0"
+description: "Port an existing Mercur 1.x project to 2.x, the latest release."
+---
+
+> A step-by-step guide to porting an existing Mercur 1.x project to 2.x, the latest release.
+
+Mercur 2.0 replaces the monolithic plugin architecture (`@mercurjs/b2c-core`) with a block-based model (`@mercurjs/core` plus registry blocks). This guide is about porting your existing 1.x code to a 2.x project. For setting up a fresh project instead, see [Installation](/learn/introduction), which already uses the latest names.
+
+## Before you start
+
+Most users do not need to migrate much. Core and the official registry blocks cover most standard marketplace functionality, and the admin and vendor panels ship 34+ pages out of the box. You only need to port your own custom modules, workflows, routes, and any domain-specific dashboard pages that core does not already provide.
+
+Here is what replaced what between 1.x and 2.x:
+
+| 1.x | 2.x |
+|-----|-----|
+| `@mercurjs/b2c-core` (monolithic) | `@mercurjs/core`, all core modules built in |
+| `@mercurjs/commission` (separate) | Built into core |
+| `@mercurjs/algolia`, reviews, requests | Registry blocks (`mercurjs add ...`) |
+| `@medusajs/admin-vite-plugin` | `@mercurjs/dashboard-sdk` (virtual modules) |
+| `@medusajs/js-sdk` (manual hooks) | `@mercurjs/client` (generated typed client) |
+| Custom admin and vendor pages | `@mercurjs/admin` and `@mercurjs/vendor`, complete panels out of the box |
+| `apps/backend/` | `packages/api/` |
+| `src/routes/` (admin) | `src/pages/` (file-based routing) |
+| Yarn plus Turbo | bun (recommended) |
+
+The MedusaJS v2 foundation (modules, workflows, links, subscribers, API routes), the data model patterns (MikroORM, service layer), and your environment variables (`DATABASE_URL`, CORS, secrets) are all unchanged.
+
+<Note>
+**Using a version older than 1.4.0?** Your admin panel code lives inside the backend repo, not a separate app. When scanning for custom admin code to port, look there instead of `apps/admin/`. Everything else in this guide applies identically.
+</Note>
+
+## Step 1: Start from a fresh 2.x project
+
+Set up a working 2.x project first (see [Installation](/learn/introduction)), then port your 1.x code into it. Do not upgrade the old project in place.
+
+## Step 2: Map your packages
+
+Replace 1.x packages with their 2.x equivalents:
+
+| 1.x package | 2.x equivalent |
+|-------------|----------------|
+| `@mercurjs/b2c-core` | `@mercurjs/core` |
+| `@mercurjs/commission` | Built into core |
+| `@mercurjs/algolia` | Block: `mercurjs add algolia` |
+| `@mercurjs/resend` | No 2.x equivalent, port manually |
+| `@mercurjs/payment-stripe-connect` | No 2.x equivalent, port manually |
+| `@mercurjs/stripe-tax-provider` | No 2.x equivalent, port manually |
+| `@medusajs/admin-vite-plugin` | `@mercurjs/dashboard-sdk` |
+| `@medusajs/js-sdk` | `@mercurjs/client` |
+
+Several features that were separate packages in 1.x are now installed as registry blocks. Install these instead of porting their 1.x package code:
+
+`reviews`, `requests`, `wishlist`, `team-management`, `algolia`, `vendor-notifications`, `vendor-chat`, `product-import-export`.
+
+The `seller`, `payout`, and `commission` modules are built into core, so there is nothing to port for those.
+
+## Step 3: Map your directories
+
+| 1.x | 2.x |
+|-----|-----|
+| `apps/backend/src/*` | `packages/api/src/*` |
+| `apps/admin/src/routes/` | `apps/admin/src/pages/` |
+| `apps/vendor/src/routes/` | `apps/vendor/src/pages/` |
+
+## Step 4: Port custom backend code
+
+Copy each kind of custom code into `packages/api/src/` and update imports from `@mercurjs/b2c-core` to `@mercurjs/core`.
+
+- **Modules**: copy to `packages/api/src/modules/` and register them in `medusa-config.ts`.
+- **Workflows**: copy to `packages/api/src/workflows/<entity>/`. Do not create barrel `index.ts` files, as they conflict with block installation.
+- **API routes**: copy to `packages/api/src/api/`. Type both generics so codegen can read them, then run `bunx @mercurjs/cli@latest codegen`.
+
+  ```typescript
+  export const GET = async (
+    req: AuthenticatedMedusaRequest<BodyType>,
+    res: MedusaResponse<ResponseType>
+  ) => { ... }
+  ```
+
+- **Links and subscribers**: copy to `packages/api/src/links/` and `src/subscribers/`. Do not duplicate links that core already provides (seller to product, seller to order, and so on).
+- **Custom providers**: copy to `packages/api/src/providers/`, then make two required changes:
+
+  ```typescript
+  // medusa-config.ts must use the ./src/ prefix
+  resolve: './src/providers/my-provider'
+
+  // provider index.ts must import from framework/utils
+  import { Modules, ModuleProvider } from "@medusajs/framework/utils"
+  ```
+
+## Step 5: Port custom dashboard code
+
+Only needed if you have custom pages that core admin and vendor do not cover. Update imports and move pages from `src/routes/` to `src/pages/` with a `export default`.
+
+| Old import | New import |
+|-----------|------------|
+| `@medusajs/js-sdk` | `@mercurjs/client` |
+| `@custom-types/*` | `@mercurjs/types` |
+| `@hooks/*`, `@components/*`, `@lib/*` | Keep local, or `@mercurjs/dashboard-shared` if the symbol exists there |
+
+## Step 6: Rename Order Set to Order Group
+
+The 1.x `OrderSet` entity is renamed to `OrderGroup` in 2.x. This is a breaking change that affects database tables, API endpoints, workflow names, event names, and types.
+
+| Aspect | 1.x | 2.x |
+|--------|-----|-----|
+| Entity and table | `order_set` | `order_group` |
+| ID prefix | `os_` | `og_` |
+| API endpoints | `/admin/order-sets`, `/store/order-set` | `/admin/order-groups`, `/store/order-groups` |
+| Workflows | `getFormattedOrderSetListWorkflow` | `getOrderGroupsListWorkflow`, `getOrderGroupDetailWorkflow` |
+| Events | `OrderSetWorkflowEvents` | `OrderGroupWorkflowEvents` |
+| Types | `OrderSetDTO` | `OrderGroupDTO` (from `@mercurjs/types`) |
+
+Two fields were removed from the group:
+
+- **`payment_collection_id`**: payment collections are now linked at the individual order level. Query the linked orders to get the payment collection.
+- **`sales_channel_id`**: the sales channel is stored on each individual order.
+
+Two fields are now computed at query time rather than stored: **`seller_count`** (distinct sellers across linked orders) and **`total`** (sum of order totals).
+
+To migrate:
+
+1. Update imports: `OrderSetDTO` to `OrderGroupDTO` (from `@mercurjs/types`).
+2. Update API calls: `/order-sets` to `/order-groups`.
+3. Update workflow references: `getFormattedOrderSetListWorkflow` to `getOrderGroupsListWorkflow`.
+4. Update event listeners: `OrderSetWorkflowEvents` to `OrderGroupWorkflowEvents`.
+5. If you read `payment_collection_id` or `sales_channel_id` from the order set, read them from the individual orders instead (via the `order_group_order` link).
+
+See [Order Group](/platform/order-group/overview) for the full 2.x data model and API reference.
+
+## Step 7: Upgrade to the latest release
+
+After 2.0, the Medusa plugin was renamed from `@mercurjs/core-plugin` to `@mercurjs/core`. The package contents are the same. If you started from a current 2.x install, you are already on the new name and can skip this step.
+
+### Swap the dependency
+
+```bash
+bun remove @mercurjs/core-plugin
+bun add @mercurjs/core
+```
+
+### Replace the name in config and source
+
+In `packages/api/medusa-config.ts` and anywhere under `packages/api/src/**`, replace every occurrence of `@mercurjs/core-plugin` with `@mercurjs/core`. A repo-wide find-and-replace is safe. This applies to `resolve` values and imports alike:
+
+```ts
+// before
+resolve: "@mercurjs/core-plugin/modules/seller"
+import { createSellerWorkflow } from "@mercurjs/core-plugin/workflows"
+
+// after
+resolve: "@mercurjs/core/modules/seller"
+import { createSellerWorkflow } from "@mercurjs/core/workflows"
+```
+
+The same applies to `@mercurjs/core-plugin/modules/<module>`, `/workflows`, `/links`, and `/api`. Installed registry blocks live under `packages/api/src/`, so the same find-and-replace covers them.
+
+### Reinstall, migrate, and rebuild
+
+```bash
+bun install
+bun run medusa db:migrate
+bun run build
+```
+
+The database migrations are non-destructive. If TypeScript still reports `@mercurjs/core-plugin`, you missed an import: re-run the find-and-replace.
+
+## Known limitations
+
+These areas do not currently have full 1.x parity and require manual migration for now:
+
+- **`TaxCode`**: no 2.x equivalent today. Port the old logic manually if your project depends on it.
+- **`SecondaryCategory`**: no 2.x equivalent, and none is planned. Port the old logic manually if your project depends on it.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Installation" href="/learn/introduction">
+    Set up a fresh 2.x project to port your code into.
+  </Card>
+  <Card title="Order Group" href="/platform/order-group/overview">
+    The full 2.x data model that replaced Order Set.
+  </Card>
+</CardGroup>

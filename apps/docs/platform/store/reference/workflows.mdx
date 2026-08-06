@@ -1,0 +1,35 @@
+---
+title: "Workflows"
+sidebarTitle: "Workflows"
+description: "Seller and member workflows, service methods, and events."
+---
+
+This reference lists the workflows, service methods, and events for the Store
+domain. Import workflows from `@mercurjs/core/workflows` and run them against the
+Medusa container.
+
+## Seller workflows
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `createSellersWorkflow` | `{ sellers[], additional_data? }` | Create stores with defaults |
+| `updateSellersWorkflow` | `{ selector, update }` | Update store fields |
+| `deleteSellersWorkflow` | `{ ids[] }` | Delete stores |
+| `approveSellerWorkflow` | `{ seller_id, additional_data? }` | `pending_approval` → `open` |
+| `suspendSellerWorkflow` | `{ seller_id }` | `open` → `suspended` |
+| `unsuspendSellerWorkflow` | `{ seller_id }` | `suspended` → `open` |
+| `terminateSellerWorkflow` | `{ seller_id }` | → `terminated` (irreversible) |
+
+## Member workflows
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `inviteSellerWorkflow` | `{ email, seller_id }` | Create + send a member invite |
+| `acceptMemberInviteWorkflow` | `{ token }` | Accept an invite, link the member |
+| `addSellerMemberWorkflow` | `{ seller_id, member }` | Add a member directly |
+| `removeSellerMemberWorkflow` | `{ seller_id, member_id }` | Revoke access |
+| `updateMemberRoleWorkflow` | `{ id, role_id }` | Change a member's role |
+
+To work with records directly instead of through a workflow, see the
+[Service reference](/platform/store/reference/service). To run side effects when
+a store changes, see the [Event reference](/platform/store/reference/events).

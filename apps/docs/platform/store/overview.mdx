@@ -1,0 +1,86 @@
+---
+title: "Store"
+sidebarTitle: "Overview"
+description: "Manage sellers, their teams, and their lifecycle on the marketplace."
+---
+
+Use Mercur to control who is allowed to sell on your marketplace and what each
+person on a store's team can do.
+
+Governing your sellers starts here. The Store domain decides who may sell,
+enforces role-based access so every member acts only within their store, and
+keeps each store's data isolated from the rest. On top of that control layer, a
+store carries its own team, a governed account lifecycle, and the business
+details used to settle payouts. Every offer, order, payout, and storefront page
+belongs to a store, and all of it is exposed directly through the Admin and
+Vendor APIs.
+
+<Note>
+  A store is the `Seller` entity. The Admin and Vendor panels call it a "Store".
+  The API and core modules call the same record a `Seller` (id prefix `sel`). You
+  never need to know Medusa to work with stores.
+</Note>
+
+## Key features
+
+- **Role-based access control:** many-to-many members, roles resolved per store, and a store switcher for users who belong to several stores.
+- **Store isolation:** each store sees and acts on only its own data.
+- **Governed lifecycle:** a four-state account model with operator-only transitions.
+- **Self-service onboarding:** create stores yourself, or let sellers register publicly.
+- **Scheduled closures:** temporary offline windows that don't change account status.
+- **Premium placement:** an operator-only flag the storefront uses for featured curation.
+- **Single-currency accounts:** each store settles in exactly one currency.
+
+## Get started
+
+Learn how the domain fits together.
+
+<CardGroup cols={2}>
+  <Card title="The store" icon="store" href="/platform/store/concepts/store-entity">
+    The seller entity, its profile, currency, and business identity.
+  </Card>
+  <Card title="Team & members" icon="users" href="/platform/store/concepts/team">
+    Multi-user stores, roles, invites, and the store switcher.
+  </Card>
+  <Card title="Lifecycle" icon="arrows-rotate" href="/platform/store/concepts/lifecycle">
+    Statuses, transitions, scheduled closures, and premium.
+  </Card>
+</CardGroup>
+
+## Examples
+
+Build against the Store domain in your own code.
+
+<CardGroup cols={2}>
+  <Card title="Create a store" icon="plus" href="/platform/store/guides/create-a-store">
+    Run `createSellersWorkflow` from a route or seed script.
+  </Card>
+  <Card title="Moderate stores" icon="gavel" href="/platform/store/guides/moderate-a-store">
+    Approve, suspend, and terminate stores in code.
+  </Card>
+  <Card title="Manage the team" icon="user-plus" href="/platform/store/guides/manage-the-team">
+    Invite and add members programmatically.
+  </Card>
+</CardGroup>
+
+## Resources
+
+Data models, workflows, service methods, and events for the Store domain.
+
+<CardGroup cols={2}>
+  <Card title="Data models" icon="table" href="/platform/store/reference/data-models">
+    The `Seller`, `Member`, and related entities.
+  </Card>
+  <Card title="Links" icon="link" href="/platform/store/reference/links">
+    How the Store domain links to other modules.
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/platform/store/reference/workflows">
+    Seller and member lifecycle workflows.
+  </Card>
+  <Card title="Service" icon="gear" href="/platform/store/reference/service">
+    Module service methods for working with records directly.
+  </Card>
+  <Card title="Events" icon="bell" href="/platform/store/reference/events">
+    Events emitted as stores and members change.
+  </Card>
+</CardGroup>

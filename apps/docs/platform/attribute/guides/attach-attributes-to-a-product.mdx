@@ -1,0 +1,69 @@
+---
+title: "Attach attributes to a product"
+sidebarTitle: "Attach to a product"
+description: "Attach, detach, and update a product's attributes in one batch call."
+---
+
+In this guide, you'll learn how to manage all of a product's attributes from
+server code through a single batch workflow.
+
+Mercur exposes `createAndLinkProductAttributesToProductWorkflow`, the engine
+behind the product attribute batch endpoint. One call can attach new attributes,
+detach existing ones, and update selections, applied in the order
+**remove → add → update** so a same-call remove and re-add of one attribute
+resolves correctly.
+
+## Run the batch workflow
+
+```ts title="src/api/custom/products/[id]/attributes/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { createAndLinkProductAttributesToProductWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  await createAndLinkProductAttributesToProductWorkflow(req.scope).run({
+    input: {
+      product_id: req.params.id,
+      add: [
+        // Existing select attribute: link chosen values
+        { id: "pattr_material", value_ids: ["pattrval_cotton"] },
+        // Existing text / unit / toggle attribute: set a scalar
+        { id: "pattr_thread_count", value: 400 },
+        // Inline attribute created and attached in one step
+        { title: "Gift wrap", type: "toggle", value: true },
+      ],
+      remove: ["pattr_legacy_field"],
+      update: [{ id: "pattr_color", add: ["pattrval_blue"], remove: ["pattrval_red"] }],
+    },
+  })
+
+  res.sendStatus(200)
+}
+```
+
+## The three operations
+
+Each entry in `add` is one of the `ProductAttributeBatchAdd` forms:
+
+| Form | Shape | Effect |
+| --- | --- | --- |
+| Existing select / axis | `{ id, value_ids }` | Links the referenced values to the product |
+| Existing text / unit / toggle | `{ id, value }` | `text`/`unit` create and link a value; `toggle` links the seeded `true`/`false` value |
+| Inline axis | `{ title, values, is_variant_axis: true }` | Creates an exclusive option, a scoped attribute, and the value mirror |
+| Inline non-axis | `{ title, type, value \| values }` | Creates a scoped attribute plus its value(s) and links them |
+
+`remove` takes attribute ids to detach; `update` carries
+`ProductAttributeBatchUpdate` entries adjusting an existing selection.
+
+<Note>
+  For a variant-axis attribute, `value_ids` is the per-product **subset** of the
+  mirror option's values. The product's variants are generated from exactly that
+  subset. See [Variant axes](/platform/attribute/concepts/variant-axes).
+</Note>
+
+<Tip>
+  The batch workflow composes the lower-level
+  `addProductAttributesToProductWorkflow`,
+  `removeProductAttributesFromProductWorkflow`, and
+  `updateProductAttributesOnProductWorkflow`. Reach for those directly when you
+  only need one of the three operations.
+</Tip>

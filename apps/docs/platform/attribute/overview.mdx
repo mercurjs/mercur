@@ -1,0 +1,87 @@
+---
+title: "Attribute"
+sidebarTitle: "Overview"
+description: "An operator-managed, typed attribute catalog for describing and filtering the shared product catalog."
+---
+
+Use Mercur to define a typed vocabulary for your products, such as colors,
+materials, sizes, capacities, or warranty toggles, and reuse it across the whole
+marketplace.
+
+The Attribute domain is an operator-managed catalog of typed fields that attach
+to products in the shared master catalog. Attributes describe products
+consistently and drive storefront filters. For variant axes, they generate the
+product variants shoppers pick between. Every attribute is one of five types.
+Each one is either a global catalog entry reused everywhere or an inline field
+scoped to a single product.
+
+<Note>
+  **Attribute = the `ProductAttribute` entity.** The catalog is owned by the
+  Product Attribute module (`MercurModules.PRODUCT_ATTRIBUTE`, id prefix
+  `pattr`). Products are the shared master catalog. Attributes never belong to a
+  store. Sellers list against master products through offers.
+</Note>
+
+## Key features
+
+- **Five typed forms:** `single_select`, `multi_select`, `text`, `unit`, and `toggle`, each with its own validation and UI shape.
+- **Variant axes:** a `multi_select` attribute marked `is_variant_axis` mirrors a native Medusa `ProductOption` and generates product variants.
+- **Global or inline:** reuse a global catalog attribute across products, or attach a one-off attribute scoped to a single product.
+- **Storefront filtering:** an `is_filterable` flag exposes an attribute as a shopper-facing facet.
+- **Batch attach:** attach, detach, and update all of a product's attributes through a single engine workflow.
+- **Ordered and governed:** `rank`, `is_active`, and `is_required` control ordering, availability, and required-field enforcement.
+
+## Get started
+
+Learn how the domain fits together.
+
+<CardGroup cols={2}>
+  <Card title="Attribute types" icon="shapes" href="/platform/attribute/concepts/attribute-types">
+    The five attribute types and the values they hold.
+  </Card>
+  <Card title="Variant axes" icon="sitemap" href="/platform/attribute/concepts/variant-axes">
+    How `is_variant_axis` mirrors a `ProductOption` and generates variants.
+  </Card>
+  <Card title="Global vs inline" icon="layer-group" href="/platform/attribute/concepts/global-vs-inline">
+    Catalog-wide attributes, product-scoped attributes, and filtering.
+  </Card>
+</CardGroup>
+
+## Examples
+
+Build against the Attribute domain in your own code.
+
+<CardGroup cols={2}>
+  <Card title="Create an attribute" icon="plus" href="/platform/attribute/guides/create-an-attribute">
+    Run `createProductAttributesWorkflow` from a route or seed script.
+  </Card>
+  <Card title="Attach to a product" icon="link" href="/platform/attribute/guides/attach-attributes-to-a-product">
+    Attach, detach, and update attributes in one batch call.
+  </Card>
+  <Card title="Create a variant axis" icon="sitemap" href="/platform/attribute/guides/create-a-variant-axis">
+    Generate variants from a `multi_select` axis attribute.
+  </Card>
+</CardGroup>
+
+## Resources
+
+Data models, links, workflows, service methods, and events for the Attribute
+domain.
+
+<CardGroup cols={2}>
+  <Card title="Data models" icon="table" href="/platform/attribute/reference/data-models">
+    The `ProductAttribute` and `ProductAttributeValue` entities.
+  </Card>
+  <Card title="Links" icon="link" href="/platform/attribute/reference/links">
+    How the Attribute domain links to products, categories, and options.
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/platform/attribute/reference/workflows">
+    Catalog and product-attachment workflows.
+  </Card>
+  <Card title="Service" icon="gear" href="/platform/attribute/reference/service">
+    Module service methods for working with records directly.
+  </Card>
+  <Card title="Events" icon="bell" href="/platform/attribute/reference/events">
+    Events emitted as attributes and values change.
+  </Card>
+</CardGroup>

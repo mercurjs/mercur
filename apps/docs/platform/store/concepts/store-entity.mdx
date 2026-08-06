@@ -1,0 +1,53 @@
+---
+title: "The store entity"
+sidebarTitle: "The store"
+description: "The seller record, its business identity, and its satellite data."
+---
+
+This page covers the store record and the data models that make up its business
+identity.
+
+## Store
+
+A store is the marketplace vendor. It owns offers, orders, and payouts, and it
+holds the profile shown to customers on the storefront. A store is represented by
+the `Seller` data model (table `seller`, id prefix `sel`).
+
+```ts
+const { result } = await createSellersWorkflow(container).run({
+  input: {
+    sellers: [
+      {
+        name: "Acme Supplies",
+        email: "team@acme.com",
+        currency_code: "usd",
+      },
+    ],
+  },
+})
+```
+
+<Tip>
+  A store settles in exactly one currency, set by `currency_code`. A seller who
+  needs to trade in several currencies creates a separate store for each one, and
+  each store operates independently.
+</Tip>
+
+## Professional details
+
+A store can carry professional details: a corporate name, a registration number,
+and a tax id. These are represented by the `ProfessionalDetails` data model. When
+this record is present, the store is a registered business. When it is absent,
+the store is an individual seller.
+
+## Addresses and payment details
+
+A store keeps its addresses as `SellerAddress` records, one each for a warehouse,
+return, or business address. The bank details used to settle payouts live on a
+`PaymentDetails` record. Both are satellite records of the store, and fulfillment
+and payout settlement read from them.
+
+<Note>
+  `ProfessionalDetails`, `SellerAddress`, and `PaymentDetails` are one-to-one with
+  the store and are deleted along with it.
+</Note>

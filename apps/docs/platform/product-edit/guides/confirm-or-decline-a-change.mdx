@@ -1,0 +1,76 @@
+---
+title: "Confirm or decline a change"
+sidebarTitle: "Confirm or decline"
+description: "Resolve a pending product change from server code."
+---
+
+In this guide, you'll learn how to resolve a pending change from your own server
+code. Each resolution has a dedicated workflow so the side effects (applying
+actions, events, compensation) run consistently.
+
+## Confirm a change
+
+`confirmProductChangeWorkflow` marks the changes `confirmed`, applies their
+pending actions to the product, and emits `product-change.confirmed`.
+
+```ts title="src/api/custom/confirm/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { confirmProductChangeWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  await confirmProductChangeWorkflow(req.scope).run({
+    input: {
+      ids: [req.params.id],
+      confirmed_by: req.auth_context?.actor_id,
+    },
+  })
+
+  res.sendStatus(200)
+}
+```
+
+<Note>
+  Confirmation only applies actions that aren't already `applied`, so re-running
+  it never writes the same edit twice.
+</Note>
+
+## Decline a change
+
+`rejectProductChangeWorkflow` moves a `pending` change to `declined` without
+touching the product, and emits `product-change.declined`.
+
+```ts
+import { rejectProductChangeWorkflow } from "@mercurjs/core/workflows"
+
+await rejectProductChangeWorkflow(container).run({
+  input: {
+    id: "prodch_123",
+    declined_by: "user_123",
+    declined_reason: "Images don't meet guidelines",
+  },
+})
+```
+
+## Cancel a change
+
+When the change should be withdrawn rather than judged (for example the vendor
+retracting their own submission), use `cancelProductChangeWorkflow`:
+
+```ts
+import { cancelProductChangeWorkflow } from "@mercurjs/core/workflows"
+
+await cancelProductChangeWorkflow(container).run({
+  input: { id: "prodch_123", canceled_by: "user_123" },
+})
+```
+
+<Warning>
+  Confirm, decline, and cancel all require the change to be `pending`. Resolving
+  an already-resolved change fails validation. A change is resolved exactly once.
+</Warning>
+
+## React to resolutions
+
+To run your own side effects when a change resolves, subscribe to the events
+these workflows emit rather than polling. See the
+[Event reference](/platform/product-edit/reference/events).

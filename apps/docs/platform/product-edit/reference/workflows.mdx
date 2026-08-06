@@ -1,0 +1,49 @@
+---
+title: "Workflows"
+sidebarTitle: "Workflows"
+description: "Product change workflows, service methods, and events."
+---
+
+This reference lists the workflows for the Product Edit domain. Import them from
+`@mercurjs/core/workflows` and run them against the Medusa container.
+
+## Lifecycle workflows
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `createProductChangeWorkflow` | `{ changes[], additional_data? }` | Create pending changes (rejects if one is already pending) |
+| `stageProductChangeWorkflow` | `{ product_id, actions[], created_by?, internal_note?, external_note?, auto_confirm? }` | Create a change with actions, then run auto-confirm |
+| `confirmProductChangeWorkflow` | `{ ids[], confirmed_by?, internal_note?, external_note? }` | Mark `confirmed` and apply pending actions |
+| `rejectProductChangeWorkflow` | `{ id, declined_by?, declined_reason? }` | Move a `pending` change to `declined` |
+| `cancelProductChangeWorkflow` | `{ id, canceled_by? }` | Move a `pending` change to `canceled` |
+| `autoConfirmProductChangeWorkflow` | `{ change_id, confirmed_by?, force? }` | Confirm when review is off, or when `force` is set |
+
+## Apply workflows
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `applyProductChangeActionsWorkflow` | `{ change_ids[] }` | Bucket not-yet-applied actions and dispatch them to product/variant workflows |
+| `applyProductAttributeChangeActionsWorkflow` | `{ product_id, add[], remove[], update[] }` | Apply the attribute batch for a change |
+
+## Edit helpers
+
+High-level workflows that diff your input and stage the right actions for you.
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `productEditUpdateProductWorkflow` | `{ product_id, update, created_by? }` | Diff and stage `UPDATE` actions per changed field |
+| `productEditUpdateVariantsWorkflow` | `{ product_id, ... }` | Stage `VARIANT_*` actions |
+| `productEditUpdateAttributesWorkflow` | `{ product_id, ... }` | Stage `ATTRIBUTE_*` actions |
+| `productEditDeleteProductWorkflow` | `{ product_id, ... }` | Stage a `PRODUCT_DELETE` action |
+
+## Audit-trail workflows
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `recordProductAuditChangeWorkflow` | `{ actor_id?, changes[] }` | Record already-`confirmed` audit changes (actions stored `applied`) |
+| `requestProductChangeWorkflow` | `{ product_id, message?, actor_id? }` | Record a `CHANGE_REQUESTED` revision request on a `proposed` product |
+
+To work with records directly instead of through a workflow, see the
+[Service reference](/platform/product-edit/reference/service). To run side effects
+when a change resolves, see the
+[Event reference](/platform/product-edit/reference/events).

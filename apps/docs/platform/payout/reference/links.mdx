@@ -1,0 +1,36 @@
+---
+title: "Links to other modules"
+sidebarTitle: "Links"
+description: "How the Payout domain links to sellers and orders across the marketplace."
+---
+
+Modules in Mercur never reference each other directly. They connect through
+**module links**. The Payout module links to the Seller and Order modules. Once a
+link is defined, you retrieve related records with `query.graph` using the link
+alias.
+
+```ts
+const { data: sellers } = await query.graph({
+  entity: "seller",
+  fields: ["id", "name", "payout_account.*", "payouts.*"],
+})
+```
+
+## Sellers
+
+| Linked module | Relationship |
+| --- | --- |
+| **Seller** (account) | A store has **one** payout account (`seller` ↔ `payout_account`). |
+| **Seller** (payouts) | A store has **many** payouts (`seller` ↔ `payout`, list). |
+
+## Orders
+
+| Linked module | Relationship |
+| --- | --- |
+| **Order** | An order has **many** payouts (`order` ↔ `payout`, list). |
+
+<Note>
+  A payout is linked to both the order it settles and the seller it pays. The
+  account link is one-to-one, while the seller-payouts and order-payouts links
+  are lists.
+</Note>

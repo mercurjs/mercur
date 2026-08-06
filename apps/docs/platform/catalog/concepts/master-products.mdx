@@ -1,0 +1,54 @@
+---
+title: "Master products"
+sidebarTitle: "Master products"
+description: "The shared catalog, why products aren't seller-owned, and submission attribution."
+---
+
+In this document, you'll learn how Mercur models products as a single shared
+catalog rather than per-seller listings.
+
+## Product
+
+A product is a **master product** in a catalog shared by the whole marketplace,
+represented by Medusa's native `Product` data model (table `product`, id prefix
+`prod`). Products carry the usual commerce fields such as `title`, `handle`,
+`description`, `status`, variants, options, and images, and are **not owned by
+any store**. Creating a product adds it to the shared catalog. Multiple stores
+can then sell the same master product.
+
+```ts
+const { result } = await createProductsWorkflow(container).run({
+  input: {
+    products: [
+      {
+        title: "Aeron Chair",
+        status: "proposed",
+        seller_ids: ["sel_123"],
+      },
+    ],
+    created_by: "usr_123",
+  },
+})
+```
+
+<Note>
+  A store never sells a bare master product directly. It sells against one by
+  creating an [offer](/platform/offer/overview). The offer carries the store's
+  own SKU, price, inventory, and shipping profile, while the master product
+  holds the shared catalog data everyone shares.
+</Note>
+
+## Attribution, not ownership
+
+Because the catalog is shared, the creator of a product does **not** own it.
+When a store submits a new product, Mercur records the submission as an immutable
+audit entry (a `PRODUCT_ADD` action in the product-change pipeline) so you know
+who proposed it. That attribution is for review and history only. Once
+published, the product belongs to the shared catalog like any other.
+
+<Tip>
+  Attribution is recorded automatically by `createProductsWorkflow` through its
+  `created_by` input. You don't manage it by hand. See the
+  [status lifecycle](/platform/catalog/concepts/status-lifecycle) for how a
+  submission becomes a published catalog product.
+</Tip>

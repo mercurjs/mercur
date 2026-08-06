@@ -1,0 +1,84 @@
+---
+title: "Bulk-create offers"
+sidebarTitle: "Bulk-create offers"
+description: "List many offers against the master catalog in a single workflow run."
+---
+
+In this guide, you'll learn how to create many offers at once, for example when
+onboarding a store's catalog or running a CSV import.
+
+`createOffersWorkflow` accepts an array of offers, so a single run can list a
+store against many master variants at once. Each entry is independent and carries
+its own SKU, prices, inventory, and shipping profile.
+
+## Run the workflow with many offers
+
+```ts title="src/api/custom/bulk/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { createOffersWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  const { result } = await createOffersWorkflow(req.scope).run({
+    input: {
+      offers: [
+        {
+          seller_id: "sel_123",
+          created_by: "mem_123",
+          variant_id: "variant_a",
+          shipping_profile_id: "sp_123",
+          sku: "ACME-A-01",
+          prices: [{ amount: 2500, currency_code: "usd" }],
+          inventory_items: [{ stock_levels: [{ location_id: "sloc_1", stocked_quantity: 50 }] }],
+        },
+        {
+          seller_id: "sel_123",
+          created_by: "mem_123",
+          variant_id: "variant_b",
+          shipping_profile_id: "sp_123",
+          sku: "ACME-B-01",
+          prices: [{ amount: 4000, currency_code: "usd" }],
+          inventory_items: [{ stock_levels: [{ location_id: "sloc_1", stocked_quantity: 20 }] }],
+        },
+      ],
+    },
+  })
+
+  res.status(201).json({ offers: result })
+}
+```
+
+<Warning>
+  The batch is validated as a whole: if any entry references a missing variant,
+  omits its inventory items, or reuses an existing `(seller_id, sku)` pair, the
+  run fails and its steps are compensated, so no partial offers are left behind.
+</Warning>
+
+## Update many offers
+
+`updateOffersWorkflow` mirrors the same array shape for edits. Each entry is
+keyed by the offer `id`; supplying a `prices` array **replaces** the offer's
+price ladder (rows with an `id` are updated in place, rows without one are added,
+and omitted rows are removed), while leaving `prices` out keeps the ladder
+untouched.
+
+```ts
+import { updateOffersWorkflow } from "@mercurjs/core/workflows"
+
+await updateOffersWorkflow(req.scope).run({
+  input: {
+    offers: [
+      { id: "offer_a", sku: "ACME-A-02" },
+      {
+        id: "offer_b",
+        prices: [{ amount: 3500, currency_code: "usd" }],
+      },
+    ],
+  },
+})
+```
+
+<Tip>
+  Both workflows emit one event per affected offer (`offer.created` /
+  `offer.updated`). Subscribe to those events to run downstream side effects like
+  re-indexing search. See the [Event reference](/platform/offer/reference/events).
+</Tip>

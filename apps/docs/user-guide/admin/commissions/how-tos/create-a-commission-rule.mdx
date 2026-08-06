@@ -1,0 +1,63 @@
+---
+title: "Create a Commission Rule"
+sidebarTitle: "Create a commission rule"
+description: "Override the global commission for a specific store, product type, or category."
+---
+
+> Charge a different fee for certain stores or products than your global commission.
+
+## Overview
+
+A commission rule overrides the global commission for a specific scope, such as a single store or a product category. When several rules could apply to a sale, the most specific rule wins. If no rule matches, the global commission is used.
+
+Creating a rule is a two-step form: "Details" defines what the rule applies to, and "Commission" sets the fee.
+
+## Step 1: Start a new rule
+
+1. Go to "Settings" in the sidebar, then "Commissions".
+2. Click "Create" in the "Commission Rules" section.
+
+{/* screenshot: /settings/commissions, Commission Rules section with Create button */}
+
+## Step 2: Define the scope
+
+In the "Details" step:
+
+1. Enter a "Title" so you can recognise the rule later.
+2. Enter a "Code". This is a unique identifier for the rule.
+3. Select the scope "Type":
+   - "Store". Apply to specific stores.
+   - "Product Type". Apply to specific product types.
+   - "Category". Apply to specific categories.
+   - "Store + Product Type". Apply to product types within specific stores.
+   - "Store + Category". Apply to categories within specific stores.
+4. Depending on the scope, select the specific stores, product types, or categories the rule applies to.
+5. Click "Continue".
+
+{/* screenshot: Create Commission Rule wizard, Details tab with scope Type open */}
+
+## Step 3: Set the fee
+
+In the "Commission" step:
+
+1. Select the "Type". Choose "Percentage" to charge a percentage of the order total, or "Fixed" to charge a set amount per order.
+2. Enter the "Value". For a percentage, enter a number between 0 and 100. For a fixed fee, enter an amount for each store currency.
+3. Set "Tax included" and "Shipping included" as needed. These work the same way as for the global commission.
+
+{/* screenshot: Create Commission Rule wizard, Commission tab */}
+
+## Step 4: Save
+
+Click "Save". The new rule appears in the "Commission Rules" list and applies immediately to matching sales.
+
+<Note>
+  When several rules could apply to the same sale, the most specific rule wins.
+</Note>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Manage a commission rule" href="/user-guide/admin/commissions/how-tos/manage-a-commission-rule">
+    Edit, enable, disable, or delete the rule later.
+  </Card>
+</CardGroup>

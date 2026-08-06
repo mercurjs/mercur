@@ -1,0 +1,54 @@
+---
+title: "Request a revision"
+sidebarTitle: "Request a revision"
+description: "Send a product submission back to the vendor from server code."
+---
+
+In this guide, you'll learn how to ask a vendor to rework a submission instead of
+approving or rejecting it outright.
+
+A revision request doesn't mutate the product. It records a `CHANGE_REQUESTED`
+action in the audit trail carrying your message, and emits
+`product.change-requested` so the vendor is notified. The product stays with the
+vendor to revise and resubmit.
+
+## Run the workflow
+
+`requestProductChangeWorkflow` validates that the product is in `proposed`,
+records the audit action, and emits the event.
+
+```ts title="src/api/custom/request-revision/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { requestProductChangeWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  await requestProductChangeWorkflow(req.scope).run({
+    input: {
+      product_id: req.params.id,
+      actor_id: req.auth_context?.actor_id,
+      message: "Please add a size guide and sharper photos.",
+    },
+  })
+
+  res.sendStatus(200)
+}
+```
+
+<Note>
+  The request is only valid while the product is `proposed`. The workflow
+  validates the product status first and fails otherwise.
+</Note>
+
+## Where the message goes
+
+The `message` is stored in two places for durability: the `CHANGE_REQUESTED`
+action's `details.message`, and the parent change's `external_note` (the
+vendor-facing note). Because the audit change is created already `confirmed`, the
+request is a permanent entry in the product's history.
+
+<Tip>
+  Subscribe to `product.change-requested` to send the vendor a notification. The
+  payload includes the `id` (product), the `message`, and the `actor_id` of the
+  operator who asked. See the
+  [Event reference](/platform/product-edit/reference/events).
+</Tip>

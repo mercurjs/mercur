@@ -1,0 +1,45 @@
+---
+title: "Workflows"
+sidebarTitle: "Workflows"
+description: "Attribute catalog and product-attachment workflows."
+---
+
+This reference lists the workflows for the Attribute domain. Import them from
+`@mercurjs/core/workflows` and run them against the Medusa container.
+
+## Catalog workflows
+
+Manage the attribute catalog and its values.
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `createProductAttributesWorkflow` | `{ attributes[], additional_data? }` | Create attributes (+ values, + mirror option for axes) |
+| `updateProductAttributesWorkflow` | `{ selector, update }` | Update attribute fields |
+| `deleteProductAttributesWorkflow` | `{ ids[] }` | Delete attributes (fails if still linked) |
+| `createProductAttributeValuesWorkflow` | `{ values[], additional_data? }` | Add values to attributes |
+| `updateProductAttributeValuesWorkflow` | `{ selector, update }` | Update values |
+| `deleteProductAttributeValuesWorkflow` | `{ ids[] }` | Delete values |
+| `upsertProductAttributeValuesWorkflow` | `{ attribute_id, values[] }` | Create or update an attribute's values in one call |
+
+## Product-attachment workflows
+
+Attach attributes to products in the shared master catalog.
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `createAndLinkProductAttributesToProductWorkflow` | `{ product_id, add?, remove?, update? }` | Batch engine: attach, detach, and update, applied remove → add → update |
+| `addProductAttributesToProductWorkflow` | `{ product_id, add[] }` | Attach attributes (existing or inline) to a product |
+| `removeProductAttributesFromProductWorkflow` | `{ product_id, ... }` | Detach attributes from a product |
+| `updateProductAttributesOnProductWorkflow` | `{ product_id, ... }` | Update a product's attribute selections |
+
+<Note>
+  `createAndLinkProductAttributesToProductWorkflow` is the engine behind the
+  product attribute batch endpoint; it composes the three single-purpose
+  attachment workflows. See
+  [Attach attributes to a product](/platform/attribute/guides/attach-attributes-to-a-product).
+</Note>
+
+To work with records directly instead of through a workflow, see the
+[Service reference](/platform/attribute/reference/service). To run side effects
+when an attribute changes, see the
+[Event reference](/platform/attribute/reference/events).

@@ -1,0 +1,256 @@
+---
+title: "Custom Fields"
+sidebarTitle: "Custom Fields"
+description: "Add fields, detail rows, section actions, and list columns to a built-in model."
+---
+
+Custom fields extend a built-in model's forms, detail sections, and list table
+without forking the page. You add a field to the create and edit forms, a row to
+the detail view, an action to a section menu, or a column to the list.
+
+You write one file per model under `src/custom-fields/` and default-export a
+`defineCustomFieldsConfig`. The config targets a model, optionally fetches linked
+module data alongside it, and describes what to add to each surface.
+
+## Add a custom field
+
+<Steps>
+  <Step title="Create a custom-fields file">
+    Create a file under `src/custom-fields/` and default-export
+    `defineCustomFieldsConfig` with the model you want to extend. Start with
+    `product`.
+
+    ```tsx apps/vendor/src/custom-fields/product.tsx
+    import { defineCustomFieldsConfig } from "@mercurjs/dashboard-sdk"
+
+    export default defineCustomFieldsConfig({
+      model: "product",
+    })
+    ```
+  </Step>
+
+  <Step title="Describe the field with `createFormHelper`">
+    Import `createFormHelper` from `@mercurjs/dashboard-shared` and turn a Zod
+    schema into an input type and validation. The Zod schema drives both the
+    default input and the validation.
+
+    ```tsx apps/vendor/src/custom-fields/product.tsx
+    import { createFormHelper } from "@mercurjs/dashboard-shared"
+
+    type ProductWithMeta = { metadata?: Record<string, unknown> }
+    const form = createFormHelper<ProductWithMeta>()
+    ```
+  </Step>
+
+  <Step title="Add the field to a form">
+    Add the field to a built-in form zone and tab. This injects an `ERP ID` field
+    into the product edit form.
+
+    ```tsx apps/vendor/src/custom-fields/product.tsx
+    export default defineCustomFieldsConfig({
+      model: "product",
+      forms: [
+        {
+          zone: "edit",
+          tab: "general",
+          fields: {
+            erp_id: form.define({
+              validation: form.string().nullish(),
+              defaultValue: (data) => (data?.metadata?.erp_id as string) ?? "",
+              label: "ERP ID",
+              placeholder: "ERP-000",
+            }),
+          },
+        },
+      ],
+    })
+    ```
+  </Step>
+
+  <Step title="Run the panel">
+    Start the panel and open the product edit form. The field renders in its tab.
+
+    ```bash Terminal
+    bun run dev
+    ```
+
+    For `product`, values submit under `additional_data` and persist onto the
+    product's `metadata`. See [Persistence](#persistence) for other models.
+  </Step>
+</Steps>
+
+## Configuration
+
+`defineCustomFieldsConfig` takes one object.
+
+| Field      | Type                   | Description                                                                                          |
+| ---------- | ---------------------- | --------------------------------------------------------------------------------------------------- |
+| `model`    | `CustomFieldModel`     | Target model. Start with `"product"`. Typed against `CustomFieldsRegistry`.                          |
+| `link`     | `string \| string[]`   | Module link or links fetched alongside the entity. Their data is available to columns and displays. |
+| `forms`    | `CustomFormEntry[]`    | Fields injected into built-in create, edit, and onboarding forms.                                   |
+| `displays` | `CustomDisplayEntry[]` | Field replace, remove, or add, plus `ActionMenu` actions on detail sections.                        |
+| `list`     | `CustomListExtension`  | Columns, bulk actions, filters, and view defaults on the model's list table.                        |
+
+## Add fields to a form
+
+Inject fields into a built-in create, edit, or onboarding form.
+
+```tsx
+forms: [
+  {
+    zone: "edit",         // "create" | "edit" | "organize" | "attributes" | "onboarding"
+    tab: "general",       // TabbedForm tab id, or wizard step id for zone: "onboarding"
+    fields: {
+      erp_id: form.define({
+        validation: form.string().nullish(),
+        defaultValue: (data) => (data?.metadata?.erp_id as string) ?? "",
+        label: "ERP ID",
+        description: "External system identifier",
+        placeholder: "ERP-000",
+        component: MyErpInput,
+      }),
+    },
+  },
+]
+```
+
+Each field is a `CustomFormField`.
+
+| Field          | Type                             | Description                                                    |
+| -------------- | -------------------------------- | ------------------------------------------------------------- |
+| `validation`   | Zod schema                       | Drives both the default input type and validation.            |
+| `defaultValue` | `unknown \| ((data) => unknown)` | Static value or a resolver from the loaded entity.            |
+| `label`        | `string` (optional)              | Field label.                                                  |
+| `description`  | `string` (optional)              | Help text below the input.                                    |
+| `placeholder`  | `string` (optional)              | Input placeholder.                                            |
+| `component`    | `ComponentType` (optional)       | Custom render. Falls back to a default input for the Zod type. |
+
+<Warning>
+  **A form-field `component` receives no props.** It renders as `<Component />`
+  inside the field's `additional_data.<field>` React Hook Form context. Read and
+  write the value with `useFormContext()` or `useController()`, and render through
+  the `Form.Field` and `Form.Item` chain. Do not use a raw `Controller`. Values
+  live in form state under `additional_data`. For `product`, custom fields persist
+  onto the product's `metadata`.
+</Warning>
+
+## Extend detail sections
+
+Add, replace, or remove fields on a detail section, and add actions to its
+`ActionMenu`.
+
+```tsx
+displays: [
+  {
+    zone: "general", // an existing detail section id
+    fields: [
+      { id: "erp_id", component: ErpRow },             // ADD (unknown id -> new row)
+      { id: "status", component: BrandedStatusBadge }, // REPLACE a built-in field
+      { id: "created_by", component: null },           // REMOVE a built-in field
+    ],
+    actions: [
+      { rank: 0, component: SyncErpAction },            // add to the section's ActionMenu
+    ],
+  },
+]
+```
+
+`fields[]` is `CustomDisplayField`.
+
+| Field       | Type                               | Description                                                                            |
+| ----------- | ---------------------------------- | -------------------------------------------------------------------------------------- |
+| `id`        | `displayFieldIds \| (string & {})` | Built-in field id, which autocompletes, to replace or remove. Any other string adds a new row. |
+| `component` | `ComponentType<{ data? }> \| null` | Render component, or `null` to remove a built-in field.                                |
+
+A display `component` receives the loaded detail entity as `data`, including any
+`link`ed module data. If the config declares `link: "brand"`, read it off
+`data.brand`.
+
+```tsx
+const BrandRow = ({ data }: { data?: { brand?: { name: string } } }) => (
+  <Text>{data?.brand?.name}</Text>
+)
+```
+
+`actions[]` is `SectionAction`, the same shape as list `bulkActions`.
+
+| Field       | Type                       | Description                                              |
+| ----------- | -------------------------- | ------------------------------------------------------- |
+| `rank`      | `number` (optional)        | Position within the section's `ActionMenu`.             |
+| `component` | `ComponentType<{ data? }>` | Owns its own label, icon, group placement, and `onClick`. |
+
+## Extend the list table
+
+Override or add columns, register bulk actions and filters, and set view defaults
+on the model's list table.
+
+```tsx
+list: {
+  columns: [
+    { id: "title", component: ({ value }) => <strong>{value}</strong> },            // override a cell
+    { id: "brand_name", header: "Brand", component: ({ row }) => row.brand?.name },  // add from link
+  ],
+  bulkActions: [{ rank: 0, component: ArchiveBulkAction }],
+  filters: [/* add or remove list filters */],
+  viewDefaults: {
+    columnVisibility: { created_at: false },
+    columnOrder: ["title", "sku", "erp_id"],
+  },
+}
+```
+
+`columns[]` is `CustomColumn`.
+
+| Field       | Type                                         | Description                                                          |
+| ----------- | -------------------------------------------- | ------------------------------------------------------------------- |
+| `id`        | `string`                                     | Column id. Matches a built-in column to override, or adds a new one. |
+| `header`    | `string` (optional)                          | Column header text, for added columns.                              |
+| `component` | `ComponentType<{ row?, value? }>` (optional) | Cell renderer. Receives the full `row` and the cell `value`.        |
+
+<Note>
+  **Bulk-action rendering is deferred in the MVP.** `bulkActions` are accepted and
+  surfaced by the config, but not yet mounted into the list toolbar.
+</Note>
+
+<Warning>
+  **The vendor product list is field-constrained.** It must use the curated fields
+  from `useProductTableQuery`. The SDK merges `link` fetches with the `+` and `-`
+  convention, never bare fields, or the list returns a 500. You never hand-write
+  the field list. The `link` declaration drives it.
+</Warning>
+
+## Fetch linked module data
+
+Declare `link` to fetch a module link alongside the entity. Its data rides on the
+`data` passed to displays and on the `row` passed to columns.
+
+```tsx
+export default defineCustomFieldsConfig({
+  model: "product",
+  link: "brand", // string | string[]
+  displays: [/* read data.brand here */],
+  list: {/* read row.brand here */},
+})
+```
+
+## Persistence
+
+<Warning>
+  **The MVP is a UI surface only.** Custom fields render, validate, and display
+  through the built-in forms, sections, and tables. There is no generic core-side
+  write path. For `product`, values submit under `additional_data` and persist
+  onto `metadata`. To store data for other models, wire your own route or
+  workflow, or use the backend
+  [Custom Fields module](/rc/resources/customization/custom-fields).
+</Warning>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Widgets" href="/references/panel-extensions/widgets">
+    Render a component in a slot on an existing page.
+  </Card>
+  <Card title="Create a new page" href="/references/panel-extensions/create-page">
+    Add a route with file-based routing and register it in the sidebar.
+  </Card>
+</CardGroup>

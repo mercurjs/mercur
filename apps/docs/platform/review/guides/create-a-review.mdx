@@ -1,0 +1,55 @@
+---
+title: "Create a review"
+sidebarTitle: "Create a review"
+description: "Create a review programmatically with createReviewWorkflow."
+---
+
+In this guide, you'll learn how to create a review from your own server code. This
+is useful in a custom storefront route, an import script, or a seed.
+
+Mercur exposes a `createReviewWorkflow` that validates the submission, creates the
+`Review` record, and links it to its target, order, and customer in one step. Run
+it from any place that has access to the Medusa container.
+
+## Run the workflow
+
+```ts title="src/api/custom/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { createReviewWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  const { result } = await createReviewWorkflow(req.scope).run({
+    input: {
+      order_id: "order_123",
+      reference: "product",
+      reference_id: "prod_123",
+      rating: 5,
+      customer_note: "Exactly as described.",
+      customer_id: "cus_123",
+    },
+  })
+
+  res.status(201).json({ review: result })
+}
+```
+
+The `reference` field selects the target: pass `"product"` with a product id, or
+`"seller"` with a seller id, in `reference_id`.
+
+<Note>
+  The workflow validates that the `order_id` belongs to `customer_id` and that
+  the customer hasn't already reviewed the same target on that order. Either
+  check failing raises an error and no review is created.
+</Note>
+
+## Statuses on creation
+
+A new review is created as `pending` and stays hidden until it's moderated. See
+[Moderate a review](/platform/review/guides/moderate-a-review) to publish or
+reject it.
+
+<Tip>
+  A single order can back several reviews, one per distinct target. Create the
+  product review and the seller review as two separate calls with different
+  `reference` / `reference_id` values.
+</Tip>

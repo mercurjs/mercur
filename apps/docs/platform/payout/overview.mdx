@@ -1,0 +1,86 @@
+---
+title: "Payout"
+sidebarTitle: "Overview"
+description: "Onboard sellers to a payment provider and settle their earnings automatically."
+---
+
+Use Mercur to control how each seller is onboarded and settled, while the
+payment provider handles KYC.
+
+Settlement you control is the Payout domain. Once an order is placed and
+fulfilled, it splits each seller's share out to their own connected account, so
+funds are settled per seller rather than pooled. The seller's share is the order
+total minus commission. Onboarding is provider-driven, with the payment provider
+carrying KYC, and the domain ships with a pluggable provider interface and a
+**Stripe Connect** implementation out of the box. It also runs a fully automated
+capture-and-transfer pipeline driven by scheduled jobs and provider webhooks.
+
+<Note>
+  **Provider-agnostic.** The module talks to exactly one registered payout
+  provider through a single interface. Stripe Connect ships by default; any
+  other processor is a drop-in implementation of the same `IPayoutProvider`
+  contract.
+</Note>
+
+## Key features
+
+- **Pluggable provider interface:** one `IPayoutProvider` contract, with Stripe Connect included.
+- **Payout accounts and onboarding:** a per-seller account plus a provider onboarding record.
+- **Webhook-driven lifecycle:** account status (`PENDING` → `ACTIVE` ↔ `RESTRICTED` / `REJECTED`) tracks the provider.
+- **Automated pipeline:** a capture-check job, payment capture, a daily payout job, and transfer, with no manual steps.
+- **Commission-aware transfers:** each payout is the order total minus its commission lines.
+- **Tunable timing:** authorization window, seller-action window, capture buffer, and required fulfillment status.
+
+## Get started
+
+Learn how the domain fits together.
+
+<CardGroup cols={2}>
+  <Card title="Accounts & onboarding" icon="id-card" href="/platform/payout/concepts/accounts-and-onboarding">
+    The payout account, its onboarding record, and provider data.
+  </Card>
+  <Card title="Account lifecycle" icon="arrows-rotate" href="/platform/payout/concepts/account-lifecycle">
+    Statuses and the webhook-driven transitions between them.
+  </Card>
+  <Card title="The payout pipeline" icon="arrows-turn-right" href="/platform/payout/concepts/payout-pipeline">
+    Capture check, capture, daily payout, transfer, and the provider interface.
+  </Card>
+</CardGroup>
+
+## Examples
+
+Build against the Payout domain in your own code.
+
+<CardGroup cols={2}>
+  <Card title="Create a payout account" icon="plus" href="/platform/payout/guides/create-a-payout-account">
+    Run `createPayoutAccountWorkflow` for a seller.
+  </Card>
+  <Card title="Start onboarding" icon="link" href="/platform/payout/guides/start-provider-onboarding">
+    Kick off provider onboarding with `createOnboardingWorkflow`.
+  </Card>
+  <Card title="Process a webhook" icon="bell" href="/platform/payout/guides/process-a-provider-webhook">
+    Turn a provider webhook into account and payout status updates.
+  </Card>
+</CardGroup>
+
+## Resources
+
+Data models, workflows, service methods, and events for the Payout domain.
+
+<CardGroup cols={2}>
+  <Card title="Data models" icon="table" href="/platform/payout/reference/data-models">
+    The `PayoutAccount`, `Onboarding`, and `Payout` entities.
+  </Card>
+  <Card title="Links" icon="link" href="/platform/payout/reference/links">
+    How the Payout domain links to sellers and orders.
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/platform/payout/reference/workflows">
+    Account, onboarding, payout, and webhook workflows.
+  </Card>
+  <Card title="Service" icon="gear" href="/platform/payout/reference/service">
+    Module service methods for working with records directly.
+  </Card>
+  <Card title="Events" icon="bell" href="/platform/payout/reference/events">
+    Events that drive the payout pipeline.
+  </Card>
+</CardGroup>

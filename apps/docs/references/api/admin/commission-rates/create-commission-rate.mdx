@@ -11,7 +11,7 @@ Creates a commission rate, optionally with scoping rules and per-currency values
 <ParamField body="name" type="string" required>The rate's display name.</ParamField>
 <ParamField body="code" type="string" required>Unique code identifying the rate.</ParamField>
 <ParamField body="type" type="string" required>The rate type: `fixed` or `percentage`.</ParamField>
-<ParamField body="value" type="number" required>The commission value — a percentage or a fixed amount.</ParamField>
+<ParamField body="value" type="number" required>The commission value, a percentage or a fixed amount.</ParamField>
 <ParamField body="currency_code" type="string">Currency of a fixed rate's value.</ParamField>
 <ParamField body="include_tax" type="boolean">Whether commission is calculated on tax-inclusive amounts.</ParamField>
 <ParamField body="include_shipping" type="boolean">Whether shipping is included in the commission base.</ParamField>

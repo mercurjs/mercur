@@ -1,0 +1,45 @@
+---
+title: "Links to other modules"
+sidebarTitle: "Links"
+description: "How the Order Group domain links to carts, orders, sellers, and offers."
+---
+
+Modules in Mercur never reference each other directly. They connect through
+**module links**. The `OrderGroup` entity (owned by the Seller module) sits at
+the center of a completed multi-seller purchase, linking the cart it came from to
+the per-seller orders it produced. Once a link is defined, you retrieve related
+records with `query.graph` using the link alias.
+
+```ts
+const { data: groups } = await query.graph({
+  entity: "order_group",
+  fields: ["id", "display_id", "cart.id", "orders.id", "orders.total"],
+})
+```
+
+## Group links
+
+| Linked module | Relationship |
+| --- | --- |
+| **Cart** | A group references the one cart it was created from (`order_group.cart_id`, **read-only**). Carts are immutable after checkout. |
+| **Order** | A group has many child orders, one per seller, through the `order_group_order` table. |
+
+## Order links
+
+The child orders produced by the split carry their own marketplace links:
+
+| Linked module | Relationship |
+| --- | --- |
+| **Seller** | Each order belongs to one seller (`order_order_seller_seller`); a seller has many orders. |
+| **Offer** | Each order line item links to the offer it was purchased from (`order_line_item` → `offer`, list on the line-item side so one offer can back many order lines). |
+
+<Note>
+  The `cart_id` link is resolved from the field on the group and can't be written
+  through the link itself. The split sets it once, at creation.
+</Note>
+
+<Tip>
+  To scope a group to a single seller, filter its child orders by
+  `orders.seller.id`. The list workflow does exactly this when you pass a
+  `sellerId`. See [List order groups](/platform/order-group/guides/list-order-groups).
+</Tip>

@@ -1,0 +1,59 @@
+---
+title: "Allowlist stores"
+sidebarTitle: "Allowlist stores"
+description: "Grant and revoke a store's right to sell a master product from server code."
+---
+
+In this guide, you'll learn how to control which stores may sell a shared master
+product by managing the `product_seller` allowlist from your own server code.
+
+A store can only create an [offer](/platform/offer/overview) against a master
+product if it's on that product's allowlist. Mercur exposes
+`linkSellersToProductWorkflow` to add and remove stores in a single call.
+
+## Add and remove stores
+
+```ts title="src/api/custom/allowlist/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { linkSellersToProductWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  await linkSellersToProductWorkflow(req.scope).run({
+    input: {
+      id: req.params.id, // product id
+      add: ["sel_123", "sel_456"],
+      remove: ["sel_789"],
+    },
+  })
+
+  res.sendStatus(200)
+}
+```
+
+<Note>
+  `add` and `remove` are both optional. Pass either or both. Adding a store
+  that's already allowlisted is idempotent. Removing a store revokes its right
+  to sell the product going forward.
+</Note>
+
+## Allowlist a category
+
+Categories use the same shape through `linkSellersToProductCategoryWorkflow`,
+scoping which stores a category is associated with:
+
+```ts
+import { linkSellersToProductCategoryWorkflow } from "@mercurjs/core/workflows"
+
+await linkSellersToProductCategoryWorkflow(container).run({
+  input: {
+    id: "pcat_123",
+    add: ["sel_123"],
+  },
+})
+```
+
+<Tip>
+  Allowlisting grants the **right to sell**, not the listing itself. After a
+  store is allowlisted, it still has to create an offer for the product to
+  appear on its storefront.
+</Tip>

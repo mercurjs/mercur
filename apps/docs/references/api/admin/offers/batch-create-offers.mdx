@@ -10,13 +10,13 @@ Creates multiple offers on behalf of a seller. The authenticated admin user is r
 
 <ParamField body="seller_id" type="string" required>ID of the seller the offers belong to.</ParamField>
 <ParamField body="offers" type="object[]" required>
-  The offers to create — between 1 and 100.
+  The offers to create, between 1 and 100.
   <Expandable title="properties">
     <ParamField body="sku" type="string" required>The offer's SKU.</ParamField>
     <ParamField body="variant_id" type="string" required>ID of the product variant to offer.</ParamField>
     <ParamField body="shipping_profile_id" type="string" required>ID of the seller's shipping profile.</ParamField>
     <ParamField body="prices" type="object[]" required>
-      Offer prices — at least one.
+      Offer prices, at least one.
       <Expandable title="properties">
         <ParamField body="amount" type="number" required>The price amount.</ParamField>
         <ParamField body="currency_code" type="string" required>The price currency.</ParamField>
@@ -26,7 +26,7 @@ Creates multiple offers on behalf of a seller. The authenticated admin user is r
       </Expandable>
     </ParamField>
     <ParamField body="inventory_items" type="object[]" required>
-      Inventory items backing the offer — at least one.
+      Inventory items backing the offer, at least one.
       <Expandable title="properties">
         <ParamField body="title" type="string">The inventory item's title.</ParamField>
         <ParamField body="sku" type="string">The inventory item's SKU.</ParamField>

@@ -1,0 +1,67 @@
+---
+title: "Skills"
+description: "Agent skills for building on Mercur: the bundled-docs contract plus the official Medusa agent skills."
+---
+
+Agent skills are packaged instructions that teach an AI coding agent how to perform
+a specific kind of task the right way for your stack, such as a migration, a form,
+or a module. On Mercur, skills build on two foundations: the **version-matched docs**
+bundled in your project, and the **official Medusa agent skills** for the
+framework Mercur runs on.
+
+## Start with the bundled docs
+
+Mercur's own mechanism is the documentation bundled at
+`node_modules/@mercurjs/docs/` plus an `AGENTS.md` that tells agents to read it
+before writing code. That's the contract every agent should read first. It's
+version-matched to your installed packages, so an agent looks up the real API
+instead of guessing.
+
+<Card title="Building with AI" icon="robot" href="/resources/ai/overview">
+  How the bundled docs work and how to point your agent at them.
+</Card>
+
+## Official Medusa agent skills
+
+Mercur is built on Medusa, so the [official Medusa agent skills](https://docs.medusajs.com/learn/introduction/build-with-llms-ai/agentic-skills)
+apply directly to the Medusa layer under your marketplace: modules, workflows,
+API routes, migrations, admin widgets, and storefronts. Install them as plugins
+in Claude Code, or copy them into any AI tool that supports custom skills.
+
+```bash Claude Code
+claude
+/plugin marketplace add medusajs/medusa-agent-skills
+/plugin install medusa-dev@medusa
+```
+
+### Available plugins
+
+| Plugin | What it does |
+| --- | --- |
+| `medusa-dev` | Build features, fix bugs, and generate accurate Medusa code |
+| `ecommerce-storefront` | A `storefront-best-practices` skill for any frontend framework |
+| `learn-medusa` | An interactive experience for learning Medusa |
+
+### `medusa-dev` commands
+
+| Command | Description |
+| --- | --- |
+| `/medusa-dev:db-migrate` | Run database migrations |
+| `/medusa-dev:db-generate <module>` | Generate migrations for a custom module |
+| `/medusa-dev:new-user <email> <password>` | Create an admin user |
+
+<Note>
+  Using a different agent? These are plain skills. Copy them from the
+  [medusajs/medusa-agent-skills](https://github.com/medusajs/medusa-agent-skills)
+  marketplace into any tool that supports custom skills.
+</Note>
+
+## Combine skills with the Mercur docs
+
+For the framework layer, such as a custom module, a workflow, or an admin widget,
+lean on the Medusa skills. For anything marketplace-specific, such as sellers,
+offers, commissions, payouts, or order groups, pair them with the bundled Mercur
+docs so the agent has both the framework skill and the version-matched marketplace
+contract. The [Platform](/platform/store/overview) reference is written to be
+read by agents: each domain's data models, workflows, service, and events are
+documented exactly where an agent looks for them.

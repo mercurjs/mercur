@@ -1,0 +1,53 @@
+---
+title: "Manage offer inventory"
+sidebarTitle: "Manage offer inventory"
+description: "Attach, update, and detach inventory items on an existing offer."
+---
+
+In this guide, you'll learn how to change the inventory items linked to an
+existing offer from your own server code.
+
+Because inventory links to the **offer** (not the variant), the set of inventory
+items backing an offer is managed through the `offer ↔ inventory_item` link.
+`batchOfferInventoryItemsWorkflow` applies creates, updates, and deletes to that
+link in a single run.
+
+## Run the batch workflow
+
+```ts title="src/api/custom/offer-inventory/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { batchOfferInventoryItemsWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  const { result } = await batchOfferInventoryItemsWorkflow(req.scope).run({
+    input: {
+      offer_id: "offer_123",
+      create: [{ inventory_item_id: "iitem_new", required_quantity: 2 }],
+      update: [{ inventory_item_id: "iitem_existing", required_quantity: 5 }],
+      delete: ["iitem_stale"],
+    },
+  })
+
+  res.json(result)
+}
+```
+
+The result reports the links that were `created`, `updated`, and `deleted`.
+
+## Rules the workflow enforces
+
+- Items in `create` must **not** already be linked to the offer; items in `update` and `delete` **must** already be linked.
+- An `inventory_item_id` can't appear in more than one section, and can't be duplicated within a section.
+- `create` items must reference existing `InventoryItem` records; `required_quantity` defaults to `1`.
+- Deleting an item that isn't linked to the offer surfaces a 404 rather than silently no-op'ing.
+
+<Note>
+  This workflow manages the **links** between an offer and existing inventory
+  items and their `required_quantity`. To create brand-new inventory items with
+  starting stock as part of listing an offer, pass `inventory_items` to
+  [`createOffersWorkflow`](/platform/offer/guides/create-an-offer) instead.
+</Note>
+
+The workflow emits `offer.updated` and exposes an `offerInventoryItemsBatched`
+hook carrying the `offer_id`, the batch result, and any `additional_data` you
+passed in.

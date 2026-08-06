@@ -1,0 +1,55 @@
+---
+title: "Refresh order commission lines"
+sidebarTitle: "Refresh order lines"
+description: "Recompute an order's commission lines after it changes."
+---
+
+In this guide, you'll learn how to recompute the commission lines for an order
+from your own server code. Mercur already refreshes lines automatically at
+checkout and on order changes. Reach for this workflow when you change an order
+outside those paths, or when backfilling.
+
+## Run the workflow
+
+`refreshOrderCommissionLinesWorkflow` reads each order, resolves the matching
+rate for every item and shipping method, and writes the resulting
+`CommissionLine` records.
+
+```ts title="src/api/custom/refresh/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { refreshOrderCommissionLinesWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  const { result } = await refreshOrderCommissionLinesWorkflow(req.scope).run({
+    input: { order_ids: [req.params.id] },
+  })
+
+  res.json({ commission_lines: result })
+}
+```
+
+<Note>
+  The workflow takes an array of `order_ids`, so you can refresh many orders in
+  one run. This is useful for backfilling after you change your commission
+  configuration.
+</Note>
+
+## Idempotency
+
+The refresh is a **delete-then-insert** for each affected item and shipping
+method, so re-running it never duplicates lines. You can call it as often as you
+need without cleaning up first.
+
+## When it runs automatically
+
+You rarely need to call this by hand. Mercur runs it for you:
+
+- **At checkout:** as each per-seller order is created from the split cart.
+- **On order changes:** a subscriber re-runs it when an order edit is
+  confirmed, or a return, claim, or exchange is created.
+
+<Tip>
+  To hook your own logic into these moments, subscribe to the same order events
+  rather than re-running this workflow. See the
+  [Events reference](/platform/commission/reference/events).
+</Tip>

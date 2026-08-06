@@ -1,0 +1,67 @@
+---
+title: "List order groups"
+sidebarTitle: "List order groups"
+description: "Page through order groups and scope them to a seller with getOrderGroupsListWorkflow."
+---
+
+In this guide, you'll learn how to list order groups from server code, page
+through the results, and optionally scope them to a single seller.
+
+Mercur exposes a `getOrderGroupsListWorkflow` that returns groups with their
+aggregated child orders and a total count for pagination.
+
+## Run the workflow
+
+```ts title="src/api/custom/order-groups/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { getOrderGroupsListWorkflow } from "@mercurjs/core/workflows"
+
+export async function GET(req: MedusaRequest, res: MedusaResponse) {
+  const { result } = await getOrderGroupsListWorkflow(req.scope).run({
+    input: {
+      fields: ["id", "display_id", "total", "seller_count"],
+      variables: {
+        skip: 0,
+        take: 20,
+        order: { created_at: "DESC" },
+      },
+    },
+  })
+
+  res.json({
+    order_groups: result.rows,
+    count: result.metadata?.count ?? 0,
+  })
+}
+```
+
+The workflow returns `{ rows, metadata }`, where `metadata` carries the `count`,
+`skip`, and `take` you need to drive pagination.
+
+<Note>
+  Filters go inside `variables`: the group repository understands `id`,
+  `customer_id`, `seller_id`, `status`, `sales_channel_id`, `created_at`,
+  `updated_at`, and a free-text `q` (matched against group id and customer id).
+</Note>
+
+## Scope to a seller
+
+Pass a `sellerId` to get a vendor's slice. The workflow filters each group's
+child orders down to that seller, so vendors only ever see their own orders
+within a group.
+
+```ts
+await getOrderGroupsListWorkflow(req.scope).run({
+  input: {
+    fields: ["id", "display_id"],
+    variables: { seller_id: "sel_123", take: 20 },
+    sellerId: "sel_123",
+  },
+})
+```
+
+<Tip>
+  Admin surfaces call this workflow with no `sellerId` for platform-wide
+  visibility. Vendor surfaces pass the resolved seller so both the query and the
+  returned child orders stay scoped to that store.
+</Tip>

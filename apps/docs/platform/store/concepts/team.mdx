@@ -1,0 +1,50 @@
+---
+title: "Team & members"
+sidebarTitle: "Team & members"
+description: "Members, roles, invites, and the many-to-many store relationship."
+---
+
+This page covers how a store's team is modeled and how access is structured.
+
+## Member
+
+A member is a dashboard user who can manage one or more stores. A member is
+represented by the `Member` data model (table `member`, id prefix `mem`). Their
+identity is tied to their `email`, which is unique across the system.
+
+## Seller member
+
+The relationship between stores and members is many-to-many. A store can have
+several members, and a member can belong to several stores. Each membership is a
+`SellerMember` record, the pivot between `Seller` and `Member`, unique on
+`(seller_id, member_id)`.
+
+```ts
+await addSellerMemberWorkflow(container).run({
+  input: {
+    seller_id: "sel_123",
+    member: { email: "ops@acme.com" },
+  },
+})
+```
+
+Every membership carries a `role_id`, resolved against the RBAC roles module, and
+an `is_owner` flag.
+
+<Tip>
+  A store must always keep at least one member with admin access. The last admin
+  cannot be removed or demoted.
+</Tip>
+
+## Member invite
+
+Pending invitations are represented by the `MemberInvite` data model. If an
+invited email already belongs to a user, accepting the invite links the new store
+association to their existing account instead of creating a new one.
+
+## Store switcher
+
+A user who belongs to several stores uses the store switcher in the Vendor panel
+to change the active store. Each store context is fully isolated. Switching stores
+shows only that store's offers, orders, and payouts, and it never leaks data
+across stores.

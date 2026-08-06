@@ -1,19 +1,24 @@
 ---
-title: "Modules"
-description: "Keep modules thin — data access and CRUD only. Naming, decorators, and what must never live in a module service."
+title: "How to Create a Custom Module"
+sidebarTitle: "Create a Module"
+description: "Keep a module thin: it owns one domain's data and its CRUD, with no orchestration, events, or cross-module calls."
 ---
 
-A module is the lowest layer of the [architecture](/rc/resources/best-practices/overview): it owns exactly one domain's data and nothing else. Modules are isolated — they never reach into another module, never orchestrate a business operation, and never react to events. All of that lives one layer up, in [workflows](/rc/resources/best-practices/workflows).
+A module is the lowest layer of the [architecture](/rc/resources/best-practices/overview). It owns exactly one domain's data and nothing else.
+
+Modules are isolated. They never reach into another module, never orchestrate a business operation, and never react to events. All of that lives one layer up, in [workflows](/rc/resources/best-practices/workflows).
 
 <Note>
-  A Mercur module is a standard [Medusa module](https://docs.medusajs.com/learn/fundamentals/modules). The examples below build a small **Brand** module — the kind of custom module you'd add to your own project alongside the built-in ones — so the rules stand on their own rather than relying on Mercur internals.
+  A Mercur module is a standard [Medusa module](https://docs.medusajs.com/learn/fundamentals/modules). The examples below build a small **Brand** module. It is the kind of custom module you add to your own project alongside the built-in ones, so the rules stand on their own rather than relying on Mercur internals.
 </Note>
 
 ## Thin CRUD only
 
-A module service exists to read and write its own tables. Extend `MedusaService({ ...models })` and you get typed `list`, `listAndCount`, `retrieve`, `create`, `update`, and `delete` methods for every model for free — use them.
+A module service exists to read and write its own tables. Extend `MedusaService({ ...models })` and you get typed `list`, `listAndCount`, `retrieve`, `create`, `update`, and `delete` methods for every model for free. Use them.
 
-```ts title="src/modules/brand/models/brand.ts"
+Define the model with plain columns.
+
+```ts src/modules/brand/models/brand.ts
 import { model } from "@medusajs/framework/utils"
 
 export const Brand = model.define("brand", {
@@ -22,7 +27,9 @@ export const Brand = model.define("brand", {
 })
 ```
 
-```ts title="src/modules/brand/service.ts"
+Extend `MedusaService` to get the generated CRUD methods.
+
+```ts src/modules/brand/service.ts
 import { MedusaService } from "@medusajs/framework/utils"
 import { Brand } from "./models/brand"
 
@@ -36,9 +43,9 @@ class BrandModuleService extends MedusaService({
 export default BrandModuleService
 ```
 
-Only add a custom method when the logic is **about this module's own data** and can't be expressed with the generated methods — for example, a specialised query. When you do, use Medusa's DI decorators so the method runs in the ambient context:
+Add a custom method only when the logic is about this module's own data and can't be expressed with the generated methods, such as a specialised query. When you do, use Medusa's DI decorators so the method runs in the ambient context.
 
-```ts title="A justified custom method — still single-module"
+```ts src/modules/brand/service.ts
 class BrandModuleService extends MedusaService({ Brand }) {
   @InjectManager()
   async listActiveBrands(
@@ -51,14 +58,16 @@ class BrandModuleService extends MedusaService({ Brand }) {
 ```
 
 <Warning>
-  **What must never live in a module service:** business orchestration, calls to another module's service, event emission, HTTP concerns, or anything that mutates data outside this module. If a method needs a second module's data or writes across a boundary, it belongs in a [workflow](/rc/resources/best-practices/workflows), not here. See the [logic-placement cheat sheet](/rc/resources/best-practices/overview#logic-placement-cheat-sheet).
+  Some logic must never live in a module service: business orchestration, calls to another module's service, event emission, HTTP concerns, or anything that mutates data outside this module. If a method needs a second module's data or writes across a boundary, it belongs in a [workflow](/rc/resources/best-practices/workflows), not here. See the [logic-placement cheat sheet](/rc/resources/best-practices/overview#logic-placement-cheat-sheet).
 </Warning>
 
 ## Naming
 
+Follow four conventions so the module reads like the built-in ones.
+
 - **Register the module by a stable id constant.** Export the module id and register the service against it:
 
-  ```ts title="src/modules/brand/index.ts"
+  ```ts src/modules/brand/index.ts
   import { Module } from "@medusajs/framework/utils"
   import BrandModuleService from "./service"
 
@@ -70,14 +79,14 @@ class BrandModuleService extends MedusaService({ Brand }) {
   ```
 
   <Tip>
-    Mercur's own modules follow the same pattern but read their id from the shared `MercurModules` enum in `@mercurjs/types` (e.g. `Module(MercurModules.SELLER, …)`). For a project-local module, a single exported constant like `BRAND_MODULE` is enough — just never inline the raw string in more than one place.
+    Mercur's own modules follow the same pattern but read their id from the shared `MercurModules` enum in `@mercurjs/types` (e.g. `Module(MercurModules.SELLER, …)`). For a project-local module, a single exported constant such as `BRAND_MODULE` is enough. Just never inline the raw string in more than one place.
   </Tip>
 
-- **Methods are `camelCase` and model-suffixed.** Medusa generates `listBrands`, `createBrands`, `retrieveBrand` — match that casing and pluralisation when you add or override methods. Private helpers end with a trailing underscore (`computeBrandStats_`).
-- **Models are lowercase-defined, referenced by their key.** `model.define("brand", { ... })`; the object key you pass to `MedusaService` (`Brand`) is what drives the generated method names.
-- **Types live next to the module (or in a shared types package).** Export DTOs like `BrandDTO` and import them; never redeclare a model's shape ad hoc. See [Types & augmentation](/rc/resources/best-practices/types).
+- **Methods are `camelCase` and model-suffixed.** Medusa generates `listBrands`, `createBrands`, and `retrieveBrand`. Match that casing and pluralisation when you add or override methods. Private helpers end with a trailing underscore (`computeBrandStats_`).
+- **Models are lowercase-defined, referenced by their key.** `model.define("brand", { ... })`. The object key you pass to `MedusaService` (`Brand`) is what drives the generated method names.
+- **Types live next to the module, or in a shared types package.** Export DTOs such as `BrandDTO` and import them. Never redeclare a model's shape ad hoc. See [Types & augmentation](/rc/resources/best-practices/types).
 
-## Do not call `.linkable()` — links are declared separately
+## Do not call `.linkable()`: links are declared separately
 
 It is tempting to relate two modules by pointing a model at another module's table. Don't. A module model must not reference another module's data, and you should not wire relationships inside the model definition.
 
@@ -85,9 +94,9 @@ It is tempting to relate two modules by pointing a model at another module's tab
   Cross-module relationships are declared **outside** the modules, with `defineLink`, and read through **Query**. A module never imports another module's `.linkable` shape to build a foreign key into it. Keeping models link-free is what lets modules stay independently migratable and upgrade-safe.
 </Warning>
 
-Define the relationship as its own link file instead — covered in full on [Module links](/rc/resources/best-practices/module-links):
+Define the relationship as its own link file instead. This is covered in full on [Module links](/rc/resources/best-practices/module-links).
 
-```ts title="Relationship declared as a link, not inside the model"
+```ts Relationship declared as a link, not inside the model
 import { defineLink } from "@medusajs/framework/utils"
 import ProductModule from "@medusajs/medusa/product"
 import BrandModule from "../modules/brand"
@@ -98,9 +107,9 @@ export default defineLink(
 )
 ```
 
-The model itself stays flat — plain columns, no relations pointing at other modules:
+The model itself stays flat: plain columns, no relations pointing at other modules.
 
-```ts title="src/modules/brand/models/brand.ts"
+```ts src/modules/brand/models/brand.ts
 export const Brand = model.define("brand", {
   id: model.id().primaryKey(),
   name: model.text(),
@@ -111,7 +120,7 @@ export const Brand = model.define("brand", {
 
 ## Decorators
 
-Custom service methods that touch the database use Medusa's dependency-injection decorators so they participate in the ambient transaction and shared context:
+Custom service methods that touch the database use Medusa's dependency-injection decorators so they participate in the ambient transaction and shared context.
 
 | Decorator | Use it on | Purpose |
 | --- | --- | --- |
@@ -119,7 +128,7 @@ Custom service methods that touch the database use Medusa's dependency-injection
 | `@InjectTransactionManager()` | Write methods | Runs the method inside a transaction, enabling rollback. |
 | `@MedusaContext()` | The trailing `sharedContext` parameter | Threads the request/transaction context through the call. |
 
-```ts title="Decorator pattern for a custom write"
+```ts Decorator pattern for a custom write
 @InjectTransactionManager()
 async deactivateBrand(
   id: string,
@@ -130,15 +139,32 @@ async deactivateBrand(
 ```
 
 <Tip>
-  If you don't need a custom method, don't write one. The generated `MedusaService` methods already carry the right decorators and transaction behaviour — reaching for them first keeps modules thin by default.
+  If you don't need a custom method, don't write one. The generated `MedusaService` methods already carry the right decorators and transaction behaviour. Reaching for them first keeps modules thin by default.
 </Tip>
 
 ## Checklist for a module
 
-- Extends `MedusaService({ ...models })`; leans on generated CRUD.
+- Extends `MedusaService({ ...models })` and leans on generated CRUD.
 - Registered with `Module(BRAND_MODULE, { service })` against a stable id.
 - No import of, or call into, any other module's service.
-- Models are flat — no `.linkable()` wiring, no cross-module foreign keys.
-- Custom methods use `@InjectManager` / `@InjectTransactionManager` + `@MedusaContext`.
+- Models are flat: no `.linkable()` wiring, no cross-module foreign keys.
+- Custom methods use `@InjectManager` / `@InjectTransactionManager` plus `@MedusaContext`.
 - DTOs are exported and imported, never redeclared inline.
-- No orchestration, no events, no HTTP — those live in workflows and routes.
+- No orchestration, no events, no HTTP. Those live in workflows and routes.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Workflows" href="/rc/resources/best-practices/workflows">
+    Orchestrate business operations across modules, with compensation on failure.
+  </Card>
+  <Card title="Module links" href="/rc/resources/best-practices/module-links">
+    Relate two modules with `defineLink` and read the relationship through Query.
+  </Card>
+  <Card title="Types & augmentation" href="/rc/resources/best-practices/types">
+    Export DTOs and share a model's shape instead of redeclaring it inline.
+  </Card>
+  <Card title="Best practices overview" href="/rc/resources/best-practices/overview">
+    See the layered architecture and the logic-placement cheat sheet.
+  </Card>
+</CardGroup>

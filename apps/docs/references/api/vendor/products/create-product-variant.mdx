@@ -7,7 +7,7 @@ description: "Stage the addition of a variant to a product."
 Stages a `VARIANT_ADD` operation as a pending change request instead of creating the variant directly.
 
 <Note>
-  The endpoint responds with `202 Accepted` and a `product_change` record; the variant appears on the product once the change is confirmed. The staged variant is always created with `manage_inventory: false` — stock is tracked on offers.
+  The endpoint responds with `202 Accepted` and a `product_change` record; the variant appears on the product once the change is confirmed. The staged variant is always created with `manage_inventory: false`. Stock is tracked on offers.
 </Note>
 
 ## Path parameters

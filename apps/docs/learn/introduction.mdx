@@ -1,71 +1,177 @@
 ---
-title: "Introduction"
-description: "Mercur is an open-source marketplace platform built on MedusaJS with a block-based architecture."
+title: "Overview"
+description: "Set up Mercur, tour the operator and seller panels, and see how a multi-vendor order flows."
 ---
-
-Mercur is an open-core **marketplace platform** built on top of the [Medusa Framework](https://medusajs.com). It follows a block-based architecture — install only the modules, workflows, API routes, and UI extensions you need directly into your project. No black-box dependencies, full code ownership.
 
 ## What is Mercur
 
-Medusa provides the underlying commerce engine — products, pricing, carts, orders, fulfillment, and events — while Mercur builds the marketplace domain layer on top of it.
+Mercur is the open-source enterprise marketplace platform. It gives a marketplace
+operator real governance over sellers and their teams, onboarding, the catalog
+change pipeline, commissions, order splitting, and vendor payouts. Role-based
+access control, an auditable change pipeline, and per-seller settlement back all of
+it, while it stays composable, API-first, and fully code-owned. You run it on your
+own infrastructure.
 
-On top of Medusa's core, Mercur introduces marketplace entities and workflows such as sellers, onboarding, product requests, commissions, reviews, return escalations, order splitting, vendor payouts, and dedicated Admin, Vendor, and Storefront APIs.
+Core commerce runs on the proven Medusa engine, so products, pricing, carts,
+orders, fulfillment, and payments are mature and maintained from day one, and
+Mercur focuses on the marketplace domain on top.
 
-It comes with three optional interfaces:
+## Requirements
 
-- an **Admin Panel** for marketplace operators
-- a **Vendor Portal** for seller teams
-- a **Storefront** ready for marketplace scenarios
+- [Node.js v20+](https://nodejs.org/en/download) (LTS)
+- [Bun v1.3+](https://bun.sh) (recommended package manager)
+- [Git](https://git-scm.com/downloads)
+- PostgreSQL v14+
 
-## Why Mercur
+<Tip>
+  The quickest way to run PostgreSQL locally is with Docker:
 
-### Built on a modern stack
+  ```bash
+  docker run -d --name mercur-postgres \
+    -e POSTGRES_PASSWORD=postgres \
+    -p 5432:5432 postgres:16
+  ```
+</Tip>
 
-Mercur runs on a modern TypeScript backend powered by the Medusa framework, giving you a proven foundation for products, carts, orders, promotions, and payments. It integrates with technologies like Resend (notifications), Algolia (search), and Stripe Connect (payouts) — all replaceable when needed.
+## Create a project
 
-### Block-based architecture
+Create a new project with the CLI. It downloads a template, installs
+dependencies, creates and migrates the database, seeds data, and starts the dev
+server.
 
-Unlike traditional plugins, Mercur uses a **block-based** approach. Blocks are copied directly into your project via the CLI, giving you full ownership and the ability to modify any piece of code without forking.
+```bash
+bun create mercur-app@latest
+```
 
-### Full extensibility and ownership
+The CLI prompts for a project name and a template (`basic` or `plugin`), then
+handles the rest. Useful flags:
 
-Mercur is fully open-core and MIT-licensed. There are no transaction fees, no commercial lock-in, and no constraints on how your marketplace must behave. You own the entire codebase and can host it anywhere.
+| Flag | Description |
+| --- | --- |
+| `--template <template>` | Template to use (`basic` or `plugin`) |
+| `--db-connection-string <string>` | Full PostgreSQL connection string |
+| `--no-deps` | Skip dependency installation |
+| `--skip-db` | Skip database setup |
 
-## Building with AI
+## Open your marketplace
 
-Mercur is designed so AI agents can build and extend your marketplace safely — not by generating code from scratch, but by working within structured guardrails.
+Once the dev server is running, the surfaces are available at:
 
-### How AI works with Mercur
+| Surface | URL |
+| --- | --- |
+| API | `http://localhost:9000` |
+| Admin Panel | `http://localhost:9000/dashboard` |
+| Vendor Panel | `http://localhost:9000/seller` |
 
-Most AI coding tools generate loose snippets that you have to wire together yourself. Mercur gives AI something better to work with: a system with clear boundaries, typed contracts, and composable units.
+You don't need to create any accounts to start. When the CLI finishes, it opens
+the admin invite page at `http://localhost:9000/dashboard/invite` with a token
+already filled in for `admin@mercur-test.com`. Set a password there and you are
+signed in as the operator.
 
-Here's what that looks like in practice:
+The seed also creates three approved demo sellers, so you can sign in to the
+Vendor Panel right away. There is no registration or approval step to go through.
 
-- **Adding features via CLI** — An AI agent can run `bunx @mercurjs/cli@latest add reviews` to install a complete review system — data models, API routes, workflows, and UI — in one command. No guessing at file structure or imports. The CLI handles wiring automatically.
-- **Extending workflows without rebuilding them** — Need custom logic when an order is placed? AI can hook into the existing `complete-cart-with-split-orders` workflow and inject a step — without rewriting the entire cart flow. Medusa's workflow hooks make this safe and predictable.
-- **Generating typed integrations** — AI reads the generated route types from `bunx @mercurjs/cli@latest codegen` and produces API calls that are correct by construction. No hallucinated endpoints, no wrong payloads — the types are the source of truth.
-- **Building UI pages** — AI can scaffold an admin or vendor page by creating a file in `src/routes/`. The dashboard SDK picks it up automatically through file-based routing. No manual route registration, no config files to update.
-- **Modifying blocks it can diff** — AI can compare local code against the registry with `bunx @mercurjs/cli@latest diff`, understand what changed, and make targeted modifications instead of blind overwrites.
+| Seller | Email | Password |
+| --- | --- | --- |
+| Sole Society | `seller@mercur.dev` | `supersecret` |
+| Kickz Corner | `kickz@mercur.dev` | `supersecret` |
+| Trailhead Outfitters | `trailhead@mercur.dev` | `supersecret` |
 
-### Connect your AI tools
+To add a brand-new store instead, open the Vendor Panel and register at
+`http://localhost:9000/seller/register`, then complete the onboarding wizard. The
+new seller appears in the Admin Panel's approval queue.
 
-To start building with AI, connect your environment to Mercur's knowledge base:
+Restart the dev server any time from your project directory:
 
-- **[Building with AI](/rc/resources/ai/overview)** — How Mercur bundles version-matched docs into your project so agents build from accurate APIs, not stale training data
-- **[LLMs](/rc/resources/ai/llms)** — Feed the full Mercur documentation to any LLM via `llms.txt`
-- **[MCP Server](/rc/resources/ai/mcp)** — Let your AI tool search Mercur docs in real time (Cursor, VS Code, Claude, Claude Code)
+```bash
+cd <your-project-name>
+bun dev
+```
 
-### Why this matters
+<img src="/images/admin-orders-order-groups.png" alt="Admin Panel Orders list showing order groups, each spanning one or more stores" />
 
-Traditional commerce platforms give AI no structure to reason about. The result is generated code that looks plausible but breaks in production — wrong API shapes, missing relationships, incompatible data models.
+## Tour the platform
 
-Mercur solves this with:
+A Mercur project ships three role-based surfaces, one per audience. Each is backed
+by the same marketplace modules and governed by role-based access.
 
-- **Typed API Client** — API specifications shared between server and client. AI reads real types, not documentation that may be outdated.
-- **Block Registry** — Features are discrete, well-defined units. AI can inspect what a block contains before installing it and verify the result after.
-- **Monorepo** — Backend, admin, vendor, and shared packages live in one workspace. AI has full context without jumping between repositories.
-- **Core Workflows** — Cart, orders, pricing, and vendor logic are exposed as structured steps. AI extends them through hooks rather than patching source code.
-- **Dashboard SDK** — File-based routing and virtual modules mean AI adds pages and components by creating files in the right place. The SDK handles registration.
-- **Marketplace Payments** — Payout providers follow a pluggable interface. AI can implement a new provider by conforming to the contract, not by reverse-engineering Stripe integration code.
+### Admin Panel
 
-The result: AI agents can compose real marketplace systems — not just write code, but add capabilities, extend business logic, and evolve your architecture with guardrails that prevent mistakes.
+The operator dashboard at `/dashboard`. This is where you run the marketplace.
+
+- **Govern sellers:** approve, suspend, or terminate stores, and manage their members and roles.
+- **Review catalog changes:** every seller edit lands in an approval queue as an attributed, immutable change you confirm or decline.
+- **Set the economics:** configure commission rules across products, categories, and sellers.
+- **Watch the money:** see orders across every seller and monitor payouts marketplace-wide.
+
+<video
+  autoPlay
+  muted
+  loop
+  playsInline
+  controls
+  className="w-full aspect-video"
+  src="/images/platform-walkthrough.mp4"
+/>
+
+### Vendor Panel
+
+The seller portal at `/seller`, scoped so a seller only ever sees its own store.
+
+- **List products:** create offers against the shared catalog with a seller's own SKU, price, inventory, and shipping.
+- **Fulfill orders:** view, fulfill, and refund orders, and handle returns.
+- **Get paid:** complete provider onboarding and track payouts.
+- **Run a team:** invite members and assign roles.
+
+<video
+  autoPlay
+  muted
+  loop
+  playsInline
+  controls
+  className="w-full aspect-video"
+  src="/images/seller-walkthrough.mp4"
+/>
+
+### Store API
+
+The storefront API under `/store/*` that your customer-facing frontend talks to.
+It exposes marketplace discovery (sellers and offers) and a cart that can span
+multiple sellers, then splits it into per-seller orders at checkout.
+
+## How a multi-vendor order flows
+
+The clearest way to see what the platform does is to follow one order from cart to
+payout. A single customer cart can hold items from several sellers.
+
+<Steps>
+  <Step title="One cart, many sellers">
+    A customer adds offers from different sellers to a single cart through the Store API.
+  </Step>
+  <Step title="Checkout splits the cart">
+    Completing the cart runs the split-order workflow. Items are grouped by seller, and a separate order is created for each, all linked under one order group with a shared display id.
+  </Step>
+  <Step title="Commissions are calculated">
+    For each order, Mercur resolves the matching commission rule and records the commission lines. All arithmetic uses arbitrary precision, so totals stay exact.
+  </Step>
+  <Step title="Each seller is settled">
+    Payment is split across the per-seller orders, and each seller's earnings settle to their connected account through the payout provider, minus commission.
+  </Step>
+</Steps>
+
+The operator sees the whole order group; each seller sees only its slice. Every
+step is governed by the same roles and recorded for audit.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Architecture" icon="sitemap" href="/learn/architecture">
+    How the marketplace platform is architected, module by module.
+  </Card>
+  <Card title="Platform" icon="cubes" href="/platform/store/overview">
+    Every marketplace capability, with its data models and workflows.
+  </Card>
+  <Card title="Build with AI" icon="robot" href="/resources/ai/overview">
+    Bundled docs, agent skills, and the MCP server.
+  </Card>
+</CardGroup>

@@ -1,0 +1,49 @@
+---
+title: "Variants, categories & collections"
+sidebarTitle: "Variants & categories"
+description: "The native Medusa Product structure the shared catalog is built on."
+---
+
+In this document, you'll learn about the structural models that organize the
+shared catalog, all of them native to Medusa's Product module.
+
+## Product variant
+
+A variant is a purchasable configuration of a master product, represented by the
+`ProductVariant` data model (table `product_variant`, id prefix `variant`).
+Variants are generated from a product's options, including Mercur attributes
+marked as variant axes, and hold the SKU-level structure of the catalog entry.
+
+```ts
+const { data: products } = await query.graph({
+  entity: "product",
+  fields: ["id", "title", "variants.id", "variants.title", "options.*"],
+  filters: { id: "prod_123" },
+})
+```
+
+<Note>
+  Offer-based inventory and pricing live on the [offer](/platform/offer/overview),
+  not the variant. The variant defines the shared catalog structure. Each store's
+  stock and price come from its own offer.
+</Note>
+
+## Categories & collections
+
+Products are organized with Medusa's native grouping models:
+
+| Model | Purpose |
+| --- | --- |
+| `ProductCategory` | Hierarchical, nestable classification (id prefix `pcat`) |
+| `ProductCollection` | Flat, curated grouping (id prefix `pcol`) |
+| `ProductTag` | Free-form labels for filtering |
+| `ProductType` | A single type classification per product |
+
+Assign products to a category with `assignProductsToCategoryWorkflow`, which
+keeps each product in exactly one category at a time.
+
+<Tip>
+  Categories participate in the marketplace layer too: the `category_seller`
+  link scopes which stores a category is associated with, mirroring the product
+  [allowlist](/platform/catalog/concepts/product-seller-allowlist).
+</Tip>
