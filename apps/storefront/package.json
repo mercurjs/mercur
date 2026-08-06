@@ -50,7 +50,7 @@
     "@storybook/addon-interactions": "^8.4.7",
     "@storybook/addon-onboarding": "^8.4.7",
     "@storybook/blocks": "^8.4.7",
-    "@storybook/nextjs": "^8.4.7",
+    "@storybook/nextjs": "^10.5.5",
     "@storybook/react": "^8.4.7",
     "@storybook/test": "^8.4.7",
     "@types/lodash": "^4.17.15",
