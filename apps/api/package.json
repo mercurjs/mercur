@@ -39,7 +39,7 @@
     "@mercurjs/cli": "*"
   },
   "devDependencies": {
-    "@medusajs/test-utils": "2.17.2",
+    "@medusajs/test-utils": "2.18.0",
     "@swc/core": "^1.7.28",
     "@swc/jest": "^0.2.36",
     "@types/jest": "^30.0.0",
