@@ -11,7 +11,11 @@ import type { Metadata } from "next"
 import { headers } from "next/headers"
 import Script from "next/script"
 import { listRegions } from "@/lib/data/regions"
-import { toHreflang } from "@/lib/helpers/hreflang"
+import {
+  buildHreflangAlternates,
+  getStorefrontLocales,
+  toHreflang,
+} from "@/lib/helpers/hreflang"
 
 export async function generateMetadata({
   params,
@@ -25,32 +29,24 @@ export async function generateMetadata({
   const protocol = headersList.get("x-forwarded-proto") || "https"
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
 
-  let languages: Record<string, string> = {}
+  let locales: string[] = []
   try {
-    const regions = await listRegions()
-    const locales = Array.from(
-      new Set(
-        (regions || [])
-          .map((r) => r.countries?.map((c) => c.iso_2) || [])
-          .flat()
-          .filter(Boolean)
-      )
-    ) as string[]
-
-    languages = locales.reduce<Record<string, string>>((acc, code) => {
-      const hrefLang = toHreflang(code)
-      acc[hrefLang] = `${baseUrl}/${code}`
-      return acc
-    }, {})
+    locales = getStorefrontLocales(await listRegions())
   } catch {
-    languages = { [toHreflang(locale)]: `${baseUrl}/${locale}` }
+    locales = [locale]
   }
+
+  const { canonical, languages } = buildHreflangAlternates({
+    baseUrl,
+    path: "",
+    locale,
+    locales,
+  })
 
   const title = "Home"
   const description =
     "Welcome to Mercur B2C Demo! Create a modern marketplace that you own and customize in every aspect with high-performance, fully customizable storefront."
   const ogImage = "/B2C_Storefront_Open_Graph.png"
-  const canonical = `${baseUrl}/${locale}`
 
   return {
     title,
@@ -68,10 +64,7 @@ export async function generateMetadata({
     },
     alternates: {
       canonical,
-      languages: {
-        ...languages,
-        "x-default": baseUrl,
-      },
+      languages,
     },
     openGraph: {
       title: `${title} | ${

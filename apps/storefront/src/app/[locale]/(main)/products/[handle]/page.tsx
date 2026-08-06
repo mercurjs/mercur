@@ -15,7 +15,7 @@ export async function generateMetadata({
     queryParams: { handle: [handle], limit: 1 },
   }).then(({ response }) => response.products[0])
 
-  return generateProductMetadata(prod)
+  return generateProductMetadata(prod, locale)
 }
 
 export default async function ProductPage({

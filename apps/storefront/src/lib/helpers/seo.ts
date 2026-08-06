@@ -2,23 +2,49 @@ import { HttpTypes } from "@medusajs/types"
 import { Metadata } from "next"
 import { headers } from "next/headers"
 
+import { listRegions } from "@/lib/data/regions"
+import {
+  buildHreflangAlternates,
+  getStorefrontLocales,
+} from "@/lib/helpers/hreflang"
+
 export const generateProductMetadata = async (
-  product: HttpTypes.StoreProduct
+  product: HttpTypes.StoreProduct,
+  locale: string
 ): Promise<Metadata> => {
   const headersList = await headers()
   const host = headersList.get("host")
   const protocol = headersList.get("x-forwarded-proto") || "https"
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
+
+  let locales: string[] = []
+  try {
+    locales = getStorefrontLocales(await listRegions())
+  } catch {
+    locales = [locale]
+  }
+
+  const { canonical, languages } = buildHreflangAlternates({
+    baseUrl,
+    path: `/products/${product?.handle}`,
+    locale,
+    locales,
+  })
 
   return {
     title: product?.title,
     description: `${product?.title} - ${process.env.NEXT_PUBLIC_SITE_NAME}`,
     robots: "index, follow",
-    metadataBase: new URL(`${protocol}://${host}/products/${product?.handle}`),
+    metadataBase: new URL(baseUrl),
+    alternates: {
+      canonical,
+      languages,
+    },
 
     openGraph: {
       title: product?.title,
       description: `${product?.title} - ${process.env.NEXT_PUBLIC_SITE_NAME}`,
-      url: `${protocol}://${host}/products/${product?.handle}`,
+      url: canonical,
       siteName: process.env.NEXT_PUBLIC_SITE_NAME,
       images: [
         {
