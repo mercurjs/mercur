@@ -33,7 +33,7 @@
     "tsup": "^8.5.0"
   },
   "dependencies": {
-    "stripe": "^15.5.0"
+    "stripe": "^22.4.0"
   },
   "keywords": [
     "medusa-plugin",
