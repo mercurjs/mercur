@@ -58,7 +58,7 @@
     "@medusajs/framework": "2.17.2",
     "@medusajs/icons": "2.17.2",
     "@medusajs/medusa": "2.17.2",
-    "@medusajs/test-utils": "2.17.2",
+    "@medusajs/test-utils": "2.18.0",
     "@medusajs/ui": "4.1.19",
     "@mercurjs/types": "2.3.0-canary.1",
     "@swc/core": "^1.7.28",
