@@ -11,7 +11,10 @@ import { headers } from "next/headers"
 import Script from "next/script"
 import { listRegions } from "@/lib/data/regions"
 import { listProducts } from "@/lib/data/products"
-import { toHreflang } from "@/lib/helpers/hreflang"
+import {
+  buildHreflangAlternates,
+  getStorefrontLocales,
+} from "@/lib/helpers/hreflang"
 
 export const revalidate = 60
 
@@ -31,39 +34,31 @@ export async function generateMetadata({
     return {}
   }
 
-  let languages: Record<string, string> = {}
+  let locales: string[] = []
   try {
-    const regions = await listRegions()
-    const locales = Array.from(
-      new Set(
-        (regions || []).flatMap((r) => r.countries?.map((c) => c.iso_2) || [])
-      )
-    ) as string[]
-    languages = locales.reduce<Record<string, string>>((acc, code) => {
-      acc[toHreflang(code)] = `${baseUrl}/${code}/categories/${categoryHandle}`
-      return acc
-    }, {})
+    locales = getStorefrontLocales(await listRegions())
   } catch {
-    languages = {
-      [toHreflang(locale)]: `${baseUrl}/${locale}/categories/${categoryHandle}`,
-    }
+    locales = [locale]
   }
+
+  const { canonical, languages } = buildHreflangAlternates({
+    baseUrl,
+    path: `/categories/${categoryHandle}`,
+    locale,
+    locales,
+  })
 
   const title = `${cat.name} Category`
   const description = `${cat.name} Category - ${
     process.env.NEXT_PUBLIC_SITE_NAME || "Storefront"
   }`
-  const canonical = `${baseUrl}/${locale}/categories/${categoryHandle}`
 
   return {
     title,
     description,
     alternates: {
       canonical,
-      languages: {
-        ...languages,
-        "x-default": `${baseUrl}/categories/${categoryHandle}`,
-      },
+      languages,
     },
     robots: { index: true, follow: true },
     openGraph: {

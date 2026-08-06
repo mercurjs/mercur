@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 export const metadata: Metadata = {
   title: 'Cart',
   description: 'My cart page',
+  robots: { index: false, follow: false },
 };
 
 export default function CartPage({}) {

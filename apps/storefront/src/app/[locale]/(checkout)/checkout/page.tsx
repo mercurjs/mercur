@@ -15,7 +15,8 @@ import { listCartPaymentMethods } from '@/lib/data/payment';
 
 export const metadata: Metadata = {
   title: 'Checkout',
-  description: 'My cart page - Checkout'
+  description: 'My cart page - Checkout',
+  robots: { index: false, follow: false }
 };
 
 export default async function CheckoutPage({}) {

@@ -1,5 +1,11 @@
 import { Card } from "@/components/atoms"
 import { ProfilePasswordForm } from "@/components/molecules/ProfilePasswordForm/ProfilePasswordForm"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Reset password",
+  robots: { index: false, follow: false },
+}
 
 export default async function ResetPasswordPage({
   searchParams,
