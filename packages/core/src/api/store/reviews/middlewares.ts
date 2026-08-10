@@ -3,14 +3,35 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework"
+import {
+  AuthenticatedMedusaRequest,
+  maybeApplyLinkFilter,
+  MedusaNextFunction,
+  MedusaResponse,
+} from "@medusajs/framework/http"
 import { MiddlewareRoute } from "@medusajs/medusa"
 
+import customerReview from "../../../links/customer-review"
 import { storeReviewQueryConfig } from "./query-config"
 import {
   StoreCreateReview,
   StoreGetReviewsParams,
   StoreUpdateReview,
 } from "./validators"
+
+const applyCustomerReviewLinkFilter = (
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  req.filterableFields.customer_id = req.auth_context.actor_id
+
+  return maybeApplyLinkFilter({
+    entryPoint: customerReview.entryPoint,
+    resourceId: "review_id",
+    filterableField: "customer_id",
+  })(req, res, next)
+}
 
 export const storeReviewsMiddlewares: MiddlewareRoute[] = [
   {
@@ -22,6 +43,7 @@ export const storeReviewsMiddlewares: MiddlewareRoute[] = [
         StoreGetReviewsParams,
         storeReviewQueryConfig.list
       ),
+      applyCustomerReviewLinkFilter,
     ],
   },
   {

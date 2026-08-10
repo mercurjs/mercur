@@ -8,7 +8,6 @@ import {
   StoreReviewResponse,
 } from "@mercurjs/types"
 
-import customerReview from "../../../links/customer-review"
 import { createReviewWorkflow } from "../../../workflows/review/workflows"
 import { StoreCreateReviewType, StoreGetReviewsParamsType } from "./validators"
 
@@ -46,16 +45,14 @@ export const GET = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data: reviews, metadata } = await query.graph({
-    entity: customerReview.entryPoint,
-    fields: req.queryConfig.fields.map((field) => `review.${field}`),
-    filters: {
-      customer_id: req.auth_context.actor_id,
-    },
+    entity: "review",
+    fields: req.queryConfig.fields,
+    filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
   })
 
   res.json({
-    reviews: reviews.map((relation) => relation.review),
+    reviews,
     count: metadata?.count ?? 0,
     offset: metadata?.skip ?? 0,
     limit: metadata?.take ?? 0,
