@@ -5,7 +5,10 @@ import {
 } from "@medusajs/framework"
 import { HttpTypes } from "@mercurjs/types"
 
-import { validateSellerOrder } from "../helpers"
+import {
+  normalizeOrderPaymentCollections,
+  validateSellerOrder,
+} from "../helpers"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -22,6 +25,8 @@ export const GET = async (
       order_id: req.params.id,
     },
   })
+
+  normalizeOrderPaymentCollections(result as never)
 
   res.json({ order: result as HttpTypes.VendorOrderResponse["order"] })
 }

@@ -123,6 +123,7 @@
   "/admin/orders/:id/shipping-options": "typeof import(\"@medusajs/medusa/api/admin/orders/[id]/shipping-options/route\")",
   "/admin/orders/:id/transfer": "typeof import(\"@medusajs/medusa/api/admin/orders/[id]/transfer/route\")",
   "/admin/orders/:id/transfer/cancel": "typeof import(\"@medusajs/medusa/api/admin/orders/[id]/transfer/cancel/route\")",
+  "/admin/orders/:id/transfer/guest": "typeof import(\"@medusajs/medusa/api/admin/orders/[id]/transfer/guest/route\")",
   "/admin/orders/export": "typeof import(\"@medusajs/medusa/api/admin/orders/export/route\")",
   "/admin/payment-collections": "typeof import(\"@medusajs/medusa/api/admin/payment-collections/route\")",
   "/admin/payment-collections/:id": "typeof import(\"@medusajs/medusa/api/admin/payment-collections/[id]/route\")",

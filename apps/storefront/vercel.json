@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "installCommand": "bun install --filter='@mercurjs/storefront...'",
+  "buildCommand": "bun run build"
+}

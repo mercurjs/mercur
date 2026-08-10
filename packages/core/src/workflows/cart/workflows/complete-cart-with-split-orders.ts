@@ -8,7 +8,6 @@ import {
 } from "@medusajs/framework/types"
 import {
     generateEntityId,
-    isDefined,
     MathBN,
     Modules,
     OrderStatus,
@@ -504,16 +503,13 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                         })
                     }
 
-                    if (isDefined(cart.payment_collection?.id)) {
-                        createdOrders.forEach((order) => {
-                            links.push({
-                                [Modules.ORDER]: { order_id: order.id },
-                                [Modules.PAYMENT]: {
-                                    payment_collection_id: cart.payment_collection.id,
-                                },
-                            })
-                        })
-                    }
+                    // The cart's payment collection is shared across every
+                    // split order, but Medusa's order↔payment_collection link is
+                    // one-to-one on the payment-collection side, so it cannot be
+                    // linked to more than one order. Each order already links to
+                    // the cart, and the cart links to the payment collection, so
+                    // the shared collection stays reachable per order via
+                    // `order.cart.payment_collection`.
 
                     links.push(...Object.entries(sellerOrdersMap).map(([sellerId, orderId]) => ({
                         [Modules.ORDER]: { order_id: orderId },
