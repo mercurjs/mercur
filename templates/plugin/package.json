@@ -55,7 +55,7 @@
     "react-dom": "^18.2.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2",
-    "vite": "^5.2.11",
+    "vite": "^6.4.3",
     "yalc": "^1.0.0-pre.53"
   },
   "peerDependencies": {
