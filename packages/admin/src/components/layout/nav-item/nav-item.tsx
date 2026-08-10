@@ -20,6 +20,7 @@ type ItemType = "core" | "extension" | "setting";
 type NestedItemProps = {
   label: string;
   to: string;
+  translationNs?: string;
 };
 
 export type INavItem = {
@@ -30,6 +31,22 @@ export type INavItem = {
   type?: ItemType;
   from?: string;
   nested?: string;
+  translationNs?: string;
+};
+
+const NestedNavLabel = ({
+  label,
+  translationNs,
+}: {
+  label: string;
+  translationNs?: string;
+}) => {
+  const { t } = useTranslation(translationNs);
+  return (
+    <Text size="small" weight="plus" leading="compact">
+      {translationNs ? t(label) : label}
+    </Text>
+  );
 };
 
 const BASE_NAV_LINK_CLASSES =
@@ -93,8 +110,12 @@ export const NavItem = ({
   items,
   type = "core",
   from,
+  translationNs,
 }: INavItem) => {
+  const { t } = useTranslation(translationNs);
   const { pathname } = useLocation();
+
+  const displayLabel = translationNs ? t(label) : label;
   const [open, setOpen] = useState(getIsOpen(to, items, pathname));
 
   useEffect(() => {
@@ -166,7 +187,7 @@ export const NavItem = ({
             </div>
           )}
           <Text size="small" weight="plus" leading="compact">
-            {label}
+            {displayLabel}
           </Text>
         </NavLink>
       </NavItemTooltip>
@@ -182,7 +203,7 @@ export const NavItem = ({
               <Icon icon={icon} type={type} />
             </div>
             <Text size="small" weight="plus" leading="compact">
-              {label}
+              {displayLabel}
             </Text>
           </RadixCollapsible.Trigger>
           <RadixCollapsible.Content>
@@ -209,7 +230,7 @@ export const NavItem = ({
                       data-testid={`sidebar-nav-link-nested-${to.replace(/\//g, "-").replace(/^-/, "")}`}
                     >
                       <Text size="small" weight="plus" leading="compact">
-                        {label}
+                        {displayLabel}
                       </Text>
                     </NavLink>
                   </NavItemTooltip>
@@ -233,9 +254,10 @@ export const NavItem = ({
                           }}
                           data-testid={`sidebar-nav-link-nested-${item.to.replace(/\//g, "-").replace(/^-/, "")}`}
                         >
-                          <Text size="small" weight="plus" leading="compact">
-                            {item.label}
-                          </Text>
+                          <NestedNavLabel
+                            label={item.label}
+                            translationNs={item.translationNs}
+                          />
                         </NavLink>
                       </NavItemTooltip>
                     </li>
