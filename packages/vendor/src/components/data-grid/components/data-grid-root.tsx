@@ -183,6 +183,7 @@ export const DataGridRoot = <
     onColumnVisibilityChange: setColumnVisibility,
     getSubRows,
     getCoreRowModel: getCoreRowModel(),
+    columnResizeMode: "onChange",
     defaultColumn: {
       size: 200,
       maxSize: 400,
@@ -337,6 +338,12 @@ export const DataGridRoot = <
     },
   })
   const virtualColumns = columnVirtualizer.getVirtualItems()
+
+  // The column virtualizer caches sizes from getSize(); re-measure when a resize changes them.
+  const columnSizing = grid.getState().columnSizing
+  useEffect(() => {
+    columnVirtualizer.measure()
+  }, [columnSizing, columnVirtualizer])
 
   let virtualPaddingLeft: number | undefined
   let virtualPaddingRight: number | undefined
@@ -743,6 +750,20 @@ export const DataGridRoot = <
                                 header.column.columnDef.header,
                                 header.getContext()
                               )}
+                          {header.column.getCanResize() && (
+                            <div
+                              onMouseDown={header.getResizeHandler()}
+                              onTouchStart={header.getResizeHandler()}
+                              onClick={(e) => e.stopPropagation()}
+                              className={clx(
+                                "hover:bg-ui-fg-interactive absolute right-0 top-0 z-[2] h-full w-1 cursor-col-resize touch-none select-none",
+                                {
+                                  "bg-ui-fg-interactive":
+                                    header.column.getIsResizing(),
+                                }
+                              )}
+                            />
+                          )}
                         </div>
                       )
 
