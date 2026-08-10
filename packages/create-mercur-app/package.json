@@ -1,6 +1,6 @@
 {
   "name": "create-mercur-app",
-  "version": "2.3.0-canary.1",
+  "version": "2.3.0-canary.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
