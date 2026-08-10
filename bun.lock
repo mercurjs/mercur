@@ -280,7 +280,7 @@
     },
     "packages/admin": {
       "name": "@mercurjs/admin",
-      "version": "2.3.0-canary.4",
+      "version": "2.3.0",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^8.0.0",
@@ -343,7 +343,7 @@
     },
     "packages/cli": {
       "name": "@mercurjs/cli",
-      "version": "2.3.0-canary.4",
+      "version": "2.3.0",
       "bin": {
         "mercurjs": "./dist/index.js",
       },
@@ -351,7 +351,7 @@
         "@antfu/ni": "^30.3.0",
         "@medusajs/admin-bundler": "2.18.0",
         "@medusajs/framework": "2.18.0",
-        "@mercurjs/dashboard-sdk": "2.3.0-canary.1",
+        "@mercurjs/dashboard-sdk": "2.3.0",
         "@vitejs/plugin-react": "^6.0.3",
         "commander": "^15.0.0",
         "cosmiconfig": "^9.0.0",
@@ -379,7 +379,7 @@
     },
     "packages/client": {
       "name": "@mercurjs/client",
-      "version": "2.3.0-canary.4",
+      "version": "2.3.0",
       "dependencies": {
         "@tanstack/react-query": "^5.64.2",
         "qs": "^6.12.1",
@@ -396,7 +396,7 @@
     },
     "packages/core": {
       "name": "@mercurjs/core",
-      "version": "2.3.0-canary.4",
+      "version": "2.3.0",
       "dependencies": {
         "@orama/orama": "^3.1.18",
         "pkg-dir": "4",
@@ -412,8 +412,8 @@
         "@medusajs/test-utils": "2.18.0",
         "@medusajs/types": "2.18.0",
         "@medusajs/ui": "4.1.19",
-        "@mercurjs/cli": "2.3.0-canary.1",
-        "@mercurjs/types": "2.3.0-canary.1",
+        "@mercurjs/cli": "2.3.0",
+        "@mercurjs/types": "2.3.0",
         "@swc/core": "^1.7.28",
         "@types/cors": "^2.8.17",
         "@types/express": "^4.17.21",
@@ -445,7 +445,7 @@
     },
     "packages/create-mercur-app": {
       "name": "create-mercur-app",
-      "version": "2.3.0-canary.4",
+      "version": "2.3.0",
       "bin": {
         "create-mercur-app": "./dist/index.js",
       },
@@ -477,7 +477,7 @@
     },
     "packages/dashboard-sdk": {
       "name": "@mercurjs/dashboard-sdk",
-      "version": "2.3.0-canary.4",
+      "version": "2.3.0",
       "dependencies": {
         "@babel/parser": "8.0.4",
         "@babel/traverse": "7.25.6",
@@ -494,7 +494,7 @@
     },
     "packages/dashboard-shared": {
       "name": "@mercurjs/dashboard-shared",
-      "version": "2.3.0-canary.4",
+      "version": "2.3.0",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^8.0.0",
@@ -507,7 +507,7 @@
         "@medusajs/dashboard": "2.18.0",
         "@medusajs/icons": "2.18.0",
         "@medusajs/ui": "4.1.19",
-        "@mercurjs/client": "2.3.0-canary.1",
+        "@mercurjs/client": "2.3.0",
         "@radix-ui/react-dialog": "1.1.19",
         "@radix-ui/react-dismissable-layer": "1.1.4",
         "@tanstack/react-query": "5.64.2",
@@ -536,9 +536,9 @@
         "zod": "4.4.3",
       },
       "devDependencies": {
-        "@mercurjs/core": "2.3.0-canary.1",
-        "@mercurjs/dashboard-sdk": "2.3.0-canary.1",
-        "@mercurjs/types": "2.3.0-canary.1",
+        "@mercurjs/core": "2.3.0",
+        "@mercurjs/dashboard-sdk": "2.3.0",
+        "@mercurjs/types": "2.3.0",
         "@types/lodash.debounce": "^4.0.8",
         "@types/react": "^19.2.17",
         "@types/react-dom": "^18.2.22",
@@ -548,11 +548,11 @@
     },
     "packages/docs": {
       "name": "@mercurjs/docs",
-      "version": "2.3.0-canary.4",
+      "version": "2.3.0",
     },
     "packages/providers/payout-stripe-connect": {
       "name": "@mercurjs/payout-stripe-connect",
-      "version": "2.3.0-canary.4",
+      "version": "2.3.0",
       "dependencies": {
         "stripe": "^15.5.0",
       },
@@ -567,7 +567,7 @@
     },
     "packages/registry": {
       "name": "@mercurjs/registry",
-      "version": "2.3.0-canary.1",
+      "version": "2.3.0",
       "dependencies": {
         "@hookform/resolvers": "5.4.0",
         "@medusajs/core-flows": "2.18.0",
@@ -575,11 +575,11 @@
         "@medusajs/icons": "2.18.0",
         "@medusajs/medusa": "2.18.0",
         "@medusajs/ui": "4.1.19",
-        "@mercurjs/client": "2.3.0-canary.1",
-        "@mercurjs/core": "2.3.0-canary.1",
-        "@mercurjs/dashboard-sdk": "2.3.0-canary.1",
-        "@mercurjs/dashboard-shared": "2.3.0-canary.1",
-        "@mercurjs/vendor": "2.3.0-canary.1",
+        "@mercurjs/client": "2.3.0",
+        "@mercurjs/core": "2.3.0",
+        "@mercurjs/dashboard-sdk": "2.3.0",
+        "@mercurjs/dashboard-shared": "2.3.0",
+        "@mercurjs/vendor": "2.3.0",
         "@talkjs/react": "^0.1.11",
         "@tanstack/react-query": "5.64.2",
         "@tanstack/react-table": "8.21.3",
@@ -594,8 +594,8 @@
       },
       "devDependencies": {
         "@medusajs/cli": "2.18.0",
-        "@mercurjs/cli": "2.3.0-canary.1",
-        "@mercurjs/types": "2.3.0-canary.1",
+        "@mercurjs/cli": "2.3.0",
+        "@mercurjs/types": "2.3.0",
         "@swc/core": "^1.7.28",
         "@swc/jest": "^0.2.36",
         "@types/jest": "^30.0.0",
@@ -610,7 +610,7 @@
     },
     "packages/types": {
       "name": "@mercurjs/types",
-      "version": "2.3.0-canary.4",
+      "version": "2.3.0",
       "dependencies": {
         "@medusajs/types": "2.18.0",
       },
@@ -620,7 +620,7 @@
     },
     "packages/vendor": {
       "name": "@mercurjs/vendor",
-      "version": "2.3.0-canary.4",
+      "version": "2.3.0",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^8.0.0",
@@ -633,8 +633,8 @@
         "@medusajs/dashboard": "2.18.0",
         "@medusajs/icons": "2.18.0",
         "@medusajs/ui": "4.1.19",
-        "@mercurjs/client": "2.3.0-canary.1",
-        "@mercurjs/dashboard-shared": "2.3.0-canary.1",
+        "@mercurjs/client": "2.3.0",
+        "@mercurjs/dashboard-shared": "2.3.0",
         "@radix-ui/react-dialog": "1.1.19",
         "@radix-ui/react-dismissable-layer": "1.1.4",
         "@tanstack/react-query": "5.64.2",
@@ -665,9 +665,9 @@
       "devDependencies": {
         "@medusajs/types": "2.18.0",
         "@medusajs/ui-preset": "2.18.0",
-        "@mercurjs/core": "2.3.0-canary.1",
-        "@mercurjs/dashboard-sdk": "2.3.0-canary.1",
-        "@mercurjs/types": "2.3.0-canary.1",
+        "@mercurjs/core": "2.3.0",
+        "@mercurjs/dashboard-sdk": "2.3.0",
+        "@mercurjs/types": "2.3.0",
         "@types/react": "^19.2.17",
         "@types/react-dom": "^18.2.22",
         "autoprefixer": "^10.4.20",
@@ -5024,20 +5024,6 @@
 
     "@mercurjs/integration-tests/typescript": ["typescript@7.0.2", "", { "optionalDependencies": { "@typescript/typescript-aix-ppc64": "7.0.2", "@typescript/typescript-darwin-arm64": "7.0.2", "@typescript/typescript-darwin-x64": "7.0.2", "@typescript/typescript-freebsd-arm64": "7.0.2", "@typescript/typescript-freebsd-x64": "7.0.2", "@typescript/typescript-linux-arm": "7.0.2", "@typescript/typescript-linux-arm64": "7.0.2", "@typescript/typescript-linux-loong64": "7.0.2", "@typescript/typescript-linux-mips64el": "7.0.2", "@typescript/typescript-linux-ppc64": "7.0.2", "@typescript/typescript-linux-riscv64": "7.0.2", "@typescript/typescript-linux-s390x": "7.0.2", "@typescript/typescript-linux-x64": "7.0.2", "@typescript/typescript-netbsd-arm64": "7.0.2", "@typescript/typescript-netbsd-x64": "7.0.2", "@typescript/typescript-openbsd-arm64": "7.0.2", "@typescript/typescript-openbsd-x64": "7.0.2", "@typescript/typescript-sunos-x64": "7.0.2", "@typescript/typescript-win32-arm64": "7.0.2", "@typescript/typescript-win32-x64": "7.0.2" }, "bin": { "tsc": "bin/tsc" } }, "sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA=="],
 
-    "@mercurjs/registry/@mercurjs/cli": ["@mercurjs/cli@2.3.0-canary.1", "", { "dependencies": { "@antfu/ni": "^30.3.0", "@medusajs/admin-bundler": "2.17.2", "@medusajs/framework": "2.17.2", "@mercurjs/dashboard-sdk": "2.3.0-canary.1", "@vitejs/plugin-react": "^6.0.3", "commander": "^15.0.0", "cosmiconfig": "^9.0.0", "deepmerge": "^4.3.1", "diff": "^8.0.2", "execa": "9.6.1", "fast-glob": "^3.3.3", "fs-extra": "^11.3.2", "kleur": "^4.1.5", "ora": "^9.0.0", "pkg-dir": "^9.0.0", "prompts": "^2.4.2", "resolve-cwd": "^3.0.0", "ts-morph": "^28.0.0", "tsconfig-paths": "^4.2.0", "vite": "^8.1.3", "zod": "4.4.3" }, "bin": { "mercurjs": "dist/index.js" } }, "sha512-6bTFw7TSOUvar26Abg7fY16IgZHJG8BTwa92eq9ADiN4oERonQBYt/qajhd0tL8w3ip9keibLIL887Qrlmh+8Q=="],
-
-    "@mercurjs/registry/@mercurjs/client": ["@mercurjs/client@2.3.0-canary.1", "", { "dependencies": { "@tanstack/react-query": "^5.64.2", "qs": "^6.12.1" }, "peerDependencies": { "typescript": ">=4.8.0" } }, "sha512-oZ3jMK/V5F5vMpNl9TByPTtpUMe/ty5EMIrctPiF3v76Wxj6HpAKi9/5Fciqn7xeNqxu1FvfVIPqCNQXAnjsLw=="],
-
-    "@mercurjs/registry/@mercurjs/core": ["@mercurjs/core@2.3.0-canary.1", "", { "dependencies": { "@orama/orama": "^3.1.18", "pkg-dir": "4", "resolve-cwd": "^3.0.0", "zod": "4.4.3" }, "peerDependencies": { "@medusajs/admin-sdk": ">=2.17.2", "@medusajs/cli": ">=2.17.2", "@medusajs/framework": ">=2.17.2", "@medusajs/icons": ">=2.17.2", "@medusajs/medusa": ">=2.17.2", "@medusajs/test-utils": ">=2.17.2", "express": "^4.21.0" } }, "sha512-orwNXRyAfaegy8sh3fE3tfc1q0q5JyQ8AfAM9oVwmG703ekD/w25T+w23UqcQNWZUYBAnqL/11Pp1IJv6NodEQ=="],
-
-    "@mercurjs/registry/@mercurjs/dashboard-sdk": ["@mercurjs/dashboard-sdk@2.3.0-canary.1", "", { "dependencies": { "@babel/parser": "8.0.4", "@babel/traverse": "7.25.6", "@babel/types": "8.0.4", "esbuild-register": "^3.6.0" } }, "sha512-J5uxM5OV0bQTraaXHWL6gyE3yR5lrr3RJhutYvGdtuqZsEvZ+4FN9O9b9MqMLmmwUjrkKDDPnzRvFkDcF2W35A=="],
-
-    "@mercurjs/registry/@mercurjs/dashboard-shared": ["@mercurjs/dashboard-shared@2.3.0-canary.1", "", { "dependencies": { "@ariakit/react": "^0.4.15", "@babel/runtime": "^8.0.0", "@dnd-kit/core": "^6.1.0", "@dnd-kit/sortable": "^8.0.0", "@dnd-kit/utilities": "^3.2.2", "@hookform/error-message": "^2.0.1", "@hookform/resolvers": "5.4.0", "@medusajs/admin-shared": "2.17.2", "@medusajs/dashboard": "2.17.2", "@medusajs/icons": "2.17.2", "@medusajs/ui": "4.1.19", "@mercurjs/client": "2.3.0-canary.1", "@radix-ui/react-dialog": "1.1.19", "@radix-ui/react-dismissable-layer": "1.1.4", "@tanstack/react-query": "5.64.2", "@tanstack/react-table": "8.21.3", "@tanstack/react-virtual": "^3.8.3", "@uiw/react-json-view": "^2.0.0-alpha.17", "cmdk": "^1.1.1", "copy-to-clipboard": "^4.0.2", "date-fns": "^3.6.0", "i18next": "26.3.5", "i18next-browser-languagedetector": "7.2.0", "i18next-http-backend": "2.4.2", "lodash.debounce": "^4.0.8", "lodash.isequal": "^4.5.0", "match-sorter": "^8.3.0", "motion": "^11.15.0", "qs": "^6.12.1", "radix-ui": "1.1.2", "react-country-flag": "^3.1.0", "react-currency-input-field": "^4.0.6", "react-helmet-async": "^3.0.0", "react-hook-form": "7.49.1", "react-i18next": "17.0.8", "react-jwt": "^2.1.1", "react-router-dom": "7.18.1", "zod": "4.4.3" } }, "sha512-C1hi0yl1Ruap9DACTK0qQeJp/pZUVLlkqNL7djZdpQDUx5b8+2Z6WpmbWd/BSeRyNAsG/V4SY+UYWIkIJOydig=="],
-
-    "@mercurjs/registry/@mercurjs/types": ["@mercurjs/types@2.3.0-canary.1", "", { "dependencies": { "@medusajs/types": "2.17.2" } }, "sha512-s1N+UhCykg5yfFHyC8eq4RA89PqZRzVH2h6xzwJCaNN53ei+xSbW82kkJyPmUbpdZIvLuv2oDTXrsVwqW7+5GA=="],
-
-    "@mercurjs/registry/@mercurjs/vendor": ["@mercurjs/vendor@2.3.0-canary.1", "", { "dependencies": { "@ariakit/react": "^0.4.15", "@babel/runtime": "^8.0.0", "@dnd-kit/core": "^6.1.0", "@dnd-kit/sortable": "^8.0.0", "@dnd-kit/utilities": "^3.2.2", "@hookform/error-message": "^2.0.1", "@hookform/resolvers": "5.4.0", "@medusajs/admin-shared": "2.17.2", "@medusajs/dashboard": "2.17.2", "@medusajs/icons": "2.17.2", "@medusajs/ui": "4.1.19", "@mercurjs/client": "2.3.0-canary.1", "@mercurjs/dashboard-shared": "2.3.0-canary.1", "@radix-ui/react-dialog": "1.1.19", "@radix-ui/react-dismissable-layer": "1.1.4", "@tanstack/react-query": "5.64.2", "@tanstack/react-table": "8.21.3", "@tanstack/react-virtual": "^3.8.3", "@uiw/react-json-view": "^2.0.0-alpha.17", "cmdk": "^1.1.1", "copy-to-clipboard": "^4.0.2", "date-fns": "^3.6.0", "i18next": "26.3.5", "i18next-browser-languagedetector": "7.2.0", "i18next-http-backend": "2.4.2", "lodash.debounce": "^4.0.8", "lodash.isequal": "^4.5.0", "match-sorter": "^8.3.0", "motion": "^11.15.0", "qs": "^6.12.1", "radix-ui": "1.1.2", "react-country-flag": "^3.1.0", "react-currency-input-field": "^4.0.6", "react-helmet-async": "^3.0.0", "react-hook-form": "7.49.1", "react-i18next": "17.0.8", "react-jwt": "^2.1.1", "react-router-dom": "7.18.1", "zod": "4.4.3" }, "peerDependencies": { "react": "^18.0.0", "react-dom": "^18.0.0" } }, "sha512-rp9tE0mRS6vrADRoeH++GqYWAcGl33aKehw3xxsl4Lp2eDgYvqgfxQ5SgK+591qry0j+tDCLAlDQvjFezU1b9Q=="],
-
     "@mercurjs/storefront/@hookform/resolvers": ["@hookform/resolvers@3.10.0", "", { "peerDependencies": { "react-hook-form": "^7.0.0" } }, "sha512-79Dv+3mDF7i+2ajj7SkypSKHhl1cbln1OGavqrsF7p6mbUv11xpqpacPsGDCTRvCSjEEIez2ef1NveSVL3b0Ag=="],
 
     "@mercurjs/storefront/@mercurjs/client": ["@mercurjs/client@2.2.0", "", { "dependencies": { "@tanstack/react-query": "^5.64.2", "qs": "^6.12.1" }, "peerDependencies": { "typescript": ">=4.8.0" } }, "sha512-/Zz6qRmVJmTlE/fmNGK042nzXsSL0f+DzX95XTXCBKx1K43ghUNm8gHuuVf3xd2OqMK8IWeJ0fdCmOTQ3jB51A=="],
@@ -6090,12 +6076,6 @@
 
     "@mercurjs/core/react-dom/scheduler": ["scheduler@0.27.0", "", {}, "sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q=="],
 
-    "@mercurjs/registry/@mercurjs/core/pkg-dir": ["pkg-dir@4.2.0", "", { "dependencies": { "find-up": "^4.0.0" } }, "sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ=="],
-
-    "@mercurjs/registry/@mercurjs/dashboard-shared/i18next-http-backend": ["i18next-http-backend@2.4.2", "", { "dependencies": { "cross-fetch": "4.0.0" } }, "sha512-wKrgGcaFQ4EPjfzBTjzMU0rbFTYpa0S5gv9N/d8WBmWS64+IgJb7cHddMvV+tUkse7vUfco3eVs2lB+nJhPo3w=="],
-
-    "@mercurjs/registry/@mercurjs/vendor/i18next-http-backend": ["i18next-http-backend@2.4.2", "", { "dependencies": { "cross-fetch": "4.0.0" } }, "sha512-wKrgGcaFQ4EPjfzBTjzMU0rbFTYpa0S5gv9N/d8WBmWS64+IgJb7cHddMvV+tUkse7vUfco3eVs2lB+nJhPo3w=="],
-
     "@mercurjs/storefront/@types/node/undici-types": ["undici-types@6.21.0", "", {}, "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="],
 
     "@mercurjs/storefront/eslint/@eslint/config-array": ["@eslint/config-array@0.21.2", "", { "dependencies": { "@eslint/object-schema": "^2.1.7", "debug": "^4.3.1", "minimatch": "^3.1.5" } }, "sha512-nJl2KGTlrf9GjLimgIru+V/mzgSK0ABCDQRvxw5BjURL7WfH5uoWmizbH7QB6MmnMBd8cIC9uceWnezL1VZWWw=="],
@@ -6824,12 +6804,6 @@
 
     "@mercurjs/core/pkg-dir/find-up/locate-path": ["locate-path@5.0.0", "", { "dependencies": { "p-locate": "^4.1.0" } }, "sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g=="],
 
-    "@mercurjs/registry/@mercurjs/core/pkg-dir/find-up": ["find-up@4.1.0", "", { "dependencies": { "locate-path": "^5.0.0", "path-exists": "^4.0.0" } }, "sha512-PpOwAdQ/YlXQ2vj8a3h8IipDuYRi3wceVQQGYWxNINccq40Anw7BlsEXCMbt1Zt+OLA6Fq9suIpIWD0OsnISlw=="],
-
-    "@mercurjs/registry/@mercurjs/dashboard-shared/i18next-http-backend/cross-fetch": ["cross-fetch@4.0.0", "", { "dependencies": { "node-fetch": "^2.6.12" } }, "sha512-e4a5N8lVvuLgAWgnCrLr2PP0YyDOTHa9H/Rj54dirp61qXnNq46m82bRhNqIA5VccJtWBvPTFRV3TtvHUKPB1g=="],
-
-    "@mercurjs/registry/@mercurjs/vendor/i18next-http-backend/cross-fetch": ["cross-fetch@4.0.0", "", { "dependencies": { "node-fetch": "^2.6.12" } }, "sha512-e4a5N8lVvuLgAWgnCrLr2PP0YyDOTHa9H/Rj54dirp61qXnNq46m82bRhNqIA5VccJtWBvPTFRV3TtvHUKPB1g=="],
-
     "@mercurjs/storefront/eslint/@eslint/config-array/@eslint/object-schema": ["@eslint/object-schema@2.1.7", "", {}, "sha512-VtAOaymWVfZcmZbp6E2mympDIHvyjXs/12LqWYjVw6qjrfF+VK+fyG33kChz3nnK+SU5/NeHOqrTEHS8sXO3OA=="],
 
     "@mercurjs/storefront/eslint/minimatch/brace-expansion": ["brace-expansion@1.1.15", "", { "dependencies": { "balanced-match": "^1.0.0", "concat-map": "0.0.1" } }, "sha512-EwOCDEex4quD37XhqM3omwtMoJjr//isUZz1JopUNWms+4Z2ViyM/k1YIRePpoVNnQhENnxtFjLaxNHrT7xIUg=="],
@@ -6974,8 +6948,6 @@
 
     "@mercurjs/core/pkg-dir/find-up/locate-path/p-locate": ["p-locate@4.1.0", "", { "dependencies": { "p-limit": "^2.2.0" } }, "sha512-R79ZZ/0wAxKGu3oYMlz8jy/kbhsNrS7SKZ7PxEHBgJ5+F2mtFW2fK2cOtBh1cHYkQsbzFV7I+EoRKe6Yt0oK7A=="],
 
-    "@mercurjs/registry/@mercurjs/core/pkg-dir/find-up/locate-path": ["locate-path@5.0.0", "", { "dependencies": { "p-locate": "^4.1.0" } }, "sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g=="],
-
     "@mercurjs/storefront/eslint/minimatch/brace-expansion/balanced-match": ["balanced-match@1.0.2", "", {}, "sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw=="],
 
     "@mikro-orm/cli/yargs/cliui/strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
@@ -7008,8 +6980,6 @@
 
     "@mercurjs/core/pkg-dir/find-up/locate-path/p-locate/p-limit": ["p-limit@2.3.0", "", { "dependencies": { "p-try": "^2.0.0" } }, "sha512-//88mFWSJx8lxCzwdAABTJL2MyWB12+eIY7MDL2SqLmAkeKU9qxRvWuSyTjm3FUmpBEMuFfckAIqEaVGUDxb6w=="],
 
-    "@mercurjs/registry/@mercurjs/core/pkg-dir/find-up/locate-path/p-locate": ["p-locate@4.1.0", "", { "dependencies": { "p-limit": "^2.2.0" } }, "sha512-R79ZZ/0wAxKGu3oYMlz8jy/kbhsNrS7SKZ7PxEHBgJ5+F2mtFW2fK2cOtBh1cHYkQsbzFV7I+EoRKe6Yt0oK7A=="],
-
     "@storybook/react-docgen-typescript-plugin/find-cache-dir/pkg-dir/find-up/locate-path/p-locate": ["p-locate@4.1.0", "", { "dependencies": { "p-limit": "^2.2.0" } }, "sha512-R79ZZ/0wAxKGu3oYMlz8jy/kbhsNrS7SKZ7PxEHBgJ5+F2mtFW2fK2cOtBh1cHYkQsbzFV7I+EoRKe6Yt0oK7A=="],
 
     "find-cache-dir/pkg-dir/find-up/locate-path/p-locate/p-limit": ["p-limit@4.0.0", "", { "dependencies": { "yocto-queue": "^1.0.0" } }, "sha512-5b0R4txpzjPWVw/cXXUResoD4hb6U/x9BH08L7nw+GN1sezDzPdxeRvpc9c433fZhBan/wusjbCsqwqm4EIBIQ=="],
@@ -7017,8 +6987,6 @@
     "import-local/pkg-dir/find-up/locate-path/p-locate/p-limit": ["p-limit@2.3.0", "", { "dependencies": { "p-try": "^2.0.0" } }, "sha512-//88mFWSJx8lxCzwdAABTJL2MyWB12+eIY7MDL2SqLmAkeKU9qxRvWuSyTjm3FUmpBEMuFfckAIqEaVGUDxb6w=="],
 
     "qrcode/yargs/find-up/locate-path/p-locate/p-limit": ["p-limit@2.3.0", "", { "dependencies": { "p-try": "^2.0.0" } }, "sha512-//88mFWSJx8lxCzwdAABTJL2MyWB12+eIY7MDL2SqLmAkeKU9qxRvWuSyTjm3FUmpBEMuFfckAIqEaVGUDxb6w=="],
-
-    "@mercurjs/registry/@mercurjs/core/pkg-dir/find-up/locate-path/p-locate/p-limit": ["p-limit@2.3.0", "", { "dependencies": { "p-try": "^2.0.0" } }, "sha512-//88mFWSJx8lxCzwdAABTJL2MyWB12+eIY7MDL2SqLmAkeKU9qxRvWuSyTjm3FUmpBEMuFfckAIqEaVGUDxb6w=="],
 
     "@storybook/react-docgen-typescript-plugin/find-cache-dir/pkg-dir/find-up/locate-path/p-locate/p-limit": ["p-limit@2.3.0", "", { "dependencies": { "p-try": "^2.0.0" } }, "sha512-//88mFWSJx8lxCzwdAABTJL2MyWB12+eIY7MDL2SqLmAkeKU9qxRvWuSyTjm3FUmpBEMuFfckAIqEaVGUDxb6w=="],
 
