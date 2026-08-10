@@ -16,7 +16,6 @@
     "@medusajs/types": "2.18.0",
     "@medusajs/ui": "^4.0.33",
     "@mercurjs/client": "2.2.0",
-    "@mercurjs/core": "2.2.0",
     "@mercurjs/types": "2.2.0",
     "@stripe/react-stripe-js": "^3.7.0",
     "@stripe/stripe-js": "^7.1.0",
