@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@babel/parser": "8.0.4",
-    "@babel/traverse": "7.25.6",
+    "@babel/traverse": "8.0.4",
     "@babel/types": "8.0.4",
     "esbuild-register": "^3.6.0"
   },
