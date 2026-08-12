@@ -38,7 +38,7 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "^2.6.0",
     "talkjs": "^0.37.0",
-    "uuid": "^11.0.5",
+    "uuid": "^14.0.1",
     "zod": "^3.24.1"
   },
   "devDependencies": {
