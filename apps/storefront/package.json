@@ -47,7 +47,7 @@
     "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
     "@storybook/addon-essentials": "^8.4.7",
     "@storybook/addon-interactions": "^8.4.7",
-    "@storybook/addon-onboarding": "^8.4.7",
+    "@storybook/addon-onboarding": "^10.5.7",
     "@storybook/blocks": "^8.4.7",
     "@storybook/nextjs": "^8.4.7",
     "@storybook/react": "^8.4.7",
