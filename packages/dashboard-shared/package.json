@@ -44,7 +44,7 @@
     "cmdk": "^1.1.1",
     "copy-to-clipboard": "^4.0.2",
     "date-fns": "^3.6.0",
-    "i18next": "26.3.5",
+    "i18next": "26.3.6",
     "i18next-browser-languagedetector": "7.2.0",
     "i18next-http-backend": "3.0.5",
     "lodash.debounce": "^4.0.8",
