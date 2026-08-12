@@ -11,7 +11,7 @@
     "@medusajs/medusa": "2.18.0",
     "@mercurjs/core": "*",
     "jsonwebtoken": "^9.0.2",
-    "scrypt-kdf": "^2.0.1",
+    "scrypt-kdf": "^4.0.0",
     "@medusajs/draft-order": "2.18.0",
     "meilisearch": "^0.59.0"
   },

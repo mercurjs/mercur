@@ -16,7 +16,7 @@
     "@mercurjs/core": "*",
     "@mercurjs/types": "*",
     "jsonwebtoken": "^9.0.2",
-    "scrypt-kdf": "^2.0.1"
+    "scrypt-kdf": "^4.0.0"
   },
   "devDependencies": {
     "@medusajs/cli": "2.18.0",
