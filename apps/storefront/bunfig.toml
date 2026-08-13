@@ -1,0 +1,5 @@
+[install]
+# Vercel runs `bun install` with this directory as the cwd (Root Directory =
+# apps/storefront). The hoisted linker places `next` in this package's own
+# node_modules so Vercel's Next.js version detection can resolve it.
+linker = "hoisted"
