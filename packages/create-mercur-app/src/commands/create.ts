@@ -549,9 +549,10 @@ async function updateRootPackageJson(
     const { stdout: version } = await execa(packageManager, ["--version"]);
     packageJson.packageManager = `${packageManager}@${version.trim()}`;
   } catch {
-    // Pin the manager without a version rather than failing project creation
-    // if the version lookup is unavailable for any reason.
-    packageJson.packageManager = packageManager;
+    // A bare manager name is not a valid `packageManager` value — Turborepo and
+    // corepack expect `name@version`. If the version lookup fails, keep the
+    // template's default `packageManager` rather than writing an invalid value
+    // that would break `turbo run` on the first command.
   }
 
   await fs.writeJSON(packageJsonPath, packageJson, { spaces: 2 });
