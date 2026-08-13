@@ -8,6 +8,7 @@ import { HttpTypes } from "@mercurjs/types"
 import {
   normalizeOrderPaymentCollections,
   validateSellerOrder,
+  withCartPaymentCollectionFields,
 } from "../helpers"
 
 export const GET = async (
@@ -21,7 +22,7 @@ export const GET = async (
   const workflow = getOrderDetailWorkflow(req.scope)
   const { result } = await workflow.run({
     input: {
-      fields: req.queryConfig.fields,
+      fields: withCartPaymentCollectionFields(req.queryConfig.fields),
       order_id: req.params.id,
     },
   })

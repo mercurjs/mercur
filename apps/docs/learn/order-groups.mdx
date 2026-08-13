@@ -51,12 +51,17 @@ Order groups are created automatically during checkout by the `completeCartWithS
 5. **Link everything** — The workflow creates links between:
    - Each order and the order group
    - Each order and its seller
-   - Each order and the cart's payment collection
    - Each seller and the customer (if new relationship)
 6. **Finalize** — Inventory is reserved, payment is authorized, and the `order_group.created` event is emitted
 
 <Info>
-  Payment collections are linked at the **individual order level**, not on the order group. This is a deliberate design decision — each per-seller order gets its own link to the payment collection, which enables per-order capture and refund flows.
+  A single payment collection is shared across all of a cart's split orders and stays on the **cart**, not on each order. Split orders are **not** linked directly to the payment collection (Medusa's `order ↔ payment_collection` link is one-to-one on the payment-collection side). Read the payment collection through the cart:
+
+  ```text
+  order → cart → payment_collection
+  ```
+
+  Order-group and vendor order reads normalize `cart.payment_collection` back onto `payment_collections` and recompute `payment_status` from it, so consumers keep the familiar shape. When requesting fields on vendor order routes, make sure the request does not replace route defaults that already include `cart.payment_collection.*` (a `fields=` list containing bare fields replaces defaults in Medusa; use `+`-prefixed fields to merge, or include the `cart.payment_collection.*` paths explicitly).
 </Info>
 
 ## Events
