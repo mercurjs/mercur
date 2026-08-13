@@ -49,6 +49,8 @@ const MEDUSA_VIRTUAL_MODULES = [
     "virtual:medusa/displays",
     "virtual:medusa/forms",
     "virtual:medusa/i18n",
+    "virtual:medusa/layouts",
+    "virtual:medusa/cell-renderers",
     "virtual:medusa/menu-items",
     "virtual:medusa/routes",
     "virtual:medusa/widgets",
