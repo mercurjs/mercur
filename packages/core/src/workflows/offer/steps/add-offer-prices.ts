@@ -5,8 +5,8 @@ import type { AddPricesDTO } from "@medusajs/framework/types"
 export type AddOfferPricesStepInput = AddPricesDTO[]
 
 export type AddOfferPricesStepOutput = Array<{
-  priceSetId: string
-  prices: Array<{ id: string }>
+  offer_id: string
+  price_ids: string[]
 }>
 
 export const addOfferPricesStepId = "add-offer-prices"
@@ -20,9 +20,7 @@ export const addOfferPricesStep = createStep(
 
     const pricingModule = container.resolve(Modules.PRICING)
 
-    const uniquePriceSetIds = Array.from(
-      new Set(data.map((d) => d.priceSetId)),
-    )
+    const uniquePriceSetIds = Array.from(new Set(data.map((d) => d.priceSetId)))
 
     const existingSets = await pricingModule.listPriceSets(
       { id: uniquePriceSetIds },
@@ -37,35 +35,49 @@ export const addOfferPricesStep = createStep(
 
     const updatedSets = await pricingModule.addPrices(data)
 
-    const newPricesBySet = new Map<string, string[]>()
+    const newPriceIds: string[] = []
     for (const updated of updatedSets) {
       const before = existingIdsBySet.get(updated.id) ?? new Set<string>()
-      const newPrices = (updated.prices ?? [])
-        .map((p) => p.id)
-        .filter((id) => !before.has(id))
-      newPricesBySet.set(updated.id, newPrices)
-    }
-
-    const queueBySet = new Map<string, string[]>()
-    for (const [setId, ids] of newPricesBySet) {
-      queueBySet.set(setId, [...ids])
-    }
-
-    const output: AddOfferPricesStepOutput = data.map((entry) => {
-      const queue = queueBySet.get(entry.priceSetId) ?? []
-      const consumed = queue.splice(0, entry.prices.length)
-      queueBySet.set(entry.priceSetId, queue)
-      return {
-        priceSetId: entry.priceSetId,
-        prices: consumed.map((id) => ({ id })),
+      for (const price of updated.prices ?? []) {
+        if (!before.has(price.id)) {
+          newPriceIds.push(price.id)
+        }
       }
-    })
+    }
 
-    const createdPriceIds = output.flatMap((entry) =>
-      entry.prices.map((p) => p.id),
-    )
+    // Attribute each new price to its offer through the `offer_id` price rule
+    // written in the payload, not by position: a single price set can receive
+    // prices from several offers in one call, and the order `addPrices` returns
+    // them in is not guaranteed to match the input order.
+    const createdPrices = newPriceIds.length
+      ? await pricingModule.listPrices(
+          { id: newPriceIds },
+          { relations: ["price_rules"] },
+        )
+      : []
 
-    return new StepResponse(output, createdPriceIds)
+    const priceIdsByOffer = new Map<string, string[]>()
+    for (const price of createdPrices) {
+      const rules =
+        (
+          price as {
+            price_rules?: Array<{ attribute: string; value: string }>
+          }
+        ).price_rules ?? []
+      const offerId = rules.find((r) => r.attribute === "offer_id")?.value
+      if (!offerId) {
+        continue
+      }
+      const bucket = priceIdsByOffer.get(offerId) ?? []
+      bucket.push(price.id)
+      priceIdsByOffer.set(offerId, bucket)
+    }
+
+    const output: AddOfferPricesStepOutput = Array.from(
+      priceIdsByOffer.entries(),
+    ).map(([offer_id, price_ids]) => ({ offer_id, price_ids }))
+
+    return new StepResponse(output, newPriceIds)
   },
   async (createdPriceIds, { container }) => {
     if (!createdPriceIds?.length) {
