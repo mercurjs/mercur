@@ -90,7 +90,7 @@
     },
     "apps/storefront": {
       "name": "@mercurjs/storefront",
-      "version": "2.1.1",
+      "version": "2.3.1",
       "dependencies": {
         "@capacitor/app": "^7.1.0",
         "@capacitor/core": "^7.4.4",
@@ -102,8 +102,8 @@
         "@medusajs/medusa": "2.18.0",
         "@medusajs/types": "2.18.0",
         "@medusajs/ui": "^4.0.33",
-        "@mercurjs/client": "2.2.0",
-        "@mercurjs/types": "2.2.0",
+        "@mercurjs/client": "2.3.0",
+        "@mercurjs/types": "2.3.0",
         "@stripe/react-stripe-js": "^3.7.0",
         "@stripe/stripe-js": "^7.1.0",
         "@talkjs/react": "^0.1.11",
@@ -304,7 +304,7 @@
     },
     "packages/admin": {
       "name": "@mercurjs/admin",
-      "version": "2.3.0",
+      "version": "2.3.1",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^8.0.0",
@@ -317,8 +317,8 @@
         "@medusajs/dashboard": "2.18.0",
         "@medusajs/icons": "2.18.0",
         "@medusajs/ui": "4.1.19",
-        "@mercurjs/client": "2.3.0",
-        "@mercurjs/dashboard-shared": "2.3.0",
+        "@mercurjs/client": "2.3.1",
+        "@mercurjs/dashboard-shared": "2.3.1",
         "@radix-ui/react-dialog": "1.1.19",
         "@radix-ui/react-dismissable-layer": "1.1.4",
         "@tanstack/react-query": "5.64.2",
@@ -349,9 +349,9 @@
       "devDependencies": {
         "@medusajs/types": "2.18.0",
         "@medusajs/ui-preset": "2.18.0",
-        "@mercurjs/core": "2.3.0",
-        "@mercurjs/dashboard-sdk": "2.3.0",
-        "@mercurjs/types": "2.3.0",
+        "@mercurjs/core": "2.3.1",
+        "@mercurjs/dashboard-sdk": "2.3.1",
+        "@mercurjs/types": "2.3.1",
         "@types/react": "^18.3.2",
         "@types/react-dom": "^18.2.22",
         "autoprefixer": "^10.4.20",
@@ -367,7 +367,7 @@
     },
     "packages/cli": {
       "name": "@mercurjs/cli",
-      "version": "2.3.0",
+      "version": "2.3.1",
       "bin": {
         "mercurjs": "./dist/index.js",
       },
@@ -375,7 +375,7 @@
         "@antfu/ni": "^30.3.0",
         "@medusajs/admin-bundler": "2.18.0",
         "@medusajs/framework": "2.18.0",
-        "@mercurjs/dashboard-sdk": "2.3.0",
+        "@mercurjs/dashboard-sdk": "2.3.1",
         "@vitejs/plugin-react": "^6.0.3",
         "commander": "^15.0.0",
         "cosmiconfig": "^9.0.0",
@@ -403,7 +403,7 @@
     },
     "packages/client": {
       "name": "@mercurjs/client",
-      "version": "2.3.0",
+      "version": "2.3.1",
       "dependencies": {
         "@tanstack/react-query": "^5.64.2",
         "qs": "^6.12.1",
@@ -420,7 +420,7 @@
     },
     "packages/core": {
       "name": "@mercurjs/core",
-      "version": "2.3.0",
+      "version": "2.3.1",
       "dependencies": {
         "@orama/orama": "^3.1.18",
         "pkg-dir": "4",
@@ -436,8 +436,8 @@
         "@medusajs/test-utils": "2.18.0",
         "@medusajs/types": "2.18.0",
         "@medusajs/ui": "4.1.19",
-        "@mercurjs/cli": "2.3.0",
-        "@mercurjs/types": "2.3.0",
+        "@mercurjs/cli": "2.3.1",
+        "@mercurjs/types": "2.3.1",
         "@swc/core": "^1.7.28",
         "@types/cors": "^2.8.17",
         "@types/express": "^4.17.21",
@@ -469,7 +469,7 @@
     },
     "packages/create-mercur-app": {
       "name": "create-mercur-app",
-      "version": "2.3.0",
+      "version": "2.3.1",
       "bin": {
         "create-mercur-app": "./dist/index.js",
       },
@@ -501,7 +501,7 @@
     },
     "packages/dashboard-sdk": {
       "name": "@mercurjs/dashboard-sdk",
-      "version": "2.3.0",
+      "version": "2.3.1",
       "dependencies": {
         "@babel/parser": "8.0.4",
         "@babel/traverse": "7.25.6",
@@ -518,7 +518,7 @@
     },
     "packages/dashboard-shared": {
       "name": "@mercurjs/dashboard-shared",
-      "version": "2.3.0",
+      "version": "2.3.1",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^8.0.0",
@@ -531,7 +531,7 @@
         "@medusajs/dashboard": "2.18.0",
         "@medusajs/icons": "2.18.0",
         "@medusajs/ui": "4.1.19",
-        "@mercurjs/client": "2.3.0",
+        "@mercurjs/client": "2.3.1",
         "@radix-ui/react-dialog": "1.1.19",
         "@radix-ui/react-dismissable-layer": "1.1.4",
         "@tanstack/react-query": "5.64.2",
@@ -560,9 +560,9 @@
         "zod": "4.4.3",
       },
       "devDependencies": {
-        "@mercurjs/core": "2.3.0",
-        "@mercurjs/dashboard-sdk": "2.3.0",
-        "@mercurjs/types": "2.3.0",
+        "@mercurjs/core": "2.3.1",
+        "@mercurjs/dashboard-sdk": "2.3.1",
+        "@mercurjs/types": "2.3.1",
         "@types/lodash.debounce": "^4.0.8",
         "@types/react": "^18.3.2",
         "@types/react-dom": "^18.2.22",
@@ -572,11 +572,11 @@
     },
     "packages/docs": {
       "name": "@mercurjs/docs",
-      "version": "2.3.0",
+      "version": "2.3.1",
     },
     "packages/providers/payout-stripe-connect": {
       "name": "@mercurjs/payout-stripe-connect",
-      "version": "2.3.0",
+      "version": "2.3.1",
       "dependencies": {
         "stripe": "^15.5.0",
       },
@@ -591,7 +591,7 @@
     },
     "packages/registry": {
       "name": "@mercurjs/registry",
-      "version": "2.3.0",
+      "version": "2.3.1",
       "dependencies": {
         "@hookform/resolvers": "5.4.0",
         "@medusajs/core-flows": "2.18.0",
@@ -599,11 +599,11 @@
         "@medusajs/icons": "2.18.0",
         "@medusajs/medusa": "2.18.0",
         "@medusajs/ui": "4.1.19",
-        "@mercurjs/client": "2.3.0",
-        "@mercurjs/core": "2.3.0",
-        "@mercurjs/dashboard-sdk": "2.3.0",
-        "@mercurjs/dashboard-shared": "2.3.0",
-        "@mercurjs/vendor": "2.3.0",
+        "@mercurjs/client": "2.3.1",
+        "@mercurjs/core": "2.3.1",
+        "@mercurjs/dashboard-sdk": "2.3.1",
+        "@mercurjs/dashboard-shared": "2.3.1",
+        "@mercurjs/vendor": "2.3.1",
         "@talkjs/react": "^0.1.11",
         "@tanstack/react-query": "5.64.2",
         "@tanstack/react-table": "8.21.3",
@@ -618,8 +618,8 @@
       },
       "devDependencies": {
         "@medusajs/cli": "2.18.0",
-        "@mercurjs/cli": "2.3.0",
-        "@mercurjs/types": "2.3.0",
+        "@mercurjs/cli": "2.3.1",
+        "@mercurjs/types": "2.3.1",
         "@swc/core": "^1.7.28",
         "@swc/jest": "^0.2.36",
         "@types/jest": "^30.0.0",
@@ -634,7 +634,7 @@
     },
     "packages/types": {
       "name": "@mercurjs/types",
-      "version": "2.3.0",
+      "version": "2.3.1",
       "dependencies": {
         "@medusajs/types": "2.18.0",
       },
@@ -644,7 +644,7 @@
     },
     "packages/vendor": {
       "name": "@mercurjs/vendor",
-      "version": "2.3.0",
+      "version": "2.3.1",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^8.0.0",
@@ -657,8 +657,8 @@
         "@medusajs/dashboard": "2.18.0",
         "@medusajs/icons": "2.18.0",
         "@medusajs/ui": "4.1.19",
-        "@mercurjs/client": "2.3.0",
-        "@mercurjs/dashboard-shared": "2.3.0",
+        "@mercurjs/client": "2.3.1",
+        "@mercurjs/dashboard-shared": "2.3.1",
         "@radix-ui/react-dialog": "1.1.19",
         "@radix-ui/react-dismissable-layer": "1.1.4",
         "@tanstack/react-query": "5.64.2",
@@ -689,9 +689,9 @@
       "devDependencies": {
         "@medusajs/types": "2.18.0",
         "@medusajs/ui-preset": "2.18.0",
-        "@mercurjs/core": "2.3.0",
-        "@mercurjs/dashboard-sdk": "2.3.0",
-        "@mercurjs/types": "2.3.0",
+        "@mercurjs/core": "2.3.1",
+        "@mercurjs/dashboard-sdk": "2.3.1",
+        "@mercurjs/types": "2.3.1",
         "@types/react": "^18.3.2",
         "@types/react-dom": "^18.2.22",
         "autoprefixer": "^10.4.20",
@@ -5399,10 +5399,6 @@
     "@mercurjs/integration-tests/typescript": ["typescript@7.0.2", "", { "optionalDependencies": { "@typescript/typescript-aix-ppc64": "7.0.2", "@typescript/typescript-darwin-arm64": "7.0.2", "@typescript/typescript-darwin-x64": "7.0.2", "@typescript/typescript-freebsd-arm64": "7.0.2", "@typescript/typescript-freebsd-x64": "7.0.2", "@typescript/typescript-linux-arm": "7.0.2", "@typescript/typescript-linux-arm64": "7.0.2", "@typescript/typescript-linux-loong64": "7.0.2", "@typescript/typescript-linux-mips64el": "7.0.2", "@typescript/typescript-linux-ppc64": "7.0.2", "@typescript/typescript-linux-riscv64": "7.0.2", "@typescript/typescript-linux-s390x": "7.0.2", "@typescript/typescript-linux-x64": "7.0.2", "@typescript/typescript-netbsd-arm64": "7.0.2", "@typescript/typescript-netbsd-x64": "7.0.2", "@typescript/typescript-openbsd-arm64": "7.0.2", "@typescript/typescript-openbsd-x64": "7.0.2", "@typescript/typescript-sunos-x64": "7.0.2", "@typescript/typescript-win32-arm64": "7.0.2", "@typescript/typescript-win32-x64": "7.0.2" }, "bin": { "tsc": "bin/tsc" } }, "sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA=="],
 
     "@mercurjs/storefront/@hookform/resolvers": ["@hookform/resolvers@3.10.0", "", { "peerDependencies": { "react-hook-form": "^7.0.0" } }, "sha512-79Dv+3mDF7i+2ajj7SkypSKHhl1cbln1OGavqrsF7p6mbUv11xpqpacPsGDCTRvCSjEEIez2ef1NveSVL3b0Ag=="],
-
-    "@mercurjs/storefront/@mercurjs/client": ["@mercurjs/client@2.2.0", "", { "dependencies": { "@tanstack/react-query": "^5.64.2", "qs": "^6.12.1" }, "peerDependencies": { "typescript": ">=4.8.0" } }, "sha512-/Zz6qRmVJmTlE/fmNGK042nzXsSL0f+DzX95XTXCBKx1K43ghUNm8gHuuVf3xd2OqMK8IWeJ0fdCmOTQ3jB51A=="],
-
-    "@mercurjs/storefront/@mercurjs/types": ["@mercurjs/types@2.2.0", "", { "dependencies": { "@medusajs/types": "2.17.2" } }, "sha512-R4MDx3yXbQb/iuU1qNTtqPi+0t5kOnuGUGnDrVExchQ3qkSLMvg4GZYzDN3U8ld554Ik7y2Kdn0rxiDeT7mxbw=="],
 
     "@mercurjs/storefront/@types/node": ["@types/node@20.19.41", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-ECymXOukMnOoVkC2bb1Vc/w/836DXncOg5m8Xj1RH7xSHZJWNYY6Zh7EH477vcnD5egKNNfy2RpNOmuChhFPgQ=="],
 
