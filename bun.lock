@@ -98,8 +98,8 @@
         "@medusajs/medusa": "2.18.0",
         "@medusajs/types": "2.18.0",
         "@medusajs/ui": "^4.0.33",
-        "@mercurjs/client": "2.2.0",
-        "@mercurjs/types": "2.2.0",
+        "@mercurjs/client": "2.3.0",
+        "@mercurjs/types": "2.3.0",
         "@stripe/react-stripe-js": "^3.7.0",
         "@stripe/stripe-js": "^7.1.0",
         "@talkjs/react": "^0.1.11",
@@ -5025,10 +5025,6 @@
     "@mercurjs/integration-tests/typescript": ["typescript@7.0.2", "", { "optionalDependencies": { "@typescript/typescript-aix-ppc64": "7.0.2", "@typescript/typescript-darwin-arm64": "7.0.2", "@typescript/typescript-darwin-x64": "7.0.2", "@typescript/typescript-freebsd-arm64": "7.0.2", "@typescript/typescript-freebsd-x64": "7.0.2", "@typescript/typescript-linux-arm": "7.0.2", "@typescript/typescript-linux-arm64": "7.0.2", "@typescript/typescript-linux-loong64": "7.0.2", "@typescript/typescript-linux-mips64el": "7.0.2", "@typescript/typescript-linux-ppc64": "7.0.2", "@typescript/typescript-linux-riscv64": "7.0.2", "@typescript/typescript-linux-s390x": "7.0.2", "@typescript/typescript-linux-x64": "7.0.2", "@typescript/typescript-netbsd-arm64": "7.0.2", "@typescript/typescript-netbsd-x64": "7.0.2", "@typescript/typescript-openbsd-arm64": "7.0.2", "@typescript/typescript-openbsd-x64": "7.0.2", "@typescript/typescript-sunos-x64": "7.0.2", "@typescript/typescript-win32-arm64": "7.0.2", "@typescript/typescript-win32-x64": "7.0.2" }, "bin": { "tsc": "bin/tsc" } }, "sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA=="],
 
     "@mercurjs/storefront/@hookform/resolvers": ["@hookform/resolvers@3.10.0", "", { "peerDependencies": { "react-hook-form": "^7.0.0" } }, "sha512-79Dv+3mDF7i+2ajj7SkypSKHhl1cbln1OGavqrsF7p6mbUv11xpqpacPsGDCTRvCSjEEIez2ef1NveSVL3b0Ag=="],
-
-    "@mercurjs/storefront/@mercurjs/client": ["@mercurjs/client@2.2.0", "", { "dependencies": { "@tanstack/react-query": "^5.64.2", "qs": "^6.12.1" }, "peerDependencies": { "typescript": ">=4.8.0" } }, "sha512-/Zz6qRmVJmTlE/fmNGK042nzXsSL0f+DzX95XTXCBKx1K43ghUNm8gHuuVf3xd2OqMK8IWeJ0fdCmOTQ3jB51A=="],
-
-    "@mercurjs/storefront/@mercurjs/types": ["@mercurjs/types@2.2.0", "", { "dependencies": { "@medusajs/types": "2.17.2" } }, "sha512-R4MDx3yXbQb/iuU1qNTtqPi+0t5kOnuGUGnDrVExchQ3qkSLMvg4GZYzDN3U8ld554Ik7y2Kdn0rxiDeT7mxbw=="],
 
     "@mercurjs/storefront/@types/node": ["@types/node@20.19.41", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-ECymXOukMnOoVkC2bb1Vc/w/836DXncOg5m8Xj1RH7xSHZJWNYY6Zh7EH477vcnD5egKNNfy2RpNOmuChhFPgQ=="],
 

@@ -41,6 +41,13 @@ When bumping the release version, bump these internal specifiers to the same
 value. Only the dev-only, never-published workspaces (the repo-root
 `package.json` and `apps/*`) may keep `workspace:*`.
 
+`apps/storefront` is the one exception among the apps: it pins exact
+`@mercurjs/*` versions rather than `workspace:*`, so those specifiers **must**
+be bumped on every release too. If they lag behind (e.g. storefront stays on an
+older `@mercurjs/types`), the package manager pulls the stale published copy
+from npm and hoists it to the repo root, where `@mercurjs/core` resolves it and
+`medusa build` fails (see issue #1374).
+
 ## How to Release
 
 ### Stable Release
@@ -60,6 +67,7 @@ value. Only the dev-only, never-published workspaces (the repo-root
    - `templates/basic/packages/api/package.json` — `@mercurjs/core`, `@mercurjs/types`, `@mercurjs/cli`
    - `templates/basic/apps/admin/package.json` — `@mercurjs/admin`
    - `templates/basic/apps/vendor/package.json` — `@mercurjs/vendor`
+   - `apps/storefront/package.json` — `@mercurjs/client`, `@mercurjs/types`
 
 3. Refresh the lockfile so workspace versions match `package.json`:
 
@@ -103,6 +111,7 @@ Where `Z` is the next incremental number (0, 1, 2, ...).
    - `templates/basic/packages/api/package.json` — `@mercurjs/core`, `@mercurjs/types`, `@mercurjs/cli`
    - `templates/basic/apps/admin/package.json` — `@mercurjs/admin`
    - `templates/basic/apps/vendor/package.json` — `@mercurjs/vendor`
+   - `apps/storefront/package.json` — `@mercurjs/client`, `@mercurjs/types`
 
 3. Refresh the lockfile so workspace versions match `package.json`:
 
@@ -148,6 +157,7 @@ Where `Z` is the next incremental number (0, 1, 2, ...).
    - `templates/basic/packages/api/package.json` — `@mercurjs/core`, `@mercurjs/types`, `@mercurjs/cli`
    - `templates/basic/apps/admin/package.json` — `@mercurjs/admin`
    - `templates/basic/apps/vendor/package.json` — `@mercurjs/vendor`
+   - `apps/storefront/package.json` — `@mercurjs/client`, `@mercurjs/types`
 
 3. Refresh the lockfile so workspace versions match `package.json`:
 
