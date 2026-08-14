@@ -14,7 +14,7 @@ export const OrderConfirmedSection = ({
     <div className="py-6">
       <div className="content-container flex flex-col justify-center items-center gap-y-10 max-w-4xl h-full w-full mx-auto">
         <div
-          className="flex flex-col gap-4 max-w-4xl h-full bg-white w-full py-10"
+          className="flex flex-col gap-4 max-w-4xl h-full bg-primary w-full py-10"
           data-testid="order-complete-container"
         >
           <div className="text-center w-full">

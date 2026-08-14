@@ -27,7 +27,7 @@ Both dashboards share identical structure, primitives, and visual rules; they di
 +-----------------------------------------------------------------------+
 |  Layouts                                                              |
 |   ProtectedRoute -> MainLayout / SettingsLayout / PublicLayout        |
-|     Shell + Sidebar (MainSidebar) + Outlet                            |
+|     Shell (RouteDocumentHead) + Sidebar (MainSidebar) + Outlet       |
 +-----------------------------------------------------------------------+
 |  Pages (packages/{admin,vendor}/src/pages/<domain>/...)               |
 |   - List   -> SingleColumnPage + Container (divide-y, p-0)            |
@@ -93,8 +93,9 @@ import {
   DataTable, useDataTable, type Filter,
   // common UI
   ActionMenu, NoResults, NoRecords, Skeleton, SectionRow,
+  DocumentHead, RouteDocumentHead,
   // data-layer helper
-  queryKeysFactory, type TQueryKey, type UseQueryOptionsWrapper,
+  queryKeysFactory, formatDocumentTitle, type TQueryKey, type UseQueryOptionsWrapper,
 } from "@mercurjs/dashboard-shared"
 ```
 
@@ -497,6 +498,7 @@ For initial data, page detail components use a `loader.ts` (react-router data lo
 
 - Every user-facing string goes through `useTranslation()` / `t(key)`.
 - Translation files live in `src/i18n/translations/<lng>.json` per dashboard package (English is canonical; other locales are merged). `$schema.json` documents the shape and is enforced by tests in `i18n/translations/__tests__`.
+- Browser tab titles come from `RouteDocumentHead` in Shell and PublicLayout. The last string breadcrumb becomes `${page} | ${t("app.html.title")}`; dashboards always emit `noindex, nofollow`.
 - Common keys: `actions.*` (save, cancel, edit, delete, create, continue), `fields.*` (title, handle, description, optional), `general.*` (areYouSure, noResultsTitle, noRecordsTitle, unsavedChangesTitle), `<domain>.domain` (sidebar label), `<domain>.subtitle` (page subtitle), `<domain>.<verb>.header / hint / successToast / description`.
 - Tab labels use `labelKey` on `_tabMeta`; column headers, drawer titles, dialog copy all go through i18n keys.
 - Tooltip content (`Form.Label tooltip={t(...)}`) is also translated.

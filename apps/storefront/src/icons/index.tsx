@@ -5,7 +5,7 @@ interface IconProps {
 }
 
 export function ArrowRightIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -30,7 +30,7 @@ export function ArrowRightIcon({
 }
 
 export function ArrowLeftIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -55,7 +55,7 @@ export function ArrowLeftIcon({
 }
 
 export function BackIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -80,7 +80,7 @@ export function BackIcon({
 }
 
 export function ArrowDownIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -105,7 +105,7 @@ export function ArrowDownIcon({
 }
 
 export function CartIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -136,7 +136,7 @@ export function CartIcon({
 }
 
 export function ArrowUpIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -161,7 +161,7 @@ export function ArrowUpIcon({
 }
 
 export function AwardIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -192,7 +192,7 @@ export function AwardIcon({
 }
 
 export function CalendarIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -229,7 +229,7 @@ export function CalendarIcon({
 }
 
 export function AlertIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -260,7 +260,7 @@ export function AlertIcon({
 }
 
 export function BinIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -285,7 +285,7 @@ export function BinIcon({
 }
 
 export function DollarIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -309,7 +309,7 @@ export function DollarIcon({
 }
 
 export function EditIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -334,7 +334,7 @@ export function EditIcon({
 }
 
 export function EarthIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -365,7 +365,7 @@ export function EarthIcon({
 }
 
 export function DashboardIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -408,7 +408,7 @@ export function DashboardIcon({
 }
 
 export function DiscountIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -445,7 +445,7 @@ export function DiscountIcon({
 }
 
 export function CreditIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -476,7 +476,7 @@ export function CreditIcon({
 }
 
 export function DoneIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -507,7 +507,7 @@ export function DoneIcon({
 }
 
 export function DislikeIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -532,7 +532,7 @@ export function DislikeIcon({
 }
 
 export function CloseIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -557,7 +557,7 @@ export function CloseIcon({
 }
 
 export function CollapseIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -582,7 +582,7 @@ export function CollapseIcon({
 }
 
 export function ErrorIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -613,7 +613,7 @@ export function ErrorIcon({
 }
 
 export function HamburgerMenuIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -638,7 +638,7 @@ export function HamburgerMenuIcon({
 }
 
 export function FacebookIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -661,7 +661,7 @@ export function FacebookIcon({
 }
 
 export function ExpandIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -720,7 +720,7 @@ export function GoogleIcon({
 }
 
 export function ForwardIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -745,7 +745,7 @@ export function ForwardIcon({
 }
 
 export function HalfStarIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -775,7 +775,7 @@ export function HalfStarIcon({
 }
 
 export function FilterIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -826,7 +826,7 @@ export function FacebookColorIcon({
 }
 
 export function HideIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -851,7 +851,7 @@ export function HideIcon({
 }
 
 export function HomeIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -882,7 +882,7 @@ export function HomeIcon({
 }
 
 export function HeadphoneIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -913,7 +913,7 @@ export function HeadphoneIcon({
 }
 
 export function LikeIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -938,7 +938,7 @@ export function LikeIcon({
 }
 
 export function HeartIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -963,7 +963,7 @@ export function HeartIcon({
 }
 
 export function HeartFilledIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -988,7 +988,7 @@ export function HeartFilledIcon({
 }
 
 export function InfoIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1021,7 +1021,7 @@ export function InfoIcon({
 }
 
 export function KebabMenuIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1058,7 +1058,7 @@ export function KebabMenuIcon({
 }
 
 export function LanguageIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1083,7 +1083,7 @@ export function LanguageIcon({
 }
 
 export function InstagramIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1110,7 +1110,7 @@ export function InstagramIcon({
 }
 
 export function LocationIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1141,7 +1141,7 @@ export function LocationIcon({
 }
 
 export function MinusThinIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1166,7 +1166,7 @@ export function MinusThinIcon({
 }
 
 export function MeatballsMenuIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1203,7 +1203,7 @@ export function MeatballsMenuIcon({
 }
 
 export function MinusHeavyIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1228,7 +1228,7 @@ export function MinusHeavyIcon({
 }
 
 export function LogoutIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1259,7 +1259,7 @@ export function LogoutIcon({
 }
 
 export function LinkedinIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1292,7 +1292,7 @@ export function LinkedinIcon({
 }
 
 export function OpenIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1323,7 +1323,7 @@ export function OpenIcon({
 }
 
 export function MoonIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1348,7 +1348,7 @@ export function MoonIcon({
 }
 
 export function LoaderIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1373,7 +1373,7 @@ export function LoaderIcon({
 }
 
 export function NavigationIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1410,7 +1410,7 @@ export function NavigationIcon({
 }
 
 export function SearchIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1441,7 +1441,7 @@ export function SearchIcon({
 }
 
 export function SearchResultsIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1478,7 +1478,7 @@ export function SearchResultsIcon({
 }
 
 export function RefreshIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1509,7 +1509,7 @@ export function RefreshIcon({
 }
 
 export function OrderIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1534,7 +1534,7 @@ export function OrderIcon({
 }
 
 export function SettingsIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1559,7 +1559,7 @@ export function SettingsIcon({
 }
 
 export function ProfileIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1590,7 +1590,7 @@ export function ProfileIcon({
 }
 
 export function OrganicIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1615,7 +1615,7 @@ export function OrganicIcon({
 }
 
 export function ReviewIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1640,7 +1640,7 @@ export function ReviewIcon({
 }
 
 export function ReturnIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1677,7 +1677,7 @@ export function ReturnIcon({
 }
 
 export function PlusIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1702,7 +1702,7 @@ export function PlusIcon({
 }
 
 export function TruckIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1727,7 +1727,7 @@ export function TruckIcon({
 }
 
 export function SparkIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1752,7 +1752,7 @@ export function SparkIcon({
 }
 
 export function StarIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1777,7 +1777,7 @@ export function StarIcon({
 }
 
 export function SwatchIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1800,7 +1800,7 @@ export function SwatchIcon({
 }
 
 export function SunIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1831,7 +1831,7 @@ export function SunIcon({
 }
 
 export function SofaIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1856,7 +1856,7 @@ export function SofaIcon({
 }
 
 export function TickThinIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1881,7 +1881,7 @@ export function TickThinIcon({
 }
 
 export function TimeIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1912,7 +1912,7 @@ export function TimeIcon({
 }
 
 export function TickHeavyIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1937,7 +1937,7 @@ export function TickHeavyIcon({
 }
 
 export function SortIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1962,7 +1962,7 @@ export function SortIcon({
 }
 
 export function YouTubeIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -1985,7 +1985,7 @@ export function YouTubeIcon({
 }
 
 export function XIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {
@@ -2014,7 +2014,7 @@ export function XIcon({
 }
 
 export function MessageIcon({
-  color = '#090909',
+  color = 'currentColor',
   size = 24,
   className = '',
 }: IconProps) {

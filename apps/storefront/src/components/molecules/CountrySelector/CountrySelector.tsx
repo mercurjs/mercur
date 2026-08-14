@@ -117,13 +117,13 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <ListboxOptions className="no-scrollbar absolute z-20 overflow-auto text-small-regular bg-white border rounded-lg border-top-0 max-h-60 focus:outline-none sm:text-sm">
+              <ListboxOptions className="no-scrollbar absolute z-20 overflow-auto text-small-regular bg-primary border rounded-lg border-top-0 max-h-60 focus:outline-none sm:text-sm glass-surface">
                 {options?.map((o, index) => {
                   return (
                     <ListboxOption
                       key={index}
                       value={o}
-                      className="cursor-pointer select-none relative w-16 hover:bg-gray-50 py-2 border-b"
+                      className="cursor-pointer select-none relative w-16 hover:bg-component-hover py-2 border-b"
                     >
                       <span className="flex items-center gap-x-2 pl-2">
                         {/* @ts-ignore */}

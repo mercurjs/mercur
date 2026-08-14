@@ -16,6 +16,12 @@ import {
   getStorefrontLocales,
   toHreflang,
 } from "@/lib/helpers/hreflang"
+import {
+  buildPublicPageMetadata,
+  resolveBaseUrl,
+  serializeJsonLd,
+  siteName,
+} from "@/lib/helpers/seo"
 
 export async function generateMetadata({
   params,
@@ -25,9 +31,10 @@ export async function generateMetadata({
   const { locale } = await params
 
   const headersList = await headers()
-  const host = headersList.get("host")
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
+  const baseUrl = resolveBaseUrl(
+    headersList.get("host"),
+    headersList.get("x-forwarded-proto")
+  )
 
   let locales: string[] = []
   try {
@@ -46,55 +53,16 @@ export async function generateMetadata({
   const title = "Home"
   const description =
     "Welcome to Mercur B2C Demo! Create a modern marketplace that you own and customize in every aspect with high-performance, fully customizable storefront."
-  const ogImage = "/B2C_Storefront_Open_Graph.png"
+  const ogImage = `${baseUrl}/B2C_Storefront_Open_Graph.png`
 
-  return {
+  return buildPublicPageMetadata({
     title,
     description,
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-image-preview": "large",
-        "max-video-preview": -1,
-        "max-snippet": -1,
-      },
-    },
-    alternates: {
-      canonical,
-      languages,
-    },
-    openGraph: {
-      title: `${title} | ${
-        process.env.NEXT_PUBLIC_SITE_NAME ||
-        "Mercur B2C Demo - Marketplace Storefront"
-      }`,
-      description,
-      url: canonical,
-      siteName:
-        process.env.NEXT_PUBLIC_SITE_NAME ||
-        "Mercur B2C Demo - Marketplace Storefront",
-      type: "website",
-      images: [
-        {
-          url: ogImage.startsWith("http") ? ogImage : `${baseUrl}${ogImage}`,
-          width: 1200,
-          height: 630,
-          alt:
-            process.env.NEXT_PUBLIC_SITE_NAME ||
-            "Mercur B2C Demo - Marketplace Storefront",
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [ogImage.startsWith("http") ? ogImage : `${baseUrl}${ogImage}`],
-    },
-  }
+    canonical,
+    languages,
+    image: ogImage,
+    imageAlt: siteName(),
+  })
 }
 
 export default async function Home({
@@ -105,13 +73,12 @@ export default async function Home({
   const { locale } = await params
 
   const headersList = await headers()
-  const host = headersList.get("host")
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
+  const baseUrl = resolveBaseUrl(
+    headersList.get("host"),
+    headersList.get("x-forwarded-proto")
+  )
 
-  const siteName =
-    process.env.NEXT_PUBLIC_SITE_NAME ||
-    "Mercur B2C Demo - Marketplace Storefront"
+  const siteNameValue = siteName()
 
   return (
     <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start text-primary">
@@ -126,10 +93,10 @@ export default async function Home({
         id="ld-org"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: serializeJsonLd({
             "@context": "https://schema.org",
             "@type": "Organization",
-            name: siteName,
+            name: siteNameValue,
             url: `${baseUrl}/${locale}`,
             logo: `${baseUrl}/favicon.ico`,
           }),
@@ -139,10 +106,10 @@ export default async function Home({
         id="ld-website"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: serializeJsonLd({
             "@context": "https://schema.org",
             "@type": "WebSite",
-            name: siteName,
+            name: siteNameValue,
             url: `${baseUrl}/${locale}`,
             inLanguage: toHreflang(locale),
           }),

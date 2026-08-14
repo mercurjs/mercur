@@ -1,4 +1,5 @@
 export * from "./common"
+export * from "./utilities/document-head"
 export * from "./data-grid"
 export * from "./data-table"
 export * from "./filtering"

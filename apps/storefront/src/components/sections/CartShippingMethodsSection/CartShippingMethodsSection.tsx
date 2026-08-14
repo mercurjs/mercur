@@ -253,12 +253,12 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                               leaveTo="opacity-0"
                             >
                               <Listbox.Options
-                                className="text-small-regular border-top-0 absolute z-20 max-h-60 w-full overflow-auto rounded-lg border bg-white focus:outline-none sm:text-sm"
+                                className="text-small-regular border-top-0 absolute z-20 max-h-60 w-full overflow-auto rounded-lg border bg-primary focus:outline-none sm:text-sm glass-surface"
                                 data-testid="shipping-address-options"
                               >
                                 {groupedBySellerId[key].map((option: any) => (
                                   <Listbox.Option
-                                    className="relative cursor-pointer select-none border-b py-4 pl-6 pr-10 hover:bg-gray-50"
+                                    className="relative cursor-pointer select-none border-b py-4 pl-6 pr-10 hover:bg-component-hover"
                                     value={option.id}
                                     key={option.id}
                                   >

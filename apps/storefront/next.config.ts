@@ -4,6 +4,12 @@ const nextConfig: NextConfig = {
   output: "standalone",
   trailingSlash: false,
   reactStrictMode: true,
+  allowedDevOrigins: [
+    "127.0.0.1",
+    "localhost",
+    "10.0.2.2",
+    ...(process.env.ALLOWED_DEV_ORIGIN ? [process.env.ALLOWED_DEV_ORIGIN] : [])
+  ],
   logging: {
     fetches: {
       fullUrl: true
@@ -55,6 +61,29 @@ const nextConfig: NextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true
+  },
+  serverExternalPackages: [
+    "@capacitor/core",
+    "@capacitor/app",
+    "@capacitor/status-bar",
+    "@capacitor/splash-screen"
+  ],
+  async headers() {
+    return [
+      {
+        source: "/sw.js",
+        headers: [
+          { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+          { key: "Service-Worker-Allowed", value: "/" }
+        ]
+      },
+      {
+        source: "/manifest.webmanifest",
+        headers: [
+          { key: "Content-Type", value: "application/manifest+json" }
+        ]
+      }
+    ];
   }
 };
 

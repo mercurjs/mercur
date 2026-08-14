@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 import { ProductListingSkeleton } from "../ProductListingSkeleton/ProductListingSkeleton"
-import { SellerOffersListing } from "@/components/sections"
+import { SellerOffersListing } from "@/components/sections/SellerOffersListing/SellerOffersListing"
 import { TabsContent, TabsList } from "@/components/molecules"
 
 export const SellerTabs = ({

@@ -114,12 +114,12 @@ export const ReturnItemsTab = ({
                         </>
                       )}
                     </ListboxButton>
-                    <ListboxOptions className="absolute z-20 w-full overflow-auto text-small-regular bg-white border rounded-lg border-top-0 max-h-60 focus:outline-none sm:text-sm">
+                    <ListboxOptions className="absolute z-20 w-full overflow-auto text-small-regular bg-primary border rounded-lg border-top-0 max-h-60 focus:outline-none sm:text-sm glass-surface">
                       {returnReasons.map((reason) => (
                         <ListboxOption
                           key={reason.id}
                           value={reason.id}
-                          className="cursor-default select-none relative pl-6 pr-10 hover:bg-gray-50 py-4 border-b"
+                          className="cursor-default select-none relative pl-6 pr-10 hover:bg-component-hover py-4 border-b"
                         >
                           {reason.label}
                         </ListboxOption>

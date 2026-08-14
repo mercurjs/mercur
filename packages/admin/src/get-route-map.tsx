@@ -2190,14 +2190,23 @@ export function getRouteMap({
           children: [
             {
               path: "/login",
+              handle: {
+                breadcrumb: () => t("app.html.pages.login"),
+              },
               lazy: () => import("./pages/login"),
             },
             {
               path: "/reset-password",
+              handle: {
+                breadcrumb: () => t("app.html.pages.resetPassword"),
+              },
               lazy: () => import("./pages/reset-password"),
             },
             {
               path: "/invite",
+              handle: {
+                breadcrumb: () => t("app.html.pages.invite"),
+              },
               lazy: () => import("./pages/invite"),
             },
             ...customPublicRoutes,

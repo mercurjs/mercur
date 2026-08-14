@@ -1,16 +1,19 @@
-import { MetadataRoute } from "next"
+import type { MetadataRoute } from "next"
+
+import { PRIVATE_ROBOTS_PATHS, resolveBaseUrl } from "@/lib/helpers/seo"
 
 export default function robots(): MetadataRoute.Robots {
   const base = process.env.NEXT_PUBLIC_BASE_URL
-
-  if (base) {
-    return {
-      rules: [{ userAgent: "*", allow: "/" }],
-      sitemap: `${base.replace(/\/$/, "")}/sitemap.xml`,
-    }
-  }
+  const origin = base ? resolveBaseUrl() : undefined
 
   return {
-    rules: [{ userAgent: "*", allow: "/" }],
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: PRIVATE_ROBOTS_PATHS,
+      },
+    ],
+    sitemap: origin ? `${origin}/sitemap.xml` : undefined,
   }
 }

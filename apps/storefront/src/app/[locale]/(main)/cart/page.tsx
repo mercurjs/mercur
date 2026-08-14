@@ -1,11 +1,12 @@
 import { Cart } from '@/components/sections';
+import { NOINDEX_ROBOTS } from '@/lib/helpers/seo';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'Cart',
-  description: 'My cart page',
-  robots: { index: false, follow: false },
+  description: 'Your shopping cart',
+  robots: NOINDEX_ROBOTS,
 };
 
 export default function CartPage({}) {

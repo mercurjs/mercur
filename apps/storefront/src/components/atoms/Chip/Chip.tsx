@@ -22,7 +22,7 @@ export function Chip({
   const baseClasses = 'chip-wrapper';
   const selectedClasses = selected ? 'border-primary' : '';
   const hoverClasses =
-    !disabled && !selected ? 'hover:bg-gray-200' : '';
+    !disabled && !selected ? 'hover:bg-component-hover' : '';
   const disabledClasses = disabled
     ? 'bg-component border-disabled/50 hover:bg-component cursor-not-allowed text-disabled'
     : 'cursor-pointer';

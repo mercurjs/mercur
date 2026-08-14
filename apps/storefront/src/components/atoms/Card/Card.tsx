@@ -11,7 +11,7 @@ export const Card = ({
 } & React.ComponentPropsWithoutRef<"div">) => {
   return (
     <div
-      className={cn("border rounded-sm py-4 px-2", className)}
+      className={cn("border rounded-sm py-4 px-2 glass-surface", className)}
       data-testid={dataTestId ?? 'card'}
       {...props}
     >

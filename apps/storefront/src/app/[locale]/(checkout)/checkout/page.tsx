@@ -12,11 +12,12 @@ import { retrieveCart } from '@/lib/data/cart';
 import { retrieveCustomer } from '@/lib/data/customer';
 import { listCartShippingMethods } from '@/lib/data/fulfillment';
 import { listCartPaymentMethods } from '@/lib/data/payment';
+import { NOINDEX_ROBOTS } from '@/lib/helpers/seo';
 
 export const metadata: Metadata = {
   title: 'Checkout',
-  description: 'My cart page - Checkout',
-  robots: { index: false, follow: false }
+  description: 'Complete your order',
+  robots: NOINDEX_ROBOTS
 };
 
 export default async function CheckoutPage({}) {

@@ -65,7 +65,7 @@ const AddressSelect = ({
           leaveTo="opacity-0"
         >
           <Listbox.Options
-            className="absolute z-20 w-full overflow-auto text-small-regular bg-white border rounded-lg border-top-0 max-h-60 focus:outline-none sm:text-sm"
+            className="absolute z-20 w-full overflow-auto text-small-regular bg-primary border rounded-lg border-top-0 max-h-60 focus:outline-none sm:text-sm glass-surface"
             data-testid="shipping-address-options"
           >
             {addresses.map((address) => {
@@ -73,7 +73,7 @@ const AddressSelect = ({
                 <Listbox.Option
                   key={address.id}
                   value={address.id}
-                  className="cursor-default select-none relative pl-6 pr-10 hover:bg-gray-50 py-4 border-b"
+                  className="cursor-default select-none relative pl-6 pr-10 hover:bg-component-hover py-4 border-b"
                   data-testid="shipping-address-option"
                 >
                   <span className="font-semibold">{address.address_name}</span>

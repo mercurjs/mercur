@@ -15,6 +15,14 @@ import {
   buildHreflangAlternates,
   getStorefrontLocales,
 } from "@/lib/helpers/hreflang"
+import {
+  NOINDEX_ROBOTS,
+  buildPublicPageMetadata,
+  resolveBaseUrl,
+  serializeJsonLd,
+  siteName,
+  toPlainText,
+} from "@/lib/helpers/seo"
 
 export const revalidate = 60
 
@@ -24,15 +32,16 @@ export async function generateMetadata({
   params: Promise<{ category: string; locale: string }>
 }): Promise<Metadata> {
   const { category: categoryHandle, locale } = await params
-  const headersList = await headers()
-  const host = headersList.get("host")
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
-
   const cat = await getCategoryByHandle(categoryHandle)
   if (!cat) {
-    return {}
+    return { robots: NOINDEX_ROBOTS }
   }
+
+  const headersList = await headers()
+  const baseUrl = resolveBaseUrl(
+    headersList.get("host"),
+    headersList.get("x-forwarded-proto")
+  )
 
   let locales: string[] = []
   try {
@@ -48,27 +57,16 @@ export async function generateMetadata({
     locales,
   })
 
-  const title = `${cat.name} Category`
-  const description = `${cat.name} Category - ${
-    process.env.NEXT_PUBLIC_SITE_NAME || "Storefront"
-  }`
+  const title = cat.name
+  const description =
+    toPlainText(cat.description) || `${cat.name} — ${siteName()}`
 
-  return {
+  return buildPublicPageMetadata({
     title,
     description,
-    alternates: {
-      canonical,
-      languages,
-    },
-    robots: { index: true, follow: true },
-    openGraph: {
-      title: `${title} | ${process.env.NEXT_PUBLIC_SITE_NAME || "Storefront"}`,
-      description,
-      url: canonical,
-      siteName: process.env.NEXT_PUBLIC_SITE_NAME || "Storefront",
-      type: "website",
-    },
-  }
+    canonical,
+    languages,
+  })
 }
 
 async function Category({
@@ -101,9 +99,10 @@ async function Category({
   ]
 
   const headersList = await headers()
-  const host = headersList.get("host")
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
+  const baseUrl = resolveBaseUrl(
+    headersList.get("host"),
+    headersList.get("x-forwarded-proto")
+  )
   const {
     response: { products: jsonLdProducts },
   } = await listProducts({
@@ -125,7 +124,7 @@ async function Category({
         id="ld-breadcrumbs-category"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: serializeJsonLd({
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             itemListElement: [
@@ -143,7 +142,7 @@ async function Category({
         id="ld-itemlist-category"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: serializeJsonLd({
             "@context": "https://schema.org",
             "@type": "ItemList",
             itemListElement: itemList,

@@ -108,6 +108,8 @@ Stripe Connect implementation for the `payout` module: creates connected account
 - **`apps/admin-test`** — Vite app on **port 7000**. Mounts `@mercurjs/admin`, runs `mercurDashboardPlugin` from `@mercurjs/dashboard-sdk`, and points at the API. Drop a `page.tsx` under `src/routes` to add an admin page.
 - **`apps/vendor`** — Vite app on **port 7001**. Same setup as admin but mounts `@mercurjs/vendor`. Used by sellers.
 - **`apps/docs`** — Mintlify documentation site.
+- **`apps/storefront`** — Next.js B2C storefront (SSR website and PWA). Appearance: Light / Dark / System plus optional Liquid glass. Public SEO: locale-prefixed sitemap, robots (private routes disallowed), per-page metadata, and JSON-LD for products, sellers, and listings.
+- **`apps/storefront-app`** — Capacitor (iOS/Android) and Electron (macOS/Windows/Linux) shells that load the storefront URL for local testing and store submission. See `apps/storefront-app/README.md`.
 
 ## Templates (consumed by the CLI)
 

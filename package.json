@@ -5,7 +5,14 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "oxlint --quiet",
-    "test:integration:http": "cd integration-tests && bun run test:integration:http"
+    "test:integration:http": "cd integration-tests && bun run test:integration:http",
+    "platform:web": "bun run --filter @mercurjs/storefront-app dev:web",
+    "platform:macos": "bun run --filter @mercurjs/storefront-app dev:macos",
+    "platform:windows": "bun run --filter @mercurjs/storefront-app dev:windows",
+    "platform:linux": "bun run --filter @mercurjs/storefront-app dev:linux",
+    "platform:ios": "bun run --filter @mercurjs/storefront-app dev:ios",
+    "platform:android": "bun run --filter @mercurjs/storefront-app dev:android",
+    "platform:device": "bun run --filter @mercurjs/storefront-app dev:device"
   },
   "dependencies": {
     "@mercurjs/core": "workspace:*"

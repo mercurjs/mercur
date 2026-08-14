@@ -1,0 +1,54 @@
+appId: com.mercurjs.storefront
+productName: Mercur
+copyright: Copyright © Mercur
+directories:
+  output: release
+  buildResources: resources
+files:
+  - .electron/**/*
+  - www/**/*
+  - package.json
+extraMetadata:
+  main: .electron/main.js
+asar: true
+protocols:
+  - name: Mercur
+    schemes:
+      - mercur
+mac:
+  category: public.app-category.shopping
+  icon: resources/icon.png
+  target:
+    - dmg
+    - zip
+  hardenedRuntime: true
+  gatekeeperAssess: false
+mas:
+  entitlements: resources/entitlements.mas.plist
+  entitlementsInherit: resources/entitlements.mas.inherit.plist
+win:
+  icon: resources/icon.png
+  target:
+    - nsis
+    - appx
+appx:
+  identityName: Mercurjs.Storefront
+  publisher: CN=Mercur
+  publisherDisplayName: Mercur
+  applicationId: Storefront
+  displayName: Mercur
+linux:
+  icon: resources/icon.png
+  category: Shopping
+  maintainer: Mercur
+  target:
+    - AppImage
+    - deb
+    - rpm
+    - snap
+snap:
+  confinement: strict
+  grade: stable
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true

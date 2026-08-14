@@ -3,9 +3,9 @@ import footerLinks from "@/data/footerLinks"
 
 export function Footer() {
   return (
-    <footer className="bg-primary container" data-testid="footer">
+    <footer className="bg-primary container pb-[env(safe-area-inset-bottom)]" data-testid="footer">
       <div className="grid grid-cols-1 lg:grid-cols-3">
-        <div className="p-6 border rounded-sm" data-testid="footer-customer-services">
+        <div className="p-6 border rounded-sm glass-surface" data-testid="footer-customer-services">
           <h2 className="heading-sm text-primary mb-3 uppercase">
             Customer services
           </h2>
@@ -23,7 +23,7 @@ export function Footer() {
           </nav>
         </div>
 
-        <div className="p-6 border rounded-sm" data-testid="footer-about">
+        <div className="p-6 border rounded-sm glass-surface" data-testid="footer-about">
           <h2 className="heading-sm text-primary mb-3 uppercase">About</h2>
           <nav className="space-y-3" aria-label="About navigation">
             {footerLinks.about.map(({ label, path }) => (
@@ -39,7 +39,7 @@ export function Footer() {
           </nav>
         </div>
 
-        <div className="p-6 border rounded-sm" data-testid="footer-connect">
+        <div className="p-6 border rounded-sm glass-surface" data-testid="footer-connect">
           <h2 className="heading-sm text-primary mb-3 uppercase">connect</h2>
           <nav className="space-y-3" aria-label="Social media navigation">
             {footerLinks.connect.map(({ label, path }) => (
@@ -60,7 +60,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="py-6 border rounded-sm " data-testid="footer-copyright">
+      <div className="py-6 border rounded-sm glass-surface" data-testid="footer-copyright">
         <p className="text-md text-secondary text-center ">© 2026 Fleek</p>
       </div>
     </footer>

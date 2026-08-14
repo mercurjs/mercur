@@ -1696,6 +1696,9 @@ export function getRouteMap({
           children: [
             {
               path: "/login",
+              handle: {
+                breadcrumb: () => t("app.html.pages.login"),
+              },
               lazy: async () => {
                 const { LoginPage } = await import("./pages/login");
                 return { Component: LoginPage };
@@ -1703,10 +1706,16 @@ export function getRouteMap({
             },
             {
               path: "/reset-password",
+              handle: {
+                breadcrumb: () => t("app.html.pages.resetPassword"),
+              },
               lazy: () => import("./pages/reset-password"),
             },
             {
               path: "/register",
+              handle: {
+                breadcrumb: () => t("app.html.pages.register"),
+              },
               lazy: async () => {
                 const { RegisterPage } = await import("./pages/register");
                 return { Component: RegisterPage };
@@ -1714,14 +1723,23 @@ export function getRouteMap({
             },
             {
               path: "/onboarding",
+              handle: {
+                breadcrumb: () => t("app.html.pages.onboarding"),
+              },
               lazy: () => import("./pages/onboarding"),
             },
             {
               path: "/invite",
+              handle: {
+                breadcrumb: () => t("app.html.pages.invite"),
+              },
               lazy: () => import("./pages/invite"),
             },
             {
               path: "/store-select",
+              handle: {
+                breadcrumb: () => t("app.html.pages.storeSelect"),
+              },
               lazy: async () => {
                 const { StoreSelectPage } =
                   await import("./pages/store-select");

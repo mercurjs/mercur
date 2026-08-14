@@ -154,6 +154,15 @@
     "in": "In"
   },
   "app": {
+    "html": {
+      "title": "Mercur Admin",
+      "description": "Marketplace operator dashboard for managing sellers, catalog, orders, and payouts.",
+      "pages": {
+        "login": "Log in",
+        "resetPassword": "Reset password",
+        "invite": "Accept invite"
+      }
+    },
     "search": {
       "label": "Search",
       "title": "Search",

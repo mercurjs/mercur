@@ -1,0 +1,44 @@
+name: Storefront packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      storefront_url:
+        description: Production storefront URL baked into desktop shells
+        required: true
+        default: https://b2c.mercurjs.com
+  push:
+    tags:
+      - "storefront-app-v*"
+
+jobs:
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            args: --mac
+          - os: windows-latest
+            args: --win
+          - os: ubuntu-latest
+            args: --linux
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.8
+      - name: Install dependencies
+        run: bun install
+      - name: Generate icons
+        run: bun run --filter @mercurjs/storefront-app icons
+      - name: Package desktop shell
+        env:
+          MERCUR_STOREFRONT_URL: ${{ github.event.inputs.storefront_url || 'https://b2c.mercurjs.com' }}
+        run: bun run --filter @mercurjs/storefront-app package:desktop -- ${{ matrix.args }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: storefront-${{ matrix.os }}
+          path: apps/storefront-app/release/**
+          if-no-files-found: error

@@ -179,6 +179,18 @@
     "in": "In"
   },
   "app": {
+    "html": {
+      "title": "Mercur Vendor Hub",
+      "description": "Seller dashboard for managing offers, orders, inventory, and payouts.",
+      "pages": {
+        "login": "Log in",
+        "resetPassword": "Reset password",
+        "invite": "Accept invite",
+        "register": "Create account",
+        "onboarding": "Store setup",
+        "storeSelect": "Select store"
+      }
+    },
     "search": {
       "label": "Search",
       "title": "Search",

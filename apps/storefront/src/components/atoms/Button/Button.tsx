@@ -20,7 +20,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseClasses =
-    "text-md button-text rounded-sm disabled:bg-disabled disabled:text-disabled dark:bg-action-tertiary dark:hover:bg-action-tertiary-hover dark:active:bg-action-tertiary-pressed dark:disabled:bg-disabled"
+    "text-md button-text rounded-sm disabled:bg-disabled disabled:text-disabled"
 
   const variantClasses = {
     filled: `bg-action text-action-on-primary hover:bg-action-hover active:bg-action-pressed ${
@@ -28,7 +28,7 @@ export function Button({
     }`,
     tonal:
       "bg-action-secondary hover:bg-action-secondary-hover active:bg-action-secondary-pressed text-action-on-secondary",
-    text: "bg-primary dark:bg-primary hover:bg-action-secondary-hover active:bg-action-secondary-pressed text-primary",
+    text: "bg-primary hover:bg-action-secondary-hover active:bg-action-secondary-pressed text-primary",
     destructive: `text-negative-on-primary bg-negative hover:bg-negative-hover active:bg-negative-pressed ${
       loading && "button-text-filled"
     }`,
