@@ -35,6 +35,8 @@ import { SellerReviewList } from './SellerReviewList/SellerReviewList';
 import { SellerScore } from './SellerScore/SellerScore';
 import { TabsContent } from './TabsContent/TabsContent';
 import { TabsList } from './TabsList/TabsList';
+import { ThemeAppearance } from './ThemeAppearance/ThemeAppearance';
+import { ThemeToggle } from './ThemeToggle/ThemeToggle';
 import { UserNavigation } from './UserNavigation/UserNavigation';
 
 export {
@@ -73,6 +75,8 @@ export {
   ParcelAccordion,
   AddressForm,
   ProfileDetails,
+  ThemeAppearance,
+  ThemeToggle,
   ProductListingLoadingView,
   ProductListingNoResultsView,
   ProductListingProductsView

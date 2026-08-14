@@ -73,7 +73,7 @@ export const OfferCard = ({
   return (
     <div
       className={cn(
-        "relative group border rounded-sm flex flex-col justify-between p-1 w-full lg:w-[calc(25%-1rem)] min-w-[250px]",
+        "relative group border rounded-sm flex flex-col justify-between p-1 w-full lg:w-[calc(25%-1rem)] min-w-[250px] glass-surface",
         className
       )}
       data-testid="offer-card"

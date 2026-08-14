@@ -13,7 +13,7 @@ import {
   useNavigation,
 } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { RouteDocumentHead, WidgetZone } from "@mercurjs/dashboard-shared"
 import { KeybindProvider } from "../../../providers/keybind-provider"
 import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks"
 import { useSidebar } from "../../../providers/sidebar-provider"
@@ -21,6 +21,7 @@ import { useMe } from "../../../hooks/api"
 import { ProgressBar } from "../../common/progress-bar"
 
 export const Shell = ({ children }: PropsWithChildren) => {
+  const { t } = useTranslation()
   const globalShortcuts = useGlobalShortcuts()
   const navigation = useNavigation()
 
@@ -28,6 +29,10 @@ export const Shell = ({ children }: PropsWithChildren) => {
 
   return (
     <KeybindProvider shortcuts={globalShortcuts}>
+      <RouteDocumentHead
+        appName={t("app.html.title")}
+        description={t("app.html.description")}
+      />
       <div className="relative flex h-screen flex-col items-start overflow-hidden lg:flex-row">
         <NavigationBar loading={loading} />
         <div>

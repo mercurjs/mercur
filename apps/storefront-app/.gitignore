@@ -1,0 +1,6 @@
+ios
+android
+.release-build
+.electron
+release
+*.log

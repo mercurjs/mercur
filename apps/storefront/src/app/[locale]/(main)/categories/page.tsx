@@ -13,6 +13,12 @@ import {
   buildHreflangAlternates,
   getStorefrontLocales,
 } from "@/lib/helpers/hreflang"
+import {
+  buildPublicPageMetadata,
+  resolveBaseUrl,
+  serializeJsonLd,
+  siteName,
+} from "@/lib/helpers/seo"
 
 export const revalidate = 60
 
@@ -23,9 +29,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   const headersList = await headers()
-  const host = headersList.get("host")
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
+  const baseUrl = resolveBaseUrl(
+    headersList.get("host"),
+    headersList.get("x-forwarded-proto")
+  )
 
   let locales: string[] = []
   try {
@@ -42,26 +49,14 @@ export async function generateMetadata({
   })
 
   const title = "All Products"
-  const description = `Browse all products on ${
-    process.env.NEXT_PUBLIC_SITE_NAME || "our store"
-  }`
+  const description = `Browse all products on ${siteName()}`
 
-  return {
+  return buildPublicPageMetadata({
     title,
     description,
-    alternates: {
-      canonical,
-      languages,
-    },
-    robots: { index: true, follow: true },
-    openGraph: {
-      title: `${title} | ${process.env.NEXT_PUBLIC_SITE_NAME || "Storefront"}`,
-      description,
-      url: canonical,
-      siteName: process.env.NEXT_PUBLIC_SITE_NAME || "Storefront",
-      type: "website",
-    },
-  }
+    canonical,
+    languages,
+  })
 }
 
 async function AllCategories({
@@ -82,9 +77,10 @@ async function AllCategories({
   ]
 
   const headersList = await headers()
-  const host = headersList.get("host")
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
+  const baseUrl = resolveBaseUrl(
+    headersList.get("host"),
+    headersList.get("x-forwarded-proto")
+  )
   const {
     response: { products: jsonLdProducts },
   } = await listProducts({
@@ -105,7 +101,7 @@ async function AllCategories({
         id="ld-breadcrumbs-categories"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: serializeJsonLd({
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             itemListElement: [
@@ -123,7 +119,7 @@ async function AllCategories({
         id="ld-itemlist-categories"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: serializeJsonLd({
             "@context": "https://schema.org",
             "@type": "ItemList",
             itemListElement: itemList,

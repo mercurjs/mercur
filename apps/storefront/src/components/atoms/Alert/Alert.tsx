@@ -15,19 +15,19 @@ interface AlertProps {
 
 const variantStyles: Record<AlertVariant, { container: string; text: string; icon: string }> = {
   base: {
-    container: 'bg-component-primary border border-primary',
+    container: 'bg-component-primary border border-primary glass-surface',
     text: 'text-primary',
-    icon: '#090909'
+    icon: 'currentColor'
   },
   'base-inverse': {
     container: 'bg-tertiary border border-secondary',
     text: 'text-tertiary',
-    icon: '#fff'
+    icon: 'currentColor'
   },
   brand: {
-    container: 'bg-action-secondary',
+    container: 'bg-action-secondary glass-surface',
     text: 'text-action-on-secondary',
-    icon: '#090909'
+    icon: 'currentColor'
   }
 };
 

@@ -102,8 +102,25 @@ NEXT_PUBLIC_TALKJS_APP_ID=<your talkjs app id>
 Start storefront
 
 ```js
-yarn dev
+bun run dev
 ```
+
+### Test on macOS, iOS, Android, Windows, Linux, and the web
+
+The storefront is a website first (and an installable PWA). Native store apps are thin shells around that same URL:
+
+```sh
+# from the monorepo root
+bun run platform:web        # http://127.0.0.1:3000
+bun run platform:macos      # desktop window
+bun run platform:ios        # iOS Simulator
+bun run platform:android    # Android Emulator
+bun run platform:device     # physical phone on the same Wi-Fi
+```
+
+On Windows or Linux use `platform:windows` / `platform:linux` (same desktop shell). Store submission (App Store, Play Store, Microsoft Store, Snap/Flathub) is documented in [`apps/storefront-app/README.md`](../storefront-app/README.md).
+
+Appearance (Light / Dark / System, plus optional Liquid glass) lives in the header sun/moon menu and on account Settings. Liquid glass is off by default.
 
 &nbsp;
 

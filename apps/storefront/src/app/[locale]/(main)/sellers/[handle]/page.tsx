@@ -7,9 +7,19 @@ import {
   buildHreflangAlternates,
   getStorefrontLocales,
 } from "@/lib/helpers/hreflang"
+import {
+  NOINDEX_ROBOTS,
+  buildPublicPageMetadata,
+  buildSellerJsonLd,
+  resolveBaseUrl,
+  serializeJsonLd,
+  siteName,
+  toPlainText,
+} from "@/lib/helpers/seo"
 import { SellerDTO } from "@mercurjs/types"
 import type { Metadata } from "next"
 import { headers } from "next/headers"
+import Script from "next/script"
 
 export async function generateMetadata({
   params,
@@ -20,13 +30,14 @@ export async function generateMetadata({
 
   const seller = (await getSellerByHandle(handle)) as SellerDTO
   if (!seller) {
-    return {}
+    return { robots: NOINDEX_ROBOTS }
   }
 
   const headersList = await headers()
-  const host = headersList.get("host")
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
+  const baseUrl = resolveBaseUrl(
+    headersList.get("host"),
+    headersList.get("x-forwarded-proto")
+  )
 
   let locales: string[] = []
   try {
@@ -43,26 +54,17 @@ export async function generateMetadata({
   })
 
   const title = seller.name
-  const description = `${seller.name} - ${
-    process.env.NEXT_PUBLIC_SITE_NAME || "Storefront"
-  }`
+  const description =
+    toPlainText(seller.description) || `${seller.name} — ${siteName()}`
 
-  return {
+  return buildPublicPageMetadata({
     title,
     description,
-    robots: { index: true, follow: true },
-    alternates: {
-      canonical,
-      languages,
-    },
-    openGraph: {
-      title: `${title} | ${process.env.NEXT_PUBLIC_SITE_NAME || "Storefront"}`,
-      description,
-      url: canonical,
-      siteName: process.env.NEXT_PUBLIC_SITE_NAME || "Storefront",
-      type: "website",
-    },
-  }
+    canonical,
+    languages,
+    image: seller.logo || seller.banner || undefined,
+    imageAlt: seller.name,
+  })
 }
 
 export default async function SellerPage({
@@ -85,8 +87,34 @@ export default async function SellerPage({
     return null
   }
 
+  const headersList = await headers()
+  const baseUrl = resolveBaseUrl(
+    headersList.get("host"),
+    headersList.get("x-forwarded-proto")
+  )
+  const { canonical } = buildHreflangAlternates({
+    baseUrl,
+    path: `/sellers/${handle}`,
+    locale,
+    locales: [locale],
+  })
+
   return (
     <main className="container">
+      <Script
+        id="ld-seller"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(
+            buildSellerJsonLd({
+              name: seller.name,
+              canonical,
+              description: seller.description,
+              logo: seller.logo,
+            })
+          ),
+        }}
+      />
       <SellerPageHeader header seller={seller} user={user} />
       <SellerTabs
         tab={tab}

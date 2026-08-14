@@ -6,13 +6,28 @@ session detail aggressively. The per-spec source of truth lives in
 
 ## Current Verified State
 
-- **Repository root**: `/Users/viktorholik/Desktop/mercur`
-- **Current branch**: `main`
-- **Current version**: `2.2.0-rc.1`
+- **Repository root**: `/Users/macbookpro/marketplace fork/mercur`
+- **Current branch**: `feat/cross-platform-storefront`
+- **Current version**: `2.3.0`
 - **Standard startup path**: `bun install && bun run dev`
+- **Platform test path**: `bun run platform:web` / `platform:macos` / `platform:ios` / `platform:android`
 - **Standard verification path**: `bun run build`, `bun run lint` (oxlint),
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
+- **Active spec**: SPEC-015 cross-platform storefront (`in_progress`); SPEC-016 SEO (`passing`)
+
+## Session — 2026-08-14 -- SEO for admin, vendor, and storefront (SPEC-016)
+
+- **Goal.** Document titles on admin/vendor; keep those dashboards out of the public index; complete storefront (client) SEO.
+- **Landed.** `RouteDocumentHead` in dashboard Shell + PublicLayout. Admin/vendor `robots.txt` Disallow `/`. Storefront sitemap, robots private-path blocks, JSON-LD Product/Organization, noindex on account/cart/checkout/auth.
+- **Verified.** `bun test document-title.spec.ts seo.test.ts` — 17 pass. dashboard-shared build green.
+
+## Session — 2026-08-14 -- Cross-platform storefront (SPEC-015)
+
+- **Goal.** Make the B2C storefront a website + PWA and shippable to App Store, Play Store, Microsoft Store, and Linux stores, with one-command local tests on macOS / iOS / Android / Windows / Linux.
+- **Landed.** PWA (manifest, SW, safe areas, viewport) on `apps/storefront`. Native shells in `apps/storefront-app` (Capacitor iOS/Android, Electron desktop). Root `platform:*` scripts. CI workflow for desktop artifacts. Storefront Light/Dark/System theme with header toggle + Settings Appearance. Optional Liquid glass (`html.liquid-glass`, off by default, `mercur_storefront_liquid_glass`).
+- **Verified.** icons + storefront-app tests (this session). `bun test apps/storefront/src/lib/theme.test.ts` — 10 pass.
+- **Owed / next.** Live `platform:macos` / iOS Simulator once API+storefront are up; store signing identities are operator-specific.
 
 ## Session — Admin Inventory (MER-139), branch `feat/admin-inventory`
 

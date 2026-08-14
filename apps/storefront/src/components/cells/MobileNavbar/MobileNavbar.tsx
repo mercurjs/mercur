@@ -48,7 +48,7 @@ export const MobileNavbar = ({
       </div>
       {isOpen && (
         <div
-          className="fixed left-0 top-0 z-20 h-full w-full bg-primary"
+          className="fixed left-0 top-0 z-20 h-full w-full bg-primary glass-surface"
           data-testid="mobile-menu-drawer"
         >
           <div

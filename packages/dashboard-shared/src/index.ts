@@ -4,6 +4,11 @@ export {
   type UseQueryOptionsWrapper,
 } from "./lib/query-key-factory"
 export {
+  crumbToTitle,
+  formatDocumentTitle,
+  titleFromCrumbs,
+} from "./lib/document-title"
+export {
   REFERENCE_FIELDS,
   buildProductChangeView,
   extractReferenceIds,

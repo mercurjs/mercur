@@ -24,7 +24,7 @@ const OrderTotals: React.FC<CartTotalsProps> = ({ totals }) => {
   } = totals
 
   return (
-    <div className="border rounded-sm p-4 bg-white">
+    <div className="border rounded-sm p-4 bg-primary">
       <div className="flex flex-col gap-y-2 txt-medium text-ui-fg-subtle ">
         <div className="flex items-center justify-between">
           <span className="flex gap-x-1 items-center">Items</span>

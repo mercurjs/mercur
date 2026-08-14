@@ -51,7 +51,7 @@ export const MobileCategoryDrawer = ({
 
       <div
         className={cn(
-          "fixed inset-0 z-50 bg-primary transition-transform duration-300 ease-in-out",
+          "fixed inset-0 z-50 bg-primary transition-transform duration-300 ease-in-out glass-surface",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >

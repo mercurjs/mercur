@@ -1,13 +1,20 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Funnel_Display } from 'next/font/google';
 
 import './globals.css';
 
 import { Toaster } from '@medusajs/ui';
-import Head from 'next/head';
 
 import { HtmlLangSetter } from '@/components/atoms/HtmlLangSetter/HtmlLangSetter';
+import { NativeRuntime } from '@/components/atoms/NativeRuntime/NativeRuntime';
+import { PwaRegister } from '@/components/atoms/PwaRegister/PwaRegister';
 import { retrieveCart } from '@/lib/data/cart';
+import { THEME_INIT_SCRIPT } from '@/lib/theme';
+import {
+  resolveBaseUrl,
+  siteDescription,
+  siteName,
+} from '@/lib/helpers/seo';
 
 import { Providers } from './providers';
 
@@ -17,16 +24,57 @@ const funnelDisplay = Funnel_Display({
   weight: ['300', '400', '500', '600']
 });
 
+const SITE_NAME = siteName();
+const SITE_DESCRIPTION = siteDescription();
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#090909' }
+  ]
+};
+
 export const metadata: Metadata = {
   title: {
-    template: `%s | ${
-      process.env.NEXT_PUBLIC_SITE_NAME || 'Mercur B2C Demo - Marketplace Storefront'
-    }`,
-    default: process.env.NEXT_PUBLIC_SITE_NAME || 'Mercur B2C Demo - Marketplace Storefront'
+    template: `%s | ${SITE_NAME}`,
+    default: SITE_NAME
   },
-  description:
-    process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'Mercur B2C Demo - Marketplace Storefront',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000')
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  metadataBase: new URL(resolveBaseUrl()),
+  openGraph: {
+    type: 'website',
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: SITE_NAME
+  },
+  formatDetection: {
+    telephone: false
+  },
+  icons: {
+    icon: [
+      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' }
+    ],
+    apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }]
+  },
+  other: {
+    'mobile-web-app-capable': 'yes'
+  }
 };
 
 export default async function RootLayout({
@@ -42,9 +90,12 @@ export default async function RootLayout({
   return (
     <html
       lang={htmlLang}
-      className=""
+      suppressHydrationWarning
     >
-      <Head>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}
+        />
         <link
           rel="preconnect"
           href="https://fonts.gstatic.com"
@@ -72,7 +123,6 @@ export default async function RootLayout({
           rel="dns-prefetch"
           href="https://i.imgur.com"
         />
-        {/* Image origins for faster LCP */}
         <link
           rel="preconnect"
           href="https://medusa-public-images.s3.eu-west-1.amazonaws.com"
@@ -109,10 +159,14 @@ export default async function RootLayout({
           rel="dns-prefetch"
           href="https://api.mercurjs.com"
         />
-      </Head>
+      </head>
       <body className={`${funnelDisplay.className} relative bg-primary text-secondary antialiased`}>
         <HtmlLangSetter />
-        <Providers cart={cart}>{children}</Providers>
+        <PwaRegister />
+        <Providers cart={cart}>
+          <NativeRuntime />
+          {children}
+        </Providers>
         <Toaster position="top-right" />
       </body>
     </html>

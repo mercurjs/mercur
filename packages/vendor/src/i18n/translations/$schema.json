@@ -1198,13 +1198,63 @@
             "settings"
           ],
           "additionalProperties": false
+        },
+        "html": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "pages": {
+              "type": "object",
+              "properties": {
+                "login": {
+                  "type": "string"
+                },
+                "resetPassword": {
+                  "type": "string"
+                },
+                "invite": {
+                  "type": "string"
+                },
+                "register": {
+                  "type": "string"
+                },
+                "onboarding": {
+                  "type": "string"
+                },
+                "storeSelect": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "login",
+                "resetPassword",
+                "invite",
+                "register",
+                "onboarding",
+                "storeSelect"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "pages"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
         "search",
         "keyboardShortcuts",
         "menus",
-        "nav"
+        "nav",
+        "html"
       ],
       "additionalProperties": false
     },

@@ -1,4 +1,4 @@
-import { LoginForm, ProfileDetails } from "@/components/molecules"
+import { LoginForm, ProfileDetails, ThemeAppearance } from "@/components/molecules"
 import { UserNavigation } from "@/components/molecules"
 import { ProfilePassword } from "@/components/molecules/ProfileDetails/ProfilePassword"
 import { retrieveCustomer } from "@/lib/data/customer"
@@ -16,6 +16,7 @@ export default async function ReviewsPage() {
           <h1 className="heading-md uppercase mb-8">Settings</h1>
           <ProfileDetails user={user} />
           <ProfilePassword user={user} />
+          <ThemeAppearance />
         </div>
       </div>
     </main>

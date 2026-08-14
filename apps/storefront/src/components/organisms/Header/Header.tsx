@@ -5,6 +5,7 @@ import { CartDropdown, MobileNavbar, Navbar } from "@/components/cells"
 import { UserDropdown } from "@/components/cells/UserDropdown/UserDropdown"
 import CountrySelector from "@/components/molecules/CountrySelector/CountrySelector"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
+import { ThemeToggle } from "@/components/molecules/ThemeToggle/ThemeToggle"
 import { MessageButton } from "@/components/molecules/MessageButton/MessageButton"
 import { listCategories } from "@/lib/data/categories"
 import { listRegions } from "@/lib/data/regions"
@@ -24,7 +25,7 @@ export const Header = async ({ locale } : {
     parentCategories: HttpTypes.StoreProductCategory[]
   }
   return (
-    <header data-testid="header">
+    <header data-testid="header" className="pt-[env(safe-area-inset-top)] glass-surface">
       <div className="flex py-2 lg:px-8 px-4 md:px-5" data-testid="header-top">
         <div className="flex items-center lg:w-1/3">
           <MobileNavbar
@@ -43,12 +44,14 @@ export const Header = async ({ locale } : {
               width={126}
               height={40}
               alt="Logo"
+              className="dark:invert"
               priority
             />
           </LocalizedClientLink>
         </div>
-        <div className="flex items-center justify-end gap-2 lg:gap-4 w-full lg:w-1/3 py-2" data-testid="header-actions">
+        <div className="flex items-center justify-end gap-2 lg:gap-4 w-full lg:w-1/3 py-2 text-primary" data-testid="header-actions">
           <CountrySelector regions={regions} />
+          <ThemeToggle />
           {isLoggedIn && <MessageButton />}
           <UserDropdown isLoggedIn={isLoggedIn} />
           <CartDropdown />

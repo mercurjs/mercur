@@ -8,6 +8,12 @@ import {
   buildHreflangAlternates,
   getStorefrontLocales,
 } from "@/lib/helpers/hreflang"
+import {
+  NOINDEX_ROBOTS,
+  buildPublicPageMetadata,
+  resolveBaseUrl,
+  siteName,
+} from "@/lib/helpers/seo"
 import isBot from "@/lib/helpers/isBot"
 import type { Metadata } from "next"
 import { headers } from "next/headers"
@@ -22,13 +28,14 @@ export async function generateMetadata({
 
   const collection = await getCollectionByHandle(handle)
   if (!collection) {
-    return {}
+    return { robots: NOINDEX_ROBOTS }
   }
 
   const headersList = await headers()
-  const host = headersList.get("host")
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
+  const baseUrl = resolveBaseUrl(
+    headersList.get("host"),
+    headersList.get("x-forwarded-proto")
+  )
 
   let locales: string[] = []
   try {
@@ -45,26 +52,14 @@ export async function generateMetadata({
   })
 
   const title = collection.title
-  const description = `${collection.title} - ${
-    process.env.NEXT_PUBLIC_SITE_NAME || "Storefront"
-  }`
+  const description = `${collection.title} — ${siteName()}`
 
-  return {
+  return buildPublicPageMetadata({
     title,
     description,
-    robots: { index: true, follow: true },
-    alternates: {
-      canonical,
-      languages,
-    },
-    openGraph: {
-      title: `${title} | ${process.env.NEXT_PUBLIC_SITE_NAME || "Storefront"}`,
-      description,
-      url: canonical,
-      siteName: process.env.NEXT_PUBLIC_SITE_NAME || "Storefront",
-      type: "website",
-    },
-  }
+    canonical,
+    languages,
+  })
 }
 
 const SingleCollectionsPage = async ({

@@ -1,6 +1,6 @@
 "use client"
 
-import { OrdersPagination } from "@/components/sections"
+import { OrdersPagination } from "@/components/organisms/OrdersPagination/OrdersPagination"
 import { SellerReview } from "../SellerReview/SellerReview"
 import { useSearchParams } from "next/navigation"
 

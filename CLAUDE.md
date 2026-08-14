@@ -39,6 +39,8 @@ bun run test:integration:tests       # Run integration tests
 - `apps/api` - Starter Medusa server wired to `@mercurjs/core`
 - `apps/admin-test` - Starter admin Vite app (port 7000)
 - `apps/vendor` - Starter vendor Vite app (port 7001)
+- `apps/storefront` - Next.js B2C storefront (website + PWA)
+- `apps/storefront-app` - iOS / Android / desktop store shells for the storefront
 - `apps/docs` - Documentation site (Mintlify)
 - `integration-tests` - Cross-package Jest integration suites
 

@@ -5,6 +5,21 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  min-height: 100dvh;
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  min-height: 100dvh;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
 /* Typography */
 .text-xl {
   @apply font-light tracking-normal;
@@ -150,4 +165,144 @@ button:disabled svg path {
 }
 .no-arrows-number-input {
   -moz-appearance: textfield;
+}
+
+/* Liquid glass — optional appearance. Off unless html.liquid-glass is set. */
+html.liquid-glass {
+  --glass-blur: 22px;
+  --glass-saturate: 1.8;
+  --glass-fill: rgba(255, 255, 255, 0.5);
+  --glass-fill-strong: rgba(255, 255, 255, 0.66);
+  --glass-stroke: rgba(255, 255, 255, 0.55);
+  --glass-sheen: rgba(255, 255, 255, 0.42);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.68),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 10px 40px rgba(9, 9, 9, 0.08);
+  --glass-radius: 16px;
+  --glass-spot-x: 70%;
+  --glass-spot-y: 0%;
+}
+
+html.liquid-glass.dark {
+  --glass-fill: rgba(22, 22, 22, 0.44);
+  --glass-fill-strong: rgba(22, 22, 22, 0.6);
+  --glass-stroke: rgba(255, 255, 255, 0.16);
+  --glass-sheen: rgba(255, 255, 255, 0.14);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+  --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.38);
+}
+
+html.liquid-glass body {
+  background-color: rgb(var(--bg-secondary));
+  background-image: radial-gradient(
+      ellipse 80% 50% at var(--glass-spot-x) var(--glass-spot-y),
+      rgba(var(--blue-200), 0.22),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 55% 40% at 8% 92%,
+      rgba(var(--neutral-100), 0.7),
+      transparent 50%
+    );
+  background-attachment: fixed;
+}
+
+html.liquid-glass.dark body {
+  background-image: radial-gradient(
+      ellipse 80% 50% at var(--glass-spot-x) var(--glass-spot-y),
+      rgba(var(--blue-800), 0.42),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 50% 40% at 12% 88%,
+      rgba(var(--neutral-800), 0.9),
+      transparent 50%
+    );
+}
+
+html.liquid-glass .glass-surface {
+  background-color: var(--glass-fill);
+  background-image: radial-gradient(
+    36rem circle at var(--glass-spot-x) var(--glass-spot-y),
+    var(--glass-sheen),
+    transparent 42%
+  );
+  background-attachment: fixed;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border-color: var(--glass-stroke);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-inset), var(--glass-shadow);
+}
+
+html.liquid-glass header.glass-surface {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background-color: var(--glass-fill-strong);
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+}
+
+html.liquid-glass header.glass-surface [data-testid="navbar"] {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+html.liquid-glass [data-testid="mobile-menu-drawer"].glass-surface {
+  border-radius: 0;
+}
+
+html.liquid-glass footer {
+  background: transparent;
+}
+
+html.liquid-glass .chip-wrapper,
+html.liquid-glass .button-tonal {
+  background-color: var(--glass-fill);
+  background-image: radial-gradient(
+    18rem circle at var(--glass-spot-x) var(--glass-spot-y),
+    var(--glass-sheen),
+    transparent 46%
+  );
+  background-attachment: fixed;
+  backdrop-filter: blur(16px) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(16px) saturate(var(--glass-saturate));
+  border-color: var(--glass-stroke);
+  box-shadow: var(--glass-inset);
+}
+
+html.liquid-glass .button-tonal:hover,
+html.liquid-glass .chip-wrapper:hover {
+  background-color: var(--glass-fill-strong);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  html.liquid-glass .glass-surface,
+  html.liquid-glass .chip-wrapper,
+  html.liquid-glass .button-tonal {
+    background-color: rgba(var(--bg-primary), 0.92);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  html.liquid-glass .glass-surface,
+  html.liquid-glass .chip-wrapper,
+  html.liquid-glass .button-tonal {
+    background-color: rgba(var(--bg-primary), 0.96);
+    background-image: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+  }
+
+  html.liquid-glass body {
+    background-image: none;
+  }
 }
