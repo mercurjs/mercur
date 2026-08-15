@@ -31,11 +31,12 @@ export const getLastPaymentStatus = (order: OrderDetailDTO) => {
   }
 
   for (const paymentCollection of order.payment_collections) {
-    if (
+    const captureIsAmountDerived =
       MathBN.gt(paymentCollection.captured_amount ?? 0, 0) ||
       (isDefined(paymentCollection.amount) &&
         MathBN.eq(paymentCollection.amount, 0))
-    ) {
+
+    if (captureIsAmountDerived) {
       const isGte = MathBN.lte(
         MathBN.sub(
           paymentCollection.amount,
@@ -46,7 +47,12 @@ export const getLastPaymentStatus = (order: OrderDetailDTO) => {
       paymentStatus[PaymentStatus.CAPTURED] += isGte ? 1 : 0.5
     }
 
-    if (MathBN.gt(paymentCollection.refunded_amount ?? 0, 0)) {
+    const refundIsAmountDerived = MathBN.gt(
+      paymentCollection.refunded_amount ?? 0,
+      0
+    )
+
+    if (refundIsAmountDerived) {
       const isGte = MathBN.lte(
         MathBN.sub(
           paymentCollection.amount,
@@ -57,7 +63,15 @@ export const getLastPaymentStatus = (order: OrderDetailDTO) => {
       paymentStatus[PaymentStatus.REFUNDED] += isGte ? 1 : 0.5
     }
 
-    paymentStatus[paymentCollection.status] += 1
+    const statusIsAmountDerived =
+      (paymentCollection.status === PaymentStatus.CAPTURED &&
+        captureIsAmountDerived) ||
+      (paymentCollection.status === PaymentStatus.REFUNDED &&
+        refundIsAmountDerived)
+
+    if (!statusIsAmountDerived) {
+      paymentStatus[paymentCollection.status] += 1
+    }
   }
 
   const totalPayments = order.payment_collections.length
