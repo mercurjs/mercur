@@ -37,7 +37,7 @@
     "react-i18next": "^15.5.2",
     "sonner": "^2.0.7",
     "tailwind-merge": "^2.6.0",
-    "talkjs": "^0.37.0",
+    "talkjs": "^0.46.0",
     "uuid": "^11.0.5",
     "zod": "^3.24.1"
   },
