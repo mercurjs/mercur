@@ -57,7 +57,7 @@
     "@medusajs/cli": "2.18.0",
     "@medusajs/framework": "2.18.0",
     "@medusajs/icons": "2.18.0",
-    "@medusajs/medusa": "2.18.0",
+    "@medusajs/medusa": "2.19.0",
     "@medusajs/test-utils": "2.18.0",
     "@medusajs/ui": "4.1.19",
     "@mercurjs/types": "2.3.1",

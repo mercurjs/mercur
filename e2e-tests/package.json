@@ -12,7 +12,7 @@
   "dependencies": {
     "@medusajs/draft-order": "2.18.0",
     "@medusajs/framework": "2.18.0",
-    "@medusajs/medusa": "2.18.0",
+    "@medusajs/medusa": "2.19.0",
     "@mercurjs/core": "*",
     "@mercurjs/types": "*",
     "jsonwebtoken": "^9.0.2",
