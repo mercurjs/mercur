@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.1",
-    "@hookform/resolvers": "^3.10.0",
+    "@hookform/resolvers": "^5.9.0",
     "@medusajs/icons": "2.18.0",
     "@medusajs/medusa": "2.18.0",
     "@medusajs/types": "2.18.0",

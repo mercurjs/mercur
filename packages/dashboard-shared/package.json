@@ -30,7 +30,7 @@
     "@dnd-kit/sortable": "^8.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/error-message": "^2.0.1",
-    "@hookform/resolvers": "5.4.0",
+    "@hookform/resolvers": "5.9.0",
     "@medusajs/admin-shared": "2.18.0",
     "@medusajs/dashboard": "2.18.0",
     "@medusajs/icons": "2.18.0",
