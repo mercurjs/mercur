@@ -53,7 +53,7 @@
   },
   "devDependencies": {
     "cors": "^2.8.5",
-    "@medusajs/core-flows": "2.18.0",
+    "@medusajs/core-flows": "2.19.0",
     "@medusajs/cli": "2.18.0",
     "@medusajs/framework": "2.18.0",
     "@medusajs/icons": "2.18.0",
