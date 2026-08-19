@@ -90,7 +90,7 @@
     "tailwindcss": "^4.3.2",
     "tsup": "^8.0.2",
     "typescript": "5.9.3",
-    "@medusajs/types": "2.18.0",
+    "@medusajs/types": "2.19.0",
     "@mercurjs/core": "2.3.1",
     "@mercurjs/dashboard-sdk": "2.3.1",
     "@mercurjs/types": "2.3.1"

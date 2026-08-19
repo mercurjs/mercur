@@ -13,7 +13,7 @@
     "@hookform/resolvers": "^3.10.0",
     "@medusajs/icons": "2.18.0",
     "@medusajs/medusa": "2.18.0",
-    "@medusajs/types": "2.18.0",
+    "@medusajs/types": "2.19.0",
     "@medusajs/ui": "^4.0.33",
     "@mercurjs/client": "2.3.1",
     "@mercurjs/types": "2.3.1",

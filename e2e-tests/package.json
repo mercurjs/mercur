@@ -21,7 +21,7 @@
   "devDependencies": {
     "@medusajs/cli": "2.18.0",
     "@medusajs/test-utils": "2.18.0",
-    "@medusajs/types": "2.18.0",
+    "@medusajs/types": "2.19.0",
     "@playwright/test": "^1.49.0",
     "dotenv": "^16.4.5",
     "get-port": "^7.1.0",

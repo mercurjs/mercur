@@ -75,7 +75,7 @@
     "tsx": "^4.19.2",
     "typescript": "5.9.3",
     "yalc": "^1.0.0-pre.53",
-    "@medusajs/types": "2.18.0",
+    "@medusajs/types": "2.19.0",
     "multer": "^2.0.2",
     "http-proxy-middleware": "^3.0.3",
     "jsonwebtoken": "^9.0.2",
