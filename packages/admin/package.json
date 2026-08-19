@@ -81,7 +81,7 @@
   "devDependencies": {
     "@medusajs/ui-preset": "2.18.0",
     "@types/react": "^18.3.2",
-    "@types/react-dom": "^18.2.22",
+    "@types/react-dom": "^19.2.4",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^4.3.2",
