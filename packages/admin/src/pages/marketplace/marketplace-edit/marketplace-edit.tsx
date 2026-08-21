@@ -17,7 +17,9 @@ export const MarketplaceEdit = () => {
   return (
     <RouteDrawer data-testid="store-edit">
       <RouteDrawer.Header data-testid="store-edit-header">
-        <Heading data-testid="store-edit-heading">{t("marketplace.edit.header")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading data-testid="store-edit-heading">{t("marketplace.edit.header")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {ready && <EditMarketplaceForm store={store} />}
     </RouteDrawer>

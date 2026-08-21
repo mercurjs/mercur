@@ -24,7 +24,9 @@ export const Component = () => {
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
-        <Heading>{t("promotions.campaign.edit.header")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading>{t("promotions.campaign.edit.header")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {!isPending && !areCampaignsLoading && promotion && campaigns && (
         <AddCampaignPromotionForm promotion={promotion} campaigns={campaigns} />

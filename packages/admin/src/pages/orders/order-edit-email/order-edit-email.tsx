@@ -22,7 +22,9 @@ export const OrderEditEmail = () => {
   return (
     <RouteDrawer data-testid="order-edit-email-drawer">
       <RouteDrawer.Header data-testid="order-edit-email-header">
-        <Heading data-testid="order-edit-email-heading">{t("orders.edit.email.title")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading data-testid="order-edit-email-heading">{t("orders.edit.email.title")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
 
       {order && <EditOrderEmailForm order={order} />}

@@ -30,9 +30,11 @@ const StoreEdit = () => {
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
-        <Heading className="capitalize">
-          {t("app.menus.store.editStore")}
-        </Heading>
+        <RouteDrawer.Title asChild>
+          <Heading className="capitalize">
+            {t("app.menus.store.editStore")}
+          </Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {ready && <EditStoreForm seller={seller} />}
     </RouteDrawer>

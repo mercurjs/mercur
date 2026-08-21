@@ -18,7 +18,9 @@ export const Component = () => {
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
-        <Heading>{t("promotions.edit.title")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading>{t("promotions.edit.title")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {!isLoading && promotion && <EditPromotionDetailsForm promotion={promotion} />}
     </RouteDrawer>
