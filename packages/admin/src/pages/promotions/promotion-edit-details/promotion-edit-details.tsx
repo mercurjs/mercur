@@ -22,7 +22,9 @@ export const PromotionEditDetails = () => {
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
-        <Heading>{t("promotions.edit.title")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading>{t("promotions.edit.title")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
 
       {!isLoading && promotion && (

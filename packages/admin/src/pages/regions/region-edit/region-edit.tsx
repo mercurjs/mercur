@@ -63,7 +63,9 @@ export const RegionEdit = () => {
   return (
     <RouteDrawer data-testid="region-edit-drawer">
       <RouteDrawer.Header data-testid="region-edit-drawer-header">
-        <Heading data-testid="region-edit-drawer-heading">{t("regions.editRegion")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading data-testid="region-edit-drawer-heading">{t("regions.editRegion")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {!isLoading && region && (
         <EditRegionForm

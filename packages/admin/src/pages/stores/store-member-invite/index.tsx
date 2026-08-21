@@ -10,7 +10,9 @@ const Root = () => {
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
-        <Heading>{t("stores.members.addUser.header")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading>{t("stores.members.addUser.header")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       <InviteMemberForm />
     </RouteDrawer>

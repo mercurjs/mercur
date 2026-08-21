@@ -24,9 +24,11 @@ export const SalesChannelEdit = () => {
   return (
     <RouteDrawer data-testid="sales-channel-edit-drawer">
       <RouteDrawer.Header data-testid="sales-channel-edit-drawer-header">
-        <Heading className="capitalize" data-testid="sales-channel-edit-drawer-heading">
-          {t("salesChannels.editSalesChannel")}
-        </Heading>
+        <RouteDrawer.Title asChild>
+          <Heading className="capitalize" data-testid="sales-channel-edit-drawer-heading">
+            {t("salesChannels.editSalesChannel")}
+          </Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {!isLoading && !!sales_channel && (
         <EditSalesChannelForm salesChannel={sales_channel} />

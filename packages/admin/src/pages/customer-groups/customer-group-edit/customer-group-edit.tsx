@@ -23,7 +23,9 @@ export const CustomerGroupEdit = () => {
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
-        <Heading>{t("customerGroups.edit.header")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading>{t("customerGroups.edit.header")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {!isLoading && customer_group && (
         <EditCustomerGroupForm group={customer_group} />
