@@ -22,9 +22,11 @@ export const StoreEdit = () => {
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
-        <Heading className="capitalize">
-          {t("stores.edit.header")}
-        </Heading>
+        <RouteDrawer.Title asChild>
+          <Heading className="capitalize">
+            {t("stores.edit.header")}
+          </Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {!isLoading && seller && <StoreEditForm seller={seller} />}
     </RouteDrawer>

@@ -21,7 +21,9 @@ export const CollectionEdit = () => {
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
-        <Heading>{t("collections.editCollection")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading>{t("collections.editCollection")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {!isLoading && collection && (
         <EditCollectionForm collection={collection} />

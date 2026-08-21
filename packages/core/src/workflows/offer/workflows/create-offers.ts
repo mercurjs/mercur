@@ -296,25 +296,17 @@ export const createOffersWorkflow: ReturnWorkflow<
     const addedPrices = addOfferPricesStep(addPricesInput)
 
     const offerPriceLinks = transform(
-      { input, offers, addedPrices },
-      ({ input, offers, addedPrices }) => {
+      { addedPrices },
+      ({ addedPrices }) => {
         const links: LinkDefinition[] = []
-        let cursor = 0
-        input.offers.forEach((offer, idx) => {
-          if (!offer.prices?.length) {
-            return
-          }
-          const entry = addedPrices[cursor++]
-          if (!entry) {
-            return
-          }
-          for (const price of entry.prices) {
+        for (const entry of addedPrices) {
+          for (const priceId of entry.price_ids) {
             links.push({
-              [MercurModules.OFFER]: { offer_id: offers[idx].id },
-              [Modules.PRICING]: { price_id: price.id },
+              [MercurModules.OFFER]: { offer_id: entry.offer_id },
+              [Modules.PRICING]: { price_id: priceId },
             })
           }
-        })
+        }
         return links
       },
     )
