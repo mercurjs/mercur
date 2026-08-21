@@ -1,6 +1,7 @@
 import type { InputConfigWithArrayModules } from "@medusajs/framework/types"
 import { defineConfig } from '@medusajs/framework/utils'
 import { disableMedusaMiddlewares } from "./utils/disable-medusa-middlewares"
+import { disableMedusaRoutes } from "./utils/disable-medusa-routes"
 
 type HttpConfig = NonNullable<NonNullable<InputConfigWithArrayModules["projectConfig"]>["http"]>
 
@@ -14,6 +15,7 @@ export type MercurInputConfig = Omit<InputConfigWithArrayModules, "projectConfig
 
 export function withMercur(config: MercurInputConfig = {}): InputConfigWithArrayModules {
   disableMedusaMiddlewares()
+  disableMedusaRoutes()
 
   const projectConfig = {
     ...config.projectConfig,
