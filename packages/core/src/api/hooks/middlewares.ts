@@ -6,4 +6,9 @@ export const hooksRoutesMiddlewares: MiddlewareRoute[] = [
     bodyParser: { preserveRawBody: true },
     matcher: "/hooks/payout",
   },
+  {
+    method: ["POST"],
+    bodyParser: { preserveRawBody: true },
+    matcher: "/hooks/payment/:provider",
+  },
 ]
