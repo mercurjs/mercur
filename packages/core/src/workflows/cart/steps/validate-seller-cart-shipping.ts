@@ -10,9 +10,6 @@ import { SellerDTO } from "@mercurjs/types"
 type ValidateSellerCartShippingStepInput = {
     cart: Omit<CartWorkflowDTO, "items"> & {
         items: (CartLineItemDTO & {
-            variant?: {
-                product?: { shipping_profile?: { id?: string } | null } | null
-            } | null
             offer?: {
                 id: string
                 seller_id?: string
@@ -71,14 +68,10 @@ export const validateSellerCartShippingStep = createStep(
             )
         )
 
-        // The offer, not the master product, owns the shipping profile a seller
-        // ships from — the product-level profile is only a fallback.
+        // The offer, not the master product, owns the shipping profile a
+        // seller ships from.
         const missingProfiles = itemsRequiringShipping
-            .map(
-                (item) =>
-                    item.offer?.shipping_profile_id ??
-                    item.variant?.product?.shipping_profile?.id
-            )
+            .map((item) => item.offer?.shipping_profile_id ?? undefined)
             .filter((profileId) => !availableProfiles.has(profileId))
 
         if (missingProfiles.length > 0) {
