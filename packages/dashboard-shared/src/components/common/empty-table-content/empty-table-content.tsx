@@ -85,7 +85,7 @@ export const NoRecords = ({
   return (
     <div
       className={clx(
-        "flex h-[150px] w-full flex-col items-center justify-center gap-y-4",
+        "flex h-[400px] w-full flex-col items-center justify-center gap-y-4",
         className
       )}
     >
