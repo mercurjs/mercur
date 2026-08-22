@@ -237,6 +237,10 @@
           "type": "registry:api"
         },
         {
+          "path": "algolia/subscribers/algolia-intermediate-events-bridge.ts",
+          "type": "registry:api"
+        },
+        {
           "path": "algolia/subscribers/algolia-products-changed.ts",
           "type": "registry:api"
         },
