@@ -2978,7 +2978,11 @@
     },
     "deleteUserWarning": "You are about to delete the user {{name}}. This action cannot be undone.",
     "deleteUserSuccess": "User {{name}} was successfully removed.",
-    "invite": "Invite"
+    "invite": "Invite",
+    "inviteRolesTooltip": "If no role is selected, the user will be invited with a superuser role."
+  },
+  "roles": {
+    "domain": "Roles"
   },
   "marketplace": {
     "domain": "Marketplace",
