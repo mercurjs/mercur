@@ -63,13 +63,14 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@mercurjs/types": "2.3.2-canary.0",
+    "@medusajs/types": "2.18.0",
     "@mercurjs/core": "2.3.2-canary.0",
     "@mercurjs/dashboard-sdk": "2.3.2-canary.0",
-    "tsup": "^8.0.2",
-    "typescript": "5.9.3",
+    "@mercurjs/types": "2.3.2-canary.0",
     "@types/lodash.debounce": "^4.0.8",
     "@types/react": "^18.3.2",
-    "@types/react-dom": "^18.2.22"
+    "@types/react-dom": "^18.2.22",
+    "tsup": "^8.0.2",
+    "typescript": "5.9.3"
   }
 }
