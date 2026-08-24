@@ -11724,6 +11724,18 @@
       ],
       "additionalProperties": false
     },
+    "roles": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "domain"
+      ],
+      "additionalProperties": false
+    },
     "users": {
       "type": "object",
       "properties": {
@@ -11853,6 +11865,9 @@
         },
         "invite": {
           "type": "string"
+        },
+        "inviteRolesTooltip": {
+          "type": "string"
         }
       },
       "required": [
@@ -11873,7 +11888,8 @@
         "list",
         "deleteUserWarning",
         "deleteUserSuccess",
-        "invite"
+        "invite",
+        "inviteRolesTooltip"
       ],
       "additionalProperties": false
     },
@@ -16507,7 +16523,8 @@
     "commissionLines",
     "commissions",
     "commissionRates",
-    "offers"
+    "offers",
+    "roles"
   ],
   "additionalProperties": false
 }
