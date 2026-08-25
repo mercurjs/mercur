@@ -1,6 +1,6 @@
 import path from "path";
 import { handleError } from "@/src/utils/handle-error";
-import { buildVendorExtensions } from "@/src/utils/build-vendor-extensions";
+import { buildDashboardExtensions } from "@/src/utils/build-dashboard-extensions";
 import { logger } from "@/src/utils/logger";
 import { spinner } from "@/src/utils/spinner";
 import { Command } from "commander";
@@ -35,7 +35,13 @@ export const pluginBuild = new Command()
       const responses = await Promise.all([
         compiler.buildPluginBackend(tsConfig),
         compiler.buildPluginAdminExtensions(bundler),
-        buildVendorExtensions({ root: cwd, outDir: pluginsDistFolder }),
+        ...(["admin", "vendor"] as const).map((app) =>
+          buildDashboardExtensions({
+            root: cwd,
+            srcDir: `src/${app}`,
+            outFile: path.join(pluginsDistFolder, "src", app, "index.mjs"),
+          })
+        ),
       ]);
 
       if (responses.every((response) => response === true)) {
