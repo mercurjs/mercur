@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -49,6 +51,12 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
       ),
       applySellerPromotionLinkFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.promotion,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -60,6 +68,12 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
         vendorPromotionQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.promotion,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -69,6 +83,12 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
         VendorGetPromotionRuleParams,
         vendorPromotionRuleQueryConfig.list
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.promotion,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -80,6 +100,12 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
         vendorRuleValueQueryConfig.list
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.promotion,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -89,6 +115,12 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
         VendorGetPromotionParams,
         vendorPromotionQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.promotion,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -101,11 +133,23 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
         vendorPromotionQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.promotion,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/promotions/:id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.promotion,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -115,6 +159,12 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
         VendorGetPromotionRuleTypeParams,
         vendorPromotionQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.promotion,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -129,6 +179,12 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
         vendorPromotionRuleQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.promotion,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -142,6 +198,12 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
         vendorPromotionRuleQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.promotion,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -154,6 +216,12 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
         VendorGetPromotionRuleParams,
         vendorPromotionRuleQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.promotion,
+        operation: PolicyOperation.update,
+      },
     ],
   },
 ]

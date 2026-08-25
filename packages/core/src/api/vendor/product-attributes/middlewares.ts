@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   MedusaNextFunction,
   MedusaRequest,
@@ -43,6 +45,12 @@ export const vendorProductAttributesMiddlewares: MiddlewareRoute[] = [
       renameCategoryIdFilter,
       filterAttributesByCategoryLinkOrGlobal,
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_attribute,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -52,6 +60,12 @@ export const vendorProductAttributesMiddlewares: MiddlewareRoute[] = [
         VendorGetProductAttributeParams,
         vendorProductAttributeQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product_attribute,
+        operation: PolicyOperation.read,
+      },
     ],
   },
 ]

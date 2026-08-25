@@ -8,17 +8,11 @@ import {
   type PermissionResource,
   type PermissionsContextValue,
   type UserPolicy,
-} from "../../lib/permissions"
+} from "@mercurjs/dashboard-sdk"
 import { PermissionsContext } from "./permissions-context"
 
-interface PermissionsProviderProps extends PropsWithChildren {
-  /**
-   * The user's policy containing their permissions.
-   */
+export interface PermissionsProviderProps extends PropsWithChildren {
   policy: UserPolicy | null
-  /**
-   * Whether the policy is currently being loaded.
-   */
   isLoading?: boolean
   /**
    * Whether the RBAC feature flag is enabled. When `false`, every permission
@@ -105,12 +99,21 @@ export const PermissionsProvider = ({
     () => ({
       policy,
       isLoading,
+      isRbacEnabled,
       hasPermission,
       hasAnyPermission,
       hasAllPermissions,
       can,
     }),
-    [policy, isLoading, hasPermission, hasAnyPermission, hasAllPermissions, can]
+    [
+      policy,
+      isLoading,
+      isRbacEnabled,
+      hasPermission,
+      hasAnyPermission,
+      hasAllPermissions,
+      can,
+    ]
   )
 
   return (

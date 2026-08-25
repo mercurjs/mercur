@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -43,6 +45,12 @@ export const vendorShippingProfilesMiddlewares: MiddlewareRoute[] = [
       ),
       applySellerShippingProfileLinkFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.shipping_profile,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -54,6 +62,12 @@ export const vendorShippingProfilesMiddlewares: MiddlewareRoute[] = [
         vendorShippingProfileQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.shipping_profile,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -63,6 +77,12 @@ export const vendorShippingProfilesMiddlewares: MiddlewareRoute[] = [
         VendorGetShippingProfileParams,
         vendorShippingProfileQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.shipping_profile,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -75,10 +95,22 @@ export const vendorShippingProfilesMiddlewares: MiddlewareRoute[] = [
         vendorShippingProfileQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.shipping_profile,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/shipping-profiles/:id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.shipping_profile,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
 ]

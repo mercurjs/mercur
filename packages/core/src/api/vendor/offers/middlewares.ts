@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   MedusaNextFunction,
@@ -39,6 +41,12 @@ export const vendorOffersMiddlewares: MiddlewareRoute[] = [
       ),
       applySellerOfferFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.offer,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -49,6 +57,12 @@ export const vendorOffersMiddlewares: MiddlewareRoute[] = [
         VendorGetOfferParams,
         vendorOfferQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.offer,
+        operation: PolicyOperation.create,
+      },
     ],
   },
   {
@@ -61,6 +75,12 @@ export const vendorOffersMiddlewares: MiddlewareRoute[] = [
         vendorOfferQueryConfig.list
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.offer,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -70,6 +90,12 @@ export const vendorOffersMiddlewares: MiddlewareRoute[] = [
         VendorGetOfferParams,
         vendorOfferQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.offer,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -82,11 +108,23 @@ export const vendorOffersMiddlewares: MiddlewareRoute[] = [
         vendorOfferQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.offer,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/offers/:id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.offer,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -97,6 +135,12 @@ export const vendorOffersMiddlewares: MiddlewareRoute[] = [
         VendorGetOfferParams,
         vendorOfferQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.offer,
+        operation: PolicyOperation.update,
+      },
     ],
   },
 ]

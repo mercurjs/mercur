@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -44,6 +46,12 @@ export const vendorCustomerGroupsMiddlewares: MiddlewareRoute[] = [
       ),
       applySellerCustomerGroupLinkFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.customer_group,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -55,6 +63,12 @@ export const vendorCustomerGroupsMiddlewares: MiddlewareRoute[] = [
         vendorCustomerGroupQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.customer_group,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -64,6 +78,12 @@ export const vendorCustomerGroupsMiddlewares: MiddlewareRoute[] = [
         VendorGetCustomerGroupParams,
         vendorCustomerGroupQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.customer_group,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -76,11 +96,23 @@ export const vendorCustomerGroupsMiddlewares: MiddlewareRoute[] = [
         vendorCustomerGroupQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.customer_group,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/customer-groups/:id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.customer_group,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -91,6 +123,12 @@ export const vendorCustomerGroupsMiddlewares: MiddlewareRoute[] = [
         VendorGetCustomerGroupParams,
         vendorCustomerGroupQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.customer_group,
+        operation: PolicyOperation.update,
+      },
     ],
   },
 ]

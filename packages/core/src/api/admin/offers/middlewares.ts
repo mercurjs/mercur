@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -23,6 +25,12 @@ export const adminOffersMiddlewares: MiddlewareRoute[] = [
       ),
       applyGroupedOfferProductFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.offer,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -34,6 +42,12 @@ export const adminOffersMiddlewares: MiddlewareRoute[] = [
         adminOfferQueryConfig.list
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.offer,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -43,6 +57,12 @@ export const adminOffersMiddlewares: MiddlewareRoute[] = [
         AdminGetOfferParams,
         adminOfferQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.offer,
+        operation: PolicyOperation.read,
+      },
     ],
   },
 ]

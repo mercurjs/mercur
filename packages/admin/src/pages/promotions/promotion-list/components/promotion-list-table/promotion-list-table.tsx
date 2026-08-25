@@ -18,6 +18,7 @@ import {
 import { usePromotionTableColumns } from "../../../../../hooks/table/columns/use-promotion-table-columns"
 import { usePromotionTableFilters } from "../../../../../hooks/table/filters/use-promotion-table-filters"
 import { usePromotionTableQuery } from "../../../../../hooks/table/query/use-promotion-table-query"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { useDataTable } from "../../../../../hooks/use-data-table"
 
 const PAGE_SIZE = 20
@@ -34,9 +35,11 @@ export const PromotionListTitle = () => {
 export const PromotionListCreateButton = () => {
   const { t } = useTranslation()
   return (
-    <Button size="small" variant="secondary" asChild data-testid="promotion-list-table-create-button">
-      <Link to="create">{t("actions.create")}</Link>
-    </Button>
+    <PermissionGuard resource="promotion" operation="create">
+      <Button size="small" variant="secondary" asChild data-testid="promotion-list-table-create-button">
+        <Link to="create">{t("actions.create")}</Link>
+      </Button>
+    </PermissionGuard>
   )
 }
 

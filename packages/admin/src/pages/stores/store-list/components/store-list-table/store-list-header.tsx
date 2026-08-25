@@ -1,6 +1,7 @@
 import { ReactNode, Children } from "react"
 import { Button, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { Link } from "react-router-dom"
 
 export const StoreListTitle = () => {
@@ -24,11 +25,13 @@ export const StoreListActions = ({
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <Link to="create">
-          <Button variant="secondary" size="small">
-            {t("actions.create")}
-          </Button>
-        </Link>
+        <PermissionGuard resource="seller" operation="create">
+          <Link to="create">
+            <Button variant="secondary" size="small">
+              {t("actions.create")}
+            </Button>
+          </Link>
+        </PermissionGuard>
       )}
     </div>
   )

@@ -1,3 +1,4 @@
+import { PolicyResource } from "../../utils/policy-resources"
 import {
   validateAndTransformBody,
   validateAndTransformQuery,
@@ -37,6 +38,12 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
         QueryConfig.retrieveVendorSellerQueryConfig
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.seller,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -47,6 +54,12 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
         VendorGetSellerParams,
         QueryConfig.retrieveVendorSellerQueryConfig
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.seller,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {

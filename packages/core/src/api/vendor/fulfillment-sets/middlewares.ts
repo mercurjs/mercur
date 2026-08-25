@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -20,6 +22,12 @@ export const vendorFulfillmentSetsMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/vendor/fulfillment-sets/:id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.fulfillment_set,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -31,6 +39,12 @@ export const vendorFulfillmentSetsMiddlewares: MiddlewareRoute[] = [
         vendorFulfillmentSetQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.fulfillment_set,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -40,6 +54,12 @@ export const vendorFulfillmentSetsMiddlewares: MiddlewareRoute[] = [
         VendorServiceZoneParams,
         vendorServiceZoneQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.fulfillment_set,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -52,6 +72,12 @@ export const vendorFulfillmentSetsMiddlewares: MiddlewareRoute[] = [
         vendorFulfillmentSetQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.fulfillment_set,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
@@ -61,6 +87,12 @@ export const vendorFulfillmentSetsMiddlewares: MiddlewareRoute[] = [
         VendorFulfillmentSetParams,
         vendorFulfillmentSetQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.fulfillment_set,
+        operation: PolicyOperation.delete,
+      },
     ],
   },
 ]

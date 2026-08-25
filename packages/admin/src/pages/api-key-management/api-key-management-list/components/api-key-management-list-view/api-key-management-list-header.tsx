@@ -2,6 +2,7 @@ import { Children, ReactNode } from "react"
 import { Button, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { Link, useLocation } from "react-router-dom"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { getApiKeyTypeFromPathname } from "../../../common/utils"
 
 export const ApiKeyManagementListTitle = () => {
@@ -43,11 +44,13 @@ export const ApiKeyManagementListActions = ({
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <Link to="create" data-testid={`${keyType}-api-keys-create-button`}>
-          <Button variant="secondary" size="small">
-            {t("actions.create")}
-          </Button>
-        </Link>
+        <PermissionGuard resource="api_key" operation="create">
+          <Link to="create" data-testid={`${keyType}-api-keys-create-button`}>
+            <Button variant="secondary" size="small">
+              {t("actions.create")}
+            </Button>
+          </Link>
+        </PermissionGuard>
       )}
     </div>
   )

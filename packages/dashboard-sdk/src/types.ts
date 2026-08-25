@@ -1,4 +1,5 @@
-import { ComponentType } from "react";
+import { ComponentType, ReactNode } from "react";
+import type { Permission } from "./permissions";
 
 /**
  * Configuration for the Mercur dashboard plugin.
@@ -71,4 +72,25 @@ export type RouteConfig = {
     nested?: string
     translationNs?: string
     public?: boolean
+    /**
+     * Permissions the actor must hold for this route's sidebar entry to be
+     * shown. Enforcement of the route itself comes from `handle.permissions`
+     * — this only controls navigation visibility.
+     */
+    permissions?: Permission[]
+    /** If true, ALL `permissions` are required. Defaults to ANY. */
+    requireAll?: boolean
+}
+
+/**
+ * The value of a route module's `export const handle`. Read by react-router's
+ * `useMatches()`; `permissions` is enforced by `RoutePermissionGuard`.
+ */
+export type RouteHandle = {
+    permissions?: Permission | Permission[]
+    /** If true (default at the route level), ALL permissions are required. */
+    requireAll?: boolean
+    /** Where to send the actor on denial. Renders Access Denied when unset. */
+    redirectTo?: string
+    breadcrumb?: (match: never) => ReactNode
 }

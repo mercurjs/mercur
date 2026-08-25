@@ -12,6 +12,7 @@ import { useProductTypeTableColumns } from "../../../../../hooks/table/columns/u
 import { useProductTypeTableFilters } from "../../../../../hooks/table/filters/use-product-type-table-filters"
 import { useProductTypeTableQuery } from "../../../../../hooks/table/query/use-product-type-table-query"
 import { useDataTable } from "../../../../../hooks/use-data-table"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { ProductTypeRowActions } from "./product-table-row-actions"
 
 const PAGE_SIZE = 20
@@ -53,9 +54,11 @@ export const ProductTypeListTable = () => {
             {t("productTypes.subtitle")}
           </Text>
         </div>
-        <Button size="small" variant="secondary" asChild data-testid="product-type-list-table-create-button">
-          <Link to="create">{t("actions.create")}</Link>
-        </Button>
+        <PermissionGuard resource="product_type" operation="create">
+          <Button size="small" variant="secondary" asChild data-testid="product-type-list-table-create-button">
+            <Link to="create">{t("actions.create")}</Link>
+          </Button>
+        </PermissionGuard>
       </div>
       <_DataTable
         table={table}

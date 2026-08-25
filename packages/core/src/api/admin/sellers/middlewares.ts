@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -38,6 +40,12 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         adminSellerQueryConfig.list
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.seller,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -49,6 +57,12 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         adminSellerQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.seller,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -58,6 +72,12 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.seller,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -70,6 +90,12 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         adminSellerQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.seller,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -80,6 +106,12 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.seller,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -92,6 +124,12 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         adminSellerQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.seller,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -102,6 +140,12 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.seller,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -114,6 +158,12 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         adminSellerQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.seller,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -124,6 +174,12 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.seller,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -136,6 +192,12 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         adminSellerQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.seller,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -146,6 +208,12 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.seller,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -158,6 +226,12 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         adminSellerQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.seller,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
@@ -167,6 +241,12 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.seller,
+        operation: PolicyOperation.delete,
+      },
     ],
   },
   {
@@ -178,6 +258,12 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         adminMembersQueryConfig.list
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.seller_member,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -188,12 +274,24 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         adminSellerProductsQueryConfig.list
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/sellers/:id/members",
     middlewares: [
       validateAndTransformBody(AdminAddSellerMember),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.seller_member,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -205,6 +303,12 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         adminMemberInvitesQueryConfig.list
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.member_invite,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -212,10 +316,22 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformBody(AdminInviteSellerMember),
     ],
+    policies: [
+      {
+        resource: PolicyResource.member_invite,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/admin/sellers/:id/members/:member_id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.seller_member,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
 ]

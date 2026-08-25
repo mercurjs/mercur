@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -38,6 +40,12 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
       ),
       applyOfferedProductsFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -48,6 +56,12 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
         AdminGetProductParams,
         adminProductQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.create,
+      },
     ],
   },
   {
@@ -60,6 +74,12 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
         adminProductQueryConfig.list
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -69,6 +89,12 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
         AdminGetProductParams,
         adminProductQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -81,11 +107,23 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
         adminProductQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/admin/products/:id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -96,6 +134,12 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
         AdminGetProductParams,
         adminProductQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -108,6 +152,12 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
         adminProductQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -119,6 +169,12 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
         adminProductQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -128,6 +184,12 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
         AdminGetProductVariantsParams,
         adminProductVariantQueryConfig.list
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product_variant,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -140,6 +202,12 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
         adminProductQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_variant,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -149,6 +217,12 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
         AdminGetProductVariantParams,
         adminProductVariantQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product_variant,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -161,6 +235,12 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
         adminProductQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_variant,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
@@ -170,6 +250,12 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
         AdminGetProductParams,
         adminProductQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product_variant,
+        operation: PolicyOperation.delete,
+      },
     ],
   },
 
@@ -183,11 +269,23 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
         adminProductQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
 
   {
     method: ["POST"],
     matcher: "/admin/products/:id/sellers",
     middlewares: [validateAndTransformBody(createLinkBody())],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
 ]

@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -34,6 +36,12 @@ export const adminCollectionsMiddlewares: MiddlewareRoute[] = [
         adminCollectionQueryConfig.list
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_collection,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -45,6 +53,12 @@ export const adminCollectionsMiddlewares: MiddlewareRoute[] = [
         adminCollectionQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_collection,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -54,6 +68,12 @@ export const adminCollectionsMiddlewares: MiddlewareRoute[] = [
         AdminCollectionParams,
         adminCollectionQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product_collection,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -66,10 +86,22 @@ export const adminCollectionsMiddlewares: MiddlewareRoute[] = [
         adminCollectionQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_collection,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/admin/collections/:id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.product_collection,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
 ]

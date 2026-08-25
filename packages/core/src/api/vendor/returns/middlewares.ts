@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -63,6 +65,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
       ),
       applySellerOrderLinkFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -72,6 +80,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         VendorGetReturnParams,
         vendorReturnQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -84,6 +98,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         vendorReturnQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -94,6 +114,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.create,
+      },
     ],
   },
   {
@@ -106,6 +132,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         vendorReturnQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -117,6 +149,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         vendorReturnQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
@@ -126,6 +164,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.delete,
+      },
     ],
   },
   {
@@ -138,6 +182,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         vendorReturnQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -149,6 +199,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         vendorReturnQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
@@ -158,6 +214,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.delete,
+      },
     ],
   },
   {
@@ -169,6 +231,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -181,11 +249,23 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         vendorReturnQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/returns/:id/request",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -197,11 +277,23 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         vendorReturnQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/returns/:id/receive",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -212,6 +304,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -224,6 +322,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         vendorReturnQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -235,6 +339,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         vendorReturnQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
@@ -244,6 +354,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.delete,
+      },
     ],
   },
   {
@@ -256,6 +372,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         vendorReturnQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -267,6 +389,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         vendorReturnQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
@@ -276,6 +404,12 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.return,
+        operation: PolicyOperation.delete,
+      },
     ],
   },
 ]

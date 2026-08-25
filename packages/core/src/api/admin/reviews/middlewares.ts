@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import { validateAndTransformBody, validateAndTransformQuery } from "@medusajs/framework"
 import { maybeApplyLinkFilter } from "@medusajs/framework/http"
 import { MiddlewareRoute } from "@medusajs/medusa"
@@ -28,6 +30,12 @@ export const adminReviewsMiddlewares: MiddlewareRoute[] = [
         filterableField: "customer_id",
       }),
     ],
+    policies: [
+      {
+        resource: PolicyResource.review,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -37,6 +45,12 @@ export const adminReviewsMiddlewares: MiddlewareRoute[] = [
         AdminGetReviewsParams,
         adminReviewsConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.review,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -49,6 +63,12 @@ export const adminReviewsMiddlewares: MiddlewareRoute[] = [
       ),
       validateAndTransformBody(AdminUpdateReview),
     ],
+    policies: [
+      {
+        resource: PolicyResource.review,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -60,10 +80,22 @@ export const adminReviewsMiddlewares: MiddlewareRoute[] = [
       ),
       validateAndTransformBody(AdminRespondReview),
     ],
+    policies: [
+      {
+        resource: PolicyResource.review,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/admin/reviews/:id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.review,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
 ]

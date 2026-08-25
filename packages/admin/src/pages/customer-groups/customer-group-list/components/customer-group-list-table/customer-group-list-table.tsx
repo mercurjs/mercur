@@ -23,6 +23,7 @@ import {
 import { useCustomerGroupTableFilters } from "../../../../../hooks/table/filters/use-customer-group-table-filters"
 import { useCustomerGroupTableQuery } from "../../../../../hooks/table/query/use-customer-group-table-query"
 import { useDataTable } from "../../../../../hooks/use-data-table"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { useDate } from "../../../../../hooks/use-date"
 
 const PAGE_SIZE = 10
@@ -39,11 +40,13 @@ export const CustomerGroupListTitle = () => {
 export const CustomerGroupListCreateButton = () => {
   const { t } = useTranslation()
   return (
-    <Link to="/customer-groups/create">
-      <Button size="small" variant="secondary">
-        {t("actions.create")}
-      </Button>
-    </Link>
+    <PermissionGuard resource="customer_group" operation="create">
+      <Link to="/customer-groups/create">
+        <Button size="small" variant="secondary">
+          {t("actions.create")}
+        </Button>
+      </Link>
+    </PermissionGuard>
   )
 }
 

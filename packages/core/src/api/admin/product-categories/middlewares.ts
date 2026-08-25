@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -24,6 +26,12 @@ export const adminProductCategoriesMiddlewares: MiddlewareRoute[] = [
         adminProductCategoryQueryConfig.list
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_category,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -35,6 +43,12 @@ export const adminProductCategoriesMiddlewares: MiddlewareRoute[] = [
         adminProductCategoryQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_category,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -44,6 +58,12 @@ export const adminProductCategoriesMiddlewares: MiddlewareRoute[] = [
         AdminProductCategoryParams,
         adminProductCategoryQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product_category,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -56,20 +76,44 @@ export const adminProductCategoriesMiddlewares: MiddlewareRoute[] = [
         adminProductCategoryQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_category,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/admin/product-categories/:id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.product_category,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/product-categories/:id/products",
     middlewares: [validateAndTransformBody(AdminBatchLinkProductsToCategory)],
+    policies: [
+      {
+        resource: PolicyResource.product_category,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/product-categories/:id/sellers",
     middlewares: [validateAndTransformBody(AdminBatchLinkSellersToCategory)],
+    policies: [
+      {
+        resource: PolicyResource.product_category,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
 ]
