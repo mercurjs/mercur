@@ -36,6 +36,7 @@ export const InventoryActions = ({ item }: { item: InventoryItemDTO }) => {
           actions: [
             {
               icon: <PencilSquare />,
+              permission: "inventory_item:update",
               label: t("actions.edit"),
               to: `${item.id}/edit`,
             },
@@ -45,6 +46,7 @@ export const InventoryActions = ({ item }: { item: InventoryItemDTO }) => {
           actions: [
             {
               icon: <Trash />,
+              permission: "inventory_item:delete",
               label: t("actions.delete"),
               onClick: handleDelete,
             },

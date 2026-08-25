@@ -99,6 +99,7 @@ export const OfferDetailGeneralSection = ({
               {
                 actions: [
                   {
+                    permission: "offer:delete",
                     label: t("actions.delete"),
                     onClick: handleDelete,
                     icon: <Trash />,

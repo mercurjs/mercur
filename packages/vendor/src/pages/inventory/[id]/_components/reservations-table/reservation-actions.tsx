@@ -55,6 +55,7 @@ export const ReservationActions = ({
           actions: [
             {
               icon: <PencilSquare />,
+              permission: "inventory_item:update",
               label: t("actions.edit"),
               to: `/reservations/${reservation.id}/edit`,
             },
@@ -64,6 +65,7 @@ export const ReservationActions = ({
           actions: [
             {
               icon: <Trash />,
+              permission: "inventory_item:delete",
               label: t("actions.delete"),
               onClick: handleDelete,
             },

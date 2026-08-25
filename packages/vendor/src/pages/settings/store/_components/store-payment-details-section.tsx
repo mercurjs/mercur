@@ -36,6 +36,7 @@ export const StorePaymentDetailsSection = ({
             {
               actions: [
                 {
+                  permission: "seller:update",
                   label: t("actions.edit"),
                   icon: <PencilSquare />,
                   to: "payment-details",

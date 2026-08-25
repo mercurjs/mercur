@@ -51,6 +51,7 @@ export const OfferVariantGeneralSection = ({
             {
               actions: [
                 {
+                  permission: "offer:update",
                   label: t("actions.edit"),
                   to: "edit",
                   icon: <PencilSquare />,

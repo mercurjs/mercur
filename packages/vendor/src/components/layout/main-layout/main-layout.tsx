@@ -13,6 +13,7 @@ import {
   Users,
 } from "@medusajs/icons";
 import { Avatar, Divider, DropdownMenu, Text, clx } from "@medusajs/ui";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Skeleton } from "../../common/skeleton";
@@ -28,9 +29,15 @@ import menuItemsModule from "virtual:mercur/menu-items";
 import {
   applyNavOverrides,
   useExtension,
+  usePermissions,
   type CoreNavItem,
 } from "@mercurjs/dashboard-shared";
-import { getMenuItemsByType, getNestedMenuItems } from "../../../utils/routes";
+import {
+  filterMenuItemsByPermissions,
+  getMenuItemsByType,
+  getNestedMenuItems,
+} from "../../../utils/routes";
+import { getRoutePermission } from "../../../lib/permissions/route-permissions";
 
 const navId = (to: string) => to.replace(/^\//, "");
 
@@ -58,9 +65,10 @@ const allMenuItems = menuItemsModule.menuItems ?? [];
 
 const addNestedItems = (
   to: string,
+  menuItems: typeof allMenuItems,
   items?: { label: string; to: string; translationNs?: string }[],
 ) => {
-  const nestedItems = getNestedMenuItems(allMenuItems, to);
+  const nestedItems = getNestedMenuItems(menuItems, to);
   if (nestedItems.length === 0) {
     return items;
   }
@@ -77,15 +85,38 @@ const addNestedItems = (
 const MainSidebar = () => {
   const coreRoutes = useCoreRoutes();
   const navOverrides = useExtension().getNavOverrides();
-  const customMenuItems = getMenuItemsByType(allMenuItems, "main");
+  const { hasAnyPermission, hasAllPermissions, hasPermission } =
+    usePermissions();
+
+  // Hides links the actor can't open. `RoutePermissionGuard` is what actually
+  // refuses the route; this only keeps the sidebar honest.
+  const canReach = ({ to }: { to: string }) => {
+    const permission = getRoutePermission(to);
+    return !permission || hasPermission(permission);
+  };
+
+  const visibleMenuItems = useMemo(
+    () =>
+      filterMenuItemsByPermissions(allMenuItems, {
+        hasAnyPermission,
+        hasAllPermissions,
+      }),
+    [hasAnyPermission, hasAllPermissions],
+  );
+
+  const customMenuItems = getMenuItemsByType(visibleMenuItems, "main");
 
   const routesWithNested = applyNavOverrides(
     coreRoutes.map(toCoreNavItem),
     navOverrides,
-  ).map((route) => ({
-    ...route,
-    items: addNestedItems(route.to, route.items),
-  }));
+  )
+    .filter(canReach)
+    .map((route) => ({
+      ...route,
+      items: addNestedItems(route.to, visibleMenuItems, route.items)?.filter(
+        canReach,
+      ),
+    }));
 
   const customRoutesWithNested = customMenuItems
     .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
@@ -96,7 +127,7 @@ const MainSidebar = () => {
         to: item.path,
         icon: Icon ? <Icon /> : undefined,
         translationNs: item.translationNs,
-        items: addNestedItems(item.path),
+        items: addNestedItems(item.path, visibleMenuItems),
       };
     });
 

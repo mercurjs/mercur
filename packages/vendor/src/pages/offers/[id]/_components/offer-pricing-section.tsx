@@ -43,6 +43,7 @@ export const OfferPricingSection = ({ offer }: Props) => {
             {
               actions: [
                 {
+                  permission: "offer:update",
                   label: t("actions.edit"),
                   icon: <CurrencyDollar />,
                   to: "pricing",

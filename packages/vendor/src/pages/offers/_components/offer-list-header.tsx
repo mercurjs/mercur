@@ -1,5 +1,6 @@
 import { Button, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { Link } from "react-router-dom"
 
 export const OfferListTitle = () => {
@@ -12,11 +13,13 @@ export const OfferListActions = () => {
   const { t } = useTranslation()
 
   return (
-    <Button size="small" variant="secondary" asChild>
-      <Link to="create" data-testid="offer-list-create-button">
-        {t("offers.actions.create")}
-      </Link>
-    </Button>
+    <PermissionGuard resource="offer" operation="create">
+      <Button size="small" variant="secondary" asChild>
+        <Link to="create" data-testid="offer-list-create-button">
+          {t("offers.actions.create")}
+        </Link>
+      </Button>
+    </PermissionGuard>
   )
 }
 

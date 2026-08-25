@@ -12,6 +12,7 @@ import { useReservationTableFilters } from "./use-reservation-table-filters"
 import { useReservationTableQuery } from "./use-reservation-table-query"
 import { ReservationActions } from "./reservation-actions"
 import { ExtendedReservationItem } from "../../../inventory/[id]/_components/reservations-table/use-reservation-list-table-columns"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { Link } from "react-router-dom"
 
 const PAGE_SIZE = 20
@@ -80,9 +81,11 @@ export const ReservationListTable = () => {
             {t("reservations.subtitle")}
           </Text>
         </div>
-        <Button variant="secondary" size="small" asChild>
-          <Link to="create">{t("actions.create")}</Link>
-        </Button>
+        <PermissionGuard resource="reservation_item" operation="create">
+          <Button variant="secondary" size="small" asChild>
+            <Link to="create">{t("actions.create")}</Link>
+          </Button>
+        </PermissionGuard>
       </div>
       <_DataTable
         table={table}

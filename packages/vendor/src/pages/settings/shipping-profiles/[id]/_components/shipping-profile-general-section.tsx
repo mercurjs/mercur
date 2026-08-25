@@ -62,6 +62,7 @@ export const ShippingProfileGeneralSection = ({
               actions: [
                 {
                   icon: <Trash />,
+                  permission: "shipping_profile:delete",
                   label: t("actions.delete"),
                   onClick: handleDelete,
                 },

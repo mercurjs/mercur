@@ -171,6 +171,7 @@ function ShippingOption({
           {
             actions: [
               {
+                permission: "stock_location:delete",
                 label: t("actions.delete"),
                 icon: <Trash />,
                 onClick: handleDelete,
@@ -399,6 +400,7 @@ function ServiceZone({
               {
                 actions: [
                   {
+                    permission: "stock_location:update",
                     label: t("actions.edit"),
                     icon: <PencilSquare />,
                     to: `/settings/locations/${locationId}/fulfillment-set/${fulfillmentSetId}/service-zone/${zone.id}/edit`,
@@ -413,6 +415,7 @@ function ServiceZone({
               {
                 actions: [
                   {
+                    permission: "stock_location:delete",
                     label: t("actions.delete"),
                     icon: <Trash />,
                     onClick: handleDelete,
@@ -628,6 +631,7 @@ const Actions = ({ location }: { location: VendorExtendedAdminStockLocation }) =
           actions: [
             {
               icon: <PencilSquare />,
+              permission: "stock_location:update",
               label: t("actions.edit"),
               to: `edit`,
             },
@@ -642,6 +646,7 @@ const Actions = ({ location }: { location: VendorExtendedAdminStockLocation }) =
           actions: [
             {
               icon: <Trash />,
+              permission: "stock_location:delete",
               label: t("actions.delete"),
               onClick: handleDelete,
             },

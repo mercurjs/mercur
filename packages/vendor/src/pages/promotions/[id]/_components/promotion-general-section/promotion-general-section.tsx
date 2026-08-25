@@ -129,6 +129,7 @@ export const PromotionGeneralSection = ({
                 actions: [
                   {
                     icon: <PencilSquare />,
+                    permission: "promotion:update",
                     label: t("actions.edit"),
                     to: `/promotions/${promotion.id}/edit`,
                   },
@@ -138,6 +139,7 @@ export const PromotionGeneralSection = ({
                 actions: [
                   {
                     icon: <Trash />,
+                    permission: "promotion:delete",
                     label: t("actions.delete"),
                     onClick: handleDelete,
                   },
