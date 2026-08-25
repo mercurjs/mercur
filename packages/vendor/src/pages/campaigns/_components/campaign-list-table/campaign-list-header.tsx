@@ -1,6 +1,7 @@
 import { Children, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { Button, Heading } from "@medusajs/ui";
 
 export const CampaignListTitle = () => {
@@ -11,11 +12,13 @@ export const CampaignListTitle = () => {
 export const CampaignListCreateButton = () => {
   const { t } = useTranslation();
   return (
-    <Link to="/campaigns/create">
-      <Button size="small" variant="secondary">
-        {t("actions.create")}
-      </Button>
-    </Link>
+    <PermissionGuard resource="campaign" operation="create">
+      <Link to="/campaigns/create">
+        <Button size="small" variant="secondary">
+          {t("actions.create")}
+        </Button>
+      </Link>
+    </PermissionGuard>
   );
 };
 

@@ -17,6 +17,7 @@ import {
 import { useCustomerGroupTableFilters } from "@hooks/table/filters/use-customer-group-table-filters";
 import { useCustomerGroupTableQuery } from "@hooks/table/query/use-customer-group-table-query";
 import { useDataTable } from "@hooks/use-data-table";
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { useDate } from "@hooks/use-date";
 
 const PAGE_SIZE = 20;
@@ -33,11 +34,13 @@ export const CustomerGroupListTitle = () => {
 export const CustomerGroupListCreateButton = () => {
   const { t } = useTranslation();
   return (
-    <Link to="/customer-groups/create" data-testid="customer-group-list-create-link">
-      <Button size="small" variant="secondary" data-testid="customer-group-list-create-button">
-        {t("actions.create")}
-      </Button>
-    </Link>
+    <PermissionGuard resource="customer_group" operation="create">
+      <Link to="/customer-groups/create" data-testid="customer-group-list-create-link">
+        <Button size="small" variant="secondary" data-testid="customer-group-list-create-button">
+          {t("actions.create")}
+        </Button>
+      </Link>
+    </PermissionGuard>
   );
 };
 
@@ -223,6 +226,7 @@ const CustomerGroupActions = ({
           actions: [
             {
               icon: <PencilSquare />,
+              permission: "customer_group:update",
               label: t("actions.edit"),
               to: `/customer-groups/${group.id}/edit`,
             },
@@ -232,6 +236,7 @@ const CustomerGroupActions = ({
           actions: [
             {
               icon: <Trash />,
+              permission: "customer_group:delete",
               label: t("actions.delete"),
               onClick: handleDelete,
             },

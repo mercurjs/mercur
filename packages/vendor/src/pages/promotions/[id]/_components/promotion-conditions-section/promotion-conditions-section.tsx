@@ -74,6 +74,7 @@ export const PromotionConditionsSection = ({
               actions: [
                 {
                   icon: <PencilSquare />,
+                  permission: "promotion:update",
                   label: t("actions.edit"),
                   to: `${ruleType}/edit`,
                 },

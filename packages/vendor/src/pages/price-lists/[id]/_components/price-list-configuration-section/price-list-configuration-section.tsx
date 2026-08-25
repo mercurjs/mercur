@@ -26,6 +26,7 @@ export const PriceListConfigurationSection = ({
             {
               actions: [
                 {
+                  permission: "price_list:update",
                   label: t("actions.edit"),
                   to: "configuration",
                   icon: <PencilSquare />,

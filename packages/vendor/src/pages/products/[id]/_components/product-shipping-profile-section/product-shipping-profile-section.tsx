@@ -25,6 +25,7 @@ export const ProductShippingProfileSection = ({
             {
               actions: [
                 {
+                  permission: "product:update",
                   label: t("actions.edit"),
                   to: "shipping-profile",
                   icon: <PencilSquare />,

@@ -36,6 +36,7 @@ export const StoreAddressSection = ({ seller }: StoreAddressSectionProps) => {
             {
               actions: [
                 {
+                  permission: "seller:update",
                   label: t("actions.edit"),
                   icon: <PencilSquare />,
                   to: "address",

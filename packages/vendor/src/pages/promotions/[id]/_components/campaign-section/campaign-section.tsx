@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom"
 
 import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 
-import { ActionMenu } from "@components/common/action-menu"
+import { Action, ActionMenu } from "@components/common/action-menu"
 import { DateRangeDisplay } from "@components/common/date-range-display"
 import { NoRecords } from "@components/common/empty-table-content"
 
@@ -63,8 +63,9 @@ export const CampaignSection = ({
         ? t("promotions.campaignSection.warnings.promotionExpires")
         : undefined
 
-  const actions = [
+  const actions: Action[] = [
     {
+      permission: "promotion:update",
       label: t("actions.edit"),
       to: "add-to-campaign",
       icon: <PencilSquare />,
