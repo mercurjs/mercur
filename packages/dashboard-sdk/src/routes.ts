@@ -292,9 +292,10 @@ export function generateRoutes({ srcDir, pluginExtensions }: BuiltMercurConfig):
         }
     }
 
-    // Plugin extensions — dynamic import to resolve .default
+    // Plugin extensions. Static rather than `await import(...)`: a top-level
+    // await here would force every consuming app to raise its build target.
     const pluginDeclarations = pluginExtensions.map((ext, i) =>
-        `const __plugin${i} = (await import("${normalizePath(ext)}")).default`
+        `import __plugin${i} from "${normalizePath(ext)}"`
     )
     const pluginSpreads = pluginExtensions.map((_, i) =>
         `    ...(__plugin${i}.routeModule?.routes ?? [])`
