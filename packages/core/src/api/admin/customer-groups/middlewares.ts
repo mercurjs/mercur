@@ -1,3 +1,5 @@
+import { PolicyOperation } from "@medusajs/framework/utils"
+import { PolicyResource } from "../../utils/policy-resources"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -56,6 +58,12 @@ export const adminCustomerGroupsMiddlewares: MiddlewareRoute[] = [
         listTransformQueryConfig
       ),
       maybeApplyCustomerGroupSellerFilter,
+    ],
+    policies: [
+      {
+        resource: PolicyResource.customer_group,
+        operation: PolicyOperation.read,
+      },
     ],
   },
 ]

@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -42,6 +44,12 @@ export const vendorCustomersMiddlewares: MiddlewareRoute[] = [
       ),
       applySellerCustomerLinkFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.customer,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -51,6 +59,12 @@ export const vendorCustomersMiddlewares: MiddlewareRoute[] = [
         VendorGetCustomerParams,
         vendorCustomerQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.customer,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -62,6 +76,12 @@ export const vendorCustomersMiddlewares: MiddlewareRoute[] = [
         VendorGetCustomerParams,
         vendorCustomerQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.customer,
+        operation: PolicyOperation.update,
+      },
     ],
   },
 ]

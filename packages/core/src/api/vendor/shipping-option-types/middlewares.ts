@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
@@ -17,6 +19,12 @@ export const vendorShippingOptionTypesMiddlewares: MiddlewareRoute[] = [
         vendorShippingOptionTypeQueryConfig.list
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.shipping_option_type,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -26,6 +34,12 @@ export const vendorShippingOptionTypesMiddlewares: MiddlewareRoute[] = [
         VendorGetShippingOptionTypeParams,
         vendorShippingOptionTypeQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.shipping_option_type,
+        operation: PolicyOperation.read,
+      },
     ],
   },
 ]

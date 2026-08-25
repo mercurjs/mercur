@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
@@ -17,6 +19,12 @@ export const vendorProductTagsMiddlewares: MiddlewareRoute[] = [
         vendorProductTagsQueryConfig.list
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_tag,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -26,6 +34,12 @@ export const vendorProductTagsMiddlewares: MiddlewareRoute[] = [
         VendorGetProductTagParams,
         vendorProductTagsQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product_tag,
+        operation: PolicyOperation.read,
+      },
     ],
   },
 ]

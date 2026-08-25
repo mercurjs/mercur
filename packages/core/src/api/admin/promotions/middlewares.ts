@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   validateAndTransformBody,
   validateAndTransformQuery,
@@ -67,6 +69,12 @@ export const adminPromotionsMiddlewares: MiddlewareRoute[] = [
       ),
       applyPromotionSellerFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.promotion,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -77,10 +85,22 @@ export const adminPromotionsMiddlewares: MiddlewareRoute[] = [
         listRuleValueTransformQueryConfig
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.promotion,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/promotions/:id/cost",
     middlewares: [validateAndTransformBody(AdminUpsertPromotionCost)],
+    policies: [
+      {
+        resource: PolicyResource.promotion,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
 ]

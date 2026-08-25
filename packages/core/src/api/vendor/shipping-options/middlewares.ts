@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -62,6 +64,12 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
       }),
       applySellerShippingOptionLinkFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.shipping_option,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -73,6 +81,12 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
         vendorShippingOptionQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.shipping_option,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -82,6 +96,12 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
         VendorGetShippingOptionParams,
         vendorShippingOptionQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.shipping_option,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -94,11 +114,23 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
         vendorShippingOptionQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.shipping_option,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/shipping-options/:id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.shipping_option,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -114,6 +146,12 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
         VendorGetShippingOptionRuleParams,
         vendorShippingOptionRuleQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.shipping_option,
+        operation: PolicyOperation.update,
+      },
     ],
   },
 ]

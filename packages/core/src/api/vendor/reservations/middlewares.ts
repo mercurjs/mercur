@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   MedusaNextFunction,
@@ -194,6 +196,12 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
       maybeApplyInventoryItemSkuFilter,
       applySellerReservationsFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.reservation_item,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -204,6 +212,12 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
         vendorReservationQueryConfig.retrieve
       ),
       assertReservationOwnership,
+    ],
+    policies: [
+      {
+        resource: PolicyResource.reservation_item,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -217,6 +231,12 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
         vendorReservationQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.reservation_item,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -229,10 +249,22 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
         vendorReservationQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.reservation_item,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/reservations/:id",
     middlewares: [assertReservationOwnership],
+    policies: [
+      {
+        resource: PolicyResource.reservation_item,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
 ]

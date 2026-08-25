@@ -29,7 +29,14 @@ export function withMercur(config: MercurInputConfig = {}): InputConfigWithArray
 
   const featureFlags = {
     ...config.featureFlags,
-    rbac: true,
+    // Core ships the RBAC foundation — the policy catalog, the `policies`
+    // declared on every admin/vendor route, and the middlewares that resolve an
+    // actor's roles — but leaves it dormant. With the flag off Medusa never
+    // wraps a handler in a permission check, so those declarations cost
+    // nothing. Turning it on is what activates enforcement, and that is the
+    // job of a distribution that also ships role management (roles are
+    // useless without a way to create and assign them).
+    rbac: config.featureFlags?.rbac ?? false,
   }
 
   const modules = [

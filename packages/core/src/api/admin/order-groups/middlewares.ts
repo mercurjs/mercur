@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   validateAndTransformQuery,
 } from "@medusajs/framework"
@@ -21,6 +23,12 @@ export const adminOrderGroupsMiddlewares: MiddlewareRoute[] = [
       ),
       applyOrderGroupSellerFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.order_group,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -30,6 +38,12 @@ export const adminOrderGroupsMiddlewares: MiddlewareRoute[] = [
         AdminGetOrderGroupParams,
         adminOrderGroupQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.order_group,
+        operation: PolicyOperation.read,
+      },
     ],
   },
 ]

@@ -1,25 +1,14 @@
-import {
-  definePolicies,
-  PolicyDefinition,
-  toPascalCase,
-} from "@medusajs/framework/utils"
+import { definePolicies } from "@medusajs/framework/utils"
 
-// todo: update resoure operations
-const resourceOperations: [string, string[]][] = [
-  ["seller", ["read", "create", "update", "delete"]],
-  ["seller_member", ["read", "create", "update", "delete"]],
+import { generateResourcePolicies } from "../utils/generate-resource-policies"
+
+const sellerResources = [
+  "seller",
+  "seller_member",
+  "member_invite",
+  "order_group",
 ]
 
-const policies: PolicyDefinition[] = []
-for (const [resource, operations] of resourceOperations) {
-  for (const operation of operations) {
-    policies.push({
-      name: toPascalCase(operation) + toPascalCase(resource),
-      resource,
-      operation,
-      description: `${toPascalCase(operation)} ${resource.replace(/_/g, " ")}`,
-    })
-  }
-}
-
-export const sellerPolicies = definePolicies(policies)
+export const sellerPolicies = definePolicies(
+  generateResourcePolicies(sellerResources)
+)

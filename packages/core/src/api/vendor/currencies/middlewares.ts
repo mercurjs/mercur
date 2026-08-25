@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
@@ -14,6 +16,12 @@ export const vendorCurrenciesMiddlewares: MiddlewareRoute[] = [
         vendorCurrencyQueryConfig.list
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.currency,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -23,6 +31,12 @@ export const vendorCurrenciesMiddlewares: MiddlewareRoute[] = [
         VendorGetCurrencyParams,
         vendorCurrencyQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.currency,
+        operation: PolicyOperation.read,
+      },
     ],
   },
 ]
