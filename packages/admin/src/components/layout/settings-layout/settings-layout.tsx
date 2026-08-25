@@ -16,6 +16,7 @@ import {
   filterMenuItemsByPermissions,
   getMenuItemsByType,
 } from "../../../utils/routes";
+import { getRoutePermission } from "../../../lib/permissions/route-permissions";
 
 export const SettingsLayout = () => {
   return (
@@ -154,8 +155,17 @@ const getSafeFromValue = (from: string) => {
 };
 
 const SettingsSidebar = () => {
-  const routes = useSettingRoutes();
-  const developerRoutes = useDeveloperRoutes();
+  const { hasPermission } = usePermissions();
+
+  // Hides links the actor can't open. `RoutePermissionGuard` is what actually
+  // refuses the route; this only keeps the sidebar honest.
+  const canReach = ({ to }: INavItem) => {
+    const permission = getRoutePermission(to);
+    return !permission || hasPermission(permission);
+  };
+
+  const routes = useSettingRoutes().filter(canReach);
+  const developerRoutes = useDeveloperRoutes().filter(canReach);
   const myAccountRoutes = useMyAccountRoutes();
 
   const { t } = useTranslation();

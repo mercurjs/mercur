@@ -11,6 +11,7 @@ import { useShippingOptionTypeTableColumns } from "../../../../../hooks/table/co
 import { useShippingOptionTypeTableFilters } from "../../../../../hooks/table/filters/use-shipping-option-type-table-filters"
 import { useShippingOptionTypeTableQuery } from "../../../../../hooks/table/query/use-shipping-option-type-table-query"
 import { useDataTable } from "../../../../../hooks/use-data-table"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { ShippingOptionTypeRowActions } from "./shipping-option-type-table-row-actions"
 
 const PAGE_SIZE = 20
@@ -50,9 +51,11 @@ export const ShippingOptionTypeListTable = () => {
             {t("shippingOptionTypes.subtitle")}
           </Text>
         </div>
-        <Button size="small" variant="secondary" asChild data-testid="shipping-option-type-list-table-create-button">
-          <Link to="create">{t("actions.create")}</Link>
-        </Button>
+        <PermissionGuard resource="shipping_option_type" operation="create">
+          <Button size="small" variant="secondary" asChild data-testid="shipping-option-type-list-table-create-button">
+            <Link to="create">{t("actions.create")}</Link>
+          </Button>
+        </PermissionGuard>
       </div>
       <_DataTable
         table={table}

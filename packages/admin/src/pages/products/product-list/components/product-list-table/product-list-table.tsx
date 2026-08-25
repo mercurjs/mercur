@@ -31,6 +31,7 @@ import { useProductTableQuery } from "../../../../../hooks/table/query/use-produ
 import { useDataTable } from "../../../../../hooks/use-data-table";
 import { PRODUCT_IDS_KEY } from "../../../common/constants";
 import { productsLoader } from "../../loader";
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { ProductDTO } from "@mercurjs/types";
 
 const PAGE_SIZE = 20;
@@ -49,16 +50,18 @@ export const ProductListCreateButton = () => {
   const { t } = useTranslation();
 
   return (
-    <Button
-      size="small"
-      variant="secondary"
-      asChild
-      data-testid="products-create-button"
-    >
-      <Link to="create" data-testid="products-create-link">
-        {t("actions.create")}
-      </Link>
-    </Button>
+    <PermissionGuard resource="product" operation="create">
+      <Button
+        size="small"
+        variant="secondary"
+        asChild
+        data-testid="products-create-button"
+      >
+        <Link to="create" data-testid="products-create-link">
+          {t("actions.create")}
+        </Link>
+      </Button>
+    </PermissionGuard>
   );
 };
 

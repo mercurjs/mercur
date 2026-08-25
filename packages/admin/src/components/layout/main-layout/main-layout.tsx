@@ -53,6 +53,7 @@ import {
   getMenuItemsByType,
   getNestedMenuItems,
 } from "../../../utils/routes";
+import { getRoutePermission } from "../../../lib/permissions/route-permissions";
 
 export const MainLayout = () => {
   return (
@@ -86,7 +87,15 @@ const addNestedItems = (
 const MainSidebar = () => {
   const coreRoutes = useCoreRoutes();
   const navOverrides = useExtension().getNavOverrides();
-  const { hasAnyPermission, hasAllPermissions } = usePermissions();
+  const { hasAnyPermission, hasAllPermissions, hasPermission } =
+    usePermissions();
+
+  // Hides links the actor can't open. `RoutePermissionGuard` is what actually
+  // refuses the route; this only keeps the sidebar honest.
+  const canReach = ({ to }: { to: string }) => {
+    const permission = getRoutePermission(to);
+    return !permission || hasPermission(permission);
+  };
 
   const visibleMenuItems = useMemo(
     () =>
@@ -102,10 +111,14 @@ const MainSidebar = () => {
   const routesWithNested = applyNavOverrides(
     coreRoutes.map(toCoreNavItem),
     navOverrides,
-  ).map((route) => ({
-    ...route,
-    items: addNestedItems(route.to, visibleMenuItems, route.items),
-  }));
+  )
+    .filter(canReach)
+    .map((route) => ({
+      ...route,
+      items: addNestedItems(route.to, visibleMenuItems, route.items)?.filter(
+        canReach,
+      ),
+    }));
 
   const customRoutesWithNested = customMenuItems
     .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))

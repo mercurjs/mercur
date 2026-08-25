@@ -13,6 +13,7 @@ import { useReturnReasons } from "../../../../../hooks/api/return-reasons"
 import { useReturnReasonTableColumns } from "../../../../../hooks/table/columns"
 import { useReturnReasonTableQuery } from "../../../../../hooks/table/query"
 import { useDataTable } from "../../../../../hooks/use-data-table"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { useDeleteReturnReasonAction } from "../../../common/hooks/use-delete-return-reason-action"
 
 const PAGE_SIZE = 20
@@ -53,9 +54,11 @@ export const ReturnReasonListTable = () => {
             {t("returnReasons.subtitle")}
           </Text>
         </div>
-        <Button variant="secondary" size="small" asChild data-testid="return-reason-list-table-create-button">
-          <Link to="create">{t("actions.create")}</Link>
-        </Button>
+        <PermissionGuard resource="return_reason" operation="create">
+          <Button variant="secondary" size="small" asChild data-testid="return-reason-list-table-create-button">
+            <Link to="create">{t("actions.create")}</Link>
+          </Button>
+        </PermissionGuard>
       </div>
       <_DataTable
         table={table}

@@ -1,6 +1,7 @@
 import { ReactNode, Children } from "react"
 import { Button, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { Link } from "react-router-dom"
 
 export const CategoryListTitle = () => {
@@ -30,9 +31,11 @@ export const CategoryListActions = ({
           <Button size="small" variant="secondary" asChild>
             <Link to="organize">{t("categories.organize.action")}</Link>
           </Button>
-          <Button size="small" variant="secondary" asChild>
-            <Link to="create">{t("actions.create")}</Link>
-          </Button>
+          <PermissionGuard resource="product_category" operation="create">
+            <Button size="small" variant="secondary" asChild>
+              <Link to="create">{t("actions.create")}</Link>
+            </Button>
+          </PermissionGuard>
         </>
       )}
     </div>
