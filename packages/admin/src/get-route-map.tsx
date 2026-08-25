@@ -9,6 +9,7 @@ import { MainLayout } from "@components/layout/main-layout";
 import { PublicLayout } from "@components/layout/public-layout";
 import { SettingsLayout } from "@components/layout/settings-layout";
 import { ErrorBoundary } from "@components/utilities/error-boundary";
+import { RoutePermissionGuard } from "@mercurjs/dashboard-shared";
 
 import { TaxRegionDetailBreadcrumb } from "./pages/tax-regions/tax-region-detail/breadcrumb";
 import { taxRegionLoader } from "./pages/tax-regions/tax-region-detail/loader";
@@ -32,10 +33,18 @@ function mergeRoutes(
 
     if (existingIndex !== -1) {
       const { children: customChildren, ...customRest } = customRoute;
+      const baseHandle = result[existingIndex].handle as object | undefined;
+      const customHandle = customRest.handle as object | undefined;
       result[existingIndex] = {
         ...result[existingIndex],
         ...customRest,
         path: result[existingIndex].path,
+        // Merge rather than replace, so a custom route declaring only
+        // `permissions` doesn't drop the base route's `breadcrumb`.
+        handle:
+          baseHandle || customHandle
+            ? { ...baseHandle, ...customHandle }
+            : undefined,
         children: customChildren
           ? mergeRoutes(result[existingIndex].children ?? [], customChildren)
           : result[existingIndex].children,
@@ -64,7 +73,13 @@ export function getRouteMap({
       children: [
         {
           element: <MainLayout />,
-          children: mergeRoutes(
+          children: [
+            {
+              // Pathless wrapper so every route below — including extension
+              // routes merged in from virtual:mercur/routes — is enforced
+              // without each one wiring its own guard element.
+              element: <RoutePermissionGuard />,
+              children: mergeRoutes(
             [
               {
                 path: "/",
@@ -1155,7 +1170,9 @@ export function getRouteMap({
               },
             ],
             customMainRoutes,
-          ),
+              ),
+            },
+          ],
         },
       ],
     },
@@ -1169,7 +1186,10 @@ export function getRouteMap({
             breadcrumb: () => t("app.nav.settings.header"),
           },
           element: <SettingsLayout />,
-          children: mergeRoutes(
+          children: [
+            {
+              element: <RoutePermissionGuard />,
+              children: mergeRoutes(
             [
               {
                 index: true,
@@ -1358,6 +1378,7 @@ export function getRouteMap({
                 element: <Outlet />,
                 handle: {
                   breadcrumb: () => t("users.domain"),
+                  permissions: "user:read",
                 },
                 children: [
                   {
@@ -1366,6 +1387,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "invite",
+                        handle: { permissions: "user:create" },
                         lazy: () => import("./pages/users/user-invite"),
                       },
                     ],
@@ -2178,7 +2200,9 @@ export function getRouteMap({
               },
             ],
             customSettingsRoutes?.[0]?.children || [],
-          ),
+              ),
+            },
+          ],
         },
       ],
     },

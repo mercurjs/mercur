@@ -13,6 +13,7 @@ import {
     isVariableDeclarator,
     isCallExpression,
     isObjectExpression,
+    isBooleanLiteral,
 } from "./babel"
 import type { BuiltMercurConfig } from "./types"
 
@@ -22,6 +23,8 @@ type MenuItemConfig = {
     rank?: number
     nested?: string
     translationNs?: string
+    permissions?: boolean
+    requireAll?: boolean
 }
 
 type MenuItem = {
@@ -31,6 +34,8 @@ type MenuItem = {
     rank?: number
     nested?: string
     translationNs?: string
+    permissions?: string
+    requireAll?: boolean
 }
 
 type MenuItemResult = {
@@ -169,7 +174,25 @@ function processConfigProperties(
         rankValue = rank.value.value
     }
 
-    return { label: hasLabel, icon: hasIcon, rank: rankValue, nested: nestedValue, translationNs: translationNsValue }
+    const requireAll = properties.find(
+        (prop) => isObjectProperty(prop) && isIdentifier(prop.key, { name: "requireAll" })
+    )
+    let requireAllValue: boolean | undefined
+    if (requireAll && isObjectProperty(requireAll) && isBooleanLiteral(requireAll.value)) {
+        requireAllValue = requireAll.value.value
+    }
+
+    return {
+        label: hasLabel,
+        icon: hasIcon,
+        rank: rankValue,
+        nested: nestedValue,
+        translationNs: translationNsValue,
+        // Referenced by identifier at runtime rather than extracted here, so
+        // the array may be computed instead of a string-literal list.
+        permissions: hasProperty("permissions"),
+        requireAll: requireAllValue,
+    }
 }
 
 function getRouteConfig(file: string): MenuItemConfig | null {
@@ -228,6 +251,10 @@ function generateMenuItem(
         translationNs: config.translationNs
             ? `${configName}.translationNs`
             : undefined,
+        permissions: config.permissions
+            ? `${configName}.permissions`
+            : undefined,
+        requireAll: config.requireAll,
     }
 }
 
@@ -239,6 +266,8 @@ export function formatMenuItem(menuItem: MenuItem): string {
         `        rank: ${menuItem.rank !== undefined ? menuItem.rank : "undefined"}`,
         `        nested: ${menuItem.nested ? `"${menuItem.nested}"` : "undefined"}`,
         `        translationNs: ${menuItem.translationNs || "undefined"}`,
+        `        permissions: ${menuItem.permissions || "undefined"}`,
+        `        requireAll: ${menuItem.requireAll !== undefined ? menuItem.requireAll : "undefined"}`,
     ]
     return `    {\n${parts.join(",\n")}\n    }`
 }

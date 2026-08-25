@@ -3,9 +3,9 @@ import { useMemo } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useMePermissions } from "../../../hooks/api/rbac-roles";
 import { useMe } from "../../../hooks/api/users";
-import type { Permission, UserPolicy } from "../../../lib/permissions";
+import type { Permission, UserPolicy } from "@mercurjs/dashboard-sdk";
+import { PermissionsProvider } from "@mercurjs/dashboard-shared";
 import { useFeatureFlag } from "../../../providers/feature-flag-provider";
-import { PermissionsProvider } from "../../../providers/permissions-provider";
 import { SearchProvider } from "../../../providers/search-provider";
 import { SidebarProvider } from "../../../providers/sidebar-provider";
 

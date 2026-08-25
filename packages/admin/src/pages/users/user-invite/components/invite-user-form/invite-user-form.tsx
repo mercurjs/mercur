@@ -37,7 +37,7 @@ import { useUserInviteTableQuery } from "../../../../../hooks/table/query/use-us
 import { useDataTable } from "../../../../../hooks/use-data-table.tsx";
 import { isFetchError } from "../../../../../lib/is-fetch-error.ts";
 import { useFeatureFlag } from "../../../../../providers/feature-flag-provider/index.tsx";
-import { usePermissions } from "../../../../../providers/permissions-provider/index.ts";
+import { usePermissions } from "@mercurjs/dashboard-shared";
 
 const InviteUserSchema = zod.object({
   email: zod.string().email(),

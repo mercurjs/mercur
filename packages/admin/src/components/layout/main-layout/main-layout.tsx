@@ -14,6 +14,7 @@ import {
 } from "@medusajs/icons";
 import { Avatar, Divider, DropdownMenu, Text, clx } from "@medusajs/ui";
 
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -30,6 +31,7 @@ import menuItemsModule from "virtual:mercur/menu-items";
 import {
   applyNavOverrides,
   useExtension,
+  usePermissions,
   type CoreNavItem,
 } from "@mercurjs/dashboard-shared";
 
@@ -46,7 +48,11 @@ const toCoreNavItem = (route: Omit<INavItem, "pathname">): CoreNavItem => ({
     to: item.to,
   })),
 });
-import { getMenuItemsByType, getNestedMenuItems } from "../../../utils/routes";
+import {
+  filterMenuItemsByPermissions,
+  getMenuItemsByType,
+  getNestedMenuItems,
+} from "../../../utils/routes";
 
 export const MainLayout = () => {
   return (
@@ -60,9 +66,10 @@ const allMenuItems = menuItemsModule.menuItems ?? [];
 
 const addNestedItems = (
   to: string,
+  menuItems: typeof allMenuItems,
   items?: { label: string; to: string; translationNs?: string }[],
 ) => {
-  const nestedItems = getNestedMenuItems(allMenuItems, to);
+  const nestedItems = getNestedMenuItems(menuItems, to);
   if (nestedItems.length === 0) {
     return items;
   }
@@ -79,14 +86,25 @@ const addNestedItems = (
 const MainSidebar = () => {
   const coreRoutes = useCoreRoutes();
   const navOverrides = useExtension().getNavOverrides();
-  const customMenuItems = getMenuItemsByType(allMenuItems, "main");
+  const { hasAnyPermission, hasAllPermissions } = usePermissions();
+
+  const visibleMenuItems = useMemo(
+    () =>
+      filterMenuItemsByPermissions(allMenuItems, {
+        hasAnyPermission,
+        hasAllPermissions,
+      }),
+    [hasAnyPermission, hasAllPermissions],
+  );
+
+  const customMenuItems = getMenuItemsByType(visibleMenuItems, "main");
 
   const routesWithNested = applyNavOverrides(
     coreRoutes.map(toCoreNavItem),
     navOverrides,
   ).map((route) => ({
     ...route,
-    items: addNestedItems(route.to, route.items),
+    items: addNestedItems(route.to, visibleMenuItems, route.items),
   }));
 
   const customRoutesWithNested = customMenuItems
@@ -96,7 +114,7 @@ const MainSidebar = () => {
       to: item.path,
       icon: item.icon ? <item.icon /> : undefined,
       translationNs: item.translationNs,
-      items: addNestedItems(item.path),
+      items: addNestedItems(item.path, visibleMenuItems),
     }));
 
   return (
