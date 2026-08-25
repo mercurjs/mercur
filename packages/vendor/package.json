@@ -74,12 +74,12 @@
     "react-hook-form": "7.49.1",
     "react-i18next": "17.0.8",
     "react-jwt": "^2.1.1",
-    "react-router-dom": "7.18.1",
     "zod": "4.4.3"
   },
   "peerDependencies": {
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^7.18.1"
   },
   "devDependencies": {
     "@medusajs/ui-preset": "2.18.0",
@@ -93,6 +93,7 @@
     "@medusajs/types": "2.18.0",
     "@mercurjs/core": "2.3.2-canary.2",
     "@mercurjs/dashboard-sdk": "2.3.2-canary.2",
-    "@mercurjs/types": "2.3.2-canary.2"
+    "@mercurjs/types": "2.3.2-canary.2",
+    "react-router-dom": "7.18.1"
   }
 }
