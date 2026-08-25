@@ -103,23 +103,45 @@ function resolvePluginRoot(
     configDir: string,
     nodeModulesRoot: string,
 ): string | null {
-    try {
-        if (resolve.startsWith(".")) {
+    if (resolve.startsWith(".")) {
+        try {
             const resolved = path.resolve(configDir, resolve);
-            if (fs.existsSync(resolved)) {
-                return fs.realpathSync(resolved);
+            return fs.existsSync(resolved) ? fs.realpathSync(resolved) : null;
+        } catch {
+            return null;
+        }
+    }
+
+    // Ask Node how it would resolve the specifier rather than guessing a single
+    // directory. `findNodeModulesRoot` returns the *nearest* node_modules, which
+    // in a monorepo is the app's own — holding only that app's dependencies —
+    // while workspace symlinks live at the repo root. Node walks every level.
+    const require = createRequire(path.join(configDir, "noop.js"));
+
+    try {
+        return fs.realpathSync(
+            path.dirname(require.resolve(`${resolve}/package.json`)),
+        );
+    } catch {
+        // `exports` may not expose package.json; fall back to the entry point
+        // and walk up to the directory that owns it.
+    }
+
+    try {
+        let dir = path.dirname(require.resolve(resolve));
+        while (dir !== path.dirname(dir)) {
+            if (fs.existsSync(path.join(dir, "package.json"))) {
+                return fs.realpathSync(dir);
             }
-            return null;
+            dir = path.dirname(dir);
         }
+    } catch {
+        // Not resolvable from the app — fall through to the directory probe.
+    }
 
-        // Check in node_modules, following symlinks for workspace packages
+    try {
         const packagePath = path.join(nodeModulesRoot, resolve);
-        if (!fs.existsSync(packagePath)) {
-            return null;
-        }
-
-        // Follow symlinks (handles workspace/linked packages)
-        return fs.realpathSync(packagePath);
+        return fs.existsSync(packagePath) ? fs.realpathSync(packagePath) : null;
     } catch {
         return null;
     }
@@ -135,7 +157,15 @@ function resolvePluginExtensions(plugins: any[], configDir: string, appType: "ad
         if (!resolve || typeof resolve !== "string") continue;
 
         const pluginRoot = resolvePluginRoot(resolve, configDir, nodeModulesRoot);
-        if (!pluginRoot) continue;
+        if (!pluginRoot) {
+            // Silently skipping leaves the dashboard missing whatever the plugin
+            // contributes, with a build that still looks clean.
+            console.warn(
+                `[@mercurjs/dashboard-sdk] Could not resolve plugin "${resolve}" from ${configDir}. ` +
+                    `Its ${appType} extensions will be missing from the build.`,
+            );
+            continue;
+        }
 
         const extFile = path.join(
             pluginRoot,
