@@ -45,7 +45,7 @@
     "@hookform/resolvers": "5.4.0",
     "@medusajs/admin-shared": "2.18.0",
     "@medusajs/dashboard": "2.18.0",
-    "@medusajs/icons": "2.18.0",
+    "@medusajs/icons": "2.19.0",
     "@medusajs/ui": "4.1.19",
     "@radix-ui/react-dialog": "1.1.19",
     "@radix-ui/react-dismissable-layer": "1.1.4",
