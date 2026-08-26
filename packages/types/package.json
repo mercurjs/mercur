@@ -39,7 +39,7 @@
     "@medusajs/types": "2.18.0"
   },
   "devDependencies": {
-    "typescript": "5.9.3"
+    "typescript": "7.0.2"
   },
   "engines": {
     "node": ">=20"

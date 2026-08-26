@@ -27,6 +27,6 @@
     "get-port": "^7.1.0",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^26.1.0",
-    "typescript": "^5.9.0"
+    "typescript": "^7.0.2"
   }
 }

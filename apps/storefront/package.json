@@ -65,7 +65,7 @@
     "storybook": "^8.4.7",
     "storybook-next-intl": "^1.2.4",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^7"
   },
   "eslintConfig": {
     "extends": [
