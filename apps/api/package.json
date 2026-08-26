@@ -35,7 +35,7 @@
     "@medusajs/draft-order": "2.18.0",
     "@mercurjs/core": "*",
     "@mercurjs/types": "*",
-    "http-proxy-middleware": "^3.0.3",
+    "http-proxy-middleware": "^4.2.0",
     "@mercurjs/cli": "*"
   },
   "devDependencies": {
