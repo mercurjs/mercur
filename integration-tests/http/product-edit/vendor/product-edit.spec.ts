@@ -39,13 +39,13 @@ medusaIntegrationTestRunner({
           name: "Edit Seller",
         })
         sellerHeaders = a.headers
-        sellerId = a.headers.headers["x-seller-id"]
+        sellerId = sellerHeaders.headers["x-seller-id"]
         const b = await createSellerUser(container, {
           email: "other-seller@test.com",
           name: "Other Seller",
         })
         otherSellerHeaders = b.headers
-        otherSellerId = b.headers.headers["x-seller-id"]
+        otherSellerId = otherSellerHeaders.headers["x-seller-id"]
       })
 
       const createVendorProduct = async (
