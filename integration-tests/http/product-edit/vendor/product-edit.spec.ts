@@ -26,6 +26,8 @@ medusaIntegrationTestRunner({
       let container: MedusaContainer
       let sellerHeaders: { headers: Record<string, string> }
       let otherSellerHeaders: { headers: Record<string, string> }
+      let sellerId: string
+      let otherSellerId: string
 
       beforeAll(async () => {
         container = getContainer()
@@ -37,11 +39,13 @@ medusaIntegrationTestRunner({
           name: "Edit Seller",
         })
         sellerHeaders = a.headers
+        sellerId = sellerHeaders.headers["x-seller-id"]
         const b = await createSellerUser(container, {
           email: "other-seller@test.com",
           name: "Other Seller",
         })
         otherSellerHeaders = b.headers
+        otherSellerId = otherSellerHeaders.headers["x-seller-id"]
       })
 
       const createVendorProduct = async (
@@ -171,7 +175,7 @@ medusaIntegrationTestRunner({
 
         it("rejects a second pending edit while one is already open", async () => {
           const productId = await createVendorProduct("Title")
-          await seedPendingChange(productId, "seller-x", [
+          await seedPendingChange(productId, sellerId, [
             {
               action: ProductChangeActionType.UPDATE,
               details: { field: "title", value: "Pending" },
@@ -190,6 +194,34 @@ medusaIntegrationTestRunner({
           expect(res.data.message).toBe(
             "There is already an active update request for this product. Only one request can be active at a time.",
           )
+        })
+
+        it("allows an edit while another seller holds a pending change on the same product", async () => {
+          const productId = await createVendorProduct("Shared Title")
+          await seedPendingChange(productId, otherSellerId, [
+            {
+              action: ProductChangeActionType.UPDATE,
+              details: { field: "title", value: "Other Seller Pending" },
+            },
+          ])
+
+          const res = await api.post(
+            `/vendor/products/${productId}`,
+            { title: "My Edit" },
+            sellerHeaders,
+          )
+
+          expect(res.status).toBe(202)
+          expect(res.data.product_change.created_by).toBe(sellerId)
+
+          // The other seller's pending change is untouched by this edit.
+          const changes = await listChanges(productId)
+          const otherPending = changes.filter(
+            (c) =>
+              c.status === ProductChangeStatus.PENDING &&
+              c.created_by === otherSellerId,
+          )
+          expect(otherPending).toHaveLength(1)
         })
       })
 
@@ -229,7 +261,6 @@ medusaIntegrationTestRunner({
           // Seed a pending change owned by the *first* seller. The route
           // resolves the change by `(product_id, created_by, status: pending)`,
           // so the seed must carry the seller's id, not a fake one.
-          const sellerId = sellerHeaders.headers["x-seller-id"]
           const changeId = await seedPendingChange(productId, sellerId, [
             {
               action: ProductChangeActionType.UPDATE,
@@ -270,7 +301,6 @@ medusaIntegrationTestRunner({
           expect(res.status).toBe(200)
           expect(res.data.product_change).toBeNull()
 
-          const sellerId = sellerHeaders.headers["x-seller-id"]
           await seedPendingChange(productId, sellerId, [
             {
               action: ProductChangeActionType.UPDATE,
@@ -287,7 +317,6 @@ medusaIntegrationTestRunner({
 
         it("does not leak another seller's pending change", async () => {
           const productId = await createVendorProduct("Owned", sellerHeaders)
-          const otherSellerId = otherSellerHeaders.headers["x-seller-id"]
           await seedPendingChange(productId, otherSellerId, [
             {
               action: ProductChangeActionType.UPDATE,

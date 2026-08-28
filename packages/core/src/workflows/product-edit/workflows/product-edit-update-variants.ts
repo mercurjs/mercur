@@ -57,6 +57,7 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
     validateNoPendingProductChangeStep(
       transform({ input }, ({ input }) => ({
         product_ids: [input.product_id],
+        created_by: input.created_by,
       })),
     )
 

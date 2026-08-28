@@ -45,6 +45,12 @@ const ProductChange = model
       unique: false,
       where: "deleted_at IS NULL",
     },
+    {
+      name: "IDX_product_change_product_id_status",
+      on: ["product_id", "status"],
+      unique: false,
+      where: "deleted_at IS NULL",
+    },
   ])
 
 export default ProductChange
