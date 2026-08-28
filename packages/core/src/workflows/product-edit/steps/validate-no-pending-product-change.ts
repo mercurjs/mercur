@@ -1,5 +1,6 @@
 import {
   ContainerRegistrationKeys,
+  isDefined,
   MedusaError,
 } from "@medusajs/framework/utils"
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
@@ -10,12 +11,17 @@ export const validateNoPendingProductChangeStepId =
 
 type ValidateNoPendingProductChangeStepInput = {
   product_ids: string[]
+  /**
+   * When set, only changes created by this actor conflict. Omitting it keeps
+   * the product-wide behaviour for external callers.
+   */
+  created_by?: string | null
 }
 
 export const validateNoPendingProductChangeStep = createStep(
   validateNoPendingProductChangeStepId,
   async (
-    { product_ids }: ValidateNoPendingProductChangeStepInput,
+    { product_ids, created_by }: ValidateNoPendingProductChangeStepInput,
     { container },
   ) => {
     if (!product_ids.length) {
@@ -26,24 +32,19 @@ export const validateNoPendingProductChangeStep = createStep(
 
     const { data: changes } = await query.graph({
       entity: "product_change",
-      fields: ["id", "product_id", "status"],
-      filters: {},
+      fields: ["id", "product_id", "created_by"],
+      filters: {
+        product_id: product_ids,
+        status: ProductChangeStatus.PENDING,
+        ...(isDefined(created_by) ? { created_by } : {}),
+      },
     })
 
-    const conflicts = new Set<string>()
-    for (const change of changes as Array<{
-      id: string
-      product_id?: string
-      status?: string
-    }>) {
-      if (
-        change.status === ProductChangeStatus.PENDING &&
-        change.product_id &&
-        product_ids.includes(change.product_id)
-      ) {
-        conflicts.add(change.product_id)
-      }
-    }
+    const conflicts = new Set(
+      (changes as Array<{ product_id?: string }>)
+        .map((change) => change.product_id)
+        .filter(Boolean) as string[],
+    )
 
     if (conflicts.size) {
       throw new MedusaError(

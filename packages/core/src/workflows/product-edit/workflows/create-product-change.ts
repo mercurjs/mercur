@@ -43,11 +43,17 @@ export const createProductChangeWorkflow: ReturnWorkflow<
   function (input: CreateProductChangeWorkflowInput) {
     const validate = createHook("validate", { input })
 
-    const productIds = transform({ input }, ({ input }) =>
-      Array.from(new Set(input.changes.map((c) => c.product_id))),
-    )
+    const guardInput = transform({ input }, ({ input }) => {
+      const actors = new Set(input.changes.map((c) => c.created_by))
 
-    validateNoPendingProductChangeStep({ product_ids: productIds })
+      return {
+        product_ids: Array.from(new Set(input.changes.map((c) => c.product_id))),
+        // A batch spanning several actors falls back to product-wide scoping.
+        created_by: actors.size === 1 ? input.changes[0].created_by : undefined,
+      }
+    })
+
+    validateNoPendingProductChangeStep(guardInput)
 
     const changes = createProductChangesStep(input.changes)
 
