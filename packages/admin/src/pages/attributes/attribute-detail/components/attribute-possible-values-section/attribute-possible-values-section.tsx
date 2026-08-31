@@ -9,9 +9,9 @@ import {
   usePrompt,
 } from "@medusajs/ui"
 import { createColumnHelper } from "@tanstack/react-table"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 
 import { ProductAttributeDTO, ProductAttributeValueDTO, AttributeType } from "@mercurjs/types"
 import { ActionMenu } from "../../../../../components/common/action-menu"
@@ -127,6 +127,7 @@ export const AttributePossibleValuesSection = ({
 }: AttributePossibleValuesSectionProps) => {
   const { t } = useTranslation()
   const [search, setSearch] = useState("")
+  const [searchParams, setSearchParams] = useSearchParams()
 
   if (attribute.type !== AttributeType.SINGLE_SELECT && attribute.type !== AttributeType.MULTI_SELECT) {
     return null
@@ -142,6 +143,42 @@ export const AttributePossibleValuesSection = ({
     const q = search.toLowerCase()
     return allValues.filter((v) => v.name?.toLowerCase().includes(q))
   }, [allValues, search])
+
+  const offsetParam = searchParams.get("offset")
+  const parsedOffset = Number(offsetParam)
+  const requestedOffset =
+    Number.isFinite(parsedOffset) && parsedOffset >= 0
+      ? Math.floor(parsedOffset / PAGE_SIZE) * PAGE_SIZE
+      : 0
+  const lastOffset =
+    filtered.length > 0
+      ? Math.floor((filtered.length - 1) / PAGE_SIZE) * PAGE_SIZE
+      : 0
+  const offset = Math.min(requestedOffset, lastOffset)
+  const page = filtered.slice(offset, offset + PAGE_SIZE)
+
+  useEffect(() => {
+    const normalizedOffset = offset > 0 ? String(offset) : null
+
+    if (offsetParam === normalizedOffset) {
+      return
+    }
+
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current)
+
+        if (normalizedOffset) {
+          next.set("offset", normalizedOffset)
+        } else {
+          next.delete("offset")
+        }
+
+        return next
+      },
+      { replace: true }
+    )
+  }, [offset, offsetParam, setSearchParams])
 
   const columns = useMemo(
     () => [
@@ -164,7 +201,7 @@ export const AttributePossibleValuesSection = ({
   )
 
   const { table } = useDataTable({
-    data: filtered,
+    data: page,
     count: filtered.length,
     columns,
     getRowId: (row) => row.id,
@@ -181,7 +218,22 @@ export const AttributePossibleValuesSection = ({
             type="search"
             placeholder={t("general.search")}
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value)
+
+              if (!searchParams.has("offset")) {
+                return
+              }
+
+              setSearchParams(
+                (current) => {
+                  const next = new URLSearchParams(current)
+                  next.delete("offset")
+                  return next
+                },
+                { replace: true }
+              )
+            }}
             className="w-[200px]"
           />
           <Button variant="secondary" size="small" asChild>
