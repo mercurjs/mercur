@@ -7,6 +7,8 @@ import {
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { createCustomerUser } from "../../../helpers/create-customer-user"
 import {
+    adminHeaders,
+    createAdminUser,
     generatePublishableKey,
     generateStoreHeaders,
 } from "../../../helpers/create-admin-user"
@@ -18,16 +20,14 @@ import {
 jest.setTimeout(120000)
 
 /**
- * Issue #1387 — after the 2.3.0 cutover, split orders no longer carry an
- * `order ↔ payment_collection` link; the shared payment collection stays on
- * the cart (`order → cart → payment_collection`). Vendor order reads must
- * surface that collection under `payment_collections` and recompute
- * `payment_status`, otherwise the badge stays `not_paid` even though checkout
- * authorized the payment.
+ * Issue #1419 — `/admin/orders(/:id)` are stock Medusa routes, so the split
+ * order payment status fix from #1387 did not reach them: the shared payment
+ * collection lives on the cart, never on the order link, so Medusa's
+ * aggregation falls back to `not_paid`.
  */
 medusaIntegrationTestRunner({
-    testSuite: ({ getContainer, api }) => {
-        describe("Vendor - Order payment status (cart payment collection)", () => {
+    testSuite: ({ getContainer, api, dbConnection }) => {
+        describe("Admin - Order payment status (cart payment collection)", () => {
             let appContainer: MedusaContainer
             let sellerSeed: any
             let storeHeaders: any
@@ -40,8 +40,10 @@ medusaIntegrationTestRunner({
             })
 
             beforeEach(async () => {
+                await createAdminUser(dbConnection, adminHeaders, appContainer)
+
                 const customerResult = await createCustomerUser(appContainer, {
-                    email: "paymentbuyer@test.com",
+                    email: "adminpaymentbuyer@test.com",
                     first_name: "Payment",
                     last_name: "Buyer",
                 })
@@ -62,14 +64,14 @@ medusaIntegrationTestRunner({
                         Modules.SALES_CHANNEL
                     )
                 salesChannel = await salesChannelModule.createSalesChannels({
-                    name: "Payment Channel",
+                    name: "Admin Payment Channel",
                 })
 
                 const regionModule = appContainer.resolve<IRegionModuleService>(
                     Modules.REGION
                 )
                 region = await regionModule.createRegions({
-                    name: "Payment Region",
+                    name: "Admin Payment Region",
                     currency_code: "usd",
                     countries: ["us"],
                 })
@@ -86,8 +88,8 @@ medusaIntegrationTestRunner({
                     container: appContainer,
                     api,
                     salesChannelId: salesChannel.id,
-                    email: "payment-seller@test.com",
-                    name: "PaymentS1",
+                    email: "admin-payment-seller@test.com",
+                    name: "AdminPaymentS1",
                     stocked: 20,
                     offerPrice: 2500,
                 })
@@ -104,12 +106,12 @@ medusaIntegrationTestRunner({
                     email: customerEmail,
                 })
 
-            it("GET /vendor/orders/:id surfaces the cart payment collection and an authorized payment_status", async () => {
+            it("GET /admin/orders/:id surfaces the cart payment collection and an authorized payment_status", async () => {
                 const order = await checkout()
 
                 const { data } = await api.get(
-                    `/vendor/orders/${order.id}`,
-                    sellerSeed.headers
+                    `/admin/orders/${order.id}`,
+                    adminHeaders
                 )
 
                 expect(data.order.payment_collections).toHaveLength(1)
@@ -119,17 +121,13 @@ medusaIntegrationTestRunner({
                 expect(["authorized", "captured"]).toContain(
                     data.order.payment_status
                 )
-                // The shared cart must not leak onto the response.
                 expect(data.order.cart).toBeUndefined()
             })
 
-            it("GET /vendor/orders list surfaces payment_collections and payment_status", async () => {
+            it("GET /admin/orders list surfaces payment_collections and payment_status", async () => {
                 const order = await checkout()
 
-                const { data } = await api.get(
-                    `/vendor/orders`,
-                    sellerSeed.headers
-                )
+                const { data } = await api.get(`/admin/orders`, adminHeaders)
 
                 const listed = data.orders.find((o: any) => o.id === order.id)
                 expect(listed).toBeDefined()
@@ -137,6 +135,7 @@ medusaIntegrationTestRunner({
                 expect(["authorized", "captured"]).toContain(
                     listed.payment_status
                 )
+                expect(listed.cart).toBeUndefined()
             })
         })
     },
