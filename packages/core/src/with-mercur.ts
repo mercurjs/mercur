@@ -1,5 +1,6 @@
 import type { InputConfigWithArrayModules } from "@medusajs/framework/types"
 import { defineConfig } from '@medusajs/framework/utils'
+import { applyMercurPatches } from "./patches"
 import { disableMedusaMiddlewares } from "./utils/disable-medusa-middlewares"
 
 type HttpConfig = NonNullable<NonNullable<InputConfigWithArrayModules["projectConfig"]>["http"]>
@@ -9,11 +10,21 @@ export type MercurInputConfig = Omit<InputConfigWithArrayModules, "projectConfig
     http?: HttpConfig & {
       vendorCors?: string
     }
+    mercur?: {
+      /**
+       * Ids of Medusa patches to skip. Each one restores an upstream bug, so
+       * only reach for this when a patch conflicts with your own override.
+       */
+      disabledPatches?: string[]
+    }
   }
 }
 
 export function withMercur(config: MercurInputConfig = {}): InputConfigWithArrayModules {
   disableMedusaMiddlewares()
+  applyMercurPatches({
+    disabled: config.projectConfig?.mercur?.disabledPatches,
+  })
 
   const projectConfig = {
     ...config.projectConfig,
