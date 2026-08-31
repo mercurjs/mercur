@@ -11,7 +11,6 @@ import { validateAndTransformQuery } from "@medusajs/framework"
 import { listTransformQueryConfig } from "@medusajs/medusa/api/admin/orders/query-config"
 
 import { ORIGINAL_MIDDLEWARES } from "../../../utils/disable-medusa-middlewares"
-import { normalizeSplitOrderPaymentStatus } from "../../utils/split-order-payment-status"
 import { AdminGetOrdersParams } from "./validators"
 
 const LIST_MATCHER = "/admin/orders"
@@ -54,7 +53,6 @@ export const adminOrdersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformQuery(AdminGetOrdersParams, listTransformQueryConfig),
       maybeApplySellerOrderFilter,
-      normalizeSplitOrderPaymentStatus,
     ],
     policies: [
       {
@@ -62,10 +60,5 @@ export const adminOrdersMiddlewares: MiddlewareRoute[] = [
         operation: PolicyOperation.read,
       },
     ],
-  },
-  {
-    method: ["GET"],
-    matcher: "/admin/orders/:id",
-    middlewares: [normalizeSplitOrderPaymentStatus],
   },
 ]

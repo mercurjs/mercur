@@ -1,8 +1,3 @@
-import type {
-  MedusaNextFunction,
-  MedusaRequest,
-  MedusaResponse,
-} from "@medusajs/framework/http"
 import type { OrderDetailDTO } from "@medusajs/framework/types"
 import { deduplicate } from "@medusajs/framework/utils"
 
@@ -39,14 +34,11 @@ export const withCartPaymentCollectionFields = (fields: string[]): string[] => {
 export const normalizeOrderPaymentCollections = <
   T extends OrderWithCartPaymentCollection
 >(
-  order: T,
-  { keepCart = false }: { keepCart?: boolean } = {}
+  order: T
 ): T => {
   const paymentCollection = order.cart?.payment_collection
 
-  if (!keepCart) {
-    delete order.cart
-  }
+  delete order.cart
 
   if (!paymentCollection) {
     return order
@@ -58,51 +50,4 @@ export const normalizeOrderPaymentCollections = <
   )
 
   return order
-}
-
-const isOrderLike = (value: unknown): value is OrderWithCartPaymentCollection =>
-  !!value && typeof value === "object"
-
-// `/admin/orders(/:id)` and `/store/orders(/:id)` are stock Medusa routes, so
-// the cart-path normalization has to be applied around them: request the cart
-// payment collection fields, then rewrite the response before it is sent.
-export const normalizeSplitOrderPaymentStatus = (
-  req: MedusaRequest,
-  res: MedusaResponse,
-  next: MedusaNextFunction
-) => {
-  const requestedFields: string[] = req.queryConfig?.fields ?? []
-  const clientRequestedCart = requestedFields.some(
-    (field) => field === "cart" || field.startsWith("cart.")
-  )
-
-  if (req.queryConfig) {
-    req.queryConfig.fields = withCartPaymentCollectionFields(requestedFields)
-  }
-
-  const json = res.json.bind(res)
-
-  res.json = ((body: unknown) => {
-    if (body && typeof body === "object") {
-      const payload = body as { order?: unknown; orders?: unknown }
-
-      if (isOrderLike(payload.order)) {
-        normalizeOrderPaymentCollections(payload.order, {
-          keepCart: clientRequestedCart,
-        })
-      }
-
-      if (Array.isArray(payload.orders)) {
-        payload.orders.filter(isOrderLike).forEach((order) => {
-          normalizeOrderPaymentCollections(order, {
-            keepCart: clientRequestedCart,
-          })
-        })
-      }
-    }
-
-    return json(body as never)
-  }) as typeof res.json
-
-  return next()
 }
