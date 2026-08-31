@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -47,6 +49,12 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
       ),
       applySellerPriceListLinkFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.price_list,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -56,6 +64,12 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
         VendorGetPriceListParams,
         QueryConfig.retrievePriceListQueryConfig
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.price_list,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -68,6 +82,12 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
         QueryConfig.retrievePriceListQueryConfig
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.price_list,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -79,11 +99,23 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
         QueryConfig.retrievePriceListQueryConfig
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.price_list,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/price-lists/:id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.price_list,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -95,6 +127,12 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
         QueryConfig.retrievePriceListQueryConfig
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.price_list,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -104,6 +142,12 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
         VendorGetPriceListPricesParams,
         QueryConfig.listPriceListPriceQueryConfig
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.price_list,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -117,6 +161,12 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
         VendorGetPriceListParams,
         QueryConfig.listPriceListPriceQueryConfig
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.price_list,
+        operation: PolicyOperation.update,
+      },
     ],
   },
 ]

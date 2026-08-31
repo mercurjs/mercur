@@ -16,6 +16,7 @@ import {
 import { useCampaignTableColumns } from "../../../../hooks/table/columns/use-campaign-table-columns"
 import { useCampaignTableFilters } from "../../../../hooks/table/filters/use-campaign-table-filters"
 import { useCampaignTableQuery } from "../../../../hooks/table/query/use-campaign-table-query"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { useDataTable } from "../../../../hooks/use-data-table"
 
 const PAGE_SIZE = 20
@@ -32,11 +33,13 @@ export const CampaignListTitle = () => {
 export const CampaignListCreateButton = () => {
   const { t } = useTranslation()
   return (
-    <Link to="/campaigns/create">
-      <Button size="small" variant="secondary" data-testid="campaign-list-table-create-button">
-        {t("actions.create")}
-      </Button>
-    </Link>
+    <PermissionGuard resource="campaign" operation="create">
+      <Link to="/campaigns/create">
+        <Button size="small" variant="secondary" data-testid="campaign-list-table-create-button">
+          {t("actions.create")}
+        </Button>
+      </Link>
+    </PermissionGuard>
   )
 }
 

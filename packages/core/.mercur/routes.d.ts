@@ -931,6 +931,11 @@ export type Routes = {
         };
         stores: typeof import("../src/api/vendor/stores/route");
         uploads: typeof import("../src/api/vendor/uploads/route");
+        rbac: {
+            me: {
+                permissions: typeof import("../src/api/vendor/rbac/me/permissions/route");
+            };
+        };
         reviews: typeof import("../src/api/vendor/reviews/route") & {
             $id: typeof import("../src/api/vendor/reviews/[id]/route");
         };

@@ -7,6 +7,7 @@ import { useApiKeys } from "../../../../../hooks/api/api-keys"
 import { useDataTable } from "../../../../../hooks/use-data-table"
 import { useApiKeyManagementTableColumns } from "./use-api-key-management-table-columns"
 import { useApiKeyManagementTableFilters } from "./use-api-key-management-table-filters"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { useApiKeyManagementTableQuery } from "./use-api-key-management-table-query"
 
 const PAGE_SIZE = 20
@@ -64,11 +65,13 @@ export const ApiKeyManagementListTable = ({
               : t("apiKeyManagement.subtitle.secret")}
           </Text>
         </div>
-        <Link to="create" data-testid={`${keyType}-api-keys-create-button`}>
-          <Button variant="secondary" size="small">
-            {t("actions.create")}
-          </Button>
-        </Link>
+        <PermissionGuard resource="api_key" operation="create">
+          <Link to="create" data-testid={`${keyType}-api-keys-create-button`}>
+            <Button variant="secondary" size="small">
+              {t("actions.create")}
+            </Button>
+          </Link>
+        </PermissionGuard>
       </div>
       <div data-testid={`${keyType}-api-keys-table-wrapper`}>
         <_DataTable

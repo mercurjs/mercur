@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/dashboard-shared",
-  "version": "2.3.1",
+  "version": "2.3.2-canary.4",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -23,7 +23,7 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@mercurjs/client": "2.3.1",
+    "@mercurjs/client": "2.3.2-canary.4",
     "@ariakit/react": "^0.4.15",
     "@babel/runtime": "^8.0.0",
     "@dnd-kit/core": "^6.1.0",
@@ -59,17 +59,23 @@
     "react-hook-form": "7.49.1",
     "react-i18next": "17.0.8",
     "react-jwt": "^2.1.1",
-    "react-router-dom": "7.18.1",
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@mercurjs/types": "2.3.1",
-    "@mercurjs/core": "2.3.1",
-    "@mercurjs/dashboard-sdk": "2.3.1",
-    "tsup": "^8.0.2",
-    "typescript": "5.9.3",
+    "@medusajs/types": "2.18.0",
+    "@mercurjs/core": "2.3.2-canary.4",
+    "@mercurjs/dashboard-sdk": "2.3.2-canary.4",
+    "@mercurjs/types": "2.3.2-canary.4",
     "@types/lodash.debounce": "^4.0.8",
     "@types/react": "^18.3.2",
-    "@types/react-dom": "^18.2.22"
+    "@types/react-dom": "^18.2.22",
+    "tsup": "^8.0.2",
+    "typescript": "5.9.3",
+    "react-router-dom": "7.18.1"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^7.18.1"
   }
 }

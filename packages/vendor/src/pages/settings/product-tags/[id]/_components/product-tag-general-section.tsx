@@ -27,6 +27,7 @@ export const ProductTagGeneralSection = ({
             actions: [
               {
                 icon: <PencilSquare />,
+                permission: "product_tag:update",
                 label: t("actions.edit"),
                 to: "edit",
               },
@@ -36,6 +37,7 @@ export const ProductTagGeneralSection = ({
             actions: [
               {
                 icon: <Trash />,
+                permission: "product_tag:delete",
                 label: t("actions.delete"),
                 onClick: handleDelete,
               },

@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -48,6 +50,12 @@ export const vendorOrdersMiddlewares: MiddlewareRoute[] = [
       ),
       applySellerLinkFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.order,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -58,11 +66,23 @@ export const vendorOrdersMiddlewares: MiddlewareRoute[] = [
         vendorOrderQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.order,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/orders/:id/preview",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.order,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -72,6 +92,12 @@ export const vendorOrdersMiddlewares: MiddlewareRoute[] = [
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.order,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -83,6 +109,12 @@ export const vendorOrdersMiddlewares: MiddlewareRoute[] = [
         vendorOrderQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.order,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -93,12 +125,24 @@ export const vendorOrdersMiddlewares: MiddlewareRoute[] = [
         vendorOrderChangesQueryConfig.list
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.order,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/orders/:id/fulfillments",
     middlewares: [
       validateAndTransformBody(VendorCreateFulfillment),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.order,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -111,6 +155,12 @@ export const vendorOrdersMiddlewares: MiddlewareRoute[] = [
         vendorOrderQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.order,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -120,6 +170,12 @@ export const vendorOrdersMiddlewares: MiddlewareRoute[] = [
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.order,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -131,6 +187,12 @@ export const vendorOrdersMiddlewares: MiddlewareRoute[] = [
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.order,
+        operation: PolicyOperation.update,
+      },
     ],
   },
 ]

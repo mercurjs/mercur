@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
@@ -13,6 +15,12 @@ export const vendorFulfillmentProvidersMiddlewares: MiddlewareRoute[] = [
         VendorGetFulfillmentProvidersParams,
         vendorFulfillmentProviderQueryConfig.list
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.fulfillment_provider,
+        operation: PolicyOperation.read,
+      },
     ],
   },
 ]

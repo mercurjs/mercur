@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -46,6 +48,12 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
       applySellerCampaignLinkFilter,
       applyCampaignFilters,
     ],
+    policies: [
+      {
+        resource: PolicyResource.campaign,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -57,6 +65,12 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
         vendorCampaignQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.campaign,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -66,6 +80,12 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
         VendorGetCampaignParams,
         vendorCampaignQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.campaign,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -78,11 +98,23 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
         vendorCampaignQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.campaign,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/campaigns/:id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.campaign,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -93,6 +125,12 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
         VendorGetCampaignParams,
         vendorCampaignQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.campaign,
+        operation: PolicyOperation.update,
+      },
     ],
   },
 ]

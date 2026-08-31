@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   MedusaNextFunction,
   MedusaRequest,
@@ -55,6 +57,12 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
       renameCategoryIdFilter,
       filterAttributesByCategoryLinkOrGlobal,
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_attribute,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -66,6 +74,12 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
         adminProductAttributeQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_attribute,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -75,6 +89,12 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
         AdminGetProductAttributeParams,
         adminProductAttributeQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product_attribute,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -87,11 +107,23 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
         adminProductAttributeQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_attribute,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/admin/product-attributes/:id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.product_attribute,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
 
   {
@@ -104,6 +136,12 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
         adminProductAttributeQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_attribute,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -115,6 +153,12 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
         adminProductAttributeQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_attribute,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
@@ -124,6 +168,12 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
         AdminGetProductAttributeParams,
         adminProductAttributeQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product_attribute,
+        operation: PolicyOperation.delete,
+      },
     ],
   },
 ]

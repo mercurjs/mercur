@@ -17435,6 +17435,390 @@
         "respond"
       ],
       "additionalProperties": false
+    },
+    "permissions": {
+      "type": "object",
+      "properties": {
+        "accessDenied": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "requiredPermission": {
+              "type": "string"
+            },
+            "action": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "requiredPermission",
+            "action"
+          ],
+          "additionalProperties": false
+        },
+        "requiredPermissions": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "none": {
+              "type": "string"
+            },
+            "anyOf": {
+              "type": "string"
+            },
+            "allOf": {
+              "type": "string"
+            },
+            "source": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "none",
+            "anyOf",
+            "allOf",
+            "source"
+          ],
+          "additionalProperties": false
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "api_key": {
+              "type": "string"
+            },
+            "campaign": {
+              "type": "string"
+            },
+            "commission_line": {
+              "type": "string"
+            },
+            "commission_rate": {
+              "type": "string"
+            },
+            "commission_rule": {
+              "type": "string"
+            },
+            "currency": {
+              "type": "string"
+            },
+            "customer": {
+              "type": "string"
+            },
+            "customer_address": {
+              "type": "string"
+            },
+            "customer_group": {
+              "type": "string"
+            },
+            "file": {
+              "type": "string"
+            },
+            "fulfillment": {
+              "type": "string"
+            },
+            "fulfillment_provider": {
+              "type": "string"
+            },
+            "fulfillment_set": {
+              "type": "string"
+            },
+            "inventory_item": {
+              "type": "string"
+            },
+            "inventory_level": {
+              "type": "string"
+            },
+            "invite": {
+              "type": "string"
+            },
+            "member_invite": {
+              "type": "string"
+            },
+            "notification": {
+              "type": "string"
+            },
+            "offer": {
+              "type": "string"
+            },
+            "order": {
+              "type": "string"
+            },
+            "order_change": {
+              "type": "string"
+            },
+            "order_claim": {
+              "type": "string"
+            },
+            "order_claim_item": {
+              "type": "string"
+            },
+            "order_exchange": {
+              "type": "string"
+            },
+            "order_group": {
+              "type": "string"
+            },
+            "order_item": {
+              "type": "string"
+            },
+            "payment": {
+              "type": "string"
+            },
+            "payment_collection": {
+              "type": "string"
+            },
+            "payment_method": {
+              "type": "string"
+            },
+            "payment_session": {
+              "type": "string"
+            },
+            "payout": {
+              "type": "string"
+            },
+            "payout_account": {
+              "type": "string"
+            },
+            "price": {
+              "type": "string"
+            },
+            "price_list": {
+              "type": "string"
+            },
+            "price_preference": {
+              "type": "string"
+            },
+            "product": {
+              "type": "string"
+            },
+            "product_attribute": {
+              "type": "string"
+            },
+            "product_attribute_value": {
+              "type": "string"
+            },
+            "product_category": {
+              "type": "string"
+            },
+            "product_change": {
+              "type": "string"
+            },
+            "product_collection": {
+              "type": "string"
+            },
+            "product_option": {
+              "type": "string"
+            },
+            "product_option_value": {
+              "type": "string"
+            },
+            "product_tag": {
+              "type": "string"
+            },
+            "product_type": {
+              "type": "string"
+            },
+            "product_variant": {
+              "type": "string"
+            },
+            "promotion": {
+              "type": "string"
+            },
+            "rbac_policy": {
+              "type": "string"
+            },
+            "rbac_role": {
+              "type": "string"
+            },
+            "refund_reason": {
+              "type": "string"
+            },
+            "region": {
+              "type": "string"
+            },
+            "reservation_item": {
+              "type": "string"
+            },
+            "return": {
+              "type": "string"
+            },
+            "return_reason": {
+              "type": "string"
+            },
+            "review": {
+              "type": "string"
+            },
+            "sales_channel": {
+              "type": "string"
+            },
+            "seller": {
+              "type": "string"
+            },
+            "seller_member": {
+              "type": "string"
+            },
+            "service_zone": {
+              "type": "string"
+            },
+            "shipping_option": {
+              "type": "string"
+            },
+            "shipping_option_type": {
+              "type": "string"
+            },
+            "shipping_profile": {
+              "type": "string"
+            },
+            "stock_location": {
+              "type": "string"
+            },
+            "store": {
+              "type": "string"
+            },
+            "store_locale": {
+              "type": "string"
+            },
+            "tax_provider": {
+              "type": "string"
+            },
+            "tax_rate": {
+              "type": "string"
+            },
+            "tax_region": {
+              "type": "string"
+            },
+            "translation": {
+              "type": "string"
+            },
+            "translation_setting": {
+              "type": "string"
+            },
+            "user": {
+              "type": "string"
+            },
+            "workflow_execution": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "api_key",
+            "campaign",
+            "commission_line",
+            "commission_rate",
+            "commission_rule",
+            "currency",
+            "customer",
+            "customer_address",
+            "customer_group",
+            "file",
+            "fulfillment",
+            "fulfillment_provider",
+            "fulfillment_set",
+            "inventory_item",
+            "inventory_level",
+            "invite",
+            "member_invite",
+            "notification",
+            "offer",
+            "order",
+            "order_change",
+            "order_claim",
+            "order_claim_item",
+            "order_exchange",
+            "order_group",
+            "order_item",
+            "payment",
+            "payment_collection",
+            "payment_method",
+            "payment_session",
+            "payout",
+            "payout_account",
+            "price",
+            "price_list",
+            "price_preference",
+            "product",
+            "product_attribute",
+            "product_attribute_value",
+            "product_category",
+            "product_change",
+            "product_collection",
+            "product_option",
+            "product_option_value",
+            "product_tag",
+            "product_type",
+            "product_variant",
+            "promotion",
+            "rbac_policy",
+            "rbac_role",
+            "refund_reason",
+            "region",
+            "reservation_item",
+            "return",
+            "return_reason",
+            "review",
+            "sales_channel",
+            "seller",
+            "seller_member",
+            "service_zone",
+            "shipping_option",
+            "shipping_option_type",
+            "shipping_profile",
+            "stock_location",
+            "store",
+            "store_locale",
+            "tax_provider",
+            "tax_rate",
+            "tax_region",
+            "translation",
+            "translation_setting",
+            "user",
+            "workflow_execution"
+          ],
+          "additionalProperties": false
+        },
+        "actions": {
+          "type": "object",
+          "properties": {
+            "read": {
+              "type": "string"
+            },
+            "create": {
+              "type": "string"
+            },
+            "update": {
+              "type": "string"
+            },
+            "delete": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "read",
+            "create",
+            "update",
+            "delete"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "accessDenied",
+        "requiredPermissions",
+        "resources",
+        "actions"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -17501,7 +17885,8 @@
     "views",
     "auth",
     "attributes",
-    "reviews"
+    "reviews",
+    "permissions"
   ],
   "additionalProperties": false
 }

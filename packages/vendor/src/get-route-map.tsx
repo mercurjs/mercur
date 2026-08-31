@@ -4,6 +4,7 @@ import { ProtectedRoute } from "./components/authentication/protected-route";
 import { MainLayout } from "./components/layout/main-layout";
 import { PublicLayout } from "./components/layout/public-layout";
 import { SettingsLayout } from "./components/layout/settings-layout";
+import { RoutePermissionGuard } from "@mercurjs/dashboard-shared";
 import { ErrorBoundary } from "./components/utilities/error-boundary";
 
 /**
@@ -58,7 +59,13 @@ export function getRouteMap({
       children: [
         {
           element: <MainLayout />,
-          children: mergeRoutes(
+          children: [
+            {
+              // Pathless wrapper so every route below — including extension
+              // routes merged in from virtual:mercur/routes — is enforced
+              // without each one wiring its own guard element.
+              element: <RoutePermissionGuard />,
+              children: mergeRoutes(
             [
               {
                 path: "/",
@@ -68,7 +75,7 @@ export function getRouteMap({
               {
                 path: "/products",
                 errorElement: <ErrorBoundary />,
-                handle: { breadcrumb: () => t("products.domain") },
+                handle: { breadcrumb: () => t("products.domain"), permissions: "product:read" },
                 children: [
                   {
                     path: "",
@@ -224,7 +231,7 @@ export function getRouteMap({
               {
                 path: "/orders",
                 errorElement: <ErrorBoundary />,
-                handle: { breadcrumb: () => t("orders.domain") },
+                handle: { breadcrumb: () => t("orders.domain"), permissions: "order:read" },
                 children: [
                   {
                     path: "",
@@ -311,7 +318,7 @@ export function getRouteMap({
               {
                 path: "/payouts",
                 errorElement: <ErrorBoundary />,
-                handle: { breadcrumb: () => "Payouts" },
+                handle: { breadcrumb: () => "Payouts", permissions: "payout:read" },
                 children: [
                   {
                     path: "",
@@ -353,7 +360,7 @@ export function getRouteMap({
               {
                 path: "/categories",
                 errorElement: <ErrorBoundary />,
-                handle: { breadcrumb: () => t("categories.domain") },
+                handle: { breadcrumb: () => t("categories.domain"), permissions: "product_category:read" },
                 children: [
                   {
                     path: "",
@@ -425,7 +432,7 @@ export function getRouteMap({
               {
                 path: "/collections",
                 errorElement: <ErrorBoundary />,
-                handle: { breadcrumb: () => t("collections.domain") },
+                handle: { breadcrumb: () => t("collections.domain"), permissions: "product_collection:read" },
                 children: [
                   {
                     path: "",
@@ -486,7 +493,7 @@ export function getRouteMap({
               {
                 path: "/customers",
                 errorElement: <ErrorBoundary />,
-                handle: { breadcrumb: () => t("customers.domain") },
+                handle: { breadcrumb: () => t("customers.domain"), permissions: "customer:read" },
                 children: [
                   {
                     path: "",
@@ -541,7 +548,7 @@ export function getRouteMap({
               {
                 path: "/customer-groups",
                 errorElement: <ErrorBoundary />,
-                handle: { breadcrumb: () => t("customerGroups.domain") },
+                handle: { breadcrumb: () => t("customerGroups.domain"), permissions: "customer_group:read" },
                 children: [
                   {
                     path: "",
@@ -609,7 +616,7 @@ export function getRouteMap({
               {
                 path: "/offers",
                 errorElement: <ErrorBoundary />,
-                handle: { breadcrumb: () => t("offers.domain") },
+                handle: { breadcrumb: () => t("offers.domain"), permissions: "offer:read" },
                 children: [
                   {
                     path: "",
@@ -727,7 +734,7 @@ export function getRouteMap({
               {
                 path: "/inventory",
                 errorElement: <ErrorBoundary />,
-                handle: { breadcrumb: () => t("inventory.domain") },
+                handle: { breadcrumb: () => t("inventory.domain"), permissions: "inventory_item:read" },
                 children: [
                   {
                     path: "",
@@ -812,7 +819,7 @@ export function getRouteMap({
               {
                 path: "/promotions",
                 errorElement: <ErrorBoundary />,
-                handle: { breadcrumb: () => t("promotions.domain") },
+                handle: { breadcrumb: () => t("promotions.domain"), permissions: "promotion:read" },
                 children: [
                   {
                     path: "",
@@ -883,7 +890,7 @@ export function getRouteMap({
               {
                 path: "/campaigns",
                 errorElement: <ErrorBoundary />,
-                handle: { breadcrumb: () => t("campaigns.domain") },
+                handle: { breadcrumb: () => t("campaigns.domain"), permissions: "campaign:read" },
                 children: [
                   {
                     path: "",
@@ -963,7 +970,7 @@ export function getRouteMap({
               {
                 path: "/price-lists",
                 errorElement: <ErrorBoundary />,
-                handle: { breadcrumb: () => t("priceLists.domain") },
+                handle: { breadcrumb: () => t("priceLists.domain"), permissions: "price_list:read" },
                 children: [
                   {
                     path: "",
@@ -1047,7 +1054,7 @@ export function getRouteMap({
               {
                 path: "/reviews",
                 errorElement: <ErrorBoundary />,
-                handle: { breadcrumb: () => t("reviews.domain") },
+                handle: { breadcrumb: () => t("reviews.domain"), permissions: "review:read" },
                 children: [
                   {
                     path: "",
@@ -1102,7 +1109,7 @@ export function getRouteMap({
               {
                 path: "/reservations",
                 errorElement: <ErrorBoundary />,
-                handle: { breadcrumb: () => t("reservations.domain") },
+                handle: { breadcrumb: () => t("reservations.domain"), permissions: "reservation_item:read" },
                 children: [
                   {
                     path: "",
@@ -1154,7 +1161,9 @@ export function getRouteMap({
               },
             ],
             customMainRoutes,
-          ),
+              ),
+            },
+          ],
         },
       ],
     },
@@ -1167,7 +1176,10 @@ export function getRouteMap({
         {
           path: "/settings",
           element: <SettingsLayout />,
-          children: mergeRoutes(
+          children: [
+            {
+              element: <RoutePermissionGuard />,
+              children: mergeRoutes(
             [
               {
                 index: true,
@@ -1210,6 +1222,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 handle: {
                   breadcrumb: () => t("app.menus.store.label"),
+                  permissions: "seller:read",
                 },
                 children: [
                   {
@@ -1253,7 +1266,7 @@ export function getRouteMap({
                 path: "locations",
                 errorElement: <ErrorBoundary />,
                 element: <Outlet />,
-                handle: { breadcrumb: () => t("locations.domain") },
+                handle: { breadcrumb: () => t("locations.domain"), permissions: "stock_location:read" },
                 children: [
                   {
                     path: "",
@@ -1274,6 +1287,7 @@ export function getRouteMap({
                     element: <Outlet />,
                     handle: {
                       breadcrumb: () => t("shippingProfile.domain"),
+                      permissions: "shipping_profile:read",
                     },
                     children: [
                       {
@@ -1370,6 +1384,7 @@ export function getRouteMap({
                           },
                           {
                             path: "fulfillment-providers",
+                            handle: { permissions: "fulfillment_provider:read" },
                             lazy: () =>
                               import("./pages/settings/locations/[location_id]/fulfillment-providers"),
                           },
@@ -1415,7 +1430,7 @@ export function getRouteMap({
                 path: "tax-regions",
                 errorElement: <ErrorBoundary />,
                 element: <Outlet />,
-                handle: { breadcrumb: () => t("taxRegions.domain") },
+                handle: { breadcrumb: () => t("taxRegions.domain"), permissions: "tax_region:read" },
                 children: [
                   {
                     path: "",
@@ -1517,7 +1532,7 @@ export function getRouteMap({
                 path: "product-tags",
                 errorElement: <ErrorBoundary />,
                 element: <Outlet />,
-                handle: { breadcrumb: () => t("productTags.domain") },
+                handle: { breadcrumb: () => t("productTags.domain"), permissions: "product_tag:read" },
                 children: [
                   {
                     path: "",
@@ -1570,7 +1585,7 @@ export function getRouteMap({
                 path: "users",
                 errorElement: <ErrorBoundary />,
                 element: <Outlet />,
-                handle: { breadcrumb: () => t("users.domain") },
+                handle: { breadcrumb: () => t("users.domain"), permissions: "seller_member:read" },
                 children: [
                   {
                     path: "",
@@ -1599,7 +1614,7 @@ export function getRouteMap({
                 path: "product-types",
                 errorElement: <ErrorBoundary />,
                 element: <Outlet />,
-                handle: { breadcrumb: () => t("productTypes.domain") },
+                handle: { breadcrumb: () => t("productTypes.domain"), permissions: "product_type:read" },
                 children: [
                   {
                     path: "",
@@ -1660,7 +1675,7 @@ export function getRouteMap({
                 path: "return-reasons",
                 errorElement: <ErrorBoundary />,
                 element: <Outlet />,
-                handle: { breadcrumb: () => t("returnReasons.domain") },
+                handle: { breadcrumb: () => t("returnReasons.domain"), permissions: "return_reason:read" },
                 children: [
                   {
                     path: "",
@@ -1682,7 +1697,9 @@ export function getRouteMap({
               },
             ],
             customSettingsRoutes?.[0]?.children || [],
-          ),
+              ),
+            },
+          ],
         },
       ],
     },

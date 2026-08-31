@@ -3,7 +3,8 @@ import { useMemo } from "react"
 import { PencilSquare } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { keepPreviousData } from "@tanstack/react-query"
-import { createColumnHelper } from "@tanstack/react-table"
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
@@ -24,14 +25,19 @@ export const UserListDataTable = () => {
   const { users, count, isPending, isError, error } = useUsers(
     {
       ...searchParams,
+      ...useLinkQuery("user"),
     },
     {
       placeholderData: keepPreviousData,
     }
   )
 
-  const filters = useUserTableFilters()
-  const columns = useColumns()
+  const baseFilters = useUserTableFilters()
+  const { columns, filters: extFilters } = useColumns()
+  const filters = useMemo(
+    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    [baseFilters, extFilters]
+  )
 
   const { table } = useDataTable({
     data: users ?? [],
@@ -77,7 +83,7 @@ const columnHelper = createColumnHelper<HttpTypes.AdminUser>()
 const useColumns = () => {
   const { t } = useTranslation()
 
-  return useMemo(
+  const base = useMemo(
     () => [
       columnHelper.accessor("email", {
         header: () => (
@@ -143,15 +149,29 @@ const useColumns = () => {
           return <DateCell date={date ? new Date(date) : null} />
         },
       }),
+    ],
+    [t]
+  )
+
+  const { columns: extended, filters } = useExtendableTable<HttpTypes.AdminUser>({
+    model: "user",
+    columns: base as unknown as ColumnDef<HttpTypes.AdminUser, unknown>[],
+  })
+
+  const columns = useMemo(
+    () => [
+      ...extended,
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => {
           return <UserActions user={row.original} />
         },
-      }),
+      }) as ColumnDef<HttpTypes.AdminUser, unknown>,
     ],
-    [t]
+    [extended]
   )
+
+  return { columns, filters }
 }
 
 const UserActions = ({ user }: { user: HttpTypes.AdminUser }) => {

@@ -204,6 +204,7 @@ const ProductActions = ({
           actions: [
             {
               icon: <PencilSquare />,
+              permission: "product_collection:update",
               label: t("actions.edit"),
               to: `/products/${product.id}/edit`,
             },

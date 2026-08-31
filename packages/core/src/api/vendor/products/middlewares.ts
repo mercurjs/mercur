@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   MedusaNextFunction,
@@ -75,6 +77,12 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
       applySellerProductLinkFilter,
       applyOfferedProductsFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -86,6 +94,12 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         vendorProductQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
 
   {
@@ -96,6 +110,12 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         VendorGetProductParams,
         vendorProductQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -108,17 +128,35 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         vendorProductQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/products/:id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
 
   {
     method: ["POST"],
     matcher: "/vendor/products/:id/cancel",
     middlewares: [validateAndTransformBody(VendorCancelProductChange)],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
 
   {
@@ -129,6 +167,12 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         VendorGetProductVariantsParams,
         vendorProductVariantQueryConfig.list
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product_variant,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -141,6 +185,12 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         vendorProductQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_variant,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
 
   {
@@ -151,6 +201,12 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         VendorGetProductVariantParams,
         vendorProductVariantQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product_variant,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -163,11 +219,23 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         vendorProductQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_variant,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/products/:id/variants/:variant_id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.product_variant,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
 
   {
@@ -179,6 +247,12 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         VendorGetProductParams,
         vendorProductQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product,
+        operation: PolicyOperation.update,
+      },
     ],
   },
 ]

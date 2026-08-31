@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -24,6 +26,12 @@ export const vendorCollectionsMiddlewares: MiddlewareRoute[] = [
         listTransformQueryConfig
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.product_collection,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -33,6 +41,12 @@ export const vendorCollectionsMiddlewares: MiddlewareRoute[] = [
         VendorGetCollectionParams,
         retrieveTransformQueryConfig
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product_collection,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -44,6 +58,12 @@ export const vendorCollectionsMiddlewares: MiddlewareRoute[] = [
         VendorGetCollectionParams,
         retrieveTransformQueryConfig
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.product_collection,
+        operation: PolicyOperation.update,
+      },
     ],
   },
 ]

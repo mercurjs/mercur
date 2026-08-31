@@ -1,6 +1,7 @@
 import { Children, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { Button, Heading } from "@medusajs/ui";
 
 export const ProductListTitle = () => {
@@ -11,9 +12,11 @@ export const ProductListTitle = () => {
 export const ProductListCreateButton = () => {
   const { t } = useTranslation();
   return (
-    <Button size="small" variant="secondary" asChild>
-      <Link to="create">{t("actions.create")}</Link>
-    </Button>
+    <PermissionGuard resource="product" operation="create">
+      <Button size="small" variant="secondary" asChild>
+        <Link to="create">{t("actions.create")}</Link>
+      </Button>
+    </PermissionGuard>
   );
 };
 

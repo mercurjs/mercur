@@ -16,7 +16,11 @@ module.exports = withMercur({
     }
   },
   featureFlags: {
-    seller_registration: true
+    seller_registration: true,
+    // Core leaves RBAC dormant by default. Enable it for the suite so route
+    // policy declarations are actually exercised — both that restricted roles
+    // are refused and that the default roles can still reach their own screens.
+    rbac: true
   },
   modules: [
     {

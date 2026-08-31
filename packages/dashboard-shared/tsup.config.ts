@@ -15,5 +15,5 @@ export default defineConfig({
       "@": path.resolve("src"),
     };
   },
-  external: ["react", "react-dom", "virtual:mercur/config", "virtual:mercur/routes"],
+  external: ["react", "react-dom", "react-router-dom", "virtual:mercur/config", "virtual:mercur/routes"],
 });

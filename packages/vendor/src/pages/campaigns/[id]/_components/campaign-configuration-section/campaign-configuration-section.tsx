@@ -25,6 +25,7 @@ export const CampaignConfigurationSection = ({
             {
               actions: [
                 {
+                  permission: "campaign:update",
                   label: t("actions.edit"),
                   icon: <PencilSquare />,
                   to: "configuration",

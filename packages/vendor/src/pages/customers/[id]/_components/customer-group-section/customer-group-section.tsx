@@ -241,6 +241,7 @@ const CustomerGroupRowActions = ({
         {
           actions: [
             {
+              permission: "customer:update",
               label: t("actions.edit"),
               icon: <PencilSquare />,
               to: `/customer-groups/${group.id}/edit`,

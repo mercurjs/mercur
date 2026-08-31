@@ -224,22 +224,52 @@ export const createProductsWorkflow: ReturnWorkflow<
       name: "mercur-create-products-associate-sellers",
     })
 
+    // Read the attributes back off the products so PRODUCT_ADD records what
+    // each one started with. Without it, "which attributes did this product
+    // begin with" has no answer: attaching at creation emits no attribute action.
+    const { data: attachedAttributes } = useQueryGraphStep({
+      entity: "product",
+      fields: ["id", "product_attribute_values.attribute.id"],
+      filters: transform({ createdProducts }, ({ createdProducts }) => ({
+        id: createdProducts.map((product) => product.id as string),
+      })),
+    }).config({ name: "mercur-create-products-attached-attributes" })
+
     recordProductAuditChangeWorkflow.runAsStep({
       input: transform(
-        { createdProducts, input },
-        ({ createdProducts, input }) => ({
-          actor_id: input.created_by,
-          changes: createdProducts.map((product) => ({
-            product_id: product.id as string,
-            actions: [
-              {
-                product_id: product.id as string,
-                action: ProductChangeActionType.PRODUCT_ADD,
-                details: { status: product.status as string },
-              },
-            ],
-          })),
-        }),
+        { createdProducts, input, attachedAttributes },
+        ({ createdProducts, input, attachedAttributes }) => {
+          const attributeIdsByProduct = new Map<string, string[]>()
+          for (const product of (attachedAttributes ?? []) as Array<{
+            id: string
+            product_attribute_values?: Array<{ attribute?: { id?: string } }>
+          }>) {
+            const ids = new Set(
+              (product.product_attribute_values ?? [])
+                .map((value) => value.attribute?.id)
+                .filter((id): id is string => !!id),
+            )
+            attributeIdsByProduct.set(product.id, Array.from(ids).sort())
+          }
+
+          return {
+            actor_id: input.created_by,
+            changes: createdProducts.map((product) => ({
+              product_id: product.id as string,
+              actions: [
+                {
+                  product_id: product.id as string,
+                  action: ProductChangeActionType.PRODUCT_ADD,
+                  details: {
+                    status: product.status as string,
+                    attribute_ids:
+                      attributeIdsByProduct.get(product.id as string) ?? [],
+                  },
+                },
+              ],
+            })),
+          }
+        },
       ),
     })
 

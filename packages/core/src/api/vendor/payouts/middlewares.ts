@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -35,6 +37,12 @@ export const vendorPayoutsMiddlewares: MiddlewareRoute[] = [
       ),
       applySellerPayoutLinkFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.payout,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -44,6 +52,12 @@ export const vendorPayoutsMiddlewares: MiddlewareRoute[] = [
         VendorGetPayoutParams,
         vendorPayoutQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.payout,
+        operation: PolicyOperation.read,
+      },
     ],
   },
 ]

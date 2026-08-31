@@ -1,6 +1,7 @@
 import { ReactNode, Children } from "react"
 import { Button, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { Link } from "react-router-dom"
 
 export const CollectionListTitle = () => {
@@ -26,11 +27,13 @@ export const CollectionListActions = ({
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <Link to="/collections/create">
-          <Button size="small" variant="secondary">
-            {t("actions.create")}
-          </Button>
-        </Link>
+        <PermissionGuard resource="product_collection" operation="create">
+          <Link to="/collections/create">
+            <Button size="small" variant="secondary">
+              {t("actions.create")}
+            </Button>
+          </Link>
+        </PermissionGuard>
       )}
     </div>
   )

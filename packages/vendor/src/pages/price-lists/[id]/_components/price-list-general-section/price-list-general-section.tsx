@@ -52,6 +52,7 @@ export const PriceListGeneralSection = ({
               {
                 actions: [
                   {
+                    permission: "price_list:update",
                     label: t("actions.edit"),
                     to: "edit",
                     icon: <PencilSquare />,
@@ -61,6 +62,7 @@ export const PriceListGeneralSection = ({
               {
                 actions: [
                   {
+                    permission: "price_list:delete",
                     label: t("actions.delete"),
                     onClick: handleDelete,
                     icon: <Trash />,

@@ -1,7 +1,10 @@
 import { DropdownMenu, IconButton, clx } from "@medusajs/ui"
 
 import { EllipsisHorizontal } from "@medusajs/icons"
-import { PropsWithChildren, ReactNode } from "react"
+import type { Permission } from "@mercurjs/dashboard-sdk"
+import { PermissionsContext } from "@mercurjs/dashboard-shared"
+import { filterActionGroups } from "./filter-action-groups"
+import { PropsWithChildren, ReactNode, useContext, useMemo } from "react"
 import { Link } from "react-router-dom"
 import { ConditionalTooltip } from "../conditional-tooltip"
 import { useDocumentDirection } from "../../../hooks/use-document-direction"
@@ -14,6 +17,15 @@ export type Action = {
    * Optional tooltip to display when a disabled action is hovered.
    */
   disabledTooltip?: string | ReactNode
+  /**
+   * Permission(s) required to see this action. Omit for actions everyone with
+   * access to the page may take. An action the actor can't perform is hidden
+   * rather than disabled — the API would refuse it anyway, so offering it is
+   * misleading.
+   */
+  permission?: Permission | Permission[]
+  /** If true, ALL `permission` entries are required. Defaults to ANY. */
+  requireAll?: boolean
 } & (
   | {
       to: string
@@ -29,6 +41,7 @@ export type ActionGroup = {
   actions: Action[]
 }
 
+
 type ActionMenuProps = PropsWithChildren<{
   groups: ActionGroup[]
   variant?: "transparent" | "primary"
@@ -40,22 +53,32 @@ export const ActionMenu = ({
   children,
 }: ActionMenuProps) => {
   const direction = useDocumentDirection()
+  // Read the context directly rather than through `usePermissions`, which
+  // throws: this menu also renders on public routes that mount no provider.
+  const permissions = useContext(PermissionsContext)
+
+  const visibleGroups = useMemo(
+    () => filterActionGroups(groups, permissions),
+    [groups, permissions]
+  )
+
   const inner = children ?? (
     <IconButton size="small" variant={variant}>
       <EllipsisHorizontal />
     </IconButton>
   )
 
+  // Nothing the actor may do — don't render a menu that opens empty.
+  if (!visibleGroups.length) {
+    return null
+  }
+
   return (
     <DropdownMenu dir={direction}>
       <DropdownMenu.Trigger asChild>{inner}</DropdownMenu.Trigger>
       <DropdownMenu.Content>
-        {groups.map((group, index) => {
-          if (!group.actions.length) {
-            return null
-          }
-
-          const isLast = index === groups.length - 1
+        {visibleGroups.map((group, index) => {
+          const isLast = index === visibleGroups.length - 1
 
           return (
             <DropdownMenu.Group key={index}>

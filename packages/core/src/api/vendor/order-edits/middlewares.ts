@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   MedusaNextFunction,
@@ -46,21 +48,45 @@ export const vendorOrderEditsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformBody(VendorPostOrderEditsReq),
       assertSellerOwnsOrderInBody,
     ],
+    policies: [
+      {
+        resource: PolicyResource.order_change,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/order-edits/:id",
     middlewares: [assertSellerOwnsOrderInParam],
+    policies: [
+      {
+        resource: PolicyResource.order_change,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/order-edits/:id/request",
     middlewares: [assertSellerOwnsOrderInParam],
+    policies: [
+      {
+        resource: PolicyResource.order_change,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/order-edits/:id/confirm",
     middlewares: [assertSellerOwnsOrderInParam],
+    policies: [
+      {
+        resource: PolicyResource.order_change,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -68,6 +94,12 @@ export const vendorOrderEditsMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformBody(VendorPostOrderEditsAddItemsReq),
       assertSellerOwnsOrderInParam,
+    ],
+    policies: [
+      {
+        resource: PolicyResource.order_change,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -77,11 +109,23 @@ export const vendorOrderEditsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformBody(VendorPostOrderEditsItemsActionReq),
       assertSellerOwnsOrderInParam,
     ],
+    policies: [
+      {
+        resource: PolicyResource.order_change,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/order-edits/:id/items/:action_id",
     middlewares: [assertSellerOwnsOrderInParam],
+    policies: [
+      {
+        resource: PolicyResource.order_change,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -89,6 +133,12 @@ export const vendorOrderEditsMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformBody(VendorPostOrderEditsUpdateItemQuantityReq),
       assertSellerOwnsOrderInParam,
+    ],
+    policies: [
+      {
+        resource: PolicyResource.order_change,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -98,6 +148,12 @@ export const vendorOrderEditsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformBody(VendorPostOrderEditsShippingReq),
       assertSellerOwnsOrderInParam,
     ],
+    policies: [
+      {
+        resource: PolicyResource.order_change,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -106,10 +162,22 @@ export const vendorOrderEditsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformBody(VendorPostOrderEditsShippingActionReq),
       assertSellerOwnsOrderInParam,
     ],
+    policies: [
+      {
+        resource: PolicyResource.order_change,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/order-edits/:id/shipping-method/:action_id",
     middlewares: [assertSellerOwnsOrderInParam],
+    policies: [
+      {
+        resource: PolicyResource.order_change,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
 ]

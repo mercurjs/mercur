@@ -145,11 +145,6 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
 
     when(
       { subsetPlan },
-      ({ subsetPlan }) => subsetPlan.updates.length > 0,
-    ).then(() => updateProductOptionValuesOnProductStep(subsetPlan.updates))
-
-    when(
-      { subsetPlan },
       ({ subsetPlan }) => subsetPlan.dismissLinks.length > 0,
     ).then(() =>
       dismissRemoteLinkStep(subsetPlan.dismissLinks).config({
@@ -394,6 +389,33 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
         },
       }),
     )
+
+    const optionValueUpdates = transform(
+      { input, subsetPlan, exclusivePlan, createdExclusiveValues },
+      ({ input, subsetPlan, exclusivePlan, createdExclusiveValues }) => {
+        const updates = [...subsetPlan.updates]
+        const add = (
+          (createdExclusiveValues ?? []) as {
+            product_option_value_id?: string | null
+          }[]
+        )
+          .map((v) => v.product_option_value_id)
+          .filter((id): id is string => !!id)
+        if (add.length) {
+          updates.push({
+            product_id: input.product_id,
+            product_option_id: exclusivePlan.product_option_id,
+            add,
+          })
+        }
+        return updates
+      },
+    )
+
+    when(
+      { optionValueUpdates },
+      ({ optionValueUpdates }) => optionValueUpdates.length > 0,
+    ).then(() => updateProductOptionValuesOnProductStep(optionValueUpdates))
 
     const exclusiveAddLinks = transform(
       { input, createdExclusiveValues },

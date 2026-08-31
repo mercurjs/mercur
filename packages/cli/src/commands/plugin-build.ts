@@ -1,6 +1,6 @@
 import path from "path";
 import { handleError } from "@/src/utils/handle-error";
-import { buildVendorExtensions } from "@/src/utils/build-vendor-extensions";
+import { buildDashboardExtensions } from "@/src/utils/build-dashboard-extensions";
 import { logger } from "@/src/utils/logger";
 import { spinner } from "@/src/utils/spinner";
 import { Command } from "commander";
@@ -29,13 +29,23 @@ export const pluginBuild = new Command()
         process.exit(1);
       }
 
-      const bundler = await import("@medusajs/admin-bundler");
       const pluginsDistFolder = path.resolve(cwd, ".medusa/server");
 
+      // Medusa's `buildPluginAdminExtensions` is deliberately not run here: it
+      // writes the same `src/admin/index.{mjs,cjs}` that the admin pass below
+      // does, and concurrently, so the two race for the file. It also builds
+      // from a crawled entry, which discards an authored `src/admin/index.ts`
+      // and drops the Mercur externals — so when it won the race the plugin's
+      // real entry vanished.
       const responses = await Promise.all([
         compiler.buildPluginBackend(tsConfig),
-        compiler.buildPluginAdminExtensions(bundler),
-        buildVendorExtensions({ root: cwd, outDir: pluginsDistFolder }),
+        ...(["admin", "vendor"] as const).map((app) =>
+          buildDashboardExtensions({
+            root: cwd,
+            srcDir: `src/${app}`,
+            outFile: path.join(pluginsDistFolder, "src", app, "index.mjs"),
+          })
+        ),
       ]);
 
       if (responses.every((response) => response === true)) {

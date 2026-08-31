@@ -30,6 +30,7 @@ function LocationsSalesChannelsSection({
             {
               actions: [
                 {
+                  permission: "stock_location:update",
                   label: t("actions.edit"),
                   to: "sales-channels",
                   icon: <PencilSquare />,

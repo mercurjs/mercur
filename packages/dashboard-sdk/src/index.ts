@@ -3,3 +3,4 @@
 // imports a config helper never drags node globals into the browser bundle.
 export * from "./types"
 export * from "./config"
+export * from "./permissions"

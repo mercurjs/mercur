@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -85,6 +87,12 @@ export const vendorClaimsMiddlewares: MiddlewareRoute[] = [
       ),
       applySellerClaimsFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -92,6 +100,12 @@ export const vendorClaimsMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformBody(VendorPostOrderClaimsReq),
       assertSellerOwnsOrderInBody,
+    ],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.create,
+      },
     ],
   },
   {
@@ -104,6 +118,12 @@ export const vendorClaimsMiddlewares: MiddlewareRoute[] = [
       ),
       assertSellerOwnsClaimInParam,
     ],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -112,16 +132,34 @@ export const vendorClaimsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformBody(VendorPostCancelClaimReq),
       assertSellerOwnsClaimInParam,
     ],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/claims/:id/request",
     middlewares: [assertSellerOwnsClaimInParam],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/claims/:id/request",
     middlewares: [assertSellerOwnsClaimInParam],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -129,6 +167,12 @@ export const vendorClaimsMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformBody(VendorPostClaimItemsReq),
       assertSellerOwnsClaimInParam,
+    ],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -138,11 +182,23 @@ export const vendorClaimsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformBody(VendorPostClaimsItemsActionReq),
       assertSellerOwnsClaimInParam,
     ],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/claims/:id/claim-items/:action_id",
     middlewares: [assertSellerOwnsClaimInParam],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -150,6 +206,12 @@ export const vendorClaimsMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformBody(VendorPostClaimsRequestReturnItemsReq),
       assertSellerOwnsClaimInParam,
+    ],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -159,11 +221,23 @@ export const vendorClaimsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformBody(VendorPostClaimsRequestItemsReturnActionReq),
       assertSellerOwnsClaimInParam,
     ],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/claims/:id/inbound/items/:action_id",
     middlewares: [assertSellerOwnsClaimInParam],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -171,6 +245,12 @@ export const vendorClaimsMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformBody(VendorPostClaimsShippingReq),
       assertSellerOwnsClaimInParam,
+    ],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -180,11 +260,23 @@ export const vendorClaimsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformBody(VendorPostClaimsShippingActionReq),
       assertSellerOwnsClaimInParam,
     ],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/claims/:id/inbound/shipping-method/:action_id",
     middlewares: [assertSellerOwnsClaimInParam],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -192,6 +284,12 @@ export const vendorClaimsMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformBody(VendorPostClaimsAddItemsReq),
       assertSellerOwnsClaimInParam,
+    ],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -201,11 +299,23 @@ export const vendorClaimsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformBody(VendorPostClaimsAddItemsActionReq),
       assertSellerOwnsClaimInParam,
     ],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/claims/:id/outbound/items/:action_id",
     middlewares: [assertSellerOwnsClaimInParam],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -213,6 +323,12 @@ export const vendorClaimsMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformBody(VendorPostClaimsShippingReq),
       assertSellerOwnsClaimInParam,
+    ],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -222,10 +338,22 @@ export const vendorClaimsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformBody(VendorPostClaimsShippingActionReq),
       assertSellerOwnsClaimInParam,
     ],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/claims/:id/outbound/shipping-method/:action_id",
     middlewares: [assertSellerOwnsClaimInParam],
+    policies: [
+      {
+        resource: PolicyResource.order_claim,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
 ]
