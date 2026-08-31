@@ -11,15 +11,21 @@ export const vendorStoreFields = [
   "updated_at",
 ]
 
+// `allowed` only strips select fields when the `rbac_filter_fields` feature flag
+// is on; `disallowed` is stripped unconditionally.
+export const vendorStoreDisallowedFields = ["members"]
+
 export const vendorStoreQueryConfig = {
   list: {
     defaults: vendorStoreFields,
     allowed: vendorStoreFields,
+    disallowed: vendorStoreDisallowedFields,
     isList: true,
   },
   retrieve: {
     defaults: vendorStoreFields,
     allowed: vendorStoreFields,
+    disallowed: vendorStoreDisallowedFields,
     isList: false,
   },
 }
