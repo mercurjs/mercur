@@ -891,6 +891,44 @@ medusaIntegrationTestRunner({
         ])
       })
 
+      it("update: shared-axis value subset add + remove re-syncs the product (200)", async () => {
+        const multi = await createAttr({
+          name: "Shared Size",
+          type: "multi_select",
+          is_variant_axis: true,
+          values: ["S", "M", "L"],
+        })
+        const created = await api.post(
+          "/admin/products",
+          {
+            title: "Shared Axis Subset Product",
+            status: "published",
+            attributes: [{ id: multi.id, value_ids: [multi.byName.get("S")!] }],
+          },
+          adminHeaders,
+        )
+        const productId = created.data.product.id
+
+        const res = await batch(productId, {
+          update: [
+            {
+              id: multi.id,
+              add: [multi.byName.get("M")!],
+              remove: [multi.byName.get("S")!],
+            },
+          ],
+        })
+        expect(res.status).toEqual(200)
+        expect(await optionAttached(productId, "Shared Size")).toBe(true)
+
+        const variantRes = await api.post(
+          `/admin/products/${productId}/variants`,
+          { title: "Medium", options: { "Shared Size": "M" } },
+          adminHeaders,
+        )
+        expect([200, 201]).toContain(variantRes.status)
+      })
+
       it.skip("update: exclusive option value mutation (add XXL / remove S,M,L)", async () => {})
       it.skip("remove: shared-axis global unlinks product↔option", async () => {})
       it.skip("remove: inline/exclusive scoped axis delete (option still associated)", async () => {})
