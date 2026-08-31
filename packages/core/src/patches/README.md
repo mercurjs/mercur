@@ -15,9 +15,19 @@ normal `@mercurjs/core` upgrade.
 ## How they are applied
 
 **In memory, never to disk.** A server boot has no business mutating installed
-packages, workers would race each other doing it, and a file that has already
-been required cannot be un-required cleanly. `loader.ts` installs a `.js` loader
-hook and compiles the patched source in place of the original on first require.
+packages, and workers would race each other doing it. `loader.ts` installs a
+`.js` loader hook and compiles the patched source in place of the original on
+first require.
+
+`withMercur()` is not always the first thing to pull in a target package —
+`@medusajs/test-utils` requires `@medusajs/core-flows` before it loads
+`medusa-config` — so a patched file may already sit in the require cache with its
+unpatched source. Those files (only those files, never the whole package) are
+evicted and required again through the hook. A workflow module re-registers
+itself under the same id on that second load, and since the reload replays the
+same source, replacing the previous definition is the correct outcome: Medusa's
+duplicate guard is relaxed for the duration of the reload, because generated step
+ids make a second load of the same file compare unequal to the first.
 
 Because nothing is written, a patch that a user *also* applied through their own
 package manager is detected and skipped rather than treated as a conflict.

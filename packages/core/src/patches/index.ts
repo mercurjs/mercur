@@ -2,7 +2,13 @@ import { existsSync, realpathSync } from "fs"
 import { join } from "path"
 
 import { isPatchApplied, readPatchedFiles } from "./apply-patch"
-import { isAlreadyLoaded, isOverridden, registerOverrides } from "./loader"
+import {
+  isAlreadyLoaded,
+  isOverridden,
+  purgeFiles,
+  registerOverrides,
+  reload,
+} from "./loader"
 import { PATCHES, type PatchEntry } from "./manifest"
 import { resolvePackageCopies, type PackageCopy } from "./resolve-package-dirs"
 import { isWithinRange } from "./version"
@@ -80,20 +86,22 @@ function applyToCopy(
     fail(entry, copy, "no longer applies — its context has changed upstream")
   }
 
-  const alreadyLoaded = patched
-    .map((file) => resolveFile(copy.dir, file.relativePath))
-    .filter((path) => isAlreadyLoaded(path) && !isOverridden(path))
-
-  if (alreadyLoaded.length) {
-    fail(
-      entry,
-      copy,
-      `targets modules that were loaded before withMercur() ran ` +
-        `(${alreadyLoaded.join(", ")}), so it cannot take effect`
-    )
-  }
+  const paths = patched.map((file) => resolveFile(copy.dir, file.relativePath))
+  const stale = paths.filter(
+    (path) => isAlreadyLoaded(path) && !isOverridden(path)
+  )
 
   registerOverrides(copy.dir, patched, resolveFile)
+
+  // Something required these modules before `withMercur()` ran, so the cache
+  // holds their unpatched source. Evict them and compile the patched source in
+  // their place; a workflow module re-registers itself under the same id, which
+  // is what makes the patch take effect on an already-loaded package.
+  if (stale.length) {
+    purgeFiles(stale)
+    reload(copy.dir, stale)
+  }
+
   return true
 }
 

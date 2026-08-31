@@ -56,8 +56,13 @@ function sweepStore(
 export function resolvePackageCopies(packageName: string): PackageCopy[] {
   let primary: string | null = null
 
+  // Resolve the package entry point, not `<name>/package.json`: packages that
+  // declare `exports` without a `./package.json` entry — core-flows is one —
+  // make the subpath unresolvable, which would silently leave every copy
+  // non-primary and drop the guarantee that the copy this project loads is the
+  // one that must accept the patch.
   try {
-    const entry = resolveCwd(`${packageName}/package.json`)
+    const entry = resolveCwd(packageName)
     const resolved = pkgDir.sync(dirname(entry))
     if (resolved) primary = canonical(resolved)
   } catch {
