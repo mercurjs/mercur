@@ -14,10 +14,10 @@ index 24f62e1..fddf3e5 100644
      "items.variant.length",
      "items.variant.height",
 diff --git a/dist/cart/workflows/refresh-cart-shipping-methods.js b/dist/cart/workflows/refresh-cart-shipping-methods.js
-index 74e27fb..9d625ce 100644
+index 74e27fb..8ed6356 100644
 --- a/dist/cart/workflows/refresh-cart-shipping-methods.js
 +++ b/dist/cart/workflows/refresh-cart-shipping-methods.js
-@@ -110,7 +110,12 @@ exports.refreshCartShippingMethodsWorkflow = (0, workflows_sdk_1.createWorkflow)
+@@ -110,8 +110,19 @@ exports.refreshCartShippingMethodsWorkflow = (0, workflows_sdk_1.createWorkflow)
              const shouldCleanupOrphanProfiles = shippingMethods.length > 1;
              const requiredProfileIds = new Set(items
                  .filter((item) => item.requires_shipping)
@@ -29,5 +29,12 @@ index 74e27fb..9d625ce 100644
 +                // method as an orphan in a multi-seller cart.
 +                .map((item) => item.offer?.shipping_profile_id ?? item.variant?.product?.shipping_profile?.id)
                  .filter(Boolean));
++            console.log('MERCUR_DIAG', JSON.stringify({
++                cleanup: shouldCleanupOrphanProfiles,
++                required: [...requiredProfileIds],
++                items: items.map((i) => ({ rs: i.requires_shipping, offer: i.offer?.shipping_profile_id, prod: i.variant?.product?.shipping_profile?.id })),
++                methods: shippingMethods.map((m) => { const o = shippingOptions.find((so) => so.id === m.shipping_option_id); return { so: m.shipping_option_id, found: !!o, price: o?.calculated_price?.calculated_amount, profile: o?.shipping_profile_id }; }),
++            }));
              const validShippingMethods = shippingMethods.filter((shippingMethod) => {
                  // Fetch  the available shipping options for the cart context and find the one associated
+                 // with the current shipping method
