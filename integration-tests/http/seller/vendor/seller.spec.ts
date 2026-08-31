@@ -1195,6 +1195,170 @@ medusaIntegrationTestRunner({
           expect(responseB.data.seller_member.is_owner).toBe(false)
         })
       })
+
+      describe("Cross-seller scoping of /vendor/sellers/:id", () => {
+        it("should not retrieve another seller", async () => {
+          const response = await api
+            .get(`/vendor/sellers/${sellerA.id}`, headersB)
+            .catch((e) => e.response)
+
+          expect(response.status).toEqual(404)
+        })
+
+        it("should not update another seller", async () => {
+          const response = await api
+            .post(`/vendor/sellers/${sellerA.id}`, { name: "Taken Over" }, headersB)
+            .catch((e) => e.response)
+
+          expect(response.status).toEqual(404)
+
+          const unchanged = await api.get(
+            `/vendor/sellers/${sellerA.id}`,
+            headersA
+          )
+          expect(unchanged.data.seller.name).toEqual("Alpha Store")
+        })
+
+        it("should not update another seller's address", async () => {
+          const response = await api
+            .post(
+              `/vendor/sellers/${sellerA.id}/address`,
+              {
+                first_name: "Mal",
+                last_name: "Lory",
+                address_1: "1 Evil St",
+                city: "Nowhere",
+                country_code: "us",
+                postal_code: "00000",
+              },
+              headersB
+            )
+            .catch((e) => e.response)
+
+          expect(response.status).toEqual(404)
+        })
+
+        it("should not update another seller's payment details", async () => {
+          const response = await api
+            .post(
+              `/vendor/sellers/${sellerA.id}/payment-details`,
+              { holder_name: "Mal Lory", iban: "DE89370400440532013000" },
+              headersB
+            )
+            .catch((e) => e.response)
+
+          expect(response.status).toEqual(404)
+        })
+
+        it("should not upsert or delete another seller's professional details", async () => {
+          const upsert = await api
+            .post(
+              `/vendor/sellers/${sellerA.id}/professional-details`,
+              { corporate_name: "Mal Corp", tax_id: "TAX666" },
+              headersB
+            )
+            .catch((e) => e.response)
+
+          expect(upsert.status).toEqual(404)
+
+          const remove = await api
+            .delete(
+              `/vendor/sellers/${sellerA.id}/professional-details`,
+              headersB
+            )
+            .catch((e) => e.response)
+
+          expect(remove.status).toEqual(404)
+        })
+
+        it("should not list another seller's members or invites", async () => {
+          const members = await api
+            .get(`/vendor/sellers/${sellerA.id}/members`, headersB)
+            .catch((e) => e.response)
+
+          expect(members.status).toEqual(404)
+
+          const invites = await api
+            .get(`/vendor/sellers/${sellerA.id}/members/invites`, headersB)
+            .catch((e) => e.response)
+
+          expect(invites.status).toEqual(404)
+        })
+
+        it("should not invite a member into another seller", async () => {
+          const response = await api
+            .post(
+              `/vendor/sellers/${sellerA.id}/members`,
+              {
+                email: "intruder@test.com",
+                role_id: SellerRole.SELLER_ADMINISTRATION,
+              },
+              headersB
+            )
+            .catch((e) => e.response)
+
+          expect(response.status).toEqual(404)
+        })
+
+        it("should not change a role of another seller's member", async () => {
+          const membersResponse = await api.get(
+            `/vendor/sellers/${sellerA.id}/members`,
+            headersA
+          )
+          const ownerMember = membersResponse.data.seller_members.find(
+            (sm: any) => sm.is_owner === true
+          )
+
+          const response = await api
+            .post(
+              `/vendor/sellers/${sellerA.id}/members/${ownerMember.id}`,
+              { role_id: SellerRole.ORDER_MANAGEMENT },
+              headersB
+            )
+            .catch((e) => e.response)
+
+          expect(response.status).toEqual(404)
+        })
+
+        it("should not remove another seller's member", async () => {
+          const membersResponse = await api.get(
+            `/vendor/sellers/${sellerA.id}/members`,
+            headersA
+          )
+          const ownerMember = membersResponse.data.seller_members.find(
+            (sm: any) => sm.is_owner === true
+          )
+
+          const response = await api
+            .delete(
+              `/vendor/sellers/${sellerA.id}/members/${ownerMember.id}`,
+              headersB
+            )
+            .catch((e) => e.response)
+
+          expect(response.status).toEqual(404)
+        })
+
+        it("should not manage a member of another seller through its own :id", async () => {
+          const membersResponse = await api.get(
+            `/vendor/sellers/${sellerA.id}/members`,
+            headersA
+          )
+          const ownerMember = membersResponse.data.seller_members.find(
+            (sm: any) => sm.is_owner === true
+          )
+
+          const response = await api
+            .post(
+              `/vendor/sellers/${sellerB.id}/members/${ownerMember.id}`,
+              { role_id: SellerRole.ORDER_MANAGEMENT },
+              headersB
+            )
+            .catch((e) => e.response)
+
+          expect(response.status).toEqual(404)
+        })
+      })
     })
   },
 })
