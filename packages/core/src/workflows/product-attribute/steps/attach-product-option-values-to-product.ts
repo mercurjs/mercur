@@ -11,15 +11,6 @@ export type AttachProductOptionValuesToProductStepInput = {
 export const attachProductOptionValuesToProductStepId =
   "pa-attach-product-option-values-to-product"
 
-/**
- * Option values created after the option was already assigned to a product are
- * not associated with that product, so variant create rejects them with
- * "Option value X does not exist for option Y".
- *
- * Medusa's stock `updateProductOptionValuesOnProductStep` can't be used here:
- * its compensation reads `product.options.values`, which crashes MikroORM
- * `expandDotPaths` on the 2.16 options-preview build.
- */
 export const attachProductOptionValuesToProductStep = createStep(
   attachProductOptionValuesToProductStepId,
   async (input: AttachProductOptionValuesToProductStepInput, { container }) => {

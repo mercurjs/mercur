@@ -813,9 +813,6 @@ medusaIntegrationTestRunner({
         })
         expect(res.status).toEqual(200)
 
-        // the mirrored option value must be associated with the product,
-        // otherwise variant create fails with
-        // "Option value L does not exist for option Size".
         const variantRes = await api.post(
           `/admin/products/${productId}/variants`,
           { title: "Large", options: { Size: "L" } },

@@ -396,9 +396,6 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
       }),
     )
 
-    // Values created against an inline axis attribute mirror onto its
-    // ProductOption, but the new option values are not associated with the
-    // product until they are added explicitly.
     const exclusiveAttachInput = transform(
       { input, exclusivePlan, createdExclusiveValues },
       ({ input, exclusivePlan, createdExclusiveValues }) => ({
