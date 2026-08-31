@@ -7,13 +7,17 @@ import {
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
 import {
+  deleteProductVariantsWorkflow,
   dismissRemoteLinkStep,
   removeProductOptionsFromProductStep,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 import { AttributeType, MercurModules } from "@mercurjs/types"
 
-import { validateProductAttributesNotRequiredStep } from "../steps"
+import {
+  listVariantsUsingProductOptionsStep,
+  validateProductAttributesNotRequiredStep,
+} from "../steps"
 import { deleteProductAttributesWorkflow } from "./delete-product-attributes"
 
 export type RemoveProductAttributesFromProductWorkflowInput = {
@@ -91,12 +95,17 @@ export const removeProductAttributesFromProductWorkflow = createWorkflow(
 
           dismissAttrIds.add(a.id)
 
-          if (isAxis && !isScoped) {
+          // A product-scoped axis attribute owns an exclusive option that is
+          // still linked to the product; the link has to go before the option
+          // can be deleted along with the attribute.
+          if (isAxis) {
             optionPairs.push({
               product_option_id: a.product_option_id as string,
               product_id,
             })
-          } else if (isScoped) {
+          }
+
+          if (isScoped) {
             scopedAttrIds.push(a.id)
           }
         }
@@ -117,6 +126,26 @@ export const removeProductAttributesFromProductWorkflow = createWorkflow(
 
         return { optionPairs, scopedAttrIds, dismissLinks }
       },
+    )
+
+    // Medusa refuses to unassign an option a variant is built on, so the
+    // variants defined by the removed axes go first.
+    const variantIdsToDelete = listVariantsUsingProductOptionsStep(
+      transform({ plan, input }, ({ plan, input }) => ({
+        product_id: input.product_id,
+        option_ids: plan.optionPairs.map((pair) => pair.product_option_id),
+      })),
+    )
+
+    when(
+      { variantIdsToDelete },
+      ({ variantIdsToDelete }) => variantIdsToDelete.length > 0,
+    ).then(() =>
+      deleteProductVariantsWorkflow.runAsStep({
+        input: transform({ variantIdsToDelete }, ({ variantIdsToDelete }) => ({
+          ids: variantIdsToDelete,
+        })),
+      }),
     )
 
     when({ plan }, ({ plan }) => plan.optionPairs.length > 0).then(() =>
