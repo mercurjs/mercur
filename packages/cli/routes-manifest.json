@@ -319,7 +319,7 @@
   "/auth/verification/request": "typeof import(\"@medusajs/medusa/api/auth/verification/request/route\")",
   "/cloud/auth": "typeof import(\"@medusajs/medusa/api/cloud/auth/route\")",
   "/cloud/auth/users": "typeof import(\"@medusajs/medusa/api/cloud/auth/users/route\")",
-  "/hooks/payment/:provider": "typeof import(\"@medusajs/medusa/api/hooks/payment/[provider]/route\")",
+  "/hooks/payment/:provider": "typeof import(\"@mercurjs/core/api/hooks/payment/[provider]/route\")",
   "/hooks/payout": "typeof import(\"@mercurjs/core/api/hooks/payout/route\")",
   "/store/carts": "typeof import(\"@medusajs/medusa/api/store/carts/route\")",
   "/store/carts/:id": "typeof import(\"@medusajs/medusa/api/store/carts/[id]/route\")",
