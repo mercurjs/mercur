@@ -24,15 +24,14 @@ package manager is detected and skipped rather than treated as a conflict.
 
 ## Lifecycle
 
-Modelled on Expo's `patch-project`, which solves the same problem for
-regenerated native projects:
-
-| `patch-project`                 | here                                            |
-| ------------------------------- | ----------------------------------------------- |
-| `git apply --reverse --check`   | `isPatchApplied()` — already patched, skip       |
-| `git apply` fails loudly        | failed hunk throws, naming the bug it restores   |
-| patch keyed by templateChecksum | filename pins the version it was generated from  |
-| changed-lines warning           | one boot log line per applied patch              |
+- **already applied** — every hunk reverses cleanly, so the patch is skipped.
+  Someone may have applied the same diff through their own package manager.
+- **stale** — a hunk no longer matches its context: boot fails, naming the patch
+  and the bug that skipping it would restore.
+- **out of range** — the copy this project resolves is outside the patch's
+  `compatible` range: boot fails with the installed version. Incidental copies in
+  a shared package-manager store are skipped rather than fatal.
+- **applied** — one log line per patch, with the number of copies touched.
 
 The diff's own context is the real guard: if upstream moves the code, the hunk
 stops matching and boot fails with the patch name and the bug it corrects. The
@@ -49,6 +48,11 @@ clearer message than a failed hunk.
 3. Add an entry to `PATCHES` in `manifest.ts`.
 4. Mark each hunk with a `// MERCUR:` comment saying *why*. Someone reading the
    patched file in `node_modules` while debugging needs that.
+
+`bun run test:unit` covers every patch in the manifest: that it still applies to
+each in-range copy, that it reverses cleanly, and that a drifted context is
+refused rather than relocated. That suite is the drift gate — run it on every
+Medusa bump.
 
 Keep patches small. A large one means the change belongs in a Mercur workflow or
 upstream in Medusa, not here.

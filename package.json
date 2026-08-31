@@ -5,6 +5,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "oxlint --quiet",
+    "test:unit": "cd integration-tests && bun run test:unit",
     "test:integration:http": "cd integration-tests && bun run test:integration:http"
   },
   "dependencies": {

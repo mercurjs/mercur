@@ -1,10 +1,10 @@
-import { existsSync } from "fs"
+import { existsSync, realpathSync } from "fs"
 import { join } from "path"
 
 import { isPatchApplied, readPatchedFiles } from "./apply-patch"
 import { isAlreadyLoaded, isOverridden, registerOverrides } from "./loader"
 import { PATCHES, type PatchEntry } from "./manifest"
-import { readPackageVersion, resolvePackageDirs } from "./resolve-package-dirs"
+import { resolvePackageCopies, type PackageCopy } from "./resolve-package-dirs"
 import { isWithinRange } from "./version"
 
 // Mercur has to correct a handful of Medusa internals that expose no hook.
@@ -17,81 +17,84 @@ import { isWithinRange } from "./version"
 // which every project calls. They travel with the package version and arrive on
 // a normal upgrade.
 //
-// The lifecycle follows Expo's `patch-project`: probe before applying, and
-// refuse loudly rather than degrade to a silent no-op. A hunk that no longer
-// matches its context is upstream telling us the patch is stale.
+// Patches are applied in memory, never written to `node_modules`: a boot has no
+// business mutating installed packages, workers would race doing it, and a file
+// that has already been required cannot be un-required cleanly.
 
 const PATCH_DIR = join(__dirname, "patches")
 
 export type ApplyPatchesOptions = {
-  /** Patch files to skip, for adopters who need to opt out of one. */
+  /** Patch file names to skip, for adopters who need to opt out of one. */
   disabled?: string[]
   logger?: Pick<Console, "info" | "warn">
 }
 
-function fail(entry: PatchEntry, dir: string, detail: string): never {
+function fail(entry: PatchEntry, copy: PackageCopy, detail: string): never {
   throw new Error(
-    `[mercur] Patch "${entry.file}" ${detail} (${dir}).\n` +
+    `[mercur] Patch "${entry.file}" ${detail} ` +
+      `(${entry.package}@${copy.version ?? "unknown"}, ${copy.dir}).\n` +
       `It corrects: ${entry.reason}\n` +
       `Regenerate the patch for the installed version, or skip it via ` +
       `projectConfig.mercur.disabledPatches — skipping restores the bug above.`
   )
 }
 
+function resolveFile(packageDir: string, relativePath: string): string {
+  const filePath = join(packageDir, relativePath)
+  try {
+    return realpathSync(filePath)
+  } catch {
+    return filePath
+  }
+}
+
+/**
+ * Returns true when the copy was patched. A non-primary copy that does not
+ * match is skipped rather than fatal: package-manager stores are shared between
+ * checkouts, so a sweep turns up versions this project never loads.
+ */
 function applyToCopy(
   entry: PatchEntry,
-  dir: string,
-  logger: NonNullable<ApplyPatchesOptions["logger"]>
-): void {
-  const patchFilePath = join(PATCH_DIR, entry.file)
-  if (!existsSync(patchFilePath)) {
-    throw new Error(`[mercur] Patch file is missing: ${patchFilePath}`)
-  }
-
-  const version = readPackageVersion(dir)
-  if (version && !isWithinRange(version, entry.compatible)) {
+  copy: PackageCopy,
+  patchFilePath: string
+): boolean {
+  if (copy.version && !isWithinRange(copy.version, entry.compatible)) {
+    if (!copy.primary) return false
     fail(
       entry,
-      dir,
+      copy,
       `was generated against ${entry.package} >=${entry.compatible.from} ` +
-        `<${entry.compatible.to}, but ${version} is installed`
+        `<${entry.compatible.to}, but ${copy.version} is what this project resolves`
     )
   }
 
   // Someone may have applied the same diff through their package manager. That
   // is a supported outcome, not a conflict.
-  if (isPatchApplied(dir, patchFilePath)) {
-    return
+  if (isPatchApplied(copy.dir, patchFilePath)) {
+    return true
   }
 
-  const patched = readPatchedFiles(dir, patchFilePath)
+  const patched = readPatchedFiles(copy.dir, patchFilePath)
   if (!patched) {
-    fail(entry, dir, "no longer applies — its context has changed upstream")
+    if (!copy.primary) return false
+    fail(entry, copy, "no longer applies — its context has changed upstream")
   }
-
-  const resolve = (packageDir: string, relativePath: string) =>
-    join(packageDir, relativePath)
 
   const alreadyLoaded = patched
-    .map((file) => resolve(dir, file.relativePath))
+    .map((file) => resolveFile(copy.dir, file.relativePath))
     .filter((path) => isAlreadyLoaded(path) && !isOverridden(path))
 
   if (alreadyLoaded.length) {
     fail(
       entry,
-      dir,
-      `targets modules that were already loaded before withMercur() ran ` +
-        `(${alreadyLoaded.join(", ")}), so the patch cannot take effect`
+      copy,
+      `targets modules that were loaded before withMercur() ran ` +
+        `(${alreadyLoaded.join(", ")}), so it cannot take effect`
     )
   }
 
-  registerOverrides(dir, patched, resolve)
-
-  logger.info(
-    `[mercur] Applied patch "${entry.file}" to ${entry.package}@${
-      version ?? "unknown"
-    } (${patched.length} file(s))`
-  )
+  registerOverrides(copy.dir, patched, resolveFile)
+  return true
 }
 
 export function applyMercurPatches(options: ApplyPatchesOptions = {}): void {
@@ -107,16 +110,33 @@ export function applyMercurPatches(options: ApplyPatchesOptions = {}): void {
       continue
     }
 
-    const dirs = resolvePackageDirs(entry.package)
-    if (!dirs.length) {
+    const patchFilePath = join(PATCH_DIR, entry.file)
+    if (!existsSync(patchFilePath)) {
+      throw new Error(`[mercur] Patch file is missing: ${patchFilePath}`)
+    }
+
+    const copies = resolvePackageCopies(entry.package)
+    if (!copies.length) {
       throw new Error(
         `[mercur] Patch "${entry.file}" found no installed copy of ${entry.package}.`
       )
     }
 
-    for (const dir of dirs) {
-      applyToCopy(entry, dir, logger)
+    const patchedCount = copies.filter((copy) =>
+      applyToCopy(entry, copy, patchFilePath)
+    ).length
+
+    if (!patchedCount) {
+      throw new Error(
+        `[mercur] Patch "${entry.file}" matched no installed copy of ` +
+          `${entry.package}. It corrects: ${entry.reason}`
+      )
     }
+
+    logger.info(
+      `[mercur] Applied patch "${entry.file}" to ${patchedCount} copy/copies of ` +
+        `${entry.package}`
+    )
 
     // Load the patched package now rather than leaving it to Medusa: the
     // override only bites on first require, so failing here keeps the failure
