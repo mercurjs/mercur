@@ -1,8 +1,15 @@
+const path = require("path")
+
 const { loadEnv } = require("@medusajs/framework/utils")
 loadEnv("test", process.cwd())
 
 module.exports = {
   transform: {
+    // Mercur patches two shipped core-flows files. Jest never consults Node's
+    // module hooks, so without this the patches are inert under test and the
+    // suite silently exercises unpatched code.
+    "node_modules[\\\\/].*core-flows[\\\\/]dist[\\\\/]cart[\\\\/].*\\.js$":
+      "@mercurjs/core/patches/jest-transformer",
     "^.+\\.[jt]s$": [
       "@swc/jest",
       {
@@ -14,12 +21,17 @@ module.exports = {
     ],
   },
   testEnvironment: "node",
+  // Everything in node_modules is left untransformed except the core-flows cart
+  // files the patches target.
+  transformIgnorePatterns: [
+    "/node_modules/(?!.*core-flows[\\\\/]dist[\\\\/]cart[\\\\/])",
+  ],
   moduleFileExtensions: ["js", "ts", "json"],
   modulePathIgnorePatterns: ["dist/"],
-  setupFiles: ["./setup.js"],
+  setupFiles: [path.join(__dirname, "setup.js")],
   // Balance `--shard` partitions by estimated duration instead of file count
   // so heavy specs don't cluster in one shard and blow the job timeout.
-  testSequencer: "./test-sequencer.js",
+  testSequencer: path.join(__dirname, "test-sequencer.js"),
 }
 
 if (process.env.TEST_TYPE === "integration:http") {
@@ -34,5 +46,10 @@ if (process.env.TEST_TYPE === "integration:http") {
 } else if (process.env.TEST_TYPE === "integration:modules") {
   module.exports.testMatch = ["**/src/modules/*/__tests__/**/*.[jt]s"]
 } else if (process.env.TEST_TYPE === "unit") {
-  module.exports.testMatch = ["**/src/**/__tests__/**/*.unit.spec.[jt]s"]
+  // Unit specs live next to the source they cover, in the workspace packages
+  // rather than here, so the run is rooted at the repo.
+  module.exports.rootDir = path.join(__dirname, "..")
+  module.exports.testMatch = [
+    "**/packages/core/src/**/__tests__/**/*.unit.spec.[jt]s",
+  ]
 }
