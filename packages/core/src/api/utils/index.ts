@@ -1,6 +1,7 @@
 export * from "./unless-base-url"
 export * from "./scan-unauthenticated-routes"
 export * from "./ensure-seller-middleware"
+export * from "./ensure-seller-scope-middleware"
 export * from "./resolve-admin-roles-middleware"
 export * from "./policy-resources"
 export * from "./filter-by-seller-id"
