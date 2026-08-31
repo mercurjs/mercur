@@ -1,114 +1,128 @@
-import { cartRefreshFieldsPatch } from "./patches/cart-refresh-fields"
-import { refreshCartShippingMethodsPatch } from "./patches/refresh-cart-shipping-methods"
+import { existsSync } from "fs"
+import { join } from "path"
+
+import { isPatchApplied, readPatchedFiles } from "./apply-patch"
+import { isAlreadyLoaded, isOverridden, registerOverrides } from "./loader"
+import { PATCHES, type PatchEntry } from "./manifest"
 import { readPackageVersion, resolvePackageDirs } from "./resolve-package-dirs"
-import type { MercurPatch, PatchTarget } from "./types"
 import { isWithinRange } from "./version"
 
-// Mercur has to correct a handful of Medusa internals that expose no hook. A
-// published patch file would be the obvious way to do that, but patches are
-// applied by the package manager, and `templates/basic` supports four of them
-// with four incompatible mechanisms — and none of them reach a marketplace
-// that installed `@mercurjs/core` into an existing Medusa app. So the patches
-// ship as code and are applied from `withMercur()`, which every project calls.
+// Mercur has to correct a handful of Medusa internals that expose no hook.
+// Shipping those corrections through a package manager is not an option:
+// `templates/basic` supports bun, yarn, pnpm and npm, whose patch mechanisms are
+// mutually incompatible, and none of them reach a marketplace that installed
+// `@mercurjs/core` into an existing Medusa app.
 //
-// The lifecycle mirrors Expo's `patch-project`: bind each patch to the exact
-// baseline it was written against, probe before applying, and refuse loudly
-// rather than degrade to a silent no-op.
+// So the diffs live in `patches/` and are applied here, from `withMercur()`,
+// which every project calls. They travel with the package version and arrive on
+// a normal upgrade.
+//
+// The lifecycle follows Expo's `patch-project`: probe before applying, and
+// refuse loudly rather than degrade to a silent no-op. A hunk that no longer
+// matches its context is upstream telling us the patch is stale.
 
-export const MERCUR_PATCHES: MercurPatch[] = [
-  cartRefreshFieldsPatch,
-  refreshCartShippingMethodsPatch,
-]
+const PATCH_DIR = join(__dirname, "patches")
 
 export type ApplyPatchesOptions = {
-  /** Patch ids to skip, for adopters who need to opt out of one. */
+  /** Patch files to skip, for adopters who need to opt out of one. */
   disabled?: string[]
   logger?: Pick<Console, "info" | "warn">
 }
 
-function describe(patch: MercurPatch, target: PatchTarget): string {
-  const where = target.dir ? ` at ${target.dir}` : ""
-  return `${patch.package}@${target.version ?? "unknown"}${where}`
+function fail(entry: PatchEntry, dir: string, detail: string): never {
+  throw new Error(
+    `[mercur] Patch "${entry.file}" ${detail} (${dir}).\n` +
+      `It corrects: ${entry.reason}\n` +
+      `Regenerate the patch for the installed version, or skip it via ` +
+      `projectConfig.mercur.disabledPatches — skipping restores the bug above.`
+  )
 }
 
-function targetsFor(patch: MercurPatch): PatchTarget[] {
-  if (patch.scope === "registry") {
-    const [dir] = resolvePackageDirs(patch.package)
-    return [{ dir: null, version: dir ? readPackageVersion(dir) : null }]
-  }
-
-  return resolvePackageDirs(patch.package).map((dir) => ({
-    dir,
-    version: readPackageVersion(dir),
-  }))
-}
-
-function applyPatch(
-  patch: MercurPatch,
-  target: PatchTarget,
+function applyToCopy(
+  entry: PatchEntry,
+  dir: string,
   logger: NonNullable<ApplyPatchesOptions["logger"]>
 ): void {
-  if (target.version && !isWithinRange(target.version, patch.compatible)) {
-    throw new Error(
-      `[mercur] Patch "${patch.id}" was written against ${patch.package} ` +
-        `>=${patch.compatible.from} <${patch.compatible.to}, but ${describe(
-          patch,
-          target
-        )} is installed. Re-verify the patch against that version, or skip it ` +
-        `via projectConfig.mercur.disabledPatches — note that skipping restores ` +
-        `the upstream bug this patch fixes:\n  ${patch.reason}`
+  const patchFilePath = join(PATCH_DIR, entry.file)
+  if (!existsSync(patchFilePath)) {
+    throw new Error(`[mercur] Patch file is missing: ${patchFilePath}`)
+  }
+
+  const version = readPackageVersion(dir)
+  if (version && !isWithinRange(version, entry.compatible)) {
+    fail(
+      entry,
+      dir,
+      `was generated against ${entry.package} >=${entry.compatible.from} ` +
+        `<${entry.compatible.to}, but ${version} is installed`
     )
   }
 
-  if (patch.isApplied(target)) {
+  // Someone may have applied the same diff through their package manager. That
+  // is a supported outcome, not a conflict.
+  if (isPatchApplied(dir, patchFilePath)) {
     return
   }
 
-  if (!patch.detect(target)) {
-    throw new Error(
-      `[mercur] Patch "${patch.id}" no longer recognises ${describe(
-        patch,
-        target
-      )}. The code it targets has moved or changed shape, so the patch cannot ` +
-        `be applied safely. Update the patch for this version.`
+  const patched = readPatchedFiles(dir, patchFilePath)
+  if (!patched) {
+    fail(entry, dir, "no longer applies — its context has changed upstream")
+  }
+
+  const resolve = (packageDir: string, relativePath: string) =>
+    join(packageDir, relativePath)
+
+  const alreadyLoaded = patched
+    .map((file) => resolve(dir, file.relativePath))
+    .filter((path) => isAlreadyLoaded(path) && !isOverridden(path))
+
+  if (alreadyLoaded.length) {
+    fail(
+      entry,
+      dir,
+      `targets modules that were already loaded before withMercur() ran ` +
+        `(${alreadyLoaded.join(", ")}), so the patch cannot take effect`
     )
   }
 
-  patch.apply(target)
+  registerOverrides(dir, patched, resolve)
 
-  if (!patch.isApplied(target)) {
-    throw new Error(
-      `[mercur] Patch "${patch.id}" ran against ${describe(patch, target)} but ` +
-        `did not take effect.`
-    )
-  }
-
-  logger.info(`[mercur] Applied patch "${patch.id}" to ${describe(patch, target)}`)
+  logger.info(
+    `[mercur] Applied patch "${entry.file}" to ${entry.package}@${
+      version ?? "unknown"
+    } (${patched.length} file(s))`
+  )
 }
 
 export function applyMercurPatches(options: ApplyPatchesOptions = {}): void {
   const disabled = new Set(options.disabled ?? [])
   const logger = options.logger ?? console
 
-  for (const patch of MERCUR_PATCHES) {
-    if (disabled.has(patch.id)) {
+  for (const entry of PATCHES) {
+    if (disabled.has(entry.file)) {
       logger.warn(
-        `[mercur] Skipping patch "${patch.id}" (disabled). This restores the ` +
-          `upstream behaviour it corrects:\n  ${patch.reason}`
+        `[mercur] Skipping patch "${entry.file}" (disabled). This restores the ` +
+          `upstream behaviour it corrects: ${entry.reason}`
       )
       continue
     }
 
-    const targets = targetsFor(patch)
-
-    if (!targets.length) {
+    const dirs = resolvePackageDirs(entry.package)
+    if (!dirs.length) {
       throw new Error(
-        `[mercur] Patch "${patch.id}" found no installed copy of ${patch.package}.`
+        `[mercur] Patch "${entry.file}" found no installed copy of ${entry.package}.`
       )
     }
 
-    for (const target of targets) {
-      applyPatch(patch, target, logger)
+    for (const dir of dirs) {
+      applyToCopy(entry, dir, logger)
     }
+
+    // Load the patched package now rather than leaving it to Medusa: the
+    // override only bites on first require, so failing here keeps the failure
+    // next to the patch that caused it.
+    require(entry.package)
   }
 }
+
+export { PATCHES } from "./manifest"

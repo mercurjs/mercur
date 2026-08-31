@@ -12,8 +12,9 @@ export type MercurInputConfig = Omit<InputConfigWithArrayModules, "projectConfig
     }
     mercur?: {
       /**
-       * Ids of Medusa patches to skip. Each one restores an upstream bug, so
-       * only reach for this when a patch conflicts with your own override.
+       * Patch file names to skip, e.g. "@medusajs+core-flows@2.18.0.patch".
+       * Each one restores an upstream bug, so only reach for this when a patch
+       * conflicts with your own override.
        */
       disabledPatches?: string[]
     }

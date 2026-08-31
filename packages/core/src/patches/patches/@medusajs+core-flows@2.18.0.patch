@@ -1,0 +1,33 @@
+diff --git a/dist/cart/utils/fields.js b/dist/cart/utils/fields.js
+index 24f62e1..fddf3e5 100644
+--- a/dist/cart/utils/fields.js
++++ b/dist/cart/utils/fields.js
+@@ -36,6 +36,10 @@ exports.cartFieldsForRefreshSteps = [
+     "items.variant.id",
+     "items.variant.product.id",
+     "items.variant.product.shipping_profile.id",
++    // MERCUR: the offer, not the master product, owns the shipping profile a
++    // seller ships from. Without it on the line, refreshCartShippingMethods
++    // cannot tell which profile a co-sold product's seller actually uses.
++    "items.offer.shipping_profile_id",
+     "items.variant.weight",
+     "items.variant.length",
+     "items.variant.height",
+diff --git a/dist/cart/workflows/refresh-cart-shipping-methods.js b/dist/cart/workflows/refresh-cart-shipping-methods.js
+index 74e27fb..9d625ce 100644
+--- a/dist/cart/workflows/refresh-cart-shipping-methods.js
++++ b/dist/cart/workflows/refresh-cart-shipping-methods.js
+@@ -110,7 +110,12 @@ exports.refreshCartShippingMethodsWorkflow = (0, workflows_sdk_1.createWorkflow)
+             const shouldCleanupOrphanProfiles = shippingMethods.length > 1;
+             const requiredProfileIds = new Set(items
+                 .filter((item) => item.requires_shipping)
+-                .map((item) => item.variant?.product?.shipping_profile?.id)
++                // MERCUR: offer profile wins, product profile is the fallback for
++                // lines not bought through an offer. The product link is
++                // one-to-one and the first offerer wins it, so deriving the set
++                // from the product alone deletes every other seller's shipping
++                // method as an orphan in a multi-seller cart.
++                .map((item) => item.offer?.shipping_profile_id ?? item.variant?.product?.shipping_profile?.id)
+                 .filter(Boolean));
+             const validShippingMethods = shippingMethods.filter((shippingMethod) => {
+                 // Fetch  the available shipping options for the cart context and find the one associated
