@@ -39,6 +39,20 @@ medusaIntegrationTestRunner({
         expect(response.status).toBe(200)
         expect(Array.isArray(response.data.stores)).toBe(true)
       })
+
+      it("does not expand fields outside the allowed list", async () => {
+        const response = await api
+          .get("/vendor/stores?fields=%2Bmembers.*", headers)
+          .catch((e) => e.response)
+
+        if (response.status === 200) {
+          for (const store of response.data.stores) {
+            expect(store.members).toBeUndefined()
+          }
+        } else {
+          expect(response.status).toBe(400)
+        }
+      })
     })
   },
 })

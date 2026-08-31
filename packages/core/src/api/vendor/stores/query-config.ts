@@ -14,10 +14,12 @@ export const vendorStoreFields = [
 export const vendorStoreQueryConfig = {
   list: {
     defaults: vendorStoreFields,
+    allowed: vendorStoreFields,
     isList: true,
   },
   retrieve: {
     defaults: vendorStoreFields,
+    allowed: vendorStoreFields,
     isList: false,
   },
 }
