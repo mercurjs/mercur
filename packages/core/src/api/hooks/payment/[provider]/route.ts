@@ -3,10 +3,11 @@ import { Modules } from "@medusajs/framework/utils"
 
 import { PaymentWebhookEvents } from "../../../../workflows/events"
 
-// Replaces Medusa's `/hooks/payment/:provider` route, which is disabled in
-// `withMercur`. It is identical except for the event name: emitting Mercur's
-// own event keeps Medusa's `payment-webhook` subscriber — and with it the
-// stock cart completion — out of the marketplace checkout entirely.
+// Overrides Medusa's `/hooks/payment/:provider` route — plugin routes are
+// registered after core's, so this file wins the path. It is identical except
+// for the event name: emitting Mercur's own event keeps Medusa's
+// `payment-webhook` subscriber — and with it the stock cart completion — out
+// of the marketplace checkout entirely.
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
     const { provider } = req.params

@@ -46,7 +46,7 @@ const OVERRIDES: string[] = [
 
 export const ORIGINAL_MIDDLEWARES: Record<string, unknown[]> = {}
 
-export function findMedusaDirs(): string[] {
+function findMedusaDirs(): string[] {
   const dirs = new Set<string>()
 
   const entry = resolveCwd("@medusajs/medusa")
