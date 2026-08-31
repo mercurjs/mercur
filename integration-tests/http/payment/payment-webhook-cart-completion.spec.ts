@@ -309,6 +309,14 @@ medusaIntegrationTestRunner({
 
                 expect(mercurEvents).toHaveLength(1)
                 expect(medusaEvents).toHaveLength(0)
+
+                // The raw body is what providers sign; losing it would break
+                // signature verification without failing any other assertion.
+                const payload = mercurEvents[0].data.payload
+                expect(payload.data).toEqual({ hello: "world" })
+                expect(Buffer.from(payload.rawData).toString()).toEqual(
+                    JSON.stringify({ hello: "world" })
+                )
             })
 
             it("completes the cart into split orders when the payment is authorized", async () => {
