@@ -28,6 +28,7 @@ medusaIntegrationTestRunner({
             let appContainer: MedusaContainer
             let sellerSeed: any
             let storeHeaders: any
+            let customerEmail: string
             let region: any
             let salesChannel: any
 
@@ -41,6 +42,7 @@ medusaIntegrationTestRunner({
                     first_name: "Payment",
                     last_name: "Buyer",
                 })
+                customerEmail = customerResult.customer.email!
                 const apiKey = await generatePublishableKey(appContainer)
                 const baseStoreHeaders = generateStoreHeaders({
                     publishableKey: apiKey,
@@ -96,6 +98,7 @@ medusaIntegrationTestRunner({
                     regionId: region.id,
                     salesChannelId: salesChannel.id,
                     offerId: sellerSeed.offer.id,
+                    email: customerEmail,
                 })
 
             it("GET /store/orders/:id surfaces the cart payment collection and an authorized payment_status", async () => {

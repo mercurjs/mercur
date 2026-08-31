@@ -151,6 +151,13 @@ export const completeSplitOrderCheckout = async (opts: {
     regionId: string
     salesChannelId: string
     offerId: string
+    /**
+     * Must be the authenticated customer's own email. Medusa's
+     * findOrCreateCustomerStep treats a customer without `has_account` as a
+     * guest, so a different email on the cart moves it to a freshly created
+     * guest customer — and the resulting orders stop belonging to the buyer.
+     */
+    email: string
 }) => {
     const { container, api, storeHeaders } = opts
 
@@ -184,7 +191,7 @@ export const completeSplitOrderCheckout = async (opts: {
     await api.post(
         `/store/carts/${cart.id}`,
         {
-            email: "buyer@test.com",
+            email: opts.email,
             shipping_address: address,
             billing_address: address,
         },
