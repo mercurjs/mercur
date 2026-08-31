@@ -15,7 +15,7 @@ import terminalLink from "terminal-link";
 import validateProjectName from "validate-npm-package-name";
 import waitOn from "wait-on";
 
-// import packageJson from "../../package.json";
+import packageJson from "../../package.json";
 import {
   sendTelemetryEvent,
   setTelemetryEmail,
@@ -30,6 +30,11 @@ import { handleError } from "../utils/handle-error";
 import { highlighter } from "../utils/highlighter";
 import { logger } from "../utils/logger";
 import { manageEnvFiles } from "../utils/manage-env-files";
+import {
+  applyReleaseChannel,
+  detectReleaseChannel,
+  type ReleaseChannel,
+} from "../utils/release-channel";
 import { spinner } from "../utils/spinner";
 
 const DEFAULT_BRANCH = "main";
@@ -68,6 +73,10 @@ export const create = new Command()
   .option("--skip-storefront", "skip adding the Next.js storefront.", false)
   .option("--skip-db", "skip database configuration.", false)
   .option("--skip-email", "skip email prompt.", false)
+  .option(
+    "--tag <tag>",
+    "the release channel to pin @mercurjs/* packages to: latest, rc, or canary. defaults to the channel of this CLI."
+  )
   .option("--db-connection-string <string>", "PostgreSQL connection string.")
   .option("--db-host <host>", "PostgreSQL host.", "localhost")
   .option("--db-port <port>", "PostgreSQL port.", "5432")
@@ -75,6 +84,7 @@ export const create = new Command()
     try {
       const createStart = Date.now();
       validateNodeVersion();
+      const channel = resolveChannel(opts.tag);
       showTelemetryNoticeIfNeeded();
 
       let projectName = name;
@@ -186,6 +196,20 @@ export const create = new Command()
         }
       } finally {
         await fs.remove(tarballPath).catch(() => null);
+      }
+
+      if (channel !== "latest") {
+        const channelSpinner = spinner(
+          `Pinning Mercur packages to the ${channel} release...`
+        ).start();
+        const pinned = await applyReleaseChannel({ projectDir, channel });
+        if (pinned) {
+          channelSpinner.succeed(`Mercur packages pinned to ${pinned}.`);
+        } else {
+          channelSpinner.warn(
+            `No ${channel} release found — keeping the template's pinned versions.`
+          );
+        }
       }
 
       const packageManager = await resolveProjectPackageManager();
@@ -338,6 +362,20 @@ export const create = new Command()
       handleError(error);
     }
   });
+
+function resolveChannel(tag?: string): ReleaseChannel {
+  if (!tag) {
+    return detectReleaseChannel(packageJson.version ?? "");
+  }
+
+  if (tag !== "latest" && tag !== "rc" && tag !== "canary") {
+    throw new Error(
+      `Unknown --tag "${tag}". Expected one of: latest, rc, canary.`
+    );
+  }
+
+  return tag;
+}
 
 async function createOrFindProjectDir(projectDir: string): Promise<void> {
   const pathExists = await fs.pathExists(projectDir);
