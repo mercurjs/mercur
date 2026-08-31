@@ -19,10 +19,12 @@ export const PATCHES: PatchEntry[] = [
     // Both targeted files are byte-identical in 2.17.2 and 2.18.0.
     compatible: { from: "2.17.0", to: "2.19.0" },
     reason:
-      "refreshCartShippingMethodsWorkflow derives the shipping profiles a cart " +
-      "still requires from the master product, but the product link is " +
-      "one-to-one and the first offerer wins it. In a multi-seller cart holding " +
-      "a co-sold product every other seller's shipping method is deleted as an " +
-      "orphan and checkout fails. See mercurjs/mercur#1442.",
+      "refreshCartShippingMethodsWorkflow deletes any shipping method whose " +
+      "profile is not required by a cart item, deriving that set from each " +
+      "item's master product. In Mercur the profile belongs to the offer — the " +
+      "product link is one-to-one and the first offerer wins it — so in a " +
+      "multi-seller cart holding a co-sold product every other seller's method " +
+      "is judged orphaned and checkout fails. The patch disables that cleanup. " +
+      "See mercurjs/mercur#1442.",
   },
 ]

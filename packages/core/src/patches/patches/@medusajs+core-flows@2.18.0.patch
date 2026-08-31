@@ -1,40 +1,21 @@
-diff --git a/dist/cart/utils/fields.js b/dist/cart/utils/fields.js
-index 24f62e1..fddf3e5 100644
---- a/dist/cart/utils/fields.js
-+++ b/dist/cart/utils/fields.js
-@@ -36,6 +36,10 @@ exports.cartFieldsForRefreshSteps = [
-     "items.variant.id",
-     "items.variant.product.id",
-     "items.variant.product.shipping_profile.id",
-+    // MERCUR: the offer, not the master product, owns the shipping profile a
-+    // seller ships from. Without it on the line, refreshCartShippingMethods
-+    // cannot tell which profile a co-sold product's seller actually uses.
-+    "items.offer.shipping_profile_id",
-     "items.variant.weight",
-     "items.variant.length",
-     "items.variant.height",
 diff --git a/dist/cart/workflows/refresh-cart-shipping-methods.js b/dist/cart/workflows/refresh-cart-shipping-methods.js
-index 74e27fb..8ed6356 100644
+index 74e27fb..016edc9 100644
 --- a/dist/cart/workflows/refresh-cart-shipping-methods.js
 +++ b/dist/cart/workflows/refresh-cart-shipping-methods.js
-@@ -110,8 +110,19 @@ exports.refreshCartShippingMethodsWorkflow = (0, workflows_sdk_1.createWorkflow)
-             const shouldCleanupOrphanProfiles = shippingMethods.length > 1;
+@@ -107,7 +107,15 @@ exports.refreshCartShippingMethodsWorkflow = (0, workflows_sdk_1.createWorkflow)
+             // Collect profile IDs still required by remaining cart items so that
+             // shipping methods for profiles with no matching items can be dropped.
+             // Avoid clearing shipping methods for single-method carts.
+-            const shouldCleanupOrphanProfiles = shippingMethods.length > 1;
++            // MERCUR: upstream drops a shipping method whose profile is not
++            // required by any cart item, deriving that set from each item's
++            // master product. Mercur's shipping profile belongs to the offer:
++            // the product link is one-to-one and the first offerer wins it, so
++            // in a multi-seller cart holding a co-sold product every other
++            // seller's method is judged orphaned and checkout fails. The
++            // cleanup is disabled rather than re-derived because the offer is
++            // not on the cart this workflow is handed.
++            const shouldCleanupOrphanProfiles = false;
              const requiredProfileIds = new Set(items
                  .filter((item) => item.requires_shipping)
--                .map((item) => item.variant?.product?.shipping_profile?.id)
-+                // MERCUR: offer profile wins, product profile is the fallback for
-+                // lines not bought through an offer. The product link is
-+                // one-to-one and the first offerer wins it, so deriving the set
-+                // from the product alone deletes every other seller's shipping
-+                // method as an orphan in a multi-seller cart.
-+                .map((item) => item.offer?.shipping_profile_id ?? item.variant?.product?.shipping_profile?.id)
-                 .filter(Boolean));
-+            console.log('MERCUR_DIAG', JSON.stringify({
-+                cleanup: shouldCleanupOrphanProfiles,
-+                required: [...requiredProfileIds],
-+                items: items.map((i) => ({ rs: i.requires_shipping, offer: i.offer?.shipping_profile_id, prod: i.variant?.product?.shipping_profile?.id })),
-+                methods: shippingMethods.map((m) => { const o = shippingOptions.find((so) => so.id === m.shipping_option_id); return { so: m.shipping_option_id, found: !!o, price: o?.calculated_price?.calculated_amount, profile: o?.shipping_profile_id }; }),
-+            }));
-             const validShippingMethods = shippingMethods.filter((shippingMethod) => {
-                 // Fetch  the available shipping options for the cart context and find the one associated
-                 // with the current shipping method
+                 .map((item) => item.variant?.product?.shipping_profile?.id)

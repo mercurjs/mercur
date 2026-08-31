@@ -106,12 +106,22 @@ Skipping a patch restores the upstream bug it corrects; the reason is logged.
 
 ## Current patches
 
-- **`@medusajs+core-flows@2.17.2.patch`** — derives the shipping profiles a cart
-  still requires from the offer rather than the master product, and carries the
-  offer's profile on the refreshed cart so it is there to read. Upstream reads
-  `item.variant.product.shipping_profile.id`, but that link is one-to-one and the
-  first offerer wins it, so in a multi-seller cart holding a co-sold product every
-  other seller's shipping method was deleted as an orphan and checkout failed.
-  See https://github.com/mercurjs/mercur/issues/1442.
+- **`@medusajs+core-flows@2.18.0.patch`** — disables the orphan-profile cleanup in
+  `refreshCartShippingMethodsWorkflow`. Upstream deletes a shipping method whose
+  profile is not required by any cart item, deriving that set from each item's
+  master product; in Mercur the shipping profile belongs to the offer (the
+  product link is one-to-one and the first offerer wins it), so in a
+  multi-seller cart holding a co-sold product every other seller's method is
+  judged orphaned and checkout fails. See
+  https://github.com/mercurjs/mercur/issues/1442.
+
+  The cleanup is disabled rather than re-derived from the offer because the
+  offer is not present on the cart this workflow receives: `refreshCartItems`
+  refetches with a field list it captured by reference at module-load time, so
+  adding a field to that list no longer reaches the already-composed workflow.
+
+  **Consequence:** a genuinely orphaned method now survives — remove a seller's
+  last item and their shipping method stays on the cart. Dropping it belongs to
+  Mercur's own cart flows.
 
 Removable once the equivalent fix lands upstream in Medusa.
