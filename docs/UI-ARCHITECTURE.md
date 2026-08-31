@@ -421,6 +421,9 @@ List pages mount a `SingleColumnPage` with a `Container` that holds a header + `
 - Standard `PAGE_SIZE = 20`.
 - Use `keepPreviousData` from TanStack Query for smooth pagination.
 - Filters / search are wired through the `useXTableQuery` hook (returns `{ raw, searchParams }`).
+- Pagination is synchronized with the URL through the table's zero-based `offset` query parameter; prefixed tables use `<prefix>_offset`.
+- Normalize and clamp offsets to the valid range derived from the result count and page size.
+- Reset the offset to the first page whenever a search or filter value changes, while preserving unrelated query parameters.
 
 ### Empty states
 
