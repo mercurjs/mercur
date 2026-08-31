@@ -5,8 +5,6 @@ import {
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
 import { HttpTypes } from "@medusajs/framework/types"
 
-import { vendorStoreFields } from "./query-config"
-
 export const GET = async (
   req: AuthenticatedMedusaRequest<HttpTypes.AdminStoreListParams>,
   res: MedusaResponse<HttpTypes.AdminStoreListResponse>
@@ -24,7 +22,7 @@ export const GET = async (
 
   const { data: stores, metadata } = await query.graph({
     entity: "store",
-    fields: vendorStoreFields,
+    fields: req.queryConfig.fields,
     filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
   })
