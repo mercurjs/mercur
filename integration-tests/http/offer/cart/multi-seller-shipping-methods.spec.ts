@@ -323,20 +323,15 @@ medusaIntegrationTestRunner({
                     ].sort()
                 )
 
+                const paymentCollection = (
+                    await api.post(
+                        `/store/payment-collections`,
+                        { cart_id: cart.id },
+                        storeHeaders
+                    )
+                ).data.payment_collection
                 await api.post(
-                    `/store/carts/${cart.id}/payment-collections`,
-                    {},
-                    storeHeaders
-                )
-                await api.post(
-                    `/store/payment-collections/${
-                        (
-                            await api.get(
-                                `/store/carts/${cart.id}?fields=*payment_collection`,
-                                storeHeaders
-                            )
-                        ).data.cart.payment_collection.id
-                    }/payment-sessions`,
+                    `/store/payment-collections/${paymentCollection.id}/payment-sessions`,
                     { provider_id: "pp_system_default" },
                     storeHeaders
                 )
