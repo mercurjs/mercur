@@ -553,7 +553,7 @@ export type Routes = {
     };
     hooks: {
         payment: {
-            $provider: typeof import("@medusajs/medusa/api/hooks/payment/[provider]/route");
+            $provider: typeof import("../src/api/hooks/payment/[provider]/route");
         };
         payout: typeof import("../src/api/hooks/payout/route");
     };

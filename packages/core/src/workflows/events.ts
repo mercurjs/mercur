@@ -43,3 +43,13 @@ export const OfferWorkflowEvents = {
   UPDATED: "offer.updated",
   DELETED: "offer.deleted",
 }
+export const PaymentWebhookEvents = {
+  /**
+   * Emitted when a payment provider webhook reaches `/hooks/payment/:provider`.
+   *
+   * Mercur-specific on purpose: Medusa's `payment.webhook_received` would also
+   * wake its own subscriber, which completes carts with the stock complete-cart
+   * workflow instead of the marketplace split-order one.
+   */
+  WEBHOOK_RECEIVED: "mercur.payment.webhook_received",
+}
