@@ -342,6 +342,28 @@ medusaIntegrationTestRunner({
 
                 await diag("after-second-add")
 
+                const { compiledPaths } = require("@mercurjs/core/patches/loader")
+                console.log("DIAG compiled:", JSON.stringify(compiledPaths()))
+
+                const optionsAfter = await api.get(
+                    `/store/shipping-options?cart_id=${cart.id}`,
+                    storeHeaders
+                )
+                console.log(
+                    "DIAG options-available:",
+                    JSON.stringify(
+                        Object.values(
+                            optionsAfter.data.shipping_options as Record<string, any[]>
+                        )
+                            .flat()
+                            .map((o: any) => ({
+                                id: o.id,
+                                profile: o.shipping_profile_id,
+                                amount: o.calculated_price?.calculated_amount,
+                            }))
+                    )
+                )
+
                 expect(afterSecond).toHaveLength(2)
                 expect(
                     afterSecond.map((m) => m.shipping_option_id).sort()

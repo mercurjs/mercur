@@ -14,6 +14,9 @@ const internals = Module as unknown as ModuleInternals
 /** Absolute file path -> patched source, consulted on every `.js` load. */
 const overrides = new Map<string, string>()
 
+/** Paths whose patched source was actually compiled, not merely registered. */
+const compiled = new Set<string>()
+
 let installed = false
 
 // Patches are applied in memory rather than written to `node_modules`: a server
@@ -29,12 +32,22 @@ function install(): void {
     const patched = overrides.get(filename)
     if (patched !== undefined) {
       module._compile(patched, filename)
+      compiled.add(filename)
       return
     }
     original(module, filename)
   }
 
   installed = true
+}
+
+/**
+ * Files whose patched source was compiled in place of the original. Registering
+ * an override only takes effect if the module is required afterwards, so this
+ * is the difference between a patch being staged and a patch being live.
+ */
+export function compiledPaths(): string[] {
+  return [...compiled]
 }
 
 export function isAlreadyLoaded(absolutePath: string): boolean {
