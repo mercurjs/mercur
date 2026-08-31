@@ -793,6 +793,37 @@ medusaIntegrationTestRunner({
         expect(data.length).toBe(1)
       })
 
+      it("update: a value added to a scoped axis is usable by a new variant (200)", async () => {
+        const created = await api.post(
+          "/admin/products",
+          {
+            title: "Scoped Axis Variant Product",
+            status: "published",
+            attributes: [
+              { title: "Size", values: ["S", "M"], is_variant_axis: true },
+            ],
+          },
+          adminHeaders,
+        )
+        const productId = created.data.product.id
+        const sizeId = scopedAttr(created.data.product, "Size").id
+
+        const res = await batch(productId, {
+          update: [{ id: sizeId, add: [{ value: "L" }] }],
+        })
+        expect(res.status).toEqual(200)
+
+        // the mirrored option value must be associated with the product,
+        // otherwise variant create fails with
+        // "Option value L does not exist for option Size".
+        const variantRes = await api.post(
+          `/admin/products/${productId}/variants`,
+          { title: "Large", options: { Size: "L" } },
+          adminHeaders,
+        )
+        expect([200, 201]).toContain(variantRes.status)
+      })
+
       it("remove: inline non-axis scoped attribute delete drops scoped attr + value (200)", async () => {
         const productId = await createProduct()
         const added = await batch(productId, {

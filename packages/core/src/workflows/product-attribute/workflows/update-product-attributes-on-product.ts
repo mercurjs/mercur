@@ -25,6 +25,7 @@ import {
 } from "@mercurjs/types"
 
 import {
+  attachProductOptionValuesToProductStep,
   createProductAttributeValuesStep,
   detachProductOptionValuesFromProductStep,
   updateProductAttributeValuesStep,
@@ -394,6 +395,29 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
         },
       }),
     )
+
+    // Values created against an inline axis attribute mirror onto its
+    // ProductOption, but the new option values are not associated with the
+    // product until they are added explicitly.
+    const exclusiveAttachInput = transform(
+      { input, exclusivePlan, createdExclusiveValues },
+      ({ input, exclusivePlan, createdExclusiveValues }) => ({
+        product_id: input.product_id,
+        product_option_id: exclusivePlan.product_option_id,
+        value_ids: (
+          (createdExclusiveValues ?? []) as {
+            product_option_value_id?: string | null
+          }[]
+        )
+          .map((v) => v.product_option_value_id)
+          .filter((id): id is string => !!id),
+      }),
+    )
+
+    when(
+      { exclusiveAttachInput },
+      ({ exclusiveAttachInput }) => exclusiveAttachInput.value_ids.length > 0,
+    ).then(() => attachProductOptionValuesToProductStep(exclusiveAttachInput))
 
     const exclusiveAddLinks = transform(
       { input, createdExclusiveValues },
