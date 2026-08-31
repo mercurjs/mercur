@@ -22,10 +22,15 @@ export type MercurInputConfig = Omit<InputConfigWithArrayModules, "projectConfig
 }
 
 export function withMercur(config: MercurInputConfig = {}): InputConfigWithArrayModules {
-  disableMedusaMiddlewares()
+  // Before `disableMedusaMiddlewares`, which requires Medusa middleware modules
+  // that pull in `@medusajs/core-flows` transitively. Patches are compiled on
+  // first require, so anything that loads the targeted modules must run after
+  // this. Medusa itself imports core-flows lazily, well after `medusa-config`
+  // is evaluated, which is what leaves this window open at all.
   applyMercurPatches({
     disabled: config.projectConfig?.mercur?.disabledPatches,
   })
+  disableMedusaMiddlewares()
 
   const projectConfig = {
     ...config.projectConfig,
