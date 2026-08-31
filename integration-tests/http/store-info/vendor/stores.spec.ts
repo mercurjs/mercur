@@ -39,6 +39,26 @@ medusaIntegrationTestRunner({
         expect(response.status).toBe(200)
         expect(Array.isArray(response.data.stores)).toBe(true)
       })
+
+      it("strips disallowed relations from expanded fields", async () => {
+        const response = await api.get(
+          "/vendor/stores?fields=%2Bmembers.*",
+          headers
+        )
+
+        expect(response.status).toBe(200)
+        for (const store of response.data.stores) {
+          expect(store.members).toBeUndefined()
+        }
+      })
+
+      it("rejects ordering by a field outside the allowed list", async () => {
+        const error = await api
+          .get("/vendor/stores?order=members.id", headers)
+          .catch((e) => e)
+
+        expect(error.response.status).toBe(400)
+      })
     })
   },
 })
