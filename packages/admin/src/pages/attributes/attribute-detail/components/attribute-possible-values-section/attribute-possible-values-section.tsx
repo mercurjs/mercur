@@ -3,7 +3,6 @@ import {
   Button,
   Container,
   Heading,
-  Input,
   Prompt,
   toast,
   usePrompt,
@@ -19,6 +18,7 @@ import { NoRecords } from "../../../../../components/common/empty-table-content"
 import { _DataTable } from "../../../../../components/table/data-table"
 import { TextCell } from "../../../../../components/table/table-cells/common/text-cell"
 import { useDataTable } from "../../../../../hooks/use-data-table"
+import { useQueryParams } from "../../../../../hooks/use-query-params"
 import { useUpdateProductAttribute } from "../../../../../hooks/api/product-attributes"
 
 type AttributePossibleValuesSectionProps = {
@@ -126,22 +126,25 @@ export const AttributePossibleValuesSection = ({
   attribute,
 }: AttributePossibleValuesSectionProps) => {
   const { t } = useTranslation()
-  const [search, setSearch] = useState("")
+  const raw = useQueryParams(["q", "offset"])
 
-  if (attribute.type !== AttributeType.SINGLE_SELECT && attribute.type !== AttributeType.MULTI_SELECT) {
-    return null
-  }
-
-  const allValues = useMemo(
-    () => attribute.values ?? [],
-    [attribute.values]
-  )
+  const allValues = useMemo(() => attribute.values ?? [], [attribute.values])
 
   const filtered = useMemo(() => {
-    if (!search) return allValues
-    const q = search.toLowerCase()
-    return allValues.filter((v) => v.name?.toLowerCase().includes(q))
-  }, [allValues, search])
+    if (!raw.q) {
+      return allValues
+    }
+
+    const query = raw.q.toLowerCase()
+
+    return allValues.filter((v) => v.name?.toLowerCase().includes(query))
+  }, [allValues, raw.q])
+
+  const offset = Number(raw.offset ?? 0)
+  const page = useMemo(
+    () => filtered.slice(offset, offset + PAGE_SIZE),
+    [filtered, offset]
+  )
 
   const columns = useMemo(
     () => [
@@ -164,35 +167,32 @@ export const AttributePossibleValuesSection = ({
   )
 
   const { table } = useDataTable({
-    data: filtered,
+    data: page,
     count: filtered.length,
     columns,
     getRowId: (row) => row.id,
     pageSize: PAGE_SIZE,
   })
 
+  if (
+    attribute.type !== AttributeType.SINGLE_SELECT &&
+    attribute.type !== AttributeType.MULTI_SELECT
+  ) {
+    return null
+  }
+
   return (
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t("attributes.fields.possibleValues")}</Heading>
         <div className="flex items-center gap-x-2">
-          <Input
-            size="small"
-            type="search"
-            placeholder={t("general.search")}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-[200px]"
-          />
           <Button variant="secondary" size="small" asChild>
             <Link to="edit-ranking">
               {t("attributes.possibleValues.editRanking")}
             </Link>
           </Button>
           <Button variant="secondary" size="small" asChild>
-            <Link to="create-possible-value">
-              {t("actions.create")}
-            </Link>
+            <Link to="create-possible-value">{t("actions.create")}</Link>
           </Button>
         </div>
       </div>
@@ -202,7 +202,9 @@ export const AttributePossibleValuesSection = ({
           columns={columns}
           pageSize={PAGE_SIZE}
           count={filtered.length}
+          queryObject={raw}
           pagination
+          search
         />
       ) : (
         <NoRecords
