@@ -277,13 +277,6 @@ Two table primitives ship side by side; new code should target the newer one:
 
 Common cells live in `components/table/table-cells/common` (`TextCell`, `StatusCell`, `MoneyAmountCell`, `DateCell`, `CreatedAtCell`, `EmailCell`, `CodeCell`, `NameCell`, `PlaceholderCell`).
 
-For legacy `_DataTable` pages, `useDataTable` keeps pagination in the URL. The
-zero-based `offset` query parameter is prefixed when the table receives a
-`prefix` (for example, `products_offset`). Offsets are normalized and clamped
-to the valid range derived from `count` and `pageSize`. Changing search or
-filter values resets the offset to the first page while preserving the other
-query parameters.
-
 Empty states are `NoRecords` (no data at all, optional CTA) and `NoResults` (filter/search returned nothing). The legacy `_DataTable` renders them automatically based on `count` + `queryObject`.
 
 ### Data grids
@@ -308,7 +301,7 @@ While data loads, render `SingleColumnPageSkeleton sections={n}` or `TwoColumnPa
 
 | Hook                     | Purpose                                                                                                                                                       |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `useDataTable`           | Builds TanStack Table state for the legacy `_DataTable`. Handles URL-backed pagination, normalized/clamped offsets, filter resets, row selection, expandable rows, and prefixed search params. |
+| `useDataTable`           | Builds TanStack Table state for the legacy `_DataTable`. Handles pagination + row selection + expandable rows + prefixed search params.                       |
 | `useQueryParams`         | Read a strongly-typed map of search params off the current URL. Accepts a `prefix` so two tables on the same page do not collide.                             |
 | `useDate`                | Locale-aware date formatter built on `date-fns`. Use whenever you display dates so RTL/locale settings are honoured.                                          |
 | `useDocumentDirection`   | Returns `"ltr" \| "rtl"`. Pass to `Select`, `DropdownMenu`, `Combobox` to keep menus on the correct side.                                                     |
