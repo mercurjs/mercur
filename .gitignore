@@ -2,6 +2,7 @@
 
 # Dependencies
 node_modules
+.claude
 .pnp
 .pnp.js
 

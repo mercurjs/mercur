@@ -45,6 +45,7 @@ medusaIntegrationTestRunner({
                 stocked: number
                 offerPrice: number
                 required_quantity?: number
+                existingProduct?: any
             }) => {
                 const result = await createSellerUser(appContainer, {
                     email: opts.email,
@@ -132,16 +133,20 @@ medusaIntegrationTestRunner({
                     headers
                 )
 
-                const product = await createVendorProduct(api, headers, {
-                    title: `Prod${uniqueSuffix}`,
-                    sku: `V${uniqueSuffix}`,
-                })
+                const product =
+                    opts.existingProduct ??
+                    (await createVendorProduct(api, headers, {
+                        title: `Prod${uniqueSuffix}`,
+                        sku: `V${uniqueSuffix}`,
+                    }))
 
-                await api.post(
-                    `/vendor/sales-channels/${salesChannel.id}/products`,
-                    { add: [product.id] },
-                    headers
-                )
+                if (!opts.existingProduct) {
+                    await api.post(
+                        `/vendor/sales-channels/${salesChannel.id}/products`,
+                        { add: [product.id] },
+                        headers
+                    )
+                }
 
                 const offer = (
                     await api.post(
@@ -757,6 +762,54 @@ medusaIntegrationTestRunner({
                     expect(after.stocked).toEqual(47)
                     expect(after.reserved).toEqual(0)
                 })
+            })
+
+            it("should complete a cart for an offer whose seller is not the product's default seller", async () => {
+                const sellerA = await seedSellerOfferWithShipping({
+                    email: "profile-a@test.com",
+                    name: "ProfileA",
+                    stocked: 10,
+                    offerPrice: 2500,
+                })
+                const sellerB = await seedSellerOfferWithShipping({
+                    email: "profile-b@test.com",
+                    name: "ProfileB",
+                    stocked: 10,
+                    offerPrice: 3500,
+                    existingProduct: sellerA.product,
+                })
+
+                expect(sellerB.offer.shipping_profile_id).not.toEqual(
+                    sellerA.offer.shipping_profile_id
+                )
+
+                const { completeResp } = await completeCartCheckout(
+                    sellerB.offer.id,
+                    sellerB.variant.id,
+                    1
+                )
+
+                expect(completeResp.status).toEqual(200)
+                expect(completeResp.data.type).toEqual("order_group")
+
+                const query = appContainer.resolve(
+                    ContainerRegistrationKeys.QUERY
+                )
+                const { data: orderGroup } = await query.graph({
+                    entity: "order_group",
+                    filters: { id: completeResp.data.order_group.id },
+                    fields: [
+                        "id",
+                        "orders.id",
+                        "orders.seller.id",
+                        "orders.items.offer.id",
+                    ],
+                })
+
+                const orders = (orderGroup[0] as any).orders
+                expect(orders).toHaveLength(1)
+                expect(orders[0].seller.id).toEqual(sellerB.sellerId)
+                expect(orders[0].items[0].offer.id).toEqual(sellerB.offer.id)
             })
         })
     },

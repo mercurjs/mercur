@@ -13,6 +13,7 @@ import { useDataTable } from "@/hooks/use-data-table"
 import { ExtendedReservationItem } from "../../../../inventory/inventory-detail/components/reservations-table/use-reservation-list-table-columns"
 import { useReservationTableColumns } from "./use-reservation-table-columns"
 import { useReservationTableFilters } from "./use-reservation-table-filters"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { useReservationTableQuery } from "./use-reservation-table-query"
 
 const PAGE_SIZE = 20
@@ -32,9 +33,11 @@ export const ReservationListTitle = () => {
 export const ReservationListCreateButton = () => {
   const { t } = useTranslation()
   return (
-    <Button variant="secondary" size="small" asChild>
-      <Link to="create">{t("actions.create")}</Link>
-    </Button>
+    <PermissionGuard resource="reservation_item" operation="create">
+      <Button variant="secondary" size="small" asChild>
+        <Link to="create">{t("actions.create")}</Link>
+      </Button>
+    </PermissionGuard>
   )
 }
 

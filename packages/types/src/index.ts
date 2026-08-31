@@ -58,6 +58,7 @@ export {
   type ProductAttributeBatchAdd,
   type ProductAttributeBatchUpdate,
   type ProductAttributeBatchInput,
+  type ProductAttributeValueSnapshot,
   type CreateProductChangeDTO,
   type CreateProductChangeActionDTO,
 } from "./product"

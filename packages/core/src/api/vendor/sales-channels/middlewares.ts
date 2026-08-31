@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -24,6 +26,12 @@ export const vendorSalesChannelsMiddlewares: MiddlewareRoute[] = [
         listTransformQueryConfig
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.sales_channel,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -33,6 +41,12 @@ export const vendorSalesChannelsMiddlewares: MiddlewareRoute[] = [
         VendorGetSalesChannelParams,
         retrieveTransformQueryConfig
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.sales_channel,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -44,6 +58,12 @@ export const vendorSalesChannelsMiddlewares: MiddlewareRoute[] = [
         VendorGetSalesChannelParams,
         retrieveTransformQueryConfig
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.sales_channel,
+        operation: PolicyOperation.update,
+      },
     ],
   },
 ]

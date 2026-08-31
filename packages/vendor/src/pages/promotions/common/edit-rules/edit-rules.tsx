@@ -48,7 +48,9 @@ export const EditRules = () => {
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
-        <Heading>{t(`promotions.edit.${ruleType}.title`)}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading>{t(`promotions.edit.${ruleType}.title`)}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {!isLoading && promotion && (
         <EditRulesWrapper

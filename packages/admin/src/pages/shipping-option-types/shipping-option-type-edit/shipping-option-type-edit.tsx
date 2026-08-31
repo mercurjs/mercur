@@ -21,7 +21,9 @@ export const ShippingOptionTypeEdit = () => {
   return (
     <RouteDrawer data-testid="shipping-option-type-edit-drawer">
       <RouteDrawer.Header data-testid="shipping-option-type-edit-drawer-header">
-        <Heading data-testid="shipping-option-type-edit-drawer-heading">{t("shippingOptionTypes.edit.header")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading data-testid="shipping-option-type-edit-drawer-heading">{t("shippingOptionTypes.edit.header")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {ready && (
         <EditShippingOptionTypeForm shippingOptionType={shipping_option_type} />

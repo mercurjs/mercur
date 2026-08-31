@@ -17,9 +17,11 @@ export const OrderCreateRefund = () => {
   return (
     <RouteDrawer data-testid="order-create-refund-drawer">
       <RouteDrawer.Header data-testid="order-create-refund-header">
-        <Heading data-testid="order-create-refund-heading">
-          {t("orders.payment.createRefund")}
-        </Heading>
+        <RouteDrawer.Title asChild>
+          <Heading data-testid="order-create-refund-heading">
+            {t("orders.payment.createRefund")}
+          </Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
 
       {order && <CreateRefundForm order={order} />}

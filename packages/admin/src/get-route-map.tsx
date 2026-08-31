@@ -9,6 +9,7 @@ import { MainLayout } from "@components/layout/main-layout";
 import { PublicLayout } from "@components/layout/public-layout";
 import { SettingsLayout } from "@components/layout/settings-layout";
 import { ErrorBoundary } from "@components/utilities/error-boundary";
+import { RoutePermissionGuard } from "@mercurjs/dashboard-shared";
 
 import { TaxRegionDetailBreadcrumb } from "./pages/tax-regions/tax-region-detail/breadcrumb";
 import { taxRegionLoader } from "./pages/tax-regions/tax-region-detail/loader";
@@ -32,10 +33,18 @@ function mergeRoutes(
 
     if (existingIndex !== -1) {
       const { children: customChildren, ...customRest } = customRoute;
+      const baseHandle = result[existingIndex].handle as object | undefined;
+      const customHandle = customRest.handle as object | undefined;
       result[existingIndex] = {
         ...result[existingIndex],
         ...customRest,
         path: result[existingIndex].path,
+        // Merge rather than replace, so a custom route declaring only
+        // `permissions` doesn't drop the base route's `breadcrumb`.
+        handle:
+          baseHandle || customHandle
+            ? { ...baseHandle, ...customHandle }
+            : undefined,
         children: customChildren
           ? mergeRoutes(result[existingIndex].children ?? [], customChildren)
           : result[existingIndex].children,
@@ -64,7 +73,13 @@ export function getRouteMap({
       children: [
         {
           element: <MainLayout />,
-          children: mergeRoutes(
+          children: [
+            {
+              // Pathless wrapper so every route below — including extension
+              // routes merged in from virtual:mercur/routes — is enforced
+              // without each one wiring its own guard element.
+              element: <RoutePermissionGuard />,
+              children: mergeRoutes(
             [
               {
                 path: "/",
@@ -76,6 +91,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 handle: {
                   breadcrumb: () => t("products.domain"),
+                  permissions: "product:read",
                 },
                 children: [
                   {
@@ -84,6 +100,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "create",
+                        handle: { permissions: "product:create" },
                         lazy: () => import("./pages/products/product-create"),
                       },
                       {
@@ -117,6 +134,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "product:update" },
                             lazy: () => import("./pages/products/product-edit"),
                           },
                           {
@@ -201,6 +219,7 @@ export function getRouteMap({
                             children: [
                               {
                                 path: "edit",
+                                handle: { permissions: "product:update" },
                                 lazy: () =>
                                   import("./pages/product-variants/product-variant-edit"),
                               },
@@ -222,6 +241,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 handle: {
                   breadcrumb: () => t("categories.domain"),
+                  permissions: "product_category:read",
                 },
                 children: [
                   {
@@ -230,6 +250,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "create",
+                        handle: { permissions: "product_category:create" },
                         lazy: () =>
                           import("./pages/categories/category-create"),
                       },
@@ -264,6 +285,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "product_category:update" },
                             lazy: () =>
                               import("./pages/categories/category-edit"),
                           },
@@ -303,6 +325,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 handle: {
                   breadcrumb: () => t("orders.domain"),
+                  permissions: "order:read",
                 },
                 children: [
                   {
@@ -390,6 +413,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 handle: {
                   breadcrumb: () => t("promotions.domain"),
+                  permissions: "promotion:read",
                 },
                 children: [
                   {
@@ -398,6 +422,7 @@ export function getRouteMap({
                   },
                   {
                     path: "create",
+                    handle: { permissions: "promotion:create" },
                     lazy: () => import("./pages/promotions/promotion-create"),
                   },
                   {
@@ -424,6 +449,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "promotion:update" },
                             lazy: () =>
                               import("./pages/promotions/promotion-edit-details"),
                           },
@@ -448,6 +474,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 handle: {
                   breadcrumb: () => t("campaigns.domain"),
+                  permissions: "campaign:read",
                 },
                 children: [
                   {
@@ -457,6 +484,7 @@ export function getRouteMap({
                   },
                   {
                     path: "create",
+                    handle: { permissions: "campaign:create" },
                     lazy: () => import("./pages/campaigns/campaign-create"),
                   },
                   {
@@ -482,6 +510,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "campaign:update" },
                             lazy: () =>
                               import("./pages/campaigns/campaign-edit"),
                           },
@@ -511,6 +540,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 handle: {
                   breadcrumb: () => t("reviews.domain"),
+                  permissions: "review:read",
                 },
                 children: [
                   {
@@ -542,6 +572,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "review:update" },
                             lazy: () => import("./pages/reviews/review-edit"),
                           },
                           {
@@ -560,6 +591,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 handle: {
                   breadcrumb: () => t("collections.domain"),
+                  permissions: "product_collection:read",
                 },
                 children: [
                   {
@@ -568,6 +600,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "create",
+                        handle: { permissions: "product_collection:create" },
                         lazy: () =>
                           import("./pages/collections/collection-create"),
                       },
@@ -597,6 +630,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "product_collection:update" },
                             lazy: () =>
                               import("./pages/collections/collection-edit"),
                           },
@@ -631,6 +665,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 handle: {
                   breadcrumb: () => t("priceLists.domain"),
+                  permissions: "price_list:read",
                 },
                 children: [
                   {
@@ -639,6 +674,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "create",
+                        handle: { permissions: "price_list:create" },
                         lazy: () =>
                           import("./pages/price-lists/price-list-create"),
                       },
@@ -668,6 +704,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "price_list:update" },
                             lazy: () =>
                               import("./pages/price-lists/price-list-edit"),
                           },
@@ -704,6 +741,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 handle: {
                   breadcrumb: () => t("customers.domain"),
+                  permissions: "customer:read",
                 },
                 children: [
                   {
@@ -712,6 +750,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "create",
+                        handle: { permissions: "customer:create" },
                         lazy: () => import("./pages/customers/customer-create"),
                       },
                     ],
@@ -739,6 +778,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "customer:update" },
                             lazy: () =>
                               import("./pages/customers/customer-edit"),
                           },
@@ -778,6 +818,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 handle: {
                   breadcrumb: () => t("customerGroups.domain"),
+                  permissions: "customer_group:read",
                 },
                 children: [
                   {
@@ -787,6 +828,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "create",
+                        handle: { permissions: "customer_group:create" },
                         lazy: () =>
                           import("./pages/customer-groups/customer-group-create"),
                       },
@@ -816,6 +858,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "customer_group:update" },
                             lazy: () =>
                               import("./pages/customer-groups/customer-group-edit"),
                           },
@@ -840,6 +883,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 handle: {
                   breadcrumb: () => t("stores.domain"),
+                  permissions: "seller:read",
                 },
                 children: [
                   {
@@ -848,6 +892,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "create",
+                        handle: { permissions: "seller:create" },
                         lazy: () => import("./pages/stores/store-create"),
                       },
                       {
@@ -878,6 +923,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "seller:update" },
                             lazy: () => import("./pages/stores/store-edit"),
                           },
                           {
@@ -916,6 +962,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 handle: {
                   breadcrumb: () => "Payouts",
+                  permissions: "payout:read",
                 },
                 children: [
                   {
@@ -952,6 +999,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 handle: {
                   breadcrumb: () => t("reservations.domain"),
+                  permissions: "reservation_item:read",
                 },
                 children: [
                   {
@@ -960,6 +1008,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "create",
+                        handle: { permissions: "reservation_item:create" },
                         lazy: () =>
                           import("./pages/reservations/reservation-create"),
                       },
@@ -989,6 +1038,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "reservation_item:update" },
                             lazy: () =>
                               import("./pages/reservations/reservation-detail/components/edit-reservation"),
                           },
@@ -1008,6 +1058,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 handle: {
                   breadcrumb: () => t("offers.domain"),
+                  permissions: "offer:read",
                 },
                 children: [
                   {
@@ -1088,6 +1139,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 handle: {
                   breadcrumb: () => t("inventory.domain"),
+                  permissions: "inventory_item:read",
                 },
                 children: [
                   {
@@ -1124,6 +1176,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "inventory_item:update" },
                             lazy: () =>
                               import("./pages/inventory/inventory-detail/components/edit-inventory-item"),
                           },
@@ -1155,7 +1208,9 @@ export function getRouteMap({
               },
             ],
             customMainRoutes,
-          ),
+              ),
+            },
+          ],
         },
       ],
     },
@@ -1169,7 +1224,10 @@ export function getRouteMap({
             breadcrumb: () => t("app.nav.settings.header"),
           },
           element: <SettingsLayout />,
-          children: mergeRoutes(
+          children: [
+            {
+              element: <RoutePermissionGuard />,
+              children: mergeRoutes(
             [
               {
                 index: true,
@@ -1202,6 +1260,7 @@ export function getRouteMap({
                 element: <Outlet />,
                 handle: {
                   breadcrumb: () => t("regions.domain"),
+                  permissions: "region:read",
                 },
                 children: [
                   {
@@ -1210,6 +1269,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "create",
+                        handle: { permissions: "region:create" },
                         lazy: () => import("./pages/regions/region-create"),
                       },
                     ],
@@ -1237,6 +1297,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "region:update" },
                             lazy: () => import("./pages/regions/region-edit"),
                           },
                           {
@@ -1261,6 +1322,7 @@ export function getRouteMap({
                 element: <Outlet />,
                 handle: {
                   breadcrumb: () => t("marketplace.domain"),
+                  permissions: "store:read",
                 },
                 children: [
                   {
@@ -1270,6 +1332,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "edit",
+                        handle: { permissions: "store:update" },
                         lazy: () =>
                           import("./pages/marketplace/marketplace-edit"),
                       },
@@ -1293,6 +1356,7 @@ export function getRouteMap({
                 element: <Outlet />,
                 handle: {
                   breadcrumb: () => t("commissions.domain"),
+                  permissions: "commission_rate:read",
                 },
                 children: [
                   {
@@ -1302,6 +1366,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "create",
+                        handle: { permissions: "commission_rate:create" },
                         lazy: () =>
                           import("./pages/commissions/commission-rule-create"),
                       },
@@ -1336,6 +1401,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "commission_rate:update" },
                             lazy: () =>
                               import("./pages/commissions/commission-rule-edit"),
                           },
@@ -1358,6 +1424,7 @@ export function getRouteMap({
                 element: <Outlet />,
                 handle: {
                   breadcrumb: () => t("users.domain"),
+                  permissions: "user:read",
                 },
                 children: [
                   {
@@ -1366,6 +1433,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "invite",
+                        handle: { permissions: "user:create" },
                         lazy: () => import("./pages/users/user-invite"),
                       },
                     ],
@@ -1393,6 +1461,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "user:update" },
                             lazy: () => import("./pages/users/user-edit"),
                           },
                           {
@@ -1411,6 +1480,7 @@ export function getRouteMap({
                 element: <Outlet />,
                 handle: {
                   breadcrumb: () => t("salesChannels.domain"),
+                  permissions: "sales_channel:read",
                 },
                 children: [
                   {
@@ -1420,6 +1490,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "create",
+                        handle: { permissions: "sales_channel:create" },
                         lazy: () =>
                           import("./pages/sales-channels/sales-channel-create"),
                       },
@@ -1449,6 +1520,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "sales_channel:update" },
                             lazy: () =>
                               import("./pages/sales-channels/sales-channel-edit"),
                           },
@@ -1474,6 +1546,7 @@ export function getRouteMap({
                 element: <Outlet />,
                 handle: {
                   breadcrumb: () => t("locations.domain"),
+                  permissions: "stock_location:read",
                 },
                 children: [
                   {
@@ -1482,6 +1555,7 @@ export function getRouteMap({
                   },
                   {
                     path: "create",
+                    handle: { permissions: "stock_location:create" },
                     lazy: () => import("./pages/locations/location-create"),
                   },
                   {
@@ -1489,6 +1563,7 @@ export function getRouteMap({
                     element: <Outlet />,
                     handle: {
                       breadcrumb: () => t("shippingProfile.domain"),
+                      permissions: "shipping_profile:read",
                     },
                     children: [
                       {
@@ -1498,6 +1573,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "create",
+                            handle: { permissions: "shipping_profile:create" },
                             lazy: () =>
                               import("./pages/shipping-profiles/shipping-profile-create"),
                           },
@@ -1543,6 +1619,7 @@ export function getRouteMap({
                     element: <Outlet />,
                     handle: {
                       breadcrumb: () => t("shippingOptionTypes.domain"),
+                      permissions: "shipping_option_type:read",
                     },
                     children: [
                       {
@@ -1552,6 +1629,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "create",
+                            handle: { permissions: "shipping_option_type:create" },
                             lazy: () =>
                               import("./pages/shipping-option-types/shipping-option-type-create"),
                           },
@@ -1582,6 +1660,7 @@ export function getRouteMap({
                             children: [
                               {
                                 path: "edit",
+                                handle: { permissions: "shipping_option_type:update" },
                                 lazy: () =>
                                   import("./pages/shipping-option-types/shipping-option-type-edit"),
                               },
@@ -1614,6 +1693,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "stock_location:update" },
                             lazy: () =>
                               import("./pages/locations/location-edit"),
                           },
@@ -1640,6 +1720,7 @@ export function getRouteMap({
                                 children: [
                                   {
                                     path: "edit",
+                                    handle: { permissions: "stock_location:update" },
                                     lazy: () =>
                                       import("./pages/locations/location-service-zone-edit"),
                                   },
@@ -1653,6 +1734,7 @@ export function getRouteMap({
                                     children: [
                                       {
                                         path: "create",
+                                        handle: { permissions: "shipping_option:create" },
                                         lazy: () =>
                                           import("./pages/locations/location-service-zone-shipping-option-create"),
                                       },
@@ -1661,6 +1743,7 @@ export function getRouteMap({
                                         children: [
                                           {
                                             path: "edit",
+                                            handle: { permissions: "shipping_option:update" },
                                             lazy: () =>
                                               import("./pages/locations/location-service-zone-shipping-option-edit"),
                                           },
@@ -1689,6 +1772,7 @@ export function getRouteMap({
                 element: <Outlet />,
                 handle: {
                   breadcrumb: () => t("productTags.domain"),
+                  permissions: "product_tag:read",
                 },
                 children: [
                   {
@@ -1697,6 +1781,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "create",
+                        handle: { permissions: "product_tag:create" },
                         lazy: () =>
                           import("./pages/product-tags/product-tag-create"),
                       },
@@ -1726,6 +1811,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "product_tag:update" },
                             lazy: () =>
                               import("./pages/product-tags/product-tag-edit"),
                           },
@@ -1746,6 +1832,7 @@ export function getRouteMap({
                 element: <Outlet />,
                 handle: {
                   breadcrumb: () => t("attributes.domain"),
+                  permissions: "product_attribute:read",
                 },
                 children: [
                   {
@@ -1754,6 +1841,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "create",
+                        handle: { permissions: "product_attribute:create" },
                         lazy: () =>
                           import("./pages/attributes/attribute-create"),
                       },
@@ -1783,6 +1871,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "product_attribute:update" },
                             lazy: () =>
                               import("./pages/attributes/attribute-edit"),
                           },
@@ -1813,6 +1902,7 @@ export function getRouteMap({
                 element: <Outlet />,
                 handle: {
                   breadcrumb: () => t("productTypes.domain"),
+                  permissions: "product_type:read",
                 },
                 children: [
                   {
@@ -1822,6 +1912,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "create",
+                        handle: { permissions: "product_type:create" },
                         lazy: () =>
                           import("./pages/product-types/product-type-create"),
                       },
@@ -1851,6 +1942,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "product_type:update" },
                             lazy: () =>
                               import("./pages/product-types/product-type-edit"),
                           },
@@ -1870,6 +1962,7 @@ export function getRouteMap({
                 element: <Outlet />,
                 handle: {
                   breadcrumb: () => t("apiKeyManagement.domain.publishable"),
+                  permissions: "api_key:read",
                 },
                 children: [
                   {
@@ -1883,6 +1976,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "create",
+                            handle: { permissions: "api_key:create" },
                             lazy: () =>
                               import("./pages/api-key-management/api-key-management-create"),
                           },
@@ -1914,6 +2008,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "api_key:update" },
                             lazy: () =>
                               import("./pages/api-key-management/api-key-management-edit"),
                           },
@@ -1933,6 +2028,7 @@ export function getRouteMap({
                 element: <Outlet />,
                 handle: {
                   breadcrumb: () => t("apiKeyManagement.domain.secret"),
+                  permissions: "api_key:read",
                 },
                 children: [
                   {
@@ -1946,6 +2042,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "create",
+                            handle: { permissions: "api_key:create" },
                             lazy: () =>
                               import("./pages/api-key-management/api-key-management-create"),
                           },
@@ -1977,6 +2074,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "api_key:update" },
                             lazy: () =>
                               import("./pages/api-key-management/api-key-management-edit"),
                           },
@@ -1991,6 +2089,7 @@ export function getRouteMap({
                 element: <Outlet />,
                 handle: {
                   breadcrumb: () => t("taxRegions.domain"),
+                  permissions: "tax_region:read",
                 },
                 children: [
                   {
@@ -1999,6 +2098,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "create",
+                        handle: { permissions: "tax_region:create" },
                         lazy: () =>
                           import("./pages/tax-regions/tax-region-create"),
                       },
@@ -2027,6 +2127,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "tax_region:update" },
                             lazy: () =>
                               import("./pages/tax-regions/tax-region-edit"),
                           },
@@ -2117,6 +2218,7 @@ export function getRouteMap({
                 element: <Outlet />,
                 handle: {
                   breadcrumb: () => t("returnReasons.domain"),
+                  permissions: "return_reason:read",
                 },
                 children: [
                   {
@@ -2126,6 +2228,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "create",
+                        handle: { permissions: "return_reason:create" },
                         lazy: () =>
                           import("./pages/return-reasons/return-reason-create"),
                       },
@@ -2135,6 +2238,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "return_reason:update" },
                             lazy: () =>
                               import("./pages/return-reasons/return-reason-edit"),
                           },
@@ -2149,6 +2253,7 @@ export function getRouteMap({
                 element: <Outlet />,
                 handle: {
                   breadcrumb: () => t("refundReasons.domain"),
+                  permissions: "refund_reason:read",
                 },
                 children: [
                   {
@@ -2158,6 +2263,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "create",
+                        handle: { permissions: "refund_reason:create" },
                         lazy: () =>
                           import("./pages/refund-reasons/refund-reason-create"),
                       },
@@ -2167,6 +2273,7 @@ export function getRouteMap({
                         children: [
                           {
                             path: "edit",
+                            handle: { permissions: "refund_reason:update" },
                             lazy: () =>
                               import("./pages/refund-reasons/refund-reason-edit"),
                           },
@@ -2178,7 +2285,9 @@ export function getRouteMap({
               },
             ],
             customSettingsRoutes?.[0]?.children || [],
-          ),
+              ),
+            },
+          ],
         },
       ],
     },

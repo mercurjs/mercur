@@ -160,6 +160,22 @@ export type ProductAttributeBatchUpdate = {
 }
 
 /**
+ * One attribute's selection on a product at a point in time. Recorded as
+ * `previous_value` on attribute product-change actions so a timeline of
+ * `add` / `remove` / `value` deltas can be replayed from its starting state.
+ *
+ * `value_ids` is sorted so two snapshots of the same selection compare equal
+ * regardless of link order.
+ */
+export type ProductAttributeValueSnapshot = {
+  attribute_id: string
+  /** Sorted. Every linked value id, whatever the attribute type. */
+  value_ids: string[]
+  /** The scalar for `text` / `unit` / `toggle`; `null` for select types. */
+  value: string | number | boolean | null
+}
+
+/**
  * Input for the attribute batch attach/detach/update engine
  * (`createAndLinkProductAttributesToProductWorkflow`). Applied in the order
  * **remove → add → update** so a same-call remove + re-add of one attribute

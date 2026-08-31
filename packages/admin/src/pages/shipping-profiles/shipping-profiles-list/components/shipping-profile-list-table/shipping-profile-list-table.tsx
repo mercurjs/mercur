@@ -8,6 +8,7 @@ import { useShippingProfiles } from "../../../../../hooks/api/shipping-profiles"
 import { useDataTable } from "../../../../../hooks/use-data-table"
 import { useShippingProfileTableColumns } from "./use-shipping-profile-table-columns"
 import { useShippingProfileTableFilters } from "./use-shipping-profile-table-filters"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { useShippingProfileTableQuery } from "./use-shipping-profile-table-query"
 
 const PAGE_SIZE = 20
@@ -50,9 +51,11 @@ export const ShippingProfileListTable = () => {
           </Text>
         </div>
         <div>
-          <Button size="small" variant="secondary" asChild data-testid="shipping-profile-list-table-create-button">
-            <Link to="create">{t("actions.create")}</Link>
-          </Button>
+          <PermissionGuard resource="shipping_profile" operation="create">
+            <Button size="small" variant="secondary" asChild data-testid="shipping-profile-list-table-create-button">
+              <Link to="create">{t("actions.create")}</Link>
+            </Button>
+          </PermissionGuard>
         </div>
       </div>
       <_DataTable

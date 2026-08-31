@@ -177,7 +177,7 @@ export function generateWidgets({
 
     const pluginDeclarations = pluginExtensions.map(
         (ext, i) =>
-            `const __plugin${i} = (await import("${normalizePath(ext)}")).default`
+            `import __plugin${i} from "${normalizePath(ext)}"`
     )
     const pluginSpreads = pluginExtensions.map(
         (_, i) => `    ...(__plugin${i}.widgetModule?.widgets ?? [])`

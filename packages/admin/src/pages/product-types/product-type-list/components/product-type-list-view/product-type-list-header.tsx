@@ -1,6 +1,7 @@
 import { Children, ReactNode } from "react"
 import { Button, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { Link } from "react-router-dom"
 
 export const ProductTypeListTitle = () => {
@@ -32,14 +33,16 @@ export const ProductTypeListActions = ({
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <Button
-          size="small"
-          variant="secondary"
-          asChild
-          data-testid="product-type-list-table-create-button"
-        >
-          <Link to="create">{t("actions.create")}</Link>
-        </Button>
+        <PermissionGuard resource="product_type" operation="create">
+          <Button
+            size="small"
+            variant="secondary"
+            asChild
+            data-testid="product-type-list-table-create-button"
+          >
+            <Link to="create">{t("actions.create")}</Link>
+          </Button>
+        </PermissionGuard>
       )}
     </div>
   )

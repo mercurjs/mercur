@@ -28,6 +28,7 @@ function LocationsFulfillmentProvidersSection({
             {
               actions: [
                 {
+                  permission: "stock_location:update",
                   label: t("actions.edit"),
                   to: "fulfillment-providers",
                   icon: <PencilSquare />,

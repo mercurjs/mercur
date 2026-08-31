@@ -33,7 +33,6 @@ import {
     updateCartsStep,
     useQueryGraphStep,
     validateCartPaymentsStep,
-    validateShippingStep,
 } from "@medusajs/medusa/core-flows"
 import { CreateOrderGroupDTO, MercurModules, SellerDTO } from "@mercurjs/types"
 import { createOrderGroupStep } from "../../order-group"
@@ -134,11 +133,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             })
             validateSellerCartShippingStep({
                 cart: cartData.data,
-                shippingOptions: shippingOptionsData.data as ShippingOptionDTO & { seller: SellerDTO }[],
-            })
-            validateShippingStep({
-                cart: cartData.data,
-                shippingOptions: shippingOptionsData.data,
+                shippingOptions: shippingOptionsData.data as (ShippingOptionDTO & { seller: SellerDTO })[],
             })
             const { sales_channel_id } = transform(
                 { cart: cartData.data },

@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -49,6 +51,12 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
       ),
       applySellerInventoryItemLinkFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.inventory_item,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -58,6 +66,12 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
         VendorGetInventoryItemParams,
         vendorInventoryItemQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.inventory_item,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -70,6 +84,12 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
         vendorInventoryItemQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.inventory_item,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -81,11 +101,23 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
         vendorInventoryItemQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.inventory_item,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/inventory-items/:id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.inventory_item,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -95,6 +127,12 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
         VendorGetInventoryLocationLevelsParams,
         vendorLocationLevelQueryConfig.list
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.inventory_item,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -107,6 +145,12 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
         vendorLocationLevelQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.inventory_item,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -117,6 +161,12 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
         VendorGetInventoryItemParams,
         vendorInventoryItemQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.inventory_item,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -129,6 +179,12 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
         vendorLocationLevelQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.inventory_item,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -140,6 +196,12 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
         vendorInventoryItemQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.inventory_item,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
@@ -149,6 +211,12 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
         VendorGetInventoryItemParams,
         vendorInventoryItemQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.inventory_item,
+        operation: PolicyOperation.delete,
+      },
     ],
   },
 ]

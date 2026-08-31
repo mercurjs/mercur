@@ -22,7 +22,9 @@ export const OrderEditBillingAddress = () => {
   return (
     <RouteDrawer data-testid="order-edit-billing-address-drawer">
       <RouteDrawer.Header data-testid="order-edit-billing-address-header">
-        <Heading data-testid="order-edit-billing-address-heading">{t("orders.edit.billingAddress.title")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading data-testid="order-edit-billing-address-heading">{t("orders.edit.billingAddress.title")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
 
       {order && <EditOrderBillingAddressForm order={order} />}

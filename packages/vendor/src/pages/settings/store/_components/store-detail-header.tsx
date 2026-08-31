@@ -75,6 +75,7 @@ export const StoreDetailEditButton = () => {
           actions: [
             {
               icon: <PencilSquare />,
+              permission: "seller:update",
               label: t("actions.edit"),
               to: "edit",
             },

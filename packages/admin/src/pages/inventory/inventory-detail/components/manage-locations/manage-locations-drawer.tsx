@@ -36,7 +36,9 @@ export const ManageLocationsDrawer = () => {
   return (
     <RouteDrawer data-testid="inventory-manage-locations-drawer">
       <RouteDrawer.Header data-testid="inventory-manage-locations-drawer-header">
-        <Heading data-testid="inventory-manage-locations-drawer-title">{t("inventory.manageLocations")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading data-testid="inventory-manage-locations-drawer-title">{t("inventory.manageLocations")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {ready && (
         <ManageLocationsForm

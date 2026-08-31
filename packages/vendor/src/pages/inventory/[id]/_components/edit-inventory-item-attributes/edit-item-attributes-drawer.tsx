@@ -25,7 +25,9 @@ export const InventoryItemAttributesEdit = () => {
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
-        <Heading>{t("products.editAttributes")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading>{t("products.editAttributes")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {ready && <EditInventoryItemAttributesForm item={inventoryItem} />}
     </RouteDrawer>

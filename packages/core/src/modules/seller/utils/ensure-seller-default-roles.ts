@@ -8,6 +8,14 @@ type SellerRoleDefinition = {
   policyKeys: "*" | string[]
 }
 
+const CRUD_OPERATIONS = ["read", "create", "update", "delete"] as const
+
+const crud = (resource: string): string[] =>
+  CRUD_OPERATIONS.map((operation) => `${resource}:${operation}`)
+
+const readOnly = (...resources: string[]): string[] =>
+  resources.map((resource) => `${resource}:read`)
+
 export const SELLER_ROLES: SellerRoleDefinition[] = [
   {
     id: SellerRole.SELLER_ADMINISTRATION,
@@ -20,25 +28,124 @@ export const SELLER_ROLES: SellerRoleDefinition[] = [
     id: SellerRole.INVENTORY_MANAGEMENT,
     name: "Inventory Management",
     description: "Manage offers and catalog",
-    policyKeys: [],
+    policyKeys: [
+      ...crud("product"),
+      ...crud("product_variant"),
+      ...crud("product_option"),
+      ...crud("product_tag"),
+      ...crud("product_type"),
+      ...crud("product_category"),
+      ...crud("product_collection"),
+      ...crud("product_attribute"),
+      ...crud("product_attribute_value"),
+      ...crud("product_change"),
+      ...crud("offer"),
+      ...crud("inventory_item"),
+      ...crud("reservation_item"),
+      ...crud("stock_location"),
+      ...crud("price_list"),
+      ...crud("price_preference"),
+      ...crud("shipping_option"),
+      ...crud("shipping_profile"),
+      ...crud("fulfillment_set"),
+      ...readOnly(
+        "seller_member",
+        "seller",
+        "currency",
+        "region",
+        "sales_channel",
+        "shipping_option_type",
+        "fulfillment_provider",
+        "file"
+      ),
+      "file:create",
+    ],
   },
   {
     id: SellerRole.ORDER_MANAGEMENT,
     name: "Order Management",
     description: "View and process orders",
-    policyKeys: [],
+    policyKeys: [
+      ...crud("order"),
+      ...crud("order_change"),
+      ...crud("order_claim"),
+      ...crud("order_exchange"),
+      ...crud("return"),
+      ...crud("return_reason"),
+      ...crud("refund_reason"),
+      ...crud("fulfillment"),
+      ...readOnly(
+        "seller_member",
+        "order_group",
+        "customer",
+        "customer_group",
+        "product",
+        "product_variant",
+        "offer",
+        "inventory_item",
+        "stock_location",
+        "shipping_option",
+        "shipping_profile",
+        "payment",
+        "seller",
+        "region",
+        "currency",
+        "product_category",
+        "product_collection",
+        "product_tag",
+        "product_type"
+      ),
+      "file:create",
+    ],
   },
   {
     id: SellerRole.ACCOUNTING,
     name: "Accounting",
     description: "View billing and manage payment information",
-    policyKeys: [],
+    policyKeys: [
+      ...crud("payout_account"),
+      ...readOnly(
+        "seller_member",
+        "payout",
+        "commission_line",
+        "commission_rate",
+        "commission_rule",
+        "payment",
+        "order",
+        "order_group",
+        "return",
+        "seller",
+        "currency",
+        "region"
+      ),
+    ],
   },
   {
     id: SellerRole.SUPPORT,
     name: "Support",
     description: "Handle customer messages and view orders",
-    policyKeys: [],
+    policyKeys: [
+      ...crud("review"),
+      ...readOnly(
+        "seller_member",
+        "order",
+        "order_group",
+        "order_claim",
+        "order_exchange",
+        "return",
+        "return_reason",
+        "customer",
+        "customer_group",
+        "product",
+        "product_variant",
+        "offer",
+        "seller",
+        "shipping_option",
+        "payment",
+        "region",
+        "currency"
+      ),
+    ],
   },
 ]
 

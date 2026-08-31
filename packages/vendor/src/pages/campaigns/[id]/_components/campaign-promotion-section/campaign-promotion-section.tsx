@@ -205,6 +205,7 @@ const PromotionActions = ({ promotion }: { promotion: AdminPromotion }) => {
           actions: [
             {
               icon: <PencilSquare />,
+              permission: "campaign:update",
               label: t("actions.edit"),
               to: `/promotions/${promotion.id}/edit`,
             },

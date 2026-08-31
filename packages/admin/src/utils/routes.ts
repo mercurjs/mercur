@@ -1,12 +1,13 @@
 import { ComponentType } from "react"
 import { LoaderFunction, RouteObject } from "react-router-dom"
+import type { Permission, RouteHandle } from "@mercurjs/dashboard-sdk"
 import { ErrorBoundary } from "../components/utilities/error-boundary"
 
 export type Route = {
     Component: ComponentType
     path: string
     loader?: LoaderFunction
-    handle?: object
+    handle?: RouteHandle
     isPublic?: boolean
     children?: Route[]
 }
@@ -18,6 +19,8 @@ export type MenuItem = {
     rank?: number
     nested?: string
     translationNs?: string
+    permissions?: Permission[]
+    requireAll?: boolean
 }
 
 /**
@@ -36,7 +39,7 @@ const createBranchRoute = (segment: string): RouteObject => ({
 const createLeafRoute = (
     Component: ComponentType,
     loader?: LoaderFunction,
-    handle?: object,
+    handle?: RouteHandle,
     path: string = ""
 ): RouteObject => ({
     path,
@@ -45,7 +48,7 @@ const createLeafRoute = (
         const result: {
             Component: ComponentType
             loader?: LoaderFunction
-            handle?: object
+            handle?: RouteHandle
         } = { Component }
 
         if (loader) {
@@ -69,14 +72,14 @@ const createParallelRoute = (
     path: string,
     Component: ComponentType,
     loader?: LoaderFunction,
-    handle?: object
+    handle?: RouteHandle
 ) => ({
     path,
     async lazy() {
         const result: {
             Component: ComponentType
             loader?: LoaderFunction
-            handle?: object
+            handle?: RouteHandle
         } = { Component }
 
         if (loader) {
@@ -124,7 +127,7 @@ const addRoute = (
     Component: ComponentType,
     currentLevel: RouteObject[],
     loader?: LoaderFunction,
-    handle?: object,
+    handle?: RouteHandle,
     parallelRoutes?: Route[],
     fullPath?: string,
     componentPath?: string
@@ -150,10 +153,6 @@ const addRoute = (
     if (isComponentSegment || remainingSegments.length === 0) {
         route.children ||= []
 
-        if (handle) {
-            route.handle = handle
-        }
-
         if (loader) {
             route.loader = loader
         }
@@ -165,7 +164,10 @@ const addRoute = (
             leaf.children = processParallelRoutes(parallelRoutes, currentFullPath)
             Object.assign(route, leaf)
         } else {
-            const leaf = createLeafRoute(Component, loader)
+            // `handle` belongs on the leaf, not on the branch: branches are
+            // shared between sibling routes at the same segment, so a branch
+            // handle leaks onto every sibling below it.
+            const leaf = createLeafRoute(Component, loader, handle)
             leaf.children = processParallelRoutes(parallelRoutes, currentFullPath)
             route.children.push(leaf)
         }
@@ -255,6 +257,31 @@ export const getMenuItemsByType = (
         }
 
         return !settingsRouteRegex.test(item.path)
+    })
+}
+
+type MenuItemPermissionCheck = {
+    hasAnyPermission: (permissions: Permission[]) => boolean
+    hasAllPermissions: (permissions: Permission[]) => boolean
+}
+
+/**
+ * Drops navigation entries the actor can't reach. Route access itself is
+ * enforced by `RoutePermissionGuard` via `handle.permissions`; this only
+ * controls visibility.
+ */
+export const filterMenuItemsByPermissions = <T extends MenuItem>(
+    menuItems: T[],
+    { hasAnyPermission, hasAllPermissions }: MenuItemPermissionCheck
+): T[] => {
+    return menuItems.filter((item) => {
+        if (!item.permissions?.length) {
+            return true
+        }
+
+        return item.requireAll
+            ? hasAllPermissions(item.permissions)
+            : hasAnyPermission(item.permissions)
     })
 }
 

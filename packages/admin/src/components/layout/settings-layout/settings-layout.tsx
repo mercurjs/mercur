@@ -11,7 +11,12 @@ import { type INavItem, NavItem } from "@components/layout/nav-item";
 import { Shell } from "@components/layout/shell";
 import { UserMenu } from "@components/layout/user-menu";
 import menuItemsModule from "virtual:mercur/menu-items";
-import { getMenuItemsByType } from "../../../utils/routes";
+import { usePermissions } from "@mercurjs/dashboard-shared";
+import {
+  filterMenuItemsByPermissions,
+  getMenuItemsByType,
+} from "../../../utils/routes";
+import { getRoutePermission } from "../../../lib/permissions/route-permissions";
 
 export const SettingsLayout = () => {
   return (
@@ -22,17 +27,32 @@ export const SettingsLayout = () => {
 };
 
 const allMenuItems = menuItemsModule.menuItems ?? [];
-const customSettingsItems = getMenuItemsByType(allMenuItems, "settings");
-const extensionNavItems: INavItem[] = customSettingsItems
-  .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
-  .map((item) => ({
-    label: item.label,
-    to: item.path,
-    translationNs: item.translationNs,
-  }));
+
+const useExtensionNavItems = (): INavItem[] => {
+  const { hasAnyPermission, hasAllPermissions } = usePermissions();
+
+  return useMemo(
+    () =>
+      getMenuItemsByType(
+        filterMenuItemsByPermissions(allMenuItems, {
+          hasAnyPermission,
+          hasAllPermissions,
+        }),
+        "settings",
+      )
+        .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+        .map((item) => ({
+          label: item.label,
+          to: item.path,
+          translationNs: item.translationNs,
+        })),
+    [hasAnyPermission, hasAllPermissions],
+  );
+};
 
 const useSettingRoutes = (): INavItem[] => {
   const { t } = useTranslation();
+  const extensionNavItems = useExtensionNavItems();
 
   return useMemo(
     () => [
@@ -86,7 +106,7 @@ const useSettingRoutes = (): INavItem[] => {
       },
       ...extensionNavItems,
     ],
-    [t],
+    [t, extensionNavItems],
   );
 };
 
@@ -135,8 +155,17 @@ const getSafeFromValue = (from: string) => {
 };
 
 const SettingsSidebar = () => {
-  const routes = useSettingRoutes();
-  const developerRoutes = useDeveloperRoutes();
+  const { hasPermission } = usePermissions();
+
+  // Hides links the actor can't open. `RoutePermissionGuard` is what actually
+  // refuses the route; this only keeps the sidebar honest.
+  const canReach = ({ to }: INavItem) => {
+    const permission = getRoutePermission(to);
+    return !permission || hasPermission(permission);
+  };
+
+  const routes = useSettingRoutes().filter(canReach);
+  const developerRoutes = useDeveloperRoutes().filter(canReach);
   const myAccountRoutes = useMyAccountRoutes();
 
   const { t } = useTranslation();

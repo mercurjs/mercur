@@ -20,7 +20,9 @@ const ProductTypeEdit = () => {
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
-        <Heading>{t("productTypes.edit.header")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading>{t("productTypes.edit.header")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {ready && <EditProductTypeForm productType={product_type} />}
     </RouteDrawer>

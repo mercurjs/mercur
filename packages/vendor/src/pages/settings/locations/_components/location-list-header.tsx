@@ -1,5 +1,6 @@
 import { Button, Container, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { Link } from "react-router-dom"
 
 export const LocationListHeader = () => {
@@ -13,9 +14,11 @@ export const LocationListHeader = () => {
           {t("stockLocations.list.description")}
         </Text>
       </div>
-      <Button size="small" className="shrink-0" variant="secondary" asChild>
-        <Link to="create">{t("actions.create")}</Link>
-      </Button>
+      <PermissionGuard resource="stock_location" operation="create">
+        <Button size="small" className="shrink-0" variant="secondary" asChild>
+          <Link to="create">{t("actions.create")}</Link>
+        </Button>
+      </PermissionGuard>
     </Container>
   )
 }

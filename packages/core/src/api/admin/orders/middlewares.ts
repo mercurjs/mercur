@@ -1,3 +1,5 @@
+import { PolicyOperation } from "@medusajs/framework/utils"
+import { PolicyResource } from "../../utils/policy-resources"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -51,6 +53,12 @@ export const adminOrdersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformQuery(AdminGetOrdersParams, listTransformQueryConfig),
       maybeApplySellerOrderFilter,
+    ],
+    policies: [
+      {
+        resource: PolicyResource.order,
+        operation: PolicyOperation.read,
+      },
     ],
   },
 ]

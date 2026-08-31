@@ -1,3 +1,5 @@
+import { PolicyOperation } from "@medusajs/framework/utils"
+import { PolicyResource } from "../../utils/policy-resources"
 import { validateAndTransformQuery } from "@medusajs/framework"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { listPriceListQueryConfig } from "@medusajs/medusa/api/admin/price-lists/query-config"
@@ -64,6 +66,12 @@ export const adminPriceListsMiddlewares: MiddlewareRoute[] = [
         AdminGetPriceListsWithFilters,
         listPriceListQueryConfig
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.price_list,
+        operation: PolicyOperation.read,
+      },
     ],
   },
 ]

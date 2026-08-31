@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -45,6 +47,12 @@ export const vendorStockLocationsMiddlewares: MiddlewareRoute[] = [
       ),
       applySellerStockLocationLinkFilter,
     ],
+    policies: [
+      {
+        resource: PolicyResource.stock_location,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -56,6 +64,12 @@ export const vendorStockLocationsMiddlewares: MiddlewareRoute[] = [
         vendorStockLocationQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.stock_location,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -65,6 +79,12 @@ export const vendorStockLocationsMiddlewares: MiddlewareRoute[] = [
         VendorGetStockLocationParams,
         vendorStockLocationQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.stock_location,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -77,11 +97,23 @@ export const vendorStockLocationsMiddlewares: MiddlewareRoute[] = [
         vendorStockLocationQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.stock_location,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/stock-locations/:id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.stock_location,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -92,6 +124,12 @@ export const vendorStockLocationsMiddlewares: MiddlewareRoute[] = [
         VendorGetStockLocationParams,
         vendorStockLocationQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.stock_location,
+        operation: PolicyOperation.update,
+      },
     ],
   },
   {
@@ -104,6 +142,12 @@ export const vendorStockLocationsMiddlewares: MiddlewareRoute[] = [
         vendorStockLocationQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.stock_location,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -114,6 +158,12 @@ export const vendorStockLocationsMiddlewares: MiddlewareRoute[] = [
         VendorGetStockLocationParams,
         vendorStockLocationQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.stock_location,
+        operation: PolicyOperation.update,
+      },
     ],
   },
 ]

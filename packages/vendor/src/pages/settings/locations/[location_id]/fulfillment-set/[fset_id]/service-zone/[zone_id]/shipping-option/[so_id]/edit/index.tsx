@@ -39,11 +39,13 @@ const LocationServiceZoneShippingOptionEdit = () => {
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
-        <Heading>
-          {t(
-            `stockLocations.${isPickup ? "pickupOptions" : "shippingOptions"}.edit.header`
-          )}
-        </Heading>
+        <RouteDrawer.Title asChild>
+          <Heading>
+            {t(
+              `stockLocations.${isPickup ? "pickupOptions" : "shippingOptions"}.edit.header`
+            )}
+          </Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {shippingOption && (
         <EditShippingOptionForm

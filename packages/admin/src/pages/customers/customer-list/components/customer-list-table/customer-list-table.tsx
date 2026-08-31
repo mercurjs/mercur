@@ -14,6 +14,7 @@ import { useCustomers } from "../../../../../hooks/api/customers"
 import { useCustomerTableColumns } from "../../../../../hooks/table/columns/use-customer-table-columns"
 import { useCustomerTableFilters } from "../../../../../hooks/table/filters/use-customer-table-filters"
 import { useCustomerTableQuery } from "../../../../../hooks/table/query/use-customer-table-query"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { useDataTable } from "../../../../../hooks/use-data-table"
 const PAGE_SIZE = 20
 
@@ -29,11 +30,13 @@ export const CustomerListCreateButton = () => {
   const { t } = useTranslation()
 
   return (
-    <Link to="/customers/create" data-testid="customer-list-create-link">
-      <Button size="small" variant="secondary" data-testid="customer-list-create-button">
-        {t("actions.create")}
-      </Button>
-    </Link>
+    <PermissionGuard resource="customer" operation="create">
+      <Link to="/customers/create" data-testid="customer-list-create-link">
+        <Button size="small" variant="secondary" data-testid="customer-list-create-button">
+          {t("actions.create")}
+        </Button>
+      </Link>
+    </PermissionGuard>
   )
 }
 

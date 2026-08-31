@@ -65,6 +65,7 @@ export function VariantGeneralSection({
               {
                 actions: [
                   {
+                    permission: "product_variant:update",
                     label: t("actions.edit"),
                     to: "edit",
                     icon: <PencilSquare />,
@@ -74,6 +75,7 @@ export function VariantGeneralSection({
               {
                 actions: [
                   {
+                    permission: "product_variant:delete",
                     label: t("actions.delete"),
                     onClick: handleDelete,
                     icon: <Trash />,

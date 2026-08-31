@@ -23,7 +23,9 @@ export const Component = () => {
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
-        <Heading>{t("priceLists.edit.header")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading>{t("priceLists.edit.header")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {ready && <PriceListEditForm priceList={price_list} />}
     </RouteDrawer>

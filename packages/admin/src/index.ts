@@ -21,3 +21,29 @@ export { Notifications } from './components/layout/notifications/notifications'
 
 // Product constants
 export { PRODUCT_DETAIL_FIELDS, PRODUCT_DETAIL_QUERY } from './pages/products/constants'
+
+// Permissions (RBAC)
+export {
+  PermissionGuard,
+  PermissionsProvider,
+  PermissionsRequirement,
+  PermissionsRequirementsProvider,
+  RequiredPermissionsSection,
+  RoutePermissionGuard,
+  usePermissions,
+  useRegisterPermissions,
+  useRequiredPermissions,
+  useResourcePermissions,
+} from '@mercurjs/dashboard-shared'
+export type {
+  PermissionGuardProps,
+  PermissionsRequirementProps,
+} from '@mercurjs/dashboard-shared'
+export type {
+  Permission,
+  PermissionOperation,
+  PermissionRequirement,
+  PermissionResource,
+  RouteHandle,
+  UserPolicy,
+} from '@mercurjs/dashboard-sdk'

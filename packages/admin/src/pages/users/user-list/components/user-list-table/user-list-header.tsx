@@ -2,6 +2,7 @@ import { Children, ReactNode } from "react"
 import { Button, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 
 export const UserListTitle = () => {
   const { t } = useTranslation()
@@ -23,11 +24,13 @@ export const UserListActions = ({
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <Link to="invite">
-          <Button size="small" variant="secondary">
-            {t("users.invite")}
-          </Button>
-        </Link>
+        <PermissionGuard resource="user" operation="create">
+          <Link to="invite">
+            <Button size="small" variant="secondary">
+              {t("users.invite")}
+            </Button>
+          </Link>
+        </PermissionGuard>
       )}
     </div>
   )

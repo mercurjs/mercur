@@ -1,6 +1,7 @@
 import { Children, ReactNode } from "react"
 import { Button, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+import { PermissionGuard } from "@mercurjs/dashboard-shared"
 import { Link } from "react-router-dom"
 
 export const TaxRegionListTitle = () => {
@@ -26,11 +27,13 @@ export const TaxRegionListActions = ({
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <Link to="create">
-          <Button size="small" variant="secondary">
-            {t("actions.create")}
-          </Button>
-        </Link>
+        <PermissionGuard resource="tax_region" operation="create">
+          <Link to="create">
+            <Button size="small" variant="secondary">
+              {t("actions.create")}
+            </Button>
+          </Link>
+        </PermissionGuard>
       )}
     </div>
   )

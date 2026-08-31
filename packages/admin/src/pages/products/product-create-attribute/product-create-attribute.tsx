@@ -11,7 +11,9 @@ export const ProductCreateAttribute = () => {
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
-        <Heading>{t("products.addAttribute")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading>{t("products.addAttribute")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       <CreateAttributeForm productId={id!} />
     </RouteDrawer>

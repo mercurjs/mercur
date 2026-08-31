@@ -52,7 +52,9 @@ export const ReservationEdit = () => {
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
-        <Heading>{t("inventory.reservation.editItemDetails")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading>{t("inventory.reservation.editItemDetails")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {ready && (
         <EditReservationForm

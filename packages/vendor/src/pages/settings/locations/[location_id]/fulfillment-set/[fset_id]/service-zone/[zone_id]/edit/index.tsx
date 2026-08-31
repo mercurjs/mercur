@@ -35,7 +35,9 @@ const LocationServiceZoneEdit = () => {
   return (
     <RouteDrawer prev={`/settings/locations/${location_id}`}>
       <RouteDrawer.Header>
-        <Heading>{t("stockLocations.serviceZones.edit.header")}</Heading>
+        <RouteDrawer.Title asChild>
+          <Heading>{t("stockLocations.serviceZones.edit.header")}</Heading>
+        </RouteDrawer.Title>
       </RouteDrawer.Header>
       {serviceZone && (
         <EditServiceZoneForm

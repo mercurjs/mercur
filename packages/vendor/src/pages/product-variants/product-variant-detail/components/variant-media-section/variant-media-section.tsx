@@ -123,6 +123,7 @@ export const VariantMediaSection = ({
             {
               actions: [
                 {
+                  permission: "product_variant:update",
                   label: t("actions.edit"),
                   to: "media",
                   icon: <PencilSquare />,

@@ -29,7 +29,11 @@ export function withMercur(config: MercurInputConfig = {}): InputConfigWithArray
 
   const featureFlags = {
     ...config.featureFlags,
-    rbac: true,
+    // Off unless explicitly enabled. Route policy checks are fail-closed, so
+    // enforcement is opt-in: with the flag off Medusa never wraps a handler in
+    // a permission check, the declared route policies cost nothing, and the
+    // middlewares that resolve an actor's roles return early.
+    rbac: config.featureFlags?.rbac ?? false,
   }
 
   const modules = [

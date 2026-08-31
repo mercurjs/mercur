@@ -1,3 +1,5 @@
+import { PolicyResource } from "../../utils/policy-resources"
+import { PolicyOperation } from "@medusajs/framework/utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -23,6 +25,12 @@ export const adminCommissionRatesMiddlewares: MiddlewareRoute[] = [
         adminCommissionRateQueryConfig.list
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.commission_rate,
+        operation: PolicyOperation.read,
+      },
+    ],
   },
   {
     method: ["POST"],
@@ -34,6 +42,12 @@ export const adminCommissionRatesMiddlewares: MiddlewareRoute[] = [
         adminCommissionRateQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.commission_rate,
+        operation: PolicyOperation.create,
+      },
+    ],
   },
   {
     method: ["GET"],
@@ -43,6 +57,12 @@ export const adminCommissionRatesMiddlewares: MiddlewareRoute[] = [
         AdminGetCommissionRateParams,
         adminCommissionRateQueryConfig.retrieve
       ),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.commission_rate,
+        operation: PolicyOperation.read,
+      },
     ],
   },
   {
@@ -55,17 +75,35 @@ export const adminCommissionRatesMiddlewares: MiddlewareRoute[] = [
         adminCommissionRateQueryConfig.retrieve
       ),
     ],
+    policies: [
+      {
+        resource: PolicyResource.commission_rate,
+        operation: PolicyOperation.update,
+      },
+    ],
   },
   {
     method: ["DELETE"],
     matcher: "/admin/commission-rates/:id",
     middlewares: [],
+    policies: [
+      {
+        resource: PolicyResource.commission_rate,
+        operation: PolicyOperation.delete,
+      },
+    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/commission-rates/:id/rules",
     middlewares: [
       validateAndTransformBody(AdminBatchCommissionRules),
+    ],
+    policies: [
+      {
+        resource: PolicyResource.commission_rate,
+        operation: PolicyOperation.update,
+      },
     ],
   },
 ]
