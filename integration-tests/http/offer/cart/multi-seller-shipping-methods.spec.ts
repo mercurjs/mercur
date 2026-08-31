@@ -299,33 +299,6 @@ medusaIntegrationTestRunner({
                     storeHeaders
                 )
 
-                const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
-                const diag = async (label: string) => {
-                    const { data } = await query.graph({
-                        entity: "cart",
-                        filters: { id: cart.id },
-                        fields: [
-                            "items.id",
-                            "items.requires_shipping",
-                            "items.offer.shipping_profile_id",
-                            "items.variant.product.shipping_profile.id",
-                            "shipping_methods.shipping_option_id",
-                        ],
-                    })
-                    console.log(`DIAG ${label}:`, JSON.stringify(data[0]))
-                }
-
-                console.log("DIAG profiles:", JSON.stringify({
-                    sellerA: sellerA.shippingProfile.id,
-                    sellerB: sellerB.shippingProfile.id,
-                    sellerAOther: sellerAOther.shippingProfile.id,
-                }))
-                console.log("DIAG options:", JSON.stringify({
-                    sellerB: sellerB.shippingOptionId,
-                    sellerAOther: sellerAOther.shippingOptionId,
-                }))
-                await diag("before-methods")
-
                 const afterFirst = await addShippingMethod(
                     cart.id,
                     sellerB.shippingOptionId
@@ -338,30 +311,6 @@ medusaIntegrationTestRunner({
                 const afterSecond = await addShippingMethod(
                     cart.id,
                     sellerAOther.shippingOptionId
-                )
-
-                await diag("after-second-add")
-
-                const { compiledPaths } = require("@mercurjs/core/patches/loader")
-                console.log("DIAG compiled:", JSON.stringify(compiledPaths()))
-
-                const optionsAfter = await api.get(
-                    `/store/shipping-options?cart_id=${cart.id}`,
-                    storeHeaders
-                )
-                console.log(
-                    "DIAG options-available:",
-                    JSON.stringify(
-                        Object.values(
-                            optionsAfter.data.shipping_options as Record<string, any[]>
-                        )
-                            .flat()
-                            .map((o: any) => ({
-                                id: o.id,
-                                profile: o.shipping_profile_id,
-                                amount: o.calculated_price?.calculated_amount,
-                            }))
-                    )
                 )
 
                 expect(afterSecond).toHaveLength(2)

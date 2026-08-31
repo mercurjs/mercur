@@ -29,6 +29,31 @@ same source, replacing the previous definition is the correct outcome: Medusa's
 duplicate guard is relaxed for the duration of the reload, because generated step
 ids make a second load of the same file compare unequal to the first.
 
+That covers Node's module loader. Jest has its own: it loads modules through its
+own registry and never consults `Module._extensions`, so neither the override nor
+the eviction above can fire under test. Left at that, the patches are silently
+inert in every suite while the runtime still reports them applied — tests would
+exercise different code than production, which is worse than not patching at all.
+
+`jest-transformer.ts` closes that gap by applying the same diff at transform
+time. Register it ahead of the project transform and let the targeted files
+through `transformIgnorePatterns` (see `integration-tests/jest.config.js`):
+
+```js
+transform: {
+  "node_modules[\\/].*core-flows[\\/]dist[\\/]cart[\\/].*\\.js$":
+    "@mercurjs/core/patches/jest-transformer",
+  "^.+\\.[jt]s$": ["@swc/jest", { /* ... */ }],
+},
+transformIgnorePatterns: ["/node_modules/(?!.*core-flows[\\/]dist[\\/]cart[\\/])"],
+```
+
+Both paths funnel through `patchSourceForPath`, so a patch means the same thing
+in either environment, and `jest-transformer.unit.spec.ts` fails if the test
+environment ever stops seeing patched sources. **Any other runner with its own
+module registry — vitest, some bundlers — needs the same treatment, or the
+patches will not apply there.**
+
 Because nothing is written, a patch that a user *also* applied through their own
 package manager is detected and skipped rather than treated as a conflict.
 
