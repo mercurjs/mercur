@@ -9,6 +9,8 @@ const ProductChangeAction = model
     ordering: model.autoincrement(),
     action: model.text(),
     details: model.json().default({}),
+    reference: model.text().nullable(),
+    reference_id: model.text().nullable(),
     internal_note: model.text().nullable(),
     applied: model.boolean().default(false),
     product_change: model
@@ -25,6 +27,12 @@ const ProductChangeAction = model
     {
       name: "IDX_prodchact_product_id",
       on: ["product_id"],
+      unique: false,
+      where: "deleted_at IS NULL",
+    },
+    {
+      name: "IDX_prodchact_reference_reference_id",
+      on: ["reference", "reference_id"],
       unique: false,
       where: "deleted_at IS NULL",
     },
