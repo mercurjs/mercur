@@ -40,6 +40,22 @@ medusaIntegrationTestRunner({
         expect(Array.isArray(response.data.stores)).toBe(true)
       })
 
+      it("returns stores for a member without a seller", async () => {
+        const registerResponse = await api.post(
+          "/auth/member/emailpass/register",
+          { email: `onboarding-${Date.now()}@test.com`, password: "somepassword" }
+        )
+
+        const response = await api.get("/vendor/stores", {
+          headers: {
+            authorization: `Bearer ${registerResponse.data.token}`,
+          },
+        })
+
+        expect(response.status).toBe(200)
+        expect(Array.isArray(response.data.stores)).toBe(true)
+      })
+
       it("strips disallowed relations from expanded fields", async () => {
         const response = await api.get(
           "/vendor/stores?fields=%2Bmembers.*",
