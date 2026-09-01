@@ -54,13 +54,23 @@ const unauthenticatedRoutes = [
 ]
 
 // Marketplace-level routes: authenticated, but reachable before the member
-// belongs to a seller (onboarding).
+// belongs to a seller (onboarding). They authenticate through their own
+// matcher with `allowUnregistered: true`, so the catch-all must skip them.
 const sellerlessRoutes = [...unauthenticatedRoutes, /^\/vendor\/stores$/]
 
 export const vendorMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/vendor/sellers",
     method: ["POST", "GET"],
+    middlewares: [
+      authenticate("member", ["session", "bearer"], {
+        allowUnregistered: true,
+      }),
+    ],
+  },
+  {
+    matcher: "/vendor/stores",
+    method: ["GET"],
     middlewares: [
       authenticate("member", ["session", "bearer"], {
         allowUnregistered: true,
@@ -81,7 +91,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       vendorCorsMiddleware,
       unlessBaseUrl(
-        unauthenticatedRoutes,
+        sellerlessRoutes,
         authenticate("member", ["session", "bearer"], {
           allowUnregistered: false,
         })

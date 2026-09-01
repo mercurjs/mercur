@@ -29,7 +29,7 @@ Vendor routes authenticate the **member** actor (`/auth/member/emailpass` to obt
 2. Middleware verifies the authenticated member belongs to that seller and populates the request's seller context. Every query and mutation on the surface is then filtered to that seller automatically.
 3. The member's RBAC roles are resolved for the selected seller.
 
-A handful of vendor routes are public by design: seller registration (`POST /vendor/sellers`), invite acceptance (`POST /vendor/members/invites/accept`), `GET /vendor/stores`, and `GET /vendor/feature-flags`.
+A handful of vendor routes are public by design: seller registration (`POST /vendor/sellers`), invite acceptance (`POST /vendor/members/invites/accept`), and `GET /vendor/feature-flags`. `GET /vendor/stores` requires a session or bearer token, but works before the member belongs to a seller, so the onboarding wizard can reach it.
 
 ### Store
 
