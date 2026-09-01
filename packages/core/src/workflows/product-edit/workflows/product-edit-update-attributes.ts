@@ -1,10 +1,12 @@
 import { AdditionalData } from "@medusajs/framework/types"
 import { deepEqualObj } from "@medusajs/framework/utils"
 import {
+  createHook,
   createWorkflow,
+  type Hook,
+  type ReturnWorkflow,
   transform,
   WorkflowResponse,
-  type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
 import {
@@ -27,6 +29,17 @@ export type ProductEditUpdateAttributesWorkflowInput = {
   remove?: string[]
   update?: ProductAttributeBatchUpdate[]
 } & AdditionalData
+
+export type ProductEditUpdateAttributesWorkflowHooks = [
+  Hook<
+    "productChangeCreated",
+    {
+      product_change: ProductChangeDTO
+      additional_data: Record<string, unknown> | undefined
+    },
+    unknown
+  >,
+]
 
 export const productEditUpdateAttributesWorkflowId =
   "product-edit-update-attributes"
@@ -63,7 +76,7 @@ const readScalar = (
 export const productEditUpdateAttributesWorkflow: ReturnWorkflow<
   ProductEditUpdateAttributesWorkflowInput,
   ProductChangeDTO,
-  []
+  ProductEditUpdateAttributesWorkflowHooks
 > = createWorkflow(
   productEditUpdateAttributesWorkflowId,
   function (input: ProductEditUpdateAttributesWorkflowInput) {
@@ -207,6 +220,13 @@ export const productEditUpdateAttributesWorkflow: ReturnWorkflow<
       })),
     })
 
-    return new WorkflowResponse(change)
+    const productChangeCreated = createHook("productChangeCreated", {
+      product_change: change,
+      additional_data: input.additional_data,
+    })
+
+    return new WorkflowResponse(change, {
+      hooks: [productChangeCreated],
+    })
   },
 )

@@ -46,6 +46,18 @@ type BucketedActions = {
   pendingActionIds: string[]
 }
 
+const HANDLED_ACTION_TYPES = new Set<string>([
+  ProductChangeActionType.STATUS_CHANGE,
+  ProductChangeActionType.UPDATE,
+  ProductChangeActionType.VARIANT_ADD,
+  ProductChangeActionType.VARIANT_UPDATE,
+  ProductChangeActionType.VARIANT_REMOVE,
+  ProductChangeActionType.ATTRIBUTE_ADD,
+  ProductChangeActionType.ATTRIBUTE_REMOVE,
+  ProductChangeActionType.ATTRIBUTE_UPDATE,
+  ProductChangeActionType.PRODUCT_DELETE,
+])
+
 export const applyProductChangeActionsWorkflowId =
   "apply-product-change-actions"
 
@@ -91,6 +103,9 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
 
       for (const action of actions ?? []) {
         if (!action || action.applied) continue
+        // Types this workflow cannot act on keep `applied: false` — stamping
+        // them would assert an application that never happened.
+        if (!HANDLED_ACTION_TYPES.has(action.action as string)) continue
         pendingActionIds.push(action.id as string)
 
         const productId = action.product_id as string

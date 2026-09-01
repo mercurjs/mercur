@@ -152,6 +152,8 @@ export interface ProductChangeActionDTO {
   ordering: number
   action: string
   details: Record<string, unknown>
+  reference: string | null
+  reference_id: string | null
   internal_note: string | null
   applied: boolean
   product_change?: ProductChangeDTO

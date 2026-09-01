@@ -231,6 +231,8 @@ export interface CreateProductChangeActionDTO {
   product_id: string
   action: string
   details?: Record<string, unknown>
+  reference?: string | null
+  reference_id?: string | null
   internal_note?: string
   applied?: boolean
 }
