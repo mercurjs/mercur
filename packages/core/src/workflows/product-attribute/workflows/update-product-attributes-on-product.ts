@@ -78,47 +78,12 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
       options: { isList: false },
     }).config({ name: "upd-pa-product" })
 
-    // `value_ids` is replace-the-set sugar: it resolves against the values the
-    // product currently holds into the same add / remove delta the plans below
-    // already apply.
-    const resolvedUpdate = transform(
-      { input, productQuery },
-      ({ input, productQuery }) => {
-        const linkedByAttr = new Map<string, string[]>()
-        for (const v of (productQuery.data?.product_attribute_values ?? []) as {
-          id: string
-          attribute?: { id: string }
-        }[]) {
-          if (!v.attribute) {
-            continue
-          }
-          const list = linkedByAttr.get(v.attribute.id) ?? []
-          list.push(v.id)
-          linkedByAttr.set(v.attribute.id, list)
-        }
-
-        return input.update.map((ref) => {
-          if (!ref.value_ids) {
-            return ref
-          }
-          const { value_ids, ...rest } = ref
-          const next = new Set(value_ids)
-          const current = linkedByAttr.get(ref.id) ?? []
-          return {
-            ...rest,
-            add: value_ids.filter((id) => !current.includes(id)),
-            remove: current.filter((id) => !next.has(id)),
-          }
-        })
-      },
-    )
-
     // The formatter reads the selected axis subset from the pivot (native
     // options populate is broken on 2.16), so the product_attribute_value_link
     // pivot must be kept in sync with the option value subset.
     const subsetPlan = transform(
-      { input, attributesQuery, resolvedUpdate },
-      ({ input, attributesQuery, resolvedUpdate }) => {
+      { input, attributesQuery },
+      ({ input, attributesQuery }) => {
         const product_id = input.product_id
         const attrsById = new Map(
           ((attributesQuery.data ?? []) as ProductAttributeDTO[]).map((a) => [
@@ -129,43 +94,33 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
         const updates: ProductTypes.ProductOptionProductValueUpdate[] = []
         const addLinks: LinkDefinition[] = []
         const dismissLinks: LinkDefinition[] = []
-        for (const ref of resolvedUpdate) {
+        for (const ref of input.update) {
           const attr = attrsById.get(ref.id)
-          if (!attr) {
+          if (!attr || !isAxis(attr) || attr.product_id) {
             continue
           }
-          const sharedAxis = isAxis(attr) && !attr.product_id
-          const nonAxisSelect =
-            !isAxis(attr) &&
-            (attr.type === AttributeType.MULTI_SELECT ||
-              attr.type === AttributeType.SINGLE_SELECT)
-          if (!sharedAxis && !nonAxisSelect) {
-            continue
-          }
+          const optvalByValueId = new Map(
+            (attr.values ?? []).map((v) => [v.id, v.product_option_value_id]),
+          )
           const addValueIds = (ref.add ?? []).filter(
             (a): a is string => typeof a === "string",
           )
           const removeValueIds = (ref.remove ?? []).filter(
             (id): id is string => typeof id === "string",
           )
-          if (sharedAxis) {
-            const optvalByValueId = new Map(
-              (attr.values ?? []).map((v) => [v.id, v.product_option_value_id]),
-            )
-            const add = addValueIds
-              .map((vid) => optvalByValueId.get(vid))
-              .filter((id): id is string => !!id)
-            const remove = removeValueIds
-              .map((vid) => optvalByValueId.get(vid))
-              .filter((id): id is string => !!id)
-            if (add.length || remove.length) {
-              updates.push({
-                product_id,
-                product_option_id: attr.product_option_id as string,
-                add,
-                remove,
-              })
-            }
+          const add = addValueIds
+            .map((vid) => optvalByValueId.get(vid))
+            .filter((id): id is string => !!id)
+          const remove = removeValueIds
+            .map((vid) => optvalByValueId.get(vid))
+            .filter((id): id is string => !!id)
+          if (add.length || remove.length) {
+            updates.push({
+              product_id,
+              product_option_id: attr.product_option_id as string,
+              add,
+              remove,
+            })
           }
           for (const vid of addValueIds) {
             addLinks.push({
@@ -207,8 +162,8 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
     )
 
     const swapPlan = transform(
-      { input, attributesQuery, productQuery, resolvedUpdate },
-      ({ input, attributesQuery, productQuery, resolvedUpdate }) => {
+      { input, attributesQuery, productQuery },
+      ({ input, attributesQuery, productQuery }) => {
         const product_id = input.product_id
         const attrsById = new Map(
           ((attributesQuery.data ?? []) as ProductAttributeDTO[]).map((a) => [
@@ -236,7 +191,7 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
         const toggleLinks: LinkDefinition[] = []
         const dismissLinks: LinkDefinition[] = []
 
-        for (const ref of resolvedUpdate) {
+        for (const ref of input.update) {
           if (ref.value === undefined) {
             continue
           }
@@ -329,15 +284,15 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
     )
 
     const exclusivePlan = transform(
-      { attributesQuery, resolvedUpdate },
-      ({ attributesQuery, resolvedUpdate }) => {
+      { input, attributesQuery },
+      ({ input, attributesQuery }) => {
         const attrsById = new Map(
           ((attributesQuery.data ?? []) as ProductAttributeDTO[]).map((a) => [
             a.id,
             a,
           ]),
         )
-        const exclusive = resolvedUpdate.filter((ref) => {
+        const exclusive = input.update.filter((ref) => {
           const attr = attrsById.get(ref.id)
           return !!attr && isAxis(attr) && !!attr.product_id
         })
@@ -483,15 +438,15 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
     )
 
     const renamePlan = transform(
-      { attributesQuery, resolvedUpdate },
-      ({ attributesQuery, resolvedUpdate }) => {
+      { input, attributesQuery },
+      ({ input, attributesQuery }) => {
         const attrsById = new Map(
           ((attributesQuery.data ?? []) as ProductAttributeDTO[]).map((a) => [
             a.id,
             a,
           ]),
         )
-        const renames = resolvedUpdate.filter((ref) => {
+        const renames = input.update.filter((ref) => {
           const attr = attrsById.get(ref.id)
           return (
             ref.title !== undefined &&

@@ -324,9 +324,19 @@ const EditCatalogAttributeForm = ({
         .filter((v) => vals.includes(v.name))
         .map((v) => v.id)
 
-      payload = isAttached
-        ? { update: [{ id: attribute.id, value_ids: selectedIds }] }
-        : { add: [{ id: attribute.id, value_ids: selectedIds }] }
+      if (!isAttached) {
+        payload = { add: [{ id: attribute.id, value_ids: selectedIds }] }
+      } else if (attribute.is_variant_axis) {
+        const currentIds = (attribute.values ?? []).map((v) => v.id)
+        const add = selectedIds.filter((id) => !currentIds.includes(id))
+        const remove = currentIds.filter((id) => !selectedIds.includes(id))
+        payload = { update: [{ id: attribute.id, add, remove }] }
+      } else {
+        payload = {
+          remove: [attribute.id],
+          add: [{ id: attribute.id, value_ids: selectedIds }],
+        }
+      }
     } else if (!isAttached) {
       payload = { add: [{ id: attribute.id, value: scalarValue }] }
     } else {
