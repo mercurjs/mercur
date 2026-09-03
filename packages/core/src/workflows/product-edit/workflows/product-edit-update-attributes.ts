@@ -186,15 +186,11 @@ export const productEditUpdateAttributesWorkflow: ReturnWorkflow<
           const scalarUnchanged =
             update.value === undefined ||
             deepEqualObj(update.value, previous?.value ?? null)
-          const selectionUnchanged =
-            update.value_ids === undefined ||
-            deepEqualObj([...update.value_ids].sort(), previous?.value_ids ?? [])
 
           if (
             addsNothing &&
             removesNothing &&
             scalarUnchanged &&
-            selectionUnchanged &&
             update.title === undefined
           ) {
             continue
