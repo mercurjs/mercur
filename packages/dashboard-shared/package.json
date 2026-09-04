@@ -68,7 +68,7 @@
     "@mercurjs/types": "2.3.4-canary.3",
     "@types/lodash.debounce": "^4.0.8",
     "@types/react": "^18.3.2",
-    "@types/react-dom": "^18.2.22",
+    "@types/react-dom": "^19.2.5",
     "tsup": "^8.0.2",
     "typescript": "5.9.3",
     "react-router-dom": "7.18.1"
