@@ -25,7 +25,7 @@
     "@mercurjs/core": "2.3.4-canary.3",
     "@mercurjs/vendor": "2.3.4-canary.3",
     "@medusajs/core-flows": "2.18.0",
-    "react-hook-form": "7.49.1",
+    "react-hook-form": "7.87.0",
     "@hookform/resolvers": "5.4.0",
     "jsonwebtoken": "9.0.2",
     "react-jwt": "2.1.1",

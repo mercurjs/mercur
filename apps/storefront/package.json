@@ -32,7 +32,7 @@
     "react": "^19.2.1",
     "react-country-flag": "^3.1.0",
     "react-dom": "^19.0.0",
-    "react-hook-form": "^7.54.2",
+    "react-hook-form": "^7.87.0",
     "react-i18next": "^15.5.2",
     "sonner": "^2.0.7",
     "tailwind-merge": "^2.6.0",
