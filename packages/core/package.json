@@ -60,7 +60,7 @@
     "@medusajs/icons": "2.18.0",
     "@medusajs/medusa": "2.18.0",
     "@medusajs/test-utils": "2.18.0",
-    "@medusajs/ui": "4.1.19",
+    "@medusajs/ui": "4.2.1",
     "@mercurjs/types": "2.3.4-canary.3",
     "@swc/core": "^1.7.28",
     "@types/cors": "^2.8.17",

@@ -14,7 +14,7 @@
     "@medusajs/icons": "2.18.0",
     "@medusajs/medusa": "2.18.0",
     "@medusajs/types": "2.18.0",
-    "@medusajs/ui": "^4.0.33",
+    "@medusajs/ui": "^4.2.1",
     "@mercurjs/client": "2.3.4-canary.3",
     "@mercurjs/types": "2.3.4-canary.3",
     "@stripe/react-stripe-js": "^3.7.0",
