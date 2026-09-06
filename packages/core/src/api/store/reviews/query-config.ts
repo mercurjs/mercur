@@ -22,3 +22,23 @@ export const storeReviewQueryConfig = {
     isList: false,
   },
 }
+
+export const storePublicReviewFields = [
+  "id",
+  "display_id",
+  "rating",
+  "customer_note",
+  "seller_note",
+  "customer.first_name",
+  "customer.last_name",
+  "created_at",
+  "updated_at",
+]
+
+export const storePublicReviewQueryConfig = {
+  list: {
+    defaults: storePublicReviewFields,
+    defaultLimit: 50,
+    isList: true,
+  },
+}
