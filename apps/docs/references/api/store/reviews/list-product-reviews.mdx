@@ -1,0 +1,102 @@
+---
+title: "List Product Reviews"
+api: "GET /store/products/{id}/reviews"
+description: "Retrieve published reviews left on a product."
+---
+
+Returns a paginated list of the reviews left on a product. Only reviews with status `published` are included, and only reviews whose `reference` is `product`; seller reviews are listed by [List Seller Reviews](/references/api/store/reviews/list-seller-reviews) instead.
+
+The reference and the status are applied server-side and cannot be widened from the query string. Unknown query parameters, `status` among them, are rejected with a `400`.
+
+A product that does not exist, or that is not published, returns a `404` rather than an empty list.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The product's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">
+  Maximum number of reviews to return.
+</ParamField>
+
+<ParamField query="offset" type="number" default="0">
+  Number of reviews to skip before collecting results.
+</ParamField>
+
+<ParamField query="order" type="string">
+  Field to sort by, prefixed with `-` for descending order.
+</ParamField>
+
+<ParamField query="fields" type="string">
+  Comma-separated fields and relations to include; prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+<ParamField query="rating" type="number | number[]">
+  Filter by one or more ratings, each between `1` and `5`.
+</ParamField>
+
+## Response
+
+<ResponseField name="reviews" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The review's ID.</ResponseField>
+    <ResponseField name="display_id" type="number">Human-readable incrementing identifier.</ResponseField>
+    <ResponseField name="rating" type="number">Rating between `1` and `5`.</ResponseField>
+    <ResponseField name="customer_note" type="string | null">The customer's comment.</ResponseField>
+    <ResponseField name="seller_note" type="string | null">The seller's response, if one was given.</ResponseField>
+    <ResponseField name="customer" type="object | null">
+      <Expandable title="properties">
+        <ResponseField name="first_name" type="string | null">The customer's first name.</ResponseField>
+        <ResponseField name="last_name" type="string | null">The customer's last name.</ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="created_at" type="string">When the review was created.</ResponseField>
+    <ResponseField name="updated_at" type="string">When the review was last updated.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="count" type="number">Total number of matching reviews.</ResponseField>
+<ResponseField name="offset" type="number">Number of skipped reviews.</ResponseField>
+<ResponseField name="limit" type="number">Maximum number of returned reviews.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/store/products/prod_01JB2K9C3D/reviews?limit=20' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ'
+```
+
+```ts JS Client
+const { reviews, count } = await client.store.products.$id.reviews.query({
+  $id: "prod_01JB2K9C3D",
+  limit: 20,
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "reviews": [
+    {
+      "id": "rev_01JB2KA4E5",
+      "display_id": 42,
+      "rating": 5,
+      "customer_note": "Exactly as described, arrived early.",
+      "seller_note": "Thanks for shopping with us!",
+      "customer": {
+        "first_name": "Ada",
+        "last_name": "Lovelace"
+      },
+      "created_at": "2026-08-14T09:12:44.000Z",
+      "updated_at": "2026-08-15T11:02:10.000Z"
+    }
+  ],
+  "count": 8,
+  "offset": 0,
+  "limit": 20
+}
+```
+</ResponseExample>
