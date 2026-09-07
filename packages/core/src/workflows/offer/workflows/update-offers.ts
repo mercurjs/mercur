@@ -98,7 +98,7 @@ export const updateOffersWorkflow: ReturnWorkflow<
             product_variant?: {
               price_set?: { id?: string } | null
             } | null
-            prices?: Array<{ id: string }> | null
+            prices?: Array<{ id: string } | null> | null
           }>).map((o) => [o.id, o]),
         )
 
@@ -130,8 +130,13 @@ export const updateOffersWorkflow: ReturnWorkflow<
             )
           }
 
+          // `prices` comes through the offer <-> price link, so a link row
+          // whose price no longer resolves yields a null element. Such a
+          // dangling link takes no part in the diff.
           const ownedIds = new Set(
-            (loaded.prices ?? []).map((p) => p.id),
+            (loaded.prices ?? [])
+              .filter((p): p is { id: string } => !!p?.id)
+              .map((p) => p.id),
           )
           const incomingIds = offer.prices
             .map((p) => p.id)
@@ -210,15 +215,19 @@ export const updateOffersWorkflow: ReturnWorkflow<
       { pricingDiff },
       ({ pricingDiff }) => pricingDiff.toRemoveIds,
     )
-    removeOfferPricesStep(toRemoveIds)
 
     const removedLinks = transform(
       { pricingDiff },
       ({ pricingDiff }) => pricingDiff.removedLinks,
     )
+    // Dismiss the links before deleting the prices: a failure between the two
+    // then leaves an orphaned price rather than a dangling link, which would
+    // make the offer permanently unupdatable.
     dismissRemoteLinkStep(removedLinks).config({
       name: "dismiss-removed-offer-price-links",
     })
+
+    removeOfferPricesStep(toRemoveIds)
 
     const newLinks = transform(
       { pricingDiff, upsertedPriceSets },
