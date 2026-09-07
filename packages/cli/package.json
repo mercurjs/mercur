@@ -39,8 +39,8 @@
   },
   "dependencies": {
     "@antfu/ni": "^30.3.0",
-    "@medusajs/admin-bundler": "2.18.0",
-    "@medusajs/framework": "2.18.0",
+    "@medusajs/admin-bundler": "2.20.1",
+    "@medusajs/framework": "2.20.1",
     "@mercurjs/dashboard-sdk": "2.3.4-canary.3",
     "@vitejs/plugin-react": "^6.0.3",
     "commander": "^15.0.0",
