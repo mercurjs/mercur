@@ -18,6 +18,7 @@ export const storeOrderGroupFields = [
   "orders.shipping_total",
   "orders.tax_total",
   "orders.seller_id",
+  "orders.shipping_address",
   "orders.seller.id",
   "orders.seller.name",
   "orders.seller.handle",
@@ -36,15 +37,27 @@ export const storeOrderGroupFields = [
   "orders.items.variant.product.title",
 ]
 
+// Relations a caller may expand wholesale (`*orders`, `*orders.items`). Allowed
+// but not defaulted, so the response keeps the curated shape above unless it is
+// asked for the whole relation. `orders.seller` is deliberately absent: the
+// curated seller fields above are the public ones, and a wildcard would also
+// resolve the seller's payment and professional details.
+const storeOrderGroupExpandableRelations = ["orders", "orders.items"]
+
+const storeOrderGroupAllowedFields = [
+  ...storeOrderGroupFields,
+  ...storeOrderGroupExpandableRelations,
+]
+
 export const storeOrderGroupQueryConfig = {
   list: {
     defaults: storeOrderGroupFields,
-    allowed: storeOrderGroupFields,
+    allowed: storeOrderGroupAllowedFields,
     isList: true,
   },
   retrieve: {
     defaults: storeOrderGroupFields,
-    allowed: storeOrderGroupFields,
+    allowed: storeOrderGroupAllowedFields,
     isList: false,
   },
 }

@@ -39,7 +39,7 @@
     "qs": "^6.12.1"
   },
   "devDependencies": {
-    "@medusajs/framework": "2.18.0",
+    "@medusajs/framework": "2.20.1",
     "@types/qs": "^6.9.18",
     "tsup": "^8.5.0",
     "typescript": "5.9.3"

@@ -25,10 +25,10 @@
     "build": "tsup"
   },
   "peerDependencies": {
-    "@medusajs/framework": ">=2.18.0"
+    "@medusajs/framework": ">=2.20.1"
   },
   "devDependencies": {
-    "@medusajs/framework": "2.18.0",
+    "@medusajs/framework": "2.20.1",
     "@mercurjs/types": "2.3.4-canary.3",
     "tsup": "^8.5.0"
   },
