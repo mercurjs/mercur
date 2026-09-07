@@ -387,9 +387,15 @@ const VendorBatchAttributeUpdate = z
       .array(z.union([z.string(), z.object({ value: z.string() }).strict()]))
       .optional(),
     remove: z.array(z.string()).optional(),
+    value_ids: z.array(z.string()).optional(),
     value: VendorBatchAttributeScalar.optional(),
   })
   .strict()
+  .refine((v) => !v.value_ids || (!v.add && !v.remove), {
+    message:
+      "value_ids replaces the whole selection and cannot be combined with add or remove",
+    path: ["value_ids"],
+  })
 
 export type VendorBatchProductAttributesType = z.infer<
   typeof VendorBatchProductAttributes

@@ -155,6 +155,12 @@ export type ProductAttributeBatchUpdate = {
    * (exclusive axis) to remove.
    */
   remove?: string[]
+  /**
+   * The complete set of attribute value ids the product should hold for this
+   * attribute — resolved against the current selection into the same
+   * `add` / `remove` delta. Mutually exclusive with `add` / `remove`.
+   */
+  value_ids?: string[]
   /** The new free-form scalar for `text` / `unit` / `toggle` attributes. */
   value?: string | number | boolean
 }
