@@ -67,6 +67,7 @@ export interface CreateOfferDTO {
   upc?: string | null
   manage_inventory?: boolean
   allow_backorder?: boolean
+  leadtime_to_ship?: number | null
   metadata?: Record<string, unknown> | null
 }
 
@@ -88,6 +89,7 @@ export interface CreateOfferRowDTO {
   upc: string | null
   manage_inventory?: boolean
   allow_backorder?: boolean
+  leadtime_to_ship?: number | null
   created_by: string
   metadata?: Record<string, unknown> | null
 }
@@ -104,6 +106,7 @@ export interface UpdateOfferDTO {
   shipping_profile_id?: string
   manage_inventory?: boolean
   allow_backorder?: boolean
+  leadtime_to_ship?: number | null
   metadata?: Record<string, unknown> | null
   prices?: UpsertOfferPriceDTO[]
 }

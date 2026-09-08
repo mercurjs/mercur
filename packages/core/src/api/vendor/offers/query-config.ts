@@ -9,6 +9,7 @@ export const defaultVendorOfferFields = [
   "upc",
   "manage_inventory",
   "allow_backorder",
+  "leadtime_to_ship",
   "created_by",
   "metadata",
   "created_at",
