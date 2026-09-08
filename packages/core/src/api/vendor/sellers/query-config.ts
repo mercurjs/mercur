@@ -30,6 +30,7 @@ export const retrieveVendorSellerQueryConfig = {
     "approved_at",
     "rejected_at",
     "is_premium",
+    "default_leadtime_to_ship",
     "closed_from",
     "closed_to",
     "closure_note",

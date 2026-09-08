@@ -67,6 +67,7 @@ medusaIntegrationTestRunner({
               name: "New Seller",
               email: "newseller@test.com",
               currency_code: "usd",
+              default_leadtime_to_ship: 2,
             })
           )
         })
@@ -164,6 +165,7 @@ medusaIntegrationTestRunner({
               website_url: "https://example.com",
               external_id: "ext-123",
               is_premium: true,
+              default_leadtime_to_ship: 4,
               metadata: { key: "value" },
               member: { email: "full@test.com" },
             },
@@ -179,6 +181,7 @@ medusaIntegrationTestRunner({
               website_url: "https://example.com",
               external_id: "ext-123",
               is_premium: true,
+              default_leadtime_to_ship: 4,
             })
           )
         })

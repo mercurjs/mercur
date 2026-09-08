@@ -154,6 +154,7 @@ export const createOffersWorkflow: ReturnWorkflow<
             upc: offer.upc ?? variant.upc ?? null,
             manage_inventory: offer.manage_inventory ?? true,
             allow_backorder: offer.allow_backorder ?? false,
+            leadtime_to_ship: offer.leadtime_to_ship ?? null,
             created_by: offer.created_by,
             metadata: offer.metadata ?? null,
           }

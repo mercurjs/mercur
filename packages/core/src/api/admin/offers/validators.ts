@@ -73,6 +73,7 @@ const AdminCreateOffersBatchItem = z
     inventory_items: z.array(AdminOfferInventoryItem).min(1),
     ean: z.string().min(1).nullish(),
     upc: z.string().min(1).nullish(),
+    leadtime_to_ship: z.number().int().min(0).nullish(),
     metadata: z.record(z.string(), z.unknown()).nullish(),
   })
   .strict()
