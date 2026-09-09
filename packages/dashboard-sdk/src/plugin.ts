@@ -55,6 +55,7 @@ const MEDUSA_VIRTUAL_MODULES = [
     "virtual:medusa/routes",
     "virtual:medusa/widgets",
     "virtual:medusa/links",
+    "virtual:medusa/search-entities",
 ];
 
 function isMedusaVirtualModule(id: string): boolean {
