@@ -10,6 +10,7 @@ import {
   adminHeaders,
   createAdminUser,
 } from "../../../helpers/create-admin-user"
+import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createVendorProduct } from "../../../helpers/create-product"
 
@@ -94,13 +95,9 @@ medusaIntegrationTestRunner({
           (z: { name: string }) => z.name === `SZ${tag}`
         )
 
-        const shippingProfile = (
-          await api.post(
-            `/vendor/shipping-profiles`,
-            { name: `SP${tag}`, type: "default" },
-            headers
-          )
-        ).data.shipping_profile
+        const shippingProfile = await createShippingProfile(container, {
+            name: `SP${tag}`,
+        })
 
         await api.post(
           `/vendor/stock-locations/${stockLocation.id}/fulfillment-providers`,

@@ -1,6 +1,7 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { MedusaContainer } from "@medusajs/framework/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { createVendorProduct } from "../../../helpers/create-product"
 
 jest.setTimeout(60000)
@@ -34,13 +35,9 @@ medusaIntegrationTestRunner({
           sku: `${opts.email}-V-SKU-${tag}`,
         })
 
-        const shippingProfile = (
-          await api.post(
-            `/vendor/shipping-profiles`,
-            { name: `${opts.name} Profile ${tag}`, type: "default" },
-            headers
-          )
-        ).data.shipping_profile
+        const shippingProfile = await createShippingProfile(appContainer, {
+            name: `${opts.name} Profile ${tag}`,
+        })
 
         const offer = (
           await api.post(

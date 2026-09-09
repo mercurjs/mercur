@@ -1297,13 +1297,6 @@ export function getRouteMap({
                             await import("./pages/settings/shipping-profiles");
                           return { Component: ShippingProfileListPage };
                         },
-                        children: [
-                          {
-                            path: "create",
-                            lazy: () =>
-                              import("./pages/settings/shipping-profiles/create"),
-                          },
-                        ],
                       },
                       {
                         path: ":shipping_profile_id",
@@ -1334,13 +1327,6 @@ export function getRouteMap({
                                 Component: ShippingProfileDetailPage,
                               };
                             },
-                            children: [
-                              {
-                                path: "metadata/edit",
-                                lazy: () =>
-                                  import("./pages/settings/shipping-profiles/[id]/metadata"),
-                              },
-                            ],
                           },
                         ],
                       },
