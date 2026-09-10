@@ -1,11 +1,17 @@
 import {
   WorkflowData,
   WorkflowResponse,
+  createHook,
   createWorkflow,
   transform,
+  type Hook,
+  type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
-import { CommissionLineDTO } from "@mercurjs/types"
+import {
+  CommissionCalculationContext,
+  CommissionLineDTO,
+} from "@mercurjs/types"
 
 import { getCommissionLinesStep, upsertCommissionLinesStep } from "../steps"
 
@@ -26,11 +32,13 @@ const orderFields = [
   "items.*",
   "items.subtotal",
   "items.tax_total",
+  "items.total",
   "items.product.id",
   "items.product.collection_id",
   "items.product.categories.id",
   "items.product.tags.id",
   "items.product.type_id",
+  "items.product.attribute_values.id",
   "items.offer.seller_id",
   "items.adjustments.*",
   "shipping_methods.*",
@@ -48,12 +56,28 @@ export type RefreshOrderCommissionLinesWorkflowInput = {
 
 export const refreshOrderCommissionLinesWorkflowId = "refresh-order-commission-lines"
 
+/**
+ * `setCommissionContext` receives the contexts built from the orders. A
+ * handler returns `new StepResponse(contexts)` with `additional_context`
+ * filled in, or nothing to leave the contexts as they are.
+ */
+export type RefreshOrderCommissionLinesWorkflowHooks = [
+  Hook<
+    "setCommissionContext",
+    { contexts: CommissionCalculationContext[] },
+    CommissionCalculationContext[] | void
+  >,
+]
 
-export const refreshOrderCommissionLinesWorkflow = createWorkflow(
+export const refreshOrderCommissionLinesWorkflow: ReturnWorkflow<
+  RefreshOrderCommissionLinesWorkflowInput,
+  CommissionLineDTO[],
+  RefreshOrderCommissionLinesWorkflowHooks
+> = createWorkflow(
   refreshOrderCommissionLinesWorkflowId,
   function (
     input: WorkflowData<RefreshOrderCommissionLinesWorkflowInput>
-  ): WorkflowResponse<CommissionLineDTO[]> {
+  ) {
     const { data: orders } = useQueryGraphStep({
       entity: "order",
       fields: orderFields,
@@ -64,12 +88,15 @@ export const refreshOrderCommissionLinesWorkflow = createWorkflow(
     }).config({ name: "fetch-orders" })
 
     const commissionContexts = transform({ orders }, ({ orders }) => {
-      return orders.map((order: any) => ({
+      return orders.map((order: any): CommissionCalculationContext => ({
         currency_code: order.currency_code,
+        order_id: order.id,
+        seller_id: order.items?.[0]?.offer?.seller_id,
         items: (order.items ?? []).map((item: any) => ({
           id: item.id,
           subtotal: item.subtotal,
           tax_total: item.tax_total,
+          total: item.total,
           product: item.product
             ? {
               id: item.product.id,
@@ -80,6 +107,8 @@ export const refreshOrderCommissionLinesWorkflow = createWorkflow(
               seller: item.offer?.seller_id
                 ? { id: item.offer.seller_id }
                 : undefined,
+              attribute_value_ids: (item.product.attribute_values ?? [])
+                .map((value: { id: string }) => value.id),
             }
             : undefined,
         })),
@@ -91,12 +120,25 @@ export const refreshOrderCommissionLinesWorkflow = createWorkflow(
       }))
     })
 
-    const commissionLines = getCommissionLinesStep(commissionContexts)
+    const setCommissionContext = createHook("setCommissionContext", {
+      contexts: commissionContexts,
+    })
+
+    const contexts = transform(
+      { commissionContexts, hookResult: setCommissionContext.getResult() },
+      ({ commissionContexts, hookResult }): CommissionCalculationContext[] =>
+        (hookResult as CommissionCalculationContext[] | undefined) ??
+        commissionContexts
+    )
+
+    const commissionLines = getCommissionLinesStep(contexts)
 
     const upsertedCommissionLines = upsertCommissionLinesStep({
       commission_lines: commissionLines,
     })
 
-    return new WorkflowResponse(upsertedCommissionLines)
+    return new WorkflowResponse(upsertedCommissionLines, {
+      hooks: [setCommissionContext],
+    })
   }
 )
