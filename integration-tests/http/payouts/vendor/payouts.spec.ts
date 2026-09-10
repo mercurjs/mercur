@@ -10,6 +10,7 @@ import {
   MercurModules,
 } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { generatePublishableKey, generateStoreHeaders } from "../../../helpers/create-admin-user"
 import { createVendorProduct } from "../../../helpers/create-product"
 import { createPayoutAccountWorkflow, createPayoutWorkflow } from '@mercurjs/core/workflows'
@@ -196,15 +197,9 @@ medusaIntegrationTestRunner({
           (z: any) => z.name === `Payout Service Zone${uniqueSuffix}`
         )
 
-        const shippingProfileResponse = await api.post(
-          `/vendor/shipping-profiles`,
-          {
+        const shippingProfile = await createShippingProfile(appContainer, {
             name: `Payout Shipping Profile${uniqueSuffix}`,
-            type: "default",
-          },
-          headers
-        )
-        const shippingProfile = shippingProfileResponse.data.shipping_profile
+        })
 
         await api.post(
           `/vendor/stock-locations/${stockLocation.id}/fulfillment-providers`,

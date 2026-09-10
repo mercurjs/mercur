@@ -2,6 +2,7 @@ import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { MedusaContainer } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { createVendorProduct } from "../../../helpers/create-product"
 
 jest.setTimeout(50000)
@@ -26,17 +27,15 @@ medusaIntegrationTestRunner({
 
                 const variant = product.variants[0]
 
-                const shippingProfile = await api.post(
-                    `/vendor/shipping-profiles`,
-                    { name: `Standard ${tag}`, type: "default" },
-                    headers
+                const shippingProfile = await createShippingProfile(
+                    appContainer,
+                    { name: `Standard ${tag}` }
                 )
 
                 return {
                     variant_id: variant.id,
                     product_id: product.id,
-                    shipping_profile_id:
-                        shippingProfile.data.shipping_profile.id,
+                    shipping_profile_id: shippingProfile.id,
                     ean,
                     upc,
                 }

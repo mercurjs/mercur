@@ -9,6 +9,7 @@ import {
     updateOffersWorkflow,
 } from "@mercurjs/core/workflows"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { createVendorProduct } from "../../../helpers/create-product"
 
 jest.setTimeout(120000)
@@ -39,13 +40,9 @@ medusaIntegrationTestRunner({
                     )
                 ).data.stock_location
 
-                const shippingProfile = (
-                    await api.post(
-                        `/vendor/shipping-profiles`,
-                        { name: `Profile ${tag}`, type: "default" },
-                        headers
-                    )
-                ).data.shipping_profile
+                const shippingProfile = await createShippingProfile(appContainer, {
+                    name: `Profile ${tag}`,
+                })
 
                 const product = await createVendorProduct(api, headers, {
                     title: `Dangling Product ${tag}`,

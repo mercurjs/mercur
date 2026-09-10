@@ -7,6 +7,7 @@ import {
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { MercurModules, SellerStatus } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { createCustomerUser } from "../../../helpers/create-customer-user"
 import {
   adminHeaders,
@@ -74,13 +75,9 @@ medusaIntegrationTestRunner({
           (z: any) => z.name === `Service Zone${uniqueSuffix}`
         )
 
-        const shippingProfile = (
-          await api.post(
-            `/vendor/shipping-profiles`,
-            { name: `Shipping Profile${uniqueSuffix}`, type: "default" },
-            headers
-          )
-        ).data.shipping_profile
+        const shippingProfile = await createShippingProfile(appContainer, {
+            name: `Shipping Profile${uniqueSuffix}`,
+        })
 
         await api.post(
           `/vendor/stock-locations/${stockLocation.id}/fulfillment-providers`,

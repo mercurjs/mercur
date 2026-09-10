@@ -11,6 +11,7 @@ import {
     generatePublishableKey,
     generateStoreHeaders,
 } from "../../../helpers/create-admin-user"
+import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { createCustomerUser } from "../../../helpers/create-customer-user"
 import { createVendorProduct } from "../../../helpers/create-product"
 import { createSellerUser } from "../../../helpers/create-seller-user"
@@ -76,13 +77,9 @@ medusaIntegrationTestRunner({
                 ).data.fulfillment_set.service_zones.find(
                     (z: any) => z.name === `SZ${suffix}`
                 )
-                const shippingProfile = (
-                    await api.post(
-                        `/vendor/shipping-profiles`,
-                        { name: `SP${suffix}`, type: "default" },
-                        headers
-                    )
-                ).data.shipping_profile
+                const shippingProfile = await createShippingProfile(appContainer, {
+                    name: `SP${suffix}`,
+                })
 
                 await api.post(
                     `/vendor/stock-locations/${stockLocation.id}/fulfillment-providers`,

@@ -2,6 +2,7 @@ import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { IFulfillmentModuleService, MedusaContainer } from "@medusajs/framework/types"
 import { Modules } from "@medusajs/framework/utils"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 
 jest.setTimeout(60000)
 
@@ -81,15 +82,9 @@ medusaIntegrationTestRunner({
                     (z: any) => z.name === `Test Service Zone${uniqueSuffix}`
                 )
 
-                const shippingProfileResponse = await api.post(
-                    `/vendor/shipping-profiles`,
-                    {
-                        name: `Test Shipping Profile${uniqueSuffix}`,
-                        type: "default",
-                    },
-                    headers
-                )
-                const shippingProfile = shippingProfileResponse.data.shipping_profile
+                const shippingProfile = await createShippingProfile(appContainer, {
+                    name: `Test Shipping Profile${uniqueSuffix}`,
+                })
 
                 await api.post(
                     `/vendor/stock-locations/${stockLocation.id}/fulfillment-providers`,

@@ -1,8 +1,4 @@
-import {
-  DeleteResponse,
-  PaginatedResponse,
-  ShippingProfileDTO,
-} from "@medusajs/types"
+import { PaginatedResponse, ShippingProfileDTO } from "@medusajs/types"
 
 export interface VendorShippingProfileResponse {
   /**
@@ -17,5 +13,3 @@ export type VendorShippingProfileListResponse = PaginatedResponse<{
    */
   shipping_profiles: ShippingProfileDTO[]
 }>
-
-export type VendorShippingProfileDeleteResponse = DeleteResponse<"shipping_profile">
