@@ -20,7 +20,7 @@ export default class CommissionProviderService {
       return this.container_[
         `${CommissionProviderRegistrationPrefix}${providerId}`
       ]
-    } catch (error) {
+    } catch {
       throw new MedusaError(
         MedusaError.Types.NOT_FOUND,
         `Unable to retrieve the commission provider with id: ${providerId}. Please make sure that the provider is registered in the container and it is configured correctly in your project configuration file.`
