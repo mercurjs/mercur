@@ -16,7 +16,7 @@
     "@mercurjs/dashboard-sdk": "2.3.4-canary.9",
     "@medusajs/ui": "4.2.3",
     "@medusajs/icons": "2.20.1",
-    "@tanstack/react-query": "5.64.2",
+    "@tanstack/react-query": "5.102.8",
     "react-i18next": "17.0.8",
     "react-router-dom": "7.18.1",
     "@tanstack/react-table": "8.21.3",
