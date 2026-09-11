@@ -33,6 +33,28 @@ const createBranchRoute = (segment: string): RouteObject => ({
 })
 
 /**
+ * Moves a segment index page's breadcrumb onto its branch so it keeps matching
+ * on every route below. Moved rather than copied, otherwise the list page would
+ * show the domain crumb twice.
+ */
+const hoistBreadcrumb = (
+    branch: RouteObject,
+    handle: RouteHandle | undefined,
+    isIndex: boolean
+): RouteHandle | undefined => {
+    const branchHandle = branch.handle as RouteHandle | undefined
+
+    if (!isIndex || !handle?.breadcrumb || branchHandle?.breadcrumb) {
+        return handle
+    }
+
+    branch.handle = { ...branchHandle, breadcrumb: handle.breadcrumb }
+
+    const { breadcrumb: _breadcrumb, ...rest } = handle
+    return Object.keys(rest).length ? rest : undefined
+}
+
+/**
  * Creates a route object for a leaf node with its component
  * @param Component - The React component to render at this route
  */
@@ -164,10 +186,12 @@ const addRoute = (
             leaf.children = processParallelRoutes(parallelRoutes, currentFullPath)
             Object.assign(route, leaf)
         } else {
-            // `handle` belongs on the leaf, not on the branch: branches are
-            // shared between sibling routes at the same segment, so a branch
-            // handle leaks onto every sibling below it.
-            const leaf = createLeafRoute(Component, loader, handle)
+            // Permission keys stay on the leaf: branches are shared between sibling
+            // routes, so hoisting them would gate every route below on the index
+            // page's rules. `breadcrumb` is the exception, mirroring the hand-written
+            // settings tree in get-route-map.tsx.
+            const leafHandle = hoistBreadcrumb(route, handle, remainingSegments.length === 0)
+            const leaf = createLeafRoute(Component, loader, leafHandle)
             leaf.children = processParallelRoutes(parallelRoutes, currentFullPath)
             route.children.push(leaf)
         }
