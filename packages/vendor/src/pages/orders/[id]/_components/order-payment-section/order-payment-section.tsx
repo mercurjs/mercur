@@ -17,6 +17,7 @@ import DisplayId from "@components/common/display-id/display-id"
 import { getLocaleAmount, getStylizedAmount } from "@lib/money-amount-helpers"
 import { getOrderPaymentStatus } from "@lib/order-helpers"
 import { getTotalCaptured, getTotalPending } from "@lib/payment"
+import { isOrderActionable } from "@mercurjs/dashboard-shared"
 import { useDate } from "@hooks/use-date"
 
 type PaymentRefund = {
@@ -142,6 +143,7 @@ const PaymentRow = ({
   const isFullyRefunded =
     refundedAmount > 0 && refundedAmount >= (payment.amount as number)
   const canRefund =
+    isOrderActionable(order) &&
     !!payment.captured_at && !payment.canceled_at && !isFullyRefunded
 
   return (

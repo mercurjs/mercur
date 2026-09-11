@@ -36,7 +36,11 @@ import {
 } from "@medusajs/ui";
 
 import type { AdminReservation } from "@medusajs/types";
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
+import {
+  DisplayExtensionZone,
+  isOrderActionable,
+  isOrderAwaitingAction,
+} from "@mercurjs/dashboard-shared";
 import { format } from "date-fns";
 import { ActionMenu } from "../../../../../components/common/action-menu/index.ts";
 import DisplayId from "../../../../../components/common/display-id/display-id.tsx";
@@ -233,8 +237,11 @@ const Header = ({
                 ),
                 to: `/orders/${order.id}/edits`,
                 icon: <PencilSquare />,
+                disabledTooltip: isOrderAwaitingAction(order)
+                  ? t("orders.requiresAction.actionUnavailable")
+                  : undefined,
                 disabled:
-                  order.status === "canceled" ||
+                  !isOrderActionable(order) ||
                   (orderPreview?.order_change &&
                     orderPreview?.order_change?.change_type !== "edit") ||
                   (orderPreview?.order_change?.change_type === "edit" &&
@@ -248,7 +255,11 @@ const Header = ({
                 label: t("orders.returns.create"),
                 to: `/orders/${order.id}/returns`,
                 icon: <ArrowUturnLeft />,
+                disabledTooltip: isOrderAwaitingAction(order)
+                  ? t("orders.requiresAction.actionUnavailable")
+                  : undefined,
                 disabled:
+                  !isOrderActionable(order) ||
                   shouldDisableReturn ||
                   isOrderEditActive ||
                   !!orderPreview?.order_change?.exchange_id ||
@@ -262,7 +273,11 @@ const Header = ({
                     : t("orders.exchanges.create"),
                 to: `/orders/${order.id}/exchanges`,
                 icon: <ArrowPath />,
+                disabledTooltip: isOrderAwaitingAction(order)
+                  ? t("orders.requiresAction.actionUnavailable")
+                  : undefined,
                 disabled:
+                  !isOrderActionable(order) ||
                   shouldDisableReturn ||
                   isOrderEditActive ||
                   (!!orderPreview?.order_change?.return_id &&
@@ -277,7 +292,11 @@ const Header = ({
                     : t("orders.claims.create"),
                 to: `/orders/${order.id}/claims`,
                 icon: <ExclamationCircle />,
+                disabledTooltip: isOrderAwaitingAction(order)
+                  ? t("orders.requiresAction.actionUnavailable")
+                  : undefined,
                 disabled:
+                  !isOrderActionable(order) ||
                   shouldDisableReturn ||
                   isOrderEditActive ||
                   (!!orderPreview?.order_change?.return_id &&
