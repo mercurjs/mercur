@@ -1452,6 +1452,9 @@
     }
   },
   "orders": {
+    "requiresAction": {
+      "actionUnavailable": "Not available until this order is accepted"
+    },
     "giftCardsStoreCreditLines": "Gift cards & credit lines",
     "creditLines": {
       "title": "Credit lines",

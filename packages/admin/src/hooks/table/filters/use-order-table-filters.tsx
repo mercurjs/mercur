@@ -17,7 +17,20 @@ export const useOrderTableFilters = (): Filter[] => {
     fields: "id,name",
   })
 
-  let filters: Filter[] = []
+  const statusFilter: Filter = {
+    key: "status",
+    label: t("fields.status"),
+    type: "select",
+    multiple: true,
+    options: [
+      { label: t("orders.status.pending"), value: "pending" },
+      { label: t("orders.status.completed"), value: "completed" },
+      { label: t("orders.status.requires_action"), value: "requires_action" },
+      { label: t("orders.status.canceled"), value: "canceled" },
+    ],
+  }
+
+  let filters: Filter[] = [statusFilter]
 
   if (regions) {
     const regionFilter: Filter = {
