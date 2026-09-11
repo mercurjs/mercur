@@ -55,7 +55,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
+    "eslint": "^10",
     "eslint-config-next": "15.5.7",
     "eslint-plugin-storybook": "^0.11.2",
     "postcss": "^8",
