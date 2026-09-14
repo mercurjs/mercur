@@ -55,7 +55,8 @@ export function withMercur(config: MercurInputConfig = {}): InputConfigWithArray
 
   const modules = [
     ...(config.modules ?? []),
-    ...((config.modules ?? []).some(
+    ...(!featureFlags.rbac ||
+    (config.modules ?? []).some(
       (m) =>
         typeof m === "object" &&
         "resolve" in m &&

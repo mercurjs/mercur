@@ -1,3 +1,4 @@
+import { withRbacRoleFields } from "../../utils/rbac-role-fields"
 import { PolicyResource } from "../../utils/policy-resources"
 import { PolicyOperation } from "@medusajs/framework/utils"
 import {
@@ -11,16 +12,17 @@ import { VendorGetSellerParams } from "../sellers/validators"
 import { VendorAcceptMemberInvite, VendorUpdateMember } from "./validators"
 
 const retrieveVendorMemberMeQueryConfig = {
-  defaults: [
-    "id",
-    "is_owner",
-    "member.*",
-    "rbac_role.*",
-    "seller.*",
-    "seller.address.*",
-    "seller.payment_details.*",
-    "seller.professional_details.*",
-  ],
+  get defaults() {
+    return withRbacRoleFields([
+      "id",
+      "is_owner",
+      "member.*",
+      "seller.*",
+      "seller.address.*",
+      "seller.payment_details.*",
+      "seller.professional_details.*",
+    ])
+  },
 }
 
 export const vendorMembersMiddlewares: MiddlewareRoute[] = [

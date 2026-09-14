@@ -5,6 +5,7 @@ import {
 } from "@medusajs/framework"
 import {
   ContainerRegistrationKeys,
+  FeatureFlag,
   Policy,
   WILDCARD,
 } from "@medusajs/framework/utils"
@@ -59,13 +60,15 @@ export const GET = async (
   }
 
   // Covers policies persisted at runtime that the code registry doesn't know.
-  const { data: persistedPolicies } = await query.graph({
-    entity: "rbac_policy",
-    fields: ["resource", "operation"],
-  })
+  if (FeatureFlag.isFeatureEnabled("rbac")) {
+    const { data: persistedPolicies } = await query.graph({
+      entity: "rbac_policy",
+      fields: ["resource", "operation"],
+    })
 
-  for (const policy of persistedPolicies ?? []) {
-    consider(policy?.resource, policy?.operation)
+    for (const policy of persistedPolicies ?? []) {
+      consider(policy?.resource, policy?.operation)
+    }
   }
 
   const granted = await resolvePermissions({
