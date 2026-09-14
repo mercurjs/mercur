@@ -1,3 +1,5 @@
+import { withRbacRoleFields } from "../../utils/rbac-role-fields"
+
 export const adminSellerFields = [
   "id",
   "name",
@@ -52,13 +54,14 @@ export const adminSellerQueryConfig = {
 
 export const adminMembersQueryConfig = {
   list: {
-    defaults: [
-      "id",
-      "is_owner",
-      "member.*",
-      "created_at",
-      "rbac_role.*",
-    ],
+    get defaults() {
+      return withRbacRoleFields([
+        "id",
+        "is_owner",
+        "member.*",
+        "created_at",
+      ])
+    },
     defaultLimit: 50,
     isList: true,
   },

@@ -1,14 +1,17 @@
+import { withRbacRoleFields } from "../../utils/rbac-role-fields"
+
 export enum Entities {
   seller = "seller",
   seller_member = "seller_member",
 }
 
 export const listVendorSellersQueryConfig = {
-  defaults: [
-    "id",
-    "seller.*",
-    "rbac_role.*",
-  ],
+  get defaults() {
+    return withRbacRoleFields([
+      "id",
+      "seller.*",
+    ])
+  },
   defaultLimit: 50,
   isList: true,
 }
@@ -42,25 +45,27 @@ export const retrieveVendorSellerQueryConfig = {
 }
 
 export const listVendorMembersQueryConfig = {
-  defaults: [
-    "id",
-    "is_owner",
-    "member.*",
-    "rbac_role.*",
-    "created_at"
-  ],
+  get defaults() {
+    return withRbacRoleFields([
+      "id",
+      "is_owner",
+      "member.*",
+      "created_at",
+    ])
+  },
   defaultLimit: 50,
   isList: true,
 }
 
 export const retrieveVendorMemberQueryConfig = {
-  defaults: [
-    "id",
-    "is_owner",
-    "member.*",
-    "rbac_role.*",
-    "created_at"
-  ],
+  get defaults() {
+    return withRbacRoleFields([
+      "id",
+      "is_owner",
+      "member.*",
+      "created_at",
+    ])
+  },
 }
 
 export const listVendorMemberInvitesQueryConfig = {
