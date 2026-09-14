@@ -3952,6 +3952,8 @@
       "duplicateInventoryItem": "Este item de inventário já está associado.",
       "selectAtLeastOneVariant": "Selecione pelo menos uma variante para continuar.",
       "noPublishableRows": "Adicione um SKU, ative uma localização de stock ou defina um preço para publicar.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Um item de inventário só pode aparecer num grupo (criar, atualizar ou eliminar)."
     }
   },

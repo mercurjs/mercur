@@ -3865,6 +3865,8 @@
       "duplicateInventoryItem": "Ši atsargų prekė jau pridėta.",
       "selectAtLeastOneVariant": "Norėdami tęsti, pasirinkite bent vieną variantą.",
       "noPublishableRows": "Norėdami publikuoti, pridėkite SKU, įjunkite atsargų vietą arba nustatykite kainą.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Atsargų prekė gali būti tik vienoje grupėje (kurti, atnaujinti arba ištrinti)."
     }
   },

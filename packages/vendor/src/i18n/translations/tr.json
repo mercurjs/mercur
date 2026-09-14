@@ -3865,6 +3865,8 @@
       "duplicateInventoryItem": "Bu envanter kalemi zaten eklenmiş.",
       "selectAtLeastOneVariant": "Devam etmek için en az bir varyant seçin.",
       "noPublishableRows": "Yayınlamak için bir SKU ekleyin, bir stok lokasyonu etkinleştirin veya bir fiyat belirleyin.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Bir envanter kalemi yalnızca bir grupta yer alabilir (oluştur, güncelle veya sil)."
     }
   },

@@ -40,7 +40,7 @@ export const AdminGetOffersParams = createFindParams({
 
 const AdminOfferPrice = z
   .object({
-    amount: z.number(),
+    amount: z.number().positive(),
     currency_code: z.string(),
     min_quantity: z.number().int().positive().nullish(),
     max_quantity: z.number().int().positive().nullish(),

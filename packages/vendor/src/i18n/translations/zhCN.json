@@ -3861,6 +3861,8 @@
       "duplicateInventoryItem": "该库存项已被关联。",
       "selectAtLeastOneVariant": "请至少选择一个变体以继续。",
       "noPublishableRows": "请添加 SKU、启用库存位置或设置价格以进行发布。",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "一个库存项只能出现在一个操作类别中（创建、更新或删除）。"
     }
   },

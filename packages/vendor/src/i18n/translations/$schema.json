@@ -5319,6 +5319,12 @@
             "noPublishableRows": {
               "type": "string"
             },
+            "priceRequired": {
+              "type": "string"
+            },
+            "noPricedRows": {
+              "type": "string"
+            },
             "duplicateBatchEntry": {
               "type": "string"
             }
@@ -5331,6 +5337,8 @@
             "duplicateInventoryItem",
             "selectAtLeastOneVariant",
             "noPublishableRows",
+            "priceRequired",
+            "noPricedRows",
             "duplicateBatchEntry"
           ],
           "additionalProperties": false

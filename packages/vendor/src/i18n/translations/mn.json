@@ -3865,6 +3865,8 @@
       "duplicateInventoryItem": "Энэ нөөцийн зүйл аль хэдийн холбогдсон байна.",
       "selectAtLeastOneVariant": "Үргэлжлүүлэхийн тулд дор хаяж нэг хувилбар сонгоно уу.",
       "noPublishableRows": "Нийтлэхийн тулд SKU нэмэх, үлдэгдлийн байршил идэвхжүүлэх эсвэл үнэ тохируулна уу.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Нөөцийн зүйл зөвхөн нэг бүлэгт л харагдана (үүсгэх, шинэчлэх, устгах)."
     }
   },

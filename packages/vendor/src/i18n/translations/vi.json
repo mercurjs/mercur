@@ -3861,6 +3861,8 @@
       "duplicateInventoryItem": "Mặt hàng tồn kho này đã được gắn.",
       "selectAtLeastOneVariant": "Chọn ít nhất một biến thể để tiếp tục.",
       "noPublishableRows": "Thêm SKU, bật vị trí tồn kho hoặc thiết lập giá để đăng.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Một mặt hàng tồn kho chỉ có thể xuất hiện trong một nhóm (tạo, cập nhật hoặc xóa)."
     }
   },

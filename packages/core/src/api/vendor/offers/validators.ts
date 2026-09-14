@@ -50,7 +50,7 @@ const VendorOfferInventoryItem = z
 
 const VendorOfferPrice = z
   .object({
-    amount: z.number(),
+    amount: z.number().positive(),
     currency_code: z.string(),
     min_quantity: z.number().int().positive().nullish(),
     max_quantity: z.number().int().positive().nullish(),
@@ -61,7 +61,7 @@ const VendorOfferPrice = z
 const VendorOfferUpsertPrice = z
   .object({
     id: z.string().optional(),
-    amount: z.number(),
+    amount: z.number().positive(),
     currency_code: z.string(),
     min_quantity: z.number().int().positive().nullish(),
     max_quantity: z.number().int().positive().nullish(),

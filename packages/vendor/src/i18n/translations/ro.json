@@ -3865,6 +3865,8 @@
       "duplicateInventoryItem": "Acest articol de inventar este deja atașat.",
       "selectAtLeastOneVariant": "Selectați cel puțin o variantă pentru a continua.",
       "noPublishableRows": "Adăugați un SKU, activați o locație de stoc sau setați un preț pentru a publica.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Un articol de inventar poate apărea doar într-o singură categorie (creare, actualizare sau ștergere)."
     }
   },

@@ -3865,6 +3865,8 @@
       "duplicateInventoryItem": "Овој артикл од залиха е веќе прикачен.",
       "selectAtLeastOneVariant": "Изберете барем една варијанта за да продолжите.",
       "noPublishableRows": "Додадете SKU, овозможете локација на залиха или поставете цена за да објавите.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Артиклот од залиха може да се појави само во една група (креирање, ажурирање или бришење)."
     }
   },

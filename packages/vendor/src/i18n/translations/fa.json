@@ -3865,6 +3865,8 @@
       "duplicateInventoryItem": "این مورد موجودی قبلاً پیوست شده است.",
       "selectAtLeastOneVariant": "برای ادامه، حداقل یک تنوع انتخاب کنید.",
       "noPublishableRows": "برای انتشار، یک SKU اضافه کنید، یک مکان موجودی فعال کنید یا قیمتی تعیین کنید.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "یک مورد موجودی فقط می‌تواند در یک گروه ظاهر شود (ایجاد، به‌روزرسانی یا حذف)."
     }
   },

@@ -3861,6 +3861,8 @@
       "duplicateInventoryItem": "Item inventaris ini sudah terlampir.",
       "selectAtLeastOneVariant": "Pilih setidaknya satu varian untuk melanjutkan.",
       "noPublishableRows": "Tambahkan SKU, aktifkan lokasi stok, atau atur harga untuk mempublikasikan.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Item inventaris hanya dapat muncul dalam satu kategori (buat, perbarui, atau hapus)."
     }
   },
