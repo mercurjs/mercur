@@ -67,10 +67,10 @@ const translations: Record<string, { translation: Record<string, any> }> = {
   pl: {
     translation: pl,
   },
-  ptBR: {
+  "pt-BR": {
     translation: ptBR,
   },
-  ptPT: {
+  "pt-PT": {
     translation: ptPT,
   },
   th: {
@@ -94,7 +94,7 @@ const translations: Record<string, { translation: Record<string, any> }> = {
   ar: {
     translation: ar,
   },
-  zhCN: {
+  "zh-CN": {
     translation: zhCN,
   },
   fa: {
@@ -121,7 +121,7 @@ const translations: Record<string, { translation: Record<string, any> }> = {
   id: {
     translation: id,
   },
-  zhTW: {
+  "zh-TW": {
     translation: zhTW,
   },
 }
