@@ -198,9 +198,7 @@ You need **two separate webhook endpoints** in Stripe: one for payment events, o
     Copy the signing secret and set it as `STRIPE_WEBHOOK_SECRET` in your `.env`.
 
     <Note>
-      With `capture: false`, Stripe sends `payment_intent.amount_capturable_updated` as soon as the payment is authorized, which can be before the storefront calls `POST /store/carts/:id/complete`. From Mercur v2.3.2, a webhook-driven completion runs `completeCartWithSplitOrdersWorkflow` under the same cart lock as the store route, so it still produces an order group with per-seller orders. It also completes carts whose customer left right after authenticating, so keep it enabled.
-
-      On Mercur 2.2.x, webhooks go through Medusa's stock `processPaymentWorkflow` and can complete the cart without splitting it. Leave `payment_intent.amount_capturable_updated` disabled there, or upgrade.
+      With `capture: false`, Stripe sends `payment_intent.amount_capturable_updated` as soon as the payment is authorized, which can be before the storefront calls `POST /store/carts/:id/complete`. A webhook-driven completion runs `completeCartWithSplitOrdersWorkflow` under the same cart lock as the store route, so it still produces an order group with per-seller orders. It also completes carts whose customer left right after authenticating, so keep it enabled.
     </Note>
 
     <Warning>
