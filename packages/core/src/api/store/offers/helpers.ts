@@ -45,18 +45,6 @@ type StoreRequestWithContext = MedusaStoreRequest<unknown> & {
   }
 }
 
-// Offers created before amount validation was enforced may carry
-// zero-amount prices; never surface those as a purchasable price.
-const toActivePrice = (
-  calculated: Record<string, unknown> | null | undefined
-): Record<string, unknown> | null => {
-  const amount = calculated?.calculated_amount
-  if (typeof amount !== "number" || amount <= 0) {
-    return null
-  }
-  return calculated ?? null
-}
-
 export const wrapOffersWithCalculatedPrices = async (
   req: StoreRequestWithContext,
   offers: EnrichableOffer[]
@@ -119,7 +107,7 @@ export const wrapOffersWithCalculatedPrices = async (
           ])
         )
         for (const { priceSetId, offer } of singletons) {
-          offer.calculated_price = toActivePrice(byPriceSetId.get(priceSetId))
+          offer.calculated_price = byPriceSetId.get(priceSetId) ?? null
         }
       })()
     )
@@ -137,9 +125,8 @@ export const wrapOffersWithCalculatedPrices = async (
           { context: context as Record<string, string | number> }
         )
 
-        offer.calculated_price = toActivePrice(
-          calculated as unknown as Record<string, unknown> | undefined
-        )
+        offer.calculated_price =
+          (calculated as unknown as Record<string, unknown>) ?? null
       })()
     )
   }
