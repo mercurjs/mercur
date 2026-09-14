@@ -3866,6 +3866,8 @@
       "duplicateInventoryItem": "Цей складський запис уже прив'язано.",
       "selectAtLeastOneVariant": "Виберіть принаймні один варіант, щоб продовжити.",
       "noPublishableRows": "Додайте SKU, увімкніть локацію запасів або встановіть ціну, щоб опублікувати.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Складський запис може з'являтися лише в одній групі (створення, оновлення або видалення)."
     }
   },

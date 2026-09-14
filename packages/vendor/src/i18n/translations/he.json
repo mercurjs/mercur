@@ -3861,6 +3861,8 @@
       "duplicateInventoryItem": "פריט מלאי זה כבר מצורף.",
       "selectAtLeastOneVariant": "בחר לפחות וריאנט אחד כדי להמשיך.",
       "noPublishableRows": "הוסף SKU, הפעל מיקום מלאי, או הגדר מחיר כדי לפרסם.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "פריט מלאי יכול להופיע רק בקבוצה אחת (יצירה, עדכון או מחיקה)."
     }
   },

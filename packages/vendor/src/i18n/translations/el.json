@@ -3865,6 +3865,8 @@
       "duplicateInventoryItem": "Αυτό το είδος αποθέματος είναι ήδη συνδεδεμένο.",
       "selectAtLeastOneVariant": "Επιλέξτε τουλάχιστον μία παραλλαγή για να συνεχίσετε.",
       "noPublishableRows": "Προσθέστε SKU, ενεργοποιήστε τοποθεσία αποθέματος ή ορίστε τιμή για δημοσίευση.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Ένα είδος αποθέματος μπορεί να εμφανιστεί μόνο σε μία κατηγορία (δημιουργία, ενημέρωση ή διαγραφή)."
     }
   },

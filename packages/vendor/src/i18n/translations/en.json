@@ -1299,6 +1299,8 @@
       "duplicateInventoryItem": "This inventory item is already attached.",
       "selectAtLeastOneVariant": "Select at least one variant to continue.",
       "noPublishableRows": "Add a SKU, enable a stock location, or set a price to publish.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "An inventory item can only appear in one bucket (create, update, or delete)."
     }
   },

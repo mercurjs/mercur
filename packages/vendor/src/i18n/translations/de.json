@@ -3866,6 +3866,8 @@
       "duplicateInventoryItem": "Dieser Lagerartikel ist bereits zugeordnet.",
       "selectAtLeastOneVariant": "Wählen Sie mindestens eine Variante aus, um fortzufahren.",
       "noPublishableRows": "Fügen Sie eine SKU hinzu, aktivieren Sie einen Lagerstandort oder legen Sie einen Preis fest, um zu veröffentlichen.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Ein Lagerartikel kann nur in einer Gruppe erscheinen (erstellen, aktualisieren oder löschen)."
     }
   },

@@ -3866,6 +3866,8 @@
       "duplicateInventoryItem": "この在庫アイテムはすでに接続されています。",
       "selectAtLeastOneVariant": "続けるには少なくとも1つのバリアントを選択してください。",
       "noPublishableRows": "公開するにはSKUを追加するか、在庫ロケーションを有効にするか、価格を設定してください。",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "在庫アイテムは1つの区分（作成、更新、削除）にのみ含めることができます。"
     }
   },

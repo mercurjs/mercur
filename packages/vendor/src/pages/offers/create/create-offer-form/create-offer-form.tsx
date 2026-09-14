@@ -17,6 +17,8 @@ import {
   CreateOfferFormValues,
   CreateOfferSchema,
   OfferVariantRow,
+  variantRowHasPartialInput,
+  variantRowHasPrice,
 } from "./schema";
 
 const DEFAULTS: CreateOfferFormValues = {
@@ -159,10 +161,27 @@ export const CreateOfferForm = () => {
       return;
     }
 
+    if (!currency_code) {
+      return;
+    }
+
     let hasValidationError = false;
     const skuSeen = new Map<string, number>();
+    const rows: { row: OfferVariantRow; index: number; sku: string }[] = [];
+
     for (let i = 0; i < variants.length; i++) {
       const row = variants[i];
+
+      if (!variantRowHasPrice(row, currency_code)) {
+        if (variantRowHasPartialInput(row)) {
+          form.setError(`variants.${i}.prices.${currency_code}`, {
+            type: "manual",
+            message: t("offers.validation.priceRequired"),
+          });
+          hasValidationError = true;
+        }
+        continue;
+      }
 
       const sku = (row.sku ?? "").trim();
       if (!sku) {
@@ -188,27 +207,26 @@ export const CreateOfferForm = () => {
         });
         hasValidationError = true;
       }
+
+      rows.push({ row, index: i, sku });
     }
 
     if (hasValidationError) return;
 
+    if (rows.length === 0) {
+      toast.error(t("offers.validation.noPricedRows"));
+      return;
+    }
+
     setIsSubmitting(true);
 
-    const rows: { row: OfferVariantRow; index: number; sku: string }[] =
-      variants.map((row, index) => ({
-        row,
-        index,
-        sku: (row.sku ?? "").trim(),
-      }));
-
     const payloadOffers = rows.map(({ row, sku }) => {
-      const prices: { amount: number; currency_code: string }[] = [];
-      if (currency_code) {
-        prices.push({
+      const prices = [
+        {
           amount: numericOrZero(row.prices?.[currency_code]),
           currency_code,
-        });
-      }
+        },
+      ];
 
       const stock_levels: { location_id: string; stocked_quantity: number }[] = [];
       for (const [locationId, level] of Object.entries(row.inventory ?? {})) {

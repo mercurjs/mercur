@@ -3864,6 +3864,8 @@
       "duplicateInventoryItem": "Ez a készlettétel már csatolva van.",
       "selectAtLeastOneVariant": "A folytatáshoz válasszon legalább egy variánst.",
       "noPublishableRows": "A közzétételhez adjon meg egy cikkszámot (SKU-t), engedélyezzen egy készlethelyet, vagy állítson be egy árat.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Egy készlettétel csak egy kategóriában szerepelhet (létrehozás, frissítés vagy törlés)."
     }
   },

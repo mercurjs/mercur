@@ -3861,6 +3861,8 @@
       "duplicateInventoryItem": "Tato skladová položka je již přiřazena.",
       "selectAtLeastOneVariant": "Pro pokračování vyberte alespoň jednu variantu.",
       "noPublishableRows": "Pro publikování přidejte SKU, povolte skladovou lokaci nebo nastavte cenu.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Skladová položka se může objevit pouze v jedné skupině (vytvořit, aktualizovat nebo smazat)."
     }
   },

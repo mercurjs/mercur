@@ -3865,6 +3865,8 @@
       "duplicateInventoryItem": "Този складов артикул вече е прикачен.",
       "selectAtLeastOneVariant": "Изберете поне един вариант, за да продължите.",
       "noPublishableRows": "Добавете SKU, активирайте складова локация или задайте цена, за да публикувате.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Складов артикул може да се появява само в една група (създаване, актуализация или изтриване)."
     }
   },

@@ -3864,6 +3864,8 @@
       "duplicateInventoryItem": "Dit voorraadartikel is al gekoppeld.",
       "selectAtLeastOneVariant": "Selecteer ten minste één variant om door te gaan.",
       "noPublishableRows": "Voeg een SKU toe, schakel een voorraadlocatie in of stel een prijs in om te publiceren.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Een voorraadartikel kan slechts in één groep voorkomen (aanmaken, bijwerken of verwijderen)."
     }
   },

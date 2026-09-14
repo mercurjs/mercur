@@ -3952,6 +3952,8 @@
       "duplicateInventoryItem": "此庫存項目已附加。",
       "selectAtLeastOneVariant": "請至少選擇一個款式以繼續。",
       "noPublishableRows": "請新增 SKU、啟用庫存地點或設定價格以發布。",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "每個庫存項目僅能出現在一個操作分類中（建立、更新或刪除）。"
     }
   },

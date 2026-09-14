@@ -260,6 +260,29 @@ medusaIntegrationTestRunner({
 
                     expect(response.status).toEqual(400)
                 })
+
+                it.each([0, -100])(
+                    "should reject create when price amount is %s",
+                    async (amount) => {
+                        const deps = await seedSellerOfferDeps(seller1Headers)
+
+                        const response = await api
+                            .post(
+                                `/vendor/offers`,
+                                {
+                                    sku: `NON-POSITIVE-PRICE-${amount}`,
+                                    variant_id: deps.variant_id,
+                                    shipping_profile_id: deps.shipping_profile_id,
+                                    inventory_items: [{}],
+                                    prices: [{ amount, currency_code: "usd" }],
+                                },
+                                seller1Headers
+                            )
+                            .catch((e) => e.response)
+
+                        expect(response.status).toEqual(400)
+                    }
+                )
             })
 
             describe("leadtime_to_ship", () => {
@@ -362,6 +385,33 @@ medusaIntegrationTestRunner({
                                                 amount: 2000,
                                                 currency_code: "usd",
                                             },
+                                        ],
+                                    },
+                                ],
+                            },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
+                })
+
+                it("should reject the batch when any item has a zero price", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+
+                    const response = await api
+                        .post(
+                            `/vendor/offers/batch`,
+                            {
+                                offers: [
+                                    {
+                                        sku: "BATCH-ZERO-PRICE",
+                                        variant_id: deps.variant_id,
+                                        shipping_profile_id:
+                                            deps.shipping_profile_id,
+                                        inventory_items: [{}],
+                                        prices: [
+                                            { amount: 0, currency_code: "usd" },
                                         ],
                                     },
                                 ],
