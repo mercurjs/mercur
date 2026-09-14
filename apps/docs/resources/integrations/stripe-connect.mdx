@@ -193,9 +193,19 @@ You need **two separate webhook endpoints** in Stripe: one for payment events, o
       - `payment_intent.succeeded`
       - `payment_intent.amount_capturable_updated`
       - `payment_intent.payment_failed`
-      - `charge.refunded`
+      - `payment_intent.partially_funded` (optional, only if you support that recovery flow)
 
     Copy the signing secret and set it as `STRIPE_WEBHOOK_SECRET` in your `.env`.
+
+    <Note>
+      With `capture: false`, Stripe sends `payment_intent.amount_capturable_updated` as soon as the payment is authorized, which can be before the storefront calls `POST /store/carts/:id/complete`. From Mercur v2.3.2, a webhook-driven completion runs `completeCartWithSplitOrdersWorkflow` under the same cart lock as the store route, so it still produces an order group with per-seller orders. It also completes carts whose customer left right after authenticating, so keep it enabled.
+
+      On Mercur 2.2.x, webhooks go through Medusa's stock `processPaymentWorkflow` and can complete the cart without splitting it. Leave `payment_intent.amount_capturable_updated` disabled there, or upgrade.
+    </Note>
+
+    <Warning>
+      Don't rely on `charge.refunded` for seller reconciliation. The Medusa Stripe provider doesn't act on it, and it never reverses Stripe Connect Transfers. See [Refunds and reversals](#refunds-and-reversals).
+    </Warning>
   </Step>
   <Step title="Add the payout webhook (Mercur)">
     Add a second webhook endpoint in the Stripe Dashboard.
@@ -297,6 +307,8 @@ Refunding a charge does **not** automatically reverse the associated transfers. 
 
 1. **Refund the PaymentIntent.** Returns funds to the customer's payment method
 2. **Reverse the Transfer(s).** Claws back funds from the connected account(s)
+
+Mercur doesn't reverse transfers for you. The Stripe Connect payout provider only handles `account.updated`, and a `charge.refunded` event is not confirmation that any seller transfer was reversed. If you refund after a seller has been paid out, reconcile their side yourself, either with a transfer reversal or by deducting the amount from their next payout.
 
 For a full refund of a multi-seller order, you would need to reverse each seller's transfer individually. For partial refunds, you need to calculate how much to reverse from each seller based on which items are being refunded.
 
