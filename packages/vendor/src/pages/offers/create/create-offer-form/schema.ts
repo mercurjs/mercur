@@ -1,5 +1,8 @@
 import { z } from "zod"
 
+import { castNumber } from "../../../../lib/cast-number"
+import { optionalFloat } from "../../../../lib/validation"
+
 const VariantRowSchema = z.object({
   variant_id: z.string().min(1),
   product_id: z.string().min(1),
@@ -9,7 +12,7 @@ const VariantRowSchema = z.object({
   variant_sku: z.string().nullish(),
   sku: z.string().max(64).default(""),
   shipping_profile_id: z.string().default(""),
-  prices: z.record(z.string(), z.union([z.coerce.number().min(0), z.literal("")])).default({}),
+  prices: z.record(z.string(), optionalFloat).default({}),
   inventory: z
     .record(
       z.string(),
@@ -33,9 +36,9 @@ export const CreateOfferSchema = z.object({
 
 export type CreateOfferFormValues = z.infer<typeof CreateOfferSchema>
 
-const numericOrZero = (v: number | "" | undefined | null): number => {
+const numericOrZero = (v: number | string | undefined | null): number => {
   if (v === "" || v === null || v === undefined) return 0
-  return Number(v) || 0
+  return castNumber(v) || 0
 }
 
 export const isVariantRowPublishable = (row: OfferVariantRow): boolean => {

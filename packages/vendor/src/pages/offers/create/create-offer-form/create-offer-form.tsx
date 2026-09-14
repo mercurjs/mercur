@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { RouteFocusModal, useRouteModal } from "../../../../components/modals";
 import { TabbedForm } from "../../../../components/tabbed-form/tabbed-form";
 import { useBulkCreateOffers } from "../../../../hooks/api/offers";
+import { castNumber } from "../../../../lib/cast-number";
 import { useProducts } from "../../../../hooks/api/products";
 import { useCurrentSeller } from "../../../../hooks/api/sellers";
 import { useStockLocations } from "../../../../hooks/api/stock-locations";
@@ -23,9 +24,9 @@ const DEFAULTS: CreateOfferFormValues = {
   variants: [],
 };
 
-const numericOrZero = (v: number | "" | undefined | null): number => {
+const numericOrZero = (v: number | string | undefined | null): number => {
   if (v === "" || v === null || v === undefined) return 0;
-  return Number(v) || 0;
+  return castNumber(v) || 0;
 };
 
 const attachErrorToRow = (
