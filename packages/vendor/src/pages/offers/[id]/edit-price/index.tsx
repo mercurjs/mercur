@@ -18,6 +18,7 @@ import { usePricePreferences } from "../../../../hooks/api/price-preferences"
 import { useProduct, productsQueryKeys } from "../../../../hooks/api/products"
 import { offerQueryKeys } from "../../../../hooks/api/offers"
 import { useCurrentSeller } from "../../../../hooks/api/sellers"
+import { castNumber } from "../../../../lib/cast-number"
 import { sdk } from "../../../../lib/client"
 import { queryClient } from "../../../../lib/query-client"
 import { OFFER_PRODUCT_DETAIL_FIELDS } from "../../common/constants"
@@ -26,7 +27,7 @@ type EditPriceRow = {
   offer_id: string
   variant_title: string
   product_thumbnail?: string | null
-  prices: Record<string, number | "">
+  prices: Record<string, number | string>
 }
 
 type FormValues = { rows: EditPriceRow[] }
@@ -37,8 +38,8 @@ type PriceProduct = HttpTypes.AdminProduct & {
   > | null
 }
 
-const numericOrZero = (v: number | "" | undefined | null): number =>
-  v === "" || v === null || v === undefined ? 0 : Number(v) || 0
+const numericOrZero = (v: number | string | undefined | null): number =>
+  v === "" || v === null || v === undefined ? 0 : castNumber(v) || 0
 
 const buildRows = (product: PriceProduct, currencies: string[]): EditPriceRow[] =>
   (product.variants ?? []).flatMap((variant) =>
