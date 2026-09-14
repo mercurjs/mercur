@@ -60,6 +60,14 @@ type CompleteCartWithSplitOrdersWorkflowInput = {
     cart_id: string
 }
 
+export type SetOrderStatusHookResult =
+    | {
+          status?: OrderStatus
+          /** Keyed by seller id; takes precedence over `status`. */
+          status_by_seller_id?: Record<string, OrderStatus>
+      }
+    | undefined
+
 export const THREE_DAYS = 3 * 24 * 60 * 60 * 1000
 export const THIRTY_SECONDS = 30 * 1000
 export const TWO_MINUTES = 2 * 60 * 1000
@@ -110,6 +118,15 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             cart: cartData.data,
         })
 
+        /**
+         * Decides the initial status of the orders this cart splits into, e.g.
+         * `REQUIRES_ACTION` when a seller must accept an order before fulfilment.
+         * Returning nothing keeps `PENDING`.
+         */
+        const setOrderStatus = createHook("setOrderStatus", {
+            cart: cartData.data,
+        })
+
         const createdOrderGroup = when("create-order-group", { orderGroupId }, ({ orderGroupId }) => {
             return !orderGroupId
         }).then(() => {
@@ -144,7 +161,10 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 }
             )
 
-            const { ordersToCreate, sellerOrdersMap, offerIdsByOrderId } = transform({ cart: cartData.data, shippingOptionsData: shippingOptionsData.data }, ({ cart, shippingOptionsData }) => {
+            const orderStatusResult = setOrderStatus.getResult()
+
+            const { ordersToCreate, sellerOrdersMap, offerIdsByOrderId } = transform({ cart: cartData.data, shippingOptionsData: shippingOptionsData.data, orderStatusResult }, ({ cart, shippingOptionsData, orderStatusResult }) => {
+                const statusResult = orderStatusResult as SetOrderStatusHookResult
                 const cartSellerIds = new Set<string>(
                     (cart.items ?? [])
                         .map((item: any) => item.offer?.seller_id)
@@ -255,12 +275,17 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                     }
 
                     const orderId = generateEntityId(undefined, 'order')
+                    const status =
+                        statusResult?.status_by_seller_id?.[sellerId] ??
+                        statusResult?.status ??
+                        OrderStatus.PENDING
+
                     ordersToCreate.push({
                         id: orderId,
                         region_id: cart.region?.id,
                         customer_id: cart.customer?.id,
                         sales_channel_id: cart.sales_channel_id,
-                        status: OrderStatus.PENDING,
+                        status,
                         email: cart.email,
                         currency_code: cart.currency_code,
                         locale: cart.locale,
@@ -625,7 +650,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
         })
 
         return new WorkflowResponse(result, {
-            hooks: [validate],
+            hooks: [validate, setOrderStatus],
         })
     }
 )

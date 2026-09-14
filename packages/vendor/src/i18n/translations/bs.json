@@ -3863,6 +3863,8 @@
       "duplicateInventoryItem": "Ovaj artikal zalihe je već priložen.",
       "selectAtLeastOneVariant": "Odaberite najmanje jednu varijantu za nastavak.",
       "noPublishableRows": "Dodajte SKU, omogućite lokaciju zalihe ili postavite cijenu za objavljivanje.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Artikal zalihe se može pojaviti samo u jednoj grupi (kreiranje, ažuriranje ili brisanje)."
     }
   },

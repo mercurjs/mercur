@@ -7,6 +7,7 @@ import {
 import { Modules } from "@medusajs/framework/utils"
 import { MercurModules, SellerStatus } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { createVendorProduct } from "../../../helpers/create-product"
 import {
   adminHeaders,
@@ -67,13 +68,9 @@ medusaIntegrationTestRunner({
           headers
         )
 
-        const shippingProfile = (
-          await api.post(
-            `/vendor/shipping-profiles`,
-            { name: `SP${tag}`, type: "default" },
-            headers
-          )
-        ).data.shipping_profile
+        const shippingProfile = await createShippingProfile(appContainer, {
+            name: `SP${tag}`,
+        })
 
         // The offer flow now titles the inventory item after the variant, so
         // give the variant the unique tag to keep the lookup below stable.

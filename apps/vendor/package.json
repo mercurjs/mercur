@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@hookform/resolvers": "5.4.0",
-    "@medusajs/icons": "2.18.0",
-    "@medusajs/ui": "4.1.19",
+    "@medusajs/icons": "2.20.1",
+    "@medusajs/ui": "4.2.3",
     "@mercurjs/client": "*",
     "@mercurjs/dashboard-sdk": "*",
     "@mercurjs/dashboard-shared": "*",

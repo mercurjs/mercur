@@ -46,11 +46,11 @@ export const SELLER_ROLES: SellerRoleDefinition[] = [
       ...crud("price_list"),
       ...crud("price_preference"),
       ...crud("shipping_option"),
-      ...crud("shipping_profile"),
       ...crud("fulfillment_set"),
       ...readOnly(
         "seller_member",
         "seller",
+        "shipping_profile",
         "currency",
         "region",
         "sales_channel",

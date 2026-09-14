@@ -25,6 +25,7 @@ export type ProductEditUpdateProductWorkflowInput = {
 } & AdditionalData
 
 export type ProductEditUpdateProductWorkflowHooks = [
+  Hook<"validate", { input: ProductEditUpdateProductWorkflowInput }, unknown>,
   Hook<
     "productChangeCreated",
     {
@@ -69,6 +70,8 @@ export const productEditUpdateProductWorkflow: ReturnWorkflow<
 > = createWorkflow(
   productEditUpdateProductWorkflowId,
   function (input: ProductEditUpdateProductWorkflowInput) {
+    const validate = createHook("validate", { input })
+
     validateNoPendingProductChangeStep(
       transform({ input }, ({ input }) => ({
         product_ids: [input.product_id],
@@ -188,7 +191,7 @@ export const productEditUpdateProductWorkflow: ReturnWorkflow<
     })
 
     return new WorkflowResponse(change, {
-      hooks: [productChangeCreated],
+      hooks: [validate, productChangeCreated],
     })
   },
 )

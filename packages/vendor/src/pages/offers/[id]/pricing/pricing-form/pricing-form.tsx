@@ -18,6 +18,7 @@ import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useUpdateOffer } from "../../../../../hooks/api/offers"
 import { usePricePreferences } from "../../../../../hooks/api/price-preferences"
 import { useCurrentSeller } from "../../../../../hooks/api/sellers"
+import { castNumber } from "../../../../../lib/cast-number"
 import { OfferDetail, OfferPrice } from "../../../common/types"
 import {
   PricingFormSchema,
@@ -110,7 +111,7 @@ const PricingFormInner = ({
       row.currency_prices ?? {},
     )) {
       if (amount === "" || amount === undefined || amount === null) continue
-      const num = Number(amount)
+      const num = castNumber(amount)
       if (!Number.isFinite(num)) continue
       submitted.push({ amount: num, currency_code })
     }

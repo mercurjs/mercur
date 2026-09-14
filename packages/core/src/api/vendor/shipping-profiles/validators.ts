@@ -26,25 +26,3 @@ export const VendorGetShippingProfilesParams = createFindParams({
     updated_at: createOperatorMap().optional(),
   })
 )
-
-export type VendorCreateShippingProfileType = z.infer<
-  typeof VendorCreateShippingProfile
->
-export const VendorCreateShippingProfile = z
-  .object({
-    name: z.string(),
-    type: z.string(),
-    metadata: z.record(z.unknown()).nullish(),
-  })
-  .strict()
-
-export type VendorUpdateShippingProfileType = z.infer<
-  typeof VendorUpdateShippingProfile
->
-export const VendorUpdateShippingProfile = z
-  .object({
-    name: z.string().optional(),
-    type: z.string().optional(),
-    metadata: z.record(z.unknown()).nullish(),
-  })
-  .strict()

@@ -1278,6 +1278,8 @@
       "duplicateInventoryItem": "Ta pozycja magazynowa jest już dołączona.",
       "selectAtLeastOneVariant": "Wybierz co najmniej jeden wariant, aby kontynuować.",
       "noPublishableRows": "Dodaj SKU, włącz lokalizację magazynową lub ustaw cenę, aby opublikować.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Pozycja magazynowa może występować tylko w jednym koszyku (utwórz, aktualizuj lub usuń).",
       "shippingProfileRequired": "Wybierz profil wysyłki, aby opublikować ten wiersz."
     },

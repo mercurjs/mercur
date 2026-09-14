@@ -172,7 +172,7 @@ The product has three audiences:
 
 - **Runtime**: Node.js + Bun. The repo enforces `bun` as the only package manager.
 - **Database**: PostgreSQL (Medusa requirement).
-- **Framework lock**: peer-pinned to `@medusajs/framework` 2.13.4 across core and providers.
+- **Framework lock**: peer-pinned to `@medusajs/framework` 2.20.1 across core and providers.
 - **Languages**: TypeScript end-to-end; React 18 for the dashboards.
 - **License**: MIT, open-core. No transaction fees, no commercial lock-in, no hosted vendor required.
 - **Payout providers**: only Stripe Connect ships out of the box; others must be implemented against the provider interface.

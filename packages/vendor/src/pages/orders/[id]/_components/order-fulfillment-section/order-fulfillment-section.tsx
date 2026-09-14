@@ -15,7 +15,10 @@ import { format } from "date-fns"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 import { ActionMenu } from "@components/common/action-menu"
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import {
+  DisplayExtensionZone,
+  isOrderAwaitingAction,
+} from "@mercurjs/dashboard-shared"
 import { Skeleton } from "@components/common/skeleton"
 import { Thumbnail } from "@components/common/thumbnail"
 import {
@@ -187,6 +190,10 @@ const UnfulfilledItemDisplay = ({
                     label: t("orders.fulfillment.fulfillItems"),
                     icon: <Buildings />,
                     to: `/orders/${order.id}/fulfillment?requires_shipping=${requiresShipping}`,
+                    disabled: isOrderAwaitingAction(order),
+                    disabledTooltip: isOrderAwaitingAction(order)
+                      ? t("orders.requiresAction.actionUnavailable")
+                      : undefined,
                   },
                 ],
               },

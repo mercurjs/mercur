@@ -282,6 +282,96 @@ medusaIntegrationTestRunner({
         expect(err.response.status).toBeGreaterThanOrEqual(400)
       })
 
+      it("update: value_ids replaces the selection of an attached non-axis attribute", async () => {
+        const material = await createAttr({
+          name: "Material",
+          type: AttributeType.MULTI_SELECT,
+          values: ["Cotton", "Wool", "Silk"],
+        })
+        const cotton = material.byName.get("Cotton")!
+        const wool = material.byName.get("Wool")!
+        const silk = material.byName.get("Silk")!
+        const productId = await createOwnedProduct()
+
+        await batch(productId, {
+          add: [{ id: material.id, value_ids: [cotton, wool] }],
+        })
+
+        const res = await batch(productId, {
+          update: [{ id: material.id, value_ids: [wool, silk] }],
+        })
+
+        expect(res.status).toEqual(202)
+        const product = await getProduct(productId)
+        const applied = (product.attributes ?? []).find(
+          (a: any) => a.id === material.id,
+        )
+        expect((applied.values ?? []).map((v: any) => v.name).sort()).toEqual([
+          "Silk",
+          "Wool",
+        ])
+      })
+
+      it("update: value_ids on an axis attribute keeps the shared option attached", async () => {
+        const color = await createAttr({
+          name: "AxisColor",
+          type: AttributeType.MULTI_SELECT,
+          is_variant_axis: true,
+          values: ["Red", "Blue"],
+        })
+        const red = color.byName.get("Red")!
+        const blue = color.byName.get("Blue")!
+        const productId = await createOwnedProduct()
+
+        await batch(productId, {
+          add: [{ id: color.id, value_ids: [red] }],
+        })
+        expect(await optionAttached(productId, "AxisColor")).toBe(true)
+
+        const res = await batch(productId, {
+          update: [{ id: color.id, value_ids: [blue] }],
+        })
+
+        expect(res.status).toEqual(202)
+        const product = await getProduct(productId)
+        const applied = (product.attributes ?? []).find(
+          (a: any) => a.id === color.id,
+        )
+        expect((applied.values ?? []).map((v: any) => v.name)).toEqual(["Blue"])
+        // The mirror option is never unlinked/relinked to change the subset.
+        expect(await optionAttached(productId, "AxisColor")).toBe(true)
+
+        const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+        const { data } = await query.graph({
+          entity: "product_option",
+          fields: ["id", "title", "is_exclusive"],
+          filters: { title: "AxisColor" },
+        })
+        expect(data[0].is_exclusive).toBe(false)
+      })
+
+      it("update: rejects value_ids combined with add", async () => {
+        const material = await createAttr({
+          name: "ConflictMaterial",
+          type: AttributeType.MULTI_SELECT,
+          values: ["Cotton", "Wool"],
+        })
+        const cotton = material.byName.get("Cotton")!
+        const wool = material.byName.get("Wool")!
+        const productId = await createOwnedProduct()
+
+        await batch(productId, {
+          add: [{ id: material.id, value_ids: [cotton] }],
+        })
+
+        const err = await batch(productId, {
+          update: [{ id: material.id, value_ids: [wool], add: [wool] }],
+        }).catch((e) => e)
+
+        expect(err.response.status).toEqual(400)
+        expect(err.response.data.message).toContain("value_ids")
+      })
+
     })
 
     describe("Vendor - product list scoping", () => {

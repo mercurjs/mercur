@@ -36,6 +36,7 @@ import {
 
 import { DisplayExtensionZone, WidgetZone } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
+import { isOrderAwaitingAction } from "@mercurjs/dashboard-shared"
 import {
   useOrderCommissionLines,
   useOrderPreview,
@@ -237,7 +238,11 @@ const Header = ({
 }) => {
   const { t } = useTranslation()
 
-  const isCanceled = !!order.canceled_at
+  const isAwaitingAction = isOrderAwaitingAction(order)
+  const isLocked = !!order.canceled_at || isAwaitingAction
+  const awaitingActionTooltip = isAwaitingAction
+    ? t("orders.requiresAction.actionUnavailable")
+    : undefined
   const returnOutOfPolicy = isOutsidePolicyWindow(order, RETURN_POLICY_DAYS)
   const exchangeOutOfPolicy = isOutsidePolicyWindow(
     order,
@@ -255,7 +260,7 @@ const Header = ({
     orderChange?.change_type === "edit" && orderChange?.status === "pending"
 
   const editDisabled =
-    isCanceled ||
+    isLocked ||
     (!!orderChange && orderChange.change_type !== "edit") ||
     (orderChange?.change_type === "edit" && orderChange?.status === "requested")
 
@@ -289,6 +294,7 @@ const Header = ({
                 ),
                 to: "edit",
                 disabled: editDisabled,
+                disabledTooltip: awaitingActionTooltip,
                 icon: <PencilSquare />,
               },
             ],
@@ -299,15 +305,17 @@ const Header = ({
                 label: t("orders.returns.create"),
                 to: "returns/create",
                 disabled:
-                  isCanceled ||
+                  isLocked ||
                   returnOutOfPolicy ||
                   shouldDisableReturn ||
                   returnDisabledByChange,
-                disabledTooltip: returnOutOfPolicy
-                  ? t("orders.returns.outOfPolicy", {
-                      days: RETURN_POLICY_DAYS,
-                    })
-                  : undefined,
+                disabledTooltip:
+                  awaitingActionTooltip ??
+                  (returnOutOfPolicy
+                    ? t("orders.returns.outOfPolicy", {
+                        days: RETURN_POLICY_DAYS,
+                      })
+                    : undefined),
                 icon: <ArrowUturnLeft />,
               },
               {
@@ -317,15 +325,17 @@ const Header = ({
                     : t("orders.exchanges.create"),
                 to: "exchanges/create",
                 disabled:
-                  isCanceled ||
+                  isLocked ||
                   exchangeOutOfPolicy ||
                   shouldDisableReturn ||
                   exchangeDisabledByChange,
-                disabledTooltip: exchangeOutOfPolicy
-                  ? t("orders.exchanges.outOfPolicy", {
-                      days: EXCHANGE_POLICY_DAYS,
-                    })
-                  : undefined,
+                disabledTooltip:
+                  awaitingActionTooltip ??
+                  (exchangeOutOfPolicy
+                    ? t("orders.exchanges.outOfPolicy", {
+                        days: EXCHANGE_POLICY_DAYS,
+                      })
+                    : undefined),
                 icon: <ArrowPath />,
               },
               {
@@ -335,15 +345,17 @@ const Header = ({
                     : t("orders.claims.create"),
                 to: "claims/create",
                 disabled:
-                  isCanceled ||
+                  isLocked ||
                   claimOutOfPolicy ||
                   shouldDisableReturn ||
                   claimDisabledByChange,
-                disabledTooltip: claimOutOfPolicy
-                  ? t("orders.claims.outOfPolicy", {
-                      days: CLAIM_POLICY_DAYS,
-                    })
-                  : undefined,
+                disabledTooltip:
+                  awaitingActionTooltip ??
+                  (claimOutOfPolicy
+                    ? t("orders.claims.outOfPolicy", {
+                        days: CLAIM_POLICY_DAYS,
+                      })
+                    : undefined),
                 icon: <ExclamationCircle />,
               },
             ],

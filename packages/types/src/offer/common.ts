@@ -53,6 +53,7 @@ export interface OfferDTO {
   upc: string | null
   manage_inventory: boolean
   allow_backorder: boolean
+  leadtime_to_ship: number | null
   created_by: string
   metadata: Record<string, unknown> | null
   created_at: Date

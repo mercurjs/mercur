@@ -23,7 +23,7 @@ export const CartItemsProducts = ({
   return (
     <div>
       {validProducts.map(product => {
-        const { options } = product.variant ?? {};
+        const options = Object.entries(product.variant_option_values ?? {});
 
         const total = convertToLocale({
           amount: product.subtotal ?? 0,
@@ -76,9 +76,9 @@ export const CartItemsProducts = ({
               </div>
               <div className="lg:flex justify-between -mt-4 lg:mt-0">
                 <div className="label-md text-secondary" data-testid="cart-item-details">
-                  {options?.map(({ option, id, value }) => (
-                    <p key={id}>
-                      {option?.title}: <span className="text-primary">{value}</span>
+                  {options.map(([title, value]) => (
+                    <p key={title}>
+                      {title}: <span className="text-primary">{String(value)}</span>
                     </p>
                   ))}
                   {change_quantity ? (

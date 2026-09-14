@@ -133,7 +133,7 @@ each other) without breaking module isolation. Notable links:
 
 - `product-seller-link`, `order-seller-link`, `promotion-seller-link`,
   `price-list-seller-link`, `campaign-seller-link`,
-  `shipping-option-seller-link`, `shipping-profile-seller-link`,
+  `shipping-option-seller-link`,
   `service-zone-seller-link`, `stock-location-seller-link`,
   `inventory-item-seller-link`, `fulfillment-set-seller-link`,
   `seller-customer-link`, `seller-payout-account-link`,

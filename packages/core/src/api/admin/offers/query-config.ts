@@ -7,6 +7,7 @@ export const defaultAdminOfferFields = [
   "sku",
   "ean",
   "upc",
+  "leadtime_to_ship",
   "created_by",
   "variant_count",
   "metadata",

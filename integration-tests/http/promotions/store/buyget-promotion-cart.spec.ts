@@ -9,6 +9,7 @@ import {
   Modules,
 } from "@medusajs/framework/utils"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import {
   generatePublishableKey,
   generateStoreHeaders,
@@ -60,13 +61,9 @@ medusaIntegrationTestRunner({
           headers
         )
 
-        const shippingProfile = (
-          await api.post(
-            `/vendor/shipping-profiles`,
-            { name: `${opts.name} Profile ${tag}`, type: "default" },
-            headers
-          )
-        ).data.shipping_profile
+        const shippingProfile = await createShippingProfile(appContainer, {
+            name: `${opts.name} Profile ${tag}`,
+        })
 
         const offer = (
           await api.post(

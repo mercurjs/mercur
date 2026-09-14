@@ -42,6 +42,16 @@
           "nullable": true,
           "mappedType": "text"
         },
+        "provider_id": {
+          "name": "provider_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'system'",
+          "mappedType": "text"
+        },
         "code": {
           "name": "code",
           "type": "text",
@@ -77,6 +87,15 @@
           "primary": false,
           "nullable": true,
           "mappedType": "text"
+        },
+        "data": {
+          "name": "data",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "json"
         },
         "raw_amount": {
           "name": "raw_amount",

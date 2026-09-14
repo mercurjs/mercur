@@ -3865,6 +3865,8 @@
       "duplicateInventoryItem": "عنصر المخزون هذا مرفق بالفعل.",
       "selectAtLeastOneVariant": "اختر متغيرًا واحدًا على الأقل للمتابعة.",
       "noPublishableRows": "أضف رمز SKU، أو فعّل موقع مخزون، أو حدد سعرًا للنشر.",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "لا يمكن أن يظهر عنصر المخزون إلا في فئة واحدة (إنشاء أو تحديث أو حذف)."
     }
   },

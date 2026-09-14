@@ -64,7 +64,7 @@ const translations: Record<string, { translation: Record<string, unknown> }> = {
   pl: {
     translation: pl,
   },
-  ptBR: {
+  "pt-BR": {
     translation: ptBR,
   },
   th: {
@@ -88,7 +88,7 @@ const translations: Record<string, { translation: Record<string, unknown> }> = {
   ar: {
     translation: ar,
   },
-  zhCN: {
+  "zh-CN": {
     translation: zhCN,
   },
   fa: {

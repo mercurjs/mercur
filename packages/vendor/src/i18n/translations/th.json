@@ -3866,6 +3866,8 @@
       "duplicateInventoryItem": "รายการสต็อกนี้ถูกแนบไว้แล้ว",
       "selectAtLeastOneVariant": "เลือกตัวเลือกสินค้าอย่างน้อยหนึ่งรายการเพื่อดำเนินการต่อ",
       "noPublishableRows": "เพิ่ม SKU เปิดใช้งานสถานที่จัดเก็บสต็อก หรือตั้งค่าราคาเพื่อเผยแพร่",
+      "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
+      "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "รายการสต็อกสามารถอยู่ได้เพียงกลุ่มเดียว (สร้าง อัปเดต หรือลบ)"
     }
   },

@@ -1,5 +1,8 @@
 import { z } from "zod"
 
+import { castNumber } from "../../../../lib/cast-number"
+import { optionalFloat } from "../../../../lib/validation"
+
 const VariantRowSchema = z.object({
   variant_id: z.string().min(1),
   product_id: z.string().min(1),
@@ -9,7 +12,7 @@ const VariantRowSchema = z.object({
   variant_sku: z.string().nullish(),
   sku: z.string().max(64).default(""),
   shipping_profile_id: z.string().default(""),
-  prices: z.record(z.string(), z.union([z.coerce.number().min(0), z.literal("")])).default({}),
+  prices: z.record(z.string(), optionalFloat).default({}),
   inventory: z
     .record(
       z.string(),
@@ -33,30 +36,17 @@ export const CreateOfferSchema = z.object({
 
 export type CreateOfferFormValues = z.infer<typeof CreateOfferSchema>
 
-const numericOrZero = (v: number | "" | undefined | null): number => {
+const numericOrZero = (v: number | string | undefined | null): number => {
   if (v === "" || v === null || v === undefined) return 0
-  return Number(v) || 0
+  return castNumber(v) || 0
 }
 
-export const isVariantRowPublishable = (row: OfferVariantRow): boolean => {
-  const hasSku = !!row.sku && row.sku.trim().length > 0
-  const hasShipping =
-    !!row.shipping_profile_id && row.shipping_profile_id.length > 0
-  const hasEnabledLocation = Object.values(row.inventory ?? {}).some(
-    (v) => v.checked,
-  )
-  const hasNonZeroPrice = Object.values(row.prices ?? {}).some(
-    (v) => numericOrZero(v) > 0,
-  )
-  return hasSku || hasShipping || hasEnabledLocation || hasNonZeroPrice
-}
+export const variantRowHasPrice = (
+  row: OfferVariantRow,
+  currencyCode: string,
+): boolean => numericOrZero(row.prices?.[currencyCode]) > 0
 
-export const variantRowRequiresSku = (row: OfferVariantRow): boolean => {
-  const hasEnabledLocation = Object.values(row.inventory ?? {}).some(
-    (v) => v.checked,
-  )
-  const hasNonZeroPrice = Object.values(row.prices ?? {}).some(
-    (v) => numericOrZero(v) > 0,
-  )
-  return hasEnabledLocation || hasNonZeroPrice
-}
+// SKU is prefilled from the master variant, so it can't signal intent.
+export const variantRowHasPartialInput = (row: OfferVariantRow): boolean =>
+  !!row.shipping_profile_id ||
+  Object.values(row.inventory ?? {}).some((v) => v.checked)

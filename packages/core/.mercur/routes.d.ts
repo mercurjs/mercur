@@ -188,7 +188,7 @@ export type Routes = {
             $id: typeof import("../src/api/admin/order-groups/[id]/route");
         };
         orders: typeof import("../src/api/admin/orders/route") & {
-            $id: typeof import("@medusajs/medusa/api/admin/orders/[id]/route") & {
+            $id: typeof import("../src/api/admin/orders/[id]/route") & {
                 archive: typeof import("@medusajs/medusa/api/admin/orders/[id]/archive/route");
                 cancel: typeof import("@medusajs/medusa/api/admin/orders/[id]/cancel/route");
                 changes: typeof import("@medusajs/medusa/api/admin/orders/[id]/changes/route");
@@ -590,8 +590,8 @@ export type Routes = {
         orderGroups: typeof import("../src/api/store/order-groups/route") & {
             $id: typeof import("../src/api/store/order-groups/[id]/route");
         };
-        orders: typeof import("@medusajs/medusa/api/store/orders/route") & {
-            $id: typeof import("@medusajs/medusa/api/store/orders/[id]/route") & {
+        orders: typeof import("../src/api/store/orders/route") & {
+            $id: typeof import("../src/api/store/orders/[id]/route") & {
                 transfer: {
                     accept: typeof import("@medusajs/medusa/api/store/orders/[id]/transfer/accept/route");
                     cancel: typeof import("@medusajs/medusa/api/store/orders/[id]/transfer/cancel/route");

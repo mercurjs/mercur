@@ -30,10 +30,12 @@ export type CommissionLineDTO = {
   item_id: string | null
   shipping_method_id: string | null
   commission_rate_id: string | null
+  provider_id: string
   code: string
   rate: number
   amount: number
   description: string | null
+  data: Record<string, unknown> | null
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
@@ -74,6 +76,11 @@ export interface CommissionCalculationItemLine {
   tax_total?: BigNumberInput
 
   /**
+   * Line total after discounts — the ceiling a provider must not exceed.
+   */
+  total?: BigNumberInput
+
+  /**
    * The product of the line item.
    */
   product?: {
@@ -83,6 +90,7 @@ export interface CommissionCalculationItemLine {
     categories?: { id: string }[]
     type_id?: string
     seller?: { id: string }
+    attribute_value_ids?: string[]
   }
 }
 
@@ -110,6 +118,16 @@ export interface CommissionCalculationContext {
   currency_code: string
 
   /**
+   * The order the lines are computed for, when known.
+   */
+  order_id?: string
+
+  /**
+   * The seller the order belongs to, when known.
+   */
+  seller_id?: string
+
+  /**
    * The cart's line items.
    */
   items?: CommissionCalculationItemLine[]
@@ -118,16 +136,25 @@ export interface CommissionCalculationContext {
    * The cart's shipping methods.
    */
   shipping_methods?: CommissionCalculationShippingLine[]
+
+  /**
+   * Data for the active provider that the framework fields do not carry,
+   * populated by the `setCommissionContext` hook of
+   * `refreshOrderCommissionLinesWorkflow`.
+   */
+  additional_context?: Record<string, unknown>
 }
 
 export interface CreateCommissionLineDTO {
   item_id?: string | null
   shipping_method_id?: string | null
-  commission_rate_id: string
+  commission_rate_id?: string | null
+  provider_id?: string
   code: string
   rate: number
   amount: number
   description?: string | null
+  data?: Record<string, unknown> | null
 }
 
 export interface UpdateCommissionLineDTO extends Partial<CreateCommissionLineDTO> {

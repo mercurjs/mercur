@@ -11,6 +11,7 @@ export interface CreateSellerDTO {
   status?: string
   status_reason?: string | null
   is_premium?: boolean
+  default_leadtime_to_ship?: number
   closed_from?: Date | null
   closed_to?: Date | null
   metadata?: Record<string, unknown> | null
@@ -28,6 +29,7 @@ export interface UpdateSellerDTO {
   status?: string
   status_reason?: string | null
   is_premium?: boolean
+  default_leadtime_to_ship?: number
   closed_from?: Date | null
   closed_to?: Date | null
   metadata?: Record<string, unknown> | null

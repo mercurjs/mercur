@@ -1,6 +1,8 @@
 import { z } from "zod"
 
-const PriceCellSchema = z.union([z.coerce.number().min(0), z.literal("")])
+import { optionalFloat } from "../../../../../lib/validation"
+
+const PriceCellSchema = optionalFloat
 
 const PriceRowSchema = z.object({
   id: z.string(),

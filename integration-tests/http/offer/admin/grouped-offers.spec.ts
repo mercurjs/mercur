@@ -1,6 +1,7 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { MedusaContainer } from "@medusajs/framework/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { createVendorProduct } from "../../../helpers/create-product"
 import {
     adminHeaders,
@@ -29,13 +30,11 @@ medusaIntegrationTestRunner({
                 "seller.name",
             ].join(",")
 
-            const createShippingProfile = async (headers: any, tag: string) => {
-                const res = await api.post(
-                    `/vendor/shipping-profiles`,
-                    { name: `Standard ${tag}`, type: "default" },
-                    headers
-                )
-                return res.data.shipping_profile.id as string
+            const createProfile = async (tag: string) => {
+                const profile = await createShippingProfile(appContainer, {
+                    name: `Standard ${tag}`,
+                })
+                return profile.id as string
             }
 
             beforeAll(async () => {
@@ -71,8 +70,8 @@ medusaIntegrationTestRunner({
                 )
                 const variantId = product.variants[0].id
 
-                const sp1 = await createShippingProfile(seller1Headers, "s1")
-                const sp2 = await createShippingProfile(seller2Headers, "s2")
+                const sp1 = await createProfile("s1")
+                const sp2 = await createProfile("s2")
 
                 await api.post(
                     `/vendor/offers`,
@@ -143,8 +142,8 @@ medusaIntegrationTestRunner({
                 })
                 const variantId = product.variants[0].id
 
-                const sp1 = await createShippingProfile(seller1Headers, "f1")
-                const sp2 = await createShippingProfile(seller2Headers, "f2")
+                const sp1 = await createProfile("f1")
+                const sp2 = await createProfile("f2")
 
                 await api.post(
                     `/vendor/offers`,
@@ -201,8 +200,8 @@ medusaIntegrationTestRunner({
                 )
                 const variantId = product.variants[0].id
 
-                const sp1 = await createShippingProfile(seller1Headers, "sc1")
-                const sp2 = await createShippingProfile(seller2Headers, "sc2")
+                const sp1 = await createProfile("sc1")
+                const sp2 = await createProfile("sc2")
 
                 await api.post(
                     `/vendor/offers`,
@@ -251,8 +250,8 @@ medusaIntegrationTestRunner({
                 })
                 const variantId = product.variants[0].id
 
-                const sp1 = await createShippingProfile(seller1Headers, "d1")
-                const sp2 = await createShippingProfile(seller2Headers, "d2")
+                const sp1 = await createProfile("d1")
+                const sp2 = await createProfile("d2")
 
                 await api.post(
                     `/vendor/offers`,

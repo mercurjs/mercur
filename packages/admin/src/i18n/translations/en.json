@@ -1351,6 +1351,9 @@
     }
   },
   "orders": {
+    "requiresAction": {
+      "actionUnavailable": "Not available until this order is accepted"
+    },
     "group": {
       "heading": "Orders in group",
       "noOtherOrders": "No other orders in this group"

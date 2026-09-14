@@ -10,6 +10,7 @@ import {
 } from "@medusajs/framework/utils"
 import { MercurModules, SellerStatus } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { createCustomerUser } from "../../../helpers/create-customer-user"
 import { createVendorProduct } from "../../../helpers/create-product"
 import {
@@ -89,13 +90,9 @@ medusaIntegrationTestRunner({
                 ).data.fulfillment_set.service_zones.find(
                     (z: any) => z.name === `SZ${uniqueSuffix}`
                 )
-                const shippingProfile = (
-                    await api.post(
-                        `/vendor/shipping-profiles`,
-                        { name: `SP${uniqueSuffix}`, type: "default" },
-                        headers
-                    )
-                ).data.shipping_profile
+                const shippingProfile = await createShippingProfile(appContainer, {
+                    name: `SP${uniqueSuffix}`,
+                })
 
                 await api.post(
                     `/vendor/stock-locations/${stockLocation.id}/fulfillment-providers`,

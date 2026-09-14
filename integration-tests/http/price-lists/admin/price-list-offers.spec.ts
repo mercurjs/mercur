@@ -6,6 +6,7 @@ import {
   adminHeaders,
   createAdminUser,
 } from "../../../helpers/create-admin-user"
+import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createVendorProduct } from "../../../helpers/create-product"
 
@@ -48,13 +49,9 @@ medusaIntegrationTestRunner({
           )
         ).data.stock_location
 
-        const shippingProfile = (
-          await api.post(
-            `/vendor/shipping-profiles`,
-            { name: `SP_${tag}`, type: "default" },
-            headers
-          )
-        ).data.shipping_profile
+        const shippingProfile = await createShippingProfile(appContainer, {
+            name: `SP_${tag}`,
+        })
 
         const offer = (
           await api.post(

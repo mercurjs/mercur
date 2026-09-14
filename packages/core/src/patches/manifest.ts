@@ -16,8 +16,8 @@ export const PATCHES: PatchEntry[] = [
   {
     file: "@medusajs+core-flows@2.18.0.patch",
     package: "@medusajs/core-flows",
-    // Both targeted files are byte-identical in 2.17.2 and 2.18.0.
-    compatible: { from: "2.17.0", to: "2.19.0" },
+    // Both targeted files are byte-identical from 2.17.2 through 2.20.1.
+    compatible: { from: "2.17.0", to: "2.21.0" },
     reason:
       "refreshCartShippingMethodsWorkflow deletes any shipping method whose " +
       "profile is not required by a cart item, deriving that set from each " +

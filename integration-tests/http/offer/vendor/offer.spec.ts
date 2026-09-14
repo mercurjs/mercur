@@ -2,6 +2,7 @@ import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { MedusaContainer } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { createVendorProduct } from "../../../helpers/create-product"
 
 jest.setTimeout(50000)
@@ -26,17 +27,15 @@ medusaIntegrationTestRunner({
 
                 const variant = product.variants[0]
 
-                const shippingProfile = await api.post(
-                    `/vendor/shipping-profiles`,
-                    { name: `Standard ${tag}`, type: "default" },
-                    headers
+                const shippingProfile = await createShippingProfile(
+                    appContainer,
+                    { name: `Standard ${tag}` }
                 )
 
                 return {
                     variant_id: variant.id,
                     product_id: product.id,
-                    shipping_profile_id:
-                        shippingProfile.data.shipping_profile.id,
+                    shipping_profile_id: shippingProfile.id,
                     ean,
                     upc,
                 }
@@ -261,6 +260,110 @@ medusaIntegrationTestRunner({
 
                     expect(response.status).toEqual(400)
                 })
+
+                it.each([0, -100])(
+                    "should reject create when price amount is %s",
+                    async (amount) => {
+                        const deps = await seedSellerOfferDeps(seller1Headers)
+
+                        const response = await api
+                            .post(
+                                `/vendor/offers`,
+                                {
+                                    sku: `NON-POSITIVE-PRICE-${amount}`,
+                                    variant_id: deps.variant_id,
+                                    shipping_profile_id: deps.shipping_profile_id,
+                                    inventory_items: [{}],
+                                    prices: [{ amount, currency_code: "usd" }],
+                                },
+                                seller1Headers
+                            )
+                            .catch((e) => e.response)
+
+                        expect(response.status).toEqual(400)
+                    }
+                )
+            })
+
+            describe("leadtime_to_ship", () => {
+                it("should default leadtime_to_ship to null when not provided", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+
+                    const response = await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "LEADTIME-SKU-DEFAULT",
+                            variant_id: deps.variant_id,
+                            shipping_profile_id: deps.shipping_profile_id,
+                            inventory_items: [{}],
+                            prices: [{ amount: 1000, currency_code: "usd" }],
+                        },
+                        seller1Headers
+                    )
+
+                    expect(response.status).toEqual(201)
+                    expect(response.data.offer.leadtime_to_ship).toBeNull()
+                })
+
+                it("should persist leadtime_to_ship on create and allow updating it", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+
+                    const created = await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "LEADTIME-SKU-1",
+                            variant_id: deps.variant_id,
+                            shipping_profile_id: deps.shipping_profile_id,
+                            inventory_items: [{}],
+                            prices: [{ amount: 1000, currency_code: "usd" }],
+                            leadtime_to_ship: 3,
+                        },
+                        seller1Headers
+                    )
+
+                    expect(created.status).toEqual(201)
+                    expect(created.data.offer.leadtime_to_ship).toEqual(3)
+
+                    const updated = await api.post(
+                        `/vendor/offers/${created.data.offer.id}`,
+                        { leadtime_to_ship: 5 },
+                        seller1Headers
+                    )
+
+                    expect(updated.status).toEqual(200)
+                    expect(updated.data.offer.leadtime_to_ship).toEqual(5)
+
+                    const cleared = await api.post(
+                        `/vendor/offers/${created.data.offer.id}`,
+                        { leadtime_to_ship: null },
+                        seller1Headers
+                    )
+
+                    expect(cleared.data.offer.leadtime_to_ship).toBeNull()
+                })
+
+                it("should reject a negative leadtime_to_ship", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+
+                    const response = await api
+                        .post(
+                            `/vendor/offers`,
+                            {
+                                sku: "LEADTIME-SKU-NEGATIVE",
+                                variant_id: deps.variant_id,
+                                shipping_profile_id: deps.shipping_profile_id,
+                                inventory_items: [{}],
+                                prices: [
+                                    { amount: 1000, currency_code: "usd" },
+                                ],
+                                leadtime_to_ship: -1,
+                            },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
+                })
             })
 
             describe("POST /vendor/offers/batch", () => {
@@ -282,6 +385,33 @@ medusaIntegrationTestRunner({
                                                 amount: 2000,
                                                 currency_code: "usd",
                                             },
+                                        ],
+                                    },
+                                ],
+                            },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
+                })
+
+                it("should reject the batch when any item has a zero price", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+
+                    const response = await api
+                        .post(
+                            `/vendor/offers/batch`,
+                            {
+                                offers: [
+                                    {
+                                        sku: "BATCH-ZERO-PRICE",
+                                        variant_id: deps.variant_id,
+                                        shipping_profile_id:
+                                            deps.shipping_profile_id,
+                                        inventory_items: [{}],
+                                        prices: [
+                                            { amount: 0, currency_code: "usd" },
                                         ],
                                     },
                                 ],

@@ -7,14 +7,12 @@ import {
   ShippingProfileListTable,
   ShippingProfileListDataTable,
   ShippingProfileListHeader,
-  ShippingProfileListActions,
   ShippingProfileListTitle,
-  ShippingProfileListCreateButton,
 } from "./_components";
 
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
-    <SingleColumnPage hasOutlet>
+    <SingleColumnPage>
       <WidgetZone id="shipping-profiles.list">
         {Children.count(children) > 0 ? children : <ShippingProfileListTable />}
       </WidgetZone>
@@ -26,7 +24,5 @@ export const ShippingProfileListPage = Object.assign(Root, {
   Table: ShippingProfileListTable,
   Header: ShippingProfileListHeader,
   HeaderTitle: ShippingProfileListTitle,
-  HeaderActions: ShippingProfileListActions,
-  HeaderCreateButton: ShippingProfileListCreateButton,
   DataTable: ShippingProfileListDataTable,
 });

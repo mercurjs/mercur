@@ -4,6 +4,7 @@ import { MercurModules, SellerStatus } from "@mercurjs/types"
 
 import { createVendorProduct } from "./create-product"
 import { createSellerUser } from "./create-seller-user"
+import { createShippingProfile } from "./create-shipping-profile"
 
 let prerequisiteCounter = 0
 
@@ -62,13 +63,9 @@ export const seedSellerOfferWithShipping = async (opts: {
             headers
         )
     ).data.fulfillment_set.service_zones.find((z: any) => z.name === `SZ${tag}`)
-    const shippingProfile = (
-        await api.post(
-            `/vendor/shipping-profiles`,
-            { name: `SP${tag}`, type: "default" },
-            headers
-        )
-    ).data.shipping_profile
+    const shippingProfile = await createShippingProfile(container, {
+        name: `SP${tag}`,
+    })
 
     await api.post(
         `/vendor/stock-locations/${stockLocation.id}/fulfillment-providers`,

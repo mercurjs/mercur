@@ -7,6 +7,7 @@ export const defaultStoreOfferFields = [
   "sku",
   "ean",
   "upc",
+  "leadtime_to_ship",
   "metadata",
   "created_at",
   "updated_at",

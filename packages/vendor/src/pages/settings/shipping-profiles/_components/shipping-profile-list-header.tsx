@@ -1,8 +1,6 @@
 import { Children, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-import { PermissionGuard } from "@mercurjs/dashboard-shared"
-import { Button, Heading, Text } from "@medusajs/ui";
+import { Heading, Text } from "@medusajs/ui";
 
 export const ShippingProfileListTitle = () => {
   const { t } = useTranslation();
@@ -16,33 +14,6 @@ export const ShippingProfileListTitle = () => {
   );
 };
 
-export const ShippingProfileListCreateButton = () => {
-  const { t } = useTranslation();
-  return (
-    <PermissionGuard resource="shipping_profile" operation="create">
-      <Button size="small" variant="secondary" asChild>
-        <Link to="create">{t("actions.create")}</Link>
-      </Button>
-    </PermissionGuard>
-  );
-};
-
-export const ShippingProfileListActions = ({
-  children,
-}: {
-  children?: ReactNode;
-}) => {
-  return (
-    <div className="flex items-center justify-center gap-x-2">
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <ShippingProfileListCreateButton />
-      )}
-    </div>
-  );
-};
-
 export const ShippingProfileListHeader = ({
   children,
 }: {
@@ -50,14 +21,7 @@ export const ShippingProfileListHeader = ({
 }) => {
   return (
     <div className="flex items-center justify-between px-6 py-4">
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <>
-          <ShippingProfileListTitle />
-          <ShippingProfileListActions />
-        </>
-      )}
+      {Children.count(children) > 0 ? children : <ShippingProfileListTitle />}
     </div>
   );
 };
