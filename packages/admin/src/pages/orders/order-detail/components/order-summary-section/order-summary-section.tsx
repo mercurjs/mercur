@@ -40,6 +40,8 @@ import {
   DisplayExtensionZone,
   isOrderActionable,
   isOrderAwaitingAction,
+  useActionLocks,
+  WidgetZone,
 } from "@mercurjs/dashboard-shared";
 import { format } from "date-fns";
 import { ActionMenu } from "../../../../../components/common/action-menu/index.ts";
@@ -205,6 +207,11 @@ const Header = ({
   orderPreview?: AdminOrderPreview;
 }) => {
   const { t } = useTranslation();
+  const lock = useActionLocks("order", order);
+  const editLock = lock("edit");
+  const returnLock = lock("return");
+  const exchangeLock = lock("exchange");
+  const claimLock = lock("claim");
 
   // is ture if there is no shipped items ATM
   const shouldDisableReturn = order.items.every(
@@ -237,10 +244,13 @@ const Header = ({
                 ),
                 to: `/orders/${order.id}/edits`,
                 icon: <PencilSquare />,
-                disabledTooltip: isOrderAwaitingAction(order)
-                  ? t("orders.requiresAction.actionUnavailable")
-                  : undefined,
+                disabledTooltip:
+                  editLock ??
+                  (isOrderAwaitingAction(order)
+                    ? t("orders.requiresAction.actionUnavailable")
+                    : undefined),
                 disabled:
+                  !!editLock ||
                   !isOrderActionable(order) ||
                   (orderPreview?.order_change &&
                     orderPreview?.order_change?.change_type !== "edit") ||
@@ -255,10 +265,13 @@ const Header = ({
                 label: t("orders.returns.create"),
                 to: `/orders/${order.id}/returns`,
                 icon: <ArrowUturnLeft />,
-                disabledTooltip: isOrderAwaitingAction(order)
-                  ? t("orders.requiresAction.actionUnavailable")
-                  : undefined,
+                disabledTooltip:
+                  returnLock ??
+                  (isOrderAwaitingAction(order)
+                    ? t("orders.requiresAction.actionUnavailable")
+                    : undefined),
                 disabled:
+                  !!returnLock ||
                   !isOrderActionable(order) ||
                   shouldDisableReturn ||
                   isOrderEditActive ||
@@ -273,10 +286,13 @@ const Header = ({
                     : t("orders.exchanges.create"),
                 to: `/orders/${order.id}/exchanges`,
                 icon: <ArrowPath />,
-                disabledTooltip: isOrderAwaitingAction(order)
-                  ? t("orders.requiresAction.actionUnavailable")
-                  : undefined,
+                disabledTooltip:
+                  exchangeLock ??
+                  (isOrderAwaitingAction(order)
+                    ? t("orders.requiresAction.actionUnavailable")
+                    : undefined),
                 disabled:
+                  !!exchangeLock ||
                   !isOrderActionable(order) ||
                   shouldDisableReturn ||
                   isOrderEditActive ||
@@ -292,10 +308,13 @@ const Header = ({
                     : t("orders.claims.create"),
                 to: `/orders/${order.id}/claims`,
                 icon: <ExclamationCircle />,
-                disabledTooltip: isOrderAwaitingAction(order)
-                  ? t("orders.requiresAction.actionUnavailable")
-                  : undefined,
+                disabledTooltip:
+                  claimLock ??
+                  (isOrderAwaitingAction(order)
+                    ? t("orders.requiresAction.actionUnavailable")
+                    : undefined),
                 disabled:
+                  !!claimLock ||
                   !isOrderActionable(order) ||
                   shouldDisableReturn ||
                   isOrderEditActive ||
@@ -313,6 +332,7 @@ const Header = ({
 };
 
 const Item = ({
+  order,
   item,
   currencyCode,
   reservation,
@@ -320,6 +340,7 @@ const Item = ({
   claims,
   exchanges,
 }: {
+  order: AdminOrder;
   item: AdminOrderLineItem;
   currencyCode: string;
   reservation?: AdminReservation;
@@ -424,6 +445,7 @@ const Item = ({
                     : t("orders.reservations.notAllocatedLabel")}
                 </StatusBadge>
               )}
+              <WidgetZone id="orders.detail.item" data={{ order, item }} />
             </div>
           </div>
 
@@ -494,6 +516,7 @@ const ItemBreakdown = ({
 
         return (
           <Item
+            order={order}
             key={item.id}
             item={item}
             currencyCode={order.currency_code}

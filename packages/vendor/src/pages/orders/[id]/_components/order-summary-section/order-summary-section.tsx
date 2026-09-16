@@ -34,7 +34,11 @@ import {
   Tooltip,
 } from "@medusajs/ui"
 
-import { DisplayExtensionZone, WidgetZone } from "@mercurjs/dashboard-shared"
+import {
+  DisplayExtensionZone,
+  useActionLocks,
+  WidgetZone,
+} from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
 import { isOrderAwaitingAction } from "@mercurjs/dashboard-shared"
 import {
@@ -237,6 +241,11 @@ const Header = ({
   orderPreview?: AdminOrderPreview
 }) => {
   const { t } = useTranslation()
+  const lock = useActionLocks("order", order)
+  const editLock = lock("edit")
+  const returnLock = lock("return")
+  const exchangeLock = lock("exchange")
+  const claimLock = lock("claim")
 
   const isAwaitingAction = isOrderAwaitingAction(order)
   const isLocked = !!order.canceled_at || isAwaitingAction
@@ -293,8 +302,8 @@ const Header = ({
                     : "orders.edits.create"
                 ),
                 to: "edit",
-                disabled: editDisabled,
-                disabledTooltip: awaitingActionTooltip,
+                disabled: editDisabled || !!editLock,
+                disabledTooltip: editLock ?? awaitingActionTooltip,
                 icon: <PencilSquare />,
               },
             ],
@@ -308,8 +317,10 @@ const Header = ({
                   isLocked ||
                   returnOutOfPolicy ||
                   shouldDisableReturn ||
-                  returnDisabledByChange,
+                  returnDisabledByChange ||
+                  !!returnLock,
                 disabledTooltip:
+                  returnLock ??
                   awaitingActionTooltip ??
                   (returnOutOfPolicy
                     ? t("orders.returns.outOfPolicy", {
@@ -328,8 +339,10 @@ const Header = ({
                   isLocked ||
                   exchangeOutOfPolicy ||
                   shouldDisableReturn ||
-                  exchangeDisabledByChange,
+                  exchangeDisabledByChange ||
+                  !!exchangeLock,
                 disabledTooltip:
+                  exchangeLock ??
                   awaitingActionTooltip ??
                   (exchangeOutOfPolicy
                     ? t("orders.exchanges.outOfPolicy", {
@@ -348,8 +361,10 @@ const Header = ({
                   isLocked ||
                   claimOutOfPolicy ||
                   shouldDisableReturn ||
-                  claimDisabledByChange,
+                  claimDisabledByChange ||
+                  !!claimLock,
                 disabledTooltip:
+                  claimLock ??
                   awaitingActionTooltip ??
                   (claimOutOfPolicy
                     ? t("orders.claims.outOfPolicy", {
@@ -367,11 +382,13 @@ const Header = ({
 }
 
 const Item = ({
+  order,
   item,
   currencyCode,
   returns,
   reservation,
 }: {
+  order: HttpTypes.AdminOrder
   item: AdminOrderLineItem
   currencyCode: string
   returns: ReturnWithReason[]
@@ -457,6 +474,7 @@ const Item = ({
                     : t("orders.reservations.notAllocatedLabel")}
                 </StatusBadge>
               )}
+              <WidgetZone id="orders.detail.item" data={{ order, item }} />
             </div>
           </div>
 
@@ -503,6 +521,7 @@ const ItemBreakdown = ({
       {order.items?.map((item) => {
         return (
           <Item
+            order={order}
             key={item.id}
             item={item}
             currencyCode={order.currency_code}

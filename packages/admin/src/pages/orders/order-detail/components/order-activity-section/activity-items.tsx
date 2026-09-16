@@ -5,7 +5,7 @@ import {
   AdminReturn,
 } from "@medusajs/types"
 import { Popover, Text } from "@medusajs/ui"
-import { useState } from "react"
+import { ReactNode, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Thumbnail } from "../../../../../components/common/thumbnail"
 
@@ -15,7 +15,7 @@ type ActivityItemsProps = {
     | AdminExchange["additional_items"]
   itemsToReturn?: AdminReturn["items"]
   itemsMap?: Map<string, AdminOrderLineItem>
-  title: string
+  title: ReactNode
 }
 
 function ActivityItems(props: ActivityItemsProps) {
