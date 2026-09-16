@@ -1,4 +1,4 @@
-import type { ComponentType } from "react"
+import type { ComponentType, ReactNode } from "react"
 
 /**
  * Minimal structural stand-in for a Zod schema, so the SDK stays free of a zod
@@ -119,10 +119,39 @@ export type CustomListExtension = {
   }
 }
 
+/**
+ * Action ids a plugin can lock per model. `order` narrows to the RMA and payment
+ * actions the order detail sections guard; other models accept any string.
+ */
+export interface CustomFieldActionRegistry {
+  order: "edit" | "return" | "exchange" | "claim" | "fulfill" | "capture" | "refund"
+}
+
+export type CustomFieldAction<TModel> = TModel extends keyof CustomFieldActionRegistry
+  ? CustomFieldActionRegistry[TModel]
+  : string
+
+export type ActivityEntry = {
+  title: ReactNode
+  timestamp: string | Date
+  children?: ReactNode
+}
+
 export interface CustomFieldsConfig<TModel extends CustomFieldModel = CustomFieldModel> {
   model: TModel
   /** Module link(s) fetched alongside the entity (e.g. `brand`). */
   link?: string | string[]
+  /**
+   * Reasons an action on this entity is unavailable, keyed by action id. A
+   * returned string disables the action and becomes its tooltip; `undefined`
+   * leaves it alone. Evaluated on render with the entity as fetched, including
+   * `link` data.
+   */
+  actionLocks?: Partial<
+    Record<CustomFieldAction<TModel>, (entity: unknown) => string | undefined>
+  >
+  /** Extra timeline entries for the entity, merged and sorted with the built-ins. */
+  activity?: (entity: unknown) => ActivityEntry[]
   list?: CustomListExtension
   forms?: CustomFormEntry<TModel>[]
   displays?: CustomDisplayEntry<TModel>[]

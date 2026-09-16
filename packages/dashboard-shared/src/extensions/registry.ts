@@ -1,5 +1,6 @@
 import type { ComponentType } from "react"
 import type {
+  ActivityEntry,
   CustomDisplayField,
   CustomFieldsConfig,
   CustomFormField,
@@ -114,6 +115,22 @@ export class ExtensionRegistry {
       for (const l of Array.isArray(link) ? link : [link]) links.add(l)
     }
     return [...links]
+  }
+
+  /** First lock reason a config returns for an action on this entity. */
+  getActionLock(model: string, action: string, entity: unknown): string | undefined {
+    for (const config of this.configsFor(model)) {
+      const locks = config.actionLocks as
+        | Record<string, ((entity: unknown) => string | undefined) | undefined>
+        | undefined
+      const reason = locks?.[action]?.(entity)
+      if (reason) return reason
+    }
+    return undefined
+  }
+
+  getActivity(model: string, entity: unknown): ActivityEntry[] {
+    return this.configsFor(model).flatMap((c) => c.activity?.(entity) ?? [])
   }
 
   /** Custom form fields for a model's form zone (and optional tab). */
