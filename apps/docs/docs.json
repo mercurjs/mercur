@@ -692,6 +692,13 @@
                 ]
               },
               {
+                "group": "Reviews",
+                "pages": [
+                  "references/api/store/reviews/list-product-reviews",
+                  "references/api/store/reviews/list-seller-reviews"
+                ]
+              },
+              {
                 "group": "Offers",
                 "pages": [
                   "references/api/store/offers/list-offers",
