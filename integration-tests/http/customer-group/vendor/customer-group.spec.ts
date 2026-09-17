@@ -15,6 +15,7 @@ medusaIntegrationTestRunner({
       let seller1Headers: any
       let seller2Headers: any
       let seller1: any
+      let seller2: any
       let customer1: any
       let customer2: any
 
@@ -35,6 +36,7 @@ medusaIntegrationTestRunner({
           email: "seller2@test.com",
           name: "Test Seller 2",
         })
+        seller2 = seller2Result.seller
         seller2Headers = { headers: { ...seller2Result.headers.headers } }
 
         const customer1Result = await createCustomerUser(appContainer, {
@@ -55,6 +57,14 @@ medusaIntegrationTestRunner({
       const createGroup = async (headers: any, name: string) => {
         const res = await api.post(`/vendor/customer-groups`, { name }, headers)
         return res.data.customer_group
+      }
+
+      const linkSellerCustomer = async (sellerId: string, customerId: string) => {
+        const link = appContainer.resolve(ContainerRegistrationKeys.LINK)
+        await link.create({
+          [MercurModules.SELLER]: { seller_id: sellerId },
+          [Modules.CUSTOMER]: { customer_id: customerId },
+        })
       }
 
       describe("POST /vendor/customer-groups", () => {
@@ -178,6 +188,8 @@ medusaIntegrationTestRunner({
 
       describe("POST /vendor/customer-groups/:id/customers", () => {
         it("adds and removes members of the seller's group", async () => {
+          await linkSellerCustomer(seller1.id, customer1.id)
+          await linkSellerCustomer(seller1.id, customer2.id)
           const group = await createGroup(seller1Headers, "Members")
 
           const addRes = await api.post(
@@ -218,6 +230,42 @@ medusaIntegrationTestRunner({
               `/vendor/customer-groups/${group.id}/customers`,
               { add: [customer1.id] },
               seller2Headers
+            )
+            .catch((e) => e.response)
+
+          expect(res.status).toEqual(404)
+        })
+
+        it("returns 404 adding a customer the seller does not own", async () => {
+          await linkSellerCustomer(seller1.id, customer1.id)
+          await linkSellerCustomer(seller2.id, customer2.id)
+          const group = await createGroup(seller1Headers, "Members")
+
+          const res = await api
+            .post(
+              `/vendor/customer-groups/${group.id}/customers`,
+              { add: [customer1.id, customer2.id] },
+              seller1Headers
+            )
+            .catch((e) => e.response)
+
+          expect(res.status).toEqual(404)
+
+          const check = await api.get(
+            `/vendor/customer-groups/${group.id}?fields=id,customers.id`,
+            seller1Headers
+          )
+          expect(check.data.customer_group.customers).toHaveLength(0)
+        })
+
+        it("returns 404 removing a customer the seller does not own", async () => {
+          const group = await createGroup(seller1Headers, "Members")
+
+          const res = await api
+            .post(
+              `/vendor/customer-groups/${group.id}/customers`,
+              { remove: [customer2.id] },
+              seller1Headers
             )
             .catch((e) => e.response)
 
@@ -276,6 +324,7 @@ medusaIntegrationTestRunner({
             [Modules.CUSTOMER]: { customer_id: customer1.id },
           })
 
+          await linkSellerCustomer(seller1.id, customer2.id)
           const group = await createGroup(seller1Headers, "VIP")
           await api.post(
             `/vendor/customer-groups/${group.id}/customers`,
@@ -310,6 +359,7 @@ medusaIntegrationTestRunner({
             [MercurModules.SELLER]: { seller_id: seller1.id },
             [Modules.CUSTOMER]: { customer_id: customer1.id },
           })
+          await linkSellerCustomer(seller2.id, customer1.id)
 
           const ownGroup = await createGroup(seller1Headers, "Seller1 VIP")
           const otherGroup = await createGroup(seller2Headers, "Seller2 VIP")
