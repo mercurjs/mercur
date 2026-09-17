@@ -3777,6 +3777,13 @@
     "firstName": "First name",
     "lastName": "Last name",
     "passwordHint": "Your password must include at least 8 characters, one lowercase letter, one uppercase letter, one number or symbol",
+    "passwordRequirements": {
+      "minLength": "At least 8 characters",
+      "lowercase": "One lowercase letter",
+      "uppercase": "One uppercase letter",
+      "numberOrSymbol": "One number or symbol",
+      "allMet": "Password meets all requirements"
+    },
     "successTitle": "Thank you for registering!",
     "successHint": "You may need to wait for admin authorization before logging in. A confirmation email will be sent to you shortly.",
     "backToLogin": "Back to login"

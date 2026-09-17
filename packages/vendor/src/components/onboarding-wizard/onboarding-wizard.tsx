@@ -2,8 +2,7 @@ import { AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router-dom";
 
 import { useLinkQuery } from "@mercurjs/dashboard-shared";
-import { useLogout, useSellers } from "@hooks/api";
-import { queryClient } from "@lib/query-client";
+import { useSellers } from "@hooks/api";
 import { WizardSidebar } from "./wizard-sidebar";
 import { WizardPreview } from "./wizard-preview";
 import { WizardStep } from "./wizard-step";
@@ -19,7 +18,6 @@ type OnboardingWizardProps = {
 
 export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
   const navigate = useNavigate();
-  const { mutateAsync: logoutMutation } = useLogout();
   const { seller_members } = useSellers(useLinkQuery("seller"));
   const hasStores = (seller_members?.length ?? 0) > 0;
 
@@ -28,6 +26,10 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
     sellerId,
     isPending,
     goBack,
+    storeData,
+    addressData,
+    companyData,
+    paymentData,
     submitStoreStep,
     submitAddressStep,
     skipAddressStep,
@@ -42,10 +44,7 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
       if (hasStores) {
         navigate("/store-select", { replace: true });
       } else {
-        await logoutMutation(undefined, {
-          onSuccess: () => queryClient.clear(),
-          onSettled: () => navigate("/login"),
-        });
+        navigate("/register");
       }
     } else {
       goBack();
@@ -57,13 +56,18 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
       case 0:
         return (
           <WizardStep key="store">
-            <StoreStep onSubmit={submitStoreStep} isPending={isPending} />
+            <StoreStep
+              initialValues={storeData || undefined}
+              onSubmit={submitStoreStep}
+              isPending={isPending}
+            />
           </WizardStep>
         );
       case 1:
         return (
           <WizardStep key="address">
             <AddressStep
+              initialValues={addressData}
               onSubmit={submitAddressStep}
               onSkip={skipAddressStep}
               isPending={isPending}
@@ -74,6 +78,7 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
         return (
           <WizardStep key="company">
             <CompanyStep
+              initialValues={companyData}
               onSubmit={submitCompanyStep}
               onSkip={skipCompanyStep}
               isPending={isPending}
@@ -85,6 +90,7 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
           <WizardStep key="payment">
             <PaymentStep
               sellerId={sellerId!}
+              initialValues={paymentData}
               onSubmit={submitPaymentStep}
               onSkip={skipPaymentStep}
               isPending={isPending}
