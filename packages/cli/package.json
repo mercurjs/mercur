@@ -44,7 +44,7 @@
     "@mercurjs/dashboard-sdk": "2.3.5",
     "@vitejs/plugin-react": "^6.0.3",
     "commander": "^15.0.0",
-    "cosmiconfig": "^9.0.0",
+    "cosmiconfig": "^10.0.1",
     "deepmerge": "^4.3.1",
     "diff": "^8.0.2",
     "execa": "9.6.1",
