@@ -10,7 +10,7 @@
     "guides:ui": "playwright test --config playwright.guides.config.ts --ui"
   },
   "dependencies": {
-    "@medusajs/draft-order": "2.20.1",
+    "@medusajs/draft-order": "2.21.0",
     "@medusajs/framework": "2.20.1",
     "@medusajs/medusa": "2.20.1",
     "@mercurjs/core": "*",

@@ -32,7 +32,7 @@
     "@medusajs/dashboard": "2.20.1",
     "@medusajs/admin-shared": "2.20.1",
     "@medusajs/medusa": "2.20.1",
-    "@medusajs/draft-order": "2.20.1",
+    "@medusajs/draft-order": "2.21.0",
     "@mercurjs/core": "*",
     "@mercurjs/types": "*",
     "http-proxy-middleware": "^3.0.3",
