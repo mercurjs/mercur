@@ -30,7 +30,7 @@
     "@medusajs/cli": "2.20.1",
     "@medusajs/framework": "2.20.1",
     "@medusajs/dashboard": "2.20.1",
-    "@medusajs/admin-shared": "2.20.1",
+    "@medusajs/admin-shared": "2.21.0",
     "@medusajs/medusa": "2.20.1",
     "@medusajs/draft-order": "2.20.1",
     "@mercurjs/core": "*",
