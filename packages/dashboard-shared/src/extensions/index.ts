@@ -46,3 +46,4 @@ export {
   useExtendableForm,
   type UseExtendableFormProps,
 } from "./use-extendable-form"
+export { useActionLocks, useExtensionActivity } from "./action-locks"

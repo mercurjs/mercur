@@ -1,5 +1,6 @@
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import { useExtensionActivity } from "@mercurjs/dashboard-shared"
 import { AdminClaim, AdminExchange, AdminReturn } from "@medusajs/types"
 import { Text } from "@medusajs/ui"
 import { ReactNode } from "react"
@@ -39,6 +40,7 @@ export type Activity = {
 
 export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
   const { t } = useTranslation()
+  const extensionActivity = useExtensionActivity("order", order)
 
   const { order_changes: orderChanges = [] } = useOrderChanges(order.id)
 
@@ -406,6 +408,8 @@ export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
       })
     }
 
+    items.push(...extensionActivity)
+
     const sortedActivities = items.sort((a, b) => {
       return new Date(b.timestamp!).getTime() - new Date(a.timestamp!).getTime()
     })
@@ -428,7 +432,8 @@ export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
 	orderChanges,
 	payments,
 	isLoading,
-	itemsMap
+	itemsMap,
+	extensionActivity
 ])
   /* oxlint-enable react-hooks/exhaustive-deps */
 }

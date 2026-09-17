@@ -12,6 +12,7 @@ import {
   AdminReturn,
 } from "@medusajs/types";
 import { useTranslation } from "react-i18next";
+import { useExtensionActivity } from "@mercurjs/dashboard-shared";
 
 import { AdminOrderLineItem } from "@medusajs/types";
 import { By } from "../../../../../components/common/user-link";
@@ -104,7 +105,7 @@ export const OrderTimeline = ({ order }: OrderTimelineProps) => {
 };
 
 type Activity = {
-  title: string;
+  title: ReactNode;
   timestamp: string | Date;
   children?: ReactNode;
   itemsToSend?: (
@@ -117,6 +118,7 @@ type Activity = {
 
 const useActivityItems = (order: AdminOrder): Activity[] => {
   const { t } = useTranslation();
+  const extensionActivity = useExtensionActivity("order", order);
 
   const { order_changes: orderChanges = [] } = useOrderChanges(order.id, {
     change_type: [
@@ -525,6 +527,8 @@ const useActivityItems = (order: AdminOrder): Activity[] => {
       });
     }
 
+    items.push(...extensionActivity);
+
     const sortedActivities = items.sort((a, b) => {
       return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
     });
@@ -549,12 +553,13 @@ const useActivityItems = (order: AdminOrder): Activity[] => {
 	isLoading,
 	itemsMap,
 	claims,
+	extensionActivity,
 	t
 ]);
 };
 
 type OrderActivityItemProps = PropsWithChildren<{
-  title: string;
+  title: ReactNode;
   timestamp: string | Date;
   isFirst?: boolean;
   itemsToSend?:
@@ -600,7 +605,6 @@ const OrderActivityItem = ({
         <div className="flex items-center justify-between">
           {itemsToSend?.length || itemsToReturn?.length ? (
             <ActivityItems
-              key={title}
               title={title}
               itemsToSend={itemsToSend}
               itemsToReturn={itemsToReturn}
