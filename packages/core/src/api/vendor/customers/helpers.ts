@@ -7,25 +7,32 @@ import {
 export const validateSellerCustomer = async (
   scope: MedusaContainer,
   sellerId: string,
-  customerId: string
+  customerId: string | string[]
 ) => {
+  const ids = Array.isArray(customerId) ? customerId : [customerId]
+
+  if (ids.length === 0) {
+    return
+  }
+
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const {
-    data: [sellerCustomer],
-  } = await query.graph({
+  const { data: sellerCustomers } = await query.graph({
     entity: "seller_customer",
     filters: {
       seller_id: sellerId,
-      customer_id: customerId,
+      customer_id: ids,
     },
-    fields: ["seller_id", "customer_id"],
+    fields: ["customer_id"],
   })
 
-  if (!sellerCustomer) {
+  const ownedIds = new Set(sellerCustomers.map((row) => row.customer_id))
+  const missingId = ids.find((id) => !ownedIds.has(id))
+
+  if (missingId) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,
-      `Customer with id: ${customerId} was not found`
+      `Customer with id: ${missingId} was not found`
     )
   }
 }
