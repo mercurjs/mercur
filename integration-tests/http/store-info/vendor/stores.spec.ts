@@ -1,5 +1,6 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { MedusaContainer } from "@medusajs/framework/types"
+import { Modules } from "@medusajs/framework/utils"
 import { createSellerDefaultsWorkflow } from "@mercurjs/core/workflows"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 
@@ -38,6 +39,28 @@ medusaIntegrationTestRunner({
 
         expect(response.status).toBe(200)
         expect(Array.isArray(response.data.stores)).toBe(true)
+      })
+
+      it("returns the store's supported currencies by default", async () => {
+        const storeModule = appContainer.resolve(Modules.STORE)
+        const [store] = await storeModule.listStores()
+        await storeModule.updateStores(store.id, {
+          supported_currencies: [
+            { currency_code: "usd", is_default: true },
+            { currency_code: "eur" },
+          ],
+        })
+
+        const response = await api.get("/vendor/stores", headers)
+
+        expect(response.status).toBe(200)
+        const codes = response.data.stores[0].supported_currencies.map(
+          (c: { currency_code: string }) => c.currency_code
+        )
+        expect(codes).toEqual(expect.arrayContaining(["usd", "eur"]))
+        expect(
+          response.data.stores[0].supported_currencies[0].currency
+        ).toBeDefined()
       })
 
       it("returns stores for a member without a seller", async () => {
