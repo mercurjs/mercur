@@ -15033,6 +15033,9 @@
         },
         "backToLogin": {
           "type": "string"
+        },
+        "passwordRequirements": {
+          "type": "object"
         }
       },
       "required": [
