@@ -13,7 +13,7 @@
     "@mercurjs/core": "*",
     "jsonwebtoken": "^9.0.2",
     "scrypt-kdf": "^2.0.1",
-    "@medusajs/draft-order": "2.20.1",
+    "@medusajs/draft-order": "2.21.0",
     "meilisearch": "^0.59.0"
   },
   "devDependencies": {
