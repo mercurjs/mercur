@@ -220,6 +220,37 @@ medusaIntegrationTestRunner({
                     expect(line.quantity).toEqual(2)
                 })
 
+                it.each([
+                    { unit_price: 1 },
+                    { unit_price: 0 },
+                    { compare_at_unit_price: 1 },
+                ])("should reject a client-supplied price %p", async (price) => {
+                    const seed: SellerSeed = await seedSellerOffer({
+                        email: `client-price-${Object.values(price)[0]}-${Object.keys(price)[0]}@test.com`,
+                        name: "Client Price",
+                        stocked: 10,
+                        offerPrice: 5700,
+                    })
+
+                    const cart = await createCart()
+
+                    const response = await api
+                        .post(
+                            `/store/carts/${cart.id}/line-items`,
+                            { offer_id: seed.offer.id, quantity: 1, ...price },
+                            storeHeaders
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
+
+                    const { data } = await api.get(
+                        `/store/carts/${cart.id}`,
+                        storeHeaders
+                    )
+                    expect(data.cart.items).toHaveLength(0)
+                })
+
                 // SPEC-007: buybox preselection guarantees one offer per
                 // variant per cart. Medusa's default add-to-cart merges
                 // same-variant lines into a single line, which is the
