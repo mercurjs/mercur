@@ -33,7 +33,11 @@ import {
   VendorUpdateProduct,
   VendorUpdateProductVariant,
 } from "./validators"
-import { promiseAll } from "@medusajs/framework/utils"
+import {
+  ContainerRegistrationKeys,
+  MedusaError,
+  promiseAll,
+} from "@medusajs/framework/utils"
 
 const applySellerProductLinkFilter = async (
   req: AuthenticatedMedusaRequest,
@@ -61,6 +65,31 @@ const applySellerProductLinkFilter = async (
       ],
     },
   ]
+
+  return next()
+}
+
+const ensureVariantBelongsToProduct = async (
+  req: AuthenticatedMedusaRequest,
+  _res: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const {
+    data: [variant],
+  } = await query.graph({
+    entity: "variant",
+    fields: ["id"],
+    filters: { id: req.params.variant_id, product_id: req.params.id },
+  })
+
+  if (!variant) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `Variant with id ${req.params.variant_id} was not found`
+    )
+  }
 
   return next()
 }
@@ -213,6 +242,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/products/:id/variants/:variant_id",
     middlewares: [
+      ensureVariantBelongsToProduct,
       validateAndTransformBody(VendorUpdateProductVariant),
       validateAndTransformQuery(
         VendorGetProductParams,
@@ -229,7 +259,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["DELETE"],
     matcher: "/vendor/products/:id/variants/:variant_id",
-    middlewares: [],
+    middlewares: [ensureVariantBelongsToProduct],
     policies: [
       {
         resource: PolicyResource.product_variant,

@@ -374,6 +374,49 @@ medusaIntegrationTestRunner({
           return variant.id as string
         }
 
+        it("rejects a variant that does not belong to the product in the path", async () => {
+          const otherProductId = await createVendorProduct(
+            "Other Product",
+            otherSellerHeaders,
+          )
+          await api.post(
+            `/vendor/products/${otherProductId}/variants`,
+            { title: "Other Variant" },
+            otherSellerHeaders,
+          )
+          const otherProduct = await api.get(
+            `/vendor/products/${otherProductId}`,
+            otherSellerHeaders,
+          )
+          const otherVariantId = (
+            otherProduct.data.product.variants as Array<any>
+          ).find((v) => v.title === "Other Variant").id as string
+
+          const productId = await createVendorProduct("Own Product")
+
+          const update = await api
+            .post(
+              `/vendor/products/${productId}/variants/${otherVariantId}`,
+              { title: "Hijacked", images: { remove: [] } },
+              sellerHeaders,
+            )
+            .catch((e) => e.response)
+          expect(update.status).toBe(404)
+
+          const remove = await api
+            .delete(
+              `/vendor/products/${productId}/variants/${otherVariantId}`,
+              sellerHeaders,
+            )
+            .catch((e) => e.response)
+          expect(remove.status).toBe(404)
+
+          const variantActions = (await listChanges(productId)).flatMap((c) =>
+            c.actions.filter((a) => a.action.startsWith("VARIANT_")),
+          )
+          expect(variantActions).toHaveLength(0)
+        })
+
         it("stages a VARIANT_UPDATE carrying the variant_id and only the changed fields", async () => {
           const productId = await createVendorProduct("Variant Update Product")
           const variantId = await addVariant(productId, {
