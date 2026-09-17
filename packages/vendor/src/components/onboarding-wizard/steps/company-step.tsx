@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Heading, Input } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
@@ -5,6 +6,10 @@ import { useTranslation } from "react-i18next";
 import * as z from "zod";
 
 import { Form } from "@components/common/form";
+import {
+  getStoredOnboardingDraft,
+  setStoredOnboardingDraft,
+} from "../constants";
 
 const CompanyStepSchema = z.object({
   corporate_name: z.string().optional(),
@@ -15,22 +20,38 @@ const CompanyStepSchema = z.object({
 type CompanyStepValues = z.infer<typeof CompanyStepSchema>;
 
 type CompanyStepProps = {
+  initialValues?: Partial<CompanyStepValues> | null;
   onSubmit: (data: CompanyStepValues) => Promise<void>;
   onSkip: () => void;
   isPending?: boolean;
 };
 
-export const CompanyStep = ({ onSubmit, onSkip, isPending }: CompanyStepProps) => {
+export const CompanyStep = ({
+  initialValues,
+  onSubmit,
+  onSkip,
+  isPending,
+}: CompanyStepProps) => {
   const { t } = useTranslation();
+  const draft = getStoredOnboardingDraft();
 
   const form = useForm<CompanyStepValues>({
     resolver: zodResolver(CompanyStepSchema),
     defaultValues: {
-      corporate_name: "",
-      registration_number: "",
-      tax_id: "",
+      corporate_name: initialValues?.corporate_name ?? draft.company?.corporate_name ?? "",
+      registration_number: initialValues?.registration_number ?? draft.company?.registration_number ?? "",
+      tax_id: initialValues?.tax_id ?? draft.company?.tax_id ?? "",
     },
   });
+
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      setStoredOnboardingDraft({
+        company: values as any,
+      });
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   const handleSubmit = form.handleSubmit(async (data) => {
     await onSubmit(data);
