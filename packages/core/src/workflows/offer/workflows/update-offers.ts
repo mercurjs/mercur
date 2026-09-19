@@ -15,13 +15,17 @@ import {
   createRemoteLinkStep,
   dismissRemoteLinkStep,
   emitEventStep,
-  updatePriceSetsStep,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 import { MedusaError, Modules } from "@medusajs/framework/utils"
 import { UpdateOfferDTO, MercurModules, OfferDTO } from "@mercurjs/types"
 
-import { removeOfferPricesStep, updateOffersStep } from "../steps"
+import {
+  addOfferPricesStep,
+  removeOfferPricesStep,
+  updateOffersStep,
+  type AddOfferPricesStepInput,
+} from "../steps"
 import { assertOfferPriceOwnership } from "../utils"
 import { OfferWorkflowEvents } from "../../events"
 
@@ -103,13 +107,8 @@ export const updateOffersWorkflow: ReturnWorkflow<
           }>).map((o) => [o.id, o]),
         )
 
-        const priceSetUpserts: PricingTypes.UpsertPriceSetDTO[] = []
+        const addPricesPayload: AddOfferPricesStepInput = []
         const toRemoveIds: string[] = []
-        const newPriceOwners: Array<{
-          offer_id: string
-          priceSetId: string
-          newRowCount: number
-        }> = []
         const removedLinks: LinkDefinition[] = []
 
         for (const offer of input.offers) {
@@ -180,37 +179,21 @@ export const updateOffersWorkflow: ReturnWorkflow<
             return base
           })
 
-          const newRowCount = offer.prices.filter((p) => !p.id).length
-
-          priceSetUpserts.push({
-            id: priceSetId,
-            prices: upsertPrices,
-          })
-
-          if (newRowCount > 0) {
-            newPriceOwners.push({
-              offer_id: offer.id,
+          if (upsertPrices.length) {
+            addPricesPayload.push({
               priceSetId,
-              newRowCount,
+              prices: upsertPrices,
             })
           }
         }
 
         return {
-          price_sets: priceSetUpserts,
+          addPricesPayload,
           toRemoveIds,
-          newPriceOwners,
           removedLinks,
         }
       },
     )
-
-    const priceSetsPayload = transform(
-      { pricingDiff },
-      ({ pricingDiff }) => ({ price_sets: pricingDiff.price_sets }),
-    )
-
-    const upsertedPriceSets = updatePriceSetsStep(priceSetsPayload)
 
     const toRemoveIds = transform(
       { pricingDiff },
@@ -230,34 +213,22 @@ export const updateOffersWorkflow: ReturnWorkflow<
 
     removeOfferPricesStep(toRemoveIds)
 
+    const addPricesPayload = transform(
+      { pricingDiff },
+      ({ pricingDiff }) => pricingDiff.addPricesPayload,
+    )
+
+    const addedPrices = addOfferPricesStep(addPricesPayload)
+
     const newLinks = transform(
-      { pricingDiff, upsertedPriceSets },
-      ({ pricingDiff, upsertedPriceSets }) => {
-        if (!pricingDiff.newPriceOwners.length) {
-          return [] as LinkDefinition[]
-        }
-        const priceSetById = new Map(
-          (upsertedPriceSets ?? []).map((ps) => [ps.id, ps]),
-        )
+      { addedPrices },
+      ({ addedPrices }) => {
         const links: LinkDefinition[] = []
-
-        for (const owner of pricingDiff.newPriceOwners) {
-          const set = priceSetById.get(owner.priceSetId)
-          if (!set) continue
-          const matchingPrices = (set.prices ?? []).filter((price) => {
-            const rules = (price as { price_rules?: Array<{
-              attribute: string
-              value: string
-            }> }).price_rules ?? []
-            return rules.some(
-              (r) => r.attribute === "offer_id" && r.value === owner.offer_id,
-            )
-          })
-
-          for (const price of matchingPrices) {
+        for (const entry of addedPrices) {
+          for (const priceId of entry.price_ids) {
             links.push({
-              [MercurModules.OFFER]: { offer_id: owner.offer_id },
-              [Modules.PRICING]: { price_id: price.id },
+              [MercurModules.OFFER]: { offer_id: entry.offer_id },
+              [Modules.PRICING]: { price_id: priceId },
             })
           }
         }
