@@ -6,7 +6,7 @@ export type VendorCreateProductCollectionRequestType = z.infer<typeof VendorCrea
 export const VendorCreateProductCollectionRequest = z.object({
   title: z.string(),
   handle: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 })
 
 export type VendorGetProductCollectionRequestsParamsType = z.infer<typeof VendorGetProductCollectionRequestsParams>

@@ -16,15 +16,15 @@ export const VendorGetPayoutAccountsParams = createFindParams({
 export type VendorCreatePayoutAccountType = z.infer<typeof VendorCreatePayoutAccount>
 export const VendorCreatePayoutAccount = z
   .object({
-    data: z.record(z.unknown()).optional(),
-    context: z.record(z.unknown()).optional(),
+    data: z.record(z.string(), z.unknown()).optional(),
+    context: z.record(z.string(), z.unknown()).optional(),
   })
   .strict()
 
 export type VendorCreateOnboardingType = z.infer<typeof VendorCreateOnboarding>
 export const VendorCreateOnboarding = z
   .object({
-    data: z.record(z.unknown()).optional(),
-    context: z.record(z.unknown()).optional(),
+    data: z.record(z.string(), z.unknown()).optional(),
+    context: z.record(z.string(), z.unknown()).optional(),
   })
   .strict()

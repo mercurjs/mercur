@@ -32,7 +32,7 @@ export type VendorCreateCustomerGroupType = z.infer<
 export const VendorCreateCustomerGroup = z
   .object({
     name: z.string(),
-    metadata: z.record(z.unknown()).nullish(),
+    metadata: z.record(z.string(), z.unknown()).nullish(),
   })
   .strict()
 
@@ -42,7 +42,7 @@ export type VendorUpdateCustomerGroupType = z.infer<
 export const VendorUpdateCustomerGroup = z
   .object({
     name: z.string().optional(),
-    metadata: z.record(z.unknown()).nullish(),
+    metadata: z.record(z.string(), z.unknown()).nullish(),
   })
   .strict()
 

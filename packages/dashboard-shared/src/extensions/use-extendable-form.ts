@@ -16,9 +16,10 @@ type WithAdditionalData<T> = T & {
 export interface UseExtendableFormProps<
   TSchema extends ZodObject<Record<string, z.ZodTypeAny>>,
   TContext = unknown,
-  TData = unknown
+  TData = unknown,
+  TTransformedValues extends FieldValues = WithAdditionalData<z.infer<TSchema>>
 > extends Omit<
-    UseFormProps<z.infer<TSchema>, TContext>,
+    UseFormProps<WithAdditionalData<z.infer<TSchema>>, TContext, TTransformedValues>,
     "resolver" | "defaultValues"
   > {
   /** Base schema for the built-in fields. */
@@ -49,7 +50,7 @@ export interface UseExtendableFormProps<
 export const useExtendableForm = <
   TSchema extends ZodObject<Record<string, z.ZodTypeAny>>,
   TContext = unknown,
-  TTransformedValues extends FieldValues | undefined = undefined
+  TTransformedValues extends FieldValues = WithAdditionalData<z.infer<TSchema>>
 >({
   schema: baseSchema,
   defaultValues: baseDefaultValues,
@@ -58,7 +59,7 @@ export const useExtendableForm = <
   zone,
   tab,
   ...props
-}: UseExtendableFormProps<TSchema, TContext>) => {
+}: UseExtendableFormProps<TSchema, TContext, unknown, TTransformedValues>) => {
   const extension = useExtension()
 
   const schema = useMemo(() => {
@@ -97,9 +98,10 @@ export const useExtendableForm = <
       WithAdditionalData<z.infer<TSchema>>,
       TContext
     >["defaultValues"],
-    resolver: zodResolver(schema) as UseFormProps<
+    resolver: zodResolver(schema) as unknown as UseFormProps<
       WithAdditionalData<z.infer<TSchema>>,
-      TContext
+      TContext,
+      TTransformedValues
     >["resolver"],
   })
 }

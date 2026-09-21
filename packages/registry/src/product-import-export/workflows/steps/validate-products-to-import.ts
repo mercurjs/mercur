@@ -28,7 +28,7 @@ const CreateProductVariant = z.object({
   width: z.number().optional().nullable(),
   material: z.string().optional().nullable(),
   origin_country: z.string().optional().nullable(),
-  options: z.record(z.string()).optional(),
+  options: z.record(z.string(), z.string()).optional(),
   prices: z.array(CreateVariantPrice).optional(),
   inventory_quantity: z.number().optional(),
 })

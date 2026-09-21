@@ -3,7 +3,7 @@ import { createSelectParams } from "@medusajs/medusa/api/utils/validators"
 
 const geoZoneBaseSchema = z.object({
   country_code: z.string(),
-  metadata: z.record(z.unknown()).nullish(),
+  metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 
 export const geoZoneCountrySchema = geoZoneBaseSchema.merge(
@@ -32,7 +32,7 @@ export const geoZoneZipSchema = geoZoneBaseSchema.merge(
     type: z.literal("zip"),
     province_code: z.string(),
     city: z.string(),
-    postal_expression: z.record(z.unknown()),
+    postal_expression: z.record(z.string(), z.unknown()),
   })
 )
 

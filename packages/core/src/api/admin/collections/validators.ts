@@ -38,7 +38,7 @@ export type AdminCreateCollectionType = z.infer<typeof CreateCollection> &
 const CreateCollection = z.object({
   title: z.string(),
   handle: z.string().optional(),
-  metadata: z.record(z.unknown()).nullish(),
+  metadata: z.record(z.string(), z.unknown()).nullish(),
   media: z.array(CollectionMedia).optional(),
   icon: z.string().nullish(),
 })
@@ -49,7 +49,7 @@ export type AdminUpdateCollectionType = z.infer<typeof UpdateCollection> &
 const UpdateCollection = z.object({
   title: z.string().optional(),
   handle: z.string().optional(),
-  metadata: z.record(z.unknown()).nullish(),
+  metadata: z.record(z.string(), z.unknown()).nullish(),
   media: z.array(CollectionMedia).optional(),
   icon: z.string().nullish(),
 })

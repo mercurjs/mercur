@@ -34,12 +34,12 @@ export const createAttributeSchema = (t: TFunction) =>
         z.object({
           name: z.string(),
           rank: z.number(),
-          metadata: z.record(z.string()).optional(),
+          metadata: z.record(z.string(), z.string()).optional(),
         })
       )
       .optional(),
     category_ids: z.array(z.string()).optional(),
-    metadata: z.record(z.string()).optional(),
+    metadata: z.record(z.string(), z.string()).optional(),
   })
   .superRefine((data, ctx) => {
     if (
@@ -75,12 +75,12 @@ export const UpdateAttributeSchema = z.object({
         id: z.string().optional(),
         name: z.string().min(1),
         rank: z.number(),
-        metadata: z.record(z.string()).optional(),
+        metadata: z.record(z.string(), z.string()).optional(),
       })
     )
     .optional(),
   category_ids: z.array(z.string()).optional(),
-  metadata: z.record(z.string()).optional(),
+  metadata: z.record(z.string(), z.string()).optional(),
 })
 
 export const UpdatePossibleValueSchema = z.object({

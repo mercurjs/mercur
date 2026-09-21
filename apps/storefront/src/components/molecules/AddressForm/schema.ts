@@ -15,7 +15,7 @@ export const addressSchema = z.object({
     .string()
     .nonempty("Phone number is required")
     .regex(/^\+?[0-9\s\-()]+$/, "Invalid phone number format"),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 })
 
 export type AddressFormData = z.infer<typeof addressSchema>

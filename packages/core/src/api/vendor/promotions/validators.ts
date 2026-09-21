@@ -179,7 +179,7 @@ export const VendorCreatePromotion = z
     limit: z.number().int().min(1).nullish(),
     application_method: VendorCreateApplicationMethod,
     rules: z.array(VendorCreatePromotionRule).optional(),
-    additional_data: z.record(z.unknown()).nullish(),
+    additional_data: z.record(z.string(), z.unknown()).nullish(),
   })
   .strict()
   .refine(buygetRefinement, {
@@ -202,7 +202,7 @@ export const VendorUpdatePromotion = z
     campaign_id: z.string().nullish(),
     limit: z.number().int().min(1).nullish(),
     application_method: VendorUpdateApplicationMethod.optional(),
-    additional_data: z.record(z.unknown()).nullish(),
+    additional_data: z.record(z.string(), z.unknown()).nullish(),
   })
   .strict()
   .refine(automaticLimitRefinement, {

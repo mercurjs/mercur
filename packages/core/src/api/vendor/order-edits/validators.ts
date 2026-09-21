@@ -7,7 +7,7 @@ export const VendorPostOrderEditsReq = z.object({
   order_id: z.string(),
   description: z.string().optional(),
   internal_note: z.string().optional(),
-  metadata: z.record(z.unknown()).nullish(),
+  metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 
 export type VendorPostOrderEditsShippingReqType = z.infer<
@@ -18,7 +18,7 @@ export const VendorPostOrderEditsShippingReq = z.object({
   custom_amount: z.number().optional(),
   description: z.string().optional(),
   internal_note: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 })
 
 export type VendorPostOrderEditsShippingActionReqType = z.infer<
@@ -27,7 +27,7 @@ export type VendorPostOrderEditsShippingActionReqType = z.infer<
 export const VendorPostOrderEditsShippingActionReq = z.object({
   custom_amount: z.number().nullish().optional(),
   internal_note: z.string().nullish().optional(),
-  metadata: z.record(z.unknown()).nullish().optional(),
+  metadata: z.record(z.string(), z.unknown()).nullish().optional(),
 })
 
 export type VendorPostOrderEditsAddItemsReqType = z.infer<
@@ -44,7 +44,7 @@ export const VendorPostOrderEditsAddItemsReq = z.object({
         compare_at_unit_price: z.number().nullish(),
         internal_note: z.string().nullish(),
         allow_backorder: z.boolean().optional(),
-        metadata: z.record(z.unknown()).optional(),
+        metadata: z.record(z.string(), z.unknown()).optional(),
       })
       .refine(
         (data) => !!data.offer_id || !!data.variant_id,
@@ -71,5 +71,5 @@ export const VendorPostOrderEditsUpdateItemQuantityReq = z.object({
   unit_price: z.number().nullish(),
   compare_at_unit_price: z.number().nullish(),
   internal_note: z.string().nullish().optional(),
-  metadata: z.record(z.unknown()).nullish(),
+  metadata: z.record(z.string(), z.unknown()).nullish(),
 })
