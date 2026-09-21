@@ -15,8 +15,9 @@ import {
   AdminProductCategoryParams,
   AdminUpdateProductCategory,
 } from "./validators"
+import { withOriginalMiddlewares } from "../../../utils/disable-medusa-middlewares"
 
-export const adminProductCategoriesMiddlewares: MiddlewareRoute[] = [
+const overrides: MiddlewareRoute[] = [
   {
     method: ["GET"],
     matcher: "/admin/product-categories",
@@ -117,3 +118,8 @@ export const adminProductCategoriesMiddlewares: MiddlewareRoute[] = [
     ],
   },
 ]
+
+export const adminProductCategoriesMiddlewares = withOriginalMiddlewares(
+  "dist/api/admin/product-categories/middlewares.js",
+  overrides
+)
