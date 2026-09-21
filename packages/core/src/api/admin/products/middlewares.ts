@@ -28,8 +28,9 @@ import {
   AdminUpdateProduct,
   AdminUpdateProductVariant,
 } from "./validators"
+import { withOriginalMiddlewares } from "../../../utils/disable-medusa-middlewares"
 
-export const adminProductsMiddlewares: MiddlewareRoute[] = [
+const overrides: MiddlewareRoute[] = [
   {
     method: ["GET"],
     matcher: "/admin/products",
@@ -289,3 +290,8 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
     ],
   },
 ]
+
+export const adminProductsMiddlewares = withOriginalMiddlewares(
+  "dist/api/admin/products/middlewares.js",
+  overrides
+)
