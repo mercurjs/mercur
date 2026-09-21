@@ -57,7 +57,10 @@ const applySellerProductLinkFilter = async (
     ...existingAnd,
     {
       $or: [
-        { id: ownProductIds },
+        {
+          id: ownProductIds,
+          status: { $in: [ProductStatus.DRAFT, ProductStatus.PROPOSED] },
+        },
         {
           status: ProductStatus.PUBLISHED,
           id: { $nin: restrictedFromSellerIds },
