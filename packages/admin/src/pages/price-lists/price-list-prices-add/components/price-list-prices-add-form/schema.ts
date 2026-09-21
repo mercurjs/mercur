@@ -3,8 +3,8 @@ import { PriceListCreateOffersSchema } from "../../../common/schemas"
 
 export const PriceListPricesAddSchema = z.object({
   product_ids: z.array(z.object({ id: z.string() })).min(1),
-  offer_ids: z.array(z.string()).default([]),
-  offers: PriceListCreateOffersSchema.default({}),
+  offer_ids: z.array(z.string()),
+  offers: PriceListCreateOffersSchema,
 })
 
 export type PriceListPricesAddSchema = z.infer<typeof PriceListPricesAddSchema>
