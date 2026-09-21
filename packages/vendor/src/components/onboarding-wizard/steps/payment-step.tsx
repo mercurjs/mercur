@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Heading, Input } from "@medusajs/ui";
 import i18n from "i18next";
@@ -8,10 +7,6 @@ import * as z from "zod";
 
 import { Form } from "@components/common/form";
 import { CountrySelect } from "@components/inputs/country-select/country-select";
-import {
-  getStoredOnboardingDraft,
-  setStoredOnboardingDraft,
-} from "../constants";
 
 const PaymentStepSchema = z.object({
   country_code: z.string().min(1, i18n.t("onboarding.wizard.validation.countryRequired")),
@@ -25,7 +20,6 @@ const PaymentStepSchema = z.object({
 type PaymentStepValues = z.infer<typeof PaymentStepSchema>;
 
 type PaymentStepProps = {
-  sellerId: string;
   initialValues?: Partial<PaymentStepValues> | null;
   onSubmit: (data: PaymentStepValues) => Promise<void>;
   onSkip: () => void;
@@ -33,35 +27,24 @@ type PaymentStepProps = {
 };
 
 export const PaymentStep = ({
-  sellerId: _sellerId,
   initialValues,
   onSubmit,
   onSkip,
   isPending,
 }: PaymentStepProps) => {
   const { t } = useTranslation();
-  const draft = getStoredOnboardingDraft();
 
   const form = useForm<PaymentStepValues>({
     resolver: zodResolver(PaymentStepSchema),
     defaultValues: {
-      country_code: initialValues?.country_code ?? draft.payment?.country_code ?? "",
-      holder_name: initialValues?.holder_name ?? draft.payment?.holder_name ?? "",
-      iban: initialValues?.iban ?? draft.payment?.iban ?? "",
-      bic: initialValues?.bic ?? draft.payment?.bic ?? "",
-      routing_number: initialValues?.routing_number ?? draft.payment?.routing_number ?? "",
-      account_number: initialValues?.account_number ?? draft.payment?.account_number ?? "",
+      country_code: initialValues?.country_code ?? "",
+      holder_name: initialValues?.holder_name ?? "",
+      iban: "",
+      bic: "",
+      routing_number: "",
+      account_number: "",
     },
   });
-
-  useEffect(() => {
-    const subscription = form.watch((values) => {
-      setStoredOnboardingDraft({
-        payment: values as any,
-      });
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
 
   const selectedCountry = form.watch("country_code");
   const isUS = selectedCountry === "us";

@@ -2,7 +2,8 @@ import { AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router-dom";
 
 import { useLinkQuery } from "@mercurjs/dashboard-shared";
-import { useSellers } from "@hooks/api";
+import { useLogout, useSellers } from "@hooks/api";
+import { queryClient } from "@lib/query-client";
 import { WizardSidebar } from "./wizard-sidebar";
 import { WizardPreview } from "./wizard-preview";
 import { WizardStep } from "./wizard-step";
@@ -18,12 +19,12 @@ type OnboardingWizardProps = {
 
 export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
   const navigate = useNavigate();
+  const { mutateAsync: logoutMutation } = useLogout();
   const { seller_members } = useSellers(useLinkQuery("seller"));
   const hasStores = (seller_members?.length ?? 0) > 0;
 
   const {
     currentStep,
-    sellerId,
     isPending,
     goBack,
     storeData,
@@ -44,7 +45,13 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
       if (hasStores) {
         navigate("/store-select", { replace: true });
       } else {
-        navigate("/register");
+        await logoutMutation(undefined, {
+          onSuccess: () => {
+            queryClient.clear();
+            sessionStorage.removeItem("mercur_onboarding_email");
+          },
+          onSettled: () => navigate("/login"),
+        });
       }
     } else {
       goBack();
@@ -57,7 +64,7 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
         return (
           <WizardStep key="store">
             <StoreStep
-              initialValues={storeData || undefined}
+              initialValues={storeData}
               onSubmit={submitStoreStep}
               isPending={isPending}
             />
@@ -89,7 +96,6 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
         return (
           <WizardStep key="payment">
             <PaymentStep
-              sellerId={sellerId!}
               initialValues={paymentData}
               onSubmit={submitPaymentStep}
               onSkip={skipPaymentStep}

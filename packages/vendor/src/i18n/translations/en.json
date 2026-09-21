@@ -3776,7 +3776,6 @@
     },
     "firstName": "First name",
     "lastName": "Last name",
-    "passwordHint": "Your password must include at least 8 characters, one lowercase letter, one uppercase letter, one number or symbol",
     "passwordRequirements": {
       "minLength": "At least 8 characters",
       "lowercase": "One lowercase letter",

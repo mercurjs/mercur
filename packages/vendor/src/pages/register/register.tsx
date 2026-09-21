@@ -1,4 +1,4 @@
-import { Children, ReactNode, useEffect, useState } from "react"
+import { Children, ReactNode, useState } from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { CheckCircleMiniSolid, Spinner } from "@medusajs/icons"
@@ -13,53 +13,12 @@ import * as z from "zod"
 import { Form } from "@components/common/form"
 import AvatarBox from "@components/common/logo-box/avatar-box"
 import { AuthLayout } from "@components/layout/auth-layout"
-import {
-  useFeatureFlags,
-  useSignInWithEmailPass,
-  useSignUpWithEmailPass,
-} from "@hooks/api"
+import { useFeatureFlags, useSignUpWithEmailPass } from "@hooks/api"
+import { getStoredRegisterDraft, setStoredRegisterDraft } from "@lib/onboarding-draft"
 
 import { RegisterSchema } from "./register-schema"
 
-export const REGISTER_DRAFT_KEY = "mercur_register_draft"
-
-export type RegisterDraft = Partial<z.infer<typeof RegisterSchema>>
-
-export const getStoredRegisterDraft = (): RegisterDraft => {
-  if (typeof window === "undefined") {
-    return {}
-  }
-  try {
-    const raw = sessionStorage.getItem(REGISTER_DRAFT_KEY)
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      return {
-        first_name: typeof parsed.first_name === "string" ? parsed.first_name : "",
-        last_name: typeof parsed.last_name === "string" ? parsed.last_name : "",
-        email: typeof parsed.email === "string" ? parsed.email : "",
-        password: typeof parsed.password === "string" ? parsed.password : "",
-      }
-    }
-  } catch {
-    // Ignore storage parse error
-  }
-  return {}
-}
-
-export const setStoredRegisterDraft = (draft: Partial<RegisterDraft>) => {
-  if (typeof window === "undefined") return
-  try {
-    const current = getStoredRegisterDraft()
-    sessionStorage.setItem(
-      REGISTER_DRAFT_KEY,
-      JSON.stringify({ ...current, ...draft }),
-    )
-  } catch {
-    // Ignore storage write error
-  }
-}
-
-const PasswordRequirements = ({ value = "" }: { value?: string }) => {
+export const PasswordRequirements = ({ value = "" }: { value?: string }) => {
   const { t } = useTranslation()
 
   const trimmed = value.trim()
@@ -71,68 +30,46 @@ const PasswordRequirements = ({ value = "" }: { value?: string }) => {
   const requirements = [
     {
       id: "minLength",
-      label: t("register.passwordRequirements.minLength", "At least 8 characters"),
+      label: t("register.passwordRequirements.minLength"),
       met: hasMinLength,
     },
     {
       id: "lowercase",
-      label: t("register.passwordRequirements.lowercase", "One lowercase letter"),
+      label: t("register.passwordRequirements.lowercase"),
       met: hasLower,
     },
     {
       id: "uppercase",
-      label: t("register.passwordRequirements.uppercase", "One uppercase letter"),
+      label: t("register.passwordRequirements.uppercase"),
       met: hasUpper,
     },
     {
       id: "numberOrSymbol",
-      label: t("register.passwordRequirements.numberOrSymbol", "One number or symbol"),
+      label: t("register.passwordRequirements.numberOrSymbol"),
       met: hasNumberOrSymbol,
     },
   ]
 
-  const metCount = requirements.filter((r) => r.met).length
-  const allMet = metCount === requirements.length
+  const allMet = requirements.every((r) => r.met)
 
   return (
-    <div className="mt-2 flex flex-col gap-y-2.5">
-      {/* 4-segment progress bar */}
-      <div className="flex w-full items-center gap-x-1.5" aria-hidden="true">
-        {requirements.map((req, idx) => {
-          const isFilled = idx < metCount
-          return (
-            <div
-              key={req.id}
-              className={clx(
-                "h-1 flex-1 rounded-full transition-all duration-300",
-                isFilled
-                  ? allMet
-                    ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.35)]"
-                    : "bg-emerald-500/80"
-                  : "bg-ui-border-base"
-              )}
-            />
-          )
-        })}
-      </div>
-
-      {/* Conditions list with green checkmark when aligned */}
+    <div data-testid="password-requirements" className="mt-2 flex flex-col gap-y-1.5">
       <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
         {requirements.map((req) => (
           <div
             key={req.id}
+            data-testid={`password-requirement-${req.id}`}
+            data-met={req.met}
             className={clx(
-              "flex items-center gap-x-2 text-xs transition-colors duration-200",
-              req.met
-                ? "text-emerald-700 dark:text-emerald-400 font-medium"
-                : "text-ui-fg-subtle"
+              "flex items-center gap-x-2 text-xs transition-colors",
+              req.met ? "text-ui-tag-green-text" : "text-ui-fg-subtle"
             )}
           >
             <div className="flex h-4 w-4 shrink-0 items-center justify-center">
               {req.met ? (
-                <CheckCircleMiniSolid className="h-4 w-4 text-emerald-600 dark:text-emerald-400 transition-transform scale-100" />
+                <CheckCircleMiniSolid className="h-4 w-4 text-ui-tag-green-icon" />
               ) : (
-                <div className="h-1.5 w-1.5 rounded-full bg-ui-fg-muted/40" />
+                <div className="h-1.5 w-1.5 rounded-full bg-ui-fg-muted" />
               )}
             </div>
             <span>{req.label}</span>
@@ -141,11 +78,12 @@ const PasswordRequirements = ({ value = "" }: { value?: string }) => {
       </div>
 
       {allMet && (
-        <div className="flex items-center gap-x-1.5 pt-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
-          <CheckCircleMiniSolid className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-          <span>
-            {t("register.passwordRequirements.allMet", "Password meets all requirements")}
-          </span>
+        <div
+          data-testid="password-requirements-all-met"
+          className="flex items-center gap-x-1.5 pt-0.5 text-xs text-ui-tag-green-text"
+        >
+          <CheckCircleMiniSolid className="h-3.5 w-3.5 text-ui-tag-green-icon" />
+          <span>{t("register.passwordRequirements.allMet")}</span>
         </div>
       )}
     </div>
@@ -174,7 +112,7 @@ const RegisterForm = () => {
   const navigate = useNavigate()
   const [serverError, setServerError] = useState<string | null>(null)
 
-  const [initialDraft] = useState<RegisterDraft>(() => getStoredRegisterDraft())
+  const [initialDraft] = useState(() => getStoredRegisterDraft())
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
@@ -184,52 +122,22 @@ const RegisterForm = () => {
       first_name: initialDraft.first_name || "",
       last_name: initialDraft.last_name || "",
       email: initialDraft.email || "",
-      password: initialDraft.password || "",
+      password: "",
     },
   })
 
-  // Watch and persist form values to sessionStorage so details survive back navigation / reload
-  useEffect(() => {
-    const subscription = form.watch((values) => {
-      setStoredRegisterDraft({
-        first_name: values.first_name || "",
-        last_name: values.last_name || "",
-        email: values.email || "",
-        password: values.password || "",
-      })
-    })
-    return () => subscription.unsubscribe()
-  }, [form])
-
-  const { mutateAsync: signUp, isPending: isSigningUp } = useSignUpWithEmailPass()
-  const { mutateAsync: signIn, isPending: isSigningIn } = useSignInWithEmailPass()
-  const isPending = isSigningUp || isSigningIn
+  const { mutateAsync: signUp, isPending } = useSignUpWithEmailPass()
 
   const handleSubmit = form.handleSubmit(async ({ first_name, last_name, email, password }) => {
     setServerError(null)
     try {
-      try {
-        await signUp({ email, password })
-      } catch (signError: any) {
-        const message = signError?.message?.toLowerCase() || ""
-        if (
-          message.includes("already exists") ||
-          message.includes("duplicate") ||
-          message.includes("identity")
-        ) {
-          await signIn({ email, password })
-        } else {
-          throw signError
-        }
-      }
-      // Persist identity details for onboarding step that creates the seller member.
-      // Backend emailpass register does not accept these fields directly today,
-      // so they ride through sessionStorage and land on the member via onboarding.
-      setStoredRegisterDraft({ first_name, last_name, email, password })
+      await signUp({ email, password })
+      setStoredRegisterDraft({ first_name, last_name, email })
       sessionStorage.setItem("mercur_onboarding_email", email)
       navigate("/onboarding", { state: { email, first_name, last_name } })
-    } catch (error: any) {
-      setServerError(error?.message || t("register.error"))
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : t("register.error")
+      setServerError(message)
     }
   })
 
@@ -343,6 +251,15 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
   if (!feature_flags?.[MercurFeatureFlags.SELLER_REGISTRATION]) {
     return <Navigate to="/login" replace />
+  }
+
+  const onboardingEmail =
+    typeof window !== "undefined"
+      ? sessionStorage.getItem("mercur_onboarding_email")
+      : null
+
+  if (onboardingEmail) {
+    return <Navigate to="/onboarding" replace />
   }
 
   return (

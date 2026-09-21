@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Heading, Input } from "@medusajs/ui";
 import i18n from "i18next";
@@ -8,10 +7,6 @@ import * as z from "zod";
 
 import { Form } from "@components/common/form";
 import { CountrySelect } from "@components/inputs/country-select/country-select";
-import {
-  getStoredOnboardingDraft,
-  setStoredOnboardingDraft,
-} from "../constants";
 
 const AddressStepSchema = z.object({
   name: z.string().min(1, i18n.t("onboarding.wizard.validation.nameRequired")),
@@ -39,29 +34,19 @@ export const AddressStep = ({
   isPending,
 }: AddressStepProps) => {
   const { t } = useTranslation();
-  const draft = getStoredOnboardingDraft();
 
   const form = useForm<AddressStepValues>({
     resolver: zodResolver(AddressStepSchema),
     defaultValues: {
-      name: initialValues?.name ?? draft.address?.name ?? "",
-      address_1: initialValues?.address_1 ?? draft.address?.address_1 ?? "",
-      address_2: initialValues?.address_2 ?? draft.address?.address_2 ?? "",
-      postal_code: initialValues?.postal_code ?? draft.address?.postal_code ?? "",
-      city: initialValues?.city ?? draft.address?.city ?? "",
-      country_code: initialValues?.country_code ?? draft.address?.country_code ?? "",
-      province: initialValues?.province ?? draft.address?.province ?? "",
+      name: initialValues?.name ?? "",
+      address_1: initialValues?.address_1 ?? "",
+      address_2: initialValues?.address_2 ?? "",
+      postal_code: initialValues?.postal_code ?? "",
+      city: initialValues?.city ?? "",
+      country_code: initialValues?.country_code ?? "",
+      province: initialValues?.province ?? "",
     },
   });
-
-  useEffect(() => {
-    const subscription = form.watch((values) => {
-      setStoredOnboardingDraft({
-        address: values as any,
-      });
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
 
   const handleSubmit = form.handleSubmit(async (data) => {
     await onSubmit(data);

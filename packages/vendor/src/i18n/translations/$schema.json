@@ -15022,9 +15022,6 @@
         "lastName": {
           "type": "string"
         },
-        "passwordHint": {
-          "type": "string"
-        },
         "successTitle": {
           "type": "string"
         },
@@ -15035,7 +15032,32 @@
           "type": "string"
         },
         "passwordRequirements": {
-          "type": "object"
+          "type": "object",
+          "properties": {
+            "minLength": {
+              "type": "string"
+            },
+            "lowercase": {
+              "type": "string"
+            },
+            "uppercase": {
+              "type": "string"
+            },
+            "numberOrSymbol": {
+              "type": "string"
+            },
+            "allMet": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "minLength",
+            "lowercase",
+            "uppercase",
+            "numberOrSymbol",
+            "allMet"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -15050,10 +15072,10 @@
         "validation",
         "firstName",
         "lastName",
-        "passwordHint",
         "successTitle",
         "successHint",
-        "backToLogin"
+        "backToLogin",
+        "passwordRequirements"
       ],
       "additionalProperties": false
     },

@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Button, Heading, Input, Select, Textarea } from "@medusajs/ui";
 import i18n from "i18next";
 import { useTranslation } from "react-i18next";
@@ -14,10 +13,6 @@ import { Form } from "@components/common/form";
 import { HandleInput } from "@components/inputs/handle-input";
 import { useStore } from "@hooks/api";
 import { onboardingLoader } from "../../../pages/onboarding/loader";
-import {
-  getStoredOnboardingDraft,
-  setStoredOnboardingDraft,
-} from "../constants";
 
 const StoreStepSchema = z.object({
   name: z.string().min(1, i18n.t("onboarding.wizard.validation.nameRequired")),
@@ -47,7 +42,6 @@ export const StoreStep = ({ initialValues, onSubmit, isPending }: StoreStepProps
   >;
   const { store } = useStore(undefined, { initialData });
 
-  const draft = getStoredOnboardingDraft();
   const form = useExtendableForm({
     schema: StoreStepSchema,
     model: "seller",
@@ -55,26 +49,17 @@ export const StoreStep = ({ initialValues, onSubmit, isPending }: StoreStepProps
     tab: "store",
     data: store,
     defaultValues: {
-      name: initialValues?.name ?? draft.store?.name ?? "",
-      email: initialValues?.email ?? draft.store?.email ?? "",
-      phone: initialValues?.phone ?? draft.store?.phone ?? "",
-      currency_code: initialValues?.currency_code ?? draft.store?.currency_code ?? "",
-      description: initialValues?.description ?? draft.store?.description ?? "",
-      handle: initialValues?.handle ?? draft.store?.handle ?? "",
-      ...((initialValues?.additional_data ?? draft.store?.additional_data)
-        ? { additional_data: initialValues?.additional_data ?? draft.store?.additional_data }
+      name: initialValues?.name ?? "",
+      email: initialValues?.email ?? "",
+      phone: initialValues?.phone ?? "",
+      currency_code: initialValues?.currency_code ?? "",
+      description: initialValues?.description ?? "",
+      handle: initialValues?.handle ?? "",
+      ...(initialValues?.additional_data
+        ? { additional_data: initialValues.additional_data }
         : {}),
     },
   });
-
-  useEffect(() => {
-    const subscription = form.watch((values) => {
-      setStoredOnboardingDraft({
-        store: values as any,
-      });
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
 
   const handleSubmit = form.handleSubmit(async (data) => {
     await onSubmit(data);
