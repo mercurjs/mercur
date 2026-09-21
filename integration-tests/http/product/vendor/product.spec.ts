@@ -444,6 +444,27 @@ medusaIntegrationTestRunner({
         const idsB = listAsB.data.products.map((p: { id: string }) => p.id)
         expect(idsB).not.toContain(restrictedToA)
       })
+
+      it("hides a published product from its creator once restricted to other sellers", async () => {
+        const b = await createSellerUser(appContainer, {
+          email: "scope-c@test.com",
+          name: "Scope C Store",
+        })
+        const createdByAForC = await createProduct(
+          "Created By A, Assigned To C",
+          "published",
+          sellerA.id,
+          [b.seller.id]
+        )
+
+        const listAsA = await api.get("/vendor/products?limit=100", headersA)
+        const idsA = listAsA.data.products.map((p: { id: string }) => p.id)
+        expect(idsA).not.toContain(createdByAForC)
+
+        const listAsC = await api.get("/vendor/products?limit=100", b.headers)
+        const idsC = listAsC.data.products.map((p: { id: string }) => p.id)
+        expect(idsC).toContain(createdByAForC)
+      })
     })
 
     // MER-246: creating a product with several images persisted only one in the
