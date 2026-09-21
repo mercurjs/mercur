@@ -10,7 +10,7 @@ export const VendorCreateProductCategoryRequest = z.object({
   is_active: z.boolean().optional(),
   is_internal: z.boolean().optional(),
   parent_category_id: z.string().nullish(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 })
 
 export type VendorGetProductCategoryRequestsParamsType = z.infer<typeof VendorGetProductCategoryRequestsParams>

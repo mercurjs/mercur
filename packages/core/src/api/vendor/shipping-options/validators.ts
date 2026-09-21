@@ -124,7 +124,7 @@ export const VendorCreateShippingOption = z
     name: z.string(),
     service_zone_id: z.string(),
     shipping_profile_id: z.string(),
-    data: z.record(z.unknown()).optional(),
+    data: z.record(z.string(), z.unknown()).optional(),
     price_type: z.nativeEnum(ShippingOptionPriceTypeEnum),
     provider_id: z.string(),
     type: VendorCreateShippingOptionTypeObject.optional(),
@@ -133,7 +133,7 @@ export const VendorCreateShippingOption = z
       VendorCreateShippingOptionPriceWithRegion
     ).array(),
     rules: VendorCreateShippingOptionRule.array().optional(),
-    metadata: z.record(z.unknown()).optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
   })
   .strict()
   .refine((data) => isDefined(data.type_id) !== isDefined(data.type), {
@@ -148,7 +148,7 @@ export type VendorUpdateShippingOptionType = z.infer<
 export const VendorUpdateShippingOption = z
   .object({
     name: z.string().optional(),
-    data: z.record(z.unknown()).optional(),
+    data: z.record(z.string(), z.unknown()).optional(),
     price_type: z.nativeEnum(ShippingOptionPriceTypeEnum).optional(),
     provider_id: z.string().optional(),
     shipping_profile_id: z.string().optional(),
@@ -162,7 +162,7 @@ export const VendorUpdateShippingOption = z
     rules: VendorUpdateShippingOptionRule.or(VendorCreateShippingOptionRule)
       .array()
       .optional(),
-    metadata: z.record(z.unknown()).optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
   })
   .strict()
   .refine(

@@ -67,7 +67,7 @@ export const MeilisearchProductValidator = z.object({
       })
     )
     .optional(),
-  options: z.array(z.record(z.string())).nullable().default(null),
+  options: z.array(z.record(z.string(), z.string())).nullable().default(null),
   variants: z.array(MeilisearchVariantValidator).nullable().default(null),
   seller: z
     .object({

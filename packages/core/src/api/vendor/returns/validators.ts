@@ -41,7 +41,7 @@ export const VendorPostReturnsReq = z.object({
   description: z.string().optional(),
   internal_note: z.string().optional(),
   no_notification: z.boolean().optional(),
-  metadata: z.record(z.unknown()).nullish(),
+  metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 
 export type VendorPostReturnsReturnReqType = z.infer<
@@ -50,7 +50,7 @@ export type VendorPostReturnsReturnReqType = z.infer<
 export const VendorPostReturnsReturnReq = z.object({
   location_id: z.string().optional(),
   no_notification: z.boolean().optional(),
-  metadata: z.record(z.unknown()).nullish(),
+  metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 
 export type VendorPostCancelReturnReqType = z.infer<
@@ -71,7 +71,7 @@ export const VendorPostReturnsRequestItemsReq = z.object({
       description: z.string().optional(),
       internal_note: z.string().optional(),
       reason_id: z.string().optional(),
-      metadata: z.record(z.unknown()).optional(),
+      metadata: z.record(z.string(), z.unknown()).optional(),
     })
   ),
 })
@@ -83,7 +83,7 @@ export const VendorPostReturnsRequestItemsActionReq = z.object({
   quantity: z.number().optional(),
   internal_note: z.string().nullish().optional(),
   reason_id: z.string().nullish().optional(),
-  metadata: z.record(z.unknown()).nullish().optional(),
+  metadata: z.record(z.string(), z.unknown()).nullish().optional(),
 })
 
 export type VendorPostReturnsShippingReqType = z.infer<
@@ -94,7 +94,7 @@ export const VendorPostReturnsShippingReq = z.object({
   custom_amount: z.number().optional(),
   description: z.string().optional(),
   internal_note: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 })
 
 export type VendorPostReturnsShippingActionReqType = z.infer<
@@ -103,7 +103,7 @@ export type VendorPostReturnsShippingActionReqType = z.infer<
 export const VendorPostReturnsShippingActionReq = z.object({
   custom_amount: z.number().nullish().optional(),
   internal_note: z.string().nullish().optional(),
-  metadata: z.record(z.unknown()).nullish().optional(),
+  metadata: z.record(z.string(), z.unknown()).nullish().optional(),
 })
 
 export type VendorPostReturnsConfirmRequestReqType = z.infer<
@@ -119,7 +119,7 @@ export type VendorPostReceiveReturnsReqType = z.infer<
 export const VendorPostReceiveReturnsReq = z.object({
   internal_note: z.string().optional(),
   description: z.string().optional(),
-  metadata: z.record(z.unknown()).nullish(),
+  metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 
 export type VendorPostReturnsReceiveItemsReqType = z.infer<

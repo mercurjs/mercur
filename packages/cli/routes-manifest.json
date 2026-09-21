@@ -374,6 +374,7 @@
   "/store/product-variants/:id": "typeof import(\"@medusajs/medusa/api/store/product-variants/[id]/route\")",
   "/store/products": "typeof import(\"@mercurjs/core/api/store/products/route\")",
   "/store/products/:id": "typeof import(\"@mercurjs/core/api/store/products/[id]/route\")",
+  "/store/products/search": "typeof import(\"@medusajs/medusa/api/store/products/search/route\")",
   "/store/regions": "typeof import(\"@medusajs/medusa/api/store/regions/route\")",
   "/store/regions/:id": "typeof import(\"@medusajs/medusa/api/store/regions/[id]/route\")",
   "/store/return-reasons": "typeof import(\"@medusajs/medusa/api/store/return-reasons/route\")",

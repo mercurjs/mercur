@@ -49,7 +49,7 @@ const CreateProductAttributeValueInline = z.object({
   handle: z.string().optional(),
   rank: z.number().nonnegative().optional(),
   is_active: z.boolean().optional(),
-  metadata: z.record(z.unknown()).nullish(),
+  metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 
 export type AdminCreateProductAttributeType = z.infer<
@@ -68,7 +68,7 @@ const CreateProductAttribute = z.object({
   is_active: z.boolean().optional(),
   category_ids: z.array(z.string()).optional(),
   values: z.array(CreateProductAttributeValueInline).optional(),
-  metadata: z.record(z.unknown()).nullish(),
+  metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 export const AdminCreateProductAttribute =
   WithAdditionalData(CreateProductAttribute)
@@ -88,7 +88,7 @@ const UpdateProductAttribute = z.object({
   rank: z.number().nonnegative().optional(),
   is_active: z.boolean().optional(),
   category_ids: z.array(z.string()).optional(),
-  metadata: z.record(z.unknown()).nullish(),
+  metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 export const AdminUpdateProductAttribute =
   WithAdditionalData(UpdateProductAttribute)
@@ -122,7 +122,7 @@ const CreateProductAttributeValue = z.object({
   handle: z.string().optional(),
   rank: z.number().nonnegative().optional(),
   is_active: z.boolean().optional(),
-  metadata: z.record(z.unknown()).nullish(),
+  metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 export const AdminCreateProductAttributeValue = WithAdditionalData(
   CreateProductAttributeValue
@@ -137,7 +137,7 @@ const UpdateProductAttributeValue = z.object({
   handle: z.string().optional(),
   rank: z.number().nonnegative().optional(),
   is_active: z.boolean().optional(),
-  metadata: z.record(z.unknown()).nullish(),
+  metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 export const AdminUpdateProductAttributeValue = WithAdditionalData(
   UpdateProductAttributeValue
@@ -150,14 +150,14 @@ const UpsertProductAttributeValueItem = z.union([
     handle: z.string().optional(),
     rank: z.number().nonnegative().optional(),
     is_active: z.boolean().optional(),
-    metadata: z.record(z.unknown()).nullish(),
+    metadata: z.record(z.string(), z.unknown()).nullish(),
   }),
   z.object({
     name: z.string(),
     handle: z.string().optional(),
     rank: z.number().nonnegative().optional(),
     is_active: z.boolean().optional(),
-    metadata: z.record(z.unknown()).nullish(),
+    metadata: z.record(z.string(), z.unknown()).nullish(),
   }),
 ])
 

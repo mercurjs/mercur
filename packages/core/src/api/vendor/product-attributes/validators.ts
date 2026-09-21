@@ -58,7 +58,7 @@ const CreateProductAttribute = z.object({
   is_variant_axis: z.boolean().optional(),
   rank: z.number().nonnegative().optional(),
   is_active: z.boolean().optional(),
-  metadata: z.record(z.unknown()).nullish(),
+  metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 export const VendorCreateProductAttribute =
   WithAdditionalData(CreateProductAttribute)
@@ -77,7 +77,7 @@ const UpdateProductAttribute = z.object({
   is_variant_axis: z.boolean().optional(),
   rank: z.number().nonnegative().optional(),
   is_active: z.boolean().optional(),
-  metadata: z.record(z.unknown()).nullish(),
+  metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 export const VendorUpdateProductAttribute =
   WithAdditionalData(UpdateProductAttribute)
@@ -91,7 +91,7 @@ const CreateProductAttributeValue = z.object({
   handle: z.string().optional(),
   rank: z.number().nonnegative().optional(),
   is_active: z.boolean().optional(),
-  metadata: z.record(z.unknown()).nullish(),
+  metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 export const VendorCreateProductAttributeValue = WithAdditionalData(
   CreateProductAttributeValue
@@ -106,7 +106,7 @@ const UpdateProductAttributeValue = z.object({
   handle: z.string().optional(),
   rank: z.number().nonnegative().optional(),
   is_active: z.boolean().optional(),
-  metadata: z.record(z.unknown()).nullish(),
+  metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 export const VendorUpdateProductAttributeValue = WithAdditionalData(
   UpdateProductAttributeValue

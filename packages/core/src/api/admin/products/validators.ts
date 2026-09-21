@@ -87,8 +87,8 @@ const CreateProductVariant = z
     width: z.number().nullish(),
     origin_country: z.string().nullish(),
     material: z.string().nullish(),
-    metadata: z.record(z.unknown()).nullish(),
-    options: z.record(z.string()).optional(),
+    metadata: z.record(z.string(), z.unknown()).nullish(),
+    options: z.record(z.string(), z.string()).optional(),
   })
   .strict()
 
@@ -113,7 +113,7 @@ const UpdateProductVariant = z
     width: z.number().nullish(),
     origin_country: z.string().nullish(),
     material: z.string().nullish(),
-    metadata: z.record(z.unknown()).nullish(),
+    metadata: z.record(z.string(), z.unknown()).nullish(),
     prices: z
       .array(
         z.object({
@@ -126,7 +126,7 @@ const UpdateProductVariant = z
         })
       )
       .optional(),
-    options: z.record(z.string()).optional(),
+    options: z.record(z.string(), z.string()).optional(),
   })
   .strict()
 
@@ -157,7 +157,7 @@ const UnifiedProductAttributeInput = z.union([
       is_filterable: z.boolean().optional(),
       is_required: z.boolean().optional(),
       description: z.string().nullish(),
-      metadata: z.record(z.unknown()).nullish(),
+      metadata: z.record(z.string(), z.unknown()).nullish(),
     })
     .strict(),
 ])
@@ -232,7 +232,7 @@ const CreateProduct = z
     mid_code: z.string().nullish(),
     origin_country: z.string().nullish(),
     material: z.string().nullish(),
-    metadata: z.record(z.unknown()).nullish(),
+    metadata: z.record(z.string(), z.unknown()).nullish(),
   })
   .strict()
 export const AdminCreateProduct = WithAdditionalData(CreateProduct)
@@ -269,7 +269,7 @@ export const UpdateProduct = z
     mid_code: z.string().nullish(),
     origin_country: z.string().nullish(),
     material: z.string().nullish(),
-    metadata: z.record(z.unknown()).nullish(),
+    metadata: z.record(z.string(), z.unknown()).nullish(),
   })
   .strict()
 export const AdminUpdateProduct = WithAdditionalData(UpdateProduct)
@@ -375,7 +375,7 @@ const BatchAttributeAdd = z.union([
       is_filterable: z.boolean().optional(),
       is_required: z.boolean().optional(),
       description: z.string().nullish(),
-      metadata: z.record(z.unknown()).nullish(),
+      metadata: z.record(z.string(), z.unknown()).nullish(),
     })
     .strict()
     .refine((v) => !v.is_variant_axis || (v.type ?? "multi_select") === "multi_select", {

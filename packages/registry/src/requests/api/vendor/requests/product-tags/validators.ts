@@ -5,7 +5,7 @@ import { RequestStatus } from "../../../../types"
 export type VendorCreateProductTagRequestType = z.infer<typeof VendorCreateProductTagRequest>
 export const VendorCreateProductTagRequest = z.object({
   value: z.string(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 })
 
 export type VendorGetProductTagRequestsParamsType = z.infer<typeof VendorGetProductTagRequestsParams>
