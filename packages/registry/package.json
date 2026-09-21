@@ -27,7 +27,7 @@
     "@medusajs/core-flows": "2.21.0",
     "react-hook-form": "7.49.1",
     "@hookform/resolvers": "5.4.0",
-    "jsonwebtoken": "9.0.2",
+    "jsonwebtoken": "9.0.3",
     "react-jwt": "2.1.1",
     "algoliasearch": "^5.40.0",
     "meilisearch": "^0.59.0",

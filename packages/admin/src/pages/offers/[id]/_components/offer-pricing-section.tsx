@@ -11,6 +11,7 @@ type Props = { offer: OfferDetail }
 const PAGE_STEP = 3
 
 const isBaseRow = (price: OfferPrice) => {
+  if (!price) return false
   const rules = price.price_rules ?? []
   const extraRules = rules.filter((r) => r.attribute !== "offer_id")
   return extraRules.length === 0
@@ -20,7 +21,7 @@ export const OfferPricingSection = ({ offer }: Props) => {
   const { t } = useTranslation()
 
   const prices = (offer.prices ?? [])
-    .filter(isBaseRow)
+    .filter((p): p is OfferPrice => Boolean(p) && isBaseRow(p))
     .sort((a, b) =>
       (a.currency_code ?? "").localeCompare(b.currency_code ?? ""),
     )

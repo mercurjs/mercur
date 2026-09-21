@@ -34,7 +34,12 @@ const applySellerProductVariantFilter = async (
     ...existingAnd,
     {
       $or: [
-        { product_id: ownProductIds },
+        {
+          product_id: ownProductIds,
+          product: {
+            status: { $in: [ProductStatus.DRAFT, ProductStatus.PROPOSED] },
+          },
+        },
         {
           product: { status: ProductStatus.PUBLISHED },
           product_id: { $nin: restrictedFromSellerIds },

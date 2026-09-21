@@ -79,7 +79,7 @@
     "@medusajs/types": "2.21.0",
     "multer": "^2.0.2",
     "http-proxy-middleware": "^3.0.3",
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
     "@mercurjs/cli": "2.3.5"
   },
   "peerDependencies": {

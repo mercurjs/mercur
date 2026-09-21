@@ -80,6 +80,59 @@ medusaIntegrationTestRunner({
                 return result[0]
             }
 
+            const seedOfferForVariant = async (
+                tag: string,
+                variantId: string,
+                prices: Array<{ amount: number; currency_code: string }>
+            ) => {
+                const { seller, member, headers } = await createSellerUser(
+                    appContainer,
+                    { email: `shared-${tag}@test.com`, name: `Seller ${tag}` }
+                )
+
+                const stockLocation = (
+                    await api.post(
+                        `/vendor/stock-locations`,
+                        { name: `WH ${tag}` },
+                        headers
+                    )
+                ).data.stock_location
+
+                const shippingProfile = await createShippingProfile(appContainer, {
+                    name: `Profile ${tag}`,
+                })
+
+                const { result } = await createOffersWorkflow(
+                    appContainer
+                ).run({
+                    input: {
+                        offers: [
+                            {
+                                seller_id: seller.id,
+                                created_by: member.id,
+                                variant_id: variantId,
+                                shipping_profile_id: shippingProfile.id,
+                                sku: `SKU-${tag}`,
+                                inventory_items: [
+                                    {
+                                        sku: `SKU-${tag}`,
+                                        stock_levels: [
+                                            {
+                                                location_id: stockLocation.id,
+                                                stocked_quantity: 100,
+                                            },
+                                        ],
+                                    },
+                                ],
+                                prices,
+                            },
+                        ],
+                    },
+                })
+
+                return result[0]
+            }
+
             const listPrices = async (offerId: string) => {
                 const query = appContainer.resolve(
                     ContainerRegistrationKeys.QUERY
@@ -205,6 +258,68 @@ medusaIntegrationTestRunner({
                 expect(
                     after.map((p) => p.amount).sort((a, b) => a - b)
                 ).toEqual([900, 1100])
+            })
+
+            it("preserves another seller's prices on the same variant when seller 1 updates their offer prices", async () => {
+                const tag = `shared${Date.now()}`
+                const offer1 = await seedOffer(`${tag}-1`, [
+                    { amount: 1000, currency_code: "usd" },
+                ])
+
+                const query = appContainer.resolve(
+                    ContainerRegistrationKeys.QUERY
+                )
+                const { data } = await query.graph({
+                    entity: "offer",
+                    fields: ["variant_id"],
+                    filters: { id: offer1.id },
+                })
+                const variantId = data[0].variant_id
+
+                const offer2 = await seedOfferForVariant(
+                    `${tag}-2`,
+                    variantId,
+                    [
+                        { amount: 2000, currency_code: "usd" },
+                        { amount: 1800, currency_code: "eur" },
+                    ]
+                )
+
+                // Verify both offers have their prices initially
+                const prices1Before = await listPrices(offer1.id)
+                const prices2Before = await listPrices(offer2.id)
+                expect(prices1Before).toHaveLength(1)
+                expect(prices1Before[0].amount).toBe(1000)
+                expect(prices2Before).toHaveLength(2)
+
+                // Seller 1 updates their offer price
+                await updateOffersWorkflow(appContainer).run({
+                    input: {
+                        offers: [
+                            {
+                                id: offer1.id,
+                                prices: [
+                                    {
+                                        amount: 1500,
+                                        currency_code: "usd",
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                })
+
+                // Verify Seller 1's price is updated
+                const prices1After = await listPrices(offer1.id)
+                expect(prices1After).toHaveLength(1)
+                expect(prices1After[0].amount).toBe(1500)
+
+                // CRITICAL: Verify Seller 2's prices on the same variant were NOT wiped
+                const prices2After = await listPrices(offer2.id)
+                expect(prices2After).toHaveLength(2)
+                expect(
+                    prices2After.map((p) => p.amount).sort((a, b) => a - b)
+                ).toEqual([1800, 2000])
             })
         })
     },

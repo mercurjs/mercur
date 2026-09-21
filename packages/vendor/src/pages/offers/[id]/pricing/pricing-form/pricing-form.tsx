@@ -31,6 +31,7 @@ type Props = {
 }
 
 const isBaseRow = (price: OfferPrice) => {
+  if (!price) return false
   const rules = price.price_rules ?? []
   const extraRules = rules.filter((r) => r.attribute !== "offer_id")
   return extraRules.length === 0
@@ -45,7 +46,7 @@ const buildDefaults = (
     currency_prices: currencies.reduce<Record<string, number | "">>(
       (acc, code) => {
         const existing = offer.prices?.find(
-          (p) => isBaseRow(p) && p.currency_code === code,
+          (p) => Boolean(p) && isBaseRow(p) && p.currency_code === code,
         )
         acc[code] = existing?.amount ?? ""
         return acc
@@ -106,14 +107,21 @@ const PricingFormInner = ({
 
   const handleSubmit = form.handleSubmit(async (values) => {
     const row = values.prices[0]
-    const submitted: { amount: number; currency_code: string }[] = []
+    const submitted: { id?: string; amount: number; currency_code: string }[] = []
     for (const [currency_code, amount] of Object.entries(
       row.currency_prices ?? {},
     )) {
       if (amount === "" || amount === undefined || amount === null) continue
       const num = castNumber(amount)
       if (!Number.isFinite(num)) continue
-      submitted.push({ amount: num, currency_code })
+      const existing = offer.prices?.find(
+        (p) => Boolean(p) && isBaseRow(p) && p.currency_code === currency_code,
+      )
+      submitted.push({
+        ...(existing?.id ? { id: existing.id } : {}),
+        amount: num,
+        currency_code,
+      })
     }
 
     await mutateAsync(

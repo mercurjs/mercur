@@ -96,8 +96,8 @@ export interface CreateOfferRowDTO {
 
 /**
  * Input to `updateOffersWorkflow`. Each entry is keyed by `id`; setting the
- * `prices` field rewrites the offer's `PriceSet` with replace semantics,
- * omitting it leaves the price ladder untouched. Offer-row fields
+ * `prices` field replaces the offer's own prices (prices of other offers on
+ * the same variant are left alone); omitting it leaves them untouched. Offer-row fields
  * (`sku`, `shipping_profile_id`, `metadata`) are partial.
  */
 export interface UpdateOfferDTO {
