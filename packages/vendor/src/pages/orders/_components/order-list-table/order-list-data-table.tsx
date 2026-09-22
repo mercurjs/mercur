@@ -15,8 +15,26 @@ const PAGE_SIZE = 10;
 
 export const OrderListDataTable = () => {
   const { t } = useTranslation();
+  const baseColumns = useOrderTableColumns({});
+  const baseFilters = useOrderTableFilters();
+
+  const { columns, filters: extFilters } =
+    useExtendableTable<HttpTypes.AdminOrder>({
+      model: "order",
+      columns: baseColumns as unknown as ColumnDef<
+        HttpTypes.AdminOrder,
+        unknown
+      >[],
+    });
+
+  const filters = useMemo(
+    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    [baseFilters, extFilters],
+  );
+
   const { raw, searchParams } = useOrderTableQuery({
     pageSize: PAGE_SIZE,
+    extraFilters: extFilters as typeof baseFilters,
   });
 
   const linkQuery = useLinkQuery(
@@ -42,22 +60,6 @@ export const OrderListDataTable = () => {
     ...searchParams,
   });
 
-  const baseColumns = useOrderTableColumns({});
-  const baseFilters = useOrderTableFilters();
-
-  const { columns, filters: extFilters } =
-    useExtendableTable<HttpTypes.AdminOrder>({
-      model: "order",
-      columns: baseColumns as unknown as ColumnDef<
-        HttpTypes.AdminOrder,
-        unknown
-      >[],
-    });
-
-  const filters = useMemo(
-    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
-    [baseFilters, extFilters],
-  );
 
   const { table } = useDataTable({
     data: orders ?? [],
