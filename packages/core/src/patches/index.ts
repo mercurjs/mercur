@@ -108,6 +108,7 @@ function applyToCopy(
 export function applyMercurPatches(options: ApplyPatchesOptions = {}): void {
   const disabled = new Set(options.disabled ?? [])
   const logger = options.logger ?? console
+  const patchedPackages = new Set<string>()
 
   for (const entry of PATCHES) {
     if (disabled.has(entry.file)) {
@@ -146,10 +147,17 @@ export function applyMercurPatches(options: ApplyPatchesOptions = {}): void {
         `${entry.package}`
     )
 
-    // Load the patched package now rather than leaving it to Medusa: the
-    // override only bites on first require, so failing here keeps the failure
-    // next to the patch that caused it.
-    require(entry.package)
+    patchedPackages.add(entry.package)
+  }
+
+  // Load the patched packages now rather than leaving it to Medusa: the
+  // override only bites on first require, so failing here keeps the failure
+  // next to the patches that caused it. Deferred until every patch is
+  // registered, because requiring a package after its first patch loads the
+  // files a later patch targets unpatched, and the package index keeps
+  // re-exporting those stale modules even after they are reloaded.
+  for (const packageName of patchedPackages) {
+    require(packageName)
   }
 }
 

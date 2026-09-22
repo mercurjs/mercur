@@ -66,7 +66,11 @@ describe("patches", () => {
 
             for (const file of files) {
                 const source = readFileSync(join(copy.dir, file.path), "utf8")
-                const contextLine = file.hunks[0].before.find((line) => line.trim())!
+                // Doc-comment lines like " */" repeat throughout a .d.ts, so drift a
+                // line that only occurs once or the replace lands outside the hunk.
+                const contextLine = file.hunks[0].before.find(
+                    (line) => line.trim() && source.split(line).length === 2
+                )!
                 const drifted = source.replace(
                     contextLine,
                     `${contextLine} /* upstream moved */`

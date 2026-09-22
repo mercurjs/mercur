@@ -1,0 +1,89 @@
+diff --git a/dist/payment/workflows/capture-payment.d.ts b/dist/payment/workflows/capture-payment.d.ts
+index 1b495fa..1e2fe8c 100644
+--- a/dist/payment/workflows/capture-payment.d.ts
++++ b/dist/payment/workflows/capture-payment.d.ts
+@@ -36,5 +36,11 @@ export declare const capturePaymentWorkflowId = "capture-payment-workflow";
+  *
+  * Capture a payment.
+  */
+-export declare const capturePaymentWorkflow: import("@medusajs/framework/workflows-sdk").ReturnWorkflow<CapturePaymentWorkflowInput, PaymentDTO, []>;
++export declare const capturePaymentWorkflow: import("@medusajs/framework/workflows-sdk").ReturnWorkflow<CapturePaymentWorkflowInput, PaymentDTO, [
++    import("@medusajs/framework/workflows-sdk").Hook<"paymentCaptured", {
++        payment: PaymentDTO;
++        order_id: string | null;
++        amount: BigNumberInput | null;
++    }, unknown>
++]>;
+ //# sourceMappingURL=capture-payment.d.ts.map
+\ No newline at end of file
+diff --git a/dist/payment/workflows/capture-payment.js b/dist/payment/workflows/capture-payment.js
+index 404cfaf..e069e4d 100644
+--- a/dist/payment/workflows/capture-payment.js
++++ b/dist/payment/workflows/capture-payment.js
+@@ -54,6 +54,16 @@ exports.capturePaymentWorkflow = (0, workflows_sdk_1.createWorkflow)(exports.cap
+         eventName: utils_1.PaymentEvents.CAPTURED,
+         data: { id: payment.id },
+     });
+-    return new workflows_sdk_1.WorkflowResponse(payment);
++    // MERCUR: payment has no hook where order has orderCreated / orderCanceled.
++    // A ledger that must record every capture in the capture's own transaction
++    // needs one; an event fires after commit and cannot be compensated.
++    const paymentCaptured = (0, workflows_sdk_1.createHook)("paymentCaptured", {
++        payment,
++        order_id: (0, workflows_sdk_1.transform)({ orderPayment }, ({ orderPayment }) => orderPayment?.order?.id ?? null),
++        amount: (0, workflows_sdk_1.transform)({ input }, ({ input }) => input.amount ?? null),
++    });
++    return new workflows_sdk_1.WorkflowResponse(payment, {
++        hooks: [paymentCaptured],
++    });
+ });
+ //# sourceMappingURL=capture-payment.js.map
+\ No newline at end of file
+diff --git a/dist/payment/workflows/refund-payment.d.ts b/dist/payment/workflows/refund-payment.d.ts
+index 3848939..7ff118d 100644
+--- a/dist/payment/workflows/refund-payment.d.ts
++++ b/dist/payment/workflows/refund-payment.d.ts
+@@ -58,5 +58,17 @@ export declare const refundPaymentWorkflowId = "refund-payment-workflow";
+  *
+  * Refund a payment.
+  */
+-export declare const refundPaymentWorkflow: import("@medusajs/framework/workflows-sdk").ReturnWorkflow<RefundPaymentWorkflowInput, any, []>;
++export declare const refundPaymentWorkflow: import("@medusajs/framework/workflows-sdk").ReturnWorkflow<RefundPaymentWorkflowInput, any, [
++    import("@medusajs/framework/workflows-sdk").Hook<"paymentRefunded", {
++        payment: PaymentDTO;
++        order_id: string | null;
++        amount: BigNumberInput | null;
++        credit_line_amount: BigNumberInput;
++        refund_reason: {
++            id: string;
++            label: string;
++            code: string | null;
++        } | null;
++    }, unknown>
++]>;
+ //# sourceMappingURL=refund-payment.d.ts.map
+\ No newline at end of file
+diff --git a/dist/payment/workflows/refund-payment.js b/dist/payment/workflows/refund-payment.js
+index 5d19f53..dcd8b37 100644
+--- a/dist/payment/workflows/refund-payment.js
++++ b/dist/payment/workflows/refund-payment.js
+@@ -145,6 +145,17 @@ exports.refundPaymentWorkflow = (0, workflows_sdk_1.createWorkflow)(exports.refu
+         eventName: utils_1.PaymentEvents.REFUNDED,
+         data: { id: payment.id },
+     });
+-    return new workflows_sdk_1.WorkflowResponse(payment);
++    // MERCUR: see capture-payment.js. A refund is the correction side of a
++    // capture and needs the same in-transaction seam.
++    const paymentRefunded = (0, workflows_sdk_1.createHook)("paymentRefunded", {
++        payment: refundPayment,
++        order_id: (0, workflows_sdk_1.transform)({ order }, ({ order }) => order?.id ?? null),
++        amount: (0, workflows_sdk_1.transform)({ input }, ({ input }) => input.amount ?? null),
++        credit_line_amount: creditLineAmount,
++        refund_reason: (0, workflows_sdk_1.transform)({ refundReason }, ({ refundReason }) => refundReason ?? null),
++    });
++    return new workflows_sdk_1.WorkflowResponse(payment, {
++        hooks: [paymentRefunded],
++    });
+ });
+ //# sourceMappingURL=refund-payment.js.map
+\ No newline at end of file
