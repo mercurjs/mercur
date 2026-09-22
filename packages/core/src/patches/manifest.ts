@@ -27,4 +27,15 @@ export const PATCHES: PatchEntry[] = [
       "is judged orphaned and checkout fails. The patch disables that cleanup. " +
       "See mercurjs/mercur#1442.",
   },
+  {
+    file: "@medusajs+core-flows@2.21.0-payment-hooks.patch",
+    package: "@medusajs/core-flows",
+    // Both targeted workflows are unchanged from 2.18.0 through 2.21.0.
+    compatible: { from: "2.18.0", to: "2.22.0" },
+    reason:
+      "capturePaymentWorkflow and refundPaymentWorkflow end in an event and expose no " +
+      "hook, unlike createOrderWorkflow and cancelOrderWorkflow. A ledger that must " +
+      "record every capture and refund inside the movement's own transaction, with " +
+      "compensation, needs paymentCaptured and paymentRefunded.",
+  },
 ]

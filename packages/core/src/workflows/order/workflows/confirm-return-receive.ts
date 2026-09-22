@@ -17,8 +17,10 @@ import {
   ReturnStatus,
 } from "@medusajs/framework/utils"
 import {
+  createHook,
   createWorkflow,
   createStep,
+  Hook,
   parallelize,
   StepResponse,
   transform,
@@ -185,11 +187,28 @@ export type ConfirmReceiveReturnRequestWorkflowInput = {
 
 export const confirmReturnReceiveWorkflowId = "mercur-confirm-return-receive"
 
+export type ConfirmReturnReceiveWorkflowHooks = [
+  Hook<
+    "returnReceived",
+    {
+      order_id: string
+      return_id: string
+      seller_id: string | null
+      items: {
+        id: string
+        received_quantity: BigNumberInput
+        damaged_quantity: BigNumberInput
+      }[]
+    },
+    unknown
+  >,
+]
+
 export const confirmReturnReceiveWorkflow = createWorkflow(
   confirmReturnReceiveWorkflowId,
   function (
     input: ConfirmReceiveReturnRequestWorkflowInput,
-  ): WorkflowResponse<OrderPreviewDTO> {
+  ): WorkflowResponse<OrderPreviewDTO, ConfirmReturnReceiveWorkflowHooks> {
     const orderReturn = useRemoteQueryStep({
       entry_point: "return",
       fields: [
@@ -213,7 +232,7 @@ export const confirmReturnReceiveWorkflow = createWorkflow(
 
     const order: OrderDTO = useRemoteQueryStep({
       entry_point: "orders",
-      fields: ["id", "version", "canceled_at"],
+      fields: ["id", "version", "canceled_at", "seller.id"],
       variables: { id: orderReturn.order_id },
       list: false,
       throw_if_key_not_found: true,
@@ -377,6 +396,19 @@ export const confirmReturnReceiveWorkflow = createWorkflow(
       }),
     )
 
-    return new WorkflowResponse(previewOrderChangeStep(order.id))
+    const sellerId = transform({ order }, ({ order }) => {
+      return (order as OrderDTO & { seller?: { id: string } | null }).seller?.id ?? null
+    })
+
+    const returnReceived = createHook("returnReceived", {
+      order_id: order.id,
+      return_id: orderReturn.id,
+      seller_id: sellerId,
+      items: updateReturnItem,
+    })
+
+    return new WorkflowResponse(previewOrderChangeStep(order.id), {
+      hooks: [returnReceived],
+    })
   },
 )

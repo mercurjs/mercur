@@ -49,6 +49,17 @@ describe("jest transformer", () => {
         expect(code).toContain("const shouldCleanupOrphanProfiles = false")
     })
 
+    it.each([
+        ["dist/payment/workflows/capture-payment.js", "paymentCaptured"],
+        ["dist/payment/workflows/refund-payment.js", "paymentRefunded"],
+    ])("exposes the payment hook in %s", (relativePath, hookName) => {
+        const sourcePath = join(copy().dir, relativePath)
+        const { code } = transform(readFileSync(sourcePath, "utf8"), sourcePath)
+
+        expect(code).toContain(`createHook)("${hookName}"`)
+        expect(code).toContain(`hooks: [${hookName}]`)
+    })
+
     it("leaves files it does not target untouched", () => {
         const source = "module.exports = 1\n"
         expect(transform(source, "/tmp/somewhere/else.js").code).toEqual(source)

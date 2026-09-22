@@ -11,15 +11,15 @@ import { PATCHES } from "./manifest"
 // silently inert in every test suite — production and tests would disagree
 // about what the code does, which is worse than not patching at all.
 //
-// Register it ahead of the project's own transform, and let the two patched
-// files through `transformIgnorePatterns`:
+// Register it ahead of the project's own transform, and let the patched files
+// through `transformIgnorePatterns`:
 //
 //   transform: {
-//     "node_modules[\\\\/].*core-flows[\\\\/]dist[\\\\/]cart[\\\\/].*\\.js$":
+//     "node_modules[\\\\/].*core-flows[\\\\/]dist[\\\\/](cart|payment)[\\\\/].*\\.js$":
 //       "@mercurjs/core/patches/jest-transformer",
 //     "^.+\\.[jt]s$": ["@swc/jest", { ... }],
 //   },
-//   transformIgnorePatterns: ["/node_modules/(?!.*core-flows[\\\\/]dist[\\\\/]cart[\\\\/])"],
+//   transformIgnorePatterns: ["/node_modules/(?!.*core-flows[\\\\/]dist[\\\\/](cart|payment)[\\\\/])"],
 
 type TransformOutput = { code: string }
 

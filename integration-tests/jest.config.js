@@ -5,10 +5,10 @@ loadEnv("test", process.cwd())
 
 module.exports = {
   transform: {
-    // Mercur patches two shipped core-flows files. Jest never consults Node's
-    // module hooks, so without this the patches are inert under test and the
-    // suite silently exercises unpatched code.
-    "node_modules[\\\\/].*core-flows[\\\\/]dist[\\\\/]cart[\\\\/].*\\.js$":
+    // Mercur patches shipped core-flows cart and payment files. Jest never
+    // consults Node's module hooks, so without this the patches are inert under
+    // test and the suite silently exercises unpatched code.
+    "node_modules[\\\\/].*core-flows[\\\\/]dist[\\\\/](cart|payment)[\\\\/].*\\.js$":
       "@mercurjs/core/patches/jest-transformer",
     "^.+\\.[jt]s$": [
       "@swc/jest",
@@ -22,9 +22,9 @@ module.exports = {
   },
   testEnvironment: "node",
   // Everything in node_modules is left untransformed except the core-flows cart
-  // files the patches target.
+  // and payment files the patches target.
   transformIgnorePatterns: [
-    "/node_modules/(?!.*core-flows[\\\\/]dist[\\\\/]cart[\\\\/])",
+    "/node_modules/(?!.*core-flows[\\\\/]dist[\\\\/](cart|payment)[\\\\/])",
   ],
   moduleFileExtensions: ["js", "ts", "json"],
   modulePathIgnorePatterns: ["dist/"],

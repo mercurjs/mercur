@@ -60,12 +60,20 @@ export const refreshOrderCommissionLinesWorkflowId = "refresh-order-commission-l
  * `setCommissionContext` receives the contexts built from the orders. A
  * handler returns `new StepResponse(contexts)` with `additional_context`
  * filled in, or nothing to leave the contexts as they are.
+ *
+ * `commissionLinesUpserted` runs after the lines are written, inside the same
+ * transaction, so a consumer's failure rolls the refresh back.
  */
 export type RefreshOrderCommissionLinesWorkflowHooks = [
   Hook<
     "setCommissionContext",
     { contexts: CommissionCalculationContext[] },
     CommissionCalculationContext[] | void
+  >,
+  Hook<
+    "commissionLinesUpserted",
+    { order_ids: string[]; commission_lines: CommissionLineDTO[] },
+    unknown
   >,
 ]
 
@@ -137,8 +145,13 @@ export const refreshOrderCommissionLinesWorkflow: ReturnWorkflow<
       commission_lines: commissionLines,
     })
 
+    const commissionLinesUpserted = createHook("commissionLinesUpserted", {
+      order_ids: input.order_ids,
+      commission_lines: upsertedCommissionLines,
+    })
+
     return new WorkflowResponse(upsertedCommissionLines, {
-      hooks: [setCommissionContext],
+      hooks: [setCommissionContext, commissionLinesUpserted],
     })
   }
 )

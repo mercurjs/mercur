@@ -41,11 +41,11 @@ through `transformIgnorePatterns` (see `integration-tests/jest.config.js`):
 
 ```js
 transform: {
-  "node_modules[\\/].*core-flows[\\/]dist[\\/]cart[\\/].*\\.js$":
+  "node_modules[\\/].*core-flows[\\/]dist[\\/](cart|payment)[\\/].*\\.js$":
     "@mercurjs/core/patches/jest-transformer",
   "^.+\\.[jt]s$": ["@swc/jest", { /* ... */ }],
 },
-transformIgnorePatterns: ["/node_modules/(?!.*core-flows[\\/]dist[\\/]cart[\\/])"],
+transformIgnorePatterns: ["/node_modules/(?!.*core-flows[\\/]dist[\\/](cart|payment)[\\/])"],
 ```
 
 Both paths funnel through `patchSourceForPath`, so a patch means the same thing
