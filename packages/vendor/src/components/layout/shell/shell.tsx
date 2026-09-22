@@ -170,7 +170,7 @@ const Breadcrumbs = () => {
 }
 
 const ToggleSidebar = () => {
-  const { toggle } = useSidebar()
+  const { toggle, state } = useSidebar()
 
   return (
     <div>
@@ -179,6 +179,7 @@ const ToggleSidebar = () => {
         variant="transparent"
         onClick={() => toggle("desktop")}
         size="small"
+        aria-expanded={state === "expanded"}
       >
         <SidebarLeft className="text-ui-fg-muted rtl:rotate-180" />
       </IconButton>
@@ -207,13 +208,16 @@ const Topbar = () => {
 }
 
 const DesktopSidebarContainer = ({ children }: PropsWithChildren) => {
-  const { desktop } = useSidebar()
+  const { state } = useSidebar()
 
   return (
     <div
-      className={clx("hidden h-screen w-[220px] border-e", {
-        "lg:flex": desktop,
-      })}
+      data-state={state}
+      className={clx(
+        "group/sidebar hidden h-screen w-[220px] shrink-0 overflow-x-hidden border-e lg:flex",
+        "transition-[width] duration-200 ease-sidebar motion-reduce:transition-none",
+        "data-[state=collapsed]:w-[52px]"
+      )}
     >
       {children}
     </div>

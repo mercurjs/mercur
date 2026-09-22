@@ -16,7 +16,13 @@ module.exports = {
   content: ["./src/**/*.{js,ts,jsx,tsx}", medusaUI, dashboardShared],
   darkMode: "class",
   theme: {
-    extend: {},
+    extend: {
+      transitionTimingFunction: {
+        // Strong ease-out; the built-in curves are too weak to read as
+        // intentional on the sidebar collapse.
+        sidebar: "cubic-bezier(0.2, 0, 0, 1)",
+      },
+    },
   },
   plugins: [],
 }

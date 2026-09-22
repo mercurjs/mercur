@@ -6,13 +6,17 @@ import {
   useState,
 } from "react";
 
-import { Kbd, Text, clx } from "@medusajs/ui";
+import { Kbd, Text, Tooltip, clx } from "@medusajs/ui";
 
 import { Collapsible as RadixCollapsible } from "radix-ui";
 import { useTranslation } from "react-i18next";
 import { NavLink, useLocation } from "react-router-dom";
 
 import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks";
+import {
+  SIDEBAR_RAIL_FADE,
+  useSidebar,
+} from "../../../providers/sidebar-provider";
 import { ConditionalTooltip } from "../../common/conditional-tooltip";
 
 type ItemType = "core" | "extension" | "setting";
@@ -68,11 +72,23 @@ const getIsOpen = (
 
 const NavItemTooltip = ({
   to,
+  label,
   children,
-}: PropsWithChildren<{ to: string }>) => {
+}: PropsWithChildren<{ to: string; label?: string }>) => {
   const { t } = useTranslation();
+  const { state } = useSidebar();
   const globalShortcuts = useGlobalShortcuts();
   const shortcut = globalShortcuts.find((s) => s.to === to);
+
+  // In the icon rail the label is the only thing left to identify the link by,
+  // so it opens immediately rather than after the shortcut hint's long delay.
+  if (state === "collapsed" && label) {
+    return (
+      <Tooltip content={label} side="right" delayDuration={0}>
+        <div className="w-full">{children}</div>
+      </Tooltip>
+    );
+  }
 
   return (
     <ConditionalTooltip
@@ -163,7 +179,7 @@ export const NavItem = ({
       className="px-3"
       data-testid={`sidebar-nav-item-${to.replace(/\//g, "-").replace(/^-/, "")}`}
     >
-      <NavItemTooltip to={to}>
+      <NavItemTooltip to={to} label={displayLabel}>
         <NavLink
           to={to}
           end={items?.some((i) => i.to === pathname)}
@@ -182,17 +198,26 @@ export const NavItem = ({
           data-testid={`sidebar-nav-link-${to.replace(/\//g, "-").replace(/^-/, "")}`}
         >
           {type !== "setting" && (
-            <div className="flex size-6 items-center justify-center">
+            <div className="flex size-6 shrink-0 items-center justify-center">
               <Icon icon={icon} type={type} />
             </div>
           )}
-          <Text size="small" weight="plus" leading="compact">
+          <Text
+            size="small"
+            weight="plus"
+            leading="compact"
+            className={clx("shrink-0 whitespace-nowrap", SIDEBAR_RAIL_FADE)}
+          >
             {displayLabel}
           </Text>
         </NavLink>
       </NavItemTooltip>
       {items && items.length > 0 && (
-        <RadixCollapsible.Root open={open} onOpenChange={setOpen}>
+        <RadixCollapsible.Root
+          open={open}
+          onOpenChange={setOpen}
+          className="group-data-[state=collapsed]/sidebar:hidden"
+        >
           <RadixCollapsible.Trigger
             className={clx(
               "flex w-full items-center gap-x-2 rounded-md py-0.5 pl-0.5 pr-2 text-ui-fg-subtle outline-none transition-fg hover:bg-ui-bg-subtle-hover hover:text-ui-fg-base lg:hidden",
