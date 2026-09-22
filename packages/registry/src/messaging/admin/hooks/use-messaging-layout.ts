@@ -1,11 +1,14 @@
 import { useLayoutEffect } from "react"
+import { useCollapsedSidebar } from "@mercurjs/dashboard-shared"
 
 /**
  * Override the shell's scroll behavior to give the messaging
- * pages a full-height, non-scrolling layout. Restores original
- * styles on unmount.
+ * pages a full-height, non-scrolling layout, and collapse the
+ * sidebar to its icon rail. Restores both on unmount.
  */
 export function useMessagingLayout() {
+  useCollapsedSidebar()
+
   useLayoutEffect(() => {
     const main = document.querySelector("main") as HTMLElement | null
     const contentCol = main?.parentElement as HTMLElement | null

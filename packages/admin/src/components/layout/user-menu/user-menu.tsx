@@ -29,6 +29,7 @@ import { useLogout, useMe } from "../../../hooks/api"
 import { queryClient } from "../../../lib/query-client"
 import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks"
 import { useTheme } from "../../../providers/theme-provider"
+import { SIDEBAR_RAIL_FADE } from "../../../providers/sidebar-provider"
 import { useDocumentDirection } from "../../../hooks/use-document-direction"
 
 export const UserMenu = () => {
@@ -118,14 +119,14 @@ const UserBadge = () => {
         )}
         data-testid="sidebar-user-menu-trigger"
       >
-        <div className="flex size-6 items-center justify-center" data-testid="sidebar-user-menu-avatar-container">
+        <div className="flex size-6 shrink-0 items-center justify-center" data-testid="sidebar-user-menu-avatar-container">
           {fallback ? (
             <Avatar size="xsmall" fallback={fallback} data-testid="sidebar-user-menu-avatar" />
           ) : (
             <Skeleton className="h-6 w-6 rounded-full" />
           )}
         </div>
-        <div className="flex items-center overflow-hidden" data-testid="sidebar-user-menu-name-container">
+        <div className={clx("flex items-center overflow-hidden whitespace-nowrap", SIDEBAR_RAIL_FADE)} data-testid="sidebar-user-menu-name-container">
           {displayName ? (
             <Text
               size="xsmall"
@@ -140,7 +141,7 @@ const UserBadge = () => {
             <Skeleton className="h-[9px] w-[70px]" />
           )}
         </div>
-        <EllipsisHorizontal className="text-ui-fg-muted" />
+        <EllipsisHorizontal className={clx("text-ui-fg-muted", SIDEBAR_RAIL_FADE)} />
       </DropdownMenu.Trigger>
     </div>
   )

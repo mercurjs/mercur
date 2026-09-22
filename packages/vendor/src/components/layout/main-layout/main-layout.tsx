@@ -23,6 +23,7 @@ import { Shell } from "../../layout/shell";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMe, useSelectSeller, useSellers } from "../../../hooks/api";
 import { useSearch } from "../../../providers/search-provider";
+import { SIDEBAR_RAIL_FADE } from "../../../providers/sidebar-provider";
 import { UserMenu } from "../user-menu";
 import { useDocumentDirection } from "../../../hooks/use-document-direction";
 import menuItemsModule from "virtual:mercur/menu-items";
@@ -132,7 +133,7 @@ const MainSidebar = () => {
     });
 
   return (
-    <aside className="flex flex-1 flex-col justify-between overflow-y-auto">
+    <aside className="flex flex-1 flex-col justify-between overflow-y-auto overflow-x-hidden">
       <div className="flex flex-1 flex-col">
         <div className="bg-ui-bg-subtle sticky top-0">
           <Header />
@@ -258,7 +259,7 @@ export const Header = () => {
           ) : (
             <Skeleton className="h-6 w-6 rounded-md" />
           )}
-          <div className="block overflow-hidden text-start">
+          <div className={clx("block overflow-hidden whitespace-nowrap text-start", SIDEBAR_RAIL_FADE)}>
             {name ? (
               <Text
                 size="small"
@@ -272,7 +273,7 @@ export const Header = () => {
               <Skeleton className="h-[9px] w-[120px]" />
             )}
           </div>
-          <EllipsisHorizontal className="text-ui-fg-muted" />
+          <EllipsisHorizontal className={clx("text-ui-fg-muted", SIDEBAR_RAIL_FADE)} />
         </DropdownMenu.Trigger>
         {isLoaded && (
           <DropdownMenu.Content className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-0">
@@ -405,18 +406,18 @@ const Searchbar = () => {
       <button
         onClick={toggleSearch}
         className={clx(
-          "bg-ui-bg-subtle text-ui-fg-subtle flex w-full items-center gap-x-2.5 rounded-md px-2 py-1 outline-none",
+          "bg-ui-bg-subtle text-ui-fg-subtle flex w-full items-center gap-x-2.5 rounded-md px-2 py-1 outline-none transition-[padding] duration-200 ease-sidebar motion-reduce:transition-none group-data-[state=collapsed]/sidebar:px-1",
           "hover:bg-ui-bg-subtle-hover",
           "focus-visible:shadow-borders-focus",
         )}
       >
-        <MagnifyingGlass />
-        <div className="flex-1 text-start">
+        <MagnifyingGlass className="shrink-0" />
+        <div className={clx("flex-1 whitespace-nowrap text-start", SIDEBAR_RAIL_FADE)}>
           <Text size="small" leading="compact" weight="plus">
             {t("app.search.label")}
           </Text>
         </div>
-        <Text size="small" leading="compact" className="text-ui-fg-muted">
+        <Text size="small" leading="compact" className={clx("text-ui-fg-muted", SIDEBAR_RAIL_FADE)}>
           ⌘K
         </Text>
       </button>
