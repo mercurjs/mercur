@@ -18,6 +18,7 @@ export const useOrderTableQuery = ({
       "updated_at",
       "request",
       "order",
+      "status",
     ],
     prefix,
   );
@@ -29,14 +30,17 @@ export const useOrderTableQuery = ({
     request,
     q,
     order,
+    status,
   } = queryObject;
 
   const searchParams: HttpTypes.AdminOrderFilters & {
     request?: string[];
+    status?: string[];
   } = {
     limit: pageSize,
     offset: offset ? Number(offset) : 0,
     request: request?.split(","),
+    status: status?.split(","),
     created_at: created_at ? JSON.parse(created_at) : undefined,
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
     order: order ? order : "-display_id",
