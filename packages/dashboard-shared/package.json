@@ -59,7 +59,7 @@
     "react-hook-form": "7.88.0",
     "react-i18next": "17.0.8",
     "react-jwt": "^2.1.1",
-    "zod": "4.4.3"
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@medusajs/types": "2.21.0",
