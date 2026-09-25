@@ -1,8 +1,8 @@
 import { Children, ReactNode, useState } from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Spinner } from "@medusajs/icons"
-import { Button, Heading, Hint, Input, Text } from "@medusajs/ui"
+import { CheckCircleMiniSolid, Spinner } from "@medusajs/icons"
+import { Button, Heading, Hint, Input, Text, clx } from "@medusajs/ui"
 import { MercurFeatureFlags } from "@mercurjs/types"
 import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
@@ -14,10 +14,81 @@ import { Form } from "@components/common/form"
 import AvatarBox from "@components/common/logo-box/avatar-box"
 import { AuthLayout } from "@components/layout/auth-layout"
 import { useFeatureFlags, useSignUpWithEmailPass } from "@hooks/api"
+import { getStoredRegisterDraft, setStoredRegisterDraft } from "@lib/onboarding-draft"
 
 import { RegisterSchema } from "./register-schema"
 
-const REGISTER_DRAFT_KEY = "mercur_register_draft"
+export const PasswordRequirements = ({ value = "" }: { value?: string }) => {
+  const { t } = useTranslation()
+
+  const trimmed = value.trim()
+  const hasMinLength = trimmed.length >= 8
+  const hasLower = /[a-z]/.test(value)
+  const hasUpper = /[A-Z]/.test(value)
+  const hasNumberOrSymbol = /[\d\W]/.test(value)
+
+  const requirements = [
+    {
+      id: "minLength",
+      label: t("register.passwordRequirements.minLength"),
+      met: hasMinLength,
+    },
+    {
+      id: "lowercase",
+      label: t("register.passwordRequirements.lowercase"),
+      met: hasLower,
+    },
+    {
+      id: "uppercase",
+      label: t("register.passwordRequirements.uppercase"),
+      met: hasUpper,
+    },
+    {
+      id: "numberOrSymbol",
+      label: t("register.passwordRequirements.numberOrSymbol"),
+      met: hasNumberOrSymbol,
+    },
+  ]
+
+  const allMet = requirements.every((r) => r.met)
+
+  return (
+    <div data-testid="password-requirements" className="mt-2 flex flex-col gap-y-1.5">
+      <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+        {requirements.map((req) => (
+          <div
+            key={req.id}
+            data-testid={`password-requirement-${req.id}`}
+            data-met={req.met}
+            className={clx(
+              "flex items-center gap-x-2 text-xs transition-colors",
+              req.met ? "text-ui-tag-green-text" : "text-ui-fg-subtle"
+            )}
+          >
+            <div className="flex h-4 w-4 shrink-0 items-center justify-center">
+              {req.met ? (
+                <CheckCircleMiniSolid className="h-4 w-4 text-ui-tag-green-icon" />
+              ) : (
+                <div className="h-1.5 w-1.5 rounded-full bg-ui-fg-muted" />
+              )}
+            </div>
+            <span>{req.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {allMet && (
+        <div
+          data-testid="password-requirements-all-met"
+          className="flex items-center gap-x-1.5 pt-0.5 text-xs text-ui-tag-green-text"
+        >
+          <CheckCircleMiniSolid className="h-3.5 w-3.5 text-ui-tag-green-icon" />
+          <span>{t("register.passwordRequirements.allMet")}</span>
+        </div>
+      )}
+    </div>
+  )
+}
 
 const RegisterLogo = () => {
   return <AvatarBox />
@@ -41,14 +112,16 @@ const RegisterForm = () => {
   const navigate = useNavigate()
   const [serverError, setServerError] = useState<string | null>(null)
 
+  const [initialDraft] = useState(() => getStoredRegisterDraft())
+
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
     mode: "onSubmit",
     reValidateMode: "onSubmit",
     defaultValues: {
-      first_name: "",
-      last_name: "",
-      email: "",
+      first_name: initialDraft.first_name || "",
+      last_name: initialDraft.last_name || "",
+      email: initialDraft.email || "",
       password: "",
     },
   })
@@ -59,16 +132,12 @@ const RegisterForm = () => {
     setServerError(null)
     try {
       await signUp({ email, password })
-      // Persist identity details for onboarding step that creates the seller member.
-      // Backend emailpass register does not accept these fields directly today,
-      // so they ride through sessionStorage and land on the member via onboarding.
-      sessionStorage.setItem(
-        REGISTER_DRAFT_KEY,
-        JSON.stringify({ first_name, last_name, email }),
-      )
+      setStoredRegisterDraft({ first_name, last_name, email })
+      sessionStorage.setItem("mercur_onboarding_email", email)
       navigate("/onboarding", { state: { email, first_name, last_name } })
-    } catch (error: any) {
-      setServerError(error?.message || t("register.error"))
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : t("register.error")
+      setServerError(message)
     }
   })
 
@@ -128,7 +197,7 @@ const RegisterForm = () => {
                     {...field}
                   />
                 </Form.Control>
-                <Form.Hint>{t("register.passwordHint")}</Form.Hint>
+                <PasswordRequirements value={field.value || ""} />
                 <Form.ErrorMessage />
               </Form.Item>
             )}
@@ -182,6 +251,15 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
   if (!feature_flags?.[MercurFeatureFlags.SELLER_REGISTRATION]) {
     return <Navigate to="/login" replace />
+  }
+
+  const onboardingEmail =
+    typeof window !== "undefined"
+      ? sessionStorage.getItem("mercur_onboarding_email")
+      : null
+
+  if (onboardingEmail) {
+    return <Navigate to="/onboarding" replace />
   }
 
   return (

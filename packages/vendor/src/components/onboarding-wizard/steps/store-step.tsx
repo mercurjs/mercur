@@ -30,11 +30,12 @@ type StoreStepSubmitValues = StoreStepValues & {
 };
 
 type StoreStepProps = {
+  initialValues?: Partial<StoreStepSubmitValues> | null;
   onSubmit: (data: StoreStepSubmitValues) => Promise<void>;
   isPending?: boolean;
 };
 
-export const StoreStep = ({ onSubmit, isPending }: StoreStepProps) => {
+export const StoreStep = ({ initialValues, onSubmit, isPending }: StoreStepProps) => {
   const { t } = useTranslation();
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof onboardingLoader>
@@ -48,12 +49,15 @@ export const StoreStep = ({ onSubmit, isPending }: StoreStepProps) => {
     tab: "store",
     data: store,
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      currency_code: "",
-      description: "",
-      handle: "",
+      name: initialValues?.name ?? "",
+      email: initialValues?.email ?? "",
+      phone: initialValues?.phone ?? "",
+      currency_code: initialValues?.currency_code ?? "",
+      description: initialValues?.description ?? "",
+      handle: initialValues?.handle ?? "",
+      ...(initialValues?.additional_data
+        ? { additional_data: initialValues.additional_data }
+        : {}),
     },
   });
 

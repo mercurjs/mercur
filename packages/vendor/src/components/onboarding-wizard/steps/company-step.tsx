@@ -15,20 +15,26 @@ const CompanyStepSchema = z.object({
 type CompanyStepValues = z.infer<typeof CompanyStepSchema>;
 
 type CompanyStepProps = {
+  initialValues?: Partial<CompanyStepValues> | null;
   onSubmit: (data: CompanyStepValues) => Promise<void>;
   onSkip: () => void;
   isPending?: boolean;
 };
 
-export const CompanyStep = ({ onSubmit, onSkip, isPending }: CompanyStepProps) => {
+export const CompanyStep = ({
+  initialValues,
+  onSubmit,
+  onSkip,
+  isPending,
+}: CompanyStepProps) => {
   const { t } = useTranslation();
 
   const form = useForm<CompanyStepValues>({
     resolver: zodResolver(CompanyStepSchema),
     defaultValues: {
-      corporate_name: "",
-      registration_number: "",
-      tax_id: "",
+      corporate_name: initialValues?.corporate_name ?? "",
+      registration_number: initialValues?.registration_number ?? "",
+      tax_id: initialValues?.tax_id ?? "",
     },
   });
 

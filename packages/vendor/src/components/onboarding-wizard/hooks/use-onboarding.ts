@@ -4,6 +4,13 @@ import { toast } from "@medusajs/ui";
 
 import { useCreateSellerAccount, useLogout } from "@hooks/api";
 import { queryClient } from "@lib/query-client";
+import {
+  clearStoredOnboardingDraft,
+  clearStoredRegisterDraft,
+  getStoredOnboardingDraft,
+  getStoredRegisterDraft,
+  setStoredOnboardingDraft,
+} from "@lib/onboarding-draft";
 import { TOTAL_STEPS } from "../constants";
 
 type StoreData = {
@@ -43,7 +50,18 @@ type PaymentData = {
 
 export const useOnboarding = (memberEmail: string) => {
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(0);
+  const [initialDraft] = useState(() => getStoredOnboardingDraft());
+
+  const [currentStep, setCurrentStep] = useState<number>(() => {
+    if (
+      typeof initialDraft.currentStep === "number" &&
+      initialDraft.currentStep >= 0 &&
+      initialDraft.currentStep < TOTAL_STEPS
+    ) {
+      return initialDraft.currentStep;
+    }
+    return 0;
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const sellerIdRef = useRef<string | null>(null);
@@ -54,9 +72,28 @@ export const useOnboarding = (memberEmail: string) => {
     setSellerIdState(id);
   };
 
-  const storeDataRef = useRef<StoreData | null>(null);
-  const addressDataRef = useRef<AddressData | null>(null);
-  const companyDataRef = useRef<CompanyData | null>(null);
+  const [storeData, setStoreData] = useState<StoreData | null>(
+    (initialDraft.store as StoreData) ?? null
+  );
+  const [addressData, setAddressData] = useState<AddressData | null>(
+    (initialDraft.address as AddressData) ?? null
+  );
+  const [companyData, setCompanyData] = useState<CompanyData | null>(
+    (initialDraft.company as CompanyData) ?? null
+  );
+  const [paymentData, setPaymentData] = useState<PaymentData | null>(
+    (initialDraft.payment as PaymentData) ?? null
+  );
+
+  const storeDataRef = useRef<StoreData | null>(
+    (initialDraft.store as StoreData) ?? null
+  );
+  const addressDataRef = useRef<AddressData | null>(
+    (initialDraft.address as AddressData) ?? null
+  );
+  const companyDataRef = useRef<CompanyData | null>(
+    (initialDraft.company as CompanyData) ?? null
+  );
 
   const { mutateAsync: createSeller, isPending: isCreating } =
     useCreateSellerAccount();
@@ -64,45 +101,46 @@ export const useOnboarding = (memberEmail: string) => {
 
   const isPending = isCreating || isSubmitting;
 
-  // Step 1: Store — save locally
   const submitStoreStep = useCallback(async (data: StoreData) => {
     storeDataRef.current = data;
+    setStoreData(data);
+    setStoredOnboardingDraft({ store: data, currentStep: 1 });
     setCurrentStep(1);
   }, []);
 
-  // Step 2: Address — save locally
   const submitAddressStep = useCallback(async (data: AddressData) => {
     addressDataRef.current = data;
+    setAddressData(data);
+    setStoredOnboardingDraft({ address: data, currentStep: 2 });
     setCurrentStep(2);
   }, []);
 
   const skipAddressStep = useCallback(() => {
     addressDataRef.current = null;
+    setAddressData(null);
+    setStoredOnboardingDraft({ address: null, currentStep: 2 });
     setCurrentStep(2);
   }, []);
 
-  // Step 3: Company — save locally
   const submitCompanyStep = useCallback(async (data: CompanyData) => {
     companyDataRef.current = data;
+    setCompanyData(data);
+    setStoredOnboardingDraft({ company: data, currentStep: 3 });
     setCurrentStep(3);
   }, []);
 
   const skipCompanyStep = useCallback(() => {
     companyDataRef.current = null;
+    setCompanyData(null);
+    setStoredOnboardingDraft({ company: null, currentStep: 3 });
     setCurrentStep(3);
   }, []);
 
-  /**
-   * Creates seller with ALL collected data (Steps 1-4) in one API call.
-   * This goes through POST /vendor/sellers which is unauthenticated —
-   * no seller_context needed, no session issues.
-   */
   const createSellerWithAllData = useCallback(
     async (paymentData?: PaymentData) => {
       const storeData = storeDataRef.current;
       if (!storeData) return;
 
-      // Already created (user went back and forward)
       if (sellerIdRef.current) {
         navigate("/store-select", { replace: true });
         return;
@@ -116,20 +154,7 @@ export const useOnboarding = (memberEmail: string) => {
         companyData?.tax_id;
 
       const isUS = paymentData?.country_code === "us";
-
-      let registerDraft: { first_name?: string; last_name?: string } = {};
-      try {
-        const raw = sessionStorage.getItem("mercur_register_draft");
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          registerDraft = {
-            first_name: parsed.first_name || undefined,
-            last_name: parsed.last_name || undefined,
-          };
-        }
-      } catch {
-        // Ignore malformed draft
-      }
+      const registerDraft = getStoredRegisterDraft();
 
       try {
         setIsSubmitting(true);
@@ -184,7 +209,6 @@ export const useOnboarding = (memberEmail: string) => {
         const newSellerId = result.seller.id;
         setSellerId(newSellerId);
 
-        // Force a fresh login so the new member_id lands in the JWT.
         try {
           await logout();
         } catch {
@@ -192,11 +216,14 @@ export const useOnboarding = (memberEmail: string) => {
         }
         queryClient.clear();
         sessionStorage.removeItem("mercur_onboarding_email");
-        sessionStorage.removeItem("mercur_register_draft");
+        clearStoredRegisterDraft();
+        clearStoredOnboardingDraft();
 
         navigate("/login", { replace: true });
-      } catch (error: any) {
-        toast.error(error.message);
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : "Failed to create seller";
+        toast.error(message);
       } finally {
         setIsSubmitting(false);
       }
@@ -204,22 +231,26 @@ export const useOnboarding = (memberEmail: string) => {
     [createSeller, logout, memberEmail, navigate],
   );
 
-  // Step 4: Payment — create seller with everything and finish
   const submitPaymentStep = useCallback(
     async (data: PaymentData) => {
+      setPaymentData(data);
       await createSellerWithAllData(data);
     },
     [createSellerWithAllData],
   );
 
-  // Skip payment — create seller without payment details
   const skipPaymentStep = useCallback(async () => {
+    setPaymentData(null);
     await createSellerWithAllData();
   }, [createSellerWithAllData]);
 
   const goBack = useCallback(() => {
     if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1);
+      setCurrentStep((prev) => {
+        const next = prev - 1;
+        setStoredOnboardingDraft({ currentStep: next });
+        return next;
+      });
     }
   }, [currentStep]);
 
@@ -230,6 +261,10 @@ export const useOnboarding = (memberEmail: string) => {
     isPending,
     canGoBack: currentStep > 0,
     goBack,
+    storeData,
+    addressData,
+    companyData,
+    paymentData,
     submitStoreStep,
     submitAddressStep,
     skipAddressStep,

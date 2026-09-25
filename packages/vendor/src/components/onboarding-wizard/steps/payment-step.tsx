@@ -20,13 +20,14 @@ const PaymentStepSchema = z.object({
 type PaymentStepValues = z.infer<typeof PaymentStepSchema>;
 
 type PaymentStepProps = {
-  sellerId: string;
+  initialValues?: Partial<PaymentStepValues> | null;
   onSubmit: (data: PaymentStepValues) => Promise<void>;
   onSkip: () => void;
   isPending?: boolean;
 };
 
 export const PaymentStep = ({
+  initialValues,
   onSubmit,
   onSkip,
   isPending,
@@ -36,8 +37,8 @@ export const PaymentStep = ({
   const form = useForm<PaymentStepValues>({
     resolver: zodResolver(PaymentStepSchema),
     defaultValues: {
-      country_code: "",
-      holder_name: "",
+      country_code: initialValues?.country_code ?? "",
+      holder_name: initialValues?.holder_name ?? "",
       iban: "",
       bic: "",
       routing_number: "",

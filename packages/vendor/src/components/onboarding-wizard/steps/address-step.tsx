@@ -21,24 +21,30 @@ const AddressStepSchema = z.object({
 type AddressStepValues = z.infer<typeof AddressStepSchema>;
 
 type AddressStepProps = {
+  initialValues?: Partial<AddressStepValues> | null;
   onSubmit: (data: AddressStepValues) => Promise<void>;
   onSkip: () => void;
   isPending?: boolean;
 };
 
-export const AddressStep = ({ onSubmit, onSkip, isPending }: AddressStepProps) => {
+export const AddressStep = ({
+  initialValues,
+  onSubmit,
+  onSkip,
+  isPending,
+}: AddressStepProps) => {
   const { t } = useTranslation();
 
   const form = useForm<AddressStepValues>({
     resolver: zodResolver(AddressStepSchema),
     defaultValues: {
-      name: "",
-      address_1: "",
-      address_2: "",
-      postal_code: "",
-      city: "",
-      country_code: "",
-      province: "",
+      name: initialValues?.name ?? "",
+      address_1: initialValues?.address_1 ?? "",
+      address_2: initialValues?.address_2 ?? "",
+      postal_code: initialValues?.postal_code ?? "",
+      city: initialValues?.city ?? "",
+      country_code: initialValues?.country_code ?? "",
+      province: initialValues?.province ?? "",
     },
   });
 
