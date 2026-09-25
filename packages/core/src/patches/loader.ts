@@ -70,9 +70,8 @@ export function registerOverrides(
   }
 }
 
-// `withMercur()` runs from `medusa-config`, which is not always the first thing
-// to pull in a target package — `@medusajs/test-utils` requires core-flows
-// before it loads the config. A module already in the cache would keep its
+// `@mercurjs/core` is not always the first thing to pull in a target package —
+// `@medusajs/test-utils` requires core-flows before it loads the config. A module already in the cache would keep its
 // unpatched source forever, so the patched files are evicted and required again
 // through the override above.
 //
@@ -127,6 +126,56 @@ export function reload(packageDir: string, absolutePaths: string[]): void {
     }
   } finally {
     if (manager && original) manager.register = original
+  }
+}
+
+/**
+ * Evicts already-loaded files and compiles their patched source in place.
+ *
+ * Eviction alone does not reach code that required the package earlier: every
+ * index above a patched file re-exports it through a getter over the evicted
+ * module's `exports` object, so `require("@medusajs/core-flows")` keeps handing
+ * out the unpatched workflow. Copying the fresh exports onto that stale object
+ * is what makes the patch visible through the whole re-export chain.
+ */
+export function replaceLoaded(packageDir: string, absolutePaths: string[]): void {
+  const previous = new Map<string, unknown>()
+  for (const filename of absolutePaths) {
+    previous.set(filename, require.cache[filename]?.exports)
+  }
+
+  purgeFiles(absolutePaths)
+  reload(packageDir, absolutePaths)
+
+  for (const [filename, stale] of previous) {
+    const fresh: unknown = require.cache[filename]?.exports
+    if (isObject(stale) && isObject(fresh) && stale !== fresh) {
+      adoptExports(stale, fresh)
+    }
+  }
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null
+}
+
+function adoptExports(
+  stale: Record<string, unknown>,
+  fresh: Record<string, unknown>
+): void {
+  for (const key of Object.keys(fresh)) {
+    const descriptor = Object.getOwnPropertyDescriptor(stale, key)
+
+    if (!descriptor || descriptor.configurable) {
+      Object.defineProperty(stale, key, {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: fresh[key],
+      })
+    } else if (descriptor.writable) {
+      stale[key] = fresh[key]
+    }
   }
 }
 
