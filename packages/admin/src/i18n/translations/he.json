@@ -3365,16 +3365,6 @@
       "value": "ערך"
     }
   },
-  "notifications": {
-    "domain": "התראות",
-    "emptyState": {
-      "title": "אין התראות",
-      "description": "אין לך התראות כרגע, אך ברגע שיהיו לך הן יופיעו כאן."
-    },
-    "accessibility": {
-      "description": "התראות על פעילויות Mercur יוצגו כאן."
-    }
-  },
   "errors": {
     "serverError": "שגיאת שרת - נסה שוב מאוחר יותר.",
     "invalidCredentials": "אימייל או סיסמה שגויים"

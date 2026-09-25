@@ -3473,16 +3473,6 @@
       "value": "Vrijednost"
     }
   },
-  "notifications": {
-    "domain": "Obavijesti",
-    "emptyState": {
-      "title": "Nema obavijesti",
-      "description": "Nemate obavijesti u ovom trenutku, ali kada ih budete imali, bit će ovdje."
-    },
-    "accessibility": {
-      "description": "Obavijesti o Mercur aktivnostima bit će ovdje prikazane."
-    }
-  },
   "errors": {
     "serverError": "Greška na serveru - Pokušajte ponovo kasnije.",
     "invalidCredentials": "Pogrešan email ili lozinka"

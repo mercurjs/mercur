@@ -3369,16 +3369,6 @@
       "value": "Değer"
     }
   },
-  "notifications": {
-    "domain": "Bildirimler",
-    "emptyState": {
-      "title": "Bildirim yok",
-      "description": "Şu anda herhangi bir bildiriminiz yok, ancak olduğunda burada görünecekler."
-    },
-    "accessibility": {
-      "description": "Mercur aktiviteleri hakkında bildirimler burada listelenecek."
-    }
-  },
   "errors": {
     "serverError": "Sunucu hatası - Daha sonra tekrar deneyin.",
     "invalidCredentials": "Yanlış e-posta veya şifre"

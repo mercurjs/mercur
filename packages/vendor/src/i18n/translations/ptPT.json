@@ -3528,16 +3528,6 @@
       "value": "Valor"
     }
   },
-  "notifications": {
-    "domain": "Notificações",
-    "emptyState": {
-      "title": "Sem notificações",
-      "description": "De momento não tens notificações, mas quando tiveres vão aparecer aqui."
-    },
-    "accessibility": {
-      "description": "Notificações sobre atividades do Mercur serão listadas aqui."
-    }
-  },
   "errors": {
     "serverError": "Erro do servidor - Tenta novamente mais tarde.",
     "invalidCredentials": "Email ou palavra-passe incorretos"
