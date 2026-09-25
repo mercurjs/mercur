@@ -3528,16 +3528,6 @@
       "value": "值"
     }
   },
-  "notifications": {
-    "domain": "通知",
-    "emptyState": {
-      "title": "沒有通知",
-      "description": "您目前沒有任何通知，但一旦有通知，它們將會顯示在此處。"
-    },
-    "accessibility": {
-      "description": "有關 Mercur 活動的通知將列在此處。"
-    }
-  },
   "errors": {
     "serverError": "伺服器錯誤 - 請稍後再試。",
     "invalidCredentials": "電子郵件或密碼錯誤"

@@ -3365,16 +3365,6 @@
       "value": "값"
     }
   },
-  "notifications": {
-    "domain": "알림",
-    "emptyState": {
-      "title": "알림 없음",
-      "description": "현재 알림이 없습니다. 알림이 생기면 여기에 표시됩니다."
-    },
-    "accessibility": {
-      "description": "Mercur 활동에 대한 알림이 여기에 나열됩니다."
-    }
-  },
   "errors": {
     "serverError": "서버 오류 - 나중에 다시 시도하세요.",
     "invalidCredentials": "이메일 또는 비밀번호가 잘못되었습니다"

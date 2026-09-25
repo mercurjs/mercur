@@ -128,6 +128,8 @@ declare module "@mercurjs/dashboard-sdk" {
     "tax-regions.province.detail.main.before": true
     "team.list.after": true
     "team.list.before": true
+    "topbar.after": true
+    "topbar.before": true
   }
 
   interface NavItemRegistry {
