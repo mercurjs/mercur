@@ -1,4 +1,8 @@
-jest.mock("../patches", () => ({ applyMercurPatches: jest.fn() }))
+jest.mock("../patches", () => ({
+  assertPatchesDisabled: jest.fn(),
+  disabledPatchesFromEnv: jest.fn(() => []),
+  ensureMercurPatches: jest.fn(),
+}))
 jest.mock("../utils/disable-medusa-middlewares", () => ({
   disableMedusaMiddlewares: jest.fn(),
 }))

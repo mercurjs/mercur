@@ -5,9 +5,8 @@ import { isPatchApplied, readPatchedFiles } from "./apply-patch"
 import {
   isAlreadyLoaded,
   isOverridden,
-  purgeFiles,
   registerOverrides,
-  reload,
+  replaceLoaded,
 } from "./loader"
 import { PATCHES, type PatchEntry } from "./manifest"
 import { resolvePackageCopies, type PackageCopy } from "./resolve-package-dirs"
@@ -19,9 +18,9 @@ import { isWithinRange } from "./version"
 // mutually incompatible, and none of them reach a marketplace that installed
 // `@mercurjs/core` into an existing Medusa app.
 //
-// So the diffs live in `patches/` and are applied here, from `withMercur()`,
-// which every project calls. They travel with the package version and arrive on
-// a normal upgrade.
+// So the diffs live in `patches/` and are applied as a side effect of importing
+// `@mercurjs/core` (see `register.ts`). They travel with the package version and
+// arrive on a normal upgrade.
 //
 // Patches are applied in memory, never written to `node_modules`: a boot has no
 // business mutating installed packages, workers would race doing it, and a file
@@ -93,13 +92,12 @@ function applyToCopy(
 
   registerOverrides(copy.dir, patched, resolveFile)
 
-  // Something required these modules before `withMercur()` ran, so the cache
-  // holds their unpatched source. Evict them and compile the patched source in
-  // their place; a workflow module re-registers itself under the same id, which
-  // is what makes the patch take effect on an already-loaded package.
+  // Something required these modules before `@mercurjs/core` was loaded, so the
+  // cache holds their unpatched source. A workflow module re-registers itself
+  // under the same id, which is what makes the patch take effect on an
+  // already-loaded package.
   if (stale.length) {
-    purgeFiles(stale)
-    reload(copy.dir, stale)
+    replaceLoaded(copy.dir, stale)
   }
 
   return true
@@ -159,6 +157,55 @@ export function applyMercurPatches(options: ApplyPatchesOptions = {}): void {
   for (const packageName of patchedPackages) {
     require(packageName)
   }
+}
+
+// Keyed on the global symbol registry so that two installed copies of
+// `@mercurjs/core` — common under bun and pnpm — patch the process only once.
+const APPLIED = Symbol.for("@mercurjs/core/patches-applied")
+
+type GlobalWithPatchState = typeof globalThis & {
+  [APPLIED]?: { disabled: string[] }
+}
+
+export const DISABLED_PATCHES_ENV = "MERCUR_DISABLED_PATCHES"
+
+export function disabledPatchesFromEnv(
+  env: NodeJS.ProcessEnv = process.env
+): string[] {
+  return (env[DISABLED_PATCHES_ENV] ?? "")
+    .split(",")
+    .map((name) => name.trim())
+    .filter(Boolean)
+}
+
+export function ensureMercurPatches(options: ApplyPatchesOptions = {}): void {
+  const state = globalThis as GlobalWithPatchState
+  if (state[APPLIED]) return
+
+  applyMercurPatches(options)
+  state[APPLIED] = { disabled: options.disabled ?? [] }
+}
+
+/**
+ * Patches are applied when `@mercurjs/core` is imported, which is before
+ * `withMercur()` can see its config. A patch listed only in the config was
+ * therefore applied anyway; say so instead of letting the opt-out silently fail.
+ */
+export function assertPatchesDisabled(requested: string[] = []): void {
+  const applied = (globalThis as GlobalWithPatchState)[APPLIED]
+  if (!applied) return
+
+  const missed = requested.filter((name) => !applied.disabled.includes(name))
+  if (!missed.length) return
+
+  throw new Error(
+    `[mercur] projectConfig.mercur.disabledPatches lists ${missed
+      .map((name) => `"${name}"`)
+      .join(", ")}, but patches are applied when @mercurjs/core is imported, ` +
+      `before the config is read. Set ${DISABLED_PATCHES_ENV}="${requested.join(
+        ","
+      )}" in the process environment instead.`
+  )
 }
 
 export { PATCHES } from "./manifest"
