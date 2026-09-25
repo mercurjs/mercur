@@ -3365,16 +3365,6 @@
       "value": "Hodnota"
     }
   },
-  "notifications": {
-    "domain": "Oznámení",
-    "emptyState": {
-      "title": "Žádná oznámení",
-      "description": "Momentálně nemáte žádná oznámení, ale jakmile nějaká budete mít, budou zde."
-    },
-    "accessibility": {
-      "description": "oznámení o aktivitách Medusy budou zde uvedena."
-    }
-  },
   "errors": {
     "serverError": "Chyba serveru - Zkuste to později.",
     "invalidCredentials": "Špatný e-mail nebo heslo"

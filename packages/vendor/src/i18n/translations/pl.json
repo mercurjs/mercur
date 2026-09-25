@@ -3897,16 +3897,6 @@
       "value": "Wartość"
     }
   },
-  "notifications": {
-    "domain": "Powiadomienia",
-    "emptyState": {
-      "title": "Brak powiadomień",
-      "description": "W tej chwili nie masz żadnych powiadomień, ale gdy to zrobisz, będą one tutaj wyświetlane."
-    },
-    "accessibility": {
-      "description": "powiadomienia o działaniach Meduzy będą tutaj wymienione."
-    }
-  },
   "errors": {
     "serverError": "Błąd serwera — spróbuj ponownie później.",
     "invalidCredentials": "Zły adres e-mail lub hasło"

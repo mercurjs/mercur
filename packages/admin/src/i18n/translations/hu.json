@@ -3368,16 +3368,6 @@
       "value": "Érték"
     }
   },
-  "notifications": {
-    "domain": "Értesítések",
-    "emptyState": {
-      "title": "Nincsenek értesítések",
-      "description": "Jelenleg nincsenek értesítései, de amint lesznek, itt fognak megjelenni."
-    },
-    "accessibility": {
-      "description": "értesítések a Mercur tevékenységeiről itt lesznek felsorolva."
-    }
-  },
   "errors": {
     "serverError": "Szerver hiba - Próbálja újra később.",
     "invalidCredentials": "Helytelen email vagy jelszó"

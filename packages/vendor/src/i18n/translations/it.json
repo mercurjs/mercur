@@ -3476,16 +3476,6 @@
       "value": "Valore"
     }
   },
-  "notifications": {
-    "domain": "Notifiche",
-    "emptyState": {
-      "title": "Nessuna notifica",
-      "description": "Non hai notifiche al momento, ma una volta che ne avrai, saranno qui."
-    },
-    "accessibility": {
-      "description": "Le notifiche sulle attività di Mercur saranno elencate qui."
-    }
-  },
   "errors": {
     "serverError": "Errore del server - Riprova più tardi.",
     "invalidCredentials": "Email o password errati"
