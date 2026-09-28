@@ -1,21 +1,20 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { fetchSellerByAuthActorId } from "./helpers"
+
+type VendorRequest = AuthenticatedMedusaRequest & {
+  seller_context?: { seller_id: string }
+}
 
 export async function GET(
-  req: AuthenticatedMedusaRequest,
+  req: VendorRequest,
   res: MedusaResponse
 ): Promise<void> {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const seller = await fetchSellerByAuthActorId(
-    req.auth_context.actor_id,
-    req.scope
-  )
 
   const { data: notifications, metadata } = await query.graph({
     entity: "notification",
     fields: req.queryConfig.fields,
-    filters: { channel: "seller_feed", to: seller.id },
+    filters: { channel: "seller_feed", to: req.seller_context!.seller_id },
     pagination: req.queryConfig.pagination,
   })
 

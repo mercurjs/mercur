@@ -3370,16 +3370,6 @@
       "value": "値"
     }
   },
-  "notifications": {
-    "domain": "通知",
-    "emptyState": {
-      "title": "通知はありません",
-      "description": "現在通知はありませんが、通知が届くとここに表示されます。"
-    },
-    "accessibility": {
-      "description": "Mercurの活動に関する通知がここに表示されます。"
-    }
-  },
   "errors": {
     "serverError": "サーバーエラー - 後でもう一度お試しください。",
     "invalidCredentials": "Eメールまたはパスワードが間違っています"

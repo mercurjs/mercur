@@ -1,3 +1,5 @@
+import "../patches/register"
+
 export * from "./campaign"
 export * from "./customer-group"
 export * from "./commission"

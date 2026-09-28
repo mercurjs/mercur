@@ -148,6 +148,8 @@ declare module "@mercurjs/dashboard-sdk" {
     "tax-regions.list.before": true
     "tax-regions.province.detail.main.after": true
     "tax-regions.province.detail.main.before": true
+    "topbar.after": true
+    "topbar.before": true
     "users.detail.main.after": true
     "users.detail.main.before": true
     "users.list.after": true

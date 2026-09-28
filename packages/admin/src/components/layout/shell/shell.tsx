@@ -12,11 +12,11 @@ import {
   useNavigation,
 } from "react-router-dom"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
 import { KeybindProvider } from "../../../providers/keybind-provider"
 import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks"
 import { useSidebar } from "../../../providers/sidebar-provider"
 import { ProgressBar } from "../../common/progress-bar"
-import { Notifications } from "../notifications"
 
 export const Shell = ({ children }: PropsWithChildren) => {
   const globalShortcuts = useGlobalShortcuts()
@@ -200,7 +200,7 @@ const Topbar = () => {
         <Breadcrumbs />
       </div>
       <div className="flex items-center justify-end gap-x-3">
-        <Notifications />
+        <WidgetZone id="topbar" />
       </div>
     </div>
   )
