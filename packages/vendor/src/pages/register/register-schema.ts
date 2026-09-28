@@ -1,4 +1,4 @@
-import { i18n } from "@components/utilities/i18n"
+import i18n from "i18next"
 import * as z from "zod"
 
 export const RegisterSchema = z.object({

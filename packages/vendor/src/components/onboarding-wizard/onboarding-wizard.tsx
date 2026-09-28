@@ -25,9 +25,12 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
 
   const {
     currentStep,
-    sellerId,
     isPending,
     goBack,
+    storeData,
+    addressData,
+    companyData,
+    paymentData,
     submitStoreStep,
     submitAddressStep,
     skipAddressStep,
@@ -43,7 +46,10 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
         navigate("/store-select", { replace: true });
       } else {
         await logoutMutation(undefined, {
-          onSuccess: () => queryClient.clear(),
+          onSuccess: () => {
+            queryClient.clear();
+            sessionStorage.removeItem("mercur_onboarding_email");
+          },
           onSettled: () => navigate("/login"),
         });
       }
@@ -57,13 +63,18 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
       case 0:
         return (
           <WizardStep key="store">
-            <StoreStep onSubmit={submitStoreStep} isPending={isPending} />
+            <StoreStep
+              initialValues={storeData}
+              onSubmit={submitStoreStep}
+              isPending={isPending}
+            />
           </WizardStep>
         );
       case 1:
         return (
           <WizardStep key="address">
             <AddressStep
+              initialValues={addressData}
               onSubmit={submitAddressStep}
               onSkip={skipAddressStep}
               isPending={isPending}
@@ -74,6 +85,7 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
         return (
           <WizardStep key="company">
             <CompanyStep
+              initialValues={companyData}
               onSubmit={submitCompanyStep}
               onSkip={skipCompanyStep}
               isPending={isPending}
@@ -84,7 +96,7 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
         return (
           <WizardStep key="payment">
             <PaymentStep
-              sellerId={sellerId!}
+              initialValues={paymentData}
               onSubmit={submitPaymentStep}
               onSkip={skipPaymentStep}
               isPending={isPending}
