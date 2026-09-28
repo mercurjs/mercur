@@ -24,6 +24,7 @@ import {
   updateProductChangeActionsStep,
   type VariantImageLinks,
 } from "../steps"
+import { deleteOffersWorkflow } from "../../offer/workflows/delete-offers"
 import { applyProductAttributeChangeActionsWorkflow } from "./apply-product-attribute-change-actions"
 
 export type ApplyProductChangeActionsWorkflowInput = {
@@ -273,14 +274,38 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
       })),
     })
 
-    when(
+    const deletedProductOffers = when(
       { buckets },
       ({ buckets }) => buckets.productsToDelete.length > 0,
     ).then(() => {
+      const { data: productOffers } = useQueryGraphStep({
+        entity: "offer",
+        fields: ["id"],
+        filters: transform({ buckets }, ({ buckets }) => ({
+          product_id: buckets.productsToDelete,
+        })),
+      }).config({ name: "load-deleted-products-offers" })
+
       deleteProductsWorkflow.runAsStep({
         input: transform({ buckets }, ({ buckets }) => ({
           ids: buckets.productsToDelete,
         })),
+      })
+
+      return productOffers
+    })
+
+    when(
+      { deletedProductOffers },
+      ({ deletedProductOffers }) => (deletedProductOffers?.length ?? 0) > 0,
+    ).then(() => {
+      deleteOffersWorkflow.runAsStep({
+        input: transform(
+          { deletedProductOffers },
+          ({ deletedProductOffers }) => ({
+            ids: (deletedProductOffers ?? []).map((o) => o.id),
+          }),
+        ),
       })
     })
 
