@@ -1,5 +1,11 @@
 import { createRemoteLinkStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
-import { WorkflowData, WorkflowResponse, createWorkflow, transform } from "@medusajs/framework/workflows-sdk"
+import {
+  WorkflowData,
+  WorkflowResponse,
+  createHook,
+  createWorkflow,
+  transform,
+} from "@medusajs/framework/workflows-sdk"
 import { MathBN, MedusaError } from "@medusajs/framework/utils"
 import { MercurModules } from "@mercurjs/types"
 
@@ -110,6 +116,11 @@ export const createPayoutWorkflow = createWorkflow(
       },
     ])
 
-    return new WorkflowResponse(payout)
+    const payoutCreated = createHook("payoutCreated", {
+      order_id: input.order_id,
+      payout_id: payout.id,
+    })
+
+    return new WorkflowResponse(payout, { hooks: [payoutCreated] })
   }
 )
