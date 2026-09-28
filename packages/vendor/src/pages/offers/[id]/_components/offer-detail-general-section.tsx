@@ -121,7 +121,12 @@ export const OfferDetailGeneralSection = ({
           title={t("fields.description")}
           value={
             product.description ? (
-              <RichText html={product.description} className="w-full" />
+              <RichText
+                html={product.description}
+                className="w-full"
+                collapsedHeight={200}
+                data-testid="offer-product-description"
+              />
             ) : undefined
           }
         />

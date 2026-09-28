@@ -241,9 +241,13 @@ const FieldDiffValue = ({
     return (
       <div className="flex flex-col gap-y-2">
         {hasPrev && (
-          <RichText html={previousText} className="line-through opacity-60" />
+          <RichText
+            html={previousText}
+            className="line-through opacity-60"
+            collapsedHeight={200}
+          />
         )}
-        <RichText html={nextText} />
+        <RichText html={nextText} collapsedHeight={200} />
       </div>
     );
   }

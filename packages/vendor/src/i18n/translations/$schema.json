@@ -577,6 +577,9 @@
         "showMore": {
           "type": "string"
         },
+        "showLess": {
+          "type": "string"
+        },
         "continue": {
           "type": "string"
         },
@@ -671,6 +674,7 @@
         "back",
         "close",
         "showMore",
+        "showLess",
         "continue",
         "continueWithEmail",
         "idCopiedToClipboard",
