@@ -1,4 +1,4 @@
-import { Button, Input, Text, Textarea, toast } from "@medusajs/ui";
+import { Button, Input, Text, toast } from "@medusajs/ui";
 import { MercurFeatureFlags } from "@mercurjs/types";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
@@ -10,8 +10,11 @@ import { RouteDrawer, useRouteModal } from "@components/modals";
 import { useFeatureFlags, useUpdateProduct } from "@hooks/api";
 
 import { KeyboundForm } from "@components/utilities/keybound-form";
+import { uploadRichTextImage } from "@lib/upload-rich-text-image";
 import {
   FormExtensionZone,
+  RichTextEditor,
+  plainTextToHtml,
   useExtendableForm,
 } from "@mercurjs/dashboard-shared";
 
@@ -44,7 +47,7 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
       title: product.title,
       subtitle: product.subtitle || "",
       handle: product.handle || "",
-      description: product.description || "",
+      description: plainTextToHtml(product.description),
       discountable: product.discountable,
     },
   });
@@ -218,7 +221,11 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
                         {t("fields.description")}
                       </Form.Label>
                       <Form.Control>
-                        <Textarea {...field} />
+                        <RichTextEditor
+                          {...field}
+                          onUpload={uploadRichTextImage}
+                          data-testid="product-edit-form-description-input"
+                        />
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>

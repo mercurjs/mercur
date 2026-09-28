@@ -12,6 +12,7 @@ import {
 } from "@medusajs/medusa/api/utils/common-validators/common"
 import { AdditionalData, OperatorMap } from "@medusajs/framework/types"
 import { isPresent } from "@medusajs/framework/utils"
+import { sanitizeNullableRichText } from "../../../utils/sanitize-rich-text"
 
 const statusEnum = z.nativeEnum(ProductStatus)
 
@@ -206,7 +207,7 @@ const CreateProduct = z
   .object({
     title: z.string(),
     subtitle: z.string().nullish(),
-    description: z.string().nullish(),
+    description: z.string().nullish().transform(sanitizeNullableRichText),
     is_giftcard: booleanString().optional().default(false),
     discountable: booleanString().optional().default(true),
     images: z.array(z.object({ url: z.string() })).optional(),
@@ -243,7 +244,7 @@ export const UpdateProduct = z
   .object({
     title: z.string().optional(),
     subtitle: z.string().nullish(),
-    description: z.string().nullish(),
+    description: z.string().nullish().transform(sanitizeNullableRichText),
     discountable: booleanString().optional(),
     is_giftcard: booleanString().optional(),
     images: z

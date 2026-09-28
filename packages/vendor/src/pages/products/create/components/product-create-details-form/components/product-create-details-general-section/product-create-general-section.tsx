@@ -1,5 +1,8 @@
-import { Input, Textarea } from "@medusajs/ui"
+import { Input } from "@medusajs/ui"
+import { RichTextEditor } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
+
+import { uploadRichTextImage } from "@lib/upload-rich-text-image"
 
 import { Form } from "@components/common/form"
 import { HandleInput } from "@components/inputs/handle-input"
@@ -77,7 +80,12 @@ export const ProductCreateGeneralSection = () => {
                 {t("products.fields.description.label")}
               </Form.Label>
               <Form.Control data-testid="product-create-general-section-description-control">
-                <Textarea {...field} placeholder={t("products.fields.description.placeholder")} data-testid="product-create-general-section-description-input" />
+                <RichTextEditor
+                  {...field}
+                  placeholder={t("products.fields.description.placeholder")}
+                  onUpload={uploadRichTextImage}
+                  data-testid="product-create-general-section-description-input"
+                />
               </Form.Control>
             </Form.Item>
           )

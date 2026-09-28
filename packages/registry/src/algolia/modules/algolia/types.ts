@@ -1,5 +1,19 @@
 import { z } from 'zod'
 
+const stripHtml = (value: string | null) =>
+  value === null
+    ? null
+    : value
+        .replace(/<(br|\/p|\/h[1-6]|\/li|\/blockquote)\s*\/?>/gi, '\n')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&amp;/g, '&')
+        .trim()
+
 export enum IndexType {
   PRODUCT = 'products'
 }
@@ -64,7 +78,7 @@ export const AlgoliaProductValidator = z.object({
   title: z.string(),
   handle: z.string(),
   subtitle: z.string().nullable(),
-  description: z.string().nullable(),
+  description: z.string().nullable().transform(stripHtml),
   thumbnail: z.string().nullable(),
   average_rating: z.coerce.number().nullable().default(null),
   supported_countries: z.array(z.string()).nullable().default([]),

@@ -131,8 +131,32 @@ button:disabled svg path {
 .product-details {
   @apply text-md;
 }
+.product-details > * + * {
+  @apply mt-3;
+}
+.product-details h2 {
+  @apply heading-sm;
+}
+.product-details h3 {
+  @apply heading-xs;
+}
 .product-details ul {
   @apply list-disc text-md pl-5;
+}
+.product-details ol {
+  @apply list-decimal text-md pl-5;
+}
+.product-details li p {
+  @apply m-0;
+}
+.product-details blockquote {
+  @apply border-l-2 border-primary pl-4 italic;
+}
+.product-details a {
+  @apply underline;
+}
+.product-details img {
+  @apply h-auto max-w-full rounded-sm;
 }
 .embla__container {
   touch-action: pan-y pinch-zoom;

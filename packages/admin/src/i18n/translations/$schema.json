@@ -16620,6 +16620,86 @@
         "actions"
       ],
       "additionalProperties": false
+    },
+    "richTextEditor": {
+      "type": "object",
+      "properties": {
+        "bold": {
+          "type": "string"
+        },
+        "italic": {
+          "type": "string"
+        },
+        "underline": {
+          "type": "string"
+        },
+        "strike": {
+          "type": "string"
+        },
+        "paragraph": {
+          "type": "string"
+        },
+        "heading2": {
+          "type": "string"
+        },
+        "heading3": {
+          "type": "string"
+        },
+        "bulletList": {
+          "type": "string"
+        },
+        "orderedList": {
+          "type": "string"
+        },
+        "blockquote": {
+          "type": "string"
+        },
+        "link": {
+          "type": "string"
+        },
+        "linkPlaceholder": {
+          "type": "string"
+        },
+        "removeLink": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "uploadingImage": {
+          "type": "string"
+        },
+        "imageUploadFailed": {
+          "type": "string"
+        },
+        "undo": {
+          "type": "string"
+        },
+        "redo": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "bold",
+        "italic",
+        "underline",
+        "strike",
+        "paragraph",
+        "heading2",
+        "heading3",
+        "bulletList",
+        "orderedList",
+        "blockquote",
+        "link",
+        "linkPlaceholder",
+        "removeLink",
+        "image",
+        "uploadingImage",
+        "imageUploadFailed",
+        "undo",
+        "redo"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -16690,7 +16770,8 @@
     "commissionRates",
     "offers",
     "roles",
-    "permissions"
+    "permissions",
+    "richTextEditor"
   ],
   "additionalProperties": false
 }
