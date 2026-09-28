@@ -13,7 +13,7 @@ import {
 } from "react"
 import { useTranslation } from "react-i18next"
 
-import { normalizeRichText, plainTextToHtml } from "../../../lib/rich-text"
+import { plainTextToHtml } from "../../../lib/rich-text"
 import { richTextContentClasses } from "../../common/rich-text/rich-text-content-classes"
 import { RichTextToolbar } from "./rich-text-toolbar"
 
@@ -53,7 +53,7 @@ export const RichTextEditor = forwardRef<HTMLDivElement, RichTextEditorProps>(
     const { t } = useTranslation()
     const [isUploading, setIsUploading] = useState(false)
 
-    const lastEmitted = useRef<string>(normalizeRichText(value))
+    const lastEmitted = useRef<string>(value ?? "")
     const onChangeRef = useRef(onChange)
     const onBlurRef = useRef(onBlur)
     const uploadImagesRef = useRef<(files: File[]) => void>(() => {})
@@ -121,7 +121,7 @@ export const RichTextEditor = forwardRef<HTMLDivElement, RichTextEditorProps>(
         },
       },
       onUpdate: ({ editor: instance }) => {
-        const html = normalizeRichText(instance.getHTML())
+        const html = instance.isEmpty ? "" : instance.getHTML()
         lastEmitted.current = html
         onChangeRef.current?.(html)
       },
@@ -168,7 +168,7 @@ export const RichTextEditor = forwardRef<HTMLDivElement, RichTextEditorProps>(
         return
       }
 
-      const next = normalizeRichText(value)
+      const next = value ?? ""
 
       if (next === lastEmitted.current) {
         return

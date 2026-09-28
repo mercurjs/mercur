@@ -17,7 +17,7 @@ export const RICH_TEXT_ALLOWED_TAGS = [
 
 export const RICH_TEXT_ALLOWED_ATTRIBUTES = ["href", "target", "rel", "src", "alt"]
 
-const HTML_TAG_REGEX = /<\/?[a-z][\s\S]*?>/i
+const HTML_TAG_REGEX = /<\/?[a-z][^<>]*>/i
 
 const escapeHtml = (value: string) =>
   value
@@ -44,37 +44,4 @@ export const plainTextToHtml = (value?: string | null): string => {
     .filter(Boolean)
     .map((paragraph) => `<p>${escapeHtml(paragraph).replace(/\n/g, "<br>")}</p>`)
     .join("")
-}
-
-export const stripHtml = (value?: string | null): string => {
-  if (!value) {
-    return ""
-  }
-
-  return value
-    .replace(/<(br|\/p|\/h[1-6]|\/li|\/blockquote)\s*\/?>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, "&")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim()
-}
-
-// Tiptap serializes an empty document as `<p></p>`.
-export const normalizeRichText = (value?: string | null): string => {
-  if (!value) {
-    return ""
-  }
-
-  const hasMedia = /<img\s/i.test(value)
-
-  if (!hasMedia && !stripHtml(value)) {
-    return ""
-  }
-
-  return value.trim()
 }

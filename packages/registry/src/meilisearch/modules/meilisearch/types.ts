@@ -1,17 +1,26 @@
 import { z } from 'zod'
 
+const removeTags = (value: string) => {
+  let result = value
+  let previous: string
+
+  do {
+    previous = result
+    result = result.replace(/<[^<>]*>/g, '')
+  } while (result !== previous)
+
+  return result.replace(/[<>]/g, '')
+}
+
 const stripHtml = (value: string | null) =>
   value === null
     ? null
-    : value
-        .replace(/<(br|\/p|\/h[1-6]|\/li|\/blockquote)\s*\/?>/gi, '\n')
-        .replace(/<[^>]+>/g, '')
+    : removeTags(
+        value.replace(/<\/?(br|p|h[1-6]|li|blockquote)\b[^<>]*>/gi, '\n')
+      )
         .replace(/&nbsp;/g, ' ')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'")
         .replace(/&amp;/g, '&')
+        .replace(/\n{2,}/g, '\n')
         .trim()
 
 export enum IndexType {
