@@ -155,7 +155,8 @@ curl -X POST http://localhost:9000/vendor/payout-accounts/<account-id>/onboardin
   -H "Authorization: Bearer <seller-token>" \
   -H "Content-Type: application/json" \
   -d '{
-    "context": {
+    "data": {
+      "refresh_url": "https://my-store.com/settings/payouts",
       "return_url": "https://my-store.com/settings/payouts"
     }
   }'

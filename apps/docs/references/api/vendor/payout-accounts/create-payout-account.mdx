@@ -9,11 +9,11 @@ Creates a payout account for the current seller through the configured payout pr
 ## Body parameters
 
 <ParamField body="data" type="object">
-  Provider-specific data forwarded when creating the account.
+  Provider-specific data forwarded when creating the account (e.g. `{ "country": "US" }` for Stripe Connect). Defaults to `{}`.
 </ParamField>
 
 <ParamField body="context" type="object">
-  Provider-specific context (e.g. `{ "country": "US" }` for Stripe Connect).
+  Additional context forwarded to the provider, such as an `idempotency_key`.
 </ParamField>
 
 ## Response
@@ -35,12 +35,12 @@ curl -X POST 'http://localhost:9000/vendor/payout-accounts' \
   -H 'Authorization: Bearer <token>' \
   -H 'x-seller-id: <seller_id>' \
   -H 'Content-Type: application/json' \
-  -d '{"context": {"country": "US"}}'
+  -d '{"data": {"country": "US"}}'
 ```
 
 ```ts JS Client
 const { payout_account } = await client.vendor.payoutAccounts.mutate({
-  context: { country: "US" },
+  data: { country: "US" },
 })
 ```
 </RequestExample>
@@ -51,7 +51,7 @@ const { payout_account } = await client.vendor.payoutAccounts.mutate({
   "payout_account": {
     "id": "pacc_01HXYZ",
     "status": "pending",
-    "context": { "country": "US" },
+    "data": { "id": "acct_1Q2w3E4r5T6y7U8i" },
     "created_at": "2026-01-15T10:00:00.000Z"
   }
 }
