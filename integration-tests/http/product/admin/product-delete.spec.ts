@@ -9,6 +9,7 @@ import {
 
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createVendorProduct } from "../../../helpers/create-product"
+import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import {
   adminHeaders,
   createAdminUser,
@@ -59,17 +60,15 @@ medusaIntegrationTestRunner({
         variantId: string,
         sku: string
       ) => {
-        const sp = await api.post(
-          `/vendor/shipping-profiles`,
-          { name: `Standard ${sku}`, type: "default" },
-          headers
-        )
+        const shippingProfile = await createShippingProfile(container, {
+          name: `Standard ${sku}`,
+        })
         const res = await api.post(
           `/vendor/offers`,
           {
             sku,
             variant_id: variantId,
-            shipping_profile_id: sp.data.shipping_profile.id,
+            shipping_profile_id: shippingProfile.id,
             inventory_items: [{}],
             prices: [{ amount: 1000, currency_code: "usd" }],
           },
