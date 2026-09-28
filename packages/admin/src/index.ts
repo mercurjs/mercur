@@ -17,7 +17,6 @@ export { useDataTable } from './hooks/use-data-table'
 // Page layout components
 export { SingleColumnPage } from './components/layout/pages/single-column-page'
 export { ActionMenu } from './components/common/action-menu'
-export { Notifications } from './components/layout/notifications/notifications'
 
 // Product constants
 export { PRODUCT_DETAIL_FIELDS, PRODUCT_DETAIL_QUERY } from './pages/products/constants'

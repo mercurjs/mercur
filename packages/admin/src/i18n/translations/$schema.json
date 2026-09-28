@@ -14264,48 +14264,6 @@
       ],
       "additionalProperties": false
     },
-    "notifications": {
-      "type": "object",
-      "properties": {
-        "domain": {
-          "type": "string"
-        },
-        "emptyState": {
-          "type": "object",
-          "properties": {
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "title",
-            "description"
-          ],
-          "additionalProperties": false
-        },
-        "accessibility": {
-          "type": "object",
-          "properties": {
-            "description": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "description"
-          ],
-          "additionalProperties": false
-        }
-      },
-      "required": [
-        "domain",
-        "emptyState",
-        "accessibility"
-      ],
-      "additionalProperties": false
-    },
     "errors": {
       "type": "object",
       "properties": {
@@ -16714,7 +16672,6 @@
     "shippingOptionTypes",
     "productTypes",
     "productTags",
-    "notifications",
     "errors",
     "statuses",
     "labels",

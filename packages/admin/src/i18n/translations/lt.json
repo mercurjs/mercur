@@ -3369,16 +3369,6 @@
       "value": "Reikšmė"
     }
   },
-  "notifications": {
-    "domain": "Pranešimai",
-    "emptyState": {
-      "title": "Pranešimų nėra",
-      "description": "Šiuo metu neturite jokių pranešimų, bet kai tik gausite, jie bus čia."
-    },
-    "accessibility": {
-      "description": "Čia bus pateikti pranešimai apie Mercur veiklą"
-    }
-  },
   "errors": {
     "serverError": "Serverio klaida - bandykite dar kartą vėliau.",
     "invalidCredentials": "Klaidingas el. pašto adresas arba slaptažodis"

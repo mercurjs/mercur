@@ -3475,16 +3475,6 @@
       "value": "Valoare"
     }
   },
-  "notifications": {
-    "domain": "Notificări",
-    "emptyState": {
-      "title": "Fără notificări",
-      "description": "Nu aveți notificări momentan, dar odată ce o faceți vor locui aici."
-    },
-    "accessibility": {
-      "description": "notificările despre activitățile Mercur vor fi listate aici."
-    }
-  },
   "errors": {
     "serverError": "Eroare de server - Încercați din nou mai târziu.",
     "invalidCredentials": "E-mail sau parolă greșită"

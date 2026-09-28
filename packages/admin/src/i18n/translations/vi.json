@@ -3365,16 +3365,6 @@
       "value": "Giá trị"
     }
   },
-  "notifications": {
-    "domain": "Thông báo",
-    "emptyState": {
-      "title": "Không có thông báo",
-      "description": "Hiện tại bạn không có thông báo nào, nhưng khi có, chúng sẽ xuất hiện ở đây."
-    },
-    "accessibility": {
-      "description": "Thông báo về các hoạt động của Mercur sẽ được liệt kê ở đây."
-    }
-  },
   "errors": {
     "serverError": "Lỗi máy chủ - Thử lại sau.",
     "invalidCredentials": "Email hoặc mật khẩu sai"
