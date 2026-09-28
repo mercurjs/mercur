@@ -38,6 +38,7 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "default": "'{}'",
           "mappedType": "json"
         },
         "context": {

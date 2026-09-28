@@ -15,11 +15,11 @@ Creates an onboarding session with the payout provider. For Stripe Connect, the 
 ## Body parameters
 
 <ParamField body="data" type="object">
-  Provider-specific data forwarded when creating the onboarding.
+  Provider-specific data forwarded when creating the onboarding (e.g. `refresh_url` and `return_url` for Stripe Connect). Merged over the payout account's stored `data`.
 </ParamField>
 
 <ParamField body="context" type="object">
-  Provider-specific context (e.g. `refresh_url` and `return_url` for Stripe Connect).
+  Additional context forwarded to the provider, such as an `idempotency_key`.
 </ParamField>
 
 ## Response
@@ -40,13 +40,13 @@ curl -X POST 'http://localhost:9000/vendor/payout-accounts/pacc_01HXYZ/onboardin
   -H 'Authorization: Bearer <token>' \
   -H 'x-seller-id: <seller_id>' \
   -H 'Content-Type: application/json' \
-  -d '{"context": {"refresh_url": "https://vendor.example.com/payouts", "return_url": "https://vendor.example.com/payouts"}}'
+  -d '{"data": {"refresh_url": "https://vendor.example.com/payouts", "return_url": "https://vendor.example.com/payouts"}}'
 ```
 
 ```ts JS Client
 const { onboarding } = await client.vendor.payoutAccounts.$id.onboarding.mutate({
   $id: "pacc_01HXYZ",
-  context: {
+  data: {
     refresh_url: "https://vendor.example.com/payouts",
     return_url: "https://vendor.example.com/payouts",
   },
@@ -60,7 +60,6 @@ const { onboarding } = await client.vendor.payoutAccounts.$id.onboarding.mutate(
   "onboarding": {
     "id": "onb_01HXYZ",
     "data": { "url": "https://connect.stripe.com/setup/s/..." },
-    "context": { "return_url": "https://vendor.example.com/payouts" },
     "created_at": "2026-01-15T10:00:00.000Z"
   }
 }
