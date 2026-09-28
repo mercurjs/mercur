@@ -10,6 +10,7 @@ import { Shell } from "../shell";
 import { UserMenu } from "../user-menu";
 import menuItemsModule from "virtual:mercur/menu-items";
 import { usePermissions } from "@mercurjs/dashboard-shared";
+import { useExpandedSidebar } from "../../../providers/sidebar-provider";
 import {
   filterMenuItemsByPermissions,
   getMenuItemsByType,
@@ -17,8 +18,10 @@ import {
 import { getRoutePermission } from "../../../lib/permissions/route-permissions";
 
 export const SettingsLayout = () => {
+  useExpandedSidebar();
+
   return (
-    <Shell>
+    <Shell rail={false}>
       <SettingsSidebar />
     </Shell>
   );

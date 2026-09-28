@@ -18,7 +18,15 @@ import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks"
 import { useSidebar } from "../../../providers/sidebar-provider"
 import { ProgressBar } from "../../common/progress-bar"
 
-export const Shell = ({ children }: PropsWithChildren) => {
+type ShellProps = PropsWithChildren<{
+  /**
+   * Whether the collapsed desktop sidebar shrinks to an icon rail. Sidebars
+   * without icons hide completely instead.
+   */
+  rail?: boolean
+}>
+
+export const Shell = ({ children, rail = true }: ShellProps) => {
   const globalShortcuts = useGlobalShortcuts()
   const navigation = useNavigation()
 
@@ -30,7 +38,7 @@ export const Shell = ({ children }: PropsWithChildren) => {
         <NavigationBar loading={loading} />
         <div>
           <MobileSidebarContainer>{children}</MobileSidebarContainer>
-          <DesktopSidebarContainer>{children}</DesktopSidebarContainer>
+          <DesktopSidebarContainer rail={rail}>{children}</DesktopSidebarContainer>
         </div>
         <div className="flex h-screen w-full flex-col overflow-auto">
           <Topbar />
@@ -206,7 +214,10 @@ const Topbar = () => {
   )
 }
 
-const DesktopSidebarContainer = ({ children }: PropsWithChildren) => {
+const DesktopSidebarContainer = ({
+  children,
+  rail,
+}: PropsWithChildren<{ rail: boolean }>) => {
   const { state } = useSidebar()
 
   return (
@@ -215,10 +226,16 @@ const DesktopSidebarContainer = ({ children }: PropsWithChildren) => {
       className={clx(
         "group/sidebar hidden h-screen w-[220px] shrink-0 overflow-x-hidden border-e lg:flex",
         "transition-[width] duration-200 ease-sidebar motion-reduce:transition-none",
-        "data-[state=collapsed]:w-[52px]"
+        rail
+          ? "data-[state=collapsed]:w-[52px]"
+          : "data-[state=collapsed]:w-0 data-[state=collapsed]:border-e-0"
       )}
     >
-      {children}
+      {rail ? (
+        children
+      ) : (
+        <div className="flex w-[220px] shrink-0">{children}</div>
+      )}
     </div>
   )
 }

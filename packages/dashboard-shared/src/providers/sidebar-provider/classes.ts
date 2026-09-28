@@ -9,3 +9,10 @@ export const SIDEBAR_RAIL_FADE = [
   "group-data-[state=collapsed]/sidebar:opacity-0",
   "group-data-[state=collapsed]/sidebar:delay-0 group-data-[state=collapsed]/sidebar:duration-75",
 ].join(" ")
+
+/**
+ * Sidebar dropdowns take the trigger's width, which in the icon rail is only
+ * the avatar — the floor keeps them readable when opened from the rail.
+ */
+export const SIDEBAR_MENU_CONTENT =
+  "w-[var(--radix-dropdown-menu-trigger-width)] min-w-[196px]"
