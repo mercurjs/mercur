@@ -5,6 +5,7 @@ import { useQueries } from "@tanstack/react-query";
 import { Fragment, ReactNode, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
+import { RichText } from "../rich-text";
 import { Thumbnail } from "../thumbnail";
 import {
   AttributeChange,
@@ -228,6 +229,24 @@ const FieldDiffValue = ({
             {formatFieldValue(diff.next, diff.field, booleanLabels)}
           </ValueText>
         )}
+      </div>
+    );
+  }
+
+  const previousText = typeof diff.previous === "string" ? diff.previous : null;
+  const nextText = typeof diff.next === "string" ? diff.next : null;
+
+  if (diff.field === "description") {
+    return (
+      <div className="flex flex-col gap-y-2">
+        {hasPrev && (
+          <RichText
+            html={previousText}
+            className="line-through opacity-60"
+            collapsedHeight={200}
+          />
+        )}
+        <RichText html={nextText} collapsedHeight={200} />
       </div>
     );
   }

@@ -142,6 +142,42 @@ medusaIntegrationTestRunner({
           expect(updateActions[0].details.field).toBe("description")
         })
 
+        it("sanitizes rich-text descriptions on create and update", async () => {
+          const created = await api.post(
+            `/vendor/products`,
+            {
+              title: "Rich",
+              description:
+                '<h2>Hello</h2><p onclick="steal()">ok</p><script>alert(1)</script>',
+            },
+            sellerHeaders,
+          )
+          expect(created.data.product.description).toBe("<h2>Hello</h2><p>ok</p>")
+
+          const productId = created.data.product.id
+          const res = await api.post(
+            `/vendor/products/${productId}`,
+            {
+              description:
+                '<p><strong>Bold</strong></p><img src="https://cdn.example.com/a.png" alt="a" onerror="x()"><img src="javascript:alert(1)"><a href="javascript:alert(1)">x</a>',
+            },
+            sellerHeaders,
+          )
+
+          const sanitized =
+            '<p><strong>Bold</strong></p><img src="https://cdn.example.com/a.png" alt="a" /><a rel="noopener noreferrer nofollow" target="_blank">x</a>'
+
+          const update = (res.data.product_change.actions as Array<any>).find(
+            (a) =>
+              a.action === ProductChangeActionType.UPDATE &&
+              a.details.field === "description",
+          )
+          expect(update.details.value).toBe(sanitized)
+
+          const got = await api.get(`/vendor/products/${productId}`, sellerHeaders)
+          expect(got.data.product.description).toBe(sanitized)
+        })
+
         it("auto-confirm applies the change when PRODUCT_REQUEST flag is disabled (default test env)", async () => {
           const productId = await createVendorProduct("Before")
 
