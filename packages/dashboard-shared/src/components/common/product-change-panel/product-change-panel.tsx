@@ -23,7 +23,6 @@ import {
   type BooleanLabels,
   type ReferenceField,
 } from "../../../lib/product-change-diff";
-import { isHtml } from "../../../lib/rich-text";
 
 type WrappedAttributeValue = { id: string; name?: string | null };
 
@@ -237,7 +236,7 @@ const FieldDiffValue = ({
   const previousText = typeof diff.previous === "string" ? diff.previous : null;
   const nextText = typeof diff.next === "string" ? diff.next : null;
 
-  if (diff.field === "description" && (isHtml(previousText) || isHtml(nextText))) {
+  if (diff.field === "description") {
     return (
       <div className="flex flex-col gap-y-2">
         {hasPrev && (
