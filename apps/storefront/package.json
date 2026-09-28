@@ -34,7 +34,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.88.0",
     "react-i18next": "^17.0.14",
-    "sanitize-html": "^2.17.7",
+    "sanitize-html": "2.17.5",
     "sonner": "^2.0.7",
     "tailwind-merge": "^2.6.0",
     "talkjs": "^0.37.0",

@@ -99,7 +99,7 @@
     "@orama/orama": "^3.1.18",
     "pkg-dir": "4",
     "resolve-cwd": "^3.0.0",
-    "sanitize-html": "^2.17.7",
+    "sanitize-html": "2.17.5",
     "zod": "4.6.5"
   }
 }
