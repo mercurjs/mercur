@@ -23,7 +23,11 @@ import { useStore } from "../../../hooks/api/store";
 import { useDocumentDirection } from "../../../hooks/use-document-direction";
 import { queryClient } from "../../../lib/query-client";
 import { useSearch } from "../../../providers/search-provider";
-import { SIDEBAR_RAIL_FADE } from "../../../providers/sidebar-provider";
+import {
+  SIDEBAR_MENU_CONTENT,
+  SIDEBAR_RAIL_FADE,
+  useSidebarMenuPlacement,
+} from "../../../providers/sidebar-provider";
 import { Skeleton } from "../../common/skeleton";
 import { INavItem, NavItem } from "../../layout/nav-item";
 import { Shell } from "../../layout/shell";
@@ -209,6 +213,7 @@ const Header = () => {
   const { t } = useTranslation();
   const { store, isPending, isError, error } = useStore();
   const direction = useDocumentDirection();
+  const menuPlacement = useSidebarMenuPlacement("start");
   const name = store?.name;
   const fallback = store?.name?.slice(0, 1).toUpperCase();
 
@@ -262,7 +267,8 @@ const Header = () => {
         </DropdownMenu.Trigger>
         {isLoaded && (
           <DropdownMenu.Content
-            className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-0"
+            {...menuPlacement}
+            className={SIDEBAR_MENU_CONTENT}
             data-testid="sidebar-header-dropdown-content"
           >
             <div

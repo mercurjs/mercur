@@ -23,7 +23,11 @@ import { Shell } from "../../layout/shell";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMe, useSelectSeller, useSellers } from "../../../hooks/api";
 import { useSearch } from "../../../providers/search-provider";
-import { SIDEBAR_RAIL_FADE } from "../../../providers/sidebar-provider";
+import {
+  SIDEBAR_MENU_CONTENT,
+  SIDEBAR_RAIL_FADE,
+  useSidebarMenuPlacement,
+} from "../../../providers/sidebar-provider";
 import { UserMenu } from "../user-menu";
 import { useDocumentDirection } from "../../../hooks/use-document-direction";
 import menuItemsModule from "virtual:mercur/menu-items";
@@ -233,6 +237,7 @@ export const Header = () => {
   const { t } = useTranslation();
   const { seller_member, isPending, isError, error } = useMe();
   const direction = useDocumentDirection();
+  const menuPlacement = useSidebarMenuPlacement("start");
   const name = seller_member?.seller.name;
   const fallback = seller_member?.seller?.name?.slice(0, 1).toUpperCase();
 
@@ -276,7 +281,7 @@ export const Header = () => {
           <EllipsisHorizontal className={clx("text-ui-fg-muted", SIDEBAR_RAIL_FADE)} />
         </DropdownMenu.Trigger>
         {isLoaded && (
-          <DropdownMenu.Content className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-0">
+          <DropdownMenu.Content {...menuPlacement} className={SIDEBAR_MENU_CONTENT}>
             <div className="flex items-center gap-x-3 px-2 py-1">
               <Avatar variant="squared" size="small" fallback={fallback} />
               <div className="flex flex-col overflow-hidden">

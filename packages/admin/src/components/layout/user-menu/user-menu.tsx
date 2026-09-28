@@ -29,13 +29,18 @@ import { useLogout, useMe } from "../../../hooks/api"
 import { queryClient } from "../../../lib/query-client"
 import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks"
 import { useTheme } from "../../../providers/theme-provider"
-import { SIDEBAR_RAIL_FADE } from "../../../providers/sidebar-provider"
+import {
+  SIDEBAR_MENU_CONTENT,
+  SIDEBAR_RAIL_FADE,
+  useSidebarMenuPlacement,
+} from "../../../providers/sidebar-provider"
 import { useDocumentDirection } from "../../../hooks/use-document-direction"
 
 export const UserMenu = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const direction = useDocumentDirection()
+  const menuPlacement = useSidebarMenuPlacement("end")
 
   const [openMenu, setOpenMenu] = useState(false)
   const [openModal, setOpenModal] = useState(false)
@@ -49,7 +54,7 @@ export const UserMenu = () => {
     <div data-testid="sidebar-user-menu">
       <DropdownMenu dir={direction} open={openMenu} onOpenChange={setOpenMenu} data-testid="sidebar-user-menu-dropdown">
         <UserBadge />
-        <DropdownMenu.Content className="min-w-[var(--radix-dropdown-menu-trigger-width)] max-w-[var(--radix-dropdown-menu-trigger-width)]" data-testid="sidebar-user-menu-content">
+        <DropdownMenu.Content {...menuPlacement} className={SIDEBAR_MENU_CONTENT} data-testid="sidebar-user-menu-content">
           <UserItem />
           <DropdownMenu.Separator data-testid="sidebar-user-menu-separator-1" />
           <DropdownMenu.Item asChild data-testid="sidebar-user-menu-profile-settings">
