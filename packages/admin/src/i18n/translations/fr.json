@@ -3370,16 +3370,6 @@
       "value": "Valeur"
     }
   },
-  "notifications": {
-    "domain": "Notifications",
-    "emptyState": {
-      "title": "Aucune notification",
-      "description": "Vous n'avez aucune notification pour le moment, mais elles apparaîtront ici une fois que vous les aurez."
-    },
-    "accessibility": {
-      "description": "Les notifications concernant les activités Mercur seront listées ici."
-    }
-  },
   "errors": {
     "serverError": "Erreur serveur - Réessayez plus tard.",
     "invalidCredentials": "Mauvais email ou mot de passe"

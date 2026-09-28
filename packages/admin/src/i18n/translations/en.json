@@ -3766,16 +3766,6 @@
       "value": "Value"
     }
   },
-  "notifications": {
-    "domain": "Notifications",
-    "emptyState": {
-      "title": "No notifications",
-      "description": "You don't have any notifications at the moment, but once you do they will live here."
-    },
-    "accessibility": {
-      "description": "Notifications about Mercur activities will be listed here."
-    }
-  },
   "errors": {
     "serverError": "Server error - Try again later.",
     "invalidCredentials": "Wrong email or password"
