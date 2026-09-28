@@ -3368,16 +3368,6 @@
       "value": "Waarde"
     }
   },
-  "notifications": {
-    "domain": "Notificaties",
-    "emptyState": {
-      "title": "Geen notificaties",
-      "description": "U heeft momenteel geen notificaties, maar zodra u die heeft, verschijnen ze hier."
-    },
-    "accessibility": {
-      "description": "Notificaties over Mercur-activiteiten worden hier vermeld."
-    }
-  },
   "errors": {
     "serverError": "Serverfout - Probeer het later opnieuw.",
     "invalidCredentials": "Onjuiste e-mail of wachtwoord"

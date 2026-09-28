@@ -8,9 +8,15 @@ incompatible (`patchedDependencies` / the `patch:` protocol / `patchedDependenci
 / nothing native), and none of them reach a marketplace that installed
 `@mercurjs/core` into an existing Medusa app.
 
-So the diffs live here and are applied from `withMercur()`, which every project
-calls in `medusa-config.ts`. They travel with the package version and arrive on a
-normal `@mercurjs/core` upgrade.
+So the diffs live here and are applied as a side effect of importing
+`@mercurjs/core` (or `@mercurjs/core/workflows`), via `register.ts`. They travel
+with the package version and arrive on a normal `@mercurjs/core` upgrade.
+
+It has to be the import, not the `withMercur()` call: a config's imports are all
+evaluated before any call in it, so a block imported next to `@mercurjs/core` in
+`medusa-config.ts` would load core-flows unpatched, and a workflow composed from
+unpatched source never gains the hooks a patch adds. Import `@mercurjs/core`
+before anything that pulls in core-flows.
 
 ## How they are applied
 
@@ -19,11 +25,15 @@ packages, and workers would race each other doing it. `loader.ts` installs a
 `.js` loader hook and compiles the patched source in place of the original on
 first require.
 
-`withMercur()` is not always the first thing to pull in a target package —
+`@mercurjs/core` is not always the first thing to pull in a target package —
 `@medusajs/test-utils` requires `@medusajs/core-flows` before it loads
 `medusa-config` — so a patched file may already sit in the require cache with its
 unpatched source. Those files (only those files, never the whole package) are
-evicted and required again through the hook. A workflow module re-registers
+evicted and required again through the hook, and the fresh exports are copied
+onto the evicted module's `exports` object: every index above the file
+re-exports it through a getter over that object, so without the copy
+`require("@medusajs/core-flows")` would keep returning the unpatched workflow.
+Anything that already destructured the old value keeps it. A workflow module re-registers
 itself under the same id on that second load, and since the reload replays the
 same source, replacing the previous definition is the correct outcome: Medusa's
 duplicate guard is relaxed for the duration of the reload, because generated step
@@ -94,13 +104,15 @@ upstream in Medusa, not here.
 
 ## Escape hatch
 
-```ts
-withMercur({
-  projectConfig: {
-    mercur: { disabledPatches: ["@medusajs+core-flows@2.17.2.patch"] },
-  },
-})
+```bash
+MERCUR_DISABLED_PATCHES="@medusajs+core-flows@2.18.0.patch" medusa develop
 ```
+
+Comma separated. It is read from the process environment when `@mercurjs/core`
+is imported, so it must be set before `medusa-config.ts` is evaluated — a `.env`
+loaded by `loadEnv()` inside the config is too late. The older
+`projectConfig.mercur.disabledPatches` is read after the patches are applied, so
+listing a patch only there fails the boot with a pointer to the variable.
 
 Skipping a patch restores the upstream bug it corrects; the reason is logged.
 

@@ -3471,16 +3471,6 @@
       "value": "值"
     }
   },
-  "notifications": {
-    "domain": "通知",
-    "emptyState": {
-      "title": "无通知",
-      "description": "您目前没有任何通知,但一旦有通知它们将显示在这里。"
-    },
-    "accessibility": {
-      "description": "关于 Mercur 活动的通知将在此处列出。"
-    }
-  },
   "errors": {
     "serverError": "服务器错误 - 请稍后重试。",
     "invalidCredentials": "电子邮件或密码错误"
