@@ -10,11 +10,12 @@ import {
 import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
-import { deleteProductsWorkflow, updateProductsWorkflow } from "@medusajs/medusa/core-flows"
+import { updateProductsWorkflow } from "@medusajs/medusa/core-flows"
 import {
   enrichProductAttributes,
   wrapProductVariantsWithOffers,
 } from "../../../utils"
+import { productEditDeleteProductWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-delete-product"
 import { AdminUpdateProductType } from "../validators"
 
 export const GET = async (
@@ -100,8 +101,12 @@ export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminProductDeleteResponse>
 ) => {
-  await deleteProductsWorkflow(req.scope).run({
-    input: { ids: [req.params.id] },
+  await productEditDeleteProductWorkflow(req.scope).run({
+    input: {
+      product_id: req.params.id,
+      created_by: req.auth_context.actor_id,
+      auto_confirm: true,
+    },
   })
 
   res.status(200).json({

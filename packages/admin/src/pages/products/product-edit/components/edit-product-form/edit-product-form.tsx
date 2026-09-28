@@ -1,5 +1,6 @@
 import { HttpTypes } from "@medusajs/types";
-import { Button, Input, Select, Text, Textarea, toast } from "@medusajs/ui";
+import { Button, Input, Select, Text, toast } from "@medusajs/ui";
+import { RichTextEditor, plainTextToHtml } from "@mercurjs/dashboard-shared";
 
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
@@ -11,6 +12,7 @@ import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useUpdateProduct } from "../../../../../hooks/api/products";
 import { useDocumentDirection } from "../../../../../hooks/use-document-direction";
 import { transformNullableFormData } from "../../../../../lib/form-helpers";
+import { uploadRichTextImage } from "../../../../../lib/upload-rich-text-image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -45,7 +47,7 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
       material: product.material || "",
       subtitle: product.subtitle || "",
       handle: product.handle || "",
-      description: product.description || "",
+      description: plainTextToHtml(product.description),
       discountable: product.discountable,
     },
     resolver: zodResolver(EditProductSchema),
@@ -278,8 +280,9 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
                       </Form.Label>
                       <Form.Control data-testid="product-edit-form-description-control">
                         <div data-testid="product-edit-form-description-textarea-wrapper">
-                          <Textarea
+                          <RichTextEditor
                             {...field}
+                            onUpload={uploadRichTextImage}
                             data-testid="product-edit-form-description-textarea"
                           />
                         </div>

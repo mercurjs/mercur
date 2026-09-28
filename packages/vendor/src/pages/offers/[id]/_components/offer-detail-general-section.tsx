@@ -3,7 +3,11 @@ import { Container, Heading, StatusBadge, toast, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
-import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
+import {
+  DisplayExtensionZone,
+  DisplayField,
+  RichText,
+} from "@mercurjs/dashboard-shared"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
 import { SectionRow } from "../../../../components/common/section"
@@ -115,7 +119,16 @@ export const OfferDetailGeneralSection = ({
       <DisplayField model="offer" zone="general" id="description" data={product}>
         <SectionRow
           title={t("fields.description")}
-          value={product.description || "-"}
+          value={
+            product.description ? (
+              <RichText
+                html={product.description}
+                className="w-full"
+                collapsedHeight={200}
+                data-testid="offer-product-description"
+              />
+            ) : undefined
+          }
         />
       </DisplayField>
       <DisplayField model="offer" zone="general" id="subtitle" data={product}>

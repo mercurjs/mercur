@@ -190,6 +190,19 @@ describe('findAndTransformMeilisearchProducts', () => {
     expect(result[0]!.seller).toBeNull()
   })
 
+  it('indexes the rich-text description as plain text', async () => {
+    const container = makeContainer([
+      {
+        ...baseProduct,
+        description: '<h2>Great</h2><p>shoes &amp; <strong>socks</strong></p><img src="https://cdn.example.com/a.png">',
+      },
+    ]) as any
+
+    const result = await findAndTransformMeilisearchProducts(container, ['prod_1'])
+
+    expect(result[0]!.description).toBe('Great\nshoes & socks')
+  })
+
   it('flattens options into key/value records', async () => {
     const container = makeContainer([{ ...baseProduct }]) as any
 

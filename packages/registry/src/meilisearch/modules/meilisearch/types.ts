@@ -1,5 +1,28 @@
 import { z } from 'zod'
 
+const removeTags = (value: string) => {
+  let result = value
+  let previous: string
+
+  do {
+    previous = result
+    result = result.replace(/<[^<>]*>/g, '')
+  } while (result !== previous)
+
+  return result.replace(/[<>]/g, '')
+}
+
+const stripHtml = (value: string | null) =>
+  value === null
+    ? null
+    : removeTags(
+        value.replace(/<\/?(br|p|h[1-6]|li|blockquote)\b[^<>]*>/gi, '\n')
+      )
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/\n{2,}/g, '\n')
+        .trim()
+
 export enum IndexType {
   PRODUCT = 'products',
 }
@@ -49,7 +72,7 @@ export const MeilisearchProductValidator = z.object({
   title: z.string(),
   handle: z.string(),
   subtitle: z.string().nullable(),
-  description: z.string().nullable(),
+  description: z.string().nullable().transform(stripHtml),
   thumbnail: z.string().nullable(),
   status: z.string(),
   categories: z

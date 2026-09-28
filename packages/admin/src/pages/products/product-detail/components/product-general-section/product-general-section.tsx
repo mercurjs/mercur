@@ -5,7 +5,11 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import { HttpTypes } from "@medusajs/types";
-import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared";
+import {
+  DisplayExtensionZone,
+  DisplayField,
+  RichText,
+} from "@mercurjs/dashboard-shared";
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { SectionRow } from "../../../../../components/common/section";
 import { useDeleteProduct } from "../../../../../hooks/api/products";
@@ -121,7 +125,16 @@ export const ProductGeneralSection = ({
       <DisplayField model="product" zone="general" id="description" data={product}>
         <SectionRow
           title={t("fields.description")}
-          value={product.description}
+          value={
+            product.description ? (
+              <RichText
+                html={product.description}
+                className="w-full"
+                collapsedHeight={200}
+                data-testid="product-description"
+              />
+            ) : undefined
+          }
           data-testid="product-description-row"
         />
       </DisplayField>

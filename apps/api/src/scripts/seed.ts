@@ -11,6 +11,7 @@ import {
   type CreateProductDTO,
 } from "@mercurjs/types";
 import { seedCatalog } from "./seed-catalog";
+import { buildProductDescription } from "./seed-descriptions";
 import {
   approveSellerWorkflow,
   createOffersWorkflow,
@@ -772,7 +773,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
     return {
       title: item.title,
       category_ids: [nextChildId(item.category)],
-      description: item.description,
+      description: buildProductDescription(item),
       handle,
       weight: item.footwear ? 1200 : 400,
       status: ProductStatus.PUBLISHED,

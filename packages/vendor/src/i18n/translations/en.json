@@ -151,6 +151,7 @@
     "back": "Back",
     "close": "Close",
     "showMore": "Show more",
+    "showLess": "Show less",
     "continue": "Continue",
     "continueWithEmail": "Continue with Email",
     "idCopiedToClipboard": "ID copied to clipboard",
@@ -4422,5 +4423,25 @@
       "update": "Update",
       "delete": "Delete"
     }
+  },
+  "richTextEditor": {
+    "bold": "Bold",
+    "italic": "Italic",
+    "underline": "Underline",
+    "strike": "Strikethrough",
+    "paragraph": "Paragraph",
+    "heading2": "Heading",
+    "heading3": "Subheading",
+    "bulletList": "Bulleted list",
+    "orderedList": "Numbered list",
+    "blockquote": "Quote",
+    "link": "Link",
+    "linkPlaceholder": "https://example.com",
+    "removeLink": "Remove link",
+    "image": "Insert image",
+    "uploadingImage": "Uploading image...",
+    "imageUploadFailed": "Failed to upload image",
+    "undo": "Undo",
+    "redo": "Redo"
   }
 }
