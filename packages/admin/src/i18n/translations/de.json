@@ -3370,16 +3370,6 @@
       "value": "Wert"
     }
   },
-  "notifications": {
-    "domain": "Benachrichtigungen",
-    "emptyState": {
-      "title": "Keine Benachrichtigungen",
-      "description": "Sie haben im Moment keine Benachrichtigungen, aber sobald Sie dies tun, werden sie hier angezeigt."
-    },
-    "accessibility": {
-      "description": "Benachrichtigungen über Mercur-Aktivitäten werden hier aufgelistet."
-    }
-  },
   "errors": {
     "serverError": "Serverfehler – Versuchen Sie es später noch einmal.",
     "invalidCredentials": "Falsche E-Mail oder Passwort"

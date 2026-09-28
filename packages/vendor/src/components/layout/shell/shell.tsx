@@ -202,7 +202,9 @@ const Topbar = () => {
         <ToggleSidebar />
         <Breadcrumbs />
       </div>
-      <div className="flex items-center justify-end gap-x-3" />
+      <div className="flex items-center justify-end gap-x-3">
+        <WidgetZone id="topbar" />
+      </div>
     </div>
   )
 }

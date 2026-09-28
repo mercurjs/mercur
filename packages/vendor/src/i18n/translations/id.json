@@ -3471,16 +3471,6 @@
       "value": "Nilai"
     }
   },
-  "notifications": {
-    "domain": "Notifikasi",
-    "emptyState": {
-      "title": "Tidak ada notifikasi",
-      "description": "Anda belum memiliki notifikasi saat ini, tetapi setelah ada, akan muncul di sini."
-    },
-    "accessibility": {
-      "description": "Notifikasi tentang aktivitas Mercur akan dicantumkan di sini."
-    }
-  },
   "errors": {
     "serverError": "Kesalahan server - Coba lagi nanti.",
     "invalidCredentials": "Email atau kata sandi salah"

@@ -3385,16 +3385,6 @@
       "value": "Valor"
     }
   },
-  "notifications": {
-    "domain": "Notificaciones",
-    "emptyState": {
-      "title": "Sin notificaciones",
-      "description": "No tienes notificaciones por el momento, pero una vez las tengas aparecerán aquí."
-    },
-    "accessibility": {
-      "description": "Las notificaciones sobre las actividades de Mercur se mostrarán aquí."
-    }
-  },
   "errors": {
     "serverError": "Error de servidor - Intenta nuevamente más tarde.",
     "invalidCredentials": "Correo electrónico o contraseña incorrectos"
