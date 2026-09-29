@@ -4,6 +4,7 @@ export const listVendorSellersQueryConfig = {
     return ([
       "id",
       "seller.*",
+      "role_id",
     ])
   },
   defaultLimit: 50,
@@ -43,6 +44,7 @@ export const listVendorMembersQueryConfig = {
     return ([
       "id",
       "is_owner",
+      "role_id",
       "member.*",
       "created_at",
     ])
@@ -56,6 +58,7 @@ export const retrieveVendorMemberQueryConfig = {
     return ([
       "id",
       "is_owner",
+      "role_id",
       "member.*",
       "created_at",
     ])

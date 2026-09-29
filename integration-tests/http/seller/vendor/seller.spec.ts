@@ -940,6 +940,18 @@ medusaIntegrationTestRunner({
           expect(sm.member).toBeDefined()
         })
 
+        it("should return role_id for each member by default", async () => {
+          const response = await api.get(
+            `/vendor/sellers/${sellerA.id}/members`,
+            headersA
+          )
+
+          expect(response.status).toEqual(200)
+          for (const sm of response.data.seller_members) {
+            expect(sm.role_id).toEqual(SellerRole.SELLER_ADMINISTRATION)
+          }
+        })
+
         it("should have owner member with is_owner true", async () => {
           const response = await api.get(
             `/vendor/sellers/${sellerA.id}/members`,

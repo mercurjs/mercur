@@ -57,6 +57,7 @@ export const adminMembersQueryConfig = {
       return ([
         "id",
         "is_owner",
+        "role_id",
         "member.*",
         "created_at",
       ])

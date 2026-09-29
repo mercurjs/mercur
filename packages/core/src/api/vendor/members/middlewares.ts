@@ -13,6 +13,7 @@ const retrieveVendorMemberMeQueryConfig = {
     return ([
       "id",
       "is_owner",
+      "role_id",
       "member.*",
       "seller.*",
       "seller.address.*",
