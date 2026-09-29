@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   MedusaNextFunction,
   MedusaRequest,
@@ -49,6 +48,7 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/product-attributes",
     middlewares: [
+      requirePermission("attributes", "view"),
       validateAndTransformQuery(
         AdminGetProductAttributesParams,
         adminProductAttributeQueryConfig.list
@@ -57,72 +57,47 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
       renameCategoryIdFilter,
       filterAttributesByCategoryLinkOrGlobal,
     ],
-    policies: [
-      {
-        resource: PolicyResource.product_attribute,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/product-attributes",
     middlewares: [
+      requirePermission("attributes", "edit"),
       validateAndTransformBody(AdminCreateProductAttribute),
       validateAndTransformQuery(
         AdminGetProductAttributeParams,
         adminProductAttributeQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.product_attribute,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/admin/product-attributes/:id",
     middlewares: [
+      requirePermission("attributes", "view"),
       validateAndTransformQuery(
         AdminGetProductAttributeParams,
         adminProductAttributeQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product_attribute,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/admin/product-attributes/:id",
     middlewares: [
+      requirePermission("attributes", "edit"),
       validateAndTransformBody(AdminUpdateProductAttribute),
       validateAndTransformQuery(
         AdminGetProductAttributeParams,
         adminProductAttributeQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.product_attribute,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/admin/product-attributes/:id",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.product_attribute,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("attributes", "manage"),
     ],
   },
 
@@ -130,50 +105,35 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/product-attributes/:id/values",
     middlewares: [
+      requirePermission("attributes", "edit"),
       validateAndTransformBody(AdminUpsertProductAttributeValues),
       validateAndTransformQuery(
         AdminGetProductAttributeParams,
         adminProductAttributeQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.product_attribute,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/product-attributes/:id/values/:value_id",
     middlewares: [
+      requirePermission("attributes", "edit"),
       validateAndTransformBody(AdminUpdateProductAttributeValue),
       validateAndTransformQuery(
         AdminGetProductAttributeParams,
         adminProductAttributeQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.product_attribute,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/admin/product-attributes/:id/values/:value_id",
     middlewares: [
+      requirePermission("attributes", "manage"),
       validateAndTransformQuery(
         AdminGetProductAttributeParams,
         adminProductAttributeQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product_attribute,
-        operation: PolicyOperation.delete,
-      },
     ],
   },
 ]

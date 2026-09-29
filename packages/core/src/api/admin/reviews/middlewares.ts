@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { validateAndTransformBody, validateAndTransformQuery } from "@medusajs/framework"
 import { maybeApplyLinkFilter } from "@medusajs/framework/http"
 import { MiddlewareRoute } from "@medusajs/medusa"
@@ -18,6 +17,7 @@ export const adminReviewsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/reviews",
     middlewares: [
+      requirePermission("reviews", "view"),
       validateAndTransformQuery(AdminGetReviewsParams, adminReviewsConfig.list),
       maybeApplyLinkFilter({
         entryPoint: sellerReview.entryPoint,
@@ -30,72 +30,47 @@ export const adminReviewsMiddlewares: MiddlewareRoute[] = [
         filterableField: "customer_id",
       }),
     ],
-    policies: [
-      {
-        resource: PolicyResource.review,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/admin/reviews/:id",
     middlewares: [
+      requirePermission("reviews", "view"),
       validateAndTransformQuery(
         AdminGetReviewsParams,
         adminReviewsConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.review,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/admin/reviews/:id",
     middlewares: [
+      requirePermission("reviews", "edit"),
       validateAndTransformQuery(
         AdminGetReviewsParams,
         adminReviewsConfig.retrieve
       ),
       validateAndTransformBody(AdminUpdateReview),
     ],
-    policies: [
-      {
-        resource: PolicyResource.review,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/reviews/:id/respond",
     middlewares: [
+      requirePermission("reviews", "edit"),
       validateAndTransformQuery(
         AdminGetReviewsParams,
         adminReviewsConfig.retrieve
       ),
       validateAndTransformBody(AdminRespondReview),
     ],
-    policies: [
-      {
-        resource: PolicyResource.review,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/admin/reviews/:id",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.review,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("reviews", "manage"),
     ],
   },
 ]

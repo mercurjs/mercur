@@ -1,33 +1,17 @@
 import { Spinner } from "@medusajs/icons";
-import { useMemo } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useMePermissions } from "../../../hooks/api/rbac-roles";
+import { useCurrentPermissions } from "../../../hooks/api/permissions";
 import { useMe } from "../../../hooks/api/users";
-import type { Permission, UserPolicy } from "@mercurjs/dashboard-sdk";
 import { PermissionsProvider } from "@mercurjs/dashboard-shared";
-import { useFeatureFlag } from "../../../providers/feature-flag-provider";
 import { SearchProvider } from "../../../providers/search-provider";
 import { SidebarProvider } from "../../../providers/sidebar-provider";
 
 export const ProtectedRoute = () => {
   const location = useLocation();
-  const isRbacEnabled = useFeatureFlag("rbac");
 
   const { user, isLoading: isLoadingUser } = useMe();
-  const { data: permissionsResponse, isLoading: isLoadingPermissions } =
-    useMePermissions({
-      // Don't fetch permissions until we know the user is authenticated.
-      enabled: !!user && isRbacEnabled,
-    });
-
-  const policy: UserPolicy | null = useMemo(() => {
-    if (!permissionsResponse) {
-      return null;
-    }
-    return {
-      permissions: permissionsResponse.permissions as Permission[],
-    };
-  }, [permissionsResponse]);
+  const { data: permissions, isLoading: isLoadingPermissions } =
+    useCurrentPermissions({ enabled: !!user });
 
   if (isLoadingUser) {
     return (
@@ -43,9 +27,8 @@ export const ProtectedRoute = () => {
 
   return (
     <PermissionsProvider
-      policy={policy}
+      permissions={permissions}
       isLoading={isLoadingPermissions}
-      isRbacEnabled={isRbacEnabled}
     >
       <SidebarProvider>
         <SearchProvider>

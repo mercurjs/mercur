@@ -1,7 +1,6 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { MedusaContainer } from "@medusajs/framework/types"
 import { Modules } from "@medusajs/framework/utils"
-import { createSellerDefaultsWorkflow } from "@mercurjs/core/workflows"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 
 jest.setTimeout(50000)
@@ -17,7 +16,6 @@ medusaIntegrationTestRunner({
       })
 
       beforeEach(async () => {
-        await createSellerDefaultsWorkflow(appContainer).run()
 
         const result = await createSellerUser(appContainer, {
           email: "seller@test.com",

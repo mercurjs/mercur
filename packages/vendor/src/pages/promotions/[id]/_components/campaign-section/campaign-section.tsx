@@ -65,7 +65,7 @@ export const CampaignSection = ({
 
   const actions: Action[] = [
     {
-      permission: "promotion:update",
+      permission: "promotions:edit",
       label: t("actions.edit"),
       to: "add-to-campaign",
       icon: <PencilSquare />,

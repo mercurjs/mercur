@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -31,33 +30,23 @@ export const vendorPayoutsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/payouts",
     middlewares: [
+      requirePermission("payouts", "view"),
       validateAndTransformQuery(
         VendorGetPayoutsParams,
         vendorPayoutQueryConfig.list
       ),
       applySellerPayoutLinkFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.payout,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/payouts/:id",
     middlewares: [
+      requirePermission("payouts", "view"),
       validateAndTransformQuery(
         VendorGetPayoutParams,
         vendorPayoutQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.payout,
-        operation: PolicyOperation.read,
-      },
     ],
   },
 ]

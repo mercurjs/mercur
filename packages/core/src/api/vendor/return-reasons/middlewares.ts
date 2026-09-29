@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
@@ -14,32 +13,22 @@ export const vendorReturnReasonsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/return-reasons",
     middlewares: [
+      requirePermission("return_reasons", "view"),
       validateAndTransformQuery(
         VendorGetReturnReasonsParams,
         vendorReturnReasonQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.return_reason,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/return-reasons/:id",
     middlewares: [
+      requirePermission("return_reasons", "view"),
       validateAndTransformQuery(
         VendorGetReturnReasonParams,
         vendorReturnReasonQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.return_reason,
-        operation: PolicyOperation.read,
-      },
     ],
   },
 ]

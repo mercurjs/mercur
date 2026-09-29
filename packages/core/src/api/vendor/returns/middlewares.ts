@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -59,357 +58,249 @@ export const vendorReturnsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/returns",
     middlewares: [
+      requirePermission("orders.returns", "view"),
       validateAndTransformQuery(
         VendorGetReturnsParams,
         vendorReturnQueryConfig.list
       ),
       applySellerOrderLinkFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/returns/:id",
     middlewares: [
+      requirePermission("orders.returns", "view"),
       validateAndTransformQuery(
         VendorGetReturnParams,
         vendorReturnQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/returns/:id",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostReturnsReturnReq),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/returns",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostReturnsReq),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/returns/:id/request-items",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostReturnsRequestItemsReq),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/returns/:id/request-items/:action_id",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostReturnsRequestItemsActionReq),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/returns/:id/request-items/:action_id",
     middlewares: [
+      requirePermission("orders.returns", "manage"),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.delete,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/returns/:id/shipping-method",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostReturnsShippingReq),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/returns/:id/shipping-method/:action_id",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostReturnsShippingActionReq),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/returns/:id/shipping-method/:action_id",
     middlewares: [
+      requirePermission("orders.returns", "manage"),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.delete,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/returns/:id/request",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostReturnsConfirmRequestReq),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/returns/:id/cancel",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostCancelReturnReq),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/returns/:id/request",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("orders.returns", "manage"),
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/returns/:id/receive",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostReceiveReturnsReq),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/returns/:id/receive",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("orders.returns", "manage"),
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/returns/:id/receive/confirm",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostReturnsConfirmRequestReq),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/returns/:id/receive-items",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostReturnsReceiveItemsReq),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/returns/:id/receive-items/:action_id",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostReturnsRequestItemsActionReq),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/returns/:id/receive-items/:action_id",
     middlewares: [
+      requirePermission("orders.returns", "manage"),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.delete,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/returns/:id/dismiss-items",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostReturnsReceiveItemsReq),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/returns/:id/dismiss-items/:action_id",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostReturnsRequestItemsActionReq),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/returns/:id/dismiss-items/:action_id",
     middlewares: [
+      requirePermission("orders.returns", "manage"),
       validateAndTransformQuery(
         VendorGetReturnsOrderParams,
         vendorReturnQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.return,
-        operation: PolicyOperation.delete,
-      },
     ],
   },
 ]

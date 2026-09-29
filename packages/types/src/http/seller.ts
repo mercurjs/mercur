@@ -1,11 +1,13 @@
 import { DeleteResponse, PaginatedResponse } from "@medusajs/types"
 import { MemberInviteDTO, SellerDTO, SellerMemberDTO } from "../seller"
+import { PermissionMap } from "../permissions"
 
 export interface VendorSellerResponse {
   /**
-   * The seller's details.
+   * The seller's details. `permissions` is only present when requested with
+   * `fields=+permissions` and an access-control module is enabled.
    */
-  seller: SellerDTO
+  seller: SellerDTO & { permissions?: PermissionMap }
 }
 
 export type VendorSellerListResponse = PaginatedResponse<{

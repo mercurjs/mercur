@@ -97,7 +97,7 @@ export const TaxOverrideCard = ({ taxRate }: TaxOverrideCardProps) => {
               {
                 actions: [
                   {
-                    permission: "tax_region:update",
+                    permission: "regions_tax:edit",
                     label: t("actions.edit"),
                     icon: <PencilSquare />,
                     to: `overrides/${taxRate.id}/edit`,
@@ -107,7 +107,7 @@ export const TaxOverrideCard = ({ taxRate }: TaxOverrideCardProps) => {
               {
                 actions: [
                   {
-                    permission: "tax_region:delete",
+                    permission: "regions_tax:manage",
                     label: t("actions.delete"),
                     icon: <Trash />,
                     onClick: handleDelete,

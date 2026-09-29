@@ -1,28 +1,24 @@
 import { useMemo } from "react"
-import type { PermissionResource } from "@mercurjs/dashboard-sdk"
+import type { PermissionKey } from "@mercurjs/dashboard-sdk"
 import { usePermissions } from "./use-permissions"
 
 /**
  * @example
  * ```tsx
- * const { canCreate } = useResourcePermissions("product")
- * {canCreate && <Button>Create</Button>}
+ * const { canEdit } = useResourcePermissions("products")
  * ```
  */
-export const useResourcePermissions = (resource: PermissionResource) => {
+export const useResourcePermissions = (key: PermissionKey) => {
   const { can, isLoading } = usePermissions()
 
   return useMemo(
     () => ({
-      canRead: can(resource, "read"),
-      canCreate: can(resource, "create"),
-      canUpdate: can(resource, "update"),
-      canDelete: can(resource, "delete"),
-      can: (operation: "read" | "create" | "update" | "delete") =>
-        can(resource, operation),
-      resource,
+      canView: can(key, "view"),
+      canEdit: can(key, "edit"),
+      canManage: can(key, "manage"),
+      key,
       isLoading,
     }),
-    [can, resource, isLoading]
+    [can, key, isLoading]
   )
 }

@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -18,49 +17,34 @@ export const vendorProductCategoriesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/product-categories",
     middlewares: [
+      requirePermission("taxonomy", "view"),
       validateAndTransformQuery(
         VendorGetProductCategoriesParams,
         vendorProductCategoryQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product_category,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/product-categories/:id",
     middlewares: [
+      requirePermission("taxonomy", "view"),
       validateAndTransformQuery(
         VendorProductCategoryParams,
         vendorProductCategoryQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product_category,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/product-categories/:id/products",
     middlewares: [
+      requirePermission("taxonomy", "edit"),
       validateAndTransformBody(VendorBatchLinkProductsToCategory),
       validateAndTransformQuery(
         VendorProductCategoryParams,
         vendorProductCategoryQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product_category,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

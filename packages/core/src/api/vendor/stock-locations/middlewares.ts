@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -41,129 +40,90 @@ export const vendorStockLocationsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/stock-locations",
     middlewares: [
+      requirePermission("stock_locations", "view"),
       validateAndTransformQuery(
         VendorGetStockLocationsParams,
         vendorStockLocationQueryConfig.list
       ),
       applySellerStockLocationLinkFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.stock_location,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/stock-locations",
     middlewares: [
+      requirePermission("stock_locations", "edit"),
       validateAndTransformBody(VendorCreateStockLocation),
       validateAndTransformQuery(
         VendorGetStockLocationParams,
         vendorStockLocationQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.stock_location,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/stock-locations/:id",
     middlewares: [
+      requirePermission("stock_locations", "view"),
       validateAndTransformQuery(
         VendorGetStockLocationParams,
         vendorStockLocationQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.stock_location,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/stock-locations/:id",
     middlewares: [
+      requirePermission("stock_locations", "edit"),
       validateAndTransformBody(VendorUpdateStockLocation),
       validateAndTransformQuery(
         VendorGetStockLocationParams,
         vendorStockLocationQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.stock_location,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/stock-locations/:id",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.stock_location,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("stock_locations", "manage"),
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/stock-locations/:id/sales-channels",
     middlewares: [
+      requirePermission("stock_locations", "edit"),
       validateAndTransformBody(createLinkBody()),
       validateAndTransformQuery(
         VendorGetStockLocationParams,
         vendorStockLocationQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.stock_location,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/stock-locations/:id/fulfillment-sets",
     middlewares: [
+      requirePermission("stock_locations", "edit"),
       validateAndTransformBody(VendorCreateStockLocationFulfillmentSet),
       validateAndTransformQuery(
         VendorGetStockLocationParams,
         vendorStockLocationQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.stock_location,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/stock-locations/:id/fulfillment-providers",
     middlewares: [
+      requirePermission("stock_locations", "edit"),
       validateAndTransformBody(createLinkBody()),
       validateAndTransformQuery(
         VendorGetStockLocationParams,
         vendorStockLocationQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.stock_location,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

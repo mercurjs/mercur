@@ -1,5 +1,4 @@
-import { PolicyOperation } from "@medusajs/framework/utils"
-import { PolicyResource } from "../../utils/policy-resources"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 import { AdminGetShippingProfilesParams } from "@medusajs/medusa/api/admin/shipping-profiles/validators"
@@ -29,16 +28,11 @@ export const adminShippingProfilesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: LIST_MATCHER,
     middlewares: [
+      requirePermission("shipping", "view"),
       validateAndTransformQuery(
         AdminGetShippingProfilesParams,
         listTransformQueryConfig
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.shipping_profile,
-        operation: PolicyOperation.read,
-      },
     ],
   },
 ]

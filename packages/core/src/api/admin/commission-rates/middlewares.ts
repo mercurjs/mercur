@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -20,90 +19,61 @@ export const adminCommissionRatesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/commission-rates",
     middlewares: [
+      requirePermission("commissions", "view"),
       validateAndTransformQuery(
         AdminGetCommissionRatesParams,
         adminCommissionRateQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.commission_rate,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/admin/commission-rates",
     middlewares: [
+      requirePermission("commissions", "edit"),
       validateAndTransformBody(AdminCreateCommissionRate),
       validateAndTransformQuery(
         AdminGetCommissionRateParams,
         adminCommissionRateQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.commission_rate,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/admin/commission-rates/:id",
     middlewares: [
+      requirePermission("commissions", "view"),
       validateAndTransformQuery(
         AdminGetCommissionRateParams,
         adminCommissionRateQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.commission_rate,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/admin/commission-rates/:id",
     middlewares: [
+      requirePermission("commissions", "edit"),
       validateAndTransformBody(AdminUpdateCommissionRate),
       validateAndTransformQuery(
         AdminGetCommissionRateParams,
         adminCommissionRateQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.commission_rate,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/admin/commission-rates/:id",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.commission_rate,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("commissions", "manage"),
     ],
   },
   {
     method: ["POST"],
     matcher: "/admin/commission-rates/:id/rules",
     middlewares: [
+      requirePermission("commissions", "edit"),
       validateAndTransformBody(AdminBatchCommissionRules),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.commission_rate,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

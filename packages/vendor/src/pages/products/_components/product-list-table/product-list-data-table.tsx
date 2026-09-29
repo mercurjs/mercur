@@ -139,7 +139,7 @@ const ProductActions = ({ product }: { product: ExtendedAdminProduct }) => {
           actions: [
             {
               icon: <PencilSquare />,
-              permission: "product:update",
+              permission: "products:edit",
               label: t("actions.edit"),
               to: `/products/${product.id}/edit`,
             },
@@ -149,7 +149,7 @@ const ProductActions = ({ product }: { product: ExtendedAdminProduct }) => {
           actions: [
             {
               icon: <Trash />,
-              permission: "product:delete",
+              permission: "products:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
             },

@@ -1,59 +1,32 @@
 import type { PropsWithChildren, ReactNode } from "react"
-import {
-  resolvePermissionProps,
-  type PermissionProps,
-} from "./resolve-permission-props"
+import type { Permission } from "@mercurjs/dashboard-sdk"
 import { usePermissions } from "./use-permissions"
-import { useRegisterPermissions } from "./use-register-permissions"
 
-export type PermissionGuardProps = PropsWithChildren<
-  PermissionProps & {
-    /** Rendered when access is denied. Nothing renders when omitted. */
-    fallback?: ReactNode
-    showLoading?: boolean
-    loadingComponent?: ReactNode
-  }
->
+export type PermissionGuardProps = PropsWithChildren<{
+  permission: Permission | Permission[]
+  /** When several permissions are given, require all of them. Defaults to any. */
+  requireAll?: boolean
+  /** Rendered when access is denied. Nothing renders when omitted. */
+  fallback?: ReactNode
+}>
 
 /**
- * Hides its children unless the actor holds the declared permission, and
- * registers the requirement so the page can surface what is missing.
- *
  * @example
  * ```tsx
- * <PermissionGuard resource="product" operation="create">
+ * <PermissionGuard permission="products:edit">
  *   <Button>Create</Button>
  * </PermissionGuard>
  * ```
  */
 export const PermissionGuard = ({
   children,
+  permission,
+  requireAll = false,
   fallback = null,
-  showLoading = false,
-  loadingComponent = null,
-  source,
-  enabled = true,
-  ...props
 }: PermissionGuardProps) => {
-  const { permissions, requireAll } = resolvePermissionProps(
-    props as PermissionProps
-  )
+  const { hasAnyPermission, hasAllPermissions } = usePermissions()
+  const list = Array.isArray(permission) ? permission : [permission]
+  const allowed = requireAll ? hasAllPermissions(list) : hasAnyPermission(list)
 
-  useRegisterPermissions(permissions, { requireAll, source, enabled })
-
-  const { hasAnyPermission, hasAllPermissions, isLoading } = usePermissions()
-
-  if (isLoading && showLoading) {
-    return <>{loadingComponent}</>
-  }
-
-  const hasAccess = requireAll
-    ? hasAllPermissions(permissions ?? [])
-    : hasAnyPermission(permissions ?? [])
-
-  if (!hasAccess) {
-    return <>{fallback}</>
-  }
-
-  return <>{children}</>
+  return <>{allowed ? children : fallback}</>
 }

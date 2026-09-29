@@ -23,7 +23,7 @@ export const InventoryListCreateButton = () => {
   const { t } = useTranslation();
 
   return (
-    <PermissionGuard resource="inventory_item" operation="create">
+    <PermissionGuard permission="inventory:edit">
       <Button size="small" variant="secondary" asChild>
         <Link to="create">{t("actions.create")}</Link>
       </Button>

@@ -1,13 +1,7 @@
-import { withRbacRoleFields } from "../../utils/rbac-role-fields"
-
-export enum Entities {
-  seller = "seller",
-  seller_member = "seller_member",
-}
 
 export const listVendorSellersQueryConfig = {
   get defaults() {
-    return withRbacRoleFields([
+    return ([
       "id",
       "seller.*",
     ])
@@ -46,7 +40,7 @@ export const retrieveVendorSellerQueryConfig = {
 
 export const listVendorMembersQueryConfig = {
   get defaults() {
-    return withRbacRoleFields([
+    return ([
       "id",
       "is_owner",
       "member.*",
@@ -59,7 +53,7 @@ export const listVendorMembersQueryConfig = {
 
 export const retrieveVendorMemberQueryConfig = {
   get defaults() {
-    return withRbacRoleFields([
+    return ([
       "id",
       "is_owner",
       "member.*",

@@ -1,4 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
+import { requirePermission } from "../../utils"
 import {
   ensureSellerIdParamMiddleware,
   ensureSellerMemberParamMiddleware,
@@ -7,11 +7,9 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework"
-import { PolicyOperation } from "@medusajs/framework/utils"
 import { MiddlewareRoute } from "@medusajs/medusa"
 
 import * as QueryConfig from "./query-config"
-import { Entities } from "./query-config"
 import {
   VendorCreateSellerAccount,
   VendorGetSellerParams,
@@ -42,28 +40,17 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
         QueryConfig.retrieveVendorSellerQueryConfig
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.seller,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/sellers/me",
     middlewares: [
+      requirePermission("store", "edit"),
       validateAndTransformBody(VendorUpdateSeller),
       validateAndTransformQuery(
         VendorGetSellerParams,
         QueryConfig.retrieveVendorSellerQueryConfig
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.seller,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
@@ -87,23 +74,19 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/sellers/:id",
     middlewares: [
+      requirePermission("store", "view"),
       ensureSellerIdParamMiddleware,
       validateAndTransformQuery(
         VendorGetSellerParams,
         QueryConfig.retrieveVendorSellerQueryConfig
       ),
     ],
-    policies: [
-      {
-        resource: Entities.seller,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/sellers/:id",
     middlewares: [
+      requirePermission("store", "edit"),
       ensureSellerIdParamMiddleware,
       validateAndTransformBody(VendorUpdateSeller),
       validateAndTransformQuery(
@@ -111,17 +94,12 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
         QueryConfig.retrieveVendorSellerQueryConfig
       ),
     ],
-    policies: [
-      {
-        resource: Entities.seller,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/sellers/:id/address",
     middlewares: [
+      requirePermission("store", "edit"),
       ensureSellerIdParamMiddleware,
       validateAndTransformBody(VendorUpsertSellerAddress),
       validateAndTransformQuery(
@@ -129,17 +107,12 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
         QueryConfig.retrieveVendorSellerQueryConfig
       ),
     ],
-    policies: [
-      {
-        resource: Entities.seller,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/sellers/:id/payment-details",
     middlewares: [
+      requirePermission("store", "edit"),
       ensureSellerIdParamMiddleware,
       validateAndTransformBody(VendorUpsertSellerPaymentDetails),
       validateAndTransformQuery(
@@ -147,17 +120,12 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
         QueryConfig.retrieveVendorSellerQueryConfig
       ),
     ],
-    policies: [
-      {
-        resource: Entities.seller,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/sellers/:id/professional-details",
     middlewares: [
+      requirePermission("store", "edit"),
       ensureSellerIdParamMiddleware,
       validateAndTransformBody(VendorUpsertSellerProfessionalDetails),
       validateAndTransformQuery(
@@ -165,126 +133,82 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
         QueryConfig.retrieveVendorSellerQueryConfig
       ),
     ],
-    policies: [
-      {
-        resource: Entities.seller,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/sellers/:id/professional-details",
     middlewares: [
+      requirePermission("store", "edit"),
       ensureSellerIdParamMiddleware,
       validateAndTransformQuery(
         VendorGetSellerParams,
         QueryConfig.retrieveVendorSellerQueryConfig
       ),
     ],
-    policies: [
-      {
-        resource: Entities.seller,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/sellers/:id/members/me",
     middlewares: [
+      requirePermission("store", "view"),
       ensureSellerIdParamMiddleware,
       validateAndTransformQuery(
         VendorGetSellerParams,
         QueryConfig.retrieveVendorMemberQueryConfig
       ),
     ],
-    policies: [
-      {
-        resource: Entities.seller,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/sellers/:id/members/invites",
     middlewares: [
+      requirePermission("members", "view"),
       ensureSellerIdParamMiddleware,
       validateAndTransformQuery(
         VendorGetSellersParams,
         QueryConfig.listVendorMemberInvitesQueryConfig
       ),
     ],
-    policies: [
-      {
-        resource: Entities.seller_member,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/sellers/:id/members",
     middlewares: [
+      requirePermission("store", "view"),
+      requirePermission("members", "view"),
       ensureSellerIdParamMiddleware,
       validateAndTransformQuery(
         VendorGetSellersParams,
         QueryConfig.listVendorMembersQueryConfig
       ),
     ],
-    policies: [
-      {
-        resource: Entities.seller,
-        operation: PolicyOperation.read,
-      },
-      {
-        resource: Entities.seller_member,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/sellers/:id/members",
     middlewares: [
+      requirePermission("members", "edit"),
       ensureSellerIdParamMiddleware,
       validateAndTransformBody(VendorInviteMember),
-    ],
-    policies: [
-      {
-        resource: Entities.seller_member,
-        operation: PolicyOperation.create,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/sellers/:id/members/:member_id",
     middlewares: [
+      requirePermission("members", "edit"),
       ensureSellerIdParamMiddleware,
       ensureSellerMemberParamMiddleware,
       validateAndTransformBody(VendorUpdateMemberRole),
-    ],
-    policies: [
-      {
-        resource: Entities.seller_member,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/sellers/:id/members/:member_id",
     middlewares: [
+      requirePermission("members", "manage"),
       ensureSellerIdParamMiddleware,
       ensureSellerMemberParamMiddleware,
-    ],
-    policies: [
-      {
-        resource: Entities.seller_member,
-        operation: PolicyOperation.delete,
-      },
     ],
   },
 ]

@@ -91,7 +91,7 @@ export const ProductGeneralSection = ({
               {
                 actions: [
                   {
-                    permission: "product:update",
+                    permission: "products:edit",
                     label: t("actions.edit"),
                     to: "edit",
                     icon: <PencilSquare />,
@@ -101,7 +101,7 @@ export const ProductGeneralSection = ({
               {
                 actions: [
                   {
-                    permission: "product:delete",
+                    permission: "products:manage",
                     label: t("actions.delete"),
                     onClick: handleDelete,
                     icon: <Trash />,

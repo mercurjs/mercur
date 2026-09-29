@@ -1,119 +1,70 @@
 import { PropsWithChildren, useCallback, useMemo } from "react"
 import {
-  buildPermission,
-  OPERATION_IMPLICATIONS,
   parsePermission,
+  satisfiesPermission,
   type Permission,
-  type PermissionOperation,
-  type PermissionResource,
+  type PermissionKey,
+  type PermissionMap,
+  type PermissionRight,
   type PermissionsContextValue,
-  type UserPolicy,
 } from "@mercurjs/dashboard-sdk"
 import { PermissionsContext } from "./permissions-context"
 
 export interface PermissionsProviderProps extends PropsWithChildren {
-  policy: UserPolicy | null
-  isLoading?: boolean
   /**
-   * Whether the RBAC feature flag is enabled. When `false`, every permission
-   * check resolves to `true`.
+   * The actor's effective rights, read from `fields=+permissions`. Leave it
+   * `null`/`undefined` when the API returned no `permissions` field: nothing is
+   * being enforced, so every check passes.
    */
-  isRbacEnabled?: boolean
+  permissions?: PermissionMap | null
+  isLoading?: boolean
 }
 
 export const PermissionsProvider = ({
-  policy,
+  permissions = null,
   isLoading = false,
-  isRbacEnabled = true,
   children,
 }: PermissionsProviderProps) => {
-  const permissionsMap = useMemo(() => {
-    const index: Record<Permission, true> = Object.create(null)
+  const isEnforced = !!permissions
 
-    for (const granted of policy?.permissions ?? []) {
-      const parsed = parsePermission(granted)
-      if (!parsed) {
-        continue
-      }
-
-      const { resource, operation } = parsed
-      const impliedOperations = OPERATION_IMPLICATIONS[operation] || [operation]
-
-      for (const impliedOperation of impliedOperations) {
-        index[buildPermission(resource, impliedOperation)] = true
-      }
-    }
-
-    return index
-  }, [policy])
+  const can = useCallback(
+    (key: PermissionKey, right: PermissionRight = "view") =>
+      !permissions || satisfiesPermission(permissions, key, right),
+    [permissions]
+  )
 
   const hasPermission = useCallback(
-    (permission: Permission): boolean => {
-      if (!isRbacEnabled) {
+    (permission: Permission) => {
+      if (!permissions) {
         return true
       }
-      return !!permissionsMap[permission]
+      const parsed = parsePermission(permission)
+      return !!parsed && satisfiesPermission(permissions, parsed.key, parsed.right)
     },
-    [isRbacEnabled, permissionsMap]
+    [permissions]
   )
 
   const hasAnyPermission = useCallback(
-    (permissions: Permission[]): boolean => {
-      if (!isRbacEnabled) {
-        return true
-      }
-      if (!permissions?.length) {
-        return false
-      }
-
-      return permissions.some(hasPermission)
-    },
-    [isRbacEnabled, hasPermission]
+    (list: Permission[]) => !permissions || list.some(hasPermission),
+    [permissions, hasPermission]
   )
 
   const hasAllPermissions = useCallback(
-    (permissions: Permission[]): boolean => {
-      if (!isRbacEnabled) {
-        return true
-      }
-      if (!permissions?.length) {
-        return false
-      }
-
-      return permissions.every(hasPermission)
-    },
-    [isRbacEnabled, hasPermission]
-  )
-
-  const can = useCallback(
-    (resource: PermissionResource, operation: PermissionOperation): boolean => {
-      if (!isRbacEnabled) {
-        return true
-      }
-      return !!permissionsMap[buildPermission(resource, operation)]
-    },
-    [isRbacEnabled, permissionsMap]
+    (list: Permission[]) => !permissions || list.every(hasPermission),
+    [permissions, hasPermission]
   )
 
   const value: PermissionsContextValue = useMemo(
     () => ({
-      policy,
+      permissions,
       isLoading,
-      isRbacEnabled,
+      isEnforced,
       hasPermission,
       hasAnyPermission,
       hasAllPermissions,
       can,
     }),
-    [
-      policy,
-      isLoading,
-      isRbacEnabled,
-      hasPermission,
-      hasAnyPermission,
-      hasAllPermissions,
-      can,
-    ]
+    [permissions, isLoading, isEnforced, hasPermission, hasAnyPermission, hasAllPermissions, can]
   )
 
   return (

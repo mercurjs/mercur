@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -45,132 +44,94 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/promotions",
     middlewares: [
+      requirePermission("promotions", "view"),
       validateAndTransformQuery(
         VendorGetPromotionsParams,
         vendorPromotionQueryConfig.list
       ),
       applySellerPromotionLinkFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.promotion,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/promotions",
     middlewares: [
+      requirePermission("promotions", "edit"),
       validateAndTransformBody(VendorCreatePromotion),
       validateAndTransformQuery(
         VendorGetPromotionParams,
         vendorPromotionQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.promotion,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/promotions/rule-attribute-options/:rule_type",
     middlewares: [
+      requirePermission("promotions", "view"),
       validateAndTransformQuery(
         VendorGetPromotionRuleParams,
         vendorPromotionRuleQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.promotion,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/promotions/rule-value-options/:rule_type/:rule_attribute_id",
     middlewares: [
+      requirePermission("promotions", "view"),
       validateAndTransformQuery(
         VendorGetPromotionsRuleValueParams,
         vendorRuleValueQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.promotion,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/promotions/:id",
     middlewares: [
+      requirePermission("promotions", "view"),
       validateAndTransformQuery(
         VendorGetPromotionParams,
         vendorPromotionQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.promotion,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/promotions/:id",
     middlewares: [
+      requirePermission("promotions", "edit"),
       validateAndTransformBody(VendorUpdatePromotion),
       validateAndTransformQuery(
         VendorGetPromotionParams,
         vendorPromotionQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.promotion,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/promotions/:id",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.promotion,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("promotions", "manage"),
     ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/promotions/:id/:rule_type",
     middlewares: [
+      requirePermission("promotions", "view"),
       validateAndTransformQuery(
         VendorGetPromotionRuleTypeParams,
         vendorPromotionQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.promotion,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/promotions/:id/rules/batch",
     middlewares: [
+      requirePermission("promotions", "edit"),
       validateAndTransformBody(
         createBatchBody(VendorCreatePromotionRule, VendorUpdatePromotionRule)
       ),
@@ -178,18 +139,13 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
         VendorGetPromotionRuleParams,
         vendorPromotionRuleQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.promotion,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/promotions/:id/target-rules/batch",
     middlewares: [
+      requirePermission("promotions", "edit"),
       validateAndTransformBody(
         createBatchBody(VendorCreatePromotionRule, VendorUpdatePromotionRule)
       ),
@@ -197,18 +153,13 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
         VendorGetPromotionRuleParams,
         vendorPromotionRuleQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.promotion,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/promotions/:id/buy-rules/batch",
     middlewares: [
+      requirePermission("promotions", "edit"),
       validateAndTransformBody(
         createBatchBody(VendorCreatePromotionRule, VendorUpdatePromotionRule)
       ),
@@ -216,12 +167,6 @@ export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
         VendorGetPromotionRuleParams,
         vendorPromotionRuleQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.promotion,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

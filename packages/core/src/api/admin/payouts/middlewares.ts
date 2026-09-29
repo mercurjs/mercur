@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
@@ -11,32 +10,22 @@ export const adminPayoutsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/payouts",
     middlewares: [
+      requirePermission("payouts", "view"),
       validateAndTransformQuery(
         AdminGetPayoutsParams,
         adminPayoutQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.payout,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/admin/payouts/:id",
     middlewares: [
+      requirePermission("payouts", "view"),
       validateAndTransformQuery(
         AdminGetPayoutParams,
         adminPayoutQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.payout,
-        operation: PolicyOperation.read,
-      },
     ],
   },
 ]

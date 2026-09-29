@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -46,6 +45,7 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/shipping-options",
     middlewares: [
+      requirePermission("shipping", "view"),
       validateAndTransformQuery(
         VendorGetShippingOptionsParams,
         vendorShippingOptionQueryConfig.list
@@ -64,78 +64,54 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
       }),
       applySellerShippingOptionLinkFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.shipping_option,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/shipping-options",
     middlewares: [
+      requirePermission("shipping", "edit"),
       validateAndTransformBody(VendorCreateShippingOption),
       validateAndTransformQuery(
         VendorGetShippingOptionParams,
         vendorShippingOptionQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.shipping_option,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/shipping-options/:id",
     middlewares: [
+      requirePermission("shipping", "view"),
       validateAndTransformQuery(
         VendorGetShippingOptionParams,
         vendorShippingOptionQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.shipping_option,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/shipping-options/:id",
     middlewares: [
+      requirePermission("shipping", "edit"),
       validateAndTransformBody(VendorUpdateShippingOption),
       validateAndTransformQuery(
         VendorGetShippingOptionParams,
         vendorShippingOptionQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.shipping_option,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/shipping-options/:id",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.shipping_option,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("shipping", "manage"),
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/shipping-options/:id/rules/batch",
     middlewares: [
+      requirePermission("shipping", "edit"),
       validateAndTransformBody(
         createBatchBody(
           VendorCreateShippingOptionRule,
@@ -146,12 +122,6 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
         VendorGetShippingOptionRuleParams,
         vendorShippingOptionRuleQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.shipping_option,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

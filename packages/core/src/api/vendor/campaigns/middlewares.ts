@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -41,6 +40,7 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/campaigns",
     middlewares: [
+      requirePermission("promotions", "view"),
       validateAndTransformQuery(
         VendorGetCampaignsParams,
         vendorCampaignQueryConfig.list
@@ -48,89 +48,59 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
       applySellerCampaignLinkFilter,
       applyCampaignFilters,
     ],
-    policies: [
-      {
-        resource: PolicyResource.campaign,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/campaigns",
     middlewares: [
+      requirePermission("promotions", "edit"),
       validateAndTransformBody(VendorCreateCampaign),
       validateAndTransformQuery(
         VendorGetCampaignParams,
         vendorCampaignQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.campaign,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/campaigns/:id",
     middlewares: [
+      requirePermission("promotions", "view"),
       validateAndTransformQuery(
         VendorGetCampaignParams,
         vendorCampaignQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.campaign,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/campaigns/:id",
     middlewares: [
+      requirePermission("promotions", "edit"),
       validateAndTransformBody(VendorUpdateCampaign),
       validateAndTransformQuery(
         VendorGetCampaignParams,
         vendorCampaignQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.campaign,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/campaigns/:id",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.campaign,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("promotions", "manage"),
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/campaigns/:id/promotions",
     middlewares: [
+      requirePermission("promotions", "edit"),
       validateAndTransformBody(createLinkBody()),
       validateAndTransformQuery(
         VendorGetCampaignParams,
         vendorCampaignQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.campaign,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

@@ -33,7 +33,7 @@ export const ReservationListTitle = () => {
 export const ReservationListCreateButton = () => {
   const { t } = useTranslation()
   return (
-    <PermissionGuard resource="reservation_item" operation="create">
+    <PermissionGuard permission="inventory:edit">
       <Button variant="secondary" size="small" asChild>
         <Link to="create">{t("actions.create")}</Link>
       </Button>

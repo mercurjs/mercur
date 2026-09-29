@@ -6,8 +6,8 @@ import { PermissionsContext } from "./permissions-context"
  * ```tsx
  * const { can, hasPermission } = usePermissions()
  *
- * if (can("customer", "create")) { ... }
- * if (hasPermission("customer:read")) { ... }
+ * if (can("customers", "edit")) { ... }
+ * if (hasPermission("customers:view")) { ... }
  * ```
  */
 export const usePermissions = () => {

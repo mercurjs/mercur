@@ -33,7 +33,7 @@ export const ProductOrganizationSection = ({
             {
               actions: [
                 {
-                  permission: "product:update",
+                  permission: "products:edit",
                   label: t("actions.edit"),
                   to: "organization",
                   icon: <PencilSquare />,

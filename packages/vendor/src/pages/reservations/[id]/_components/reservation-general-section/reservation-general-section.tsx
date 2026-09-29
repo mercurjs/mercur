@@ -48,7 +48,7 @@ export const ReservationGeneralSection = ({
               actions: [
                 {
                   icon: <PencilSquare />,
-                  permission: "reservation_item:update",
+                  permission: "inventory:edit",
                   label: t("actions.edit"),
                   to: `edit`,
                 },

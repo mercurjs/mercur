@@ -87,7 +87,7 @@ export const CampaignGeneralSection = ({
                 actions: [
                   {
                     icon: <PencilSquare />,
-                    permission: "campaign:update",
+                    permission: "promotions:edit",
                     label: t("actions.edit"),
                     to: `/campaigns/${campaign.id}/edit`,
                   },
@@ -97,7 +97,7 @@ export const CampaignGeneralSection = ({
                 actions: [
                   {
                     icon: <Trash />,
-                    permission: "campaign:delete",
+                    permission: "promotions:manage",
                     label: t("actions.delete"),
                     onClick: handleDelete,
                   },

@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -21,78 +20,54 @@ export const vendorFulfillmentSetsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["DELETE"],
     matcher: "/vendor/fulfillment-sets/:id",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.fulfillment_set,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("shipping", "manage"),
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/fulfillment-sets/:id/service-zones",
     middlewares: [
+      requirePermission("shipping", "edit"),
       validateAndTransformBody(VendorCreateServiceZone),
       validateAndTransformQuery(
         VendorFulfillmentSetParams,
         vendorFulfillmentSetQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.fulfillment_set,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/fulfillment-sets/:id/service-zones/:zone_id",
     middlewares: [
+      requirePermission("shipping", "view"),
       validateAndTransformQuery(
         VendorServiceZoneParams,
         vendorServiceZoneQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.fulfillment_set,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/fulfillment-sets/:id/service-zones/:zone_id",
     middlewares: [
+      requirePermission("shipping", "edit"),
       validateAndTransformBody(VendorUpdateServiceZone),
       validateAndTransformQuery(
         VendorFulfillmentSetParams,
         vendorFulfillmentSetQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.fulfillment_set,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/fulfillment-sets/:id/service-zones/:zone_id",
     middlewares: [
+      requirePermission("shipping", "manage"),
       validateAndTransformQuery(
         VendorFulfillmentSetParams,
         vendorFulfillmentSetQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.fulfillment_set,
-        operation: PolicyOperation.delete,
-      },
     ],
   },
 ]

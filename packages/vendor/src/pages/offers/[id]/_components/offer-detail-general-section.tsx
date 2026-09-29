@@ -103,7 +103,7 @@ export const OfferDetailGeneralSection = ({
               {
                 actions: [
                   {
-                    permission: "offer:delete",
+                    permission: "offers:manage",
                     label: t("actions.delete"),
                     onClick: handleDelete,
                     icon: <Trash />,

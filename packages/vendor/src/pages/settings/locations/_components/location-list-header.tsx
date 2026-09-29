@@ -14,7 +14,7 @@ export const LocationListHeader = () => {
           {t("stockLocations.list.description")}
         </Text>
       </div>
-      <PermissionGuard resource="stock_location" operation="create">
+      <PermissionGuard permission="stock_locations:edit">
         <Button size="small" className="shrink-0" variant="secondary" asChild>
           <Link to="create">{t("actions.create")}</Link>
         </Button>

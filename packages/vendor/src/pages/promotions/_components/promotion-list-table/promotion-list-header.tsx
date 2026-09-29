@@ -12,7 +12,7 @@ export const PromotionListTitle = () => {
 export const PromotionListCreateButton = () => {
   const { t } = useTranslation();
   return (
-    <PermissionGuard resource="promotion" operation="create">
+    <PermissionGuard permission="promotions:edit">
       <Button size="small" variant="secondary" asChild>
         <Link to="create">{t("actions.create")}</Link>
       </Button>

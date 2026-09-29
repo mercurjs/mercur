@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
@@ -14,32 +13,22 @@ export const vendorRefundReasonsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/refund-reasons",
     middlewares: [
+      requirePermission("refund_reasons", "view"),
       validateAndTransformQuery(
         VendorGetRefundReasonsParams,
         vendorRefundReasonQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.refund_reason,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/refund-reasons/:id",
     middlewares: [
+      requirePermission("refund_reasons", "view"),
       validateAndTransformQuery(
         VendorGetRefundReasonParams,
         vendorRefundReasonQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.refund_reason,
-        operation: PolicyOperation.read,
-      },
     ],
   },
 ]

@@ -1,5 +1,4 @@
-import { PolicyOperation } from "@medusajs/framework/utils"
-import { PolicyResource } from "../../utils/policy-resources"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -81,6 +80,7 @@ export const adminReservationsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: LIST_MATCHER,
     middlewares: [
+      requirePermission("inventory", "view"),
       validateAndTransformQuery(
         AdminGetReservationsParams,
         listTransformQueryConfig
@@ -97,12 +97,6 @@ export const adminReservationsMiddlewares: MiddlewareRoute[] = [
       // Runs after the store filter so a combined sku + store query narrows
       // the already-resolved inventory_item_id set instead of replacing it.
       maybeApplyInventoryItemSkuFilter,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.reservation_item,
-        operation: PolicyOperation.read,
-      },
     ],
   },
 ]

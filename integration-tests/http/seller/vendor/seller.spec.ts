@@ -5,7 +5,6 @@ import {
   createAdminUser,
 } from "../../../helpers/create-admin-user"
 import { createSellerUser } from "../../../helpers/create-seller-user"
-import { createSellerDefaultsWorkflow } from "@mercurjs/core/workflows"
 import { SellerRole } from "@mercurjs/types"
 
 jest.setTimeout(50000)
@@ -29,7 +28,6 @@ medusaIntegrationTestRunner({
       })
 
       beforeEach(async () => {
-        await createSellerDefaultsWorkflow(appContainer).run()
         await createAdminUser(dbConnection, adminHeaders, appContainer)
 
         const resultA = await createSellerUser(appContainer, {
@@ -1157,7 +1155,7 @@ medusaIntegrationTestRunner({
           expect(sm).toHaveProperty("id")
           expect(sm).toHaveProperty("is_owner")
           expect(sm).toHaveProperty("member")
-          expect(sm).toHaveProperty("rbac_role")
+          expect(sm).toHaveProperty("member_id")
         })
 
         it("should return different members for different users", async () => {

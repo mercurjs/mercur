@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -38,50 +37,35 @@ export const vendorCustomersMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/customers",
     middlewares: [
+      requirePermission("customers", "view"),
       validateAndTransformQuery(
         VendorGetCustomersParams,
         vendorCustomerQueryConfig.list
       ),
       applySellerCustomerLinkFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.customer,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/customers/:id",
     middlewares: [
+      requirePermission("customers", "view"),
       validateAndTransformQuery(
         VendorGetCustomerParams,
         vendorCustomerQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.customer,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/customers/:id/customer-groups",
     middlewares: [
+      requirePermission("customers", "edit"),
       validateAndTransformBody(VendorManageCustomerCustomerGroups),
       validateAndTransformQuery(
         VendorGetCustomerParams,
         vendorCustomerQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.customer,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

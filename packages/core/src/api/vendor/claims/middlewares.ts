@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -81,279 +80,181 @@ export const vendorClaimsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/claims",
     middlewares: [
+      requirePermission("orders.returns", "view"),
       validateAndTransformQuery(
         VendorGetClaimsParams,
         vendorClaimQueryConfig.list
       ),
       applySellerClaimsFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/claims",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostOrderClaimsReq),
       assertSellerOwnsOrderInBody,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.create,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/claims/:id",
     middlewares: [
+      requirePermission("orders.returns", "view"),
       validateAndTransformQuery(
         VendorGetClaimParams,
         vendorClaimQueryConfig.retrieve
       ),
       assertSellerOwnsClaimInParam,
     ],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/claims/:id/cancel",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostCancelClaimReq),
       assertSellerOwnsClaimInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/claims/:id/request",
-    middlewares: [assertSellerOwnsClaimInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.update,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.returns", "edit"),
+      assertSellerOwnsClaimInParam],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/claims/:id/request",
-    middlewares: [assertSellerOwnsClaimInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.delete,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.returns", "manage"),
+      assertSellerOwnsClaimInParam],
   },
   {
     method: ["POST"],
     matcher: "/vendor/claims/:id/claim-items",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostClaimItemsReq),
       assertSellerOwnsClaimInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/claims/:id/claim-items/:action_id",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostClaimsItemsActionReq),
       assertSellerOwnsClaimInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/claims/:id/claim-items/:action_id",
-    middlewares: [assertSellerOwnsClaimInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.delete,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.returns", "manage"),
+      assertSellerOwnsClaimInParam],
   },
   {
     method: ["POST"],
     matcher: "/vendor/claims/:id/inbound/items",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostClaimsRequestReturnItemsReq),
       assertSellerOwnsClaimInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/claims/:id/inbound/items/:action_id",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostClaimsRequestItemsReturnActionReq),
       assertSellerOwnsClaimInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/claims/:id/inbound/items/:action_id",
-    middlewares: [assertSellerOwnsClaimInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.delete,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.returns", "manage"),
+      assertSellerOwnsClaimInParam],
   },
   {
     method: ["POST"],
     matcher: "/vendor/claims/:id/inbound/shipping-method",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostClaimsShippingReq),
       assertSellerOwnsClaimInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/claims/:id/inbound/shipping-method/:action_id",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostClaimsShippingActionReq),
       assertSellerOwnsClaimInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/claims/:id/inbound/shipping-method/:action_id",
-    middlewares: [assertSellerOwnsClaimInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.delete,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.returns", "manage"),
+      assertSellerOwnsClaimInParam],
   },
   {
     method: ["POST"],
     matcher: "/vendor/claims/:id/outbound/items",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostClaimsAddItemsReq),
       assertSellerOwnsClaimInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/claims/:id/outbound/items/:action_id",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostClaimsAddItemsActionReq),
       assertSellerOwnsClaimInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/claims/:id/outbound/items/:action_id",
-    middlewares: [assertSellerOwnsClaimInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.delete,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.returns", "manage"),
+      assertSellerOwnsClaimInParam],
   },
   {
     method: ["POST"],
     matcher: "/vendor/claims/:id/outbound/shipping-method",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostClaimsShippingReq),
       assertSellerOwnsClaimInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/claims/:id/outbound/shipping-method/:action_id",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostClaimsShippingActionReq),
       assertSellerOwnsClaimInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/claims/:id/outbound/shipping-method/:action_id",
-    middlewares: [assertSellerOwnsClaimInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_claim,
-        operation: PolicyOperation.delete,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.returns", "manage"),
+      assertSellerOwnsClaimInParam],
   },
 ]

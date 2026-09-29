@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -21,49 +20,34 @@ export const vendorCollectionsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/collections",
     middlewares: [
+      requirePermission("taxonomy", "view"),
       validateAndTransformQuery(
         VendorGetCollectionsParams,
         listTransformQueryConfig
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product_collection,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/collections/:id",
     middlewares: [
+      requirePermission("taxonomy", "view"),
       validateAndTransformQuery(
         VendorGetCollectionParams,
         retrieveTransformQueryConfig
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product_collection,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/collections/:id/products",
     middlewares: [
+      requirePermission("taxonomy", "edit"),
       validateAndTransformBody(createLinkBody()),
       validateAndTransformQuery(
         VendorGetCollectionParams,
         retrieveTransformQueryConfig
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product_collection,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

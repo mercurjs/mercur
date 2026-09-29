@@ -46,3 +46,4 @@ export {
 } from "./product-category"
 
 export { StoreCompleteCartResponse } from "./order-group"
+export * from "./user"

@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   MedusaNextFunction,
@@ -45,139 +44,89 @@ export const vendorOrderEditsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/order-edits",
     middlewares: [
+      requirePermission("orders.edits", "edit"),
       validateAndTransformBody(VendorPostOrderEditsReq),
       assertSellerOwnsOrderInBody,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_change,
-        operation: PolicyOperation.create,
-      },
     ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/order-edits/:id",
-    middlewares: [assertSellerOwnsOrderInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_change,
-        operation: PolicyOperation.delete,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.edits", "manage"),
+      assertSellerOwnsOrderInParam],
   },
   {
     method: ["POST"],
     matcher: "/vendor/order-edits/:id/request",
-    middlewares: [assertSellerOwnsOrderInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_change,
-        operation: PolicyOperation.update,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.edits", "edit"),
+      assertSellerOwnsOrderInParam],
   },
   {
     method: ["POST"],
     matcher: "/vendor/order-edits/:id/confirm",
-    middlewares: [assertSellerOwnsOrderInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_change,
-        operation: PolicyOperation.update,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.edits", "edit"),
+      assertSellerOwnsOrderInParam],
   },
   {
     method: ["POST"],
     matcher: "/vendor/order-edits/:id/items",
     middlewares: [
+      requirePermission("orders.edits", "edit"),
       validateAndTransformBody(VendorPostOrderEditsAddItemsReq),
       assertSellerOwnsOrderInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_change,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/order-edits/:id/items/:action_id",
     middlewares: [
+      requirePermission("orders.edits", "edit"),
       validateAndTransformBody(VendorPostOrderEditsItemsActionReq),
       assertSellerOwnsOrderInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_change,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/order-edits/:id/items/:action_id",
-    middlewares: [assertSellerOwnsOrderInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_change,
-        operation: PolicyOperation.delete,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.edits", "manage"),
+      assertSellerOwnsOrderInParam],
   },
   {
     method: ["POST"],
     matcher: "/vendor/order-edits/:id/items/item/:item_id",
     middlewares: [
+      requirePermission("orders.edits", "edit"),
       validateAndTransformBody(VendorPostOrderEditsUpdateItemQuantityReq),
       assertSellerOwnsOrderInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_change,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/order-edits/:id/shipping-method",
     middlewares: [
+      requirePermission("orders.edits", "edit"),
       validateAndTransformBody(VendorPostOrderEditsShippingReq),
       assertSellerOwnsOrderInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_change,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/order-edits/:id/shipping-method/:action_id",
     middlewares: [
+      requirePermission("orders.edits", "edit"),
       validateAndTransformBody(VendorPostOrderEditsShippingActionReq),
       assertSellerOwnsOrderInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_change,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/order-edits/:id/shipping-method/:action_id",
-    middlewares: [assertSellerOwnsOrderInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_change,
-        operation: PolicyOperation.delete,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.edits", "manage"),
+      assertSellerOwnsOrderInParam],
   },
 ]

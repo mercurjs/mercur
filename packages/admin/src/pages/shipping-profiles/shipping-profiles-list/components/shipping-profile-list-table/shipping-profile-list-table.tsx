@@ -51,7 +51,7 @@ export const ShippingProfileListTable = () => {
           </Text>
         </div>
         <div>
-          <PermissionGuard resource="shipping_profile" operation="create">
+          <PermissionGuard permission="shipping:edit">
             <Button size="small" variant="secondary" asChild data-testid="shipping-profile-list-table-create-button">
               <Link to="create">{t("actions.create")}</Link>
             </Button>

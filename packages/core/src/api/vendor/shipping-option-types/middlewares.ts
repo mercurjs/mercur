@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
@@ -14,32 +13,22 @@ export const vendorShippingOptionTypesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/shipping-option-types",
     middlewares: [
+      requirePermission("shipping", "view"),
       validateAndTransformQuery(
         VendorGetShippingOptionTypesParams,
         vendorShippingOptionTypeQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.shipping_option_type,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/shipping-option-types/:id",
     middlewares: [
+      requirePermission("shipping", "view"),
       validateAndTransformQuery(
         VendorGetShippingOptionTypeParams,
         vendorShippingOptionTypeQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.shipping_option_type,
-        operation: PolicyOperation.read,
-      },
     ],
   },
 ]

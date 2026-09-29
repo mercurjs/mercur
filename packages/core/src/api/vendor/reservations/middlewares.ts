@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   MedusaNextFunction,
@@ -189,6 +188,7 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/reservations",
     middlewares: [
+      requirePermission("inventory", "view"),
       validateAndTransformQuery(
         VendorGetReservationsParams,
         vendorReservationQueryConfig.list
@@ -196,34 +196,24 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
       maybeApplyInventoryItemSkuFilter,
       applySellerReservationsFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.reservation_item,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/reservations/:id",
     middlewares: [
+      requirePermission("inventory", "view"),
       validateAndTransformQuery(
         VendorGetReservationParams,
         vendorReservationQueryConfig.retrieve
       ),
       assertReservationOwnership,
     ],
-    policies: [
-      {
-        resource: PolicyResource.reservation_item,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/reservations",
     middlewares: [
+      requirePermission("inventory", "edit"),
       validateAndTransformBody(VendorCreateReservation),
       assertCreateReservationOwnership,
       validateAndTransformQuery(
@@ -231,17 +221,12 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
         vendorReservationQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.reservation_item,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/reservations/:id",
     middlewares: [
+      requirePermission("inventory", "edit"),
       validateAndTransformBody(VendorUpdateReservation),
       assertReservationOwnership,
       validateAndTransformQuery(
@@ -249,22 +234,12 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
         vendorReservationQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.reservation_item,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/reservations/:id",
-    middlewares: [assertReservationOwnership],
-    policies: [
-      {
-        resource: PolicyResource.reservation_item,
-        operation: PolicyOperation.delete,
-      },
-    ],
+    middlewares: [
+      requirePermission("inventory", "manage"),
+      assertReservationOwnership],
   },
 ]

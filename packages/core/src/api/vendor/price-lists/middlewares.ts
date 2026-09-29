@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -43,117 +42,84 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/price-lists",
     middlewares: [
+      requirePermission("price_lists", "view"),
       validateAndTransformQuery(
         VendorGetPriceListsParams,
         QueryConfig.listPriceListQueryConfig
       ),
       applySellerPriceListLinkFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.price_list,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/price-lists/:id",
     middlewares: [
+      requirePermission("price_lists", "view"),
       validateAndTransformQuery(
         VendorGetPriceListParams,
         QueryConfig.retrievePriceListQueryConfig
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.price_list,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/price-lists",
     middlewares: [
+      requirePermission("price_lists", "edit"),
       validateAndTransformBody(VendorCreatePriceList),
       validateAndTransformQuery(
         VendorGetPriceListParams,
         QueryConfig.retrievePriceListQueryConfig
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.price_list,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/price-lists/:id",
     middlewares: [
+      requirePermission("price_lists", "edit"),
       validateAndTransformBody(VendorUpdatePriceList),
       validateAndTransformQuery(
         VendorGetPriceListParams,
         QueryConfig.retrievePriceListQueryConfig
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.price_list,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/price-lists/:id",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.price_list,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("price_lists", "manage"),
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/price-lists/:id/products",
     middlewares: [
+      requirePermission("price_lists", "edit"),
       validateAndTransformBody(createLinkBody()),
       validateAndTransformQuery(
         VendorGetPriceListParams,
         QueryConfig.retrievePriceListQueryConfig
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.price_list,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/price-lists/:id/prices",
     middlewares: [
+      requirePermission("price_lists", "view"),
       validateAndTransformQuery(
         VendorGetPriceListPricesParams,
         QueryConfig.listPriceListPriceQueryConfig
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.price_list,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/price-lists/:id/prices/batch",
     middlewares: [
+      requirePermission("price_lists", "edit"),
       validateAndTransformBody(
         createBatchBody(VendorCreatePriceListPrice, VendorUpdatePriceListPrice)
       ),
@@ -161,12 +127,6 @@ export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
         VendorGetPriceListParams,
         QueryConfig.listPriceListPriceQueryConfig
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.price_list,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

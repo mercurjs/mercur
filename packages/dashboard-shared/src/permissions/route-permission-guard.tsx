@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next"
 import { Navigate, Outlet, useMatches } from "react-router-dom"
 import type { Permission, RouteHandle } from "@mercurjs/dashboard-sdk"
 import { usePermissions } from "./use-permissions"
-import { useRegisterPermissions } from "./use-register-permissions"
 
 type ResolvedRequirement = {
   permissions: Permission[]
@@ -59,7 +58,7 @@ const readRequirementFromHandle = (
  * {
  *   path: "roles",
  *   element: <RoutePermissionGuard />,
- *   handle: { permissions: "rbac_role:read" },
+ *   handle: { permissions: "access.roles:view" },
  *   children: [...],
  * }
  * ```
@@ -78,11 +77,6 @@ export const RoutePermissionGuard = () => {
     }
     return undefined
   }, [matches])
-
-  useRegisterPermissions(requirement?.permissions ?? null, {
-    requireAll: requirement?.requireAll ?? true,
-    source: "route",
-  })
 
   if (isLoading || !requirement) {
     return <Outlet />

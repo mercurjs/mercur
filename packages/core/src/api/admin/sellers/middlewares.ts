@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -32,306 +31,222 @@ import {
 
 export const adminSellersMiddlewares: MiddlewareRoute[] = [
   {
+    method: ["POST"],
+    matcher: "/admin/sellers/:id/members/invites/:invite_id/resend",
+    middlewares: [requirePermission("members.invites", "edit")],
+  },
+  {
+    method: ["DELETE"],
+    matcher: "/admin/sellers/:id/members/invites/:invite_id",
+    middlewares: [requirePermission("members.invites", "manage")],
+  },
+  {
     method: ["GET"],
     matcher: "/admin/sellers",
     middlewares: [
+      requirePermission("sellers", "view"),
       validateAndTransformQuery(
         AdminGetSellersParams,
         adminSellerQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.seller,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/admin/sellers",
     middlewares: [
+      requirePermission("sellers", "edit"),
       validateAndTransformBody(AdminCreateSeller),
       validateAndTransformQuery(
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.seller,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/admin/sellers/:id",
     middlewares: [
+      requirePermission("sellers", "view"),
       validateAndTransformQuery(
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.seller,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/admin/sellers/:id",
     middlewares: [
+      requirePermission("sellers", "edit"),
       validateAndTransformBody(AdminUpdateSeller),
       validateAndTransformQuery(
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.seller,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/sellers/:id/suspend",
     middlewares: [
+      requirePermission("sellers.approval", "edit"),
       validateAndTransformBody(AdminSuspendSeller),
       validateAndTransformQuery(
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.seller,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/sellers/:id/unsuspend",
     middlewares: [
+      requirePermission("sellers.approval", "edit"),
       validateAndTransformBody(AdminUnsuspendSeller),
       validateAndTransformQuery(
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.seller,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/sellers/:id/approve",
     middlewares: [
+      requirePermission("sellers.approval", "edit"),
       validateAndTransformBody(AdminApproveSeller),
       validateAndTransformQuery(
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.seller,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/sellers/:id/terminate",
     middlewares: [
+      requirePermission("sellers.approval", "edit"),
       validateAndTransformBody(AdminTerminateSeller),
       validateAndTransformQuery(
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.seller,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/sellers/:id/unterminate",
     middlewares: [
+      requirePermission("sellers.approval", "edit"),
       validateAndTransformBody(AdminUnterminateSeller),
       validateAndTransformQuery(
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.seller,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/sellers/:id/address",
     middlewares: [
+      requirePermission("sellers", "edit"),
       validateAndTransformBody(AdminUpsertSellerAddress),
       validateAndTransformQuery(
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.seller,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/sellers/:id/payment-details",
     middlewares: [
+      requirePermission("sellers", "edit"),
       validateAndTransformBody(AdminUpsertSellerPaymentDetails),
       validateAndTransformQuery(
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.seller,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/sellers/:id/professional-details",
     middlewares: [
+      requirePermission("sellers", "edit"),
       validateAndTransformBody(AdminUpsertSellerProfessionalDetails),
       validateAndTransformQuery(
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.seller,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/admin/sellers/:id/professional-details",
     middlewares: [
+      requirePermission("sellers", "manage"),
       validateAndTransformQuery(
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.seller,
-        operation: PolicyOperation.delete,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/admin/sellers/:id/members",
     middlewares: [
+      requirePermission("members", "view"),
       validateAndTransformQuery(
         AdminGetSellersParams,
         adminMembersQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.seller_member,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/admin/sellers/:id/products",
     middlewares: [
+      requirePermission("products", "view"),
       validateAndTransformQuery(
         AdminGetSellerProductsParams,
         adminSellerProductsQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/admin/sellers/:id/members",
     middlewares: [
+      requirePermission("members", "edit"),
       validateAndTransformBody(AdminAddSellerMember),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.seller_member,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/admin/sellers/:id/members/invites",
     middlewares: [
+      requirePermission("members.invites", "view"),
       validateAndTransformQuery(
         AdminGetSellersParams,
         adminMemberInvitesQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.member_invite,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/admin/sellers/:id/members/invite",
     middlewares: [
+      requirePermission("members.invites", "edit"),
       validateAndTransformBody(AdminInviteSellerMember),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.member_invite,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["DELETE"],
     matcher: "/admin/sellers/:id/members/:member_id",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.seller_member,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("members", "manage"),
     ],
   },
 ]

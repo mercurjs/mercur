@@ -1,6 +1,4 @@
-import { withRbacRoleFields } from "../../utils/rbac-role-fields"
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   authenticate,
   validateAndTransformBody,
@@ -13,7 +11,7 @@ import { VendorAcceptMemberInvite, VendorUpdateMember } from "./validators"
 
 const retrieveVendorMemberMeQueryConfig = {
   get defaults() {
-    return withRbacRoleFields([
+    return ([
       "id",
       "is_owner",
       "member.*",
@@ -40,33 +38,23 @@ export const vendorMembersMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/members/me",
     middlewares: [
+      requirePermission("members", "view"),
       validateAndTransformQuery(
         VendorGetSellerParams,
         retrieveVendorMemberMeQueryConfig
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.seller_member,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/members/me",
     middlewares: [
+      requirePermission("members", "edit"),
       validateAndTransformBody(VendorUpdateMember),
       validateAndTransformQuery(
         VendorGetSellerParams,
         retrieveVendorMemberMeQueryConfig
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.seller_member,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

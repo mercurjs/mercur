@@ -66,7 +66,7 @@ export const InventoryItemGeneralSection = ({
               actions: [
                 {
                   icon: <PencilSquare />,
-                  permission: "inventory_item:update",
+                  permission: "inventory:edit",
                   label: t("actions.edit"),
                   to: "edit",
                 },

@@ -27,7 +27,7 @@ export const CollectionListActions = ({
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <PermissionGuard resource="product_collection" operation="create">
+        <PermissionGuard permission="taxonomy:edit">
           <Link to="/collections/create">
             <Button size="small" variant="secondary">
               {t("actions.create")}

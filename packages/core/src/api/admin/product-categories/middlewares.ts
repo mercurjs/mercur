@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -22,100 +21,68 @@ const overrides: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/product-categories",
     middlewares: [
+      requirePermission("taxonomy", "view"),
       validateAndTransformQuery(
         AdminProductCategoriesParams,
         adminProductCategoryQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product_category,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/admin/product-categories",
     middlewares: [
+      requirePermission("taxonomy", "edit"),
       validateAndTransformBody(AdminCreateProductCategory),
       validateAndTransformQuery(
         AdminProductCategoryParams,
         adminProductCategoryQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.product_category,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/admin/product-categories/:id",
     middlewares: [
+      requirePermission("taxonomy", "view"),
       validateAndTransformQuery(
         AdminProductCategoryParams,
         adminProductCategoryQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product_category,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/admin/product-categories/:id",
     middlewares: [
+      requirePermission("taxonomy", "edit"),
       validateAndTransformBody(AdminUpdateProductCategory),
       validateAndTransformQuery(
         AdminProductCategoryParams,
         adminProductCategoryQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.product_category,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/admin/product-categories/:id",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.product_category,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("taxonomy", "manage"),
     ],
   },
   {
     method: ["POST"],
     matcher: "/admin/product-categories/:id/products",
-    middlewares: [validateAndTransformBody(AdminBatchLinkProductsToCategory)],
-    policies: [
-      {
-        resource: PolicyResource.product_category,
-        operation: PolicyOperation.update,
-      },
-    ],
+    middlewares: [
+      requirePermission("taxonomy", "edit"),
+      validateAndTransformBody(AdminBatchLinkProductsToCategory)],
   },
   {
     method: ["POST"],
     matcher: "/admin/product-categories/:id/sellers",
-    middlewares: [validateAndTransformBody(AdminBatchLinkSellersToCategory)],
-    policies: [
-      {
-        resource: PolicyResource.product_category,
-        operation: PolicyOperation.update,
-      },
-    ],
+    middlewares: [
+      requirePermission("taxonomy", "edit"),
+      validateAndTransformBody(AdminBatchLinkSellersToCategory)],
   },
 ]
 

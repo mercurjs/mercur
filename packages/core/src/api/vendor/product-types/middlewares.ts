@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
@@ -14,32 +13,22 @@ export const vendorProductTypesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/product-types",
     middlewares: [
+      requirePermission("taxonomy", "view"),
       validateAndTransformQuery(
         VendorGetProductTypesParams,
         vendorProductTypeQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product_type,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/product-types/:id",
     middlewares: [
+      requirePermission("taxonomy", "view"),
       validateAndTransformQuery(
         VendorGetProductTypeParams,
         vendorProductTypeQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product_type,
-        operation: PolicyOperation.read,
-      },
     ],
   },
 ]

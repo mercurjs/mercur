@@ -1,5 +1,4 @@
-import { PolicyOperation } from "@medusajs/framework/utils"
-import { PolicyResource } from "../../utils/policy-resources"
+import { requirePermission } from "../../utils"
 import { validateAndTransformQuery } from "@medusajs/framework"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { listTransformQueryConfig } from "@medusajs/medusa/api/admin/campaigns/query-config"
@@ -45,17 +44,12 @@ export const adminCampaignsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: LIST_MATCHER,
     middlewares: [
+      requirePermission("promotions", "view"),
       validateAndTransformQuery(
         AdminGetCampaignsWithFilters,
         listTransformQueryConfig
       ),
       applyCampaignFilters,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.campaign,
-        operation: PolicyOperation.read,
-      },
     ],
   },
 ]

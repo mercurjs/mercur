@@ -74,3 +74,5 @@ export * from "./dashboard"
 
 // Feature flags
 export * from "./feature-flags"
+// Access control
+export * from "./permissions"

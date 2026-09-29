@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -16,53 +15,43 @@ import {
 
 export const adminOffersMiddlewares: MiddlewareRoute[] = [
   {
+    method: ["DELETE"],
+    matcher: "/admin/offers/:id",
+    middlewares: [requirePermission("offers", "manage")],
+  },
+  {
     method: ["GET"],
     matcher: "/admin/offers",
     middlewares: [
+      requirePermission("offers", "view"),
       validateAndTransformQuery(
         AdminGetOffersParams,
         adminOfferQueryConfig.list
       ),
       applyGroupedOfferProductFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.offer,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/offers/batch",
     middlewares: [
+      requirePermission("offers", "edit"),
       validateAndTransformBody(AdminCreateOffersBatch),
       validateAndTransformQuery(
         AdminGetOffersParams,
         adminOfferQueryConfig.list
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.offer,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/admin/offers/:id",
     middlewares: [
+      requirePermission("offers", "view"),
       validateAndTransformQuery(
         AdminGetOfferParams,
         adminOfferQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.offer,
-        operation: PolicyOperation.read,
-      },
     ],
   },
 ]

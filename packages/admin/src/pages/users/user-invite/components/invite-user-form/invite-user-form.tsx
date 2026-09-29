@@ -22,7 +22,6 @@ import * as zod from "zod";
 import { ActionMenu } from "../../../../../components/common/action-menu/index.ts";
 import { Form } from "../../../../../components/common/form/index.ts";
 import { ListSummary } from "../../../../../components/common/list-summary/index.ts";
-import { Combobox } from "../../../../../components/inputs/combobox/index.ts";
 import { RouteFocusModal } from "../../../../../components/modals/index.ts";
 import { _DataTable } from "../../../../../components/table/data-table/index.ts";
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form/keybound-form.tsx";
@@ -32,16 +31,12 @@ import {
   useInvites,
   useResendInvite,
 } from "../../../../../hooks/api/invites.tsx";
-import { useRbacAssignableRoles } from "../../../../../hooks/api/rbac-roles.tsx";
 import { useUserInviteTableQuery } from "../../../../../hooks/table/query/use-user-invite-table-query.tsx";
 import { useDataTable } from "../../../../../hooks/use-data-table.tsx";
 import { isFetchError } from "../../../../../lib/is-fetch-error.ts";
-import { useFeatureFlag } from "../../../../../providers/feature-flag-provider/index.tsx";
-import { usePermissions } from "@mercurjs/dashboard-shared";
 
 const InviteUserSchema = zod.object({
   email: zod.string().email(),
-  roles: zod.array(zod.string()).optional(),
 });
 
 const PAGE_SIZE = 10;
@@ -59,54 +54,16 @@ const INVITE_URL = `${window.location.origin}${getBaseUrl()}/invite?token=`;
 
 export const InviteUserForm = () => {
   const { t } = useTranslation();
-  const isRbacEnabled = useFeatureFlag("rbac");
-  const { hasPermission } = usePermissions();
-  const canReadRbacRoles = hasPermission("rbac_role:read");
-  const showRbacRolesField = isRbacEnabled && canReadRbacRoles;
-
   const form = useForm<zod.infer<typeof InviteUserSchema>>({
     defaultValues: {
       email: "",
-      roles: [],
     },
     resolver: zodResolver(InviteUserSchema),
   });
 
-  const { data: assignableData, isPending: isRolesLoading } =
-    useRbacAssignableRoles(
-      { limit: 200, order: "name" },
-      { enabled: showRbacRolesField },
-    );
-
-  const roleOptions = useMemo(() => {
-    return (assignableData?.roles ?? []).map((role) => ({
-      label: role.name,
-      value: role.id,
-    }));
-  }, [assignableData?.roles]);
-
-  const inviteFields = useMemo(() => {
-    if (!showRbacRolesField) {
-      return undefined;
-    }
-
-    return [
-      "id",
-      "email",
-      "accepted",
-      "token",
-      "expires_at",
-      "created_at",
-      "updated_at",
-      "rbac_roles.id",
-      "rbac_roles.name",
-    ].join(",");
-  }, [showRbacRolesField]);
-
   const { raw, searchParams } = useUserInviteTableQuery({
     prefix: PREFIX,
     pageSize: PAGE_SIZE,
-    fields: inviteFields,
   });
 
   const {
@@ -117,7 +74,7 @@ export const InviteUserForm = () => {
     error,
   } = useInvites(searchParams);
 
-  const columns = useColumns({ isRbacEnabled: showRbacRolesField });
+  const columns = useColumns();
 
   const { table } = useDataTable({
     data: invites ?? [],
@@ -133,15 +90,7 @@ export const InviteUserForm = () => {
 
   const handleSubmit = form.handleSubmit(async (values) => {
     try {
-      const payload: HttpTypes.AdminCreateInvite = {
-        email: values.email,
-      };
-
-      if (showRbacRolesField && values.roles?.length) {
-        payload.roles = values.roles;
-      }
-
-      await mutateAsync(payload);
+      await mutateAsync({ email: values.email });
       form.reset();
     } catch (error) {
       if (isFetchError(error) && error.status === 400) {
@@ -220,39 +169,6 @@ export const InviteUserForm = () => {
                       );
                     }}
                   />
-                  {showRbacRolesField && (
-                    <Form.Field
-                      control={form.control}
-                      name="roles"
-                      render={({ field }) => {
-                        return (
-                          <Form.Item data-testid="user-invite-form-roles-item">
-                            <Form.Label
-                              optional
-                              tooltip={t("users.inviteRolesTooltip")}
-                              data-testid="user-invite-form-roles-label"
-                            >
-                              {t("roles.domain")}
-                            </Form.Label>
-                            <Form.Control data-testid="user-invite-form-roles-control">
-                              <Combobox
-                                {...field}
-                                value={field.value ?? []}
-                                onChange={(value) => {
-                                  field.onChange(value ?? []);
-                                }}
-                                options={roleOptions}
-                                placeholder={t("labels.selectValues")}
-                                disabled={isRolesLoading}
-                                data-testid="user-invite-form-roles-input"
-                              />
-                            </Form.Control>
-                            <Form.ErrorMessage data-testid="user-invite-form-roles-error" />
-                          </Form.Item>
-                        );
-                      }}
-                    />
-                  )}
                 </div>
                 <div className="flex items-center justify-end">
                   <Button
@@ -375,7 +291,7 @@ const InviteActions = ({ invite }: { invite: HttpTypes.AdminInvite }) => {
 
 const columnHelper = createColumnHelper<HttpTypes.AdminInvite>();
 
-const useColumns = ({ isRbacEnabled }: { isRbacEnabled: boolean }) => {
+const useColumns = () => {
   const { t } = useTranslation();
 
   return useMemo(
@@ -386,32 +302,6 @@ const useColumns = ({ isRbacEnabled }: { isRbacEnabled: boolean }) => {
           return getValue();
         },
       }),
-      ...(isRbacEnabled
-        ? [
-            columnHelper.display({
-              id: "roles",
-              header: t("roles.domain"),
-              cell: ({ row }) => {
-                const roleNames =
-                  row.original.rbac_roles?.map((role) => role.name) ?? [];
-
-                if (!roleNames.length) {
-                  return (
-                    <Text size="small" className="text-ui-fg-subtle">
-                      -
-                    </Text>
-                  );
-                }
-
-                return (
-                  <div className="flex items-center">
-                    <ListSummary inline n={1} list={roleNames} />
-                  </div>
-                );
-              },
-            }),
-          ]
-        : []),
       columnHelper.accessor("accepted", {
         header: t("fields.status"),
         cell: ({ getValue, row }) => {
@@ -486,6 +376,6 @@ const useColumns = ({ isRbacEnabled }: { isRbacEnabled: boolean }) => {
         cell: ({ row }) => <InviteActions invite={row.original} />,
       }),
     ],
-    [t, isRbacEnabled],
+    [t],
   );
 };

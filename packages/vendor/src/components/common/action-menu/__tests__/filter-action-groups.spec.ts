@@ -27,8 +27,8 @@ describe("filterActionGroups", () => {
 
   test("drops an action the actor lacks", () => {
     const result = filterActionGroups(
-      groups({ icon, label: "Delete", onClick: () => {}, permission: "product:delete" }),
-      check(["product:read"])
+      groups({ icon, label: "Delete", onClick: () => {}, permission: "products:manage" }),
+      check(["products:view"])
     )
 
     expect(result).toEqual([])
@@ -36,8 +36,8 @@ describe("filterActionGroups", () => {
 
   test("keeps an action the actor holds", () => {
     const result = filterActionGroups(
-      groups({ icon, label: "Edit", to: "edit", permission: "product:update" }),
-      check(["product:update"])
+      groups({ icon, label: "Edit", to: "edit", permission: "products:edit" }),
+      check(["products:edit"])
     )
 
     expect(result[0].actions).toHaveLength(1)
@@ -48,15 +48,15 @@ describe("filterActionGroups", () => {
       icon,
       label: "Move",
       to: "move",
-      permission: ["product:update", "stock_location:update"],
+      permission: ["products:edit", "stock_locations:edit"],
       requireAll: true,
     }
 
-    expect(filterActionGroups(groups(action), check(["product:update"]))).toEqual([])
+    expect(filterActionGroups(groups(action), check(["products:edit"]))).toEqual([])
     expect(
       filterActionGroups(
         groups(action),
-        check(["product:update", "stock_location:update"])
+        check(["products:edit", "stock_locations:edit"])
       )[0].actions
     ).toHaveLength(1)
   })
@@ -67,9 +67,9 @@ describe("filterActionGroups", () => {
         icon,
         label: "Move",
         to: "move",
-        permission: ["product:update", "stock_location:update"],
+        permission: ["products:edit", "stock_locations:edit"],
       }),
-      check(["stock_location:update"])
+      check(["stock_locations:edit"])
     )
 
     expect(result[0].actions).toHaveLength(1)
@@ -78,7 +78,7 @@ describe("filterActionGroups", () => {
   test("drops a group once all of its actions are filtered out", () => {
     const result = filterActionGroups(
       [
-        { actions: [{ icon, label: "Edit", to: "edit", permission: "product:update" }] },
+        { actions: [{ icon, label: "Edit", to: "edit", permission: "products:edit" }] },
         { actions: [{ icon, label: "View", to: "view" }] },
       ] as ActionGroup[],
       check([])
@@ -91,7 +91,7 @@ describe("filterActionGroups", () => {
   // Public routes mount no PermissionsProvider; the menu must still render.
   test("filters nothing when there is no permissions context", () => {
     const result = filterActionGroups(
-      groups({ icon, label: "Delete", onClick: () => {}, permission: "product:delete" }),
+      groups({ icon, label: "Delete", onClick: () => {}, permission: "products:manage" }),
       null
     )
 

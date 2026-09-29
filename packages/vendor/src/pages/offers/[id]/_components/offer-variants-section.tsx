@@ -198,7 +198,7 @@ const useColumns = ({
                   actions: [
                     {
                       icon: <PencilSquare />,
-                      permission: "offer:update",
+                      permission: "offers:edit",
                       label: t("actions.edit"),
                       onClick: () => onEdit(row.original.id),
                     },
@@ -221,7 +221,7 @@ const useColumns = ({
                   actions: [
                     {
                       icon: <Trash />,
-                      permission: "offer:delete",
+                      permission: "offers:manage",
                       label: t("actions.delete"),
                       onClick: () =>
                         onDelete(row.original.id, skuOf(row.original)),

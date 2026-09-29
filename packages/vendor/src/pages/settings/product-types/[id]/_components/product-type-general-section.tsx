@@ -23,7 +23,7 @@ export const ProductTypeGeneralSection = ({
           {
             actions: [
               {
-                permission: "product_type:update",
+                permission: "taxonomy:edit",
                 label: t("actions.edit"),
                 icon: <PencilSquare />,
                 to: "edit",
@@ -33,7 +33,7 @@ export const ProductTypeGeneralSection = ({
           {
             actions: [
               {
-                permission: "product_type:delete",
+                permission: "taxonomy:manage",
                 label: t("actions.delete"),
                 icon: <Trash />,
                 onClick: handleDelete,

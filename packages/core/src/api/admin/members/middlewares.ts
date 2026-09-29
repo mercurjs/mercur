@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
@@ -11,16 +10,11 @@ export const adminMembersMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/members",
     middlewares: [
+      requirePermission("members", "view"),
       validateAndTransformQuery(
         AdminGetMembersParams,
         adminMemberListQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.seller_member,
-        operation: PolicyOperation.read,
-      },
     ],
   },
 ]

@@ -144,13 +144,13 @@ const PromotionActions = ({
           actions: [
             {
               icon: <PencilSquare />,
-              permission: "promotion:update",
+              permission: "promotions:edit",
               label: t("actions.edit"),
               to: `/promotions/${promotion.id}/edit`,
             },
             {
               icon: <Trash />,
-              permission: "promotion:delete",
+              permission: "promotions:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
             },

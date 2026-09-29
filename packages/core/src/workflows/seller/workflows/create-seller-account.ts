@@ -23,7 +23,6 @@ import {
   createSellersStep,
   upsertMembersStep,
   createSellerMembersStep,
-  createSellerDefaultRolesStep,
 } from "../steps"
 import { SellerWorkflowEvents } from "../../events"
 import { updateSellerAddressWorkflow } from "./update-seller-address"
@@ -47,8 +46,6 @@ type CreateSellerAccountWorkflowInput = {
 export const createSellerAccountWorkflow = createWorkflow(
   createSellerAccountWorkflowId,
   function (input: CreateSellerAccountWorkflowInput) {
-    createSellerDefaultRolesStep()
-
     const sellerData = transform(input, ({ seller }) => [
       { ...seller, status: SellerStatus.PENDING_APPROVAL },
     ])

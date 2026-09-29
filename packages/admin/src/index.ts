@@ -21,28 +21,19 @@ export { ActionMenu } from './components/common/action-menu'
 // Product constants
 export { PRODUCT_DETAIL_FIELDS, PRODUCT_DETAIL_QUERY } from './pages/products/constants'
 
-// Permissions (RBAC)
+// Permissions
 export {
   PermissionGuard,
   PermissionsProvider,
-  PermissionsRequirement,
-  PermissionsRequirementsProvider,
-  RequiredPermissionsSection,
   RoutePermissionGuard,
   usePermissions,
-  useRegisterPermissions,
-  useRequiredPermissions,
   useResourcePermissions,
 } from '@mercurjs/dashboard-shared'
-export type {
-  PermissionGuardProps,
-  PermissionsRequirementProps,
-} from '@mercurjs/dashboard-shared'
+export type { PermissionGuardProps } from '@mercurjs/dashboard-shared'
 export type {
   Permission,
-  PermissionOperation,
-  PermissionRequirement,
-  PermissionResource,
+  PermissionKey,
+  PermissionMap,
+  PermissionRight,
   RouteHandle,
-  UserPolicy,
 } from '@mercurjs/dashboard-sdk'

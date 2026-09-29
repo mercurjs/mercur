@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
@@ -11,16 +10,11 @@ export const vendorFulfillmentProvidersMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/fulfillment-providers",
     middlewares: [
+      requirePermission("shipping", "view"),
       validateAndTransformQuery(
         VendorGetFulfillmentProvidersParams,
         vendorFulfillmentProviderQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.fulfillment_provider,
-        operation: PolicyOperation.read,
-      },
     ],
   },
 ]

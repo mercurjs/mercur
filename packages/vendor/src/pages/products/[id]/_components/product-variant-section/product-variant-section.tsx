@@ -249,7 +249,7 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
                 actions: [
                   {
                     icon: <PencilSquare />,
-                    permission: "product:update",
+                    permission: "products:edit",
                     label: t("actions.edit"),
                     onClick: () =>
                       navigate(
@@ -267,7 +267,7 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
                 actions: [
                   {
                     icon: <Trash />,
-                    permission: "product:delete",
+                    permission: "products:manage",
                     label: t("actions.delete"),
                     onClick: () =>
                       handleDelete(row.original.id, row.original.title ?? ""),

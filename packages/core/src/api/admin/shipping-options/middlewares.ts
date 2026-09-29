@@ -1,5 +1,4 @@
-import { PolicyOperation } from "@medusajs/framework/utils"
-import { PolicyResource } from "../../utils/policy-resources"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -59,17 +58,12 @@ export const adminShippingOptionsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: LIST_MATCHER,
     middlewares: [
+      requirePermission("shipping", "view"),
       validateAndTransformQuery(
         AdminGetShippingOptionsParamsWithSeller,
         listTransformQueryConfig
       ),
       maybeApplySellerShippingOptionFilter,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.shipping_option,
-        operation: PolicyOperation.read,
-      },
     ],
   },
 ]

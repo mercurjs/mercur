@@ -33,7 +33,7 @@ export const ProductTypeListActions = ({
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <PermissionGuard resource="product_type" operation="create">
+        <PermissionGuard permission="taxonomy:edit">
           <Button
             size="small"
             variant="secondary"
