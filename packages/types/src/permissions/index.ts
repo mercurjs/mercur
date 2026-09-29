@@ -51,6 +51,6 @@ export interface IPermissionResolver {
   ): Promise<PermissionMap>
 }
 
-export const PERMISSIONS_MODULE = "rbac"
+export const PERMISSIONS_MODULE = "permissions"
 
 export const MISSING_PERMISSION_CODE = "MISSING_PERMISSION"
