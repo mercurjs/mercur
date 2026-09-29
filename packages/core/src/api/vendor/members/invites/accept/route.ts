@@ -17,6 +17,7 @@ export const POST = async (
       member_id: req.auth_context.actor_id,
       first_name: req.validatedBody.first_name ?? undefined,
       last_name: req.validatedBody.last_name ?? undefined,
+      additional_data: req.validatedBody.additional_data,
     },
   })
 

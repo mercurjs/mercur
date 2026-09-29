@@ -1,4 +1,5 @@
 import {
+  createHook,
   createWorkflow,
   transform,
   when,
@@ -8,6 +9,8 @@ import {
   emitEventStep,
   setAuthAppMetadataStep,
 } from "@medusajs/medusa/core-flows"
+import { AdditionalData } from "@medusajs/framework/types"
+import { MemberInviteDTO } from "@mercurjs/types"
 
 import {
   validateMemberInviteTokenStep,
@@ -26,12 +29,21 @@ type AcceptMemberInviteWorkflowInput = {
   member_id?: string
   first_name?: string
   last_name?: string
-}
+} & AdditionalData
 
 export const acceptMemberInviteWorkflow = createWorkflow(
   acceptMemberInviteWorkflowId,
   function (input: AcceptMemberInviteWorkflowInput) {
     const invite = validateMemberInviteTokenStep(input.invite_token)
+    const inviteDTO = transform(
+      { invite },
+      ({ invite }) => invite as unknown as MemberInviteDTO
+    )
+
+    const validate = createHook("validate", {
+      input,
+      invite: inviteDTO,
+    })
 
     const members = upsertMembersStep(
       transform({ invite, input }, ({ invite, input }) => [
@@ -71,11 +83,19 @@ export const acceptMemberInviteWorkflow = createWorkflow(
 
     deleteMemberInviteStep([invite.id])
 
+    const memberInviteAccepted = createHook("memberInviteAccepted", {
+      member,
+      invite: inviteDTO,
+      additional_data: input.additional_data,
+    })
+
     emitEventStep({
       eventName: MemberInviteWorkflowEvents.ACCEPTED,
       data: { seller_id: invite.seller_id, member_id: member.id },
     })
 
-    return new WorkflowResponse(member)
+    return new WorkflowResponse(member, {
+      hooks: [validate, memberInviteAccepted],
+    })
   }
 )
