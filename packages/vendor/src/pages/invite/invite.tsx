@@ -1,4 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Alert,
   Button,
@@ -11,11 +10,15 @@ import {
 import i18n from "i18next";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { decodeToken } from "react-jwt";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import * as z from "zod";
+
+import {
+  FormExtensionZone,
+  useExtendableForm,
+} from "@mercurjs/dashboard-shared";
 
 import { Form } from "@components/common/form";
 import AvatarBox from "@components/common/logo-box/avatar-box";
@@ -26,16 +29,16 @@ import { useSelectSeller } from "@hooks/api";
 import { isFetchError } from "@lib/is-fetch-error";
 import { sdk } from "@lib/client";
 
-const CreateAccountSchema = z
-  .object({
-    email: z.string().email(),
-    first_name: z.string().optional(),
-    last_name: z.string().optional(),
-    password: z.string().min(1),
-    repeat_password: z.string().optional(),
-    existing_member: z.boolean(),
-  })
-  .superRefine(
+const CreateAccountBaseSchema = z.object({
+  email: z.string().email(),
+  first_name: z.string().optional(),
+  last_name: z.string().optional(),
+  password: z.string().min(1),
+  repeat_password: z.string().optional(),
+  existing_member: z.boolean(),
+});
+
+const CreateAccountSchema = CreateAccountBaseSchema.superRefine(
     ({ first_name, last_name, password, repeat_password, existing_member }, ctx) => {
       if (!existing_member) {
         if (!first_name || first_name.trim().length === 0) {
@@ -224,8 +227,11 @@ const CreateView = ({
 
   const isExistingMember = invite.existing_member;
 
-  const form = useForm<z.infer<typeof CreateAccountSchema>>({
-    resolver: zodResolver(CreateAccountSchema),
+  const form = useExtendableForm({
+    // Refined schemas are merged by intersection inside useExtendableForm.
+    schema: CreateAccountSchema as unknown as typeof CreateAccountBaseSchema,
+    model: "member",
+    zone: "invite",
     defaultValues: {
       email: invite.email || "",
       first_name: "",
@@ -262,6 +268,7 @@ const CreateView = ({
         auth_token: authToken,
         first_name: isExistingMember ? undefined : data.first_name,
         last_name: isExistingMember ? undefined : data.last_name,
+        additional_data: data.additional_data,
       });
 
       // Re-login to get a fresh token with updated actor_id
@@ -393,6 +400,11 @@ const CreateView = ({
                 )}
               />
             )}
+            <FormExtensionZone
+              model="member"
+              zone="invite"
+              control={form.control}
+            />
             {validationError && (
               <Hint className="inline-flex" variant="error">
                 {validationError}

@@ -1,5 +1,10 @@
 import fs from "fs"
 import path from "path"
+import type { MedusaRequest } from "@medusajs/framework"
+import {
+  ContainerRegistrationKeys,
+  getResolvedPlugins,
+} from "@medusajs/framework/utils"
 
 const VALID_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"]
 
@@ -57,10 +62,9 @@ function filePathToRegex(filePath: string, apiDir: string): RegExp {
   return new RegExp("^\\/" + regexSegments.join("\\/") + "$")
 }
 
-export function scanUnauthenticatedRoutes(projectRoot: string): RegExp[] {
-  const vendorApiDir = path.join(projectRoot, "src", "api", "vendor")
-  const apiDir = path.join(projectRoot, "src", "api")
-  const routeFiles = crawlRoutes(vendorApiDir)
+function scanSourceDir(srcDir: string): RegExp[] {
+  const apiDir = path.join(srcDir, "api")
+  const routeFiles = crawlRoutes(path.join(apiDir, "vendor"))
   const patterns: RegExp[] = []
 
   for (const file of routeFiles) {
@@ -70,4 +74,31 @@ export function scanUnauthenticatedRoutes(projectRoot: string): RegExp[] {
   }
 
   return patterns
+}
+
+export function scanUnauthenticatedRoutes(projectRoot: string): RegExp[] {
+  return scanSourceDir(path.join(projectRoot, "src"))
+}
+
+let pluginPatterns: Promise<RegExp[]> | undefined
+
+/**
+ * Plugin routes are resolved on the first request: the vendor middlewares are
+ * built at import time, before the config module is available.
+ */
+export const resolvePluginUnauthenticatedRoutes = (
+  req: MedusaRequest
+): Promise<RegExp[]> => {
+  pluginPatterns ??= (async () => {
+    const configModule = req.scope.resolve(
+      ContainerRegistrationKeys.CONFIG_MODULE
+    )
+    const plugins = await getResolvedPlugins(process.cwd(), configModule)
+    return plugins.flatMap((plugin) => scanSourceDir(plugin.resolve))
+  })().catch((error) => {
+    pluginPatterns = undefined
+    throw error
+  })
+
+  return pluginPatterns
 }

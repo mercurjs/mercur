@@ -15,3 +15,11 @@ describe("extension targets", () => {
     }
   )
 })
+
+describe("member form zones", () => {
+  test.each(["register", "invite"])("registers the %s zone", (zone) => {
+    expect(targets).toMatch(
+      new RegExp(`"member": \\{\\s*formZones: [^\\n]*"${zone}"`)
+    )
+  })
+})
