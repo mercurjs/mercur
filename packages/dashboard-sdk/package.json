@@ -31,6 +31,7 @@
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
+    "test:types": "tsc -p src/__tests__/types",
     "lint": "oxlint --max-warnings 0"
   },
   "dependencies": {
