@@ -198,7 +198,7 @@ declare module "@mercurjs/dashboard-sdk" {
       displayFieldIds: "available" | "in_stock" | "reserved" | "sku" | "title"
     }
     "member": {
-      formZones: "edit"
+      formZones: "edit" | "invite" | "register"
       formTabs: Record<string, string>
       displayZones: "general"
       displayFieldIds: "first_name" | "language" | "last_name"

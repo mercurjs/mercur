@@ -43,6 +43,7 @@ export const useAcceptInvite = (
       auth_token: string;
       first_name?: string;
       last_name?: string;
+      additional_data?: Record<string, unknown>;
     }
   >,
 ) => {
@@ -52,6 +53,7 @@ export const useAcceptInvite = (
         invite_token: payload.invite_token,
         first_name: payload.first_name,
         last_name: payload.last_name,
+        additional_data: payload.additional_data,
         fetchOptions: {
           headers: {
             Authorization: `Bearer ${payload.auth_token}`,

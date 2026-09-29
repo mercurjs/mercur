@@ -46,6 +46,10 @@ type CreateSellerAccountWorkflowInput = {
 export const createSellerAccountWorkflow = createWorkflow(
   createSellerAccountWorkflowId,
   function (input: CreateSellerAccountWorkflowInput) {
+    const validate = createHook("validate", {
+      input,
+    })
+
     const sellerData = transform(input, ({ seller }) => [
       { ...seller, status: SellerStatus.PENDING_APPROVAL },
     ])
@@ -124,6 +128,7 @@ export const createSellerAccountWorkflow = createWorkflow(
 
     const sellerAccountCreated = createHook("sellerAccountCreated", {
       seller,
+      member_id: memberId,
       additional_data: input.additional_data,
     })
 
@@ -132,6 +137,6 @@ export const createSellerAccountWorkflow = createWorkflow(
       data: [{ id: seller.id }],
     })
 
-    return new WorkflowResponse(seller, { hooks: [sellerAccountCreated] })
+    return new WorkflowResponse(seller, { hooks: [validate, sellerAccountCreated] })
   }
 )

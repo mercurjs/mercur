@@ -1,14 +1,12 @@
 import { Children, ReactNode, useState } from "react"
 
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Spinner } from "@medusajs/icons"
 import { Button, Heading, Hint, Input, Text } from "@medusajs/ui"
+import { FormExtensionZone, useExtendableForm } from "@mercurjs/dashboard-shared"
 import { MercurFeatureFlags } from "@mercurjs/types"
-import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 import { Link, Navigate, useNavigate } from "react-router-dom"
 import config from "virtual:mercur/config"
-import * as z from "zod"
 
 import { Form } from "@components/common/form"
 import AvatarBox from "@components/common/logo-box/avatar-box"
@@ -41,8 +39,10 @@ const RegisterForm = () => {
   const navigate = useNavigate()
   const [serverError, setServerError] = useState<string | null>(null)
 
-  const form = useForm<z.infer<typeof RegisterSchema>>({
-    resolver: zodResolver(RegisterSchema),
+  const form = useExtendableForm({
+    schema: RegisterSchema,
+    model: "member",
+    zone: "register",
     mode: "onSubmit",
     reValidateMode: "onSubmit",
     defaultValues: {
@@ -55,7 +55,7 @@ const RegisterForm = () => {
 
   const { mutateAsync: signUp, isPending } = useSignUpWithEmailPass()
 
-  const handleSubmit = form.handleSubmit(async ({ first_name, last_name, email, password }) => {
+  const handleSubmit = form.handleSubmit(async ({ first_name, last_name, email, password, additional_data }) => {
     setServerError(null)
     try {
       await signUp({ email, password })
@@ -64,7 +64,7 @@ const RegisterForm = () => {
       // so they ride through sessionStorage and land on the member via onboarding.
       sessionStorage.setItem(
         REGISTER_DRAFT_KEY,
-        JSON.stringify({ first_name, last_name, email }),
+        JSON.stringify({ first_name, last_name, email, additional_data }),
       )
       navigate("/onboarding", { state: { email, first_name, last_name } })
     } catch (error: any) {
@@ -132,6 +132,11 @@ const RegisterForm = () => {
                 <Form.ErrorMessage />
               </Form.Item>
             )}
+          />
+          <FormExtensionZone
+            model="member"
+            zone="register"
+            control={form.control}
           />
           {serverError && (
             <Hint className="inline-flex" variant="error">

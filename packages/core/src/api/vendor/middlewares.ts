@@ -1,4 +1,5 @@
 import {
+  MedusaRequest,
   MiddlewareRoute,
   authenticate,
 } from "@medusajs/framework"
@@ -41,7 +42,7 @@ import { vendorShippingProfilesMiddlewares } from "./shipping-profiles/middlewar
 import { vendorStockLocationsMiddlewares } from "./stock-locations/middlewares"
 import { vendorStoresMiddlewares } from "./stores/middlewares"
 import { vendorUploadsMiddlewares } from "./uploads/middlewares"
-import { ensureSellerMiddleware, resolvePermissionsMiddleware, scanUnauthenticatedRoutes, unlessBaseUrl, vendorCorsMiddleware } from "../utils"
+import { ensureSellerMiddleware, resolvePermissionsMiddleware, resolvePluginUnauthenticatedRoutes, scanUnauthenticatedRoutes, unlessBaseUrl, vendorCorsMiddleware } from "../utils"
 import { vendorProductAttributesMiddlewares } from "./product-attributes/middlewares"
 import { vendorProductTagsMiddlewares } from "./product-tags/middlewares"
 
@@ -57,6 +58,11 @@ const unauthenticatedRoutes = [
 // belongs to a seller (onboarding). They authenticate through their own
 // matcher with `allowUnregistered: true`, so the catch-all must skip them.
 const sellerlessRoutes = [...unauthenticatedRoutes, /^\/vendor\/stores$/]
+
+const resolveSellerlessRoutes = async (req: MedusaRequest) => [
+  ...sellerlessRoutes,
+  ...(await resolvePluginUnauthenticatedRoutes(req)),
+]
 
 export const vendorMiddlewares: MiddlewareRoute[] = [
   {
@@ -91,17 +97,17 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       vendorCorsMiddleware,
       unlessBaseUrl(
-        sellerlessRoutes,
+        resolveSellerlessRoutes,
         authenticate("member", ["session", "bearer"], {
           allowUnregistered: false,
         })
       ),
       unlessBaseUrl(
-        sellerlessRoutes,
+        resolveSellerlessRoutes,
         ensureSellerMiddleware
       ),
       unlessBaseUrl(
-        sellerlessRoutes,
+        resolveSellerlessRoutes,
         resolvePermissionsMiddleware("vendor")
       ),
     ],

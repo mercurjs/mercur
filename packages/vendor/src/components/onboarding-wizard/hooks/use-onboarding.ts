@@ -117,7 +117,11 @@ export const useOnboarding = (memberEmail: string) => {
 
       const isUS = paymentData?.country_code === "us";
 
-      let registerDraft: { first_name?: string; last_name?: string } = {};
+      let registerDraft: {
+        first_name?: string;
+        last_name?: string;
+        additional_data?: Record<string, unknown>;
+      } = {};
       try {
         const raw = sessionStorage.getItem("mercur_register_draft");
         if (raw) {
@@ -125,11 +129,17 @@ export const useOnboarding = (memberEmail: string) => {
           registerDraft = {
             first_name: parsed.first_name || undefined,
             last_name: parsed.last_name || undefined,
+            additional_data: parsed.additional_data || undefined,
           };
         }
       } catch {
         // Ignore malformed draft
       }
+
+      const additionalData = {
+        ...registerDraft.additional_data,
+        ...storeData.additional_data,
+      };
 
       try {
         setIsSubmitting(true);
@@ -144,9 +154,8 @@ export const useOnboarding = (memberEmail: string) => {
           last_name: registerDraft.last_name,
           currency_code: storeData.currency_code.toLowerCase(),
           description: storeData.description || undefined,
-          ...(storeData.additional_data &&
-          Object.keys(storeData.additional_data).length
-            ? { additional_data: storeData.additional_data }
+          ...(Object.keys(additionalData).length
+            ? { additional_data: additionalData }
             : {}),
           address: addressData
             ? {
