@@ -7,57 +7,71 @@
  * `manage` implies `edit`, `edit` implies `view`.
  */
 
-export type PermissionKey =
-    | "sellers"
-    | "sellers.approval"
-    | "sellers.premium"
-    | "members"
-    | "members.invites"
-    | "roles"
-    | "roles.owner"
-    | "orders"
-    | "orders.refunds"
-    | "orders.returns"
-    | "orders.edits"
-    | "order_groups"
-    | "payments"
-    | "customers"
-    | "customer_groups"
-    | "products"
-    | "products.review"
-    | "product_changes"
-    | "product_categories"
-    | "product_collections"
-    | "product_types"
-    | "product_tags"
-    | "product_attributes"
-    | "offers"
-    | "inventory_items"
-    | "reservations"
-    | "stock_locations"
-    | "price_lists"
-    | "price_preferences"
-    | "promotions"
-    | "campaigns"
-    | "commission_rates"
-    | "commission_lines"
-    | "payouts"
-    | "payout_accounts"
-    | "shipping_profiles"
-    | "shipping_options"
-    | "fulfillment_sets"
-    | "regions"
-    | "tax_regions"
-    | "store"
-    | "sales_channels"
-    | "return_reasons"
-    | "refund_reasons"
-    | "users"
-    | "api_keys"
-    | "translations"
-    | "notifications"
-    | "workflow_executions"
-    | "reviews"
+/**
+ * Registry of permission keys. Plugins add their own keys through declaration
+ * merging:
+ *
+ * @example
+ * declare module "@mercurjs/dashboard-sdk" {
+ *   interface PermissionKeys {
+ *     messaging: true
+ *   }
+ * }
+ */
+export interface PermissionKeys {
+    "sellers": true
+    "sellers.approval": true
+    "sellers.premium": true
+    "members": true
+    "members.invites": true
+    "roles": true
+    "roles.owner": true
+    "orders": true
+    "orders.refunds": true
+    "orders.returns": true
+    "orders.edits": true
+    "order_groups": true
+    "payments": true
+    "customers": true
+    "customer_groups": true
+    "products": true
+    "products.review": true
+    "product_changes": true
+    "product_categories": true
+    "product_collections": true
+    "product_types": true
+    "product_tags": true
+    "product_attributes": true
+    "offers": true
+    "inventory_items": true
+    "reservations": true
+    "stock_locations": true
+    "price_lists": true
+    "price_preferences": true
+    "promotions": true
+    "campaigns": true
+    "commission_rates": true
+    "commission_lines": true
+    "payouts": true
+    "payout_accounts": true
+    "shipping_profiles": true
+    "shipping_options": true
+    "fulfillment_sets": true
+    "regions": true
+    "tax_regions": true
+    "store": true
+    "sales_channels": true
+    "return_reasons": true
+    "refund_reasons": true
+    "users": true
+    "api_keys": true
+    "translations": true
+    "notifications": true
+    "workflow_executions": true
+    "reviews": true
+}
+
+export type PermissionKey = Extract<keyof PermissionKeys, string>
 
 export type PermissionRight = "view" | "edit" | "manage"
 

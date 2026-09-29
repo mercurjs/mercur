@@ -270,6 +270,51 @@ File paths map to URL routes automatically.
 | `src/routes/(settings)/page.tsx` | Route grouping | Groups routes without adding a URL segment |
 | `src/routes/dashboard/@sidebar/page.tsx` | Parallel route | Renders alongside parent |
 
+### Adding permissions from a plugin
+
+A plugin that ships its own pages usually needs its own permission keys. Declare them on the server, then register the same keys with the dashboard SDK so pages can be guarded and hidden from navigation.
+
+**1. Define the keys on the server.** Import the definitions file once (for example from your module's `index.ts`) so the keys join the catalog:
+
+```typescript src/permissions.ts
+import { defineMercurPermissions } from "@mercurjs/core/permissions/registry"
+
+export const messagingPermissions = defineMercurPermissions([
+  { key: "messaging", group: "messaging", surface: ["vendor"], rights: ["view", "edit", "manage"] },
+])
+```
+
+Guard the plugin's API routes with the same key (`requirePermission("messaging", "view")`).
+
+**2. Register the keys with the dashboard SDK.** `PermissionKey` is built from the `PermissionKeys` interface, so augment it:
+
+```typescript src/permissions.d.ts
+declare module "@mercurjs/dashboard-sdk" {
+  interface PermissionKeys {
+    messaging: true
+  }
+}
+
+export {}
+```
+
+The key now type-checks everywhere the SDK accepts a permission:
+
+```tsx src/routes/messages/page.tsx
+import type { RouteConfig, RouteHandle } from "@mercurjs/dashboard-sdk"
+
+export const config: RouteConfig = {
+  label: "Messages",
+  permissions: ["messaging:view"],
+}
+
+export const handle: RouteHandle = {
+  permissions: "messaging:view",
+}
+```
+
+`can("messaging", "edit")` and `buildPermission("messaging", "manage")` accept it too. This only affects types: the dashboard reads the member's effective rights from the API at runtime.
+
 ## Branding
 
 Set `name` and `logo` in the plugin options to customize the sidebar header.
