@@ -25,6 +25,9 @@
   "include": [
     "src"
   ],
+  "exclude": [
+    "src/__tests__/types"
+  ],
   "composite": true,
   "skipLibCheck": true,
   "module": "ESNext",
