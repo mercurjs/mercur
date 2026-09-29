@@ -79,7 +79,7 @@ medusaIntegrationTestRunner({
           password: "somepassword",
         })
 
-        return { headers: { authorization: `Bearer ${data.token}` } }
+        return { authorization: `Bearer ${data.token}` }
       }
 
       const countRows = async (entity: string, filters: object) => {
@@ -165,6 +165,7 @@ medusaIntegrationTestRunner({
             .catch((e) => e.response)
 
           expect(response.status).toBeGreaterThanOrEqual(400)
+          expect(response.data.message).toContain("Signup rejected by plugin")
           expect(createdPayload).toBeNull()
           expect(
             await countRows("seller", { email: "rejected-store@test.com" })
@@ -250,6 +251,7 @@ medusaIntegrationTestRunner({
             .catch((e) => e.response)
 
           expect(response.status).toBeGreaterThanOrEqual(400)
+          expect(response.data.message).toContain("Invite rejected by plugin")
           expect(acceptedPayload).toBeNull()
           expect(await countRows("member_invite", { id: invite.id })).toEqual(1)
           expect(
