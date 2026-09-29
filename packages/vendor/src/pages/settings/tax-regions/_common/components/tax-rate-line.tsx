@@ -61,7 +61,7 @@ const TaxRateActions = ({ taxRate }: { taxRate: HttpTypes.AdminTaxRate }) => {
         {
           actions: [
             {
-              permission: "regions_tax:edit",
+              permission: "tax_regions:edit",
               label: t("actions.edit"),
               icon: <PencilSquare />,
               to: `tax-rates/${taxRate.id}/edit`,
@@ -71,7 +71,7 @@ const TaxRateActions = ({ taxRate }: { taxRate: HttpTypes.AdminTaxRate }) => {
         {
           actions: [
             {
-              permission: "regions_tax:manage",
+              permission: "tax_regions:manage",
               label: t("actions.delete"),
               icon: <Trash />,
               onClick: handleDelete,

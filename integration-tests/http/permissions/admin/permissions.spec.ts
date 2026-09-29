@@ -2,10 +2,12 @@ import { MedusaContainer } from "@medusajs/framework/types"
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import {
   IPermissionResolver,
-  PERMISSION_RESOLVER,
+  PERMISSIONS_MODULE,
   PermissionMap,
 } from "@mercurjs/types"
 import { asValue } from "@medusajs/framework/awilix"
+import { ConfigModule } from "@medusajs/framework/types"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 import { adminHeaders, createAdminUser } from "../../../helpers/create-admin-user"
 
@@ -18,7 +20,15 @@ medusaIntegrationTestRunner({
       let granted: PermissionMap = {}
 
       const resolver: IPermissionResolver = {
-        resolve: async () => granted,
+        resolvePermissions: async () => granted,
+      }
+
+      const modulesConfig = () => {
+        const config = container.resolve<ConfigModule>(
+          ContainerRegistrationKeys.CONFIG_MODULE
+        )
+        config.modules ??= {}
+        return config.modules as Record<string, unknown>
       }
 
       beforeAll(() => {
@@ -30,15 +40,16 @@ medusaIntegrationTestRunner({
       })
 
       afterEach(() => {
-        container.register(PERMISSION_RESOLVER, asValue(undefined))
+        delete modulesConfig()[PERMISSIONS_MODULE]
       })
 
       const useResolver = (permissions: PermissionMap) => {
         granted = permissions
-        container.register(PERMISSION_RESOLVER, asValue(resolver))
+        modulesConfig()[PERMISSIONS_MODULE] = { resolve: "test-permissions" }
+        container.register(PERMISSIONS_MODULE, asValue(resolver))
       }
 
-      it("allows core and Mercur routes without a resolver", async () => {
+      it("allows core and Mercur routes without the permissions module", async () => {
         const orders = await api.get("/admin/orders", adminHeaders)
         const sellers = await api.get("/admin/sellers", adminHeaders)
 
@@ -57,7 +68,7 @@ medusaIntegrationTestRunner({
         expect(regions.data).toEqual(
           expect.objectContaining({
             code: "MISSING_PERMISSION",
-            permission: "regions_tax",
+            permission: "regions",
             right: "view",
           })
         )

@@ -13,7 +13,7 @@ export const vendorShippingOptionTypesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/shipping-option-types",
     middlewares: [
-      requirePermission("shipping", "view"),
+      requirePermission("shipping_options", "view"),
       validateAndTransformQuery(
         VendorGetShippingOptionTypesParams,
         vendorShippingOptionTypeQueryConfig.list
@@ -24,7 +24,7 @@ export const vendorShippingOptionTypesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/shipping-option-types/:id",
     middlewares: [
-      requirePermission("shipping", "view"),
+      requirePermission("shipping_options", "view"),
       validateAndTransformQuery(
         VendorGetShippingOptionTypeParams,
         vendorShippingOptionTypeQueryConfig.retrieve

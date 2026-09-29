@@ -1,6 +1,5 @@
 import { Spinner } from "@medusajs/icons";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useCurrentPermissions } from "../../../hooks/api/permissions";
 import { useMe } from "../../../hooks/api/users";
 import { PermissionsProvider } from "@mercurjs/dashboard-shared";
 import { SearchProvider } from "../../../providers/search-provider";
@@ -10,9 +9,6 @@ export const ProtectedRoute = () => {
   const location = useLocation();
 
   const { user, isLoading: isLoadingUser } = useMe();
-  const { data: permissions, isLoading: isLoadingPermissions } =
-    useCurrentPermissions({ enabled: !!user });
-
   if (isLoadingUser) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -27,8 +23,7 @@ export const ProtectedRoute = () => {
 
   return (
     <PermissionsProvider
-      permissions={permissions}
-      isLoading={isLoadingPermissions}
+      permissions={user.permissions ?? null}
     >
       <SidebarProvider>
         <SearchProvider>

@@ -1,4 +1,3 @@
-import { requirePermission } from "../../utils"
 import {
   authenticate,
   validateAndTransformBody,
@@ -38,7 +37,6 @@ export const vendorMembersMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/members/me",
     middlewares: [
-      requirePermission("members", "view"),
       validateAndTransformQuery(
         VendorGetSellerParams,
         retrieveVendorMemberMeQueryConfig
@@ -49,7 +47,6 @@ export const vendorMembersMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/members/me",
     middlewares: [
-      requirePermission("members", "edit"),
       validateAndTransformBody(VendorUpdateMember),
       validateAndTransformQuery(
         VendorGetSellerParams,

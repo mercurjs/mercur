@@ -24,7 +24,7 @@ export const AttributeListActions = ({
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <PermissionGuard permission="attributes:edit">
+        <PermissionGuard permission="product_attributes:edit">
           <Button
             variant="secondary"
             size="small"

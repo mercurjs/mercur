@@ -41,7 +41,7 @@ export const CollectionRowActions = ({
         {
           actions: [
             {
-              permission: "taxonomy:manage",
+              permission: "product_collections:manage",
               label: t("actions.delete"),
               onClick: handleDeleteCollection,
               icon: <Trash />,

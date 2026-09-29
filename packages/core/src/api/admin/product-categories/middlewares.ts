@@ -21,7 +21,7 @@ const overrides: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/product-categories",
     middlewares: [
-      requirePermission("taxonomy", "view"),
+      requirePermission("product_categories", "view"),
       validateAndTransformQuery(
         AdminProductCategoriesParams,
         adminProductCategoryQueryConfig.list
@@ -32,7 +32,7 @@ const overrides: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/product-categories",
     middlewares: [
-      requirePermission("taxonomy", "edit"),
+      requirePermission("product_categories", "edit"),
       validateAndTransformBody(AdminCreateProductCategory),
       validateAndTransformQuery(
         AdminProductCategoryParams,
@@ -44,7 +44,7 @@ const overrides: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/product-categories/:id",
     middlewares: [
-      requirePermission("taxonomy", "view"),
+      requirePermission("product_categories", "view"),
       validateAndTransformQuery(
         AdminProductCategoryParams,
         adminProductCategoryQueryConfig.retrieve
@@ -55,7 +55,7 @@ const overrides: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/product-categories/:id",
     middlewares: [
-      requirePermission("taxonomy", "edit"),
+      requirePermission("product_categories", "edit"),
       validateAndTransformBody(AdminUpdateProductCategory),
       validateAndTransformQuery(
         AdminProductCategoryParams,
@@ -67,21 +67,21 @@ const overrides: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/admin/product-categories/:id",
     middlewares: [
-      requirePermission("taxonomy", "manage"),
+      requirePermission("product_categories", "manage"),
     ],
   },
   {
     method: ["POST"],
     matcher: "/admin/product-categories/:id/products",
     middlewares: [
-      requirePermission("taxonomy", "edit"),
+      requirePermission("product_categories", "edit"),
       validateAndTransformBody(AdminBatchLinkProductsToCategory)],
   },
   {
     method: ["POST"],
     matcher: "/admin/product-categories/:id/sellers",
     middlewares: [
-      requirePermission("taxonomy", "edit"),
+      requirePermission("product_categories", "edit"),
       validateAndTransformBody(AdminBatchLinkSellersToCategory)],
   },
 ]

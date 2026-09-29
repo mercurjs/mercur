@@ -33,7 +33,7 @@ export const ShippingProfileListActions = ({
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <PermissionGuard permission="shipping:edit">
+        <PermissionGuard permission="shipping_profiles:edit">
           <Button
             size="small"
             variant="secondary"

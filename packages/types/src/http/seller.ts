@@ -4,10 +4,9 @@ import { PermissionMap } from "../permissions"
 
 export interface VendorSellerResponse {
   /**
-   * The seller's details. `permissions` is only present when requested with
-   * `fields=+permissions` and an access-control module is enabled.
+   * The seller's details.
    */
-  seller: SellerDTO & { permissions?: PermissionMap }
+  seller: SellerDTO
 }
 
 export type VendorSellerListResponse = PaginatedResponse<{
@@ -21,7 +20,7 @@ export interface VendorSellerMemberResponse {
   /**
    * The seller member's details.
    */
-  seller_member: SellerMemberDTO
+  seller_member: SellerMemberDTO & { permissions?: PermissionMap }
 }
 
 export type VendorSellerMemberListResponse = PaginatedResponse<{

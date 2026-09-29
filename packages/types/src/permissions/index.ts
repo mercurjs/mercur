@@ -40,17 +40,17 @@ export interface PermissionActor {
 }
 
 /**
- * Registered under `PERMISSION_RESOLVER` by an access-control module to turn
- * an actor into effective rights. Core falls back to granting everything when
- * nothing is registered.
+ * Implemented by the service of the module registered under
+ * `PERMISSIONS_MODULE` in the Medusa config. Without that module, core grants
+ * everything.
  */
 export interface IPermissionResolver {
-  resolve(
+  resolvePermissions(
     actor: PermissionActor,
     catalog: PermissionDefinition[]
   ): Promise<PermissionMap>
 }
 
-export const PERMISSION_RESOLVER = "mercurPermissionResolver"
+export const PERMISSIONS_MODULE = "rbac"
 
 export const MISSING_PERMISSION_CODE = "MISSING_PERMISSION"

@@ -52,14 +52,14 @@ describe("createRouteMap breadcrumbs", () => {
         {
           path: "/settings/roles",
           Component,
-          handle: { breadcrumb: listCrumb, permissions: "access.roles:view" } as RouteHandle,
+          handle: { breadcrumb: listCrumb, permissions: "roles:view" } as RouteHandle,
         },
       ],
       "/settings"
     )
 
     expect(roles.handle).toEqual({ breadcrumb: listCrumb })
-    expect(await leafHandle(find(roles.children, ""))).toEqual({ permissions: "access.roles:view" })
+    expect(await leafHandle(find(roles.children, ""))).toEqual({ permissions: "roles:view" })
   })
 
   test("a segment without an index page gets no branch handle", async () => {

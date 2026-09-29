@@ -81,7 +81,7 @@ export const ReservationListTable = () => {
             {t("reservations.subtitle")}
           </Text>
         </div>
-        <PermissionGuard permission="inventory:edit">
+        <PermissionGuard permission="reservations:edit">
           <Button variant="secondary" size="small" asChild>
             <Link to="create">{t("actions.create")}</Link>
           </Button>

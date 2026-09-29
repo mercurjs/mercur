@@ -51,7 +51,7 @@ export const ShippingOptionTypeListTable = () => {
             {t("shippingOptionTypes.subtitle")}
           </Text>
         </div>
-        <PermissionGuard permission="shipping:edit">
+        <PermissionGuard permission="shipping_options:edit">
           <Button size="small" variant="secondary" asChild data-testid="shipping-option-type-list-table-create-button">
             <Link to="create">{t("actions.create")}</Link>
           </Button>

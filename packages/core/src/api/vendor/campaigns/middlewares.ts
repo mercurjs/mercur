@@ -40,7 +40,7 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/campaigns",
     middlewares: [
-      requirePermission("promotions", "view"),
+      requirePermission("campaigns", "view"),
       validateAndTransformQuery(
         VendorGetCampaignsParams,
         vendorCampaignQueryConfig.list
@@ -53,7 +53,7 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/campaigns",
     middlewares: [
-      requirePermission("promotions", "edit"),
+      requirePermission("campaigns", "edit"),
       validateAndTransformBody(VendorCreateCampaign),
       validateAndTransformQuery(
         VendorGetCampaignParams,
@@ -65,7 +65,7 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/campaigns/:id",
     middlewares: [
-      requirePermission("promotions", "view"),
+      requirePermission("campaigns", "view"),
       validateAndTransformQuery(
         VendorGetCampaignParams,
         vendorCampaignQueryConfig.retrieve
@@ -76,7 +76,7 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/campaigns/:id",
     middlewares: [
-      requirePermission("promotions", "edit"),
+      requirePermission("campaigns", "edit"),
       validateAndTransformBody(VendorUpdateCampaign),
       validateAndTransformQuery(
         VendorGetCampaignParams,
@@ -88,14 +88,14 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/vendor/campaigns/:id",
     middlewares: [
-      requirePermission("promotions", "manage"),
+      requirePermission("campaigns", "manage"),
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/campaigns/:id/promotions",
     middlewares: [
-      requirePermission("promotions", "edit"),
+      requirePermission("campaigns", "edit"),
       validateAndTransformBody(createLinkBody()),
       validateAndTransformQuery(
         VendorGetCampaignParams,

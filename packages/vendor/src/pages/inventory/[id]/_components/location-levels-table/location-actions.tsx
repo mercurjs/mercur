@@ -48,7 +48,7 @@ export const LocationActions = ({ level }: { level: LocationActionsLevel }) => {
           actions: [
             {
               icon: <PencilSquare />,
-              permission: "inventory:edit",
+              permission: "inventory_items:edit",
               label: t("actions.edit"),
               to: `locations/${level.location_id}`,
             },
@@ -58,7 +58,7 @@ export const LocationActions = ({ level }: { level: LocationActionsLevel }) => {
           actions: [
             {
               icon: <Trash />,
-              permission: "inventory:manage",
+              permission: "inventory_items:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
               disabled:

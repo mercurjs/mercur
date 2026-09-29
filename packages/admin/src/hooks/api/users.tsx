@@ -33,7 +33,11 @@ export const useMe = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.users.me.query({ ...query }),
+    queryFn: () =>
+      sdk.admin.users.me.query({
+        ...query,
+        fields: [query?.fields, "+permissions"].filter(Boolean).join(","),
+      }),
     queryKey: usersQueryKeys.me(),
     ...options,
   })

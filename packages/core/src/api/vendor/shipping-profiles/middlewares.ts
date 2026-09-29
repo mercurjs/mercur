@@ -13,7 +13,7 @@ export const vendorShippingProfilesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/shipping-profiles",
     middlewares: [
-      requirePermission("shipping", "view"),
+      requirePermission("shipping_profiles", "view"),
       validateAndTransformQuery(
         VendorGetShippingProfilesParams,
         vendorShippingProfileQueryConfig.list
@@ -24,7 +24,7 @@ export const vendorShippingProfilesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/shipping-profiles/:id",
     middlewares: [
-      requirePermission("shipping", "view"),
+      requirePermission("shipping_profiles", "view"),
       validateAndTransformQuery(
         VendorGetShippingProfileParams,
         vendorShippingProfileQueryConfig.retrieve

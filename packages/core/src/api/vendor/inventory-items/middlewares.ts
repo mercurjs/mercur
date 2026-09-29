@@ -44,7 +44,7 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/inventory-items",
     middlewares: [
-      requirePermission("inventory", "view"),
+      requirePermission("inventory_items", "view"),
       validateAndTransformQuery(
         VendorGetInventoryItemsParams,
         vendorInventoryItemQueryConfig.list
@@ -56,7 +56,7 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/inventory-items/:id",
     middlewares: [
-      requirePermission("inventory", "view"),
+      requirePermission("inventory_items", "view"),
       validateAndTransformQuery(
         VendorGetInventoryItemParams,
         vendorInventoryItemQueryConfig.retrieve
@@ -67,7 +67,7 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/inventory-items",
     middlewares: [
-      requirePermission("inventory", "edit"),
+      requirePermission("inventory_items", "edit"),
       validateAndTransformBody(VendorCreateInventoryItem),
       validateAndTransformQuery(
         VendorGetInventoryItemParams,
@@ -79,7 +79,7 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/inventory-items/:id",
     middlewares: [
-      requirePermission("inventory", "edit"),
+      requirePermission("inventory_items", "edit"),
       validateAndTransformBody(VendorUpdateInventoryItem),
       validateAndTransformQuery(
         VendorGetInventoryItemParams,
@@ -91,14 +91,14 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/vendor/inventory-items/:id",
     middlewares: [
-      requirePermission("inventory", "manage"),
+      requirePermission("inventory_items", "manage"),
     ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/inventory-items/:id/location-levels",
     middlewares: [
-      requirePermission("inventory", "view"),
+      requirePermission("inventory_items", "view"),
       validateAndTransformQuery(
         VendorGetInventoryLocationLevelsParams,
         vendorLocationLevelQueryConfig.list
@@ -109,7 +109,7 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/inventory-items/location-levels/batch",
     middlewares: [
-      requirePermission("inventory", "edit"),
+      requirePermission("inventory_items", "edit"),
       validateAndTransformBody(VendorBatchInventoryItemLevels),
       validateAndTransformQuery(
         VendorGetInventoryLocationLevelParams,
@@ -121,7 +121,7 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/inventory-items/:id/location-levels",
     middlewares: [
-      requirePermission("inventory", "edit"),
+      requirePermission("inventory_items", "edit"),
       validateAndTransformBody(VendorCreateInventoryLocationLevel),
       validateAndTransformQuery(
         VendorGetInventoryItemParams,
@@ -133,7 +133,7 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/inventory-items/:id/location-levels/batch",
     middlewares: [
-      requirePermission("inventory", "edit"),
+      requirePermission("inventory_items", "edit"),
       validateAndTransformBody(VendorBatchInventoryItemLocationsLevel),
       validateAndTransformQuery(
         VendorGetInventoryLocationLevelParams,
@@ -145,7 +145,7 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/inventory-items/:id/location-levels/:location_id",
     middlewares: [
-      requirePermission("inventory", "edit"),
+      requirePermission("inventory_items", "edit"),
       validateAndTransformBody(VendorUpdateInventoryLocationLevel),
       validateAndTransformQuery(
         VendorGetInventoryItemParams,
@@ -157,7 +157,7 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/vendor/inventory-items/:id/location-levels/:location_id",
     middlewares: [
-      requirePermission("inventory", "manage"),
+      requirePermission("inventory_items", "manage"),
       validateAndTransformQuery(
         VendorGetInventoryItemParams,
         vendorInventoryItemQueryConfig.retrieve

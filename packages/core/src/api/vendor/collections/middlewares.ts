@@ -20,7 +20,7 @@ export const vendorCollectionsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/collections",
     middlewares: [
-      requirePermission("taxonomy", "view"),
+      requirePermission("product_collections", "view"),
       validateAndTransformQuery(
         VendorGetCollectionsParams,
         listTransformQueryConfig
@@ -31,7 +31,7 @@ export const vendorCollectionsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/collections/:id",
     middlewares: [
-      requirePermission("taxonomy", "view"),
+      requirePermission("product_collections", "view"),
       validateAndTransformQuery(
         VendorGetCollectionParams,
         retrieveTransformQueryConfig
@@ -42,7 +42,7 @@ export const vendorCollectionsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/collections/:id/products",
     middlewares: [
-      requirePermission("taxonomy", "edit"),
+      requirePermission("product_collections", "edit"),
       validateAndTransformBody(createLinkBody()),
       validateAndTransformQuery(
         VendorGetCollectionParams,

@@ -4,7 +4,7 @@ import {
 } from "@medusajs/framework"
 import {
   IPermissionResolver,
-  PERMISSION_RESOLVER,
+  PERMISSIONS_MODULE,
   PermissionMap,
 } from "@mercurjs/types"
 
@@ -18,8 +18,10 @@ const makeReq = (resolver?: IPermissionResolver) =>
     auth_context: { actor_id: "mem_1", actor_type: "member" },
     seller_context: { seller_id: "sel_1", seller_member: { id: "selmem_1" } },
     scope: {
-      hasRegistration: (key: string) => !!resolver && key === PERMISSION_RESOLVER,
-      resolve: () => resolver,
+      resolve: (key: string) =>
+        key === PERMISSIONS_MODULE
+          ? resolver
+          : { modules: resolver ? { [PERMISSIONS_MODULE]: {} } : {} },
     },
   }) as unknown as AuthenticatedMedusaRequest
 
@@ -48,7 +50,7 @@ const run = async (req: AuthenticatedMedusaRequest, key: string, right: "view" |
 }
 
 describe("permissions middleware", () => {
-  it("allows everything when no resolver is registered", async () => {
+  it("allows everything when the permissions module is not configured", async () => {
     const req = makeReq()
     const { allowed } = await run(req, "payouts", "edit")
 
@@ -57,10 +59,10 @@ describe("permissions middleware", () => {
   })
 
   it("passes the seller context to the resolver", async () => {
-    const resolve = jest.fn(async (): Promise<PermissionMap> => ({}))
-    await run(makeReq({ resolve }), "orders", "view")
+    const resolvePermissions = jest.fn(async (): Promise<PermissionMap> => ({}))
+    await run(makeReq({ resolvePermissions }), "orders", "view")
 
-    expect(resolve).toHaveBeenCalledWith(
+    expect(resolvePermissions).toHaveBeenCalledWith(
       expect.objectContaining({
         actor_id: "mem_1",
         surface: "vendor",
@@ -72,7 +74,9 @@ describe("permissions middleware", () => {
   })
 
   it("enforces the resolved rights", async () => {
-    const resolver = { resolve: async (): Promise<PermissionMap> => ({ orders: "edit" }) }
+    const resolver = {
+      resolvePermissions: async (): Promise<PermissionMap> => ({ orders: "edit" }),
+    }
 
     expect((await run(makeReq(resolver), "orders", "view")).allowed).toHaveBeenCalled()
 

@@ -10,7 +10,7 @@ export const vendorFulfillmentProvidersMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/fulfillment-providers",
     middlewares: [
-      requirePermission("shipping", "view"),
+      requirePermission("fulfillment_sets", "view"),
       validateAndTransformQuery(
         VendorGetFulfillmentProvidersParams,
         vendorFulfillmentProviderQueryConfig.list

@@ -58,7 +58,7 @@ export const adminShippingOptionsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: LIST_MATCHER,
     middlewares: [
-      requirePermission("shipping", "view"),
+      requirePermission("shipping_options", "view"),
       validateAndTransformQuery(
         AdminGetShippingOptionsParamsWithSeller,
         listTransformQueryConfig

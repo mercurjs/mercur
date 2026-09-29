@@ -21,14 +21,14 @@ export const vendorFulfillmentSetsMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/vendor/fulfillment-sets/:id",
     middlewares: [
-      requirePermission("shipping", "manage"),
+      requirePermission("fulfillment_sets", "manage"),
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/fulfillment-sets/:id/service-zones",
     middlewares: [
-      requirePermission("shipping", "edit"),
+      requirePermission("fulfillment_sets", "edit"),
       validateAndTransformBody(VendorCreateServiceZone),
       validateAndTransformQuery(
         VendorFulfillmentSetParams,
@@ -40,7 +40,7 @@ export const vendorFulfillmentSetsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/fulfillment-sets/:id/service-zones/:zone_id",
     middlewares: [
-      requirePermission("shipping", "view"),
+      requirePermission("fulfillment_sets", "view"),
       validateAndTransformQuery(
         VendorServiceZoneParams,
         vendorServiceZoneQueryConfig.retrieve
@@ -51,7 +51,7 @@ export const vendorFulfillmentSetsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/fulfillment-sets/:id/service-zones/:zone_id",
     middlewares: [
-      requirePermission("shipping", "edit"),
+      requirePermission("fulfillment_sets", "edit"),
       validateAndTransformBody(VendorUpdateServiceZone),
       validateAndTransformQuery(
         VendorFulfillmentSetParams,
@@ -63,7 +63,7 @@ export const vendorFulfillmentSetsMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/vendor/fulfillment-sets/:id/service-zones/:zone_id",
     middlewares: [
-      requirePermission("shipping", "manage"),
+      requirePermission("fulfillment_sets", "manage"),
       validateAndTransformQuery(
         VendorFulfillmentSetParams,
         vendorFulfillmentSetQueryConfig.retrieve

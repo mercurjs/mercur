@@ -10,7 +10,7 @@ export const vendorRegionsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/regions",
     middlewares: [
-      requirePermission("regions_tax", "view"),
+      requirePermission("regions", "view"),
       validateAndTransformQuery(
         VendorGetRegionsParams,
         vendorRegionQueryConfig.list
@@ -21,7 +21,7 @@ export const vendorRegionsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/regions/:id",
     middlewares: [
-      requirePermission("regions_tax", "view"),
+      requirePermission("regions", "view"),
       validateAndTransformQuery(
         VendorGetRegionParams,
         vendorRegionQueryConfig.retrieve

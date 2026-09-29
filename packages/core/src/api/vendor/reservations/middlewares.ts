@@ -188,7 +188,7 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/reservations",
     middlewares: [
-      requirePermission("inventory", "view"),
+      requirePermission("reservations", "view"),
       validateAndTransformQuery(
         VendorGetReservationsParams,
         vendorReservationQueryConfig.list
@@ -201,7 +201,7 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/reservations/:id",
     middlewares: [
-      requirePermission("inventory", "view"),
+      requirePermission("reservations", "view"),
       validateAndTransformQuery(
         VendorGetReservationParams,
         vendorReservationQueryConfig.retrieve
@@ -213,7 +213,7 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/reservations",
     middlewares: [
-      requirePermission("inventory", "edit"),
+      requirePermission("reservations", "edit"),
       validateAndTransformBody(VendorCreateReservation),
       assertCreateReservationOwnership,
       validateAndTransformQuery(
@@ -226,7 +226,7 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/reservations/:id",
     middlewares: [
-      requirePermission("inventory", "edit"),
+      requirePermission("reservations", "edit"),
       validateAndTransformBody(VendorUpdateReservation),
       assertReservationOwnership,
       validateAndTransformQuery(
@@ -239,7 +239,7 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/vendor/reservations/:id",
     middlewares: [
-      requirePermission("inventory", "manage"),
+      requirePermission("reservations", "manage"),
       assertReservationOwnership],
   },
 ]

@@ -13,7 +13,7 @@ export const vendorProductTypesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/product-types",
     middlewares: [
-      requirePermission("taxonomy", "view"),
+      requirePermission("product_types", "view"),
       validateAndTransformQuery(
         VendorGetProductTypesParams,
         vendorProductTypeQueryConfig.list
@@ -24,7 +24,7 @@ export const vendorProductTypesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/product-types/:id",
     middlewares: [
-      requirePermission("taxonomy", "view"),
+      requirePermission("product_types", "view"),
       validateAndTransformQuery(
         VendorGetProductTypeParams,
         vendorProductTypeQueryConfig.retrieve

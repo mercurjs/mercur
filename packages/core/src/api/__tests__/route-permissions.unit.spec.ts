@@ -126,7 +126,7 @@ describe("route permissions", () => {
         .filter(
           (method) =>
             !routeRequirements(adminMiddlewares, route.path, method).length &&
-            !matchCoreRoutePermission(route.path, method)
+            matchCoreRoutePermission(route.path, method) === undefined
         )
         .map((method) => `${method} ${route.path}`)
     )

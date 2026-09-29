@@ -27,7 +27,7 @@ export const ProductTagGeneralSection = ({
             actions: [
               {
                 icon: <PencilSquare />,
-                permission: "taxonomy:edit",
+                permission: "product_tags:edit",
                 label: t("actions.edit"),
                 to: "edit",
               },
@@ -37,7 +37,7 @@ export const ProductTagGeneralSection = ({
             actions: [
               {
                 icon: <Trash />,
-                permission: "taxonomy:manage",
+                permission: "product_tags:manage",
                 label: t("actions.delete"),
                 onClick: handleDelete,
               },

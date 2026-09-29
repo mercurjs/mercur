@@ -3,10 +3,12 @@ import {
   MedusaNextFunction,
   MedusaResponse,
 } from "@medusajs/framework"
+import { ConfigModule } from "@medusajs/framework/types"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import {
   IPermissionResolver,
   MISSING_PERMISSION_CODE,
-  PERMISSION_RESOLVER,
+  PERMISSIONS_MODULE,
   PermissionActor,
   PermissionMap,
   PermissionRequirement,
@@ -29,13 +31,29 @@ declare module "express" {
   }
 }
 
+export function isPermissionsModuleEnabled(config: ConfigModule): boolean {
+  const modules = config.modules as Record<string, unknown> | undefined
+  const entry = modules?.[PERMISSIONS_MODULE]
+
+  if (!entry) {
+    return false
+  }
+
+  return !(typeof entry === "object" && "disable" in entry && entry.disable)
+}
+
 function getResolver(
   req: AuthenticatedMedusaRequest
 ): IPermissionResolver | undefined {
-  if (!req.scope.hasRegistration(PERMISSION_RESOLVER)) {
+  const config = req.scope.resolve<ConfigModule>(
+    ContainerRegistrationKeys.CONFIG_MODULE
+  )
+
+  if (!isPermissionsModuleEnabled(config)) {
     return undefined
   }
-  return req.scope.resolve<IPermissionResolver>(PERMISSION_RESOLVER)
+
+  return req.scope.resolve<IPermissionResolver>(PERMISSIONS_MODULE)
 }
 
 let catalogValidated = false
@@ -69,7 +87,7 @@ export function resolvePermissionsMiddleware(surface: PermissionSurface) {
     }
 
     try {
-      req.permissions = await resolver.resolve(actor, catalog)
+      req.permissions = await resolver.resolvePermissions(actor, catalog)
       req.permissions_enforced = true
       next()
     } catch (error) {

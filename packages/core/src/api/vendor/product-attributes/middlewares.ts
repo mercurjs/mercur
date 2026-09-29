@@ -37,7 +37,7 @@ export const vendorProductAttributesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/product-attributes",
     middlewares: [
-      requirePermission("attributes", "view"),
+      requirePermission("product_attributes", "view"),
       validateAndTransformQuery(
         VendorGetProductAttributesParams,
         vendorProductAttributeQueryConfig.list
@@ -50,7 +50,7 @@ export const vendorProductAttributesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/product-attributes/:id",
     middlewares: [
-      requirePermission("attributes", "view"),
+      requirePermission("product_attributes", "view"),
       validateAndTransformQuery(
         VendorGetProductAttributeParams,
         vendorProductAttributeQueryConfig.retrieve

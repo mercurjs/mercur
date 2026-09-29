@@ -58,7 +58,7 @@ const readRequirementFromHandle = (
  * {
  *   path: "roles",
  *   element: <RoutePermissionGuard />,
- *   handle: { permissions: "access.roles:view" },
+ *   handle: { permissions: "roles:view" },
  *   children: [...],
  * }
  * ```

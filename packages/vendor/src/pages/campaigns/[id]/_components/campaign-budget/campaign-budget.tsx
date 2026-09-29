@@ -101,7 +101,7 @@ export const CampaignBudget = ({ campaign }: CampaignBudgetProps) => {
                     actions: [
                       {
                         icon: <PencilSquare />,
-                        permission: "promotions:edit",
+                        permission: "campaigns:edit",
                         label: t("actions.edit"),
                         to: "edit-budget",
                       },

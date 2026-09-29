@@ -2,10 +2,12 @@ import { MedusaContainer } from "@medusajs/framework/types"
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import {
   IPermissionResolver,
-  PERMISSION_RESOLVER,
+  PERMISSIONS_MODULE,
   PermissionMap,
 } from "@mercurjs/types"
 import { asValue } from "@medusajs/framework/awilix"
+import { ConfigModule } from "@medusajs/framework/types"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 import { adminHeaders, createAdminUser } from "../../../helpers/create-admin-user"
 import { createSellerUser } from "../../../helpers/create-seller-user"
@@ -20,7 +22,15 @@ medusaIntegrationTestRunner({
       let granted: PermissionMap | null
 
       const resolver: IPermissionResolver = {
-        resolve: async () => granted ?? {},
+        resolvePermissions: async () => granted ?? {},
+      }
+
+      const modulesConfig = () => {
+        const config = container.resolve<ConfigModule>(
+          ContainerRegistrationKeys.CONFIG_MODULE
+        )
+        config.modules ??= {}
+        return config.modules as Record<string, unknown>
       }
 
       beforeAll(() => {
@@ -38,17 +48,16 @@ medusaIntegrationTestRunner({
       })
 
       afterEach(() => {
-        if (container.hasRegistration(PERMISSION_RESOLVER)) {
-          container.register(PERMISSION_RESOLVER, asValue(undefined))
-        }
+        delete modulesConfig()[PERMISSIONS_MODULE]
       })
 
       const useResolver = (permissions: PermissionMap) => {
         granted = permissions
-        container.register(PERMISSION_RESOLVER, asValue(resolver))
+        modulesConfig()[PERMISSIONS_MODULE] = { resolve: "test-permissions" }
+        container.register(PERMISSIONS_MODULE, asValue(resolver))
       }
 
-      it("allows everything when no resolver is registered", async () => {
+      it("allows everything when the permissions module is not configured", async () => {
         const orders = await api.get("/vendor/orders", headers)
         const payouts = await api.get("/vendor/payouts", headers)
 
@@ -56,15 +65,15 @@ medusaIntegrationTestRunner({
         expect(payouts.status).toEqual(200)
       })
 
-      it("omits the permissions field when no resolver is registered", async () => {
+      it("omits the permissions field when the permissions module is not configured", async () => {
         const response = await api.get(
-          "/vendor/sellers/me?fields=+permissions",
+          "/vendor/members/me?fields=+permissions",
           headers
         )
 
         expect(response.status).toEqual(200)
-        expect(response.data.seller.id).toBeDefined()
-        expect(response.data.seller.permissions).toBeUndefined()
+        expect(response.data.seller_member.id).toBeDefined()
+        expect(response.data.seller_member.permissions).toBeUndefined()
       })
 
       it("enforces the resolved rights", async () => {
@@ -91,16 +100,16 @@ medusaIntegrationTestRunner({
         useResolver({ orders: "edit", store: "view" })
 
         const withField = await api.get(
-          "/vendor/sellers/me?fields=+permissions",
+          "/vendor/members/me?fields=+permissions",
           headers
         )
-        expect(withField.data.seller.permissions).toEqual({
+        expect(withField.data.seller_member.permissions).toEqual({
           orders: "edit",
           store: "view",
         })
 
-        const withoutField = await api.get("/vendor/sellers/me", headers)
-        expect(withoutField.data.seller.permissions).toBeUndefined()
+        const withoutField = await api.get("/vendor/members/me", headers)
+        expect(withoutField.data.seller_member.permissions).toBeUndefined()
       })
     })
   },

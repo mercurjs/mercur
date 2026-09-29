@@ -189,7 +189,7 @@ const TaxRegionCardActions = ({
           actions: [
             {
               icon: <Trash />,
-              permission: "regions_tax:manage",
+              permission: "tax_regions:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
             },

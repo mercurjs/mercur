@@ -44,7 +44,7 @@ export const adminCampaignsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: LIST_MATCHER,
     middlewares: [
-      requirePermission("promotions", "view"),
+      requirePermission("campaigns", "view"),
       validateAndTransformQuery(
         AdminGetCampaignsWithFilters,
         listTransformQueryConfig

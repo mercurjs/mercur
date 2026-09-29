@@ -10,7 +10,7 @@ export const vendorCurrenciesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/currencies",
     middlewares: [
-      requirePermission("regions_tax", "view"),
+      requirePermission("regions", "view"),
       validateAndTransformQuery(
         VendorGetCurrenciesParams,
         vendorCurrencyQueryConfig.list
@@ -21,7 +21,7 @@ export const vendorCurrenciesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/currencies/:code",
     middlewares: [
-      requirePermission("regions_tax", "view"),
+      requirePermission("regions", "view"),
       validateAndTransformQuery(
         VendorGetCurrencyParams,
         vendorCurrencyQueryConfig.retrieve

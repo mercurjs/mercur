@@ -45,7 +45,7 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/shipping-options",
     middlewares: [
-      requirePermission("shipping", "view"),
+      requirePermission("shipping_options", "view"),
       validateAndTransformQuery(
         VendorGetShippingOptionsParams,
         vendorShippingOptionQueryConfig.list
@@ -69,7 +69,7 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/shipping-options",
     middlewares: [
-      requirePermission("shipping", "edit"),
+      requirePermission("shipping_options", "edit"),
       validateAndTransformBody(VendorCreateShippingOption),
       validateAndTransformQuery(
         VendorGetShippingOptionParams,
@@ -81,7 +81,7 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/shipping-options/:id",
     middlewares: [
-      requirePermission("shipping", "view"),
+      requirePermission("shipping_options", "view"),
       validateAndTransformQuery(
         VendorGetShippingOptionParams,
         vendorShippingOptionQueryConfig.retrieve
@@ -92,7 +92,7 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/shipping-options/:id",
     middlewares: [
-      requirePermission("shipping", "edit"),
+      requirePermission("shipping_options", "edit"),
       validateAndTransformBody(VendorUpdateShippingOption),
       validateAndTransformQuery(
         VendorGetShippingOptionParams,
@@ -104,14 +104,14 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/vendor/shipping-options/:id",
     middlewares: [
-      requirePermission("shipping", "manage"),
+      requirePermission("shipping_options", "manage"),
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/shipping-options/:id/rules/batch",
     middlewares: [
-      requirePermission("shipping", "edit"),
+      requirePermission("shipping_options", "edit"),
       validateAndTransformBody(
         createBatchBody(
           VendorCreateShippingOptionRule,

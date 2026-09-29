@@ -13,7 +13,7 @@ export const vendorProductTagsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/product-tags",
     middlewares: [
-      requirePermission("taxonomy", "view"),
+      requirePermission("product_tags", "view"),
       validateAndTransformQuery(
         VendorGetProductTagsParams,
         vendorProductTagsQueryConfig.list
@@ -24,7 +24,7 @@ export const vendorProductTagsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/product-tags/:id",
     middlewares: [
-      requirePermission("taxonomy", "view"),
+      requirePermission("product_tags", "view"),
       validateAndTransformQuery(
         VendorGetProductTagParams,
         vendorProductTagsQueryConfig.retrieve

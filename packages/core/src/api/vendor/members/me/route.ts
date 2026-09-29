@@ -10,6 +10,7 @@ import { HttpTypes } from "@mercurjs/types"
 
 import { updateMemberWorkflow } from "../../../../workflows/seller/workflows"
 import { VendorUpdateMemberType } from "../validators"
+import { attachPermissions, takePermissionsField } from "../../../utils"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -18,6 +19,7 @@ export const GET = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const memberId = req.auth_context.actor_id
   const sellerId = req.seller_context!.seller_id
+  const withPermissions = takePermissionsField(req)
 
   const { data: sellerMembers } = await query.graph({
     entity: "seller_member",
@@ -35,9 +37,9 @@ export const GET = async (
     )
   }
 
-  const sellerMember = sellerMembers[0]
-
-  res.json({ seller_member: sellerMember })
+  res.json({
+    seller_member: attachPermissions(req, sellerMembers[0], withPermissions),
+  })
 }
 
 export const POST = async (

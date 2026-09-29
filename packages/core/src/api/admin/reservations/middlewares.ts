@@ -80,7 +80,7 @@ export const adminReservationsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: LIST_MATCHER,
     middlewares: [
-      requirePermission("inventory", "view"),
+      requirePermission("reservations", "view"),
       validateAndTransformQuery(
         AdminGetReservationsParams,
         listTransformQueryConfig

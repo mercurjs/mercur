@@ -48,7 +48,7 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/product-attributes",
     middlewares: [
-      requirePermission("attributes", "view"),
+      requirePermission("product_attributes", "view"),
       validateAndTransformQuery(
         AdminGetProductAttributesParams,
         adminProductAttributeQueryConfig.list
@@ -62,7 +62,7 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/product-attributes",
     middlewares: [
-      requirePermission("attributes", "edit"),
+      requirePermission("product_attributes", "edit"),
       validateAndTransformBody(AdminCreateProductAttribute),
       validateAndTransformQuery(
         AdminGetProductAttributeParams,
@@ -74,7 +74,7 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/product-attributes/:id",
     middlewares: [
-      requirePermission("attributes", "view"),
+      requirePermission("product_attributes", "view"),
       validateAndTransformQuery(
         AdminGetProductAttributeParams,
         adminProductAttributeQueryConfig.retrieve
@@ -85,7 +85,7 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/product-attributes/:id",
     middlewares: [
-      requirePermission("attributes", "edit"),
+      requirePermission("product_attributes", "edit"),
       validateAndTransformBody(AdminUpdateProductAttribute),
       validateAndTransformQuery(
         AdminGetProductAttributeParams,
@@ -97,7 +97,7 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/admin/product-attributes/:id",
     middlewares: [
-      requirePermission("attributes", "manage"),
+      requirePermission("product_attributes", "manage"),
     ],
   },
 
@@ -105,7 +105,7 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/product-attributes/:id/values",
     middlewares: [
-      requirePermission("attributes", "edit"),
+      requirePermission("product_attributes", "edit"),
       validateAndTransformBody(AdminUpsertProductAttributeValues),
       validateAndTransformQuery(
         AdminGetProductAttributeParams,
@@ -117,7 +117,7 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/product-attributes/:id/values/:value_id",
     middlewares: [
-      requirePermission("attributes", "edit"),
+      requirePermission("product_attributes", "edit"),
       validateAndTransformBody(AdminUpdateProductAttributeValue),
       validateAndTransformQuery(
         AdminGetProductAttributeParams,
@@ -129,7 +129,7 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/admin/product-attributes/:id/values/:value_id",
     middlewares: [
-      requirePermission("attributes", "manage"),
+      requirePermission("product_attributes", "manage"),
       validateAndTransformQuery(
         AdminGetProductAttributeParams,
         adminProductAttributeQueryConfig.retrieve

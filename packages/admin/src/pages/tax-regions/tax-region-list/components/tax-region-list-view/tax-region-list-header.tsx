@@ -27,7 +27,7 @@ export const TaxRegionListActions = ({
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <PermissionGuard permission="regions_tax:edit">
+        <PermissionGuard permission="tax_regions:edit">
           <Link to="create">
             <Button size="small" variant="secondary">
               {t("actions.create")}

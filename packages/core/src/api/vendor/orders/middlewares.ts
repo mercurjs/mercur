@@ -42,7 +42,7 @@ export const vendorOrdersMiddlewares: MiddlewareRoute[] = [
   {
     method: ["GET"],
     matcher: "/vendor/orders/:id/commission-lines",
-    middlewares: [requirePermission("commissions", "view")],
+    middlewares: [requirePermission("commission_lines", "view")],
   },
   {
     method: ["GET"],

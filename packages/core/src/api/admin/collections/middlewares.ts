@@ -30,7 +30,7 @@ export const adminCollectionsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/collections",
     middlewares: [
-      requirePermission("taxonomy", "view"),
+      requirePermission("product_collections", "view"),
       validateAndTransformQuery(
         AdminCollectionsParams,
         adminCollectionQueryConfig.list
@@ -41,7 +41,7 @@ export const adminCollectionsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/collections",
     middlewares: [
-      requirePermission("taxonomy", "edit"),
+      requirePermission("product_collections", "edit"),
       validateAndTransformBody(AdminCreateCollection),
       validateAndTransformQuery(
         AdminCollectionParams,
@@ -53,7 +53,7 @@ export const adminCollectionsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/collections/:id",
     middlewares: [
-      requirePermission("taxonomy", "view"),
+      requirePermission("product_collections", "view"),
       validateAndTransformQuery(
         AdminCollectionParams,
         adminCollectionQueryConfig.retrieve
@@ -64,7 +64,7 @@ export const adminCollectionsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/collections/:id",
     middlewares: [
-      requirePermission("taxonomy", "edit"),
+      requirePermission("product_collections", "edit"),
       validateAndTransformBody(AdminUpdateCollection),
       validateAndTransformQuery(
         AdminCollectionParams,
@@ -76,7 +76,7 @@ export const adminCollectionsMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/admin/collections/:id",
     middlewares: [
-      requirePermission("taxonomy", "manage"),
+      requirePermission("product_collections", "manage"),
     ],
   },
 ]

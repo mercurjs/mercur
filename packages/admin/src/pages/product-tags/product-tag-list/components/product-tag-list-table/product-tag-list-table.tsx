@@ -57,7 +57,7 @@ export const ProductTagListTable = () => {
     <Container className="divide-y px-0 py-0" data-testid="product-tag-list-table-container">
       <div className="flex items-center justify-between px-6 py-4" data-testid="product-tag-list-table-header">
         <Heading data-testid="product-tag-list-table-heading">{t("productTags.domain")}</Heading>
-        <PermissionGuard permission="taxonomy:edit">
+        <PermissionGuard permission="product_tags:edit">
           <Button variant="secondary" size="small" asChild data-testid="product-tag-list-table-create-button">
             <Link to="create">{t("actions.create")}</Link>
           </Button>

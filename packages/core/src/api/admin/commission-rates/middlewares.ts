@@ -19,7 +19,7 @@ export const adminCommissionRatesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/commission-rates",
     middlewares: [
-      requirePermission("commissions", "view"),
+      requirePermission("commission_rates", "view"),
       validateAndTransformQuery(
         AdminGetCommissionRatesParams,
         adminCommissionRateQueryConfig.list
@@ -30,7 +30,7 @@ export const adminCommissionRatesMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/commission-rates",
     middlewares: [
-      requirePermission("commissions", "edit"),
+      requirePermission("commission_rates", "edit"),
       validateAndTransformBody(AdminCreateCommissionRate),
       validateAndTransformQuery(
         AdminGetCommissionRateParams,
@@ -42,7 +42,7 @@ export const adminCommissionRatesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/commission-rates/:id",
     middlewares: [
-      requirePermission("commissions", "view"),
+      requirePermission("commission_rates", "view"),
       validateAndTransformQuery(
         AdminGetCommissionRateParams,
         adminCommissionRateQueryConfig.retrieve
@@ -53,7 +53,7 @@ export const adminCommissionRatesMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/commission-rates/:id",
     middlewares: [
-      requirePermission("commissions", "edit"),
+      requirePermission("commission_rates", "edit"),
       validateAndTransformBody(AdminUpdateCommissionRate),
       validateAndTransformQuery(
         AdminGetCommissionRateParams,
@@ -65,14 +65,14 @@ export const adminCommissionRatesMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/admin/commission-rates/:id",
     middlewares: [
-      requirePermission("commissions", "manage"),
+      requirePermission("commission_rates", "manage"),
     ],
   },
   {
     method: ["POST"],
     matcher: "/admin/commission-rates/:id/rules",
     middlewares: [
-      requirePermission("commissions", "edit"),
+      requirePermission("commission_rates", "edit"),
       validateAndTransformBody(AdminBatchCommissionRules),
     ],
   },

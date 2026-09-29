@@ -58,7 +58,7 @@ export const adminInventoryItemsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: LIST_MATCHER,
     middlewares: [
-      requirePermission("inventory", "view"),
+      requirePermission("inventory_items", "view"),
       validateAndTransformQuery(
         AdminGetInventoryItemsParamsWithSeller,
         listTransformQueryConfig
