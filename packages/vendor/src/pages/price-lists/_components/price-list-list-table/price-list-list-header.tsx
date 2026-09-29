@@ -16,7 +16,7 @@ export const PriceListListTitle = () => {
 export const PriceListListCreateButton = () => {
   const { t } = useTranslation();
   return (
-    <PermissionGuard resource="price_list" operation="create">
+    <PermissionGuard permission="price_lists:edit">
       <Button size="small" variant="secondary" asChild>
         <Link to="create">{t("actions.create")}</Link>
       </Button>

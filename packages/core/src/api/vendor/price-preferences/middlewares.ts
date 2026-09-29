@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
@@ -17,32 +16,22 @@ export const vendorPricePreferencesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/price-preferences",
     middlewares: [
+      requirePermission("price_preferences", "view"),
       validateAndTransformQuery(
         VendorGetPricePreferencesParams,
         listTransformQueryConfig
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.price_preference,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/price-preferences/:id",
     middlewares: [
+      requirePermission("price_preferences", "view"),
       validateAndTransformQuery(
         VendorGetPricePreferenceParams,
         retrieveTransformQueryConfig
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.price_preference,
-        operation: PolicyOperation.read,
-      },
     ],
   },
 ]

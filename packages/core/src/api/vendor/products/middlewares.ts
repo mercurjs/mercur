@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   MedusaNextFunction,
@@ -100,8 +99,14 @@ const ensureVariantBelongsToProduct = async (
 export const vendorProductsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["GET"],
+    matcher: "/vendor/products/:id/preview",
+    middlewares: [requirePermission("products", "view")],
+  },
+  {
+    method: ["GET"],
     matcher: "/vendor/products",
     middlewares: [
+      requirePermission("products", "view"),
       validateAndTransformQuery(
         VendorGetProductsParams,
         vendorProductQueryConfig.list
@@ -109,142 +114,99 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
       applySellerProductLinkFilter,
       applyOfferedProductsFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.product,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/products",
     middlewares: [
+      requirePermission("products", "edit"),
       validateAndTransformBody(VendorCreateProduct),
       validateAndTransformQuery(
         VendorGetProductParams,
         vendorProductQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.product,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
 
   {
     method: ["GET"],
     matcher: "/vendor/products/:id",
     middlewares: [
+      requirePermission("products", "view"),
       validateAndTransformQuery(
         VendorGetProductParams,
         vendorProductQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/products/:id",
     middlewares: [
+      requirePermission("products", "edit"),
       validateAndTransformBody(VendorUpdateProduct),
       validateAndTransformQuery(
         VendorGetProductParams,
         vendorProductQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.product,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/products/:id",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.product,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("products", "manage"),
     ],
   },
 
   {
     method: ["POST"],
     matcher: "/vendor/products/:id/cancel",
-    middlewares: [validateAndTransformBody(VendorCancelProductChange)],
-    policies: [
-      {
-        resource: PolicyResource.product,
-        operation: PolicyOperation.update,
-      },
-    ],
+    middlewares: [
+      requirePermission("products", "edit"),
+      validateAndTransformBody(VendorCancelProductChange)],
   },
 
   {
     method: ["GET"],
     matcher: "/vendor/products/:id/variants",
     middlewares: [
+      requirePermission("products", "view"),
       validateAndTransformQuery(
         VendorGetProductVariantsParams,
         vendorProductVariantQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product_variant,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/products/:id/variants",
     middlewares: [
+      requirePermission("products", "edit"),
       validateAndTransformBody(VendorAddProductVariant),
       validateAndTransformQuery(
         VendorGetProductParams,
         vendorProductQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.product_variant,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
 
   {
     method: ["GET"],
     matcher: "/vendor/products/:id/variants/:variant_id",
     middlewares: [
+      requirePermission("products", "view"),
       validateAndTransformQuery(
         VendorGetProductVariantParams,
         vendorProductVariantQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product_variant,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/products/:id/variants/:variant_id",
     middlewares: [
+      requirePermission("products", "edit"),
       ensureVariantBelongsToProduct,
       validateAndTransformBody(VendorUpdateProductVariant),
       validateAndTransformQuery(
@@ -252,40 +214,25 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         vendorProductQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.product_variant,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/products/:id/variants/:variant_id",
-    middlewares: [ensureVariantBelongsToProduct],
-    policies: [
-      {
-        resource: PolicyResource.product_variant,
-        operation: PolicyOperation.delete,
-      },
-    ],
+    middlewares: [
+      requirePermission("products", "manage"),
+      ensureVariantBelongsToProduct],
   },
 
   {
     method: ["POST"],
     matcher: "/vendor/products/:id/attributes/batch",
     middlewares: [
+      requirePermission("products", "edit"),
       validateAndTransformBody(VendorBatchProductAttributes),
       validateAndTransformQuery(
         VendorGetProductParams,
         vendorProductQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

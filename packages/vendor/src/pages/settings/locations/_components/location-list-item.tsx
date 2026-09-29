@@ -150,7 +150,7 @@ function LocationListItem(props: LocationProps) {
                 {
                   actions: [
                     {
-                      permission: "stock_location:update",
+                      permission: "stock_locations:edit",
                       label: t("actions.edit"),
                       icon: <PencilSquare />,
                       to: `/settings/locations/${location.id}/edit`,
@@ -160,7 +160,7 @@ function LocationListItem(props: LocationProps) {
                 {
                   actions: [
                     {
-                      permission: "stock_location:delete",
+                      permission: "stock_locations:manage",
                       label: t("actions.delete"),
                       icon: <Trash />,
                       onClick: handleDelete,

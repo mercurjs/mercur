@@ -50,7 +50,7 @@ export const ProductListCreateButton = () => {
   const { t } = useTranslation();
 
   return (
-    <PermissionGuard resource="product" operation="create">
+    <PermissionGuard permission="products:edit">
       <Button
         size="small"
         variant="secondary"

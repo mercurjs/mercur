@@ -51,7 +51,7 @@ export const OfferGeneralSection = ({ offer }: Props) => {
               actions: [
                 {
                   icon: <PencilSquare />,
-                  permission: "offer:update",
+                  permission: "offers:edit",
                   label: t("actions.edit"),
                   to: "edit",
                 },
@@ -61,7 +61,7 @@ export const OfferGeneralSection = ({ offer }: Props) => {
               actions: [
                 {
                   icon: <Trash />,
-                  permission: "offer:delete",
+                  permission: "offers:manage",
                   label: t("actions.delete"),
                   onClick: handleDelete,
                 },

@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   MedusaNextFunction,
@@ -35,112 +34,78 @@ export const vendorOffersMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/offers",
     middlewares: [
+      requirePermission("offers", "view"),
       validateAndTransformQuery(
         VendorGetOffersParams,
         vendorOfferQueryConfig.list
       ),
       applySellerOfferFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.offer,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/offers",
     middlewares: [
+      requirePermission("offers", "edit"),
       validateAndTransformBody(VendorCreateOffer),
       validateAndTransformQuery(
         VendorGetOfferParams,
         vendorOfferQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.offer,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/offers/batch",
     middlewares: [
+      requirePermission("offers", "edit"),
       validateAndTransformBody(VendorCreateOffersBatch),
       validateAndTransformQuery(
         VendorGetOfferParams,
         vendorOfferQueryConfig.list
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.offer,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/offers/:id",
     middlewares: [
+      requirePermission("offers", "view"),
       validateAndTransformQuery(
         VendorGetOfferParams,
         vendorOfferQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.offer,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/offers/:id",
     middlewares: [
+      requirePermission("offers", "edit"),
       validateAndTransformBody(VendorUpdateOffer),
       validateAndTransformQuery(
         VendorGetOfferParams,
         vendorOfferQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.offer,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/offers/:id",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.offer,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("offers", "manage"),
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/offers/:id/inventory-items/batch",
     middlewares: [
+      requirePermission("offers", "edit"),
       validateAndTransformBody(VendorBatchOfferInventoryItems),
       validateAndTransformQuery(
         VendorGetOfferParams,
         vendorOfferQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.offer,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

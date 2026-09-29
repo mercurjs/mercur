@@ -33,7 +33,7 @@ export const OfferVariantShippingSection = ({
             {
               actions: [
                 {
-                  permission: "offer:update",
+                  permission: "offers:edit",
                   label: t("actions.edit"),
                   to: "shipping",
                   icon: <PencilSquare />,

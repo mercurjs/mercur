@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -43,83 +42,58 @@ export const vendorPaymentsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/payments",
     middlewares: [
+      requirePermission("payments", "view"),
       validateAndTransformQuery(
         VendorGetPaymentsParams,
         vendorPaymentQueryConfig.list
       ),
       applySellerPaymentLinkFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.payment,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/payments/payment-providers",
     middlewares: [
+      requirePermission("payments", "view"),
       validateAndTransformQuery(
         VendorGetPaymentProvidersParams,
         vendorPaymentProviderQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.payment,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/payments/:id",
     middlewares: [
+      requirePermission("payments", "view"),
       validateAndTransformQuery(
         VendorGetPaymentParams,
         vendorPaymentQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.payment,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/payments/:id/capture",
     middlewares: [
+      requirePermission("payments", "edit"),
       validateAndTransformBody(VendorCreatePaymentCapture),
       validateAndTransformQuery(
         VendorGetPaymentParams,
         vendorPaymentQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.payment,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/payments/:id/refund",
     middlewares: [
+      requirePermission("payments", "edit"),
       validateAndTransformBody(VendorCreatePaymentRefund),
       validateAndTransformQuery(
         VendorGetPaymentParams,
         vendorPaymentQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.payment,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

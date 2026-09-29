@@ -1,5 +1,4 @@
-import { PolicyOperation } from "@medusajs/framework/utils"
-import { PolicyResource } from "../../utils/policy-resources"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -59,17 +58,12 @@ export const adminInventoryItemsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: LIST_MATCHER,
     middlewares: [
+      requirePermission("inventory_items", "view"),
       validateAndTransformQuery(
         AdminGetInventoryItemsParamsWithSeller,
         listTransformQueryConfig
       ),
       maybeApplySellerInventoryFilter,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.inventory_item,
-        operation: PolicyOperation.read,
-      },
     ],
   },
 ]

@@ -44,7 +44,7 @@ export const ApiKeyManagementListActions = ({
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <PermissionGuard resource="api_key" operation="create">
+        <PermissionGuard permission="api_keys:edit">
           <Link to="create" data-testid={`${keyType}-api-keys-create-button`}>
             <Button variant="secondary" size="small">
               {t("actions.create")}

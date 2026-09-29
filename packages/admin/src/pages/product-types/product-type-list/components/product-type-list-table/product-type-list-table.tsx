@@ -54,7 +54,7 @@ export const ProductTypeListTable = () => {
             {t("productTypes.subtitle")}
           </Text>
         </div>
-        <PermissionGuard resource="product_type" operation="create">
+        <PermissionGuard permission="product_types:edit">
           <Button size="small" variant="secondary" asChild data-testid="product-type-list-table-create-button">
             <Link to="create">{t("actions.create")}</Link>
           </Button>

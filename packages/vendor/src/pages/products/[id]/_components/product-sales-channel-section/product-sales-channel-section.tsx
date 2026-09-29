@@ -31,7 +31,7 @@ export const ProductSalesChannelSection = ({
             {
               actions: [
                 {
-                  permission: "product:update",
+                  permission: "products:edit",
                   label: t("actions.edit"),
                   to: "sales-channels",
                   icon: <PencilSquare />,

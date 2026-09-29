@@ -72,7 +72,7 @@ export const CustomerGroupGeneralSection = ({
               actions: [
                 {
                   icon: <PencilSquare />,
-                  permission: "customer_group:update",
+                  permission: "customer_groups:edit",
                   label: t("actions.edit"),
                   to: `/customer-groups/${group.id}/edit`,
                 },
@@ -82,7 +82,7 @@ export const CustomerGroupGeneralSection = ({
               actions: [
                 {
                   icon: <Trash />,
-                  permission: "customer_group:delete",
+                  permission: "customer_groups:manage",
                   label: t("actions.delete"),
                   onClick: handleDelete,
                 },

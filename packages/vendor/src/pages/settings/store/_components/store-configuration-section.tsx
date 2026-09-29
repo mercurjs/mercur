@@ -26,7 +26,7 @@ export const StoreConfigurationSection = ({
             {
               actions: [
                 {
-                  permission: "seller:update",
+                  permission: "store:edit",
                   label: t("actions.edit"),
                   icon: <PencilSquare />,
                   to: "store-closure",

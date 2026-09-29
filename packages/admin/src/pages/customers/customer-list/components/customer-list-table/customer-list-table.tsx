@@ -30,7 +30,7 @@ export const CustomerListCreateButton = () => {
   const { t } = useTranslation()
 
   return (
-    <PermissionGuard resource="customer" operation="create">
+    <PermissionGuard permission="customers:edit">
       <Link to="/customers/create" data-testid="customer-list-create-link">
         <Button size="small" variant="secondary" data-testid="customer-list-create-button">
           {t("actions.create")}

@@ -13,7 +13,7 @@ export const GET = async (
   res: MedusaResponse<HttpTypes.VendorSellerResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId =  req.seller_context!.seller_id
+  const sellerId = req.seller_context!.seller_id
 
   const {
     data: [seller],

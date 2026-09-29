@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -35,50 +34,35 @@ export const vendorReviewsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/reviews",
     middlewares: [
+      requirePermission("reviews", "view"),
       validateAndTransformQuery(
         VendorGetReviewsParams,
         vendorReviewQueryConfig.list
       ),
       applySellerReviewLinkFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.review,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/reviews/:id",
     middlewares: [
+      requirePermission("reviews", "view"),
       validateAndTransformQuery(
         VendorGetReviewsParams,
         vendorReviewQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.review,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/reviews/:id",
     middlewares: [
+      requirePermission("reviews", "edit"),
       validateAndTransformQuery(
         VendorGetReviewsParams,
         vendorReviewQueryConfig.retrieve
       ),
       validateAndTransformBody(VendorRespondReview),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.review,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

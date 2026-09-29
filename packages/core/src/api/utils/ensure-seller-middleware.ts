@@ -5,13 +5,8 @@ import {
 } from "@medusajs/framework"
 import {
   ContainerRegistrationKeys,
-  FeatureFlag,
   MedusaError,
-  Modules,
 } from "@medusajs/framework/utils"
-import { IRbacModuleService } from "@medusajs/types"
-import { SellerRole } from "@mercurjs/types"
-import { ensureSellerDefaultRoles } from "../../modules/seller/utils/ensure-seller-default-roles"
 import { SellerContext } from "../../types/seller-context"
 
 const SELLER_ID_HEADER = "x-seller-id"
@@ -63,22 +58,6 @@ export async function ensureSellerMiddleware(
     seller_member: sellerMember,
     currency_code: sellerMember.seller.currency_code,
   } as SellerContext
-
-  if (!FeatureFlag.isFeatureEnabled("rbac")) {
-    return next()
-  }
-
-  const rbacService: IRbacModuleService = req.scope.resolve(Modules.RBAC)
-
-  await ensureSellerDefaultRoles(rbacService)
-
-  req.auth_context.app_metadata = {
-    ...req.auth_context.app_metadata,
-    // Members predating RBAC have no role. Route policy checks reject an actor
-    // with an empty role list outright, so fall back to the administration role
-    // rather than locking them out of their own store.
-    roles: [sellerMember.role_id || SellerRole.SELLER_ADMINISTRATION],
-  }
 
   next()
 }

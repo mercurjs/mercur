@@ -78,7 +78,7 @@ export const ReservationActions = ({
         {
           actions: [
             {
-              permission: "reservation_item:update",
+              permission: "reservations:edit",
               label: t("actions.edit"),
               onClick: handleEdit,
               icon: <PencilSquare />,
@@ -88,7 +88,7 @@ export const ReservationActions = ({
         {
           actions: [
             {
-              permission: "reservation_item:delete",
+              permission: "reservations:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
               icon: <Trash />,

@@ -19,6 +19,13 @@ export const membersQueryKeys = {
   me: () => [MEMBERS_QUERY_KEY, "me"],
 };
 
+// Rides along on every `me` fetch so the panel gets the actor's rights in the
+// same request instead of a follow-up one.
+const withPermissionsField = (fields: unknown) =>
+  [typeof fields === "string" ? fields : undefined, "+permissions"]
+    .filter(Boolean)
+    .join(",");
+
 export const useMe = (
   query?: Record<string, unknown>,
   options?: UseQueryOptions<
@@ -29,9 +36,10 @@ export const useMe = (
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () =>
-      sdk.vendor.members.me.query(
-        query as Parameters<typeof sdk.vendor.members.me.query>[0],
-      ),
+      sdk.vendor.members.me.query({
+        ...query,
+        fields: withPermissionsField(query?.fields),
+      } as Parameters<typeof sdk.vendor.members.me.query>[0]),
     queryKey: query ? [...membersQueryKeys.me(), query] : membersQueryKeys.me(),
     ...options,
   });

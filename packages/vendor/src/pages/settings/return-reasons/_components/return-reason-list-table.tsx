@@ -54,7 +54,7 @@ export const ReturnReasonListTable = () => {
             {t("returnReasons.subtitle")}
           </Text>
         </div>
-        <PermissionGuard resource="return_reason" operation="create">
+        <PermissionGuard permission="return_reasons:edit">
           <Button variant="secondary" size="small" asChild>
             <Link to="create">{t("actions.create")}</Link>
           </Button>
@@ -92,7 +92,7 @@ const ReturnReasonRowActions = ({
           actions: [
             {
               icon: <PencilSquare />,
-              permission: "return_reason:update",
+              permission: "return_reasons:edit",
               label: t("actions.edit"),
               to: `${returnReason.id}/edit`,
             },
@@ -102,7 +102,7 @@ const ReturnReasonRowActions = ({
           actions: [
             {
               icon: <Trash />,
-              permission: "return_reason:delete",
+              permission: "return_reasons:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
             },

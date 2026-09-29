@@ -12,7 +12,7 @@ export const CampaignListTitle = () => {
 export const CampaignListCreateButton = () => {
   const { t } = useTranslation();
   return (
-    <PermissionGuard resource="campaign" operation="create">
+    <PermissionGuard permission="campaigns:edit">
       <Link to="/campaigns/create">
         <Button size="small" variant="secondary">
           {t("actions.create")}

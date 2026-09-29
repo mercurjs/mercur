@@ -1,7 +1,8 @@
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
-import { resolveAdminRolesMiddleware } from "../utils"
+import { resolvePermissionsMiddleware } from "../utils"
+import { enforceCoreRoutePermissions } from "./core-route-permissions"
 import { adminOrderGroupsMiddlewares } from "./order-groups/middlewares"
 import { adminOrderGroupQueryConfig } from "./order-groups/query-config"
 import { AdminGetOrderGroupParams } from "./order-groups/validators"
@@ -31,7 +32,10 @@ import { adminReviewsMiddlewares } from "./reviews/middlewares"
 export const adminMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/admin/*",
-    middlewares: [resolveAdminRolesMiddleware],
+    middlewares: [
+      resolvePermissionsMiddleware("admin"),
+      enforceCoreRoutePermissions,
+    ],
   },
   ...adminOrderGroupsMiddlewares,
   {

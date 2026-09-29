@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -40,95 +39,66 @@ export const vendorCustomerGroupsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/customer-groups",
     middlewares: [
+      requirePermission("customer_groups", "view"),
       validateAndTransformQuery(
         VendorGetCustomerGroupsParams,
         vendorCustomerGroupQueryConfig.list
       ),
       applySellerCustomerGroupLinkFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.customer_group,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/customer-groups",
     middlewares: [
+      requirePermission("customer_groups", "edit"),
       validateAndTransformBody(VendorCreateCustomerGroup),
       validateAndTransformQuery(
         VendorGetCustomerGroupParams,
         vendorCustomerGroupQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.customer_group,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/customer-groups/:id",
     middlewares: [
+      requirePermission("customer_groups", "view"),
       validateAndTransformQuery(
         VendorGetCustomerGroupParams,
         vendorCustomerGroupQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.customer_group,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/customer-groups/:id",
     middlewares: [
+      requirePermission("customer_groups", "edit"),
       validateAndTransformBody(VendorUpdateCustomerGroup),
       validateAndTransformQuery(
         VendorGetCustomerGroupParams,
         vendorCustomerGroupQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.customer_group,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/customer-groups/:id",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.customer_group,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("customer_groups", "manage"),
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/customer-groups/:id/customers",
     middlewares: [
+      requirePermission("customer_groups", "edit"),
       validateAndTransformBody(VendorManageCustomerGroupCustomers),
       validateAndTransformQuery(
         VendorGetCustomerGroupParams,
         vendorCustomerGroupQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.customer_group,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

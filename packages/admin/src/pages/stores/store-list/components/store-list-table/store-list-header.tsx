@@ -25,7 +25,7 @@ export const StoreListActions = ({
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <PermissionGuard resource="seller" operation="create">
+        <PermissionGuard permission="sellers:edit">
           <Link to="create">
             <Button variant="secondary" size="small">
               {t("actions.create")}

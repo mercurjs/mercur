@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -45,178 +44,124 @@ export const vendorInventoryItemsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/inventory-items",
     middlewares: [
+      requirePermission("inventory_items", "view"),
       validateAndTransformQuery(
         VendorGetInventoryItemsParams,
         vendorInventoryItemQueryConfig.list
       ),
       applySellerInventoryItemLinkFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.inventory_item,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/inventory-items/:id",
     middlewares: [
+      requirePermission("inventory_items", "view"),
       validateAndTransformQuery(
         VendorGetInventoryItemParams,
         vendorInventoryItemQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.inventory_item,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/inventory-items",
     middlewares: [
+      requirePermission("inventory_items", "edit"),
       validateAndTransformBody(VendorCreateInventoryItem),
       validateAndTransformQuery(
         VendorGetInventoryItemParams,
         vendorInventoryItemQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.inventory_item,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/inventory-items/:id",
     middlewares: [
+      requirePermission("inventory_items", "edit"),
       validateAndTransformBody(VendorUpdateInventoryItem),
       validateAndTransformQuery(
         VendorGetInventoryItemParams,
         vendorInventoryItemQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.inventory_item,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/inventory-items/:id",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.inventory_item,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("inventory_items", "manage"),
     ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/inventory-items/:id/location-levels",
     middlewares: [
+      requirePermission("inventory_items", "view"),
       validateAndTransformQuery(
         VendorGetInventoryLocationLevelsParams,
         vendorLocationLevelQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.inventory_item,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/inventory-items/location-levels/batch",
     middlewares: [
+      requirePermission("inventory_items", "edit"),
       validateAndTransformBody(VendorBatchInventoryItemLevels),
       validateAndTransformQuery(
         VendorGetInventoryLocationLevelParams,
         vendorLocationLevelQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.inventory_item,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/inventory-items/:id/location-levels",
     middlewares: [
+      requirePermission("inventory_items", "edit"),
       validateAndTransformBody(VendorCreateInventoryLocationLevel),
       validateAndTransformQuery(
         VendorGetInventoryItemParams,
         vendorInventoryItemQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.inventory_item,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/inventory-items/:id/location-levels/batch",
     middlewares: [
+      requirePermission("inventory_items", "edit"),
       validateAndTransformBody(VendorBatchInventoryItemLocationsLevel),
       validateAndTransformQuery(
         VendorGetInventoryLocationLevelParams,
         vendorLocationLevelQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.inventory_item,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/inventory-items/:id/location-levels/:location_id",
     middlewares: [
+      requirePermission("inventory_items", "edit"),
       validateAndTransformBody(VendorUpdateInventoryLocationLevel),
       validateAndTransformQuery(
         VendorGetInventoryItemParams,
         vendorInventoryItemQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.inventory_item,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/inventory-items/:id/location-levels/:location_id",
     middlewares: [
+      requirePermission("inventory_items", "manage"),
       validateAndTransformQuery(
         VendorGetInventoryItemParams,
         vendorInventoryItemQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.inventory_item,
-        operation: PolicyOperation.delete,
-      },
     ],
   },
 ]

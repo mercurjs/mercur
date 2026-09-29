@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -31,77 +30,53 @@ export const adminCollectionsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/collections",
     middlewares: [
+      requirePermission("product_collections", "view"),
       validateAndTransformQuery(
         AdminCollectionsParams,
         adminCollectionQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product_collection,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/admin/collections",
     middlewares: [
+      requirePermission("product_collections", "edit"),
       validateAndTransformBody(AdminCreateCollection),
       validateAndTransformQuery(
         AdminCollectionParams,
         adminCollectionQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.product_collection,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/admin/collections/:id",
     middlewares: [
+      requirePermission("product_collections", "view"),
       validateAndTransformQuery(
         AdminCollectionParams,
         adminCollectionQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product_collection,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/admin/collections/:id",
     middlewares: [
+      requirePermission("product_collections", "edit"),
       validateAndTransformBody(AdminUpdateCollection),
       validateAndTransformQuery(
         AdminCollectionParams,
         adminCollectionQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.product_collection,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["DELETE"],
     matcher: "/admin/collections/:id",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.product_collection,
-        operation: PolicyOperation.delete,
-      },
+    middlewares: [
+      requirePermission("product_collections", "manage"),
     ],
   },
 ]

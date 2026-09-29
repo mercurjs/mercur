@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -78,223 +77,144 @@ export const vendorExchangesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/exchanges",
     middlewares: [
+      requirePermission("orders.returns", "view"),
       validateAndTransformQuery(
         VendorGetExchangesParams,
         vendorExchangeQueryConfig.list
       ),
       applySellerExchangesFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.order_exchange,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/exchanges",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostOrderExchangesReq),
       assertSellerOwnsOrderInBody,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_exchange,
-        operation: PolicyOperation.create,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/exchanges/:id/cancel",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostCancelExchangeReq),
       assertSellerOwnsExchangeInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_exchange,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/exchanges/:id/request",
-    middlewares: [assertSellerOwnsExchangeInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_exchange,
-        operation: PolicyOperation.update,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.returns", "edit"),
+      assertSellerOwnsExchangeInParam],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/exchanges/:id/request",
-    middlewares: [assertSellerOwnsExchangeInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_exchange,
-        operation: PolicyOperation.delete,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.returns", "manage"),
+      assertSellerOwnsExchangeInParam],
   },
   {
     method: ["POST"],
     matcher: "/vendor/exchanges/:id/inbound/items",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostExchangesReturnRequestItemsReq),
       assertSellerOwnsExchangeInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_exchange,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/exchanges/:id/inbound/items/:action_id",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostExchangesRequestItemsReturnActionReq),
       assertSellerOwnsExchangeInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_exchange,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/exchanges/:id/inbound/items/:action_id",
-    middlewares: [assertSellerOwnsExchangeInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_exchange,
-        operation: PolicyOperation.delete,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.returns", "manage"),
+      assertSellerOwnsExchangeInParam],
   },
   {
     method: ["POST"],
     matcher: "/vendor/exchanges/:id/inbound/shipping-method",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostExchangesShippingReq),
       assertSellerOwnsExchangeInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_exchange,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/exchanges/:id/inbound/shipping-method/:action_id",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostExchangesShippingActionReq),
       assertSellerOwnsExchangeInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_exchange,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/exchanges/:id/inbound/shipping-method/:action_id",
-    middlewares: [assertSellerOwnsExchangeInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_exchange,
-        operation: PolicyOperation.delete,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.returns", "manage"),
+      assertSellerOwnsExchangeInParam],
   },
   {
     method: ["POST"],
     matcher: "/vendor/exchanges/:id/outbound/items",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostExchangesAddItemsReq),
       assertSellerOwnsExchangeInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_exchange,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/exchanges/:id/outbound/items/:action_id",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostExchangesItemsActionReq),
       assertSellerOwnsExchangeInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_exchange,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/exchanges/:id/outbound/items/:action_id",
-    middlewares: [assertSellerOwnsExchangeInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_exchange,
-        operation: PolicyOperation.delete,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.returns", "manage"),
+      assertSellerOwnsExchangeInParam],
   },
   {
     method: ["POST"],
     matcher: "/vendor/exchanges/:id/outbound/shipping-method",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostExchangesShippingReq),
       assertSellerOwnsExchangeInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_exchange,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/exchanges/:id/outbound/shipping-method/:action_id",
     middlewares: [
+      requirePermission("orders.returns", "edit"),
       validateAndTransformBody(VendorPostExchangesShippingActionReq),
       assertSellerOwnsExchangeInParam,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order_exchange,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/exchanges/:id/outbound/shipping-method/:action_id",
-    middlewares: [assertSellerOwnsExchangeInParam],
-    policies: [
-      {
-        resource: PolicyResource.order_exchange,
-        operation: PolicyOperation.delete,
-      },
-    ],
+    middlewares: [
+      requirePermission("orders.returns", "manage"),
+      assertSellerOwnsExchangeInParam],
   },
 ]

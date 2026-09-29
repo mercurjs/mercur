@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
@@ -11,32 +10,22 @@ export const vendorRegionsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/regions",
     middlewares: [
+      requirePermission("regions", "view"),
       validateAndTransformQuery(
         VendorGetRegionsParams,
         vendorRegionQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.region,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/regions/:id",
     middlewares: [
+      requirePermission("regions", "view"),
       validateAndTransformQuery(
         VendorGetRegionParams,
         vendorRegionQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.region,
-        operation: PolicyOperation.read,
-      },
     ],
   },
 ]

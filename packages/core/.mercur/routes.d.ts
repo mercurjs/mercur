@@ -483,7 +483,7 @@ export type Routes = {
                     $roleId: typeof import("@medusajs/medusa/api/admin/users/[id]/roles/[role_id]/route");
                 };
             };
-            me: typeof import("@medusajs/medusa/api/admin/users/me/route");
+            me: typeof import("../src/api/admin/users/me/route");
         };
         views: {
             $entity: {
@@ -931,11 +931,6 @@ export type Routes = {
         };
         stores: typeof import("../src/api/vendor/stores/route");
         uploads: typeof import("../src/api/vendor/uploads/route");
-        rbac: {
-            me: {
-                permissions: typeof import("../src/api/vendor/rbac/me/permissions/route");
-            };
-        };
         reviews: typeof import("../src/api/vendor/reviews/route") & {
             $id: typeof import("../src/api/vendor/reviews/[id]/route");
         };

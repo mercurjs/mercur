@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
@@ -21,49 +20,34 @@ export const vendorSalesChannelsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/sales-channels",
     middlewares: [
+      requirePermission("sales_channels", "view"),
       validateAndTransformQuery(
         VendorGetSalesChannelsParams,
         listTransformQueryConfig
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.sales_channel,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/sales-channels/:id",
     middlewares: [
+      requirePermission("sales_channels", "view"),
       validateAndTransformQuery(
         VendorGetSalesChannelParams,
         retrieveTransformQueryConfig
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.sales_channel,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/sales-channels/:id/products",
     middlewares: [
+      requirePermission("sales_channels", "edit"),
       validateAndTransformBody(createLinkBody()),
       validateAndTransformQuery(
         VendorGetSalesChannelParams,
         retrieveTransformQueryConfig
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.sales_channel,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

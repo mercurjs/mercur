@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   MedusaNextFunction,
@@ -56,17 +55,12 @@ export const vendorProductVariantsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/product-variants",
     middlewares: [
+      requirePermission("products", "view"),
       validateAndTransformQuery(
         VendorGetProductVariantsParams,
         vendorProductVariantsQueryConfig.list
       ),
       applySellerProductVariantFilter,
-    ],
-    policies: [
-      {
-        resource: PolicyResource.product_variant,
-        operation: PolicyOperation.read,
-      },
     ],
   },
 ]

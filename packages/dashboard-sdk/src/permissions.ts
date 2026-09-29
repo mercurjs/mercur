@@ -1,161 +1,123 @@
 /**
- * Permission strings follow the pattern `{resource}:{operation}`, e.g.
- * `customer:read`, `product:create`, `order:*`.
+ * Permission strings follow `{key}:{right}`, e.g. `orders:view`,
+ * `products:edit`, `sellers.approval:edit`.
  *
- * The resource list mirrors the policies registered server-side — Medusa's own
- * catalog plus Mercur's (`packages/core/src/policies`). A name that is not
- * registered there is not a type error, it simply never matches a granted
- * policy, so the two are kept in sync by a test in `packages/admin`.
+ * Keys mirror the catalog declared server-side with `defineMercurPermissions`
+ * (`packages/core/src/permissions/definitions`). Rights nest:
+ * `manage` implies `edit`, `edit` implies `view`.
  */
 
-export type PermissionResource =
-    | "api_key"
-    | "campaign"
-    | "commission_line"
-    | "commission_rate"
-    | "commission_rule"
-    | "currency"
-    | "customer"
-    | "customer_address"
-    | "customer_group"
-    | "file"
-    | "fulfillment"
-    | "fulfillment_provider"
-    | "fulfillment_set"
-    | "inventory_item"
-    | "inventory_level"
-    | "invite"
-    | "member_invite"
-    | "notification"
-    | "offer"
-    | "order"
-    | "order_change"
-    | "order_claim"
-    | "order_claim_item"
-    | "order_exchange"
-    | "order_group"
-    | "order_item"
-    | "payment"
-    | "payment_collection"
-    | "payment_method"
-    | "payment_session"
-    | "payout"
-    | "payout_account"
-    | "price"
-    | "price_list"
-    | "price_preference"
-    | "product"
-    | "product_attribute"
-    | "product_attribute_value"
-    | "product_category"
-    | "product_change"
-    | "product_collection"
-    | "product_option"
-    | "product_option_value"
-    | "product_tag"
-    | "product_type"
-    | "product_variant"
-    | "promotion"
-    | "rbac_policy"
-    | "rbac_role"
-    | "refund_reason"
-    | "region"
-    | "reservation_item"
-    | "return"
-    | "return_reason"
-    | "review"
-    | "sales_channel"
-    | "seller"
-    | "seller_member"
-    | "service_zone"
-    | "shipping_option"
-    | "shipping_option_type"
-    | "shipping_profile"
-    | "stock_location"
+export type PermissionKey =
+    | "sellers"
+    | "sellers.approval"
+    | "sellers.premium"
+    | "members"
+    | "members.invites"
+    | "roles"
+    | "roles.owner"
+    | "orders"
+    | "orders.refunds"
+    | "orders.returns"
+    | "orders.edits"
+    | "order_groups"
+    | "payments"
+    | "customers"
+    | "customer_groups"
+    | "products"
+    | "products.review"
+    | "product_changes"
+    | "product_categories"
+    | "product_collections"
+    | "product_types"
+    | "product_tags"
+    | "product_attributes"
+    | "offers"
+    | "inventory_items"
+    | "reservations"
+    | "stock_locations"
+    | "price_lists"
+    | "price_preferences"
+    | "promotions"
+    | "campaigns"
+    | "commission_rates"
+    | "commission_lines"
+    | "payouts"
+    | "payout_accounts"
+    | "shipping_profiles"
+    | "shipping_options"
+    | "fulfillment_sets"
+    | "regions"
+    | "tax_regions"
     | "store"
-    | "store_locale"
-    | "tax_provider"
-    | "tax_rate"
-    | "tax_region"
-    | "translation"
-    | "translation_setting"
-    | "user"
-    | "workflow_execution"
+    | "sales_channels"
+    | "return_reasons"
+    | "refund_reasons"
+    | "users"
+    | "api_keys"
+    | "translations"
+    | "notifications"
+    | "workflow_executions"
+    | "reviews"
 
-export type PermissionOperation = "read" | "create" | "update" | "delete" | "*"
+export type PermissionRight = "view" | "edit" | "manage"
 
-export type Permission = `${PermissionResource}:${PermissionOperation}`
+export type Permission = `${PermissionKey}:${PermissionRight}`
 
-export interface UserPolicy {
-    permissions: Permission[]
-}
+/** Effective rights of the acting user, as returned by `fields=+permissions`. */
+export type PermissionMap = Partial<Record<string, PermissionRight>>
 
-export interface PermissionRequirement {
-    permissions: Permission[]
-    /** If true, ALL permissions are required. Defaults to ANY. */
-    requireAll?: boolean
-    /** Optional label describing where the requirement came from. */
-    source?: string
+export const PERMISSION_RIGHT_RANK: Record<PermissionRight, number> = {
+    view: 1,
+    edit: 2,
+    manage: 3,
 }
 
 export interface PermissionsContextValue {
-    policy: UserPolicy | null
+    /** `null` while no access-control module is enforcing permissions. */
+    permissions: PermissionMap | null
     isLoading: boolean
-    /** Whether RBAC is active. When `false`, every check resolves to `true`. */
-    isRbacEnabled: boolean
+    /** When `false`, every check resolves to `true`. */
+    isEnforced: boolean
     hasPermission: (permission: Permission) => boolean
     hasAnyPermission: (permissions: Permission[]) => boolean
     hasAllPermissions: (permissions: Permission[]) => boolean
-    can: (
-        resource: PermissionResource,
-        operation: PermissionOperation
-    ) => boolean
+    can: (key: PermissionKey, right?: PermissionRight) => boolean
 }
 
-export interface PermissionsRequirementsContextValue {
-    requiredPermissions: PermissionRequirement[]
-    registerRequiredPermissions: (
-        id: string,
-        requirement: PermissionRequirement
-    ) => void
-    unregisterRequiredPermissions: (id: string) => void
-}
-
-/**
- * Operations implied by a granted operation. Only the wildcard fans out.
- * Note that `update` does not imply `read` — grants must be explicit.
- */
-export const OPERATION_IMPLICATIONS: Record<
-    PermissionOperation,
-    PermissionOperation[]
-> = {
-    read: ["read"],
-    create: ["create"],
-    update: ["update"],
-    delete: ["delete"],
-    "*": ["read", "create", "update", "delete", "*"],
-}
-
-export function parsePermission(permission: string): {
-    resource: PermissionResource
-    operation: PermissionOperation
-} | null {
-    const parts = permission.split(":")
-    if (parts.length !== 2) {
+export function parsePermission(
+    permission: string
+): { key: PermissionKey; right: PermissionRight } | null {
+    const index = permission.lastIndexOf(":")
+    if (index <= 0) {
         return null
     }
 
-    const [resource, operation] = parts
+    const right = permission.slice(index + 1)
+    if (!(right in PERMISSION_RIGHT_RANK)) {
+        return null
+    }
 
     return {
-        resource: resource as PermissionResource,
-        operation: operation as PermissionOperation,
+        key: permission.slice(0, index) as PermissionKey,
+        right: right as PermissionRight,
     }
 }
 
 export function buildPermission(
-    resource: PermissionResource,
-    operation: PermissionOperation
+    key: PermissionKey,
+    right: PermissionRight
 ): Permission {
-    return `${resource}:${operation}` as Permission
+    return `${key}:${right}`
+}
+
+export function satisfiesPermission(
+    permissions: PermissionMap,
+    key: string,
+    right: PermissionRight
+): boolean {
+    const granted = permissions[key]
+    return (
+        !!granted &&
+        PERMISSION_RIGHT_RANK[granted] >= PERMISSION_RIGHT_RANK[right]
+    )
 }

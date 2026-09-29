@@ -14,7 +14,6 @@ import {
   upsertMembersStep,
   createSellerMembersStep,
   deleteMemberInviteStep,
-  createSellerDefaultRolesStep,
   checkSellerHasOwnerStep,
 } from "../steps"
 import { MemberInviteWorkflowEvents } from "../../events"
@@ -32,8 +31,6 @@ type AcceptMemberInviteWorkflowInput = {
 export const acceptMemberInviteWorkflow = createWorkflow(
   acceptMemberInviteWorkflowId,
   function (input: AcceptMemberInviteWorkflowInput) {
-    createSellerDefaultRolesStep()
-
     const invite = validateMemberInviteTokenStep(input.invite_token)
 
     const members = upsertMembersStep(

@@ -31,7 +31,7 @@ export const CategoryListActions = ({
           <Button size="small" variant="secondary" asChild>
             <Link to="organize">{t("categories.organize.action")}</Link>
           </Button>
-          <PermissionGuard resource="product_category" operation="create">
+          <PermissionGuard permission="product_categories:edit">
             <Button size="small" variant="secondary" asChild>
               <Link to="create">{t("actions.create")}</Link>
             </Button>

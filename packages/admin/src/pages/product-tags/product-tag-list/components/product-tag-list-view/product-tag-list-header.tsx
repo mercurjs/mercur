@@ -24,7 +24,7 @@ export const ProductTagListActions = ({
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <PermissionGuard resource="product_tag" operation="create">
+        <PermissionGuard permission="product_tags:edit">
           <Button
             variant="secondary"
             size="small"

@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -42,67 +41,47 @@ export const vendorPayoutAccountsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/payout-accounts",
     middlewares: [
+      requirePermission("payout_accounts", "view"),
       validateAndTransformQuery(
         VendorGetPayoutAccountsParams,
         vendorPayoutAccountQueryConfig.list
       ),
       applySellerPayoutAccountLinkFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.payout_account,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/payout-accounts",
     middlewares: [
+      requirePermission("payout_accounts", "edit"),
       validateAndTransformBody(VendorCreatePayoutAccount),
       validateAndTransformQuery(
         VendorGetPayoutAccountParams,
         vendorPayoutAccountQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.payout_account,
-        operation: PolicyOperation.create,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/payout-accounts/:id",
     middlewares: [
+      requirePermission("payout_accounts", "view"),
       validateAndTransformQuery(
         VendorGetPayoutAccountParams,
         vendorPayoutAccountQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.payout_account,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/payout-accounts/:id/onboarding",
     middlewares: [
+      requirePermission("payout_accounts", "edit"),
       validateAndTransformBody(VendorCreateOnboarding),
       validateAndTransformQuery(
         VendorGetPayoutAccountParams,
         vendorOnboardingQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.payout_account,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

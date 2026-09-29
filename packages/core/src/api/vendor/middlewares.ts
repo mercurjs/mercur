@@ -41,7 +41,7 @@ import { vendorShippingProfilesMiddlewares } from "./shipping-profiles/middlewar
 import { vendorStockLocationsMiddlewares } from "./stock-locations/middlewares"
 import { vendorStoresMiddlewares } from "./stores/middlewares"
 import { vendorUploadsMiddlewares } from "./uploads/middlewares"
-import { ensureSellerMiddleware, scanUnauthenticatedRoutes, unlessBaseUrl, vendorCorsMiddleware } from "../utils"
+import { ensureSellerMiddleware, resolvePermissionsMiddleware, scanUnauthenticatedRoutes, unlessBaseUrl, vendorCorsMiddleware } from "../utils"
 import { vendorProductAttributesMiddlewares } from "./product-attributes/middlewares"
 import { vendorProductTagsMiddlewares } from "./product-tags/middlewares"
 
@@ -99,6 +99,10 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
       unlessBaseUrl(
         sellerlessRoutes,
         ensureSellerMiddleware
+      ),
+      unlessBaseUrl(
+        sellerlessRoutes,
+        resolvePermissionsMiddleware("vendor")
       ),
     ],
   },

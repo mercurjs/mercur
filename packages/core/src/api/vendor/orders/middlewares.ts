@@ -1,5 +1,4 @@
-import { PolicyResource } from "../../utils/policy-resources"
-import { PolicyOperation } from "@medusajs/framework/utils"
+import { requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
@@ -42,157 +41,113 @@ const applySellerLinkFilter = (
 export const vendorOrdersMiddlewares: MiddlewareRoute[] = [
   {
     method: ["GET"],
+    matcher: "/vendor/orders/:id/commission-lines",
+    middlewares: [requirePermission("commission_lines", "view")],
+  },
+  {
+    method: ["GET"],
     matcher: "/vendor/orders",
     middlewares: [
+      requirePermission("orders", "view"),
       validateAndTransformQuery(
         VendorGetOrdersParams,
         vendorOrderQueryConfig.list
       ),
       applySellerLinkFilter,
     ],
-    policies: [
-      {
-        resource: PolicyResource.order,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/orders/:id",
     middlewares: [
+      requirePermission("orders", "view"),
       validateAndTransformQuery(
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.order,
-        operation: PolicyOperation.read,
-      },
-    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/orders/:id/preview",
-    middlewares: [],
-    policies: [
-      {
-        resource: PolicyResource.order,
-        operation: PolicyOperation.read,
-      },
+    middlewares: [
+      requirePermission("orders", "view"),
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/orders/:id/cancel",
     middlewares: [
+      requirePermission("orders", "edit"),
       validateAndTransformQuery(
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/orders/:id/complete",
     middlewares: [
+      requirePermission("orders", "edit"),
       validateAndTransformQuery(
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/orders/:id/changes",
     middlewares: [
+      requirePermission("orders", "view"),
       validateAndTransformQuery(
         VendorGetOrderChangesParams,
         vendorOrderChangesQueryConfig.list
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order,
-        operation: PolicyOperation.read,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/orders/:id/fulfillments",
     middlewares: [
+      requirePermission("orders", "edit"),
       validateAndTransformBody(VendorCreateFulfillment),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/orders/:id/fulfillments/:fulfillment_id/cancel",
     middlewares: [
+      requirePermission("orders", "edit"),
       validateAndTransformBody(VendorCancelFulfillment),
       validateAndTransformQuery(
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
       ),
     ],
-    policies: [
-      {
-        resource: PolicyResource.order,
-        operation: PolicyOperation.update,
-      },
-    ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/orders/:id/fulfillments/:fulfillment_id/mark-as-delivered",
     middlewares: [
+      requirePermission("orders", "edit"),
       validateAndTransformQuery(
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order,
-        operation: PolicyOperation.update,
-      },
     ],
   },
   {
     method: ["POST"],
     matcher: "/vendor/orders/:id/fulfillments/:fulfillment_id/shipments",
     middlewares: [
+      requirePermission("orders", "edit"),
       validateAndTransformBody(VendorCreateShipment),
       validateAndTransformQuery(
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve
       ),
-    ],
-    policies: [
-      {
-        resource: PolicyResource.order,
-        operation: PolicyOperation.update,
-      },
     ],
   },
 ]

@@ -24,7 +24,7 @@ export const UserListActions = ({
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <PermissionGuard resource="user" operation="create">
+        <PermissionGuard permission="users:edit">
           <Link to="invite">
             <Button size="small" variant="secondary">
               {t("users.invite")}

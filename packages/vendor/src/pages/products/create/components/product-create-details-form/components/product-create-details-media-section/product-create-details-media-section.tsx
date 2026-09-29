@@ -245,7 +245,7 @@ const MediaItem = ({ field, onDelete, onMakeThumbnail }: MediaItemProps) => {
               actions: [
                 {
                   icon: <Trash />,
-                  permission: "product:delete",
+                  permission: "products:manage",
                   label: t("actions.delete"),
                   onClick: onDelete,
                 },

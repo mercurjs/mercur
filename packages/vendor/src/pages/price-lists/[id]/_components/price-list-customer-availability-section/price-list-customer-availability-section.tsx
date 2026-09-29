@@ -40,7 +40,7 @@ export const PriceListCustomerAvailabilitySection = ({
             {
               actions: [
                 {
-                  permission: "price_list:update",
+                  permission: "price_lists:edit",
                   label: t("actions.edit"),
                   to: "customer-availability",
                   icon: <PencilSquare />,

@@ -13,7 +13,7 @@ export const OfferListActions = () => {
   const { t } = useTranslation()
 
   return (
-    <PermissionGuard resource="offer" operation="create">
+    <PermissionGuard permission="offers:edit">
       <Button size="small" variant="secondary" asChild>
         <Link to="create" data-testid="offer-list-create-button">
           {t("offers.actions.create")}

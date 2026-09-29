@@ -34,7 +34,7 @@ export const CustomerGroupListTitle = () => {
 export const CustomerGroupListCreateButton = () => {
   const { t } = useTranslation();
   return (
-    <PermissionGuard resource="customer_group" operation="create">
+    <PermissionGuard permission="customer_groups:edit">
       <Link to="/customer-groups/create" data-testid="customer-group-list-create-link">
         <Button size="small" variant="secondary" data-testid="customer-group-list-create-button">
           {t("actions.create")}
@@ -226,7 +226,7 @@ const CustomerGroupActions = ({
           actions: [
             {
               icon: <PencilSquare />,
-              permission: "customer_group:update",
+              permission: "customer_groups:edit",
               label: t("actions.edit"),
               to: `/customer-groups/${group.id}/edit`,
             },
@@ -236,7 +236,7 @@ const CustomerGroupActions = ({
           actions: [
             {
               icon: <Trash />,
-              permission: "customer_group:delete",
+              permission: "customer_groups:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
             },

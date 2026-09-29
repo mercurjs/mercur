@@ -54,7 +54,7 @@ export const ReturnReasonListTable = () => {
             {t("returnReasons.subtitle")}
           </Text>
         </div>
-        <PermissionGuard resource="return_reason" operation="create">
+        <PermissionGuard permission="return_reasons:edit">
           <Button variant="secondary" size="small" asChild data-testid="return-reason-list-table-create-button">
             <Link to="create">{t("actions.create")}</Link>
           </Button>
