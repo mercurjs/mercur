@@ -1,6 +1,9 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { MedusaContainer } from "@medusajs/framework/types"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import {
+  ContainerRegistrationKeys,
+  MedusaError,
+} from "@medusajs/framework/utils"
 import { StepResponse } from "@medusajs/framework/workflows-sdk"
 import {
   acceptMemberInviteWorkflow,
@@ -28,7 +31,10 @@ let acceptedPayload: {
 
 createSellerAccountWorkflow.hooks.validate(() => {
   if (rejectSignup) {
-    throw new Error("Signup rejected by plugin")
+    throw new MedusaError(
+      MedusaError.Types.NOT_ALLOWED,
+      "Signup rejected by plugin"
+    )
   }
 })
 
@@ -41,7 +47,10 @@ createSellerAccountWorkflow.hooks.sellerAccountCreated(
 
 acceptMemberInviteWorkflow.hooks.validate(() => {
   if (rejectInvite) {
-    throw new Error("Invite rejected by plugin")
+    throw new MedusaError(
+      MedusaError.Types.NOT_ALLOWED,
+      "Invite rejected by plugin"
+    )
   }
 })
 
@@ -164,7 +173,7 @@ medusaIntegrationTestRunner({
             )
             .catch((e) => e.response)
 
-          expect(response.status).toBeGreaterThanOrEqual(400)
+          expect(response.status).toEqual(400)
           expect(response.data.message).toContain("Signup rejected by plugin")
           expect(createdPayload).toBeNull()
           expect(
@@ -250,7 +259,7 @@ medusaIntegrationTestRunner({
             )
             .catch((e) => e.response)
 
-          expect(response.status).toBeGreaterThanOrEqual(400)
+          expect(response.status).toEqual(400)
           expect(response.data.message).toContain("Invite rejected by plugin")
           expect(acceptedPayload).toBeNull()
           expect(await countRows("member_invite", { id: invite.id })).toEqual(1)
