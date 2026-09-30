@@ -43,6 +43,7 @@ import {
   SEARCH_LIMIT_INCREMENT,
 } from "./constants";
 import { SearchArea } from "./types";
+import { useSearchAreaAccess } from "./use-search-area-access";
 import { useSearchResults } from "./use-search-results";
 import { useDocumentDirection } from "../../hooks/use-document-direction";
 
@@ -371,6 +372,7 @@ const CommandInput = forwardRef<
     const { t } = useTranslation();
     const innerRef = useRef<HTMLInputElement>(null);
     const direction = useDocumentDirection();
+    const canSearchArea = useSearchAreaAccess();
     useImperativeHandle<HTMLInputElement | null, HTMLInputElement | null>(
       ref,
       () => innerRef.current,
@@ -401,7 +403,7 @@ const CommandInput = forwardRef<
                 value={area}
                 onValueChange={(v) => setArea(v as SearchArea)}
               >
-                {SEARCH_AREAS.map((area) => (
+                {SEARCH_AREAS.filter(canSearchArea).map((area) => (
                   <Fragment key={area}>
                     {area === "command" && <DropdownMenu.Separator />}
                     <DropdownMenu.RadioItem value={area}>
