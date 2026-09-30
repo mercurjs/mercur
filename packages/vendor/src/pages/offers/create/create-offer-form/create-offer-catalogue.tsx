@@ -9,6 +9,7 @@ import {
 import { useMemo, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+import { isForbidden, SectionNoAccess } from "@mercurjs/dashboard-shared"
 
 import {
   CategoryCell,
@@ -106,6 +107,9 @@ const Root = () => {
   })
 
   if (isError) {
+    if (isForbidden(error)) {
+      return <SectionNoAccess />
+    }
     throw error
   }
 

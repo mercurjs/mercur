@@ -1,3 +1,4 @@
+import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
@@ -16,21 +17,36 @@ export function LocationServiceZoneShippingOptionPricing() {
     )
   }
 
+  const canViewShippingOptions = useCan("shipping_options")
   const {
     shipping_option: shippingOption,
     isError,
     error,
-  } = useShippingOption(so_id, {
-    fields: "*prices,*prices.price_rules",
-  })
+  } = useShippingOption(
+    so_id,
+    {
+      fields: "*prices,*prices.price_rules",
+    },
+    { enabled: canViewShippingOptions }
+  )
 
-  if (isError) {
+  const forbidden = !canViewShippingOptions || isForbidden(error)
+
+  if (isError && !forbidden) {
     throw error
   }
 
   return (
     <RouteFocusModal prev={`/settings/locations/${location_id}`} data-testid="location-shipping-option-pricing-modal">
-      {shippingOption && (
+      {forbidden && (
+        <>
+          <RouteFocusModal.Header />
+          <RouteFocusModal.Body>
+            <SectionNoAccess />
+          </RouteFocusModal.Body>
+        </>
+      )}
+      {!forbidden && shippingOption && (
         <EditShippingOptionsPricingForm shippingOption={shippingOption} />
       )}
     </RouteFocusModal>

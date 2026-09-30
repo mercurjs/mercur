@@ -11,6 +11,7 @@ import { useMemo, useRef, useState } from "react"
 import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { _DataTable } from "@components/table/data-table"
 import { useProducts } from "@hooks/api/products"
 import { useDataTable } from "@hooks/use-data-table"
@@ -66,6 +67,7 @@ export const PriceListPricesAddProductIdsForm = ({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
+  const canViewProducts = useCan("products")
   const { products, count, isLoading, isError, error } = useProducts(
     searchParams,
     { placeholderData: keepPreviousData }
@@ -122,6 +124,10 @@ export const PriceListPricesAddProductIdsForm = ({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
+
+  if (!canViewProducts || isForbidden(error)) {
+    return <SectionNoAccess />
+  }
 
   if (isError) {
     throw error

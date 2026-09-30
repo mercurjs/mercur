@@ -25,6 +25,7 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import i18n from "i18next";
 import * as zod from "zod";
+import { isForbidden, SectionNoAccess } from "@mercurjs/dashboard-shared";
 
 import { DataTable } from "../../../components/data-table";
 import { AttributeValueInput } from "../../../components/inputs/attribute-value-input";
@@ -157,6 +158,16 @@ const Content = ({ productId }: { productId: string }) => {
   const columns = useColumns();
 
   if (isError) {
+    if (isForbidden(error)) {
+      return (
+        <>
+          <RouteFocusModal.Body>
+            <SectionNoAccess />
+          </RouteFocusModal.Body>
+        </>
+      );
+    }
+
     throw error;
   }
 

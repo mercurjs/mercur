@@ -13,7 +13,7 @@ import { SectionRow } from "../../../../../components/common/section/section-row
 
 type RegionGeneralSectionProps = {
   region: HttpTypes.AdminRegion
-  pricePreferences: HttpTypes.AdminPricePreference[]
+  pricePreferences?: HttpTypes.AdminPricePreference[]
 }
 
 export const RegionGeneralSection = ({
@@ -53,15 +53,17 @@ export const RegionGeneralSection = ({
         data-testid="region-general-section-automatic-taxes"
       />
 
-      <SectionRow
-        title={t("fields.taxInclusivePricing")}
-        value={
-          pricePreferenceForRegion?.is_tax_inclusive
-            ? t("fields.true")
-            : t("fields.false")
-        }
-        data-testid="region-general-section-tax-inclusive-pricing"
-      />
+      {pricePreferences && (
+        <SectionRow
+          title={t("fields.taxInclusivePricing")}
+          value={
+            pricePreferenceForRegion?.is_tax_inclusive
+              ? t("fields.true")
+              : t("fields.false")
+          }
+          data-testid="region-general-section-tax-inclusive-pricing"
+        />
+      )}
 
       <SectionRow
         title={t("fields.paymentProviders")}

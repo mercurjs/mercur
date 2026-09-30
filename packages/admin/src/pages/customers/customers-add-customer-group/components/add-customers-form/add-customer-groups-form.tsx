@@ -24,6 +24,7 @@ import { useCustomerGroupTableFilters } from "../../../../../hooks/table/filters
 import { useCustomerGroupTableQuery } from "../../../../../hooks/table/query/use-customer-group-table-query";
 import { useDataTable } from "../../../../../hooks/use-data-table";
 import { ClientError } from "@mercurjs/client";
+import { isForbidden, SectionNoAccess } from "@mercurjs/dashboard-shared";
 
 type AddCustomerGroupsFormProps = {
   customerId: string;
@@ -140,6 +141,17 @@ export const AddCustomerGroupsForm = ({
   });
 
   if (isError) {
+    if (isForbidden(error)) {
+      return (
+        <>
+          <RouteFocusModal.Header />
+          <RouteFocusModal.Body>
+            <SectionNoAccess />
+          </RouteFocusModal.Body>
+        </>
+      );
+    }
+
     throw error;
   }
 

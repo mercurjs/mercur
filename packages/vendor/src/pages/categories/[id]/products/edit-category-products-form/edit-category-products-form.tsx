@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { isForbidden, SectionNoAccess } from "@mercurjs/dashboard-shared"
 
 import { Button, Checkbox, Hint, Tooltip, toast } from "@medusajs/ui"
 import {
@@ -132,6 +133,16 @@ export const EditCategoryProductsForm = ({
   })
 
   if (isError) {
+    if (isForbidden(error)) {
+      return (
+        <>
+          <RouteFocusModal.Header />
+          <RouteFocusModal.Body>
+            <SectionNoAccess />
+          </RouteFocusModal.Body>
+        </>
+      )
+    }
     throw error
   }
 

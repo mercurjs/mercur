@@ -3,7 +3,11 @@ import { type ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useExtendableTable } from "@mercurjs/dashboard-shared"
+import {
+  isForbidden,
+  SectionNoAccess,
+  useExtendableTable,
+} from "@mercurjs/dashboard-shared"
 
 import { _DataTable } from "../../../components/table/data-table"
 import { useDataTable } from "../../../hooks/use-data-table"
@@ -51,6 +55,9 @@ export const OfferListDataTable = () => {
   })
 
   if (isError) {
+    if (isForbidden(error)) {
+      return <SectionNoAccess />
+    }
     throw error
   }
 

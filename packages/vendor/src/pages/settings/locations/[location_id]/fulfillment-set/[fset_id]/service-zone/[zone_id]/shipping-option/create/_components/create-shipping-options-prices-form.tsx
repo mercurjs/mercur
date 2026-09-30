@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 
+import { isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { DataGrid } from "@components/data-grid"
 import {
   StackedFocusModal,
@@ -55,8 +56,10 @@ export const CreateShippingOptionsPricesForm = ({
     [currency_code]
   )
 
+  const canViewRegions = useCan("regions")
+
   const {
-    regions,
+    regions: fetchedRegions,
     isLoading: isRegionsLoading,
     isError: isRegionsError,
     error: regionsError,
@@ -64,6 +67,14 @@ export const CreateShippingOptionsPricesForm = ({
     fields: "id,name,currency_code",
     limit: 999,
   })
+
+  const isRegionsNoAccess = !canViewRegions || isForbidden(regionsError)
+
+  // Without region access the option is still priceable per currency.
+  const regions = useMemo(
+    () => (isRegionsNoAccess ? [] : fetchedRegions),
+    [isRegionsNoAccess, fetchedRegions]
+  )
 
   const { setCloseOnEscape } = useRouteModal()
 
@@ -117,7 +128,7 @@ export const CreateShippingOptionsPricesForm = ({
     throw sellerError
   }
 
-  if (isRegionsError) {
+  if (isRegionsError && !isRegionsNoAccess) {
     throw regionsError
   }
 

@@ -1,5 +1,9 @@
 import { OfferDTO } from "@mercurjs/types"
-import { buildOfferGridData } from "@mercurjs/dashboard-shared"
+import {
+  buildOfferGridData,
+  isForbidden,
+  usePermissions,
+} from "@mercurjs/dashboard-shared"
 import { useMemo } from "react"
 
 import { useOffers } from "@hooks/api/offers"
@@ -43,13 +47,17 @@ export const usePriceListEditGrid = (
     return Array.from(set)
   }, [price_list])
 
-  const { offers: pricedOffers } = useOffers(
+  const { can } = usePermissions()
+  const canViewOffers = can("offers")
+  const canViewProducts = can("products")
+
+  const { offers: pricedOffers, error: pricedOffersError } = useOffers(
     {
       id: offerIds,
       limit: offerIds.length || 1,
       fields: "id,product_id",
     },
-    { enabled: offerIds.length > 0 }
+    { enabled: offerIds.length > 0 && canViewOffers }
   )
 
   const pricedProductIds = useMemo(() => {
@@ -62,13 +70,13 @@ export const usePriceListEditGrid = (
 
   // Vendor offers are auto seller-scoped by the API; fetch them all and filter
   // to the priced products client-side (the route has no product_id filter).
-  const { offers: allOffers } = useOffers(
+  const { offers: allOffers, error: allOffersError } = useOffers(
     {
       limit: 1000,
       fields:
         "id,variant_id,product_id,sku,product.title,product.thumbnail",
     },
-    { enabled: pricedProductIds.size > 0 }
+    { enabled: pricedProductIds.size > 0 && canViewOffers }
   )
 
   const scopedOffers = useMemo(() => {
@@ -96,7 +104,7 @@ export const usePriceListEditGrid = (
       limit: productIds.length || 1,
       fields: "id,*variants",
     },
-    { enabled: productIds.length > 0 }
+    { enabled: productIds.length > 0 && canViewProducts }
   )
 
   const { gridData, variantIdByOffer } = useMemo(
@@ -119,7 +127,15 @@ export const usePriceListEditGrid = (
     (allOffers !== undefined &&
       (productIds.length === 0 || products !== undefined))
 
+  const isNoAccess =
+    currencyData.isNoAccess ||
+    (offerIds.length > 0 && (!canViewOffers || !canViewProducts)) ||
+    isForbidden(pricedOffersError) ||
+    isForbidden(allOffersError) ||
+    isForbidden(productError)
+
   const ready =
+    !isNoAccess &&
     currencyData.isReady &&
     !isLoading &&
     !!price_list &&
@@ -132,9 +148,10 @@ export const usePriceListEditGrid = (
     variantIdByOffer,
     currencyData,
     ready,
+    isNoAccess,
     isError,
     error,
-    isProductsError,
+    isProductsError: isProductsError && !isForbidden(productError),
     productError,
   }
 }

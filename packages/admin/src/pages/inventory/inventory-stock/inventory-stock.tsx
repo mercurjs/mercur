@@ -1,4 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
+import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { useSearchParams } from "react-router-dom"
 import { RouteFocusModal } from "../../../components/modals"
@@ -8,6 +9,7 @@ import { InventoryStockForm } from "./components/inventory-stock-form"
 
 export const InventoryStock = () => {
   const { t } = useTranslation()
+  const canViewLocations = useCan("stock_locations")
   const [searchParams] = useSearchParams()
   const inventoryItemIds =
     searchParams.get(INVENTORY_ITEM_IDS_KEY)?.split(",") || undefined
@@ -22,10 +24,13 @@ export const InventoryStock = () => {
     isPending: isPendingStockLocations,
     isError: isErrorStockLocations,
     error: errorStockLocations,
-  } = useStockLocations({
-    limit: 9999,
-    fields: "id,name,seller.id",
-  })
+  } = useStockLocations(
+    {
+      limit: 9999,
+      fields: "id,name,seller.id",
+    },
+    { enabled: canViewLocations }
+  )
 
   const ready =
     !isPending &&
@@ -37,7 +42,11 @@ export const InventoryStock = () => {
     throw error
   }
 
-  if (isErrorStockLocations) {
+  const noAccess =
+    !canViewLocations ||
+    (isErrorStockLocations && isForbidden(errorStockLocations))
+
+  if (isErrorStockLocations && !noAccess) {
     throw errorStockLocations
   }
 
@@ -62,6 +71,14 @@ export const InventoryStock = () => {
       <RouteFocusModal.Description asChild>
         <span className="sr-only">{t("inventory.stock.description")}</span>
       </RouteFocusModal.Description>
+      {noAccess && (
+        <>
+          <RouteFocusModal.Header />
+          <RouteFocusModal.Body>
+            <SectionNoAccess />
+          </RouteFocusModal.Body>
+        </>
+      )}
       {ready && (
         <InventoryStockForm items={inventory_items} locations={scopedLocations} />
       )}

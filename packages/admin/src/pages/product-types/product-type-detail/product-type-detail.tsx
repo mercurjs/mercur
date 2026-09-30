@@ -1,7 +1,7 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { PermissionGuard, WidgetZone } from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { useProductType } from "../../../hooks/api/product-types"
@@ -40,7 +40,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
     <SingleColumnPage showJSON showMetadata data={product_type}>
       <WidgetZone id="product-types.detail.main" data={product_type}>
         <ProductTypeGeneralSection productType={product_type} />
-        <ProductTypeProductSection productType={product_type} />
+        <PermissionGuard permission="products:view">
+          <ProductTypeProductSection productType={product_type} />
+        </PermissionGuard>
       </WidgetZone>
     </SingleColumnPage>
   )

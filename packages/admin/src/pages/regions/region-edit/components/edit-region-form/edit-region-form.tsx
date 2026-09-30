@@ -21,7 +21,7 @@ import { sdk } from "../../../../../lib/client/index.ts";
 type EditRegionFormProps = {
   region: HttpTypes.AdminRegion;
   currencies: CurrencyInfo[];
-  pricePreferences: HttpTypes.AdminPricePreference[];
+  pricePreferences?: HttpTypes.AdminPricePreference[];
 };
 
 const EditRegionSchema = zod.object({
@@ -79,7 +79,9 @@ export const EditRegionForm = ({
         automatic_taxes: values.automatic_taxes,
         currency_code: values.currency_code.toLowerCase(),
         payment_providers: values.payment_providers,
-        is_tax_inclusive: values.is_tax_inclusive,
+        is_tax_inclusive: pricePreferences
+          ? values.is_tax_inclusive
+          : undefined,
       },
       {
         onSuccess: () => {
@@ -217,6 +219,7 @@ export const EditRegionForm = ({
                               {...field}
                               checked={value}
                               onCheckedChange={onChange}
+                              disabled={!pricePreferences}
                               data-testid="region-edit-form-tax-inclusive-switch"
                             />
                           </Form.Control>

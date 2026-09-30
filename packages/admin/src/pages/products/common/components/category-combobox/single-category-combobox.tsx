@@ -6,6 +6,7 @@ import {
 } from "@medusajs/icons"
 import { AdminProductCategoryResponse } from "@medusajs/types"
 import { Divider, Text, clx } from "@medusajs/ui"
+import { isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { Popover as RadixPopover } from "radix-ui"
 import {
   ComponentPropsWithoutRef,
@@ -46,7 +47,8 @@ type ProductCategoryOption = {
 export const SingleCategoryCombobox = forwardRef<
   HTMLInputElement,
   SingleCategoryComboboxProps
->(({ value, onChange, className, ...props }, ref) => {
+>(({ value, onChange, className, disabled, ...props }, ref) => {
+  const canViewCategories = useCan("product_categories")
   const innerRef = useRef<HTMLInputElement>(null)
 
   useImperativeHandle<HTMLInputElement | null, HTMLInputElement | null>(
@@ -70,16 +72,16 @@ export const SingleCategoryCombobox = forwardRef<
         include_descendants_tree: !searchValue ? true : false,
       },
       {
-        enabled: open,
+        enabled: open && canViewCategories,
       }
     )
 
   // Fetch the selected category name for display
   const { product_categories: selectedCategories } = useProductCategories(
     { id: value ? [value] : [] },
-    { enabled: !!value }
+    { enabled: !!value && canViewCategories }
   )
-  const selectedLabel = selectedCategories?.[0]?.name ?? null
+  const selectedLabel = selectedCategories?.[0]?.name ?? value
 
   const [showLoading, setShowLoading] = useState(false)
 
@@ -146,6 +148,10 @@ export const SingleCategoryCombobox = forwardRef<
   )
 
   function handleOpenChange(open: boolean) {
+    if (open && !canViewCategories) {
+      return
+    }
+
     if (!open) {
       onSearchValueChange("")
       setLevel([])
@@ -230,7 +236,7 @@ export const SingleCategoryCombobox = forwardRef<
     }
   }, [handleKeyDown])
 
-  if (isError) {
+  if (isError && !isForbidden(error)) {
     throw error
   }
 
@@ -282,9 +288,11 @@ export const SingleCategoryCombobox = forwardRef<
               }
             )}
             {...props}
+            disabled={disabled || !canViewCategories}
           />
           <button
             type="button"
+            disabled={disabled || !canViewCategories}
             onClick={() => handleOpenChange(true)}
             className="text-ui-fg-muted transition-fg hover:bg-ui-bg-field-hover absolute end-0 flex size-8 items-center justify-center rounded-r outline-none"
           >

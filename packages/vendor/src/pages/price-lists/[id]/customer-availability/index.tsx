@@ -2,6 +2,7 @@ import { Heading } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
+import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared";
 import { RouteDrawer } from "@components/modals";
 import { useCustomerGroups } from "@hooks/api/customer-groups";
 import { usePriceList } from "@hooks/api/price-lists";
@@ -18,6 +19,8 @@ export const Component = () => {
     | string[]
     | undefined;
 
+  const canViewCustomerGroups = useCan("customer_groups");
+
   const {
     customer_groups,
     isPending: isCustomerGroupsPending,
@@ -27,7 +30,7 @@ export const Component = () => {
     {
       id: customerGroupIds,
     },
-    { enabled: !!customerGroupIds?.length }
+    { enabled: !!customerGroupIds?.length && canViewCustomerGroups }
   );
 
   const initialCustomerGroups =
@@ -40,13 +43,18 @@ export const Component = () => {
     ? false
     : !(!!customerGroupIds?.length && isCustomerGroupsPending);
 
-  const ready = !isPending && !!price_list && isCustomerGroupsReady;
+  const isNoAccess =
+    (!!customerGroupIds?.length && !canViewCustomerGroups) ||
+    isForbidden(customerGroupsError);
+
+  const ready =
+    !isPending && !!price_list && isCustomerGroupsReady && !isNoAccess;
 
   if (isError) {
     throw error;
   }
 
-  if (isCustomerGroupsError) {
+  if (isCustomerGroupsError && !isNoAccess) {
     throw customerGroupsError;
   }
 
@@ -57,6 +65,7 @@ export const Component = () => {
           <Heading>{t("priceLists.customerAvailability.edit.header")}</Heading>
         </RouteDrawer.Title>
       </RouteDrawer.Header>
+      {isNoAccess && <SectionNoAccess />}
       {ready && (
         <PriceListCustomerAvailabilityForm
           priceList={price_list}

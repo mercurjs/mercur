@@ -1,5 +1,6 @@
 import type { HttpTypes } from "@medusajs/types"
 import { Button, Checkbox } from "@medusajs/ui"
+import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import {
   OnChangeFn,
@@ -279,10 +280,12 @@ const ProductTable = ({
     prefix: PREFIX_PRODUCT,
   })
 
+  const canViewTargets = useCan("products")
   const { products, count, isLoading, isError, error } = useProducts(
     searchParams,
     {
       placeholderData: keepPreviousData,
+      enabled: canViewTargets,
     }
   )
 
@@ -328,6 +331,10 @@ const ProductTable = ({
     pageSize: PAGE_SIZE,
     prefix: PREFIX_PRODUCT,
   })
+
+  if (!canViewTargets || isForbidden(error)) {
+    return <SectionNoAccess />
+  }
 
   if (isError) {
     throw error
@@ -552,10 +559,12 @@ const ProductTypeTable = ({
     prefix: PREFIX_PRODUCT_TYPE,
   })
 
+  const canViewTargets = useCan("product_types")
   const { product_types, count, isLoading, isError, error } = useProductTypes(
     searchParams,
     {
       placeholderData: keepPreviousData,
+      enabled: canViewTargets,
     }
   )
 
@@ -601,6 +610,10 @@ const ProductTypeTable = ({
     pageSize: PAGE_SIZE,
     prefix: PREFIX_PRODUCT_TYPE,
   })
+
+  if (!canViewTargets || isForbidden(error)) {
+    return <SectionNoAccess />
+  }
 
   if (isError) {
     throw error
@@ -688,6 +701,7 @@ const ShippingOptionTable = ({
     prefix: PREFIX_SHIPPING_OPTION,
   })
 
+  const canViewTargets = useCan("shipping_options")
   const { shipping_options, count, isLoading, isError, error } =
     useShippingOptions(
       {
@@ -696,6 +710,7 @@ const ShippingOptionTable = ({
       },
       {
         placeholderData: keepPreviousData,
+        enabled: canViewTargets,
       }
     )
 
@@ -745,6 +760,10 @@ const ShippingOptionTable = ({
     pageSize: PAGE_SIZE,
     prefix: PREFIX_SHIPPING_OPTION,
   })
+
+  if (!canViewTargets || isForbidden(error)) {
+    return <SectionNoAccess />
+  }
 
   if (isError) {
     throw error

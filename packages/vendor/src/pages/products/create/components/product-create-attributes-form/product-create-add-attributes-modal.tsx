@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-table"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { isForbidden, SectionNoAccess } from "@mercurjs/dashboard-shared"
 
 import { StackedFocusModal, useStackedModal } from "@components/modals"
 import { _DataTable } from "@components/table/data-table"
@@ -207,6 +208,16 @@ export const ProductCreateAddAttributesModal = () => {
   })
 
   if (isError) {
+    if (isForbidden(error)) {
+      return (
+        <StackedFocusModal.Content className="flex flex-col overflow-hidden">
+          <StackedFocusModal.Header />
+          <StackedFocusModal.Body>
+            <SectionNoAccess />
+          </StackedFocusModal.Body>
+        </StackedFocusModal.Content>
+      )
+    }
     throw error
   }
 

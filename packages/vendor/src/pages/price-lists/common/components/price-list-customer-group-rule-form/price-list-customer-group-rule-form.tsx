@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-table"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { StackedDrawer } from "@components/modals/stacked-drawer"
 import { StackedFocusModal } from "@components/modals/stacked-focus-modal"
 import { _DataTable } from "@components/table/data-table"
@@ -66,11 +67,13 @@ export const PriceListCustomerGroupRuleForm = ({
       : raw.order
     : undefined
 
+  const canViewCustomerGroups = useCan("customer_groups")
   const { customer_groups: customerGroupsData, count, isLoading, isError, error } =
     useCustomerGroups(
       { ...searchParams, fields: "id,name,customers.id" },
       {
         placeholderData: keepPreviousData,
+        enabled: canViewCustomerGroups,
       },
       sortParam ? { sort: sortParam } : undefined
     )
@@ -126,31 +129,37 @@ export const PriceListCustomerGroupRuleForm = ({
 
   const Component = type === "focus" ? StackedFocusModal : StackedDrawer
 
-  if (isError) {
+  const isNoAccess = !canViewCustomerGroups || isForbidden(error)
+
+  if (isError && !isNoAccess) {
     throw error
   }
 
   return (
     <div className="flex size-full flex-col overflow-hidden">
       <Component.Body className="min-h-0 p-0">
-        <_DataTable
-          table={table}
-          columns={columns}
-          pageSize={PAGE_SIZE}
-          count={count}
-          isLoading={isLoading}
-          filters={filters}
-          layout="fill"
-          pagination
-          search
-          prefix={PREFIX}
-          queryObject={raw}
-          orderBy={[
-            { key: "name", label: t("fields.name") },
-            { key: "created_at", label: t("fields.createdAt") },
-            { key: "updated_at", label: t("fields.updatedAt") },
-          ]}
-        />
+        {isNoAccess ? (
+          <SectionNoAccess />
+        ) : (
+          <_DataTable
+            table={table}
+            columns={columns}
+            pageSize={PAGE_SIZE}
+            count={count}
+            isLoading={isLoading}
+            filters={filters}
+            layout="fill"
+            pagination
+            search
+            prefix={PREFIX}
+            queryObject={raw}
+            orderBy={[
+              { key: "name", label: t("fields.name") },
+              { key: "created_at", label: t("fields.createdAt") },
+              { key: "updated_at", label: t("fields.updatedAt") },
+            ]}
+          />
+        )}
       </Component.Body>
       <Component.Footer>
         <Component.Close asChild>

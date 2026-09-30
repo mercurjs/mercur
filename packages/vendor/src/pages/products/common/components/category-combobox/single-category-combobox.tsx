@@ -7,6 +7,7 @@ import {
 import { AdminProductCategoryResponse } from "@medusajs/types"
 import { Divider, Text, clx } from "@medusajs/ui"
 import { Popover as RadixPopover } from "radix-ui"
+import { isForbidden, SectionNoAccess } from "@mercurjs/dashboard-shared"
 import {
   ComponentPropsWithoutRef,
   Fragment,
@@ -230,6 +231,9 @@ export const SingleCategoryCombobox = forwardRef<
   }, [handleKeyDown])
 
   if (isError) {
+    if (isForbidden(error)) {
+      return <SectionNoAccess className="" />
+    }
     throw error
   }
 

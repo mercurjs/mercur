@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { HttpTypes, SalesChannelDTO } from "@medusajs/types"
 import { Button, Checkbox, Hint, Tooltip, toast } from "@medusajs/ui"
+import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import {
   OnChangeFn,
@@ -64,6 +65,7 @@ export const AddProductsToSalesChannelForm = ({
   }
 
   const { searchParams, raw } = useProductTableQuery({ pageSize: PAGE_SIZE })
+  const canViewProducts = useCan("products")
   const {
     products,
     count,
@@ -77,6 +79,7 @@ export const AddProductsToSalesChannelForm = ({
     },
     {
       placeholderData: keepPreviousData,
+      enabled: canViewProducts,
     }
   )
 
@@ -113,6 +116,17 @@ export const AddProductsToSalesChannelForm = ({
       onError: (error) => toast.error(error.message),
     })
   })
+
+  if (!canViewProducts || isForbidden(error)) {
+    return (
+      <>
+        <RouteFocusModal.Header />
+        <RouteFocusModal.Body>
+          <SectionNoAccess />
+        </RouteFocusModal.Body>
+      </>
+    )
+  }
 
   if (isError) {
     throw error

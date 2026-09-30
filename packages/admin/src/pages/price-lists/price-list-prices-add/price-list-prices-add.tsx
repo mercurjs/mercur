@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom"
 import { RouteFocusModal } from "../../../components/modals"
 import { TabbedForm } from "../../../components/tabbed-form/tabbed-form"
 import { usePriceList } from "../../../hooks/api"
+import { SectionNoAccess } from "@mercurjs/dashboard-shared"
 import { usePriceListCurrencyData } from "../common/hooks/use-price-list-currency-data"
 import {
   PriceListPricesAddForm,
@@ -29,6 +30,14 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
   return (
     <RouteFocusModal prev={`/price-lists/${id}`}>
+      {currencyData.isForbidden && (
+        <>
+          <RouteFocusModal.Header />
+          <RouteFocusModal.Body>
+            <SectionNoAccess />
+          </RouteFocusModal.Body>
+        </>
+      )}
       {ready && (
         Children.count(children) > 0 ? (
           children

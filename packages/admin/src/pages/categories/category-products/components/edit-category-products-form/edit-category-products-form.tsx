@@ -15,6 +15,7 @@ import {
   RouteFocusModal,
   useRouteModal,
 } from "../../../../../components/modals"
+import { isForbidden, SectionNoAccess } from "@mercurjs/dashboard-shared"
 import { _DataTable } from "../../../../../components/table/data-table"
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useUpdateProductCategoryProducts } from "../../../../../hooks/api/categories"
@@ -132,6 +133,17 @@ export const EditCategoryProductsForm = ({
   })
 
   if (isError) {
+    if (isForbidden(error)) {
+      return (
+        <>
+          <RouteFocusModal.Header />
+          <RouteFocusModal.Body>
+            <SectionNoAccess />
+          </RouteFocusModal.Body>
+        </>
+      )
+    }
+
     throw error
   }
 

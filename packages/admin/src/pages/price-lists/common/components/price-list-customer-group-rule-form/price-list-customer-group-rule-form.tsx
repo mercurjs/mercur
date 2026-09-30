@@ -1,5 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { Button, Checkbox } from "@medusajs/ui"
+import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import {
   OnChangeFn,
@@ -58,11 +59,13 @@ export const PriceListCustomerGroupRuleForm = ({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
+  const canViewCustomerGroups = useCan("customer_groups")
   const { customer_groups, count, isLoading, isError, error } =
     useCustomerGroups(
       { ...searchParams, fields: "id,name,customers.id" },
       {
         placeholderData: keepPreviousData,
+        enabled: canViewCustomerGroups,
       }
     )
 
@@ -111,6 +114,23 @@ export const PriceListCustomerGroupRuleForm = ({
   })
 
   const Component = type === "focus" ? StackedFocusModal : StackedDrawer
+
+  if (!canViewCustomerGroups || isForbidden(error)) {
+    return (
+      <div className="flex size-full flex-col overflow-hidden">
+        <Component.Body className="min-h-0 p-0">
+          <SectionNoAccess />
+        </Component.Body>
+        <Component.Footer>
+          <Component.Close asChild>
+            <Button variant="secondary" size="small" type="button">
+              {t("actions.cancel")}
+            </Button>
+          </Component.Close>
+        </Component.Footer>
+      </div>
+    )
+  }
 
   if (isError) {
     throw error

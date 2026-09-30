@@ -7,6 +7,7 @@ import {
   DataTableRowSelectionState,
   toast,
 } from "@medusajs/ui"
+import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -68,12 +69,14 @@ export const LocationEditSalesChannelsForm = ({
     prefix: PREFIX,
   })
 
+  const canViewSalesChannels = useCan("sales_channels")
   const { sales_channels, count, isPending, isError, error } = useSalesChannels(
     {
       ...searchParams,
     },
     {
       placeholderData: keepPreviousData,
+      enabled: canViewSalesChannels,
     }
   )
 
@@ -105,6 +108,17 @@ export const LocationEditSalesChannelsForm = ({
       }
     )
   })
+
+  if (!canViewSalesChannels || isForbidden(error)) {
+    return (
+      <>
+        <RouteFocusModal.Header />
+        <RouteFocusModal.Body>
+          <SectionNoAccess />
+        </RouteFocusModal.Body>
+      </>
+    )
+  }
 
   if (isError) {
     throw error

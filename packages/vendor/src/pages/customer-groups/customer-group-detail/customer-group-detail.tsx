@@ -3,7 +3,11 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { SingleColumnPageSkeleton } from "@components/common/skeleton";
 import { SingleColumnPage } from "@components/layout/pages";
-import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared";
+import {
+  PermissionGuard,
+  useLinkQuery,
+  WidgetZone,
+} from "@mercurjs/dashboard-shared";
 import { useCustomerGroup } from "@hooks/api/customer-groups";
 
 import { CustomerGroupCustomerSection } from "./components/customer-group-customer-section";
@@ -40,7 +44,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
     <SingleColumnPage showJSON data={customer_group} hasOutlet>
       <WidgetZone id="customer-groups.detail.main" data={customer_group}>
         <CustomerGroupGeneralSection group={customer_group} />
-        <CustomerGroupCustomerSection group={customer_group} />
+        <PermissionGuard permission="customers:view">
+          <CustomerGroupCustomerSection group={customer_group} />
+        </PermissionGuard>
       </WidgetZone>
     </SingleColumnPage>
   );

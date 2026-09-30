@@ -18,6 +18,11 @@ import { ComponentPropsWithoutRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ClientError } from "@mercurjs/client"
+import {
+  isForbidden,
+  usePermissions,
+} from "@mercurjs/dashboard-shared"
+import type { PermissionKey } from "@mercurjs/dashboard-sdk"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { useProductTypes } from "../../../../../hooks/api/product-types"
 import { useProducts } from "../../../../../hooks/api/products"
@@ -225,11 +230,24 @@ const ReferenceValues = ({
   ids: string[]
 }) => {
   const { t } = useTranslation()
+  const { can } = usePermissions()
 
   const { isPending, additional, labels, isError, error } = useReferenceValues(
     type,
     ids
   )
+
+  const badge = (
+    <Badge size="2xsmall">
+      {t("taxRegions.fields.targets.values", {
+        count: ids.length,
+      })}
+    </Badge>
+  )
+
+  if (!can(REFERENCE_PERMISSION_KEY[type]) || isForbidden(error)) {
+    return badge
+  }
 
   if (isError) {
     throw error
@@ -258,14 +276,17 @@ const ReferenceValues = ({
         </ul>
       }
     >
-      <Badge size="2xsmall">
-        {t("taxRegions.fields.targets.values", {
-          count: ids.length,
-        })}
-      </Badge>
+      {badge}
     </Tooltip>
   )
 }
+
+const REFERENCE_PERMISSION_KEY: Record<TaxRateRuleReferenceType, PermissionKey> =
+  {
+    [TaxRateRuleReferenceType.PRODUCT]: "products",
+    [TaxRateRuleReferenceType.PRODUCT_TYPE]: "product_types",
+    [TaxRateRuleReferenceType.SHIPPING_OPTION]: "shipping_options",
+  }
 
 const useReferenceValues = (
   type: TaxRateRuleReferenceType,
@@ -277,13 +298,18 @@ const useReferenceValues = (
   isError: boolean
   error: ClientError | null
 } => {
+  const { can } = usePermissions()
+
   const products = useProducts(
     {
       id: ids,
       limit: 10,
     },
     {
-      enabled: !!ids.length && type === TaxRateRuleReferenceType.PRODUCT,
+      enabled:
+        !!ids.length &&
+        type === TaxRateRuleReferenceType.PRODUCT &&
+        can("products"),
     }
   )
 
@@ -303,7 +329,10 @@ const useReferenceValues = (
       limit: 10,
     },
     {
-      enabled: !!ids.length && type === TaxRateRuleReferenceType.PRODUCT_TYPE,
+      enabled:
+        !!ids.length &&
+        type === TaxRateRuleReferenceType.PRODUCT_TYPE &&
+        can("product_types"),
     }
   )
 
@@ -314,7 +343,9 @@ const useReferenceValues = (
     },
     {
       enabled:
-        !!ids.length && type === TaxRateRuleReferenceType.SHIPPING_OPTION,
+        !!ids.length &&
+        type === TaxRateRuleReferenceType.SHIPPING_OPTION &&
+        can("shipping_options"),
     }
   )
   // const collections = useCollections(

@@ -13,6 +13,7 @@ import {
   Text,
   Tooltip,
 } from "@medusajs/ui"
+import { isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { format } from "date-fns"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
@@ -185,7 +186,8 @@ const Fulfillment = ({
 }) => {
   const { t } = useTranslation()
 
-  const showLocation = !!fulfillment.location_id
+  const canViewLocations = useCan("stock_locations")
+  const showLocation = !!fulfillment.location_id && canViewLocations
   const isPickUpFulfillment =
     fulfillment.shipping_option?.service_zone.fulfillment_set.type ===
     FulfillmentSetType.Pickup
@@ -220,7 +222,7 @@ const Fulfillment = ({
     statusTimestamp = fulfillment.shipped_at
   }
 
-  if (isError) {
+  if (isError && !isForbidden(error)) {
     throw error
   }
 
@@ -266,7 +268,11 @@ const Fulfillment = ({
           <Text size="small" leading="compact" weight="plus">
             {t("orders.fulfillment.shippingFromLabel")}
           </Text>
-          {stock_location ? (
+          {isError ? (
+            <Text size="small" leading="compact">
+              {fulfillment.location_id}
+            </Text>
+          ) : stock_location ? (
             <Link
               to={`/settings/locations/${stock_location.id}`}
               className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover transition-fg"

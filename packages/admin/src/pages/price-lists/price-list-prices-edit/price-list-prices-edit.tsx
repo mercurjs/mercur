@@ -2,6 +2,7 @@ import { useMemo } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
 import { PriceListPricesEditForm } from "./components/price-list-prices-edit-form"
 import { usePriceList, useProducts } from "@hooks/api"
+import { SectionNoAccess, isForbidden, usePermissions } from "@mercurjs/dashboard-shared"
 import { OfferDTO } from "@mercurjs/types"
 import { useOffers } from "../../../hooks/api/offers"
 import { RouteFocusModal } from "@components/modals"
@@ -13,6 +14,10 @@ export const PriceListPricesEdit = () => {
   const [searchParams] = useSearchParams()
   const ids = searchParams.get("ids[]")
   const productFilter = useMemo(() => (ids ? ids.split(",") : undefined), [ids])
+
+  const { can } = usePermissions()
+  const canViewOffers = can("offers")
+  const canViewProducts = can("products")
 
   const { price_list, isLoading, isError, error } = usePriceList(id!, {
     fields:
@@ -41,7 +46,7 @@ export const PriceListPricesEdit = () => {
       limit: offerIds.length || 1,
       fields: "id,seller_id,product_id",
     },
-    { enabled: offerIds.length > 0 }
+    { enabled: offerIds.length > 0 && canViewOffers }
   )
 
   const { pairs, sellerIds } = useMemo(() => {
@@ -61,7 +66,7 @@ export const PriceListPricesEdit = () => {
       fields:
         "id,variant_id,product_id,seller_id,sku,seller.name,product.title,product.thumbnail",
     },
-    { enabled: sellerIds.length > 0 }
+    { enabled: sellerIds.length > 0 && canViewOffers }
   )
 
   const scopedOffers = useMemo(() => {
@@ -89,7 +94,7 @@ export const PriceListPricesEdit = () => {
       limit: productIds.length || 1,
       fields: "id,*variants",
     },
-    { enabled: productIds.length > 0 }
+    { enabled: productIds.length > 0 && canViewProducts }
   )
 
   const { gridData, variantIdByOffer } = useMemo(
@@ -114,7 +119,13 @@ export const PriceListPricesEdit = () => {
     throw error
   }
 
-  if (isProductsError) {
+  const forbidden =
+    currencyData.isForbidden ||
+    !canViewOffers ||
+    !canViewProducts ||
+    isForbidden(productError)
+
+  if (isProductsError && !forbidden) {
     throw productError
   }
 
@@ -126,7 +137,15 @@ export const PriceListPricesEdit = () => {
       <RouteFocusModal.Description className="sr-only">
         Update prices for offers in the price list
       </RouteFocusModal.Description>
-      {ready && (
+      {forbidden && (
+        <>
+          <RouteFocusModal.Header />
+          <RouteFocusModal.Body>
+            <SectionNoAccess />
+          </RouteFocusModal.Body>
+        </>
+      )}
+      {!forbidden && ready && (
         <PriceListPricesEditForm
           priceList={price_list}
           gridData={gridData}

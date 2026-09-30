@@ -18,6 +18,7 @@ import { ActionMenu } from "@components/common/action-menu"
 import {
   DisplayExtensionZone,
   isOrderAwaitingAction,
+  useCan,
 } from "@mercurjs/dashboard-shared"
 import { Skeleton } from "@components/common/skeleton"
 import { Thumbnail } from "@components/common/thumbnail"
@@ -227,7 +228,8 @@ const Fulfillment = ({
   const prompt = usePrompt()
   const navigate = useNavigate()
 
-  const showLocation = !!fulfillment.location_id
+  const canViewLocation = useCan("stock_locations")
+  const showLocation = !!fulfillment.location_id && canViewLocation
 
   const isPickUpFulfillment =
     fulfillment.shipping_option?.service_zone.fulfillment_set.type ===

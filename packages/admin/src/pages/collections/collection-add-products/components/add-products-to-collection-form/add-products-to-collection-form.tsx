@@ -15,6 +15,7 @@ import {
   RouteFocusModal,
   useRouteModal,
 } from "../../../../../components/modals/index.ts"
+import { isForbidden, SectionNoAccess } from "@mercurjs/dashboard-shared"
 import { _DataTable } from "../../../../../components/table/data-table/data-table.tsx"
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form/keybound-form.tsx"
 import { useUpdateCollectionProducts } from "../../../../../hooks/api/collections.tsx"
@@ -143,6 +144,17 @@ export const AddProductsToCollectionForm = ({
   })
 
   if (isError) {
+    if (isForbidden(error)) {
+      return (
+        <>
+          <RouteFocusModal.Header />
+          <RouteFocusModal.Body>
+            <SectionNoAccess />
+          </RouteFocusModal.Body>
+        </>
+      )
+    }
+
     throw error
   }
 
