@@ -1,3 +1,5 @@
+import type { Permission } from "@mercurjs/dashboard-sdk"
+import { isPermitted, PermissionsContext } from "@mercurjs/dashboard-shared"
 import { CommandBar, Table, clx } from "@medusajs/ui"
 import {
   ColumnDef,
@@ -12,6 +14,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useContext,
 } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
@@ -21,6 +24,9 @@ type BulkCommand = {
   label: string
   shortcut: string
   action: (selection: Record<string, boolean>) => Promise<void>
+  /** Permission(s) of the endpoint the command calls; disabled without it. */
+  permission?: Permission | Permission[]
+  requireAll?: boolean
 }
 
 export interface DataTableRootProps<TData> {
@@ -105,6 +111,7 @@ export const DataTableRoot = <TData,>({
 
   const hasSelect = columns.find((c) => c.id === "select")
   const hasActions = columns.find((c) => c.id === "actions")
+  const permissions = useContext(PermissionsContext)
   const hasCommandBar = commands && commands.length > 0
 
   const rowSelection = table.getState().rowSelection
@@ -358,6 +365,13 @@ export const DataTableRoot = <TData,>({
                     label={command.label}
                     shortcut={command.shortcut}
                     action={() => handleAction(command.action)}
+                    disabled={
+                      !isPermitted(
+                        permissions,
+                        command.permission,
+                        command.requireAll
+                      )
+                    }
                   />
                   {index < commands.length - 1 && <CommandBar.Seperator />}
                 </Fragment>

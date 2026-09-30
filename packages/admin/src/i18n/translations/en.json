@@ -4443,6 +4443,7 @@
     }
   },
   "permissions": {
+    "noAccess": "You don't have permission to view this.",
     "accessDenied": {
       "title": "Access Denied",
       "description": "You don't have permission to access this page.",

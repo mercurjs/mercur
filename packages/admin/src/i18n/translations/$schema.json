@@ -16420,6 +16420,9 @@
     "permissions": {
       "type": "object",
       "properties": {
+        "noAccess": {
+          "type": "string"
+        },
         "accessDenied": {
           "type": "object",
           "properties": {
@@ -16618,6 +16621,7 @@
         }
       },
       "required": [
+        "noAccess",
         "accessDenied",
         "requiredPermissions",
         "resources",

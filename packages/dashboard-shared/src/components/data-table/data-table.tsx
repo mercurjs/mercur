@@ -1,4 +1,8 @@
 import {
+  usePermittedCommands,
+  type PermissionedCommand,
+} from "../../permissions/action-permissions"
+import {
   DataTable as UiDataTable,
   useDataTable,
   DataTableColumnDef,
@@ -20,6 +24,8 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import { useQueryParams } from "../../hooks/use-query-params";
 import { ActionMenu } from "../common/action-menu";
+
+const EMPTY_COMMANDS: PermissionedCommand<DataTableCommand>[] = [];
 
 // Types for column visibility and ordering
 type VisibilityState = Record<string, boolean>;
@@ -62,7 +68,8 @@ interface DataTableProps<TData> {
   data?: TData[];
   columns: DataTableColumnDef<TData, any>[];
   filters?: DataTableFilter[];
-  commands?: DataTableCommand[];
+  /** A command with a `permission` is left out when the actor lacks it. */
+  commands?: PermissionedCommand<DataTableCommand>[];
   action?: DataTableActionProps;
   actions?: DataTableActionProps[];
   actionMenu?: DataTableActionMenuProps;
@@ -104,7 +111,7 @@ export const DataTable = <TData,>({
   data = [],
   columns,
   filters,
-  commands,
+  commands: declaredCommands,
   action,
   actions,
   actionMenu,
@@ -136,6 +143,8 @@ export const DataTable = <TData,>({
   const enableFiltering = filters && filters.length > 0;
   const showFilterMenu =
     enableFilterMenu !== undefined ? enableFilterMenu : enableFiltering;
+  const permittedCommands = usePermittedCommands(declaredCommands ?? EMPTY_COMMANDS);
+  const commands = declaredCommands ? permittedCommands : undefined;
   const enableCommands = commands && commands.length > 0;
   const enableSorting = columns.some((column) => column.enableSorting);
 
