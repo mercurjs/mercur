@@ -57,6 +57,8 @@ export const CORE_ROUTE_PERMISSIONS: CoreRoutePermission[] = [
   { pattern: /^\/admin\/sales-channels(\/|$)/, key: "sales_channels" },
   { pattern: /^\/admin\/return-reasons(\/|$)/, key: "return_reasons" },
   { pattern: /^\/admin\/refund-reasons(\/|$)/, key: "refund_reasons" },
+  // The shell and most forms read the store (currencies, default region and sales channel).
+  { pattern: /^\/admin\/stores(\/[^/]+)?$/, key: "store", methods: { GET: undefined } },
   { pattern: /^\/admin\/stores(\/|$)/, key: "store" },
   { pattern: /^\/admin\/invites(\/|$)/, key: "users" },
   { pattern: /^\/admin\/users\/me$/, key: "users", methods: { GET: undefined } },
