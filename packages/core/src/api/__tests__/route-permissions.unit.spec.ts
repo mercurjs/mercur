@@ -159,4 +159,16 @@ describe("route permissions", () => {
 
     expect([...new Set(unknown)]).toEqual([])
   })
+
+  it("lets any admin read the store but gates writes", () => {
+    expect(matchCoreRoutePermission("/admin/stores", "GET")).toBeNull()
+    expect(matchCoreRoutePermission("/admin/stores/store_1", "GET")).toBeNull()
+    expect(matchCoreRoutePermission("/admin/stores/store_1", "POST")).toEqual({
+      key: "store",
+      right: "edit",
+    })
+    expect(
+      matchCoreRoutePermission("/admin/stores/store_1/locales", "GET")
+    ).toEqual({ key: "store", right: "view" })
+  })
 })

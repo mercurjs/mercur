@@ -26,6 +26,17 @@ const withPermissionsField = (fields: unknown) =>
     .filter(Boolean)
     .join(",");
 
+// Shared by `useMe` and route loaders so every entry under the `me` key holds
+// the same shape, including `permissions`.
+export const meQueryOptions = (query?: Record<string, unknown>) => ({
+  queryFn: () =>
+    sdk.vendor.members.me.query({
+      ...query,
+      fields: withPermissionsField(query?.fields),
+    } as Parameters<typeof sdk.vendor.members.me.query>[0]),
+  queryKey: query ? [...membersQueryKeys.me(), query] : membersQueryKeys.me(),
+});
+
 export const useMe = (
   query?: Record<string, unknown>,
   options?: UseQueryOptions<
@@ -35,12 +46,7 @@ export const useMe = (
   >,
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () =>
-      sdk.vendor.members.me.query({
-        ...query,
-        fields: withPermissionsField(query?.fields),
-      } as Parameters<typeof sdk.vendor.members.me.query>[0]),
-    queryKey: query ? [...membersQueryKeys.me(), query] : membersQueryKeys.me(),
+    ...meQueryOptions(query),
     ...options,
   });
 

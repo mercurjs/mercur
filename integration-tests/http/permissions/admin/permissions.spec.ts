@@ -88,6 +88,31 @@ medusaIntegrationTestRunner({
         expect(response.data.permission).toEqual("sellers.approval")
       })
 
+      it("lets any admin read the store but requires store:edit to update it", async () => {
+        useResolver({ products: "view" })
+
+        const list = await api.get("/admin/stores", adminHeaders)
+        expect(list.status).toEqual(200)
+
+        const storeId = list.data.stores[0].id
+
+        const detail = await api.get(`/admin/stores/${storeId}`, adminHeaders)
+        expect(detail.status).toEqual(200)
+
+        const update = await api
+          .post(`/admin/stores/${storeId}`, { name: "Renamed" }, adminHeaders)
+          .catch((error) => error.response)
+
+        expect(update.status).toEqual(403)
+        expect(update.data).toEqual(
+          expect.objectContaining({
+            code: "MISSING_PERMISSION",
+            permission: "store",
+            right: "edit",
+          })
+        )
+      })
+
       it("returns permissions on users/me when requested", async () => {
         useResolver({ users: "view" })
 

@@ -89,7 +89,7 @@ const addNestedItems = (
   return [...(items ?? []), ...nestedNavItems];
 };
 
-const MainSidebar = () => {
+const useSidebarRoutes = () => {
   const coreRoutes = useCoreRoutes();
   const navOverrides = useExtension().getNavOverrides();
   const { hasAnyPermission, hasAllPermissions, hasPermission } =
@@ -134,6 +134,20 @@ const MainSidebar = () => {
       translationNs: item.translationNs,
       items: addNestedItems(item.path, visibleMenuItems),
     }));
+
+  return { routesWithNested, customRoutesWithNested };
+};
+
+// First sidebar entry the actor can open, in sidebar order. Falls back to the
+// profile page, which needs no permission.
+export const useLandingRoute = () => {
+  const { routesWithNested, customRoutesWithNested } = useSidebarRoutes();
+  const first = [...routesWithNested, ...customRoutesWithNested][0];
+  return first?.to ?? "/settings/profile";
+};
+
+const MainSidebar = () => {
+  const { routesWithNested, customRoutesWithNested } = useSidebarRoutes();
 
   return (
     <aside
