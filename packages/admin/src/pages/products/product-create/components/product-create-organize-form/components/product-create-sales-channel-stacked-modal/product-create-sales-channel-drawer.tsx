@@ -7,6 +7,11 @@ import {
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import {
+  isForbidden,
+  SectionNoAccess,
+  useCan,
+} from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import { DataTable } from "../../../../../../../components/data-table"
 import * as hooks from "../../../../../../../components/data-table/helpers/sales-channels"
@@ -36,10 +41,12 @@ export const ProductCreateSalesChannelStackedModal = () => {
     pageSize: PAGE_SIZE,
     prefix: SC_STACKED_MODAL_ID,
   })
+  const canViewSalesChannels = useCan("sales_channels")
   const { sales_channels, count, isLoading, isError, error } = useSalesChannels(
     searchParams,
     {
       placeholderData: keepPreviousData,
+      enabled: canViewSalesChannels,
     }
   )
 
@@ -105,8 +112,21 @@ export const ProductCreateSalesChannelStackedModal = () => {
   const columns = useColumns()
   const emptyState = hooks.useSalesChannelTableEmptyState()
 
-  if (isError) {
+  const noAccess = !canViewSalesChannels || (isError && isForbidden(error))
+
+  if (isError && !noAccess) {
     throw error
+  }
+
+  if (noAccess) {
+    return (
+      <StackedFocusModal.Content className="flex flex-col overflow-hidden">
+        <StackedFocusModal.Header />
+        <StackedFocusModal.Body>
+          <SectionNoAccess />
+        </StackedFocusModal.Body>
+      </StackedFocusModal.Content>
+    )
   }
 
   return (

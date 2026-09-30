@@ -12,7 +12,7 @@ import {
   AdminReturn,
 } from "@medusajs/types";
 import { useTranslation } from "react-i18next";
-import { useExtensionActivity } from "@mercurjs/dashboard-shared";
+import { useExtensionActivity, useCan, PermissionAction } from "@mercurjs/dashboard-shared";
 
 import { AdminOrderLineItem } from "@medusajs/types";
 import { By } from "../../../../../components/common/user-link";
@@ -162,20 +162,31 @@ const useActivityItems = (order: AdminOrder): Activity[] => {
     return _itemsMap;
   }, [order.items, removedLineItems, missingLineItemIds]);
 
-  const { returns = [] } = useReturns({
-    order_id: order.id,
-    fields: "+received_at,*items",
-  });
+  const canViewReturns = useCan("orders.returns");
 
-  const { claims = [] } = useClaims({
-    order_id: order.id,
-    fields: "*additional_items",
-  });
+  const { returns = [] } = useReturns(
+    {
+      order_id: order.id,
+      fields: "+received_at,*items",
+    },
+    { enabled: canViewReturns },
+  );
 
-  const { exchanges = [] } = useExchanges({
-    order_id: order.id,
-    fields: "*additional_items",
-  });
+  const { claims = [] } = useClaims(
+    {
+      order_id: order.id,
+      fields: "*additional_items",
+    },
+    { enabled: canViewReturns },
+  );
+
+  const { exchanges = [] } = useExchanges(
+    {
+      order_id: order.id,
+      fields: "*additional_items",
+    },
+    { enabled: canViewReturns },
+  );
 
   const payments = getPaymentsFromOrder(order);
 
@@ -833,14 +844,16 @@ const ReturnBody = ({
       {isCreated && (
         <>
           <div className="mt-[2px] flex items-center leading-none">⋅</div>
-          <Button
-            onClick={onCancel}
-            className="text-ui-fg-subtle h-auto px-0 leading-none hover:bg-transparent"
-            variant="transparent"
-            size="small"
-          >
-            {t("actions.cancel")}
-          </Button>
+          <PermissionAction permission="orders.returns:edit">
+            <Button
+              onClick={onCancel}
+              className="text-ui-fg-subtle h-auto px-0 leading-none hover:bg-transparent"
+              variant="transparent"
+              size="small"
+            >
+              {t("actions.cancel")}
+            </Button>
+          </PermissionAction>
         </>
       )}
     </div>
@@ -907,14 +920,16 @@ const ClaimBody = ({
       )}
 
       {!isCanceled && (
-        <Button
-          onClick={onCancel}
-          className="text-ui-fg-subtle h-auto px-0 leading-none hover:bg-transparent"
-          variant="transparent"
-          size="small"
-        >
-          {t("actions.cancel")}
-        </Button>
+        <PermissionAction permission="orders.returns:edit">
+          <Button
+            onClick={onCancel}
+            className="text-ui-fg-subtle h-auto px-0 leading-none hover:bg-transparent"
+            variant="transparent"
+            size="small"
+          >
+            {t("actions.cancel")}
+          </Button>
+        </PermissionAction>
       )}
     </div>
   );
@@ -983,14 +998,16 @@ const ExchangeBody = ({
       )}
 
       {!isCanceled && (
-        <Button
-          onClick={onCancel}
-          className="text-ui-fg-subtle h-auto px-0 leading-none hover:bg-transparent"
-          variant="transparent"
-          size="small"
-        >
-          {t("actions.cancel")}
-        </Button>
+        <PermissionAction permission="orders.returns:edit">
+          <Button
+            onClick={onCancel}
+            className="text-ui-fg-subtle h-auto px-0 leading-none hover:bg-transparent"
+            variant="transparent"
+            size="small"
+          >
+            {t("actions.cancel")}
+          </Button>
+        </PermissionAction>
       )}
     </div>
   );
@@ -1030,7 +1047,10 @@ const TransferOrderRequestBody = ({
   const { t } = useTranslation();
 
   const action = transfer.actions[0];
-  const { customer } = useCustomer(action.reference_id);
+  const canViewCustomers = useCan("customers");
+  const { customer } = useCustomer(action.reference_id, undefined, {
+    enabled: canViewCustomers,
+  });
 
   const isCompleted = !!transfer.confirmed_at;
 
@@ -1067,19 +1087,23 @@ const TransferOrderRequestBody = ({
 
       <Text size="small" className="text-ui-fg-subtle">
         {t("orders.activity.to")}:{" "}
-        {customer?.first_name
-          ? `${customer?.first_name} ${customer?.last_name}`
-          : customer?.email}
+        {!canViewCustomers
+          ? action.reference_id
+          : customer?.first_name
+            ? `${customer?.first_name} ${customer?.last_name}`
+            : customer?.email}
       </Text>
       {!isCompleted && (
-        <Button
-          onClick={handleDelete}
-          className="text-ui-fg-subtle h-auto px-0 leading-none hover:bg-transparent"
-          variant="transparent"
-          size="small"
-        >
-          {t("actions.cancel")}
-        </Button>
+        <PermissionAction permission="orders:edit">
+          <Button
+            onClick={handleDelete}
+            className="text-ui-fg-subtle h-auto px-0 leading-none hover:bg-transparent"
+            variant="transparent"
+            size="small"
+          >
+            {t("actions.cancel")}
+          </Button>
+        </PermissionAction>
       )}
     </div>
   );

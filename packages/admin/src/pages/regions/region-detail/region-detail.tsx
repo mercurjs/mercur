@@ -6,7 +6,7 @@ import { RegionCountrySection } from "./components/region-country-section";
 import { RegionGeneralSection } from "./components/region-general-section";
 import { regionLoader } from "./loader";
 
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { WidgetZone, isForbidden, useCan } from "@mercurjs/dashboard-shared";
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton";
 import { SingleColumnPage } from "../../../components/layout/pages";
 import { usePricePreferences } from "../../../hooks/api/price-preferences";
@@ -18,6 +18,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   >
 
   const { id } = useParams()
+  const canViewPreferences = useCan("price_preferences")
   const {
     region,
     isPending: isLoading,
@@ -41,10 +42,17 @@ const Root = ({ children }: { children?: ReactNode }) => {
       attribute: "region_id",
       value: id,
     },
-    { enabled: !!region }
+    { enabled: !!region && canViewPreferences }
   )
 
-  if (isLoading || isLoadingPreferences || !region) {
+  const preferencesForbidden =
+    !canViewPreferences || isForbidden(preferencesError)
+
+  if (
+    isLoading ||
+    (!preferencesForbidden && isLoadingPreferences) ||
+    !region
+  ) {
     return <SingleColumnPageSkeleton sections={2} showJSON showMetadata />
   }
 
@@ -52,7 +60,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw regionError
   }
 
-  if (isPreferencesError) {
+  if (isPreferencesError && !preferencesForbidden) {
     throw preferencesError
   }
 
@@ -65,7 +73,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
       <WidgetZone id="regions.detail.main" data={region}>
         <RegionGeneralSection
           region={region}
-          pricePreferences={pricePreferences ?? []}
+          pricePreferences={
+            preferencesForbidden ? undefined : (pricePreferences ?? [])
+          }
         />
         <RegionCountrySection region={region} />
       </WidgetZone>

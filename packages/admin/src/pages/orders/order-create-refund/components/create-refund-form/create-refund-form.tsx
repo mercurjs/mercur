@@ -1,3 +1,4 @@
+import { usePermissionGate } from "@mercurjs/dashboard-shared";
 import { useEffect, useMemo, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,6 +34,7 @@ import { formatCurrency } from "../../../../../lib/format-currency.ts";
 import { formatProvider } from "../../../../../lib/format-provider.ts";
 import { getLocaleAmount } from "../../../../../lib/money-amount-helpers.ts";
 import { getPaymentsFromOrder } from "../../../../../lib/orders.ts";
+import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip";
 
 type CreateRefundFormProps = {
   order: HttpTypes.AdminOrder;
@@ -50,7 +52,10 @@ const CreateRefundSchema = zod.object({
 export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
-  const { refund_reasons } = useRefundReasons();
+  const reasonsGate = usePermissionGate("refund_reasons:view");
+  const { refund_reasons } = useRefundReasons(undefined, {
+    enabled: reasonsGate.allowed,
+  });
 
   const [searchParams] = useSearchParams();
   const hasPaymentIdInSearchParams = !!searchParams.get("paymentId");
@@ -269,32 +274,40 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
                       {t("fields.refundReason")}
                     </Form.Label>
 
-                    <Form.Control data-testid="order-create-refund-reason-control">
-                      <Select
-                        dir={direction}
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        data-testid="order-create-refund-reason-select"
-                      >
-                        <Select.Trigger data-testid="order-create-refund-reason-trigger">
-                          <Select.Value />
-                        </Select.Trigger>
+                    <ConditionalTooltip
+                      showTooltip={reasonsGate.denied}
+                      content={reasonsGate.tooltip}
+                    >
+                      <div>
+                        <Form.Control data-testid="order-create-refund-reason-control">
+                          <Select
+                            dir={direction}
+                            value={field.value}
+                            disabled={reasonsGate.denied}
+                            onValueChange={field.onChange}
+                            data-testid="order-create-refund-reason-select"
+                          >
+                            <Select.Trigger data-testid="order-create-refund-reason-trigger">
+                              <Select.Value />
+                            </Select.Trigger>
 
-                        <Select.Content data-testid="order-create-refund-reason-content">
-                          {refund_reasons?.map(
-                            (reason: HttpTypes.AdminRefundReason) => (
-                              <Select.Item
-                                key={reason.id}
-                                value={reason.id}
-                                data-testid={`order-create-refund-reason-option-${reason.id}`}
-                              >
-                                {reason.label}
-                              </Select.Item>
-                            ),
-                          )}
-                        </Select.Content>
-                      </Select>
-                    </Form.Control>
+                            <Select.Content data-testid="order-create-refund-reason-content">
+                              {refund_reasons?.map(
+                                (reason: HttpTypes.AdminRefundReason) => (
+                                  <Select.Item
+                                    key={reason.id}
+                                    value={reason.id}
+                                    data-testid={`order-create-refund-reason-option-${reason.id}`}
+                                  >
+                                    {reason.label}
+                                  </Select.Item>
+                                ),
+                              )}
+                            </Select.Content>
+                          </Select>
+                        </Form.Control>
+                      </div>
+                    </ConditionalTooltip>
 
                     <Form.ErrorMessage data-testid="order-create-refund-reason-error" />
                   </Form.Item>

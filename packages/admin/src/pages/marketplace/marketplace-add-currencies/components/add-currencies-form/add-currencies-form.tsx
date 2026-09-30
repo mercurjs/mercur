@@ -10,6 +10,7 @@ import * as zod from "zod"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { HttpTypes } from "@medusajs/types"
+import { SectionNoAccess, isForbidden } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import {
@@ -163,6 +164,17 @@ export const AddCurrenciesForm = ({
       }
     )
   })
+
+  if (isForbidden(error)) {
+    return (
+      <>
+        <RouteFocusModal.Header />
+        <RouteFocusModal.Body>
+          <SectionNoAccess />
+        </RouteFocusModal.Body>
+      </>
+    )
+  }
 
   if (isError) {
     throw error

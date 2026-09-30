@@ -10,6 +10,7 @@ import { useMemo, useRef, useState } from "react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { _DataTable } from "@components/table/data-table"
 import { useProducts } from "@hooks/api/products"
 import { useDataTable } from "@hooks/use-data-table"
@@ -53,9 +54,10 @@ export const PriceListProductsForm = ({ form }: PriceListProductsFormProps) => {
   // One row per product (the seller's offered products). Each row's offers,
   // flattened via `collectOfferIds`, become the priceable offer ids; variant→
   // offer resolution happens in the Prices tab.
+  const canViewProducts = useCan("products")
   const { products, count, isLoading, isError, error } = useProducts(
     searchParams,
-    { placeholderData: keepPreviousData }
+    { placeholderData: keepPreviousData, enabled: canViewProducts }
   )
 
   const rows = (products ?? []) as OfferProduct[]
@@ -102,6 +104,10 @@ export const PriceListProductsForm = ({ form }: PriceListProductsFormProps) => {
     },
     pageSize: PAGE_SIZE,
   })
+
+  if (!canViewProducts || isForbidden(error)) {
+    return <SectionNoAccess />
+  }
 
   if (isError) {
     throw error

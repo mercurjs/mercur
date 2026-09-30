@@ -1,4 +1,5 @@
 import { Heading } from "@medusajs/ui"
+import { isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
@@ -12,6 +13,7 @@ import { usePricePreferences } from "../../../hooks/api/price-preferences"
 export const RegionEdit = () => {
   const { t } = useTranslation()
   const { id } = useParams()
+  const canViewPreferences = useCan("price_preferences")
 
   const {
     region,
@@ -39,10 +41,16 @@ export const RegionEdit = () => {
       attribute: "region_id",
       value: id,
     },
-    { enabled: !!region }
+    { enabled: !!region && canViewPreferences }
   )
 
-  const isLoading = isRegionLoading || isStoreLoading || isPreferenceLoading
+  const preferencesForbidden =
+    !canViewPreferences || isForbidden(preferenceError)
+
+  const isLoading =
+    isRegionLoading ||
+    isStoreLoading ||
+    (!preferencesForbidden && isPreferenceLoading)
 
   const storeCurrencies = (store?.supported_currencies ?? []).map(
     (c) => currencies[c.currency_code.toUpperCase()]
@@ -56,7 +64,7 @@ export const RegionEdit = () => {
     throw storeError
   }
 
-  if (isPreferenceError) {
+  if (isPreferenceError && !preferencesForbidden) {
     throw preferenceError
   }
 
@@ -71,7 +79,7 @@ export const RegionEdit = () => {
         <EditRegionForm
           region={region}
           currencies={storeCurrencies}
-          pricePreferences={pricePreferences}
+          pricePreferences={preferencesForbidden ? undefined : pricePreferences}
         />
       )}
     </RouteDrawer>

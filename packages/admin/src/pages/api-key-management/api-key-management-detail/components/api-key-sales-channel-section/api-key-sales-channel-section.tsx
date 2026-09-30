@@ -13,6 +13,7 @@ import { RowSelectionState } from "@tanstack/react-table"
 import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import { DataTable } from "../../../../../components/data-table"
 import * as hooks from "../../../../../components/data-table/helpers/sales-channels"
 import { useBatchRemoveSalesChannelsFromApiKey } from "../../../../../hooks/api/api-keys"
@@ -66,6 +67,7 @@ export const ApiKeySalesChannelSection = ({
         }}
         rowHref={(row) => `/settings/sales-channels/${row.id}`}
         action={{
+          permission: "api_keys:edit",
           label: t("actions.add"),
           to: "sales-channels",
         }}
@@ -81,6 +83,7 @@ const columnHelper = createDataTableColumnHelper<HttpTypes.AdminSalesChannel>()
 
 const useColumns = (id: string) => {
   const { t } = useTranslation()
+  const { can } = usePermissions()
   const navigate = useNavigate()
   const prompt = usePrompt()
 
@@ -125,7 +128,7 @@ const useColumns = (id: string) => {
       ...base,
       columnHelper.action({
         actions: (ctx) => [
-          [
+          !can("sales_channels", "edit") ? [] : [
             {
               label: t("actions.edit"),
               icon: <PencilSquare />,
@@ -134,17 +137,17 @@ const useColumns = (id: string) => {
               },
             },
           ],
-          [
+          !can("api_keys", "edit") ? [] : [
             {
               icon: <Trash />,
               label: t("actions.delete"),
               onClick: () => handleDelete(ctx.row.original),
             },
           ],
-        ],
+        ].filter((group) => group.length > 0),
       }),
     ],
-    [base, handleDelete, navigate, t]
+    [base, handleDelete, navigate, t, can]
   )
 }
 
@@ -195,11 +198,14 @@ const useCommands = (
 
   return useMemo(
     () => [
-      commandHelper.command({
-        action: handleRemove,
-        label: t("actions.remove"),
-        shortcut: "r",
-      }),
+      {
+        ...commandHelper.command({
+          action: handleRemove,
+          label: t("actions.remove"),
+          shortcut: "r",
+        }),
+        permission: "api_keys:edit" as const,
+      },
     ],
     [handleRemove, t]
   )

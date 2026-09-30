@@ -1,6 +1,10 @@
 import { AdminReservationResponse } from "@medusajs/types"
 import { Container, Heading, Text } from "@medusajs/ui"
-import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
+import {
+  DisplayExtensionZone,
+  DisplayField,
+  usePermissions,
+} from "@mercurjs/dashboard-shared"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { PencilSquare } from "@medusajs/icons"
@@ -17,23 +21,28 @@ export const ReservationGeneralSection = ({
   reservation,
 }: ReservationGeneralSectionProps) => {
   const { t } = useTranslation()
+  const { can } = usePermissions()
+  const canViewItem = can("inventory_items")
+  const canViewLocation = can("stock_locations")
 
   const { inventory_item: inventoryItem, isPending: isLoadingInventoryItem } =
-    useInventoryItem(reservation.inventory_item_id)
+    useInventoryItem(reservation.inventory_item_id, undefined, {
+      enabled: canViewItem,
+    })
 
   const { stock_location: location, isPending: isLoadingLocation } =
-    useStockLocation(reservation.location_id)
+    useStockLocation(reservation.location_id, undefined, {
+      enabled: canViewLocation,
+    })
 
   if (
-    isLoadingInventoryItem ||
-    !inventoryItem ||
-    isLoadingLocation ||
-    !location
+    (canViewItem && (isLoadingInventoryItem || !inventoryItem)) ||
+    (canViewLocation && (isLoadingLocation || !location))
   ) {
     return <div>Loading...</div>
   }
 
-  const locationLevel = inventoryItem.location_levels!.find(
+  const locationLevel = inventoryItem?.location_levels?.find(
     (level) =>
       level.location_id === reservation.location_id
   )
@@ -49,7 +58,10 @@ export const ReservationGeneralSection = ({
         >
           <Heading>
             {t("inventory.reservation.header", {
-              itemName: inventoryItem.title ?? inventoryItem.sku,
+              itemName:
+                inventoryItem?.title ??
+                inventoryItem?.sku ??
+                reservation.inventory_item_id,
             })}
           </Heading>
         </DisplayField>
@@ -61,6 +73,7 @@ export const ReservationGeneralSection = ({
                   icon: <PencilSquare />,
                   label: t("actions.edit"),
                   to: `edit`,
+                  permission: "reservations:edit",
                 },
               ],
             },
@@ -75,7 +88,7 @@ export const ReservationGeneralSection = ({
       >
         <SectionRow
           title={t("inventory.reservation.itemId")}
-          value={inventoryItem.sku ?? inventoryItem.id}
+          value={inventoryItem?.sku ?? reservation.inventory_item_id}
         />
       </DisplayField>
       <DisplayField
@@ -97,7 +110,7 @@ export const ReservationGeneralSection = ({
       >
         <SectionRow
           title={t("inventory.reservation.location")}
-          value={location?.name}
+          value={location?.name ?? reservation.location_id}
         />
       </DisplayField>
       <DisplayField

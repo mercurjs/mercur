@@ -1,3 +1,4 @@
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -6,8 +7,13 @@ import { useSellers } from "../../api/sellers"
 
 export const useCampaignTableFilters = (): Filter[] => {
   const { t } = useTranslation()
+  const { can } = usePermissions()
+  const canViewSellers = can("sellers")
 
-  const { sellers } = useSellers({ limit: 100, fields: "id,name" })
+  const { sellers } = useSellers(
+    { limit: 100, fields: "id,name" },
+    { enabled: canViewSellers }
+  )
 
   return useMemo(() => {
     const typeFilter: Filter = {
@@ -50,6 +56,11 @@ export const useCampaignTableFilters = (): Filter[] => {
       { label: t("fields.updatedAt"), key: "updated_at", type: "date" },
     ]
 
-    return [typeFilter, ownerFilter, statusFilter, ...dateFilters]
-  }, [t, sellers])
+    return [
+      typeFilter,
+      ...(canViewSellers ? [ownerFilter] : []),
+      statusFilter,
+      ...dateFilters,
+    ]
+  }, [t, sellers, canViewSellers])
 }

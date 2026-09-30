@@ -36,6 +36,7 @@ export const CategoryOrganizeSection = ({
                   label: t("categories.organize.action"),
                   icon: <PencilSquare />,
                   to: `organize`,
+                  permission: "product_categories:edit",
                 },
               ],
             },

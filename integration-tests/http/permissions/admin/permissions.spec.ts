@@ -124,6 +124,48 @@ medusaIntegrationTestRunner({
         expect(response.status).toEqual(200)
         expect(response.data.user.permissions).toEqual({ users: "view" })
       })
+
+      it("lists order groups with orders:view", async () => {
+        useResolver({ orders: "view" })
+
+        const allowed = await api.get("/admin/order-groups", adminHeaders)
+        expect(allowed.status).toEqual(200)
+
+        useResolver({ products: "view" })
+
+        const denied = await api
+          .get("/admin/order-groups", adminHeaders)
+          .catch((error) => error.response)
+
+        expect(denied.status).toEqual(403)
+      })
+
+      it("lets an admin edit their own profile without users:edit", async () => {
+        useResolver({ orders: "view" })
+
+        const me = await api.get("/admin/users/me", adminHeaders)
+        const userId = me.data.user.id
+
+        const self = await api.post(
+          "/admin/users/me",
+          { first_name: "Renamed" },
+          adminHeaders
+        )
+
+        expect(self.status).toEqual(200)
+        expect(self.data.user).toEqual(
+          expect.objectContaining({ id: userId, first_name: "Renamed" })
+        )
+
+        const byId = await api
+          .post(`/admin/users/${userId}`, { first_name: "Other" }, adminHeaders)
+          .catch((error) => error.response)
+
+        expect(byId.status).toEqual(403)
+        expect(byId.data).toEqual(
+          expect.objectContaining({ permission: "users", right: "edit" })
+        )
+      })
     })
   },
 })

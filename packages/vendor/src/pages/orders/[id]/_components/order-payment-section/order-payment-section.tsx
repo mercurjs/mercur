@@ -183,6 +183,7 @@ const PaymentRow = ({
             {
               actions: [
                 {
+                  permission: "payments:edit",
                   label: t("orders.payment.createRefund"),
                   icon: <ArrowDownRightMini />,
                   to: `/orders/${order.id}/refund?payment_id=${payment.id}`,

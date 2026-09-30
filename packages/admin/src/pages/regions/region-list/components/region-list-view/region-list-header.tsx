@@ -2,6 +2,7 @@ import { Children, ReactNode } from "react"
 import { Button, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
+import { PermissionAction } from "@mercurjs/dashboard-shared"
 
 export const RegionListTitle = () => {
   const { t } = useTranslation()
@@ -32,15 +33,16 @@ export const RegionListActions = ({
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <Link to="/settings/regions/create">
+        <PermissionAction permission="regions:edit">
           <Button
             size="small"
             variant="secondary"
+            asChild
             data-testid="region-list-table-create-button"
           >
-            {t("actions.create")}
+            <Link to="/settings/regions/create">{t("actions.create")}</Link>
           </Button>
-        </Link>
+        </PermissionAction>
       )}
     </div>
   )

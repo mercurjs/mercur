@@ -78,6 +78,7 @@ export const AttributeGeneralSection = ({
               actions: [
                 {
                   icon: <PencilSquare />,
+                  permission: "product_attributes:edit",
                   label: t("actions.edit"),
                   to: "edit",
                 },
@@ -87,6 +88,7 @@ export const AttributeGeneralSection = ({
               actions: [
                 {
                   icon: <Trash />,
+                  permission: "product_attributes:manage",
                   label: t("actions.delete"),
                   onClick: handleDelete,
                 },

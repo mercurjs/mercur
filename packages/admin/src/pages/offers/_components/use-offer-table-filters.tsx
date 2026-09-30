@@ -1,3 +1,4 @@
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { ProductStatus } from "@mercurjs/types"
 
@@ -20,14 +21,30 @@ import { useProductTypes } from "../../../hooks/api/product-types"
  */
 export const useOfferTableFilters = (): Filter[] => {
   const { t } = useTranslation()
-  const { sellers } = useSellers({ limit: 1000 })
-  const { product_categories } = useProductCategories({
-    limit: 1000,
-    fields: "id,name",
-  })
-  const { collections } = useCollections({ limit: 1000 })
-  const { product_types } = useProductTypes({ limit: 1000 })
-  const { product_tags } = useProductTags({ limit: 1000 })
+  const { can } = usePermissions()
+  const { sellers } = useSellers(
+    { limit: 1000 },
+    { enabled: can("sellers") },
+  )
+  const { product_categories } = useProductCategories(
+    {
+      limit: 1000,
+      fields: "id,name",
+    },
+    { enabled: can("product_categories") },
+  )
+  const { collections } = useCollections(
+    { limit: 1000 },
+    { enabled: can("product_collections") },
+  )
+  const { product_types } = useProductTypes(
+    { limit: 1000 },
+    { enabled: can("product_types") },
+  )
+  const { product_tags } = useProductTags(
+    { limit: 1000 },
+    { enabled: can("product_tags") },
+  )
 
   const filters: Filter[] = []
 

@@ -1,7 +1,7 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
+import { PermissionGuard, useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
 import { TwoColumnPage } from "@components/layout/pages"
@@ -62,7 +62,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
           <InventoryItemLocationLevelsSection
             inventoryItem={inventory_item}
           />
-          <InventoryItemReservationsSection inventoryItem={inventory_item} />
+          <PermissionGuard permission="reservations:view">
+            <InventoryItemReservationsSection inventoryItem={inventory_item} />
+          </PermissionGuard>
         </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar data-testid="inventory-detail-sidebar">

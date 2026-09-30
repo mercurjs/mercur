@@ -48,6 +48,7 @@ const Header = ({ order }: { order: HttpTypes.AdminOrder }) => {
               {
                 label: t('transferOwnership.label'),
                 to: `transfer`,
+                permission: 'orders:edit',
                 icon: <ArrowPath />
               }
             ]
@@ -57,11 +58,13 @@ const Header = ({ order }: { order: HttpTypes.AdminOrder }) => {
               {
                 label: t('addresses.shippingAddress.editLabel'),
                 to: 'shipping-address',
+                permission: 'orders:edit',
                 icon: <FlyingBox />
               },
               {
                 label: t('addresses.billingAddress.editLabel'),
                 to: 'billing-address',
+                permission: 'orders:edit',
                 icon: <CurrencyDollar />
               }
             ]
@@ -71,6 +74,7 @@ const Header = ({ order }: { order: HttpTypes.AdminOrder }) => {
               {
                 label: t('email.editLabel'),
                 to: `email`,
+                permission: 'orders:edit',
                 icon: <Envelope />,
                 disabled: order.status === 'canceled'
               }

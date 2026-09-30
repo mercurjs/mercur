@@ -24,7 +24,13 @@ import { useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import {
+  DisplayExtensionZone,
+  PermissionAction,
+  SectionNoAccess,
+  isForbidden,
+  useCan,
+} from "@mercurjs/dashboard-shared"
 import { OfferDTO, ProductStatus } from "@mercurjs/types"
 
 import { ActionMenu } from "@components/common/action-menu"
@@ -104,6 +110,8 @@ export const PriceListProductSection = ({
     PREFIX
   )
 
+  const canViewOffers = useCan("offers")
+
   const { offers, isLoading, isError, error } = useOffers(
     {
       id: offerIds,
@@ -116,7 +124,7 @@ export const PriceListProductSection = ({
     },
     {
       placeholderData: keepPreviousData,
-      enabled: offerIds.length > 0,
+      enabled: offerIds.length > 0 && canViewOffers,
     }
   )
 
@@ -224,6 +232,7 @@ export const PriceListProductSection = ({
               {
                 actions: [
                   {
+                    permission: "price_lists:edit",
                     label: t("priceLists.products.actions.editPrices"),
                     to: "products/edit",
                     icon: <PencilSquare />,
@@ -245,17 +254,21 @@ export const PriceListProductSection = ({
               <EllipsisHorizontal />
             </Button>
           </ActionMenu>
-          <Button
-            size="small"
-            variant="secondary"
-            asChild
-            data-testid="price-list-product-section-add-button"
-          >
-            <Link to="products/add">{t("actions.add")}</Link>
-          </Button>
+          <PermissionAction permission="price_lists:edit">
+            <Button
+              size="small"
+              variant="secondary"
+              asChild
+              data-testid="price-list-product-section-add-button"
+            >
+              <Link to="products/add">{t("actions.add")}</Link>
+            </Button>
+          </PermissionAction>
         </div>
       </div>
-      {isError ? (
+      {(offerIds.length > 0 && !canViewOffers) || isForbidden(error) ? (
+        <SectionNoAccess />
+      ) : isError ? (
         <div className="flex items-center gap-x-2 px-6 py-4" data-testid="price-list-product-section-error">
           <ExclamationCircle className="text-ui-fg-subtle" />
           <Text size="small" className="text-ui-fg-subtle">
@@ -280,11 +293,13 @@ export const PriceListProductSection = ({
               action: handleEdit,
               label: t("priceLists.products.actions.editPrices"),
               shortcut: "e",
+              permission: "price_lists:edit",
             },
             {
               action: handleDelete,
               label: t("actions.remove"),
               shortcut: "r",
+              permission: "price_lists:edit",
             },
           ]}
           pagination
@@ -349,6 +364,7 @@ const OfferRowAction = ({
           actions: [
             {
               icon: <PencilSquare />,
+              permission: "price_lists:edit",
               label: t("priceLists.products.actions.editPrices"),
               to: `products/edit?ids[]=${offer.product_id}`,
             },
@@ -358,6 +374,7 @@ const OfferRowAction = ({
           actions: [
             {
               icon: <Trash />,
+              permission: "price_lists:edit",
               label: t("actions.remove"),
               onClick: handleDelete,
             },

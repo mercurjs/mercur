@@ -1,3 +1,4 @@
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 
 import type { Filter } from "../../../components/table/data-table"
@@ -6,16 +7,25 @@ import { useSalesChannels } from "../../api/sales-channels"
 
 export const useOrderTableFilters = (): Filter[] => {
   const { t } = useTranslation()
+  const { can } = usePermissions()
+  const canViewRegions = can("regions")
+  const canViewSalesChannels = can("sales_channels")
 
-  const { regions } = useRegions({
-    limit: 1000,
-    fields: "id,name",
-  })
+  const { regions } = useRegions(
+    {
+      limit: 1000,
+      fields: "id,name",
+    },
+    { enabled: canViewRegions }
+  )
 
-  const { sales_channels } = useSalesChannels({
-    limit: 1000,
-    fields: "id,name",
-  })
+  const { sales_channels } = useSalesChannels(
+    {
+      limit: 1000,
+      fields: "id,name",
+    },
+    { enabled: canViewSalesChannels }
+  )
 
   const statusFilter: Filter = {
     key: "status",
@@ -32,7 +42,7 @@ export const useOrderTableFilters = (): Filter[] => {
 
   let filters: Filter[] = [statusFilter]
 
-  if (regions) {
+  if (regions && canViewRegions) {
     const regionFilter: Filter = {
       key: "region_id",
       label: t("fields.region"),
@@ -48,7 +58,7 @@ export const useOrderTableFilters = (): Filter[] => {
     filters = [...filters, regionFilter]
   }
 
-  if (sales_channels) {
+  if (sales_channels && canViewSalesChannels) {
     const salesChannelFilter: Filter = {
       key: "sales_channel_id",
       label: t("fields.salesChannel"),

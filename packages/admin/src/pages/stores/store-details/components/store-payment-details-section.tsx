@@ -43,6 +43,7 @@ export const StorePaymentDetailsSection = ({
                   label: t("actions.edit"),
                   icon: <PencilSquare />,
                   to: `/stores/${seller.id}/payment-details`,
+                  permission: "sellers:edit",
                 },
               ],
             },

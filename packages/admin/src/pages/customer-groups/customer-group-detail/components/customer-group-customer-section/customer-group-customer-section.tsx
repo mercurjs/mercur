@@ -1,7 +1,7 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Button, Checkbox, Container, Heading, usePrompt } from "@medusajs/ui"
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import { DisplayExtensionZone, PermissionAction } from "@mercurjs/dashboard-shared"
 import { RowSelectionState, createColumnHelper } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -90,11 +90,13 @@ export const CustomerGroupCustomerSection = ({
     <Container className="divide-y p-0" data-testid="customer-group-customer-section">
       <div className="flex items-center justify-between px-6 py-4" data-testid="customer-group-customer-section-header">
         <Heading level="h2" data-testid="customer-group-customer-section-heading">{t("customers.domain")}</Heading>
-        <Link to={`/customer-groups/${group.id}/add-customers`} data-testid="customer-group-customer-section-add-link">
-          <Button variant="secondary" size="small" data-testid="customer-group-customer-section-add-button">
-            {t("general.add")}
+        <PermissionAction permission="customer_groups:edit">
+          <Button variant="secondary" size="small" asChild data-testid="customer-group-customer-section-add-button">
+            <Link to={`/customer-groups/${group.id}/add-customers`} data-testid="customer-group-customer-section-add-link">
+              {t("general.add")}
+            </Link>
           </Button>
-        </Link>
+        </PermissionAction>
       </div>
       <_DataTable
         table={table}
@@ -118,6 +120,7 @@ export const CustomerGroupCustomerSection = ({
         commands={[
           {
             action: handleRemove,
+            permission: "customer_groups:edit",
             label: t("actions.remove"),
             shortcut: "r",
           },
@@ -176,6 +179,7 @@ const CustomerActions = ({
               icon: <PencilSquare />,
               label: t("actions.edit"),
               to: `/customers/${customer.id}/edit`,
+              permission: "customers:edit",
             },
           ],
         },
@@ -185,6 +189,7 @@ const CustomerActions = ({
               icon: <Trash />,
               label: t("actions.remove"),
               onClick: handleRemove,
+              permission: "customer_groups:edit",
             },
           ],
         },

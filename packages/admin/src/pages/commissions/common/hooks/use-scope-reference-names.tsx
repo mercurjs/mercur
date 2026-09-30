@@ -1,5 +1,7 @@
 import { useMemo } from "react";
 
+import { usePermissions } from "@mercurjs/dashboard-shared";
+
 import { useProductCategories } from "../../../../hooks/api/categories";
 import { useProductTypes } from "../../../../hooks/api/product-types";
 import { useSellers } from "../../../../hooks/api/sellers";
@@ -25,15 +27,20 @@ export const useScopeReferenceNames = (rules: CommissionRuleDTO[] = []) => {
     [rules]
   );
 
+  const { can } = usePermissions();
+  const canViewSellers = can("sellers");
+  const canViewProductTypes = can("product_types");
+  const canViewCategories = can("product_categories");
+
   const { sellers, isLoading: sellersLoading } = useSellers(
     { id: sellerIds, fields: "id,name", limit: sellerIds.length || 1 },
-    { enabled: sellerIds.length > 0 }
+    { enabled: sellerIds.length > 0 && canViewSellers }
   );
 
   const { product_types: productTypes, isLoading: typesLoading } =
     useProductTypes(
       { id: productTypeIds, fields: "id,value", limit: productTypeIds.length || 1 },
-      { enabled: productTypeIds.length > 0 }
+      { enabled: productTypeIds.length > 0 && canViewProductTypes }
     );
 
   const { product_categories: categories, isLoading: categoriesLoading } =
@@ -43,7 +50,7 @@ export const useScopeReferenceNames = (rules: CommissionRuleDTO[] = []) => {
         fields: "id,name",
         limit: categoryIds.length || 1,
       },
-      { enabled: categoryIds.length > 0 }
+      { enabled: categoryIds.length > 0 && canViewCategories }
     );
 
   const names = useMemo(() => {
@@ -63,8 +70,8 @@ export const useScopeReferenceNames = (rules: CommissionRuleDTO[] = []) => {
   return {
     names,
     isLoading:
-      (sellerIds.length > 0 && sellersLoading) ||
-      (productTypeIds.length > 0 && typesLoading) ||
-      (categoryIds.length > 0 && categoriesLoading),
+      (sellerIds.length > 0 && canViewSellers && sellersLoading) ||
+      (productTypeIds.length > 0 && canViewProductTypes && typesLoading) ||
+      (categoryIds.length > 0 && canViewCategories && categoriesLoading),
   };
 };

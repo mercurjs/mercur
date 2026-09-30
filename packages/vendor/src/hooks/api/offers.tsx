@@ -20,10 +20,13 @@ export const offerQueryKeys = queryKeysFactory(OFFERS_QUERY_KEY);
 
 export const useOffers = (
   query?: InferClientInput<typeof sdk.vendor.offers.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.offers.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.offers.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({
@@ -38,10 +41,13 @@ export const useOffers = (
 export const useOffer = (
   id: string,
   query?: Omit<InferClientInput<typeof sdk.vendor.offers.$id.query>, "$id">,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.offers.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.offers.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({

@@ -1,4 +1,5 @@
 import type { ComponentType } from "react"
+import type { Permission } from "../permissions"
 
 /**
  * Open registry interfaces. Each panel package ships a generated
@@ -39,6 +40,11 @@ export interface WidgetConfig {
     zone: WidgetZoneId | WidgetZoneId[]
     /** Stable id; derived from the file path at build time when omitted. */
     id?: string
+    /**
+     * Permission(s) the actor needs for the widget to render. With several, any
+     * one is enough.
+     */
+    permission?: Permission | Permission[]
 }
 
 /** Override for a single built-in navigation item. */

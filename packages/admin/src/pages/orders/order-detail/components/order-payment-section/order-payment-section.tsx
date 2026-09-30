@@ -1,7 +1,7 @@
 import { ActionMenu } from "@components/common/action-menu";
 import DisplayId from "@components/common/display-id/display-id";
 import { useCapturePayment } from "@hooks/api";
-import { isOrderActionable } from "@mercurjs/dashboard-shared";
+import { isOrderActionable, PermissionAction } from "@mercurjs/dashboard-shared";
 import { formatCurrency } from "@lib/format-currency";
 import { getLocaleAmount, getStylizedAmount } from "@lib/money-amount-helpers";
 import { getOrderPaymentStatus } from "@lib/order-helpers";
@@ -274,6 +274,7 @@ const Payment = ({
                   label: t("orders.payment.createRefund"),
                   icon: <XCircle />,
                   to: `/orders/${order.id}/refund?paymentId=${payment.id}`,
+                  permission: "orders.refunds:edit",
                   disabled:
                     !isOrderActionable(order) ||
                     !payment.captured_at ||
@@ -301,20 +302,22 @@ const Payment = ({
             </Text>
           </div>
 
-          <Button
-            className="shrink-0"
-            size="small"
-            variant="secondary"
-            onClick={handleCapture}
-            data-testid={`order-payment-${payment.id}-capture-button`}
-          >
-            <span className="hidden sm:block">
-              {t("orders.payment.capture")}
-            </span>
-            <span className="sm:hidden">
-              {t("orders.payment.capture_short")}
-            </span>
-          </Button>
+          <PermissionAction permission="payments:edit">
+            <Button
+              className="shrink-0"
+              size="small"
+              variant="secondary"
+              onClick={handleCapture}
+              data-testid={`order-payment-${payment.id}-capture-button`}
+            >
+              <span className="hidden sm:block">
+                {t("orders.payment.capture")}
+              </span>
+              <span className="sm:hidden">
+                {t("orders.payment.capture_short")}
+              </span>
+            </Button>
+          </PermissionAction>
         </div>
       )}
       {refunds.map((refund) => (

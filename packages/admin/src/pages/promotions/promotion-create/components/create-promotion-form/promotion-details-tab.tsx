@@ -16,6 +16,9 @@ import {
 import { useWatch } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
 
+import { usePermissionGate } from "@mercurjs/dashboard-shared";
+
+import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip";
 import { Form } from "../../../../../components/common/form";
 import { DeprecatedPercentageInput } from "../../../../../components/inputs/percentage-input";
 import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form";
@@ -88,6 +91,8 @@ const Root = ({ currentTemplate }: PromotionDetailsTabProps) => {
   });
   const isSharedCost = watchCostBearer === "shared";
 
+  const storesGate = usePermissionGate("sellers:view");
+
   const stores = useComboboxData({
     queryKey: ["promotion_stores"],
     queryFn: (params) => sdk.admin.sellers.query({ ...params, fields: "id,name" }),
@@ -96,7 +101,7 @@ const Root = ({ currentTemplate }: PromotionDetailsTabProps) => {
         label: seller.name,
         value: seller.id,
       })),
-    enabled: isTypeBuyGet,
+    enabled: isTypeBuyGet && storesGate.allowed,
   });
 
   return (
@@ -727,20 +732,28 @@ const Root = ({ currentTemplate }: PromotionDetailsTabProps) => {
                         {t("promotions.form.storeOffers.label")}
                       </Form.Label>
 
-                      <Form.Control data-testid="promotion-create-form-store-control">
-                        <Combobox
-                          {...field}
-                          value={field.value ?? ""}
-                          options={stores.options}
-                          searchValue={stores.searchValue}
-                          onSearchValueChange={stores.onSearchValueChange}
-                          fetchNextPage={stores.fetchNextPage}
-                          placeholder={t(
-                            "promotions.form.storeOffers.placeholder",
-                          )}
-                          data-testid="promotion-create-form-store-select"
-                        />
-                      </Form.Control>
+                      <ConditionalTooltip
+                        showTooltip={storesGate.denied}
+                        content={storesGate.tooltip}
+                      >
+                        <div>
+                          <Form.Control data-testid="promotion-create-form-store-control">
+                            <Combobox
+                              {...field}
+                              value={field.value ?? ""}
+                              options={stores.options}
+                              searchValue={stores.searchValue}
+                              onSearchValueChange={stores.onSearchValueChange}
+                              fetchNextPage={stores.fetchNextPage}
+                              placeholder={t(
+                                "promotions.form.storeOffers.placeholder",
+                              )}
+                              disabled={storesGate.denied}
+                              data-testid="promotion-create-form-store-select"
+                            />
+                          </Form.Control>
+                        </div>
+                      </ConditionalTooltip>
                       <Form.ErrorMessage data-testid="promotion-create-form-store-error" />
                     </Form.Item>
                   );

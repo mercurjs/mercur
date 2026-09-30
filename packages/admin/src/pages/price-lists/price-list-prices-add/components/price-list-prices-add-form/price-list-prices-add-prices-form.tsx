@@ -1,4 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import { OfferDTO } from "@mercurjs/types"
 import { useEffect, useMemo } from "react"
 import { useWatch } from "react-hook-form"
@@ -34,6 +35,8 @@ const Root = ({
   const offerIds = useWatch({ control: form.control, name: "offer_ids" })
   const existingOffers = useWatch({ control: form.control, name: "offers" })
 
+  const { can } = usePermissions()
+
   const { offers: selectedOffers } = useOffers(
     {
       id: offerIds,
@@ -41,7 +44,7 @@ const Root = ({
       fields:
         "id,variant_id,product_id,seller_id,sku,seller.name,product.title,product.thumbnail",
     },
-    { enabled: (offerIds?.length ?? 0) > 0 }
+    { enabled: (offerIds?.length ?? 0) > 0 && can("offers") }
   )
 
   const productIds = useMemo(
@@ -54,7 +57,7 @@ const Root = ({
 
   const { products, isLoading } = useProducts(
     { id: productIds, limit: productIds.length || 1, fields: "id,*variants" },
-    { enabled: productIds.length > 0 }
+    { enabled: productIds.length > 0 && can("products") }
   )
 
   const { gridData, variantIdByOffer } = useMemo(

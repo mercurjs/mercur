@@ -174,7 +174,6 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/sellers/:id/members",
     middlewares: [
-      requirePermission("store", "view"),
       requirePermission("members", "view"),
       ensureSellerIdParamMiddleware,
       validateAndTransformQuery(

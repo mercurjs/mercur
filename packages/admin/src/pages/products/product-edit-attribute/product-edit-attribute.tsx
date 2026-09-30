@@ -6,6 +6,9 @@ import {
   EditAttributeForm,
   ProductAttributeBatchPayload,
   RouteDrawer,
+  SectionNoAccess,
+  isForbidden,
+  useCan,
 } from "@mercurjs/dashboard-shared";
 
 import { useBatchProductAttributes, useProduct } from "../../../hooks/api/products";
@@ -15,6 +18,7 @@ import { PRODUCT_DETAIL_QUERY } from "../constants";
 export const ProductEditAttribute = () => {
   const { id, attribute_id } = useParams();
   const { t } = useTranslation();
+  const canViewAttributes = useCan("product_attributes");
 
   const { product, isLoading, isError, error } = useProduct(
     id!,
@@ -31,7 +35,7 @@ export const ProductEditAttribute = () => {
     isError: isCatalogError,
     error: catalogError,
   } = useProductAttribute(attribute_id!, undefined, {
-    enabled: !!attribute_id && !isLoading && !attached,
+    enabled: !!attribute_id && !isLoading && !attached && canViewAttributes,
   });
 
   const { mutateAsync, isPending } = useBatchProductAttributes(id!);
@@ -39,7 +43,7 @@ export const ProductEditAttribute = () => {
   if (isError) {
     throw error;
   }
-  if (isCatalogError) {
+  if (isCatalogError && !isForbidden(catalogError)) {
     throw catalogError;
   }
 
@@ -66,6 +70,9 @@ export const ProductEditAttribute = () => {
   const ready =
     !isLoading && !!product && !!attribute && (!!attached || !isCatalogLoading);
 
+  const noAccess =
+    !isLoading && !!product && !attached && (!canViewAttributes || isCatalogError);
+
   const onSubmit = async (payload: ProductAttributeBatchPayload) => {
     await mutateAsync(payload, {
       onError: (error) => toast.error(error.message),
@@ -82,6 +89,7 @@ export const ProductEditAttribute = () => {
           {t("products.editAttributeHint")}
         </RouteDrawer.Description>
       </RouteDrawer.Header>
+      {noAccess && <SectionNoAccess />}
       {ready && (
         <EditAttributeForm
           attribute={attribute}

@@ -2,6 +2,7 @@
 import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
+import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { RouteDrawer } from "@components/modals"
 import { useCampaigns } from "@hooks/api/campaigns"
 import { usePromotion } from "@hooks/api/promotions"
@@ -12,14 +13,19 @@ export const Component = () => {
   const { t } = useTranslation()
   const { promotion, isPending, isError, error } = usePromotion(id!)
 
+  const canViewCampaigns = useCan("campaigns")
+
   let campaignQuery = {}
   if (promotion?.application_method?.currency_code) {
     campaignQuery = { budget: { currency_code: promotion?.application_method?.currency_code } }
   }
 
-  const { campaigns, isPending: areCampaignsLoading, isError: isCampaignError, error: campaignError } = useCampaigns(campaignQuery)
+  const { campaigns, isPending: areCampaignsLoading, isError: isCampaignError, error: campaignError } = useCampaigns(campaignQuery, { enabled: canViewCampaigns })
 
-  if (isError || isCampaignError) throw error || campaignError
+  const isNoAccess = !canViewCampaigns || isForbidden(campaignError)
+
+  if (isError) throw error
+  if (isCampaignError && !isNoAccess) throw campaignError
 
   return (
     <RouteDrawer>
@@ -28,7 +34,8 @@ export const Component = () => {
           <Heading>{t("promotions.campaign.edit.header")}</Heading>
         </RouteDrawer.Title>
       </RouteDrawer.Header>
-      {!isPending && !areCampaignsLoading && promotion && campaigns && (
+      {isNoAccess && <SectionNoAccess />}
+      {!isNoAccess && !isPending && !areCampaignsLoading && promotion && campaigns && (
         <AddCampaignPromotionForm promotion={promotion} campaigns={campaigns} />
       )}
     </RouteDrawer>

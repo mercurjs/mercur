@@ -3,6 +3,8 @@
 // old single-file vendor route called the hook at the route entry, which
 // is outside the provider, and crashed.
 import { zodResolver } from "@hookform/resolvers/zod"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import { ConditionalTooltip } from "@components/common/conditional-tooltip"
 import { ArrowRight } from "@medusajs/icons"
 import {
   AdminOrder,
@@ -92,9 +94,13 @@ export function OrderReceiveReturnForm({
     order.id
   )
 
-  const { stock_locations: stockLocations = [] } = useStockLocations({
-    limit: 999,
-  })
+  const locationsGate = usePermissionGate("stock_locations:view")
+  const { stock_locations: stockLocations = [] } = useStockLocations(
+    {
+      limit: 999,
+    },
+    { enabled: locationsGate.allowed }
+  )
 
   const { mutateAsync: updateReturn } = useUpdateReturn(
     orderReturn.id,
@@ -248,23 +254,31 @@ export function OrderReceiveReturnForm({
               name="location_id"
               render={({ field: { value, onChange, ...field } }) => (
                 <Form.Item>
-                  <Form.Control>
-                    <Combobox
-                      value={value ?? undefined}
-                      onChange={(v) => {
-                        onChange(v ?? "")
-                        if (v) {
-                          handleLocationChange(v)
-                        }
-                      }}
-                      {...field}
-                      options={(stockLocations ?? []).map((loc) => ({
-                        label: loc.name,
-                        value: loc.id,
-                      }))}
-                      data-testid="return-receive-location"
-                    />
-                  </Form.Control>
+                  <ConditionalTooltip
+                    showTooltip={locationsGate.denied}
+                    content={locationsGate.tooltip}
+                  >
+                    <div>
+                      <Form.Control>
+                        <Combobox
+                          value={value ?? undefined}
+                          onChange={(v) => {
+                            onChange(v ?? "")
+                            if (v) {
+                              handleLocationChange(v)
+                            }
+                          }}
+                          {...field}
+                          disabled={locationsGate.denied}
+                          options={(stockLocations ?? []).map((loc) => ({
+                            label: loc.name,
+                            value: loc.id,
+                          }))}
+                          data-testid="return-receive-location"
+                        />
+                      </Form.Control>
+                    </div>
+                  </ConditionalTooltip>
                   <Form.ErrorMessage />
                 </Form.Item>
               )}

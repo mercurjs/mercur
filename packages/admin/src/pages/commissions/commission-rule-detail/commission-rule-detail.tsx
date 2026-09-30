@@ -43,6 +43,7 @@ const ScopeSection = ({ rule }: { rule: CommissionRate }) => {
               {
                 actions: [
                   {
+                    permission: "commission_rates:edit",
                     label: t("actions.edit"),
                     icon: <PencilSquare />,
                     to: "edit",
@@ -52,6 +53,7 @@ const ScopeSection = ({ rule }: { rule: CommissionRate }) => {
               {
                 actions: [
                   {
+                    permission: "commission_rates:manage",
                     label: t("actions.delete"),
                     icon: <Trash />,
                     onClick: handleDelete,
@@ -111,6 +113,7 @@ const CommissionSection = ({ rule }: { rule: CommissionRate }) => {
             {
               actions: [
                 {
+                  permission: "commission_rates:edit",
                   label: t("actions.edit"),
                   icon: <PencilSquare />,
                   to: "edit-commission",

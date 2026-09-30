@@ -36,7 +36,10 @@ import {
 
 import {
   DisplayExtensionZone,
+  PermissionAction,
   useActionLocks,
+  useCan,
+  usePermissions,
   WidgetZone,
 } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
@@ -78,13 +81,14 @@ export const OrderSummarySection = ({
   order,
 }: OrderSummarySectionProps) => {
   const { t } = useTranslation()
+  const { can } = usePermissions()
 
   const { reservations } = useReservationItems(
     {
       line_item_id: order?.items?.map((i) => i.id),
       limit: getReservationsLimitCount(order),
     },
-    { enabled: Array.isArray(order?.items) }
+    { enabled: Array.isArray(order?.items) && can("reservations") }
   )
 
   const { order: orderPreview } = useOrderPreview(order.id)
@@ -94,11 +98,14 @@ export const OrderSummarySection = ({
     [reservations]
   )
 
-  const { returns: receivableReturnsList = [] } = useReturns({
-    status: "requested",
-    order_id: order.id,
-    fields: "+received_at",
-  })
+  const { returns: receivableReturnsList = [] } = useReturns(
+    {
+      status: "requested",
+      order_id: order.id,
+      fields: "+received_at",
+    },
+    { enabled: can("orders.returns") }
+  )
 
   const receivableReturns = useMemo(
     () =>
@@ -156,13 +163,15 @@ export const OrderSummarySection = ({
         <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
           {showReturns &&
             (receivableReturns.length === 1 ? (
-              <Button asChild variant="secondary" size="small">
-                <Link
-                  to={`/orders/${order.id}/returns/${receivableReturns[0].id}/receive`}
-                >
-                  {t("orders.returns.receive.action")}
-                </Link>
-              </Button>
+              <PermissionAction permission="orders.returns:edit">
+                <Button asChild variant="secondary" size="small">
+                  <Link
+                    to={`/orders/${order.id}/returns/${receivableReturns[0].id}/receive`}
+                  >
+                    {t("orders.returns.receive.action")}
+                  </Link>
+                </Button>
+              </PermissionAction>
             ) : (
               <ActionMenu
                 groups={[
@@ -182,6 +191,7 @@ export const OrderSummarySection = ({
                       }
 
                       return {
+                        permission: "orders.returns:edit" as const,
                         label: t("orders.returns.receive.receiveItems", {
                           id: `#${id?.slice(-7)}`,
                           returnType,
@@ -200,29 +210,33 @@ export const OrderSummarySection = ({
             ))}
 
           {showAllocateButton && (
-            <Button
-              asChild
-              variant="secondary"
-              size="small"
-              data-testid="order-summary-allocate-items-cta"
-            >
-              <Link to="allocate-items">
-                {t("orders.allocateItems.action")}
-              </Link>
-            </Button>
+            <PermissionAction permission="reservations:edit">
+              <Button
+                asChild
+                variant="secondary"
+                size="small"
+                data-testid="order-summary-allocate-items-cta"
+              >
+                <Link to="allocate-items">
+                  {t("orders.allocateItems.action")}
+                </Link>
+              </Button>
+            </PermissionAction>
           )}
 
           {showRefund && (
-            <Button size="small" variant="secondary" asChild>
-              <Link to={`/orders/${order.id}/refund`}>
-                {t("orders.payment.refundAmount", {
-                  amount: getStylizedAmount(
-                    pendingDifference * -1,
-                    order?.currency_code
-                  ),
-                })}
-              </Link>
-            </Button>
+            <PermissionAction permission="payments:edit">
+              <Button size="small" variant="secondary" asChild>
+                <Link to={`/orders/${order.id}/refund`}>
+                  {t("orders.payment.refundAmount", {
+                    amount: getStylizedAmount(
+                      pendingDifference * -1,
+                      order?.currency_code
+                    ),
+                  })}
+                </Link>
+              </Button>
+            </PermissionAction>
           )}
         </div>
       )}
@@ -296,6 +310,7 @@ const Header = ({
           {
             actions: [
               {
+                permission: "orders.edits:edit",
                 label: t(
                   isOrderEditPending
                     ? "orders.summary.editOrderContinue"
@@ -311,6 +326,7 @@ const Header = ({
           {
             actions: [
               {
+                permission: "orders.returns:edit",
                 label: t("orders.returns.create"),
                 to: "returns/create",
                 disabled:
@@ -330,6 +346,7 @@ const Header = ({
                 icon: <ArrowUturnLeft />,
               },
               {
+                permission: "orders.returns:edit",
                 label:
                   orderChange?.id && orderChange?.exchange_id
                     ? t("orders.exchanges.manage")
@@ -352,6 +369,7 @@ const Header = ({
                 icon: <ArrowPath />,
               },
               {
+                permission: "orders.returns:edit",
                 label:
                   orderChange?.id && orderChange?.claim_id
                     ? t("orders.claims.manage")
@@ -500,10 +518,14 @@ const ItemBreakdown = ({
   order: AdminOrder
   reservations: AdminReservation[]
 }) => {
-  const { returns: returnsList = [] } = useReturns({
-    order_id: order.id,
-    fields: "*items,*items.reason",
-  })
+  const canViewReturns = useCan("orders.returns")
+  const { returns: returnsList = [] } = useReturns(
+    {
+      order_id: order.id,
+      fields: "*items,*items.reason",
+    },
+    { enabled: canViewReturns }
+  )
 
   const returns = useMemo<ReturnWithReason[]>(
     () =>
@@ -719,7 +741,10 @@ const CostBreakdown = ({
   const [isShippingOpen, setIsShippingOpen] = useState(false)
   const [isCommissionOpen, setIsCommissionOpen] = useState(false)
 
-  const { commission_lines } = useOrderCommissionLines(order.id)
+  const canViewCommission = useCan("commission_lines")
+  const { commission_lines } = useOrderCommissionLines(order.id, {
+    enabled: canViewCommission,
+  })
   const hasCommission = commission_lines.length > 0
   const commissionTotal = commission_lines.reduce(
     (acc, line) => acc + (line.amount ?? 0),

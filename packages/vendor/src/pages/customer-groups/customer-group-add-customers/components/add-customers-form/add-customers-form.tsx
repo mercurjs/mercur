@@ -11,6 +11,8 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
 
+import { isForbidden, SectionNoAccess } from "@mercurjs/dashboard-shared";
+
 import { RouteFocusModal, useRouteModal } from "@components/modals";
 import { _DataTable } from "@components/table/data-table";
 import { KeyboundForm } from "@components/utilities/keybound-form";
@@ -116,6 +118,16 @@ export const AddCustomersForm = ({ customerGroupId }: AddCustomersFormProps) => 
   });
 
   if (isError) {
+    if (isForbidden(error)) {
+      return (
+        <>
+          <RouteFocusModal.Header />
+          <RouteFocusModal.Body>
+            <SectionNoAccess />
+          </RouteFocusModal.Body>
+        </>
+      );
+    }
     throw error;
   }
 

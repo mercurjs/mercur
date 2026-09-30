@@ -1,5 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { Button, Checkbox, toast } from "@medusajs/ui"
+import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import {
   RowSelectionState,
@@ -75,10 +76,11 @@ export const LocationEditFulfillmentProvidersForm = ({
     pageSize: PAGE_SIZE,
   })
 
+  const canViewProviders = useCan("fulfillment_sets")
   const { fulfillment_providers, count, isLoading, isError, error } =
     useFulfillmentProviders(
       { ...searchParams, is_enabled: true },
-      { placeholderData: keepPreviousData }
+      { placeholderData: keepPreviousData, enabled: canViewProviders }
     )
 
   const filters = useDateTableFilters()
@@ -122,6 +124,17 @@ export const LocationEditFulfillmentProvidersForm = ({
       }
     )
   })
+
+  if (!canViewProviders || isForbidden(error)) {
+    return (
+      <>
+        <RouteFocusModal.Header />
+        <RouteFocusModal.Body>
+          <SectionNoAccess />
+        </RouteFocusModal.Body>
+      </>
+    )
+  }
 
   if (isError) {
     throw error

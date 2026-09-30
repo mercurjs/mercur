@@ -1,6 +1,7 @@
 import { Channels, PencilSquare } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Container, Heading, Text } from "@medusajs/ui"
+import { useCan } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
@@ -17,7 +18,11 @@ function LocationsSalesChannelsSection({
   location,
 }: LocationsSalesChannelsSectionProps) {
   const { t } = useTranslation()
-  const { count } = useSalesChannels({ limit: 1, fields: "id" })
+  const canViewSalesChannels = useCan("sales_channels")
+  const { count } = useSalesChannels(
+    { limit: 1, fields: "id" },
+    { enabled: canViewSalesChannels }
+  )
 
   const hasConnectedChannels = !!location.sales_channels?.length
 
@@ -30,6 +35,7 @@ function LocationsSalesChannelsSection({
             {
               actions: [
                 {
+                  permission: "stock_locations:edit",
                   label: t("actions.edit"),
                   to: "sales-channels",
                   icon: <PencilSquare />,
@@ -54,17 +60,20 @@ function LocationsSalesChannelsSection({
               data-testid="location-sales-channels-section-summary"
             />
           </div>
-          <Text className="text-ui-fg-subtle" size="small" leading="compact" data-testid="location-sales-channels-section-description">
-            {t("stockLocations.salesChannels.connectedTo", {
-              count: location.sales_channels?.length,
-              total: count,
-            })}
-          </Text>
+          {canViewSalesChannels && (
+            <Text className="text-ui-fg-subtle" size="small" leading="compact" data-testid="location-sales-channels-section-description">
+              {t("stockLocations.salesChannels.connectedTo", {
+                count: location.sales_channels?.length,
+                total: count,
+              })}
+            </Text>
+          )}
         </div>
       ) : (
         <NoRecords
           className="h-fit pb-2 pt-6"
           action={{
+            permission: "stock_locations:edit",
             label: t("stockLocations.salesChannels.action"),
             to: "sales-channels",
           }}

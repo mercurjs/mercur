@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next"
+import { useCan } from "@mercurjs/dashboard-shared"
 import { Filter } from "../../../components/table/data-table"
 import { useCustomerGroups } from "../../api/customer-groups"
 
@@ -9,7 +10,9 @@ export const useCustomerTableFilters = (
 ) => {
   const { t } = useTranslation()
 
-  const isGroupsExcluded = exclude?.includes("groups")
+  const canViewGroups = useCan("customer_groups")
+
+  const isGroupsExcluded = exclude?.includes("groups") || !canViewGroups
 
   const { customer_groups } = useCustomerGroups(
     {

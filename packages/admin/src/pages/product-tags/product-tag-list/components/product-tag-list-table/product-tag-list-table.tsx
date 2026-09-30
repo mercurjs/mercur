@@ -100,6 +100,7 @@ const ProductTagRowActions = ({
           actions: [
             {
               icon: <PencilSquare />,
+              permission: "product_tags:edit",
               label: t("actions.edit"),
               to: `${productTag.id}/edit`,
             },
@@ -109,6 +110,7 @@ const ProductTagRowActions = ({
           actions: [
             {
               icon: <Trash />,
+              permission: "product_tags:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
             },

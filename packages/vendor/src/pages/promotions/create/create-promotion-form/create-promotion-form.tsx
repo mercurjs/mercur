@@ -28,6 +28,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
+import { useCan } from "@mercurjs/dashboard-shared"
 import { Form } from "@components/common/form"
 import { SwitchBox } from "@components/common/switch-box"
 import { DeprecatedPercentageInput } from "@components/inputs/percentage-input"
@@ -355,7 +356,10 @@ export const CreatePromotionForm = () => {
     };
   }
 
-  const { campaigns } = useCampaigns(campaignQuery);
+  const canViewCampaigns = useCan("campaigns");
+  const { campaigns } = useCampaigns(campaignQuery, {
+    enabled: canViewCampaigns
+  });
 
   const watchCampaignChoice = useWatch({
     control: form.control,

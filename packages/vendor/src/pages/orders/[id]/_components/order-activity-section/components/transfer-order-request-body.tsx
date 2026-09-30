@@ -2,6 +2,7 @@ import { Text } from "@medusajs/ui"
 import { AdminOrderChange } from "@medusajs/types"
 import { useTranslation } from "react-i18next"
 import { useCustomer } from "@hooks/api"
+import { useCan } from "@mercurjs/dashboard-shared"
 
 type TransferOrderRequestBodyProps = {
   transfer: AdminOrderChange
@@ -13,7 +14,10 @@ export const TransferOrderRequestBody = ({
   const { t } = useTranslation()
 
   const action = transfer.actions[0]
-  const { customer } = useCustomer(action.reference_id)
+  const canViewCustomer = useCan("customers")
+  const { customer } = useCustomer(action.reference_id, undefined, {
+    enabled: canViewCustomer,
+  })
 
   return (
     <div>
@@ -23,9 +27,11 @@ export const TransferOrderRequestBody = ({
 
       <Text size="small" className="text-ui-fg-subtle">
         {t("orders.activity.to")}:{" "}
-        {customer?.first_name
-          ? `${customer?.first_name} ${customer?.last_name}`
-          : customer?.email}
+        {!canViewCustomer
+          ? action.reference_id
+          : customer?.first_name
+            ? `${customer?.first_name} ${customer?.last_name}`
+            : customer?.email}
       </Text>
     </div>
   )

@@ -111,6 +111,41 @@ medusaIntegrationTestRunner({
         const withoutField = await api.get("/vendor/members/me", headers)
         expect(withoutField.data.seller_member.permissions).toBeUndefined()
       })
+
+      it("lists members with members:view alone", async () => {
+        useResolver({ members: "view" })
+
+        const members = await api.get(
+          `/vendor/sellers/${headers.headers["x-seller-id"]}/members`,
+          headers
+        )
+
+        expect(members.status).toEqual(200)
+      })
+
+      it("accepts uploads for the store profile as well as for products", async () => {
+        useResolver({ orders: "view" })
+
+        const denied = await api
+          .post("/vendor/uploads", {}, headers)
+          .catch((error) => error.response)
+
+        expect(denied.status).toEqual(403)
+        expect(denied.data.code).toEqual("MISSING_PERMISSION")
+
+        for (const permissions of [
+          { store: "edit" },
+          { products: "edit" },
+        ] as PermissionMap[]) {
+          useResolver(permissions)
+
+          const allowed = await api
+            .post("/vendor/uploads", {}, headers)
+            .catch((error) => error.response)
+
+          expect(allowed.status).not.toEqual(403)
+        }
+      })
     })
   },
 })

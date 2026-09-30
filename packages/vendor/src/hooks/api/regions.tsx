@@ -20,10 +20,13 @@ export const regionsQueryKeys = queryKeysFactory(REGIONS_QUERY_KEY);
 export const useRegion = (
   id: string,
   query?: Omit<InferClientInput<typeof sdk.vendor.regions.$id.query>, "$id">,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.regions.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.regions.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -37,10 +40,13 @@ export const useRegion = (
 
 export const useRegions = (
   query?: InferClientInput<typeof sdk.vendor.regions.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.regions.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.regions.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({

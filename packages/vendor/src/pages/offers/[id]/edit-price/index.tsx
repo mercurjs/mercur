@@ -5,6 +5,7 @@ import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
+import { isForbidden, SectionNoAccess, useCan } from "@mercurjs/dashboard-shared"
 
 import { Thumbnail } from "../../../../components/common/thumbnail"
 import {
@@ -117,7 +118,11 @@ const EditPriceGrid = ({
   const { t } = useTranslation()
   const { handleSuccess, setCloseOnEscape } = useRouteModal()
   const { currency_code } = useCurrentSeller()
-  const { price_preferences: pricePreferences } = usePricePreferences({})
+  const canViewPricePreferences = useCan("price_preferences")
+  const { price_preferences: pricePreferences } = usePricePreferences(
+    {},
+    { enabled: canViewPricePreferences }
+  )
 
   const currencies = useMemo(
     () => (currency_code ? [currency_code] : []),
@@ -198,7 +203,9 @@ export const OfferEditPricePage = () => {
     fields: OFFER_PRODUCT_DETAIL_FIELDS,
   })
 
-  if (isError) throw error
+  const forbidden = isError && isForbidden(error)
+
+  if (isError && !forbidden) throw error
 
   return (
     <RouteFocusModal>
@@ -208,8 +215,18 @@ export const OfferEditPricePage = () => {
       <RouteFocusModal.Description asChild>
         <span className="sr-only">{t("offers.pricing.description")}</span>
       </RouteFocusModal.Description>
-      {!isPending && product && (
-        <EditPriceGrid product={product as PriceProduct} productId={id!} />
+      {forbidden ? (
+        <>
+          <RouteFocusModal.Header />
+          <RouteFocusModal.Body>
+            <SectionNoAccess />
+          </RouteFocusModal.Body>
+        </>
+      ) : (
+        !isPending &&
+        product && (
+          <EditPriceGrid product={product as PriceProduct} productId={id!} />
+        )
       )}
     </RouteFocusModal>
   )

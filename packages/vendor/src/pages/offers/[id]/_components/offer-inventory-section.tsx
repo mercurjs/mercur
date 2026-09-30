@@ -9,7 +9,11 @@ import { ActionMenu } from "../../../../components/common/action-menu"
 import { _DataTable } from "../../../../components/table/data-table"
 import { PlaceholderCell } from "../../../../components/table/table-cells/common/placeholder-cell"
 import { useDataTable } from "../../../../hooks/use-data-table"
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import {
+  DisplayExtensionZone,
+  PermissionAction,
+  useCan,
+} from "@mercurjs/dashboard-shared"
 
 import { OfferDetail, OfferInventoryItemLink } from "../../common/types"
 
@@ -57,6 +61,7 @@ const InventoryActions = ({ item }: { item: InventoryRow }) => {
           actions: [
             {
               icon: <Buildings />,
+              permission: "inventory_items:view",
               label: t("offers.detail.goToInventoryItem"),
               to: `/inventory/${item.id}`,
             },
@@ -69,6 +74,7 @@ const InventoryActions = ({ item }: { item: InventoryRow }) => {
 
 export const OfferInventorySection = ({ offer }: Props) => {
   const { t } = useTranslation()
+  const canViewInventory = useCan("inventory_items")
 
   const inventoryItems: InventoryRow[] = useMemo(() => {
     const links: OfferInventoryItemLink[] = offer.inventory_item_link ?? []
@@ -181,6 +187,7 @@ export const OfferInventorySection = ({ offer }: Props) => {
                 actions: [
                   {
                     icon: <Buildings />,
+                    permission: "offers:edit",
                     label: t("offers.inventory.manageItemsAction"),
                     to: "manage-items",
                   },
@@ -201,9 +208,11 @@ export const OfferInventorySection = ({ offer }: Props) => {
               {t("offers.inventory.notManagedDesc")}
             </Text>
           </div>
-          <Button size="small" variant="secondary" asChild>
-            <Link to="edit">{t("offers.inventory.editVariant")}</Link>
-          </Button>
+          <PermissionAction permission="offers:edit">
+            <Button size="small" variant="secondary" asChild>
+              <Link to="edit">{t("offers.inventory.editVariant")}</Link>
+            </Button>
+          </PermissionAction>
         </div>
       ) : inventoryItems.length === 0 ? (
         <div className="flex flex-col items-center gap-y-4 px-6 py-8">
@@ -215,11 +224,13 @@ export const OfferInventorySection = ({ offer }: Props) => {
               {t("offers.inventory.noItemsDesc")}
             </Text>
           </div>
-          <Button size="small" variant="secondary" asChild>
-            <Link to="manage-items">
-              {t("offers.inventory.manageItemsButton")}
-            </Link>
-          </Button>
+          <PermissionAction permission="offers:edit">
+            <Button size="small" variant="secondary" asChild>
+              <Link to="manage-items">
+                {t("offers.inventory.manageItemsButton")}
+              </Link>
+            </Button>
+          </PermissionAction>
         </div>
       ) : (
         <_DataTable
@@ -227,7 +238,9 @@ export const OfferInventorySection = ({ offer }: Props) => {
           columns={columns}
           pageSize={PAGE_SIZE}
           count={inventoryItems.length}
-          navigateTo={(row) => `/inventory/${row.id}`}
+          navigateTo={
+            canViewInventory ? (row) => `/inventory/${row.id}` : undefined
+          }
         />
       )}
       <DisplayExtensionZone model="offer" zone="inventory" data={offer} />

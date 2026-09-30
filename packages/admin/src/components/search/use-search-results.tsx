@@ -1,5 +1,4 @@
 import { HttpTypes } from "@medusajs/types"
-import { usePermissions } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import { TFunction } from "i18next"
 import { useCallback, useEffect, useMemo, useState } from "react"
@@ -22,7 +21,6 @@ import {
 import { Shortcut, ShortcutType } from "../../providers/keybind-provider"
 import { useGlobalShortcuts } from "../../providers/keybind-provider/hooks"
 import { useSearch } from "../../providers/search-provider"
-import { getRoutePermission } from "../../lib/permissions/route-permissions"
 import { DynamicSearchResult, SearchArea } from "./types"
 import { useSearchAreaAccess } from "./use-search-area-access"
 
@@ -49,17 +47,11 @@ export const useSearchResults = ({
 
 const useStaticSearchResults = (currentArea: SearchArea) => {
   const globalCommands = useGlobalShortcuts()
-  const { hasPermission } = usePermissions()
 
   const results = useMemo(() => {
     const groups = new Map<ShortcutType, Shortcut[]>()
 
     globalCommands.forEach((command) => {
-      const permission = command.to && getRoutePermission(command.to)
-      if (permission && !hasPermission(permission)) {
-        return
-      }
-
       const group = groups.get(command.type) || []
       group.push(command)
       groups.set(command.type, group)
@@ -89,7 +81,7 @@ const useStaticSearchResults = (currentArea: SearchArea) => {
       title,
       items,
     }))
-  }, [globalCommands, currentArea, hasPermission])
+  }, [globalCommands, currentArea])
 
   return results
 }

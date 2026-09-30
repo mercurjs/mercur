@@ -1,4 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import { ConditionalTooltip } from "@components/common/conditional-tooltip"
 import { PencilSquare, Tag } from "@medusajs/icons"
 import {
   AdminOrder,
@@ -142,13 +144,22 @@ export const ReturnCreateForm = ({
   /**
    * HOOKS
    */
-  const { stock_locations: stockLocations = [] } = useStockLocations({
-    limit: 999,
-  }) as { stock_locations?: StockLocationRow[] }
-  const { shipping_options: shippingOptions = [] } = useShippingOptions({
-    limit: 999,
-    fields: "*prices,+service_zone.fulfillment_set.location.id",
-  }) as { shipping_options?: ShippingOptionRow[] }
+  const locationsGate = usePermissionGate("stock_locations:view")
+  const shippingOptionsGate = usePermissionGate("shipping_options:view")
+
+  const { stock_locations: stockLocations = [] } = useStockLocations(
+    {
+      limit: 999,
+    },
+    { enabled: locationsGate.allowed }
+  ) as { stock_locations?: StockLocationRow[] }
+  const { shipping_options: shippingOptions = [] } = useShippingOptions(
+    {
+      limit: 999,
+      fields: "*prices,+service_zone.fulfillment_set.location.id",
+    },
+    { enabled: shippingOptionsGate.allowed }
+  ) as { shipping_options?: ShippingOptionRow[] }
 
   /**
    * MUTATIONS
@@ -639,23 +650,31 @@ export const ReturnCreateForm = ({
                     render={({ field: { value, onChange, ...field } }) => {
                       return (
                         <Form.Item>
-                          <Form.Control>
-                            <Combobox
-                              value={value ?? undefined}
-                              onChange={(v) => {
-                                onChange(v)
-                                onLocationChange(v ?? "")
-                              }}
-                              {...field}
-                              options={(stockLocations ?? []).map(
-                                (loc) => ({
-                                  label: loc.name,
-                                  value: loc.id,
-                                })
-                              )}
-                              data-testid="return-create-location"
-                            />
-                          </Form.Control>
+                          <ConditionalTooltip
+                            showTooltip={locationsGate.denied}
+                            content={locationsGate.tooltip}
+                          >
+                            <div>
+                              <Form.Control>
+                                <Combobox
+                                  value={value ?? undefined}
+                                  onChange={(v) => {
+                                    onChange(v)
+                                    onLocationChange(v ?? "")
+                                  }}
+                                  {...field}
+                                  disabled={locationsGate.denied}
+                                  options={(stockLocations ?? []).map(
+                                    (loc) => ({
+                                      label: loc.name,
+                                      value: loc.id,
+                                    })
+                                  )}
+                                  data-testid="return-create-location"
+                                />
+                              </Form.Control>
+                            </div>
+                          </ConditionalTooltip>
                         </Form.Item>
                       )
                     }}
@@ -687,39 +706,46 @@ export const ReturnCreateForm = ({
                     render={({ field: { value, onChange, ...field } }) => {
                       return (
                         <Form.Item>
-                          <Form.Control>
-                            <Combobox
-                              allowClear
-                              value={value}
-                              onChange={(v) => {
-                                onChange(v ?? "")
-                                onShippingOptionChange(v)
-                              }}
-                              {...field}
-                              options={(shippingOptions ?? [])
-                                .filter(
-                                  (so) =>
-                                    (locationId
-                                      ? so.service_zone?.fulfillment_set
-                                          ?.location?.id === locationId
-                                      : true) &&
-                                    !!so.rules?.find(
-                                      (r) =>
-                                        r.attribute === "is_return" &&
-                                        r.value === "true"
+                          <ConditionalTooltip
+                            showTooltip={shippingOptionsGate.denied}
+                            content={shippingOptionsGate.tooltip}
+                          >
+                            <div>
+                              <Form.Control>
+                                <Combobox
+                                  allowClear
+                                  value={value}
+                                  onChange={(v) => {
+                                    onChange(v ?? "")
+                                    onShippingOptionChange(v)
+                                  }}
+                                  {...field}
+                                  options={(shippingOptions ?? [])
+                                    .filter(
+                                      (so) =>
+                                        (locationId
+                                          ? so.service_zone?.fulfillment_set
+                                              ?.location?.id === locationId
+                                          : true) &&
+                                        !!so.rules?.find(
+                                          (r) =>
+                                            r.attribute === "is_return" &&
+                                            r.value === "true"
+                                        )
                                     )
-                                )
-                                .map((so) => ({
-                                  label: so.name,
-                                  value: so.id,
-                                }))}
-                              disabled={!locationId}
-                              noResultsPlaceholder={
-                                <ReturnShippingPlaceholder />
-                              }
-                              data-testid="return-create-shipping-option"
-                            />
-                          </Form.Control>
+                                    .map((so) => ({
+                                      label: so.name,
+                                      value: so.id,
+                                    }))}
+                                  disabled={!locationId || shippingOptionsGate.denied}
+                                  noResultsPlaceholder={
+                                    <ReturnShippingPlaceholder />
+                                  }
+                                  data-testid="return-create-shipping-option"
+                                />
+                              </Form.Control>
+                            </div>
+                          </ConditionalTooltip>
                         </Form.Item>
                       )
                     }}

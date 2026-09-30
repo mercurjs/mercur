@@ -1,7 +1,12 @@
 import { Children, ReactNode } from "react"
 import { useLoaderData, useParams, useSearchParams } from "react-router-dom"
 
-import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
+import {
+  isForbidden,
+  SectionNoAccess,
+  useLinkQuery,
+  WidgetZone,
+} from "@mercurjs/dashboard-shared"
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
@@ -31,6 +36,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
   )
 
   if (isError) {
+    if (isForbidden(error)) {
+      return <SectionNoAccess />
+    }
+
     throw error
   }
 

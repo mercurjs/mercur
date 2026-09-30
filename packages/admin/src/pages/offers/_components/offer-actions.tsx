@@ -82,6 +82,7 @@ export const OfferActions = ({ product }: { product: OfferProductActions }) => {
         icon: <Trash />,
         label: t("actions.delete"),
         onClick: handleDelete,
+        permission: "offers:manage" as const,
         disabled: product.offerIds.length === 0,
       },
     ],

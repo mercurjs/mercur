@@ -142,6 +142,7 @@ export const CollectionProductSection = ({
             action: handleRemove,
             label: t("actions.remove"),
             shortcut: "r",
+            permission: "product_collections:edit",
           },
         ]}
         noRecords={{
@@ -204,7 +205,7 @@ const ProductActions = ({
           actions: [
             {
               icon: <PencilSquare />,
-              permission: "product_collections:edit",
+              permission: "products:edit",
               label: t("actions.edit"),
               to: `/products/${product.id}/edit`,
             },
@@ -214,6 +215,7 @@ const ProductActions = ({
           actions: [
             {
               icon: <Trash />,
+              permission: "product_collections:edit",
               label: t("actions.remove"),
               onClick: handleRemove,
             },

@@ -93,6 +93,7 @@ export const PromotionConditionsSection = ({
             action={{
               to: `${ruleType}/edit`,
               label: t("promotions.conditions.add"),
+              permission: "promotions:edit",
             }}
           />
         )}

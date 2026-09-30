@@ -1,6 +1,7 @@
 import { toast } from "@medusajs/ui";
 import {
   ProductAttributeSection as SharedProductAttributeSection,
+  useCan,
 } from "@mercurjs/dashboard-shared";
 import { ProductAttributeDTO } from "@mercurjs/types";
 
@@ -18,10 +19,11 @@ export const ProductAttributeSection = ({
 }: {
   product: ProductWithAttributes;
 }) => {
+  const canViewAttributes = useCan("product_attributes");
   const categoryId = product.categories?.[0]?.id;
   const { product_attributes } = useProductAttributes(
     { category_id: categoryId, is_required: true },
-    { enabled: !!categoryId },
+    { enabled: !!categoryId && canViewAttributes },
   );
 
   const { mutateAsync } = useBatchProductAttributes(product.id);
@@ -40,6 +42,10 @@ export const ProductAttributeSection = ({
       // Error surfaced via the mutation's onError toast.
     }
   };
+
+  if (!canViewAttributes) {
+    return null;
+  }
 
   return (
     <SharedProductAttributeSection

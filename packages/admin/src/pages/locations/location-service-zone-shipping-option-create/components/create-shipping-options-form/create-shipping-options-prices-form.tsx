@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react"
 import { useWatch } from "react-hook-form"
 
+import type { HttpTypes } from "@medusajs/types"
+import { isForbidden, useCan } from "@mercurjs/dashboard-shared"
+
 import { DataGrid } from "../../../../../components/data-grid"
 import {
   StackedFocusModal,
@@ -21,6 +24,8 @@ import {
 import { useShippingOptionPriceColumns } from "../../../common/hooks/use-shipping-option-price-columns"
 import { ConditionalPriceInfo } from "../../../common/types"
 import { CreateShippingOptionSchema } from "./schema"
+
+const NO_REGIONS: HttpTypes.AdminRegion[] = []
 
 type PricingPricesFormProps = {
   type: FulfillmentSetType
@@ -55,15 +60,23 @@ const Root = ({ type }: PricingPricesFormProps) => {
     [store]
   )
 
+  const canViewRegions = useCan("regions")
   const {
-    regions,
+    regions: fetchedRegions,
     isLoading: isRegionsLoading,
     isError: isRegionsError,
     error: regionsError,
-  } = useRegions({
-    fields: "id,name,currency_code",
-    limit: 999,
-  })
+  } = useRegions(
+    {
+      fields: "id,name,currency_code",
+      limit: 999,
+    },
+    { enabled: canViewRegions }
+  )
+
+  // Without access to regions only the currency prices can be set.
+  const regionsForbidden = !canViewRegions || isForbidden(regionsError)
+  const regions = regionsForbidden ? NO_REGIONS : fetchedRegions
 
   const { price_preferences: pricePreferences } = usePricePreferences({})
 
@@ -113,7 +126,7 @@ const Root = ({ type }: PricingPricesFormProps) => {
     throw storeError
   }
 
-  if (isRegionsError) {
+  if (isRegionsError && !regionsForbidden) {
     throw regionsError
   }
 

@@ -44,6 +44,7 @@ export const StoreAddressSection = ({ seller }: StoreAddressSectionProps) => {
                   label: t("actions.edit"),
                   icon: <PencilSquare />,
                   to: `/stores/${seller.id}/edit-address`,
+                  permission: "sellers:edit",
                 },
               ],
             },

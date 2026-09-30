@@ -2,6 +2,7 @@ import { Check, TrianglesMini } from "@medusajs/icons"
 import { AdminProductCategoryResponse } from "@medusajs/types"
 import { Text, clx } from "@medusajs/ui"
 import { Select } from "radix-ui"
+import { useCan } from "@mercurjs/dashboard-shared"
 import {
   CSSProperties,
   ComponentPropsWithoutRef,
@@ -51,8 +52,10 @@ export const CategorySelect = forwardRef<
   const [level, setLevel] = useState<Level[]>([])
   const { searchValue } = useDebouncedSearch()
 
+  const canViewCategories = useCan("product_categories")
+
   const { product_categories, isPending, isError, error } =
-    useProductCategories()
+    useProductCategories(undefined, { enabled: canViewCategories })
 
   const [showLoading, setShowLoading] = useState(false)
 
@@ -182,7 +185,7 @@ export const CategorySelect = forwardRef<
   }
 
   return (
-    <Select.Root onValueChange={handleSelect}>
+    <Select.Root onValueChange={handleSelect} disabled={!canViewCategories}>
       <Select.Trigger
         className={clx(
           "relative flex cursor-pointer items-center gap-x-2 overflow-hidden px-2",

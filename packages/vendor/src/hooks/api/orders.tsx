@@ -34,10 +34,13 @@ export const ordersQueryKeys = _orderKeys;
 export const useOrder = (
   id: string,
   query?: HttpTypes.AdminOrderFilters,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    HttpTypes.AdminOrderResponse
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      HttpTypes.AdminOrderResponse
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -78,10 +81,13 @@ export const useUpdateOrder = (
 export const useOrderPreview = (
   id: string,
   query?: HttpTypes.AdminOrderFilters,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    HttpTypes.AdminOrderPreviewResponse
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      HttpTypes.AdminOrderPreviewResponse
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -96,10 +102,13 @@ export const useOrderPreview = (
 
 export const useOrders = (
   query?: HttpTypes.AdminOrderListParams,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    HttpTypes.AdminOrderListResponse
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      HttpTypes.AdminOrderListResponse
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -114,10 +123,13 @@ export const useOrders = (
 export const useOrderChanges = (
   id: string,
   query?: Record<string, unknown>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    HttpTypes.AdminOrderChangesResponse
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      HttpTypes.AdminOrderChangesResponse
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({

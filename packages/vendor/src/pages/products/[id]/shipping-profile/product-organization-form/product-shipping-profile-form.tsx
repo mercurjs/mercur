@@ -1,4 +1,6 @@
 import { ExtendedAdminProduct } from "@custom-types/products"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import { ConditionalTooltip } from "@components/common/conditional-tooltip"
 import { Button, toast } from "@medusajs/ui"
 import { HttpTypes } from "@medusajs/types"
 import { useTranslation } from "react-i18next"
@@ -31,6 +33,8 @@ export const ProductShippingProfileForm = ({
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
+  const profilesGate = usePermissionGate("shipping_profiles:view")
+
   const shippingProfiles = useComboboxData({
     queryKey: ["shipping_profiles"],
     queryFn: (params) =>
@@ -43,6 +47,7 @@ export const ProductShippingProfileForm = ({
         label: sp.name ?? "",
         value: sp.id,
       })),
+    enabled: profilesGate.allowed,
   })
 
   const form = useForm({
@@ -94,18 +99,26 @@ export const ProductShippingProfileForm = ({
                     <Form.Label>
                       {t("products.fields.shipping_profile.label")}
                     </Form.Label>
-                    <Form.Control>
-                      <Combobox
-                        {...field}
-                        allowClear
-                        options={shippingProfiles.options}
-                        searchValue={shippingProfiles.searchValue}
-                        onSearchValueChange={
-                          shippingProfiles.onSearchValueChange
-                        }
-                        fetchNextPage={shippingProfiles.fetchNextPage}
-                      />
-                    </Form.Control>
+                    <ConditionalTooltip
+                      showTooltip={profilesGate.denied}
+                      content={profilesGate.tooltip}
+                    >
+                      <div>
+                        <Form.Control>
+                          <Combobox
+                            {...field}
+                            allowClear
+                            disabled={profilesGate.denied}
+                            options={shippingProfiles.options}
+                            searchValue={shippingProfiles.searchValue}
+                            onSearchValueChange={
+                              shippingProfiles.onSearchValueChange
+                            }
+                            fetchNextPage={shippingProfiles.fetchNextPage}
+                          />
+                        </Form.Control>
+                      </div>
+                    </ConditionalTooltip>
                     <Form.ErrorMessage />
                   </Form.Item>
                 )

@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
 
+import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { DataTable } from "@components/data-table"
 import * as hooks from "@components/data-table/helpers/sales-channels"
 import {
@@ -68,12 +69,16 @@ export const LocationEditSalesChannelsForm = ({
     prefix: PREFIX,
   })
 
+  const canViewSalesChannels = useCan("sales_channels")
+  const isNoAccess = !canViewSalesChannels
+
   const { sales_channels, count, isPending, isError, error } = useSalesChannels(
     {
       ...searchParams,
     },
     {
       placeholderData: keepPreviousData,
+      enabled: canViewSalesChannels,
     }
   )
 
@@ -105,6 +110,10 @@ export const LocationEditSalesChannelsForm = ({
       }
     )
   })
+
+  if (isNoAccess || isForbidden(error)) {
+    return <SectionNoAccess />
+  }
 
   if (isError) {
     throw error

@@ -49,6 +49,7 @@ const ReviewActions = ({ review }: { review: AdminReview }) => {
           actions: [
             {
               icon: <PencilSquare />,
+              permission: "reviews:edit",
               label: t("actions.edit"),
               to: `/reviews/${review.id}/edit`,
             },
@@ -58,6 +59,7 @@ const ReviewActions = ({ review }: { review: AdminReview }) => {
           actions: [
             {
               icon: <Trash />,
+              permission: "reviews:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
             },

@@ -3,6 +3,7 @@ import { Button, toast } from "@medusajs/ui";
 import { ReactNode, useEffect, useMemo, Children } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { isForbidden, useCan } from "@mercurjs/dashboard-shared";
 import {
   RouteFocusModal,
   useRouteModal,
@@ -52,14 +53,16 @@ export const ProductCreateForm = ({
 
   const { mutateAsync, isPending } = useCreateProduct();
 
+  const canViewRegions = useCan("regions");
   const {
     regions,
-    isPending: isRegionsPending,
+    isPending: isRegionsQueryPending,
     isError: isRegionsError,
     error: regionsError,
-  } = useRegions({ limit: 9999 });
+  } = useRegions({ limit: 9999 }, { enabled: canViewRegions });
+  const isRegionsPending = canViewRegions && isRegionsQueryPending;
 
-  if (isRegionsError) {
+  if (isRegionsError && !isForbidden(regionsError)) {
     throw regionsError;
   }
 

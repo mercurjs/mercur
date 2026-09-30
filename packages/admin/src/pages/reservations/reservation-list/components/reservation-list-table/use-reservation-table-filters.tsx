@@ -1,3 +1,4 @@
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import { Filter } from "../../../../../components/table/data-table"
 import { useSellers } from "../../../../../hooks/api/sellers"
 import { useStockLocations } from "../../../../../hooks/api/stock-locations"
@@ -5,13 +6,20 @@ import { useTranslation } from "react-i18next"
 
 export const useReservationTableFilters = () => {
   const { t } = useTranslation()
-  const { stock_locations } = useStockLocations({
-    limit: 1000,
-  })
-  const { sellers } = useSellers({
-    limit: 1000,
-    fields: "id,name",
-  })
+  const { can } = usePermissions()
+  const { stock_locations } = useStockLocations(
+    {
+      limit: 1000,
+    },
+    { enabled: can("stock_locations") }
+  )
+  const { sellers } = useSellers(
+    {
+      limit: 1000,
+      fields: "id,name",
+    },
+    { enabled: can("sellers") }
+  )
 
   const filters: Filter[] = []
 

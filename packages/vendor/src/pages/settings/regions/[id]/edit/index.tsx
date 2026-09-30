@@ -2,6 +2,7 @@ import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import { RouteDrawer } from "@components/modals"
 import { usePaymentProviders } from "@hooks/api/payments"
 import { useRegion } from "@hooks/api/regions"
@@ -13,6 +14,8 @@ import { usePricePreferences } from "@hooks/api/price-preferences"
 const RegionEdit = () => {
   const { t } = useTranslation()
   const { id } = useParams()
+  const { can } = usePermissions()
+  const canViewPreferences = can("price_preferences")
 
   const {
     region,
@@ -40,18 +43,22 @@ const RegionEdit = () => {
       attribute: "region_id",
       value: id,
     },
-    { enabled: !!region }
+    { enabled: !!region && canViewPreferences }
   )
 
-  const isLoading = isRegionLoading || isSellerLoading || isPreferenceLoading
+  const isLoading = isRegionLoading || isSellerLoading ||
+    (canViewPreferences && isPreferenceLoading)
 
   const sellerCurrencies = currency_code
     ? [currencies[currency_code.toUpperCase()]]
     : []
-  const { payment_providers: paymentProviders = [] } = usePaymentProviders({
-    limit: 999,
-    is_enabled: true,
-  })
+  const { payment_providers: paymentProviders = [] } = usePaymentProviders(
+    {
+      limit: 999,
+      is_enabled: true,
+    },
+    { enabled: can("payments") }
+  )
 
   if (isRegionError) {
     throw regionError

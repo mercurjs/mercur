@@ -5,15 +5,16 @@ import type { Permission } from "@mercurjs/dashboard-sdk"
  *
  * The route map declares the same requirement on each domain's `handle` so
  * `RoutePermissionGuard` can enforce it; this map is what lets the sidebar hide
- * the link as well.
+ * the link as well. A test keeps the two in agreement.
  *
  * Paths absent from this map are ungated — the dashboard root, and anything
  * scoped to the acting member rather than to the store (their own profile).
  */
-export const ROUTE_PERMISSIONS: Record<string, Permission> = {
+export const ROUTE_PERMISSIONS: Record<string, Permission | Permission[]> = {
   "/orders": "orders:view",
   "/products": "products:view",
-  "/offers": "offers:view",
+  // An offer is always shown with its master product.
+  "/offers": ["offers:view", "products:view"],
   "/collections": "product_collections:view",
   "/categories": "product_categories:view",
   "/inventory": "inventory_items:view",
@@ -32,10 +33,9 @@ export const ROUTE_PERMISSIONS: Record<string, Permission> = {
   "/settings/product-tags": "product_tags:view",
   "/settings/product-types": "product_types:view",
   "/settings/return-reasons": "return_reasons:view",
-  "/settings/shipping-profiles": "shipping_profiles:view",
-  "/settings/tax-regions": "tax_regions:view",
-  "/settings/fulfillment-providers": "fulfillment_sets:view",
+  "/settings/locations/shipping-profiles": "shipping_profiles:view",
 }
 
-export const getRoutePermission = (path: string): Permission | undefined =>
-  ROUTE_PERMISSIONS[path]
+export const getRoutePermission = (
+  path: string
+): Permission | Permission[] | undefined => ROUTE_PERMISSIONS[path]

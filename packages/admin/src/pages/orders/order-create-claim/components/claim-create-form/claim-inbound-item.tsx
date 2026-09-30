@@ -1,3 +1,4 @@
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
 import { ChatBubble, DocumentText, XCircle, XMark } from "@medusajs/icons"
 import { AdminOrderLineItem, HttpTypes } from "@medusajs/types"
 import { IconButton, Input, Text } from "@medusajs/ui"
@@ -14,6 +15,7 @@ import {
   getOfferRestockPreview,
   type LineItemShape,
 } from "../../../../../lib/inventory-preview"
+import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip"
 
 type OrderEditItemProps = {
   item: AdminOrderLineItem
@@ -42,7 +44,11 @@ function ClaimInboundItem({
   locationName,
 }: OrderEditItemProps) {
   const { t } = useTranslation()
-  const { return_reasons = [] } = useReturnReasons({ fields: "+label" })
+  const reasonsGate = usePermissionGate("return_reasons:view")
+  const { return_reasons = [] } = useReturnReasons(
+    { fields: "+label" },
+    { enabled: reasonsGate.allowed }
+  )
 
   const formItem = form.watch(`inbound_items.${index}`)
   const showReturnReason = typeof formItem.reason_id === "string"
@@ -188,21 +194,29 @@ function ClaimInboundItem({
                   render={({ field: { ref: _ref, value, onChange, ...field } }) => {
                     return (
                       <Form.Item>
-                        <Form.Control>
-                          <Combobox
-                            className="bg-ui-bg-field-component hover:bg-ui-bg-field-component-hover"
-                            value={value}
-                            onChange={(v) => {
-                              onUpdate({ reason_id: v })
-                              onChange(v)
-                            }}
-                            {...field}
-                            options={return_reasons.map((reason) => ({
-                              label: reason.label,
-                              value: reason.id,
-                            }))}
-                          />
-                        </Form.Control>
+                        <ConditionalTooltip
+                          showTooltip={reasonsGate.denied}
+                          content={reasonsGate.tooltip}
+                        >
+                          <div>
+                            <Form.Control>
+                              <Combobox
+                                className="bg-ui-bg-field-component hover:bg-ui-bg-field-component-hover"
+                                value={value}
+                                onChange={(v) => {
+                                  onUpdate({ reason_id: v })
+                                  onChange(v)
+                                }}
+                                {...field}
+                                disabled={reasonsGate.denied}
+                                options={return_reasons.map((reason) => ({
+                                  label: reason.label,
+                                  value: reason.id,
+                                }))}
+                              />
+                            </Form.Control>
+                          </div>
+                        </ConditionalTooltip>
                         <Form.ErrorMessage />
                       </Form.Item>
                     )

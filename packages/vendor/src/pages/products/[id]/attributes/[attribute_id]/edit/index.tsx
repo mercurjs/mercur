@@ -6,8 +6,10 @@ import { useParams } from "react-router-dom";
 import {
   EditAttributeAttribute,
   EditAttributeForm,
+  isForbidden,
   ProductAttributeBatchPayload,
   RouteDrawer,
+  SectionNoAccess,
   useLinkQuery,
 } from "@mercurjs/dashboard-shared";
 import { MercurFeatureFlags } from "@mercurjs/types";
@@ -41,10 +43,12 @@ export const Component = () => {
 
   const { mutateAsync, isPending } = useBatchProductAttributes(id!);
 
-  if (isError) {
+  const forbidden = isForbidden(error) || isForbidden(catalogError);
+
+  if (isError && !forbidden) {
     throw error;
   }
-  if (isCatalogError) {
+  if (isCatalogError && !forbidden) {
     throw catalogError;
   }
 
@@ -94,13 +98,19 @@ export const Component = () => {
           {t("products.editAttributeHint")}
         </RouteDrawer.Description>
       </RouteDrawer.Header>
-      {ready && (
-        <EditAttributeForm
-          attribute={attribute as unknown as EditAttributeAttribute}
-          isAttached={isAttached}
-          isPending={isPending}
-          onSubmit={onSubmit}
-        />
+      {forbidden ? (
+        <RouteDrawer.Body>
+          <SectionNoAccess className="" />
+        </RouteDrawer.Body>
+      ) : (
+        ready && (
+          <EditAttributeForm
+            attribute={attribute as unknown as EditAttributeAttribute}
+            isAttached={isAttached}
+            isPending={isPending}
+            onSubmit={onSubmit}
+          />
+        )
       )}
     </RouteDrawer>
   );

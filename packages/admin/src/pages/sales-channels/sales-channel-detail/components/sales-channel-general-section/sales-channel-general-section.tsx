@@ -68,6 +68,7 @@ export const SalesChannelGeneralSection = ({
                 actions: [
                   {
                     icon: <PencilSquare />,
+                    permission: "sales_channels:edit",
                     label: t("actions.edit"),
                     to: `/settings/sales-channels/${salesChannel.id}/edit`,
                   },
@@ -77,6 +78,7 @@ export const SalesChannelGeneralSection = ({
                 actions: [
                   {
                     icon: <Trash />,
+                    permission: "sales_channels:manage",
                     label: t("actions.delete"),
                     onClick: handleDelete,
                   },

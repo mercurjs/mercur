@@ -23,6 +23,7 @@ import type { BuiltMercurConfig } from "./types"
 type WidgetInfo = {
     zones: string[]
     id?: string
+    permissions: string[]
 }
 
 type WidgetResult = {
@@ -30,7 +31,7 @@ type WidgetResult = {
     entry: string
 }
 
-function extractZones(value: any, zones: string[]): void {
+function extractStrings(value: any, zones: string[]): void {
     if (isStringLiteral(value)) {
         zones.push(value.value)
     } else if (isArrayExpression(value)) {
@@ -42,12 +43,16 @@ function extractZones(value: any, zones: string[]): void {
 
 function readWidgetConfig(properties: any[]): WidgetInfo | null {
     const zones: string[] = []
+    const permissions: string[] = []
     let id: string | undefined
 
     for (const prop of properties) {
         if (!isObjectProperty(prop)) continue
         if (isIdentifier(prop.key, { name: "zone" })) {
-            extractZones(prop.value, zones)
+            extractStrings(prop.value, zones)
+        }
+        if (isIdentifier(prop.key, { name: "permission" })) {
+            extractStrings(prop.value, permissions)
         }
         if (isIdentifier(prop.key, { name: "id" }) && isStringLiteral(prop.value)) {
             id = prop.value.value
@@ -55,7 +60,7 @@ function readWidgetConfig(properties: any[]): WidgetInfo | null {
     }
 
     if (zones.length === 0) return null
-    return { zones, id }
+    return { zones, id, permissions }
 }
 
 function getConfigProperties(node: any): any[] | null {
@@ -139,7 +144,11 @@ function parseWidgetFile(
         import: `import ${name} from "${importPath}"`,
         entry: `    { Component: ${name}, zone: ${zonesLiteral}, widgetId: ${JSON.stringify(
             id
-        )} }`,
+        )}${
+            info.permissions.length
+                ? `, permission: ${JSON.stringify(info.permissions)}`
+                : ""
+        } }`,
     }
 }
 

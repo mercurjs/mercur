@@ -18,6 +18,8 @@ import { ActionMenu } from "@components/common/action-menu"
 import {
   DisplayExtensionZone,
   isOrderAwaitingAction,
+  PermissionAction,
+  useCan,
 } from "@mercurjs/dashboard-shared"
 import { Skeleton } from "@components/common/skeleton"
 import { Thumbnail } from "@components/common/thumbnail"
@@ -187,6 +189,7 @@ const UnfulfilledItemDisplay = ({
               {
                 actions: [
                   {
+                    permission: "orders:edit",
                     label: t("orders.fulfillment.fulfillItems"),
                     icon: <Buildings />,
                     to: `/orders/${order.id}/fulfillment?requires_shipping=${requiresShipping}`,
@@ -227,7 +230,8 @@ const Fulfillment = ({
   const prompt = usePrompt()
   const navigate = useNavigate()
 
-  const showLocation = !!fulfillment.location_id
+  const canViewLocation = useCan("stock_locations")
+  const showLocation = !!fulfillment.location_id && canViewLocation
 
   const isPickUpFulfillment =
     fulfillment.shipping_option?.service_zone.fulfillment_set.type ===
@@ -366,6 +370,7 @@ const Fulfillment = ({
               {
                 actions: [
                   {
+                    permission: "orders:edit",
                     label: t("actions.cancel"),
                     icon: <XCircle />,
                     onClick: handleCancel,
@@ -467,27 +472,31 @@ const Fulfillment = ({
       {(showShippingButton || showDeliveryButton) && (
         <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
           {showDeliveryButton && (
-            <Button
-              size="small"
-              onClick={handleMarkAsDelivered}
-              variant="secondary"
-            >
-              {t(
-                isPickUpFulfillment
-                  ? "orders.fulfillment.markAsPickedUp"
-                  : "orders.fulfillment.markAsDelivered"
-              )}
-            </Button>
+            <PermissionAction permission="orders:edit">
+              <Button
+                size="small"
+                onClick={handleMarkAsDelivered}
+                variant="secondary"
+              >
+                {t(
+                  isPickUpFulfillment
+                    ? "orders.fulfillment.markAsPickedUp"
+                    : "orders.fulfillment.markAsDelivered"
+                )}
+              </Button>
+            </PermissionAction>
           )}
 
           {showShippingButton && (
-            <Button
-              size="small"
-              onClick={() => navigate(`./${fulfillment.id}/create-shipment`)}
-              variant="secondary"
-            >
-              {t("orders.fulfillment.markAsShipped")}
-            </Button>
+            <PermissionAction permission="orders:edit">
+              <Button
+                size="small"
+                onClick={() => navigate(`./${fulfillment.id}/create-shipment`)}
+                variant="secondary"
+              >
+                {t("orders.fulfillment.markAsShipped")}
+              </Button>
+            </PermissionAction>
           )}
         </div>
       )}

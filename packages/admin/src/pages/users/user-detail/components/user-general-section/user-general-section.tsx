@@ -55,6 +55,7 @@ export const UserGeneralSection = ({ user }: UserGeneralSectionProps) => {
             {
               actions: [
                 {
+                  permission: "users:edit",
                   label: t("actions.edit"),
                   to: "edit",
                   icon: <PencilSquare />,
@@ -64,6 +65,7 @@ export const UserGeneralSection = ({ user }: UserGeneralSectionProps) => {
             {
               actions: [
                 {
+                  permission: "users:manage",
                   label: t("actions.delete"),
                   onClick: handleDeleteUser,
                   icon: <Trash />,

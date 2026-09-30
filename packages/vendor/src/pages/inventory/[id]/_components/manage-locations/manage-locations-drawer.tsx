@@ -1,4 +1,5 @@
 import { Heading } from "@medusajs/ui";
+import { SectionNoAccess, useCan } from "@mercurjs/dashboard-shared";
 import { useTranslation } from "react-i18next";
 
 import { useParams } from "react-router-dom";
@@ -21,7 +22,12 @@ export const ManageLocationsDrawer = () => {
     fields: INVENTORY_DETAIL_FIELDS,
   });
 
-  const { stock_locations, isLoading: loadingLocations } = useStockLocations();
+  const canViewLocations = useCan("stock_locations");
+
+  const { stock_locations, isLoading: loadingLocations } = useStockLocations(
+    undefined,
+    { enabled: canViewLocations },
+  );
 
   const ready =
     !isLoading && !loadingLocations && inventoryItem && stock_locations;
@@ -37,8 +43,17 @@ export const ManageLocationsDrawer = () => {
           <Heading>{t("inventory.manageLocations")}</Heading>
         </RouteDrawer.Title>
       </RouteDrawer.Header>
-      {ready && (
-        <ManageLocationsForm item={inventoryItem} locations={stock_locations} />
+      {!canViewLocations ? (
+        <RouteDrawer.Body>
+          <SectionNoAccess className="p-0" />
+        </RouteDrawer.Body>
+      ) : (
+        ready && (
+          <ManageLocationsForm
+            item={inventoryItem}
+            locations={stock_locations}
+          />
+        )
       )}
     </RouteDrawer>
   );

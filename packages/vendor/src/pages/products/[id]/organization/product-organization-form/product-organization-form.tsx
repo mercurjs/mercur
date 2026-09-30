@@ -1,4 +1,6 @@
 import { Button, toast } from "@medusajs/ui";
+import { usePermissionGate } from "@mercurjs/dashboard-shared";
+import { ConditionalTooltip } from "@components/common/conditional-tooltip";
 import { MercurFeatureFlags } from "@mercurjs/types";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -37,6 +39,10 @@ export const ProductOrganizationForm = ({
   const isProductRequestEnabled =
     !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST];
 
+  const collectionsGate = usePermissionGate("product_collections:view");
+  const typesGate = usePermissionGate("product_types:view");
+  const tagsGate = usePermissionGate("product_tags:view");
+
   const collections = useComboboxData({
     queryKey: ["product_collections"],
     queryFn: (params) => sdk.vendor.collections.query(params as any),
@@ -45,6 +51,7 @@ export const ProductOrganizationForm = ({
         label: collection.title!,
         value: collection.id!,
       })),
+    enabled: collectionsGate.allowed,
   });
 
   const types = useComboboxData({
@@ -55,6 +62,7 @@ export const ProductOrganizationForm = ({
         label: type.value,
         value: type.id,
       })),
+    enabled: typesGate.allowed,
   });
 
   const tags = useComboboxData({
@@ -65,6 +73,7 @@ export const ProductOrganizationForm = ({
         label: tag.value,
         value: tag.id,
       })),
+    enabled: tagsGate.allowed,
   });
 
   const form = useForm({
@@ -152,16 +161,24 @@ export const ProductOrganizationForm = ({
                     >
                       {t("products.fields.collection.label")}
                     </Form.Label>
-                    <Form.Control data-testid="product-organization-form-collection-control">
-                      <Combobox
-                        {...field}
-                        multiple={false}
-                        options={collections.options}
-                        onSearchValueChange={collections.onSearchValueChange}
-                        searchValue={collections.searchValue}
-                        data-testid="product-organization-form-collection-combobox"
-                      />
-                    </Form.Control>
+                    <ConditionalTooltip
+                      showTooltip={collectionsGate.denied}
+                      content={collectionsGate.tooltip}
+                    >
+                      <div>
+                        <Form.Control data-testid="product-organization-form-collection-control">
+                          <Combobox
+                            {...field}
+                            multiple={false}
+                            disabled={collectionsGate.denied}
+                            options={collections.options}
+                            onSearchValueChange={collections.onSearchValueChange}
+                            searchValue={collections.searchValue}
+                            data-testid="product-organization-form-collection-combobox"
+                          />
+                        </Form.Control>
+                      </div>
+                    </ConditionalTooltip>
                     <Form.ErrorMessage data-testid="product-organization-form-collection-error" />
                   </Form.Item>
                 );
@@ -179,16 +196,24 @@ export const ProductOrganizationForm = ({
                     >
                       {t("products.fields.tags.label")}
                     </Form.Label>
-                    <Form.Control data-testid="product-organization-form-tags-control">
-                      <Combobox
-                        {...field}
-                        multiple
-                        options={tags.options}
-                        onSearchValueChange={tags.onSearchValueChange}
-                        searchValue={tags.searchValue}
-                        data-testid="product-organization-form-tags-combobox"
-                      />
-                    </Form.Control>
+                    <ConditionalTooltip
+                      showTooltip={tagsGate.denied}
+                      content={tagsGate.tooltip}
+                    >
+                      <div>
+                        <Form.Control data-testid="product-organization-form-tags-control">
+                          <Combobox
+                            {...field}
+                            multiple
+                            disabled={tagsGate.denied}
+                            options={tags.options}
+                            onSearchValueChange={tags.onSearchValueChange}
+                            searchValue={tags.searchValue}
+                            data-testid="product-organization-form-tags-combobox"
+                          />
+                        </Form.Control>
+                      </div>
+                    </ConditionalTooltip>
                     <Form.ErrorMessage data-testid="product-organization-form-tags-error" />
                   </Form.Item>
                 );
@@ -206,16 +231,24 @@ export const ProductOrganizationForm = ({
                     >
                       {t("products.fields.type.label")}
                     </Form.Label>
-                    <Form.Control data-testid="product-organization-form-type-control">
-                      <Combobox
-                        {...field}
-                        options={types.options}
-                        searchValue={types.searchValue}
-                        onSearchValueChange={types.onSearchValueChange}
-                        fetchNextPage={types.fetchNextPage}
-                        data-testid="product-organization-form-type-combobox"
-                      />
-                    </Form.Control>
+                    <ConditionalTooltip
+                      showTooltip={typesGate.denied}
+                      content={typesGate.tooltip}
+                    >
+                      <div>
+                        <Form.Control data-testid="product-organization-form-type-control">
+                          <Combobox
+                            {...field}
+                            disabled={typesGate.denied}
+                            options={types.options}
+                            searchValue={types.searchValue}
+                            onSearchValueChange={types.onSearchValueChange}
+                            fetchNextPage={types.fetchNextPage}
+                            data-testid="product-organization-form-type-combobox"
+                          />
+                        </Form.Control>
+                      </div>
+                    </ConditionalTooltip>
                     <Form.ErrorMessage data-testid="product-organization-form-type-error" />
                   </Form.Item>
                 );

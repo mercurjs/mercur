@@ -1,5 +1,10 @@
 import type { HttpTypes } from "@medusajs/types"
 import { Heading } from "@medusajs/ui"
+import {
+  SectionNoAccess,
+  isForbidden,
+  usePermissions,
+} from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
@@ -19,10 +24,18 @@ export const TaxRegionTaxOverrideEdit = () => {
 
   const { tax_rate, isPending, isError, error } = useTaxRate(tax_rate_id!)
 
-  const { initialValues, isPending: isInitializing } =
-    useDefaultRulesValues(tax_rate)
+  const {
+    initialValues,
+    isPending: isInitializing,
+    isForbidden: isRulesForbidden,
+  } = useDefaultRulesValues(tax_rate)
 
-  const ready = !isPending && !!tax_rate && !isInitializing && !!initialValues
+  const ready =
+    !isPending &&
+    !!tax_rate &&
+    !isInitializing &&
+    !!initialValues &&
+    !isRulesForbidden
 
   if (isError) {
     throw error
@@ -38,6 +51,11 @@ export const TaxRegionTaxOverrideEdit = () => {
           {t("taxRegions.taxOverrides.edit.hint")}
         </RouteDrawer.Description>
       </RouteDrawer.Header>
+      {isRulesForbidden && (
+        <RouteDrawer.Body>
+          <SectionNoAccess className="" />
+        </RouteDrawer.Body>
+      )}
       {ready && (
         <TaxRegionTaxOverrideEditForm
           taxRate={tax_rate}
@@ -51,7 +69,12 @@ export const TaxRegionTaxOverrideEdit = () => {
 
 const useDefaultRulesValues = (
   taxRate?: ExtendedAdminTaxRate
-): { initialValues: InitialRuleValues; isPending: boolean } => {
+): {
+  initialValues: InitialRuleValues
+  isPending: boolean
+  isForbidden: boolean
+} => {
+  const { can } = usePermissions()
   const rules = taxRate?.rules || []
 
   const idsByReferenceType: {
@@ -88,9 +111,10 @@ const useDefaultRulesValues = (
               : productIds,
           limit: DISPLAY_OVERRIDE_ITEMS_LIMIT,
         },
-        { enabled: productIds.length > 0 }
+        { enabled: productIds.length > 0 && can("products") }
       ),
       enabled: productIds.length > 0,
+      allowed: can("products"),
     },
     {
       result: useProductTypes(
@@ -101,9 +125,10 @@ const useDefaultRulesValues = (
               : productTypeIds,
           limit: DISPLAY_OVERRIDE_ITEMS_LIMIT,
         },
-        { enabled: productTypeIds.length > 0 }
+        { enabled: productTypeIds.length > 0 && can("product_types") }
       ),
       enabled: productTypeIds.length > 0,
+      allowed: can("product_types"),
     },
     {
       result: useShippingOptions(
@@ -114,14 +139,24 @@ const useDefaultRulesValues = (
               : shippingOptionIds,
           limit: DISPLAY_OVERRIDE_ITEMS_LIMIT,
         },
-        { enabled: shippingOptionIds.length > 0 }
+        { enabled: shippingOptionIds.length > 0 && can("shipping_options") }
       ),
       enabled: shippingOptionIds.length > 0,
+      allowed: can("shipping_options"),
     },
   ]
 
   if (!taxRate) {
-    return { isPending: true, initialValues: { product: [], product_type: [], shipping_option: [] }}
+    return { isPending: true, isForbidden: false, initialValues: { product: [], product_type: [], shipping_option: [] }}
+  }
+
+  const forbidden = queryResults.some(
+    ({ result, enabled, allowed }) =>
+      enabled && (!allowed || isForbidden(result.error))
+  )
+
+  if (forbidden) {
+    return { isPending: false, isForbidden: true, initialValues: { product: [], product_type: [], shipping_option: [] }}
   }
 
   const isPending = queryResults.some(
@@ -129,7 +164,7 @@ const useDefaultRulesValues = (
   )
 
   if (isPending) {
-    return { isPending: true, initialValues: { product: [], product_type: [], shipping_option: [] }}
+    return { isPending: true, isForbidden: false, initialValues: { product: [], product_type: [], shipping_option: [] }}
   }
 
   queryResults.forEach(({ result, enabled }) => {
@@ -192,5 +227,5 @@ const useDefaultRulesValues = (
     }
   }
 
-  return { initialValues: initialRulesValues, isPending: false }
+  return { initialValues: initialRulesValues, isPending: false, isForbidden: false }
 }

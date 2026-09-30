@@ -3,7 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { SingleColumnPageSkeleton } from "@components/common/skeleton";
 import { SingleColumnPage } from "@components/layout/pages";
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { PermissionGuard, WidgetZone } from "@mercurjs/dashboard-shared";
 import { useProductType } from "@hooks/api/product-types";
 
 import { ProductTypeGeneralSection } from "./_components/product-type-general-section";
@@ -41,7 +41,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
       ) : (
         <WidgetZone id="product-types.detail.main" data={product_type}>
           <ProductTypeGeneralSection productType={product_type} />
-          <ProductTypeProductSection productType={product_type} />
+          <PermissionGuard permission="products:view">
+            <ProductTypeProductSection productType={product_type} />
+          </PermissionGuard>
         </WidgetZone>
       )}
     </SingleColumnPage>

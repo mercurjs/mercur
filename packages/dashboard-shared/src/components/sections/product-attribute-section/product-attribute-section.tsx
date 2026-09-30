@@ -74,6 +74,7 @@ const AttributeActions = ({
             {
               label: t("actions.edit"),
               to: editHref,
+              permission: "products:edit" as const,
               icon: <PencilSquare />,
             },
           ],
@@ -86,6 +87,7 @@ const AttributeActions = ({
                   {
                     label: t("actions.delete"),
                     onClick: handleDelete,
+                    permission: "products:edit" as const,
                     icon: <Trash />,
                   },
                 ],
@@ -284,11 +286,13 @@ export const ProductAttributeSection = ({
                 {
                   label: t("products.create.attributes.addExisting"),
                   to: addExistingHref,
+                  permission: "products:edit" as const,
                   icon: <Plus />,
                 },
                 {
                   label: t("products.create.attributes.createNew"),
                   to: createNewHref,
+                  permission: "products:edit" as const,
                   icon: <PencilSquare />,
                 },
               ],

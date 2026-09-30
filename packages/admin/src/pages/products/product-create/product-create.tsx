@@ -1,5 +1,6 @@
 import { Children, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { useCan } from "@mercurjs/dashboard-shared";
 import { RouteFocusModal } from "../../../components/modals";
 import { useSalesChannel } from "../../../hooks/api/sales-channels";
 import { useStore } from "../../../hooks/api/store";
@@ -12,6 +13,7 @@ import { ProductCreateVariantsForm } from "./components/product-create-variants-
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { t } = useTranslation();
+  const canViewSalesChannels = useCan("sales_channels");
 
   const {
     store,
@@ -28,11 +30,13 @@ const Root = ({ children }: { children?: ReactNode }) => {
     isError: isSalesChannelError,
     error: salesChannelError,
   } = useSalesChannel(store?.default_sales_channel_id!, {
-    enabled: !!store?.default_sales_channel_id,
+    enabled: !!store?.default_sales_channel_id && canViewSalesChannels,
   });
 
   const ready =
-    !!store && !isStorePending && !!sales_channel && !isSalesChannelPending;
+    !!store &&
+    !isStorePending &&
+    (!canViewSalesChannels || (!!sales_channel && !isSalesChannelPending));
 
   if (isStoreError) {
     throw storeError;

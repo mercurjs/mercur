@@ -1,3 +1,4 @@
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
 import * as zod from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { HttpTypes } from "@medusajs/types"
@@ -13,6 +14,7 @@ import { Combobox } from "../../../../../components/inputs/combobox"
 import { useRequestTransferOrder } from "../../../../../hooks/api"
 import { sdk } from "../../../../../lib/client"
 import { TransferHeader } from "./transfer-header"
+import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip"
 
 type CreateOrderTransferFormProps = {
   order: HttpTypes.AdminOrder
@@ -39,6 +41,8 @@ export function CreateOrderTransferForm({
     resolver: zodResolver(CreateOrderTransferSchema),
   })
 
+  const customersGate = usePermissionGate("customers:view")
+
   const customers = useComboboxData({
     queryKey: ["customers"],
     queryFn: (params) =>
@@ -48,6 +52,7 @@ export function CreateOrderTransferForm({
         label: `${item.first_name || ""} ${item.last_name || ""} (${item.email})`,
         value: item.id,
       })),
+    enabled: customersGate.allowed,
   })
 
   const { mutateAsync, isPending } = useRequestTransferOrder(order.id)
@@ -107,18 +112,26 @@ export function CreateOrderTransferForm({
                       {t("orders.transfer.newOwnerDescription")}
                     </span>
 
-                    <Form.Control data-testid="order-request-transfer-new-customer-control">
-                      <Combobox
-                        {...field}
-                        options={customers.options}
-                        searchValue={customers.searchValue}
-                        onSearchValueChange={customers.onSearchValueChange}
-                        fetchNextPage={customers.fetchNextPage}
-                        className="bg-ui-bg-field-component hover:bg-ui-bg-field-component-hover"
-                        placeholder={t("actions.select")}
-                        data-testid="order-request-transfer-new-customer-combobox"
-                      />
-                    </Form.Control>
+                    <ConditionalTooltip
+                      showTooltip={customersGate.denied}
+                      content={customersGate.tooltip}
+                    >
+                      <div>
+                        <Form.Control data-testid="order-request-transfer-new-customer-control">
+                          <Combobox
+                            {...field}
+                            disabled={customersGate.denied}
+                            options={customers.options}
+                            searchValue={customers.searchValue}
+                            onSearchValueChange={customers.onSearchValueChange}
+                            fetchNextPage={customers.fetchNextPage}
+                            className="bg-ui-bg-field-component hover:bg-ui-bg-field-component-hover"
+                            placeholder={t("actions.select")}
+                            data-testid="order-request-transfer-new-customer-combobox"
+                          />
+                        </Form.Control>
+                      </div>
+                    </ConditionalTooltip>
 
                     <Form.ErrorMessage data-testid="order-request-transfer-new-customer-error" />
                   </Form.Item>

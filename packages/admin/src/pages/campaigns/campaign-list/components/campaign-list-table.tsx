@@ -178,6 +178,7 @@ const CampaignActions = ({ campaign }: { campaign: AdminCampaign }) => {
           actions: [
             {
               icon: <PencilSquare />,
+              permission: "campaigns:edit",
               label: t("actions.edit"),
               to: `/campaigns/${campaign.id}/edit`,
             },
@@ -187,6 +188,7 @@ const CampaignActions = ({ campaign }: { campaign: AdminCampaign }) => {
           actions: [
             {
               icon: <Trash />,
+              permission: "campaigns:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
             },

@@ -26,10 +26,13 @@ const invalidateOrder = (orderId: string) => {
 
 export const useExchanges = (
   query?: InferClientInput<typeof sdk.vendor.exchanges.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.exchanges.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.exchanges.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({

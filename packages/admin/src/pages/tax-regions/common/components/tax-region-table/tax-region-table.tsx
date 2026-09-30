@@ -6,6 +6,7 @@ import { Button } from "@medusajs/ui";
 import { Table } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { PermissionAction } from "@mercurjs/dashboard-shared";
 
 import {
   NoRecords,
@@ -89,11 +90,11 @@ export const TaxRegionTable = ({
               </div>
             )}
             {action && (
-              <Link to={action.to}>
-                <Button size="small" variant="secondary" data-testid={dataTestId ? `${dataTestId}-create-button` : undefined}>
-                  {action.label}
+              <PermissionAction permission="tax_regions:edit">
+                <Button size="small" variant="secondary" asChild data-testid={dataTestId ? `${dataTestId}-create-button` : undefined}>
+                  <Link to={action.to}>{action.label}</Link>
                 </Button>
-              </Link>
+              </PermissionAction>
             )}
           </div>
         </div>

@@ -2,7 +2,9 @@ import { Divider, Heading, Input, RadioGroup, Select, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
 import type { HttpTypes } from "@medusajs/types"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
 
+import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip"
 import { Form } from "../../../../../components/common/form"
 import { SwitchBox } from "../../../../../components/common/switch-box"
 import { Combobox } from "../../../../../components/inputs/combobox"
@@ -38,9 +40,13 @@ const Root = ({
   const direction = useDocumentDirection()
   const isPickup = type === FulfillmentSetType.Pickup
 
+  const shippingProfilesGate = usePermissionGate("shipping_profiles:view")
+  const providersGate = usePermissionGate("fulfillment_sets:view")
+
   const shippingProfiles = useComboboxData({
     queryFn: (params) => sdk.admin.shippingProfiles.query(params),
     queryKey: ["shipping_profiles"],
+    enabled: shippingProfilesGate.allowed,
     getOptions: (data) =>
       data.shipping_profiles.map((profile) => ({
         label: profile.name,
@@ -65,6 +71,7 @@ const Root = ({
         stock_location_id: locationId,
       }),
     queryKey: ["fulfillment_providers"],
+    enabled: providersGate.allowed,
     getOptions: (data) =>
       data.fulfillment_providers.map((provider) => ({
         label: formatProvider(provider.id),
@@ -154,16 +161,23 @@ const Root = ({
                 <Form.Label data-testid="location-shipping-option-create-details-form-shipping-profile-label">
                   {t("stockLocations.shippingOptions.fields.profile")}
                 </Form.Label>
-                <Form.Control data-testid="location-shipping-option-create-details-form-shipping-profile-control">
-                  <Combobox
-                    {...field}
-                    options={shippingProfiles.options}
-                    searchValue={shippingProfiles.searchValue}
-                    onSearchValueChange={shippingProfiles.onSearchValueChange}
-                    disabled={shippingProfiles.disabled}
-                    data-testid="location-shipping-option-create-details-form-shipping-profile-combobox"
-                  />
-                </Form.Control>
+                <ConditionalTooltip
+                  showTooltip={shippingProfilesGate.denied}
+                  content={shippingProfilesGate.tooltip}
+                >
+                  <div>
+                    <Form.Control data-testid="location-shipping-option-create-details-form-shipping-profile-control">
+                      <Combobox
+                        {...field}
+                        options={shippingProfiles.options}
+                        searchValue={shippingProfiles.searchValue}
+                        onSearchValueChange={shippingProfiles.onSearchValueChange}
+                        disabled={shippingProfiles.disabled}
+                        data-testid="location-shipping-option-create-details-form-shipping-profile-combobox"
+                      />
+                    </Form.Control>
+                  </div>
+                </ConditionalTooltip>
                 <Form.ErrorMessage data-testid="location-shipping-option-create-details-form-shipping-profile-error" />
               </Form.Item>
             )}
@@ -204,20 +218,27 @@ const Root = ({
                 >
                   {t("stockLocations.shippingOptions.fields.provider")}
                 </Form.Label>
-                <Form.Control data-testid="location-shipping-option-create-details-form-provider-control">
-                  <Combobox
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e)
-                      form.setValue("fulfillment_option_id", "")
-                    }}
-                    options={fulfillmentProviders.options}
-                    searchValue={fulfillmentProviders.searchValue}
-                    onSearchValueChange={fulfillmentProviders.onSearchValueChange}
-                    disabled={fulfillmentProviders.disabled}
-                    data-testid="location-shipping-option-create-details-form-provider-combobox"
-                  />
-                </Form.Control>
+                <ConditionalTooltip
+                  showTooltip={providersGate.denied}
+                  content={providersGate.tooltip}
+                >
+                  <div>
+                    <Form.Control data-testid="location-shipping-option-create-details-form-provider-control">
+                      <Combobox
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e)
+                          form.setValue("fulfillment_option_id", "")
+                        }}
+                        options={fulfillmentProviders.options}
+                        searchValue={fulfillmentProviders.searchValue}
+                        onSearchValueChange={fulfillmentProviders.onSearchValueChange}
+                        disabled={fulfillmentProviders.disabled}
+                        data-testid="location-shipping-option-create-details-form-provider-combobox"
+                      />
+                    </Form.Control>
+                  </div>
+                </ConditionalTooltip>
                 <Form.ErrorMessage data-testid="location-shipping-option-create-details-form-provider-error" />
               </Form.Item>
             )}

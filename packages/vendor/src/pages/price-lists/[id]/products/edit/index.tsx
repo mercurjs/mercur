@@ -2,6 +2,7 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useParams, useSearchParams } from "react-router-dom"
 
+import { SectionNoAccess } from "@mercurjs/dashboard-shared"
 import { RouteFocusModal } from "@components/modals"
 import { usePriceListEditGrid } from "../[variant_id]/edit/price-list-prices-edit-form/use-price-list-edit-grid"
 import { PriceListPricesEditForm } from "../[variant_id]/edit/price-list-prices-edit-form"
@@ -22,6 +23,7 @@ export const Component = () => {
     variantIdByOffer,
     currencyData,
     ready,
+    isNoAccess,
     isError,
     error,
     isProductsError,
@@ -46,6 +48,7 @@ export const Component = () => {
       <RouteFocusModal.Description className="sr-only">
         {t("priceLists.products.edit.description")}
       </RouteFocusModal.Description>
+      {isNoAccess && <SectionNoAccess />}
       {ready && (
         <PriceListPricesEditForm
           priceList={price_list}

@@ -108,6 +108,7 @@ export const RegionCountrySection = ({ region }: RegionCountrySectionProps) => {
             {
               actions: [
                 {
+                  permission: "regions:edit",
                   label: t("regions.addCountries"),
                   icon: <PlusMini />,
                   to: "countries/add",
@@ -134,6 +135,7 @@ export const RegionCountrySection = ({ region }: RegionCountrySectionProps) => {
         commands={[
           {
             action: handleRemoveCountries,
+            permission: "regions:edit",
             label: t("actions.remove"),
             shortcut: "r",
           },
@@ -197,6 +199,7 @@ const CountryActions = ({
         {
           actions: [
             {
+              permission: "regions:edit",
               label: t("actions.remove"),
               onClick: handleRemove,
               icon: <Trash />,

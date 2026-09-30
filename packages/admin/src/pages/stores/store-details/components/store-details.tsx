@@ -2,7 +2,7 @@ import { ReactNode, Children, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import { WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared";
+import { WidgetZone, useLinkQuery, usePermissions } from "@mercurjs/dashboard-shared";
 
 import { TwoColumnPageSkeleton } from "../../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../../components/layout/pages";
@@ -31,9 +31,11 @@ const TABS = ["orders", "offers", "users", "timeOff"] as const;
 type Tab = (typeof TABS)[number];
 
 const TabBar = ({
+  tabs,
   activeTab,
   onTabChange,
 }: {
+  tabs: Tab[];
   activeTab: Tab;
   onTabChange: (tab: Tab) => void;
 }) => {
@@ -53,7 +55,7 @@ const TabBar = ({
       className="mt-1 flex flex-wrap items-center gap-x-2"
       data-testid="store-detail-tabs"
     >
-      {TABS.map((tab) => {
+      {tabs.map((tab) => {
         const isActive = activeTab === tab;
 
         return (
@@ -82,7 +84,22 @@ const TabBar = ({
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams();
-  const [activeTab, setActiveTab] = useState<Tab>("orders");
+  const [selectedTab, setActiveTab] = useState<Tab>("orders");
+  const { can } = usePermissions();
+
+  const tabs = TABS.filter((tab) => {
+    if (tab === "orders") {
+      return can("orders");
+    }
+    if (tab === "offers") {
+      return can("offers");
+    }
+    if (tab === "users") {
+      return can("members");
+    }
+    return true;
+  });
+  const activeTab = tabs.includes(selectedTab) ? selectedTab : tabs[0];
 
   const query = useLinkQuery("seller", STORE_DETAIL_FIELDS);
   const { seller, isLoading, isError, error } = useSeller(id!, query);
@@ -113,7 +130,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
             <StoreRequestSection seller={seller} />
           )}
         <StoreGeneralSection seller={seller} />
-        <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabBar tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
         {activeTab === "orders" && (
           <div
             role="tabpanel"

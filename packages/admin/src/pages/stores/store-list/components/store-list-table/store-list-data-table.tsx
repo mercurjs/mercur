@@ -93,6 +93,7 @@ export const StoreListDataTable = () => {
             navigate(`bulk-edit?ids=${ids.join(",")}`)
           },
           label: t("stores.actions.edit.label"),
+          permission: "sellers:edit",
           shortcut: "e",
         },
       ]}
@@ -114,6 +115,7 @@ const StoreActions = ({ seller }: { seller: SellerDTO }) => {
               icon: <PencilSquare />,
               label: t("actions.edit"),
               to: `/stores/${seller.id}/edit`,
+              permission: "sellers:edit",
             },
           ],
         },

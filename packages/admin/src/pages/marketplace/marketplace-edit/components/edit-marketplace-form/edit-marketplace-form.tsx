@@ -5,6 +5,9 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+
+import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip"
 import { Form } from "../../../../../components/common/form"
 import { Combobox } from "../../../../../components/inputs/combobox"
 import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
@@ -45,6 +48,10 @@ export const EditMarketplaceForm = ({ store }: EditMarketplaceFormProps) => {
 
   const { mutateAsync, isPending } = useUpdateStore(store.id)
 
+  const regionsGate = usePermissionGate("regions:view")
+  const salesChannelsGate = usePermissionGate("sales_channels:view")
+  const locationsGate = usePermissionGate("stock_locations:view")
+
   const regionsCombobox = useComboboxData({
     queryKey: ["regions", "default_region_id"],
     queryFn: (params) =>
@@ -52,6 +59,7 @@ export const EditMarketplaceForm = ({ store }: EditMarketplaceFormProps) => {
     defaultValue: store.default_region_id || undefined,
     getOptions: (data) =>
       data.regions.map((r) => ({ label: r.name, value: r.id })),
+    enabled: regionsGate.allowed,
   })
 
   const salesChannelsCombobox = useComboboxData({
@@ -61,6 +69,7 @@ export const EditMarketplaceForm = ({ store }: EditMarketplaceFormProps) => {
       data.sales_channels.map((sc) => ({ label: sc.name, value: sc.id })),
     queryKey: ["sales_channels", "default_sales_channel_id"],
     defaultValue: store.default_sales_channel_id || undefined,
+    enabled: salesChannelsGate.allowed,
   })
 
   const locationsCombobox = useComboboxData({
@@ -70,6 +79,7 @@ export const EditMarketplaceForm = ({ store }: EditMarketplaceFormProps) => {
       data.stock_locations.map((l) => ({ label: l.name, value: l.id })),
     queryKey: ["stock_locations", "default_location_id"],
     defaultValue: store.default_location_id || undefined,
+    enabled: locationsGate.allowed,
   })
 
   const handleSubmit = form.handleSubmit(async (values) => {
@@ -153,18 +163,25 @@ export const EditMarketplaceForm = ({ store }: EditMarketplaceFormProps) => {
                 return (
                   <Form.Item data-testid="store-edit-form-region-item">
                     <Form.Label data-testid="store-edit-form-region-label">{t("store.defaultRegion")}</Form.Label>
-                    <Form.Control data-testid="store-edit-form-region-control">
-                      <Combobox
-                        {...field}
-                        options={regionsCombobox.options}
-                        searchValue={regionsCombobox.searchValue}
-                        onSearchValueChange={
-                          regionsCombobox.onSearchValueChange
-                        }
-                        disabled={regionsCombobox.disabled}
-                        data-testid="store-edit-form-region-combobox"
-                      />
-                    </Form.Control>
+                    <ConditionalTooltip
+                      showTooltip={regionsGate.denied}
+                      content={regionsGate.tooltip}
+                    >
+                      <div>
+                        <Form.Control data-testid="store-edit-form-region-control">
+                          <Combobox
+                            {...field}
+                            options={regionsCombobox.options}
+                            searchValue={regionsCombobox.searchValue}
+                            onSearchValueChange={
+                              regionsCombobox.onSearchValueChange
+                            }
+                            disabled={regionsCombobox.disabled}
+                            data-testid="store-edit-form-region-combobox"
+                          />
+                        </Form.Control>
+                      </div>
+                    </ConditionalTooltip>
                     <Form.ErrorMessage data-testid="store-edit-form-region-error" />
                   </Form.Item>
                 )
@@ -177,18 +194,25 @@ export const EditMarketplaceForm = ({ store }: EditMarketplaceFormProps) => {
                 return (
                   <Form.Item data-testid="store-edit-form-sales-channel-item">
                     <Form.Label data-testid="store-edit-form-sales-channel-label">{t("store.defaultSalesChannel")}</Form.Label>
-                    <Form.Control data-testid="store-edit-form-sales-channel-control">
-                      <Combobox
-                        {...field}
-                        options={salesChannelsCombobox.options}
-                        searchValue={salesChannelsCombobox.searchValue}
-                        onSearchValueChange={
-                          salesChannelsCombobox.onSearchValueChange
-                        }
-                        disabled={salesChannelsCombobox.disabled}
-                        data-testid="store-edit-form-sales-channel-combobox"
-                      />
-                    </Form.Control>
+                    <ConditionalTooltip
+                      showTooltip={salesChannelsGate.denied}
+                      content={salesChannelsGate.tooltip}
+                    >
+                      <div>
+                        <Form.Control data-testid="store-edit-form-sales-channel-control">
+                          <Combobox
+                            {...field}
+                            options={salesChannelsCombobox.options}
+                            searchValue={salesChannelsCombobox.searchValue}
+                            onSearchValueChange={
+                              salesChannelsCombobox.onSearchValueChange
+                            }
+                            disabled={salesChannelsCombobox.disabled}
+                            data-testid="store-edit-form-sales-channel-combobox"
+                          />
+                        </Form.Control>
+                      </div>
+                    </ConditionalTooltip>
                     <Form.ErrorMessage data-testid="store-edit-form-sales-channel-error" />
                   </Form.Item>
                 )
@@ -201,18 +225,25 @@ export const EditMarketplaceForm = ({ store }: EditMarketplaceFormProps) => {
                 return (
                   <Form.Item data-testid="store-edit-form-location-item">
                     <Form.Label data-testid="store-edit-form-location-label">{t("store.defaultLocation")}</Form.Label>
-                    <Form.Control data-testid="store-edit-form-location-control">
-                      <Combobox
-                        {...field}
-                        options={locationsCombobox.options}
-                        searchValue={locationsCombobox.searchValue}
-                        onSearchValueChange={
-                          locationsCombobox.onSearchValueChange
-                        }
-                        disabled={locationsCombobox.disabled}
-                        data-testid="store-edit-form-location-combobox"
-                      />
-                    </Form.Control>
+                    <ConditionalTooltip
+                      showTooltip={locationsGate.denied}
+                      content={locationsGate.tooltip}
+                    >
+                      <div>
+                        <Form.Control data-testid="store-edit-form-location-control">
+                          <Combobox
+                            {...field}
+                            options={locationsCombobox.options}
+                            searchValue={locationsCombobox.searchValue}
+                            onSearchValueChange={
+                              locationsCombobox.onSearchValueChange
+                            }
+                            disabled={locationsCombobox.disabled}
+                            data-testid="store-edit-form-location-combobox"
+                          />
+                        </Form.Control>
+                      </div>
+                    </ConditionalTooltip>
                     <Form.ErrorMessage data-testid="store-edit-form-location-error" />
                   </Form.Item>
                 )

@@ -14,6 +14,7 @@ import {
   RouteFocusModal,
   useRouteModal,
 } from "../../../../../components/modals"
+import { isForbidden, SectionNoAccess } from "@mercurjs/dashboard-shared"
 import { useUpdateProduct } from "../../../../../hooks/api/products"
 import { useSalesChannels } from "../../../../../hooks/api/sales-channels"
 
@@ -101,6 +102,17 @@ export const EditSalesChannelsForm = ({
   })
 
   if (isError) {
+    if (isForbidden(error)) {
+      return (
+        <>
+          <RouteFocusModal.Header />
+          <RouteFocusModal.Body>
+            <SectionNoAccess />
+          </RouteFocusModal.Body>
+        </>
+      )
+    }
+
     throw error
   }
 

@@ -1,3 +1,4 @@
+import { PermissionAction } from "@mercurjs/dashboard-shared"
 import { ArrowUturnLeft } from "@medusajs/icons"
 import { Button, Container, Heading, Text, toast } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
@@ -68,13 +69,17 @@ export const ActiveOrderReturnSection = ({
           </div>
 
           <div className="flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4" data-testid="active-order-return-actions">
-            <Button size="small" variant="secondary" onClick={onCancelReturn} data-testid="active-order-return-cancel-button">
-              {t("orders.returns.cancel.title")}
-            </Button>
+            <PermissionAction permission="orders.returns:manage">
+              <Button size="small" variant="secondary" onClick={onCancelReturn} data-testid="active-order-return-cancel-button">
+                {t("orders.returns.cancel.title")}
+              </Button>
+            </PermissionAction>
 
-            <Button size="small" variant="secondary" onClick={onContinueReturn} data-testid="active-order-return-continue-button">
-              {t("actions.continue")}
-            </Button>
+            <PermissionAction permission="orders.returns:edit">
+              <Button size="small" variant="secondary" onClick={onContinueReturn} data-testid="active-order-return-continue-button">
+                {t("actions.continue")}
+              </Button>
+            </PermissionAction>
           </div>
         </div>
       </Container>

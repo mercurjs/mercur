@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next"
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import { ProductStatus } from "@mercurjs/types"
 import { Filter } from "../../../components/table/data-table"
 import { useProductTags } from "../../api"
@@ -17,8 +18,10 @@ export const useProductTableFilters = (
   exclude?: (typeof excludeableFields)[number][]
 ) => {
   const { t } = useTranslation()
+  const { can } = usePermissions()
 
-  const isProductTypeExcluded = exclude?.includes("product_types")
+  const isProductTypeExcluded =
+    exclude?.includes("product_types") || !can("product_types")
 
   const { product_types } = useProductTypes(
     {
@@ -30,14 +33,21 @@ export const useProductTableFilters = (
     }
   )
 
-  const isProductTagExcluded = exclude?.includes("product_tags")
+  const isProductTagExcluded =
+    exclude?.includes("product_tags") || !can("product_tags")
 
-  const { product_tags } = useProductTags({
-    limit: 1000,
-    offset: 0,
-  })
+  const { product_tags } = useProductTags(
+    {
+      limit: 1000,
+      offset: 0,
+    },
+    {
+      enabled: !isProductTagExcluded,
+    }
+  )
 
-  const isCategoryExcluded = exclude?.includes("categories")
+  const isCategoryExcluded =
+    exclude?.includes("categories") || !can("product_categories")
 
   const { product_categories } = useProductCategories(
     {
@@ -50,7 +60,8 @@ export const useProductTableFilters = (
     }
   )
 
-  const isCollectionExcluded = exclude?.includes("collections")
+  const isCollectionExcluded =
+    exclude?.includes("collections") || !can("product_collections")
 
   const { collections } = useCollections(
     {

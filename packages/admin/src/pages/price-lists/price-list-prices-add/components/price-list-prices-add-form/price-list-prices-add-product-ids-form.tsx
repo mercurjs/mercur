@@ -10,6 +10,7 @@ import {
 import { useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { OfferDTO } from "@mercurjs/types"
 
 import { _DataTable } from "../../../../../components/table/data-table"
@@ -63,8 +64,10 @@ const Root = ({ priceList }: PriceListPricesAddProductIdsFormProps) => {
   // Grouped: one row per (store, product). Each row's `offer_ids` covers every
   // variant that store offers for the product; variant→offer resolution happens
   // in the Prices tab.
+  const canViewOffers = useCan("offers")
   const { offers, count, isLoading, isError, error } = useOffers(searchParams, {
     placeholderData: keepPreviousData,
+    enabled: canViewOffers,
   })
 
   const offerMeta = useRef<
@@ -122,6 +125,10 @@ const Root = ({ priceList }: PriceListPricesAddProductIdsFormProps) => {
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
+
+  if (!canViewOffers || isForbidden(error)) {
+    return <SectionNoAccess />
+  }
 
   if (isError) {
     throw error

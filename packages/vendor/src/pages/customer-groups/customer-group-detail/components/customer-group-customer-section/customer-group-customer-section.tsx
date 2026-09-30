@@ -13,7 +13,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
+import { DisplayExtensionZone, PermissionAction } from "@mercurjs/dashboard-shared";
 
 import { ActionMenu } from "@components/common/action-menu";
 import { _DataTable } from "@components/table/data-table";
@@ -118,18 +118,21 @@ export const CustomerGroupCustomerSection = ({
         >
           {t("customers.domain")}
         </Heading>
-        <Link
-          to={`/customer-groups/${group.id}/add-customers`}
-          data-testid="customer-group-customer-section-add-link"
-        >
+        <PermissionAction permission="customer_groups:edit">
           <Button
             variant="secondary"
             size="small"
             data-testid="customer-group-customer-section-add-button"
+            asChild
           >
-            {t("general.add")}
+            <Link
+              to={`/customer-groups/${group.id}/add-customers`}
+              data-testid="customer-group-customer-section-add-link"
+            >
+              {t("general.add")}
+            </Link>
           </Button>
-        </Link>
+        </PermissionAction>
       </div>
       <_DataTable
         table={table}
@@ -156,6 +159,7 @@ export const CustomerGroupCustomerSection = ({
             action: handleRemove,
             label: t("actions.remove"),
             shortcut: "r",
+            permission: "customer_groups:edit",
           },
         ]}
         noRecords={{
@@ -219,6 +223,7 @@ const CustomerActions = ({
           actions: [
             {
               icon: <XCircle />,
+              permission: "customer_groups:edit",
               label: t("actions.remove"),
               onClick: handleRemove,
             },

@@ -1,3 +1,9 @@
+import type { Permission } from "@mercurjs/dashboard-sdk"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import {
+  usePermittedCommands,
+  type PermissionedCommand,
+} from "@mercurjs/dashboard-shared"
 import {
   DataTable as UiDataTable,
   useDataTable,
@@ -13,6 +19,7 @@ import {
   DataTableFilteringState,
   DataTablePaginationState,
   DataTableSortingState,
+  Tooltip,
 } from "@medusajs/ui"
 import React, { ReactNode, useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -21,6 +28,8 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { useQueryParams } from "../../hooks/use-query-params"
 import { ActionMenu } from "../common/action-menu"
 
+const EMPTY_COMMANDS: PermissionedCommand<DataTableCommand>[] = []
+
 // Types for column visibility and ordering
 type VisibilityState = Record<string, boolean>
 type ColumnOrderState = string[]
@@ -28,6 +37,8 @@ type ColumnOrderState = string[]
 type DataTableActionProps = {
   label: string
   disabled?: boolean
+  /** Permission of the endpoint the action calls; disabled without it. */
+  permission?: Permission | Permission[]
 } & (
   | {
       to: string
@@ -62,7 +73,8 @@ interface DataTableProps<TData> {
   data?: TData[]
   columns: DataTableColumnDef<TData, any>[]
   filters?: DataTableFilter[]
-  commands?: DataTableCommand[]
+  /** A command with a `permission` is left out when the actor lacks it. */
+  commands?: PermissionedCommand<DataTableCommand>[]
   action?: DataTableActionProps
   actions?: DataTableActionProps[]
   actionMenu?: DataTableActionMenuProps
@@ -104,7 +116,7 @@ export const DataTable = <TData,>({
   data = [],
   columns,
   filters,
-  commands,
+  commands: declaredCommands,
   action,
   actions,
   actionMenu,
@@ -139,6 +151,8 @@ export const DataTable = <TData,>({
   const enableFiltering = filters && filters.length > 0
   const showFilterMenu =
     enableFilterMenu !== undefined ? enableFilterMenu : enableFiltering
+  const permittedCommands = usePermittedCommands(declaredCommands ?? EMPTY_COMMANDS)
+  const commands = declaredCommands ? permittedCommands : undefined
   const enableCommands = commands && commands.length > 0
   const enableSorting = columns.some((column) => column.enableSorting)
 
@@ -517,13 +531,27 @@ const useDataTableTranslations = () => {
 const DataTableAction = ({
   label,
   disabled,
+  permission,
   ...props
 }: DataTableActionProps) => {
+  const gate = usePermissionGate(permission)
   const buttonProps = {
     size: "small" as const,
     disabled: disabled ?? false,
     type: "button" as const,
     variant: "secondary" as const,
+  }
+
+  if (gate.denied) {
+    return (
+      <Tooltip content={gate.tooltip}>
+        <span className="inline-flex">
+          <Button {...buttonProps} disabled>
+            {label}
+          </Button>
+        </span>
+      </Tooltip>
+    )
   }
 
   if ("to" in props) {

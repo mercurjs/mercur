@@ -91,6 +91,7 @@ export const ProductListDataTable = () => {
         action: {
           to: "create",
           label: t("actions.create"),
+          permission: "products:edit",
         },
       }}
     />

@@ -33,6 +33,7 @@ export const CategoryIconSection = ({
                   label: t("actions.edit"),
                   icon: <PencilSquare />,
                   to: "icon/edit",
+                  permission: "product_categories:edit",
                 },
               ],
             },

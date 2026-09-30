@@ -1,6 +1,7 @@
 import { toast } from "@medusajs/ui";
 import {
   ProductAttributeSection as SharedProductAttributeSection,
+  useCan,
 } from "@mercurjs/dashboard-shared";
 import { MercurFeatureFlags, ProductAttributeDTO } from "@mercurjs/types";
 import { useTranslation } from "react-i18next";
@@ -25,10 +26,12 @@ export const ProductAttributeSection = ({
   const isProductRequestEnabled =
     !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST];
 
+  const canViewAttributes = useCan("product_attributes");
+
   const categoryId = product.categories?.[0]?.id;
   const { product_attributes } = useProductAttributes(
     { category_id: categoryId, is_required: true },
-    { enabled: !!categoryId },
+    { enabled: !!categoryId && canViewAttributes },
   );
 
   const { mutateAsync } = useBatchProductAttributes(product.id);

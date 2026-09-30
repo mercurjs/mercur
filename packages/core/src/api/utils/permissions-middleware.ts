@@ -131,6 +131,49 @@ export function requirePermission(key: string, right: PermissionRight) {
   })
 }
 
+/**
+ * Passes when the actor holds any one of the requirements. For routes shared
+ * by several domains, e.g. uploads used by both products and the store profile.
+ */
+export function requireAnyPermission(requirements: PermissionRequirement[]) {
+  const middleware = (
+    req: AuthenticatedMedusaRequest,
+    res: MedusaResponse,
+    next: MedusaNextFunction
+  ) => {
+    req.required_permissions ??= []
+    req.required_permissions.push(...requirements)
+
+    if (!req.permissions_enforced) {
+      return next()
+    }
+
+    if (
+      requirements.some(({ key, right }) =>
+        satisfiesRight(req.permissions?.[key], right)
+      )
+    ) {
+      return next()
+    }
+
+    const [{ key, right }] = requirements
+
+    res.status(403).json({
+      type: "not_allowed",
+      code: MISSING_PERMISSION_CODE,
+      message: `Missing required permission: ${requirements
+        .map((requirement) => `${requirement.key}:${requirement.right}`)
+        .join(" or ")}`,
+      permission: key,
+      right,
+    })
+  }
+
+  return Object.assign(middleware, {
+    [REQUIRED_PERMISSION]: requirements[0],
+  })
+}
+
 export const PERMISSIONS_FIELD = "permissions"
 
 /**

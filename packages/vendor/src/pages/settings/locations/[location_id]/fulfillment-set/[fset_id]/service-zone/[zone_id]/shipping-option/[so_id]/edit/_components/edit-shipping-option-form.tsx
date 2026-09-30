@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
 
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import { ConditionalTooltip } from "@components/common/conditional-tooltip"
 import { Form } from "@components/common/form"
 import { Combobox } from "@components/inputs/combobox"
 import { RouteDrawer, useRouteModal } from "@components/modals"
@@ -44,6 +46,8 @@ export const EditShippingOptionForm = ({
 
   const isPickup = type === FulfillmentSetType.Pickup
 
+  const profilesGate = usePermissionGate("shipping_profiles:view")
+
   const shippingProfiles = useComboboxData({
     queryFn: async () => {
       const { shipping_profiles } = await fetchQuery(
@@ -61,6 +65,7 @@ export const EditShippingOptionForm = ({
         value: profile.shipping_profile?.id ?? profile.id,
       })),
     defaultValue: shippingOption.shipping_profile_id,
+    enabled: profilesGate.allowed,
   })
 
   const form = useForm<zod.infer<typeof EditShippingOptionSchema>>({
@@ -175,17 +180,27 @@ export const EditShippingOptionForm = ({
                         <Form.Label>
                           {t("stockLocations.shippingOptions.fields.profile")}
                         </Form.Label>
-                        <Form.Control>
-                          <Combobox
-                            {...field}
-                            options={shippingProfiles.options}
-                            searchValue={shippingProfiles.searchValue}
-                            onSearchValueChange={
-                              shippingProfiles.onSearchValueChange
-                            }
-                            disabled={shippingProfiles.disabled}
-                          />
-                        </Form.Control>
+                        <ConditionalTooltip
+                          showTooltip={profilesGate.denied}
+                          content={profilesGate.tooltip}
+                        >
+                          <div>
+                            <Form.Control>
+                              <Combobox
+                                {...field}
+                                options={shippingProfiles.options}
+                                searchValue={shippingProfiles.searchValue}
+                                onSearchValueChange={
+                                  shippingProfiles.onSearchValueChange
+                                }
+                                disabled={
+                                  shippingProfiles.disabled ||
+                                  profilesGate.denied
+                                }
+                              />
+                            </Form.Control>
+                          </div>
+                        </ConditionalTooltip>
                         <Form.ErrorMessage />
                       </Form.Item>
                     )

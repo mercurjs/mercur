@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { HttpTypes } from "@medusajs/types"
 import { useNavigate } from "react-router-dom"
+import { useCan } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu/index.ts"
 import { ListSummary } from "@components/common/list-summary/index.ts"
 import { useDeleteRegion } from "@hooks/api/regions.tsx"
@@ -21,6 +22,7 @@ export const RegionGeneralSection = ({
   pricePreferences,
 }: RegionGeneralSectionProps) => {
   const { t } = useTranslation()
+  const canViewPreferences = useCan("price_preferences")
   const pricePreferenceForRegion = pricePreferences?.find(
     (preference) =>
       preference.attribute === "region_id" && preference.value === region.id
@@ -51,14 +53,16 @@ export const RegionGeneralSection = ({
         value={region.automatic_taxes ? t("fields.true") : t("fields.false")}
       />
 
-      <SectionRow
-        title={t("fields.taxInclusivePricing")}
-        value={
-          pricePreferenceForRegion?.is_tax_inclusive
-            ? t("fields.true")
-            : t("fields.false")
-        }
-      />
+      {canViewPreferences && (
+        <SectionRow
+          title={t("fields.taxInclusivePricing")}
+          value={
+            pricePreferenceForRegion?.is_tax_inclusive
+              ? t("fields.true")
+              : t("fields.false")
+          }
+        />
+      )}
 
       <SectionRow
         title={t("fields.paymentProviders")}

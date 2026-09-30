@@ -3,7 +3,11 @@ import { useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
-import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared";
+import {
+  PermissionGuard,
+  useLinkQuery,
+  WidgetZone,
+} from "@mercurjs/dashboard-shared";
 import { useProductCategory } from "@hooks/api";
 
 import { CategoryGeneralSection } from "./_components/category-general-section";
@@ -50,7 +54,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
               <CategoryGeneralSection category={product_category} />
               <CategoryMediaSection category={product_category} />
               <CategoryIconSection category={product_category} />
-              <CategoryProductSection category={product_category} />
+              <PermissionGuard permission="products:view">
+                <CategoryProductSection category={product_category} />
+              </PermissionGuard>
             </WidgetZone>
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>

@@ -1,4 +1,5 @@
 import { HttpTypes } from "@medusajs/types";
+import { usePermissions } from "@mercurjs/dashboard-shared";
 import { useMemo } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -46,11 +47,21 @@ const Root = () => {
   const { setCloseOnEscape } = useRouteModal();
 
   const { currency_code } = useCurrentSeller();
-  const { stock_locations } = useStockLocations({ limit: 100 });
-  const { shipping_profiles } = useShippingProfiles({ limit: 100 }) as {
+  const { can } = usePermissions();
+  const { stock_locations } = useStockLocations(
+    { limit: 100 },
+    { enabled: can("stock_locations") }
+  );
+  const { shipping_profiles } = useShippingProfiles(
+    { limit: 100 },
+    { enabled: can("shipping_profiles") }
+  ) as {
     shipping_profiles?: ShippingProfileLite[];
   };
-  const { price_preferences: pricePreferences } = usePricePreferences({});
+  const { price_preferences: pricePreferences } = usePricePreferences(
+    {},
+    { enabled: can("price_preferences") }
+  );
 
   const variants = useWatch({
     control: form.control,

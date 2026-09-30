@@ -10,10 +10,11 @@ import type { Permission } from "@mercurjs/dashboard-sdk"
  * Paths absent from this map are ungated (the dashboard root, a user's own
  * profile, and anything scoped to the acting user).
  */
-export const ROUTE_PERMISSIONS: Record<string, Permission> = {
+export const ROUTE_PERMISSIONS: Record<string, Permission | Permission[]> = {
   "/orders": "orders:view",
   "/products": "products:view",
-  "/offers": "offers:view",
+  // An offer is always shown with its master product.
+  "/offers": ["offers:view", "products:view"],
   "/collections": "product_collections:view",
   "/categories": "product_categories:view",
   "/inventory": "inventory_items:view",
@@ -45,5 +46,6 @@ export const ROUTE_PERMISSIONS: Record<string, Permission> = {
   "/settings/secret-api-keys": "api_keys:view",
 }
 
-export const getRoutePermission = (path: string): Permission | undefined =>
-  ROUTE_PERMISSIONS[path]
+export const getRoutePermission = (
+  path: string
+): Permission | Permission[] | undefined => ROUTE_PERMISSIONS[path]

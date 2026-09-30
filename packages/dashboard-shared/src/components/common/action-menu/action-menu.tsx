@@ -1,10 +1,14 @@
 import { DropdownMenu, IconButton, clx } from "@medusajs/ui"
 
 import { EllipsisHorizontal } from "@medusajs/icons"
-import { PropsWithChildren, ReactNode } from "react"
+import type { Permission } from "@mercurjs/dashboard-sdk"
+import { PropsWithChildren, ReactNode, useContext, useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 import { ConditionalTooltip } from "../conditional-tooltip"
 import { useDocumentDirection } from "../../../hooks/use-document-direction"
+import { applyActionPermissions } from "../../../permissions/action-permissions"
+import { PermissionsContext } from "../../../permissions/permissions-context"
 
 export type Action = {
   icon: ReactNode
@@ -14,6 +18,13 @@ export type Action = {
    * Optional tooltip to display when a disabled action is hovered.
    */
   disabledTooltip?: string | ReactNode
+  /**
+   * Permission(s) of the endpoint this action calls. An actor who lacks it
+   * gets the action disabled with a tooltip.
+   */
+  permission?: Permission | Permission[]
+  /** If true, ALL `permission` entries are required. Defaults to ANY. */
+  requireAll?: boolean
 } & (
   | {
       to: string
@@ -35,11 +46,25 @@ type ActionMenuProps = PropsWithChildren<{
 }>
 
 export const ActionMenu = ({
-  groups,
+  groups: declaredGroups,
   variant = "transparent",
   children,
 }: ActionMenuProps) => {
   const direction = useDocumentDirection()
+  const { t } = useTranslation()
+  // Read the context directly rather than through `usePermissions`, which
+  // throws: this menu also renders on public routes that mount no provider.
+  const permissions = useContext(PermissionsContext)
+
+  const groups = useMemo(
+    () =>
+      applyActionPermissions(
+        declaredGroups,
+        permissions,
+        t("permissions.accessDenied.action")
+      ),
+    [declaredGroups, permissions, t]
+  )
   const inner = children ?? (
     <IconButton size="small" variant={variant}>
       <EllipsisHorizontal />

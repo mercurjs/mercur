@@ -1,3 +1,4 @@
+import { useCan } from "@mercurjs/dashboard-shared";
 import { Heading, Input, Text, clx } from "@medusajs/ui";
 import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -25,9 +26,10 @@ const Root = () => {
     name: "member_email",
   });
 
+  const canViewMembers = useCan("members");
   const { members } = useMembers(
     { q: emailValue || undefined, limit: 10 },
-    { placeholderData: (prev: any) => prev },
+    { placeholderData: (prev: any) => prev, enabled: canViewMembers },
   );
 
   const memberList = useMemo(

@@ -13,7 +13,11 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import {
+  DisplayExtensionZone,
+  PermissionAction,
+  useCan,
+} from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
 import { _DataTable } from "@components/table/data-table"
 import {
@@ -49,10 +53,14 @@ export const CampaignPromotionSection = ({
     pageSize: PAGE_SIZE,
   })
 
-  const { promotions, count, isLoading } = usePromotions({
-    ...searchParams,
-    campaign_id: campaign.id,
-  })
+  const canViewPromotions = useCan("promotions")
+  const { promotions, count, isLoading } = usePromotions(
+    {
+      ...searchParams,
+      campaign_id: campaign.id,
+    },
+    { enabled: canViewPromotions }
+  )
 
   const { table } = useDataTable({
     data: (promotions ?? []) as unknown as AdminPromotion[],
@@ -116,11 +124,13 @@ export const CampaignPromotionSection = ({
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t("promotions.domain")}</Heading>
-        <Link to={`/campaigns/${campaign.id}/add-promotions`}>
-          <Button variant="secondary" size="small">
-            {t("general.add")}
+        <PermissionAction permission="campaigns:edit">
+          <Button variant="secondary" size="small" asChild>
+            <Link to={`/campaigns/${campaign.id}/add-promotions`}>
+              {t("general.add")}
+            </Link>
           </Button>
-        </Link>
+        </PermissionAction>
       </div>
 
       <_DataTable
@@ -151,6 +161,7 @@ export const CampaignPromotionSection = ({
             action: handleRemove,
             label: t("actions.remove"),
             shortcut: "r",
+            permission: "promotions:edit",
           },
         ]}
         noRecords={{
@@ -205,7 +216,7 @@ const PromotionActions = ({ promotion }: { promotion: AdminPromotion }) => {
           actions: [
             {
               icon: <PencilSquare />,
-              permission: "campaigns:edit",
+              permission: "promotions:edit",
               label: t("actions.edit"),
               to: `/promotions/${promotion.id}/edit`,
             },
@@ -215,6 +226,7 @@ const PromotionActions = ({ promotion }: { promotion: AdminPromotion }) => {
           actions: [
             {
               icon: <Trash />,
+              permission: "promotions:edit",
               label: t("actions.remove"),
               onClick: handleRemove,
             },

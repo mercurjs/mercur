@@ -2,7 +2,7 @@ import { InventoryTypes } from "@medusajs/types"
 import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
-import { useLinkQuery } from "@mercurjs/dashboard-shared"
+import { useLinkQuery, SectionNoAccess, usePermissions } from "@mercurjs/dashboard-shared"
 import { RouteDrawer } from "@components/modals"
 import {
   useInventoryItem,
@@ -20,22 +20,26 @@ export const ReservationEdit = () => {
     id!,
     useLinkQuery("reservation")
   )
+  const { can } = usePermissions()
+  const canViewItem = can("inventory_items")
+  const canViewLocations = can("stock_locations")
+
   const { inventory_item: inventoryItem } = useInventoryItem(
     reservation?.inventory_item_id,
     undefined,
     {
-      enabled: !!reservation?.inventory_item_id,
+      enabled: !!reservation?.inventory_item_id && canViewItem,
     }
   )
 
   const { inventory_levels } = useInventoryItemLevels(inventoryItem?.id, undefined, {
-    enabled: !!inventoryItem?.id,
+    enabled: !!inventoryItem?.id && canViewItem,
   }) as any
 
   const { stock_locations } = useStockLocations(
     undefined,
     {
-      enabled: !!inventory_levels,
+      enabled: !!inventory_levels && canViewLocations,
     },
     {
       id: inventory_levels?.map(
@@ -56,12 +60,18 @@ export const ReservationEdit = () => {
           <Heading>{t("inventory.reservation.editItemDetails")}</Heading>
         </RouteDrawer.Title>
       </RouteDrawer.Header>
-      {ready && (
-        <EditReservationForm
-          locations={stock_locations}
-          reservation={reservation}
-          item={{ ...inventoryItem, location_levels: inventory_levels }}
-        />
+      {!(canViewItem && canViewLocations) ? (
+        <RouteDrawer.Body>
+          <SectionNoAccess className="p-0" />
+        </RouteDrawer.Body>
+      ) : (
+        ready && (
+          <EditReservationForm
+            locations={stock_locations}
+            reservation={reservation}
+            item={{ ...inventoryItem, location_levels: inventory_levels }}
+          />
+        )
       )}
     </RouteDrawer>
   )

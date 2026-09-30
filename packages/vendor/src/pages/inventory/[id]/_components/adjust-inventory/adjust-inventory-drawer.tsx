@@ -1,4 +1,5 @@
 import { InventoryTypes } from "@medusajs/types";
+import { SectionNoAccess, useCan } from "@mercurjs/dashboard-shared";
 import { Heading } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -25,8 +26,12 @@ export const AdjustInventoryDrawer = () => {
       level.location_id === location_id,
   );
 
+  const canViewLocation = useCan("stock_locations");
+
   const { stock_location, isLoading: isLoadingLocation } = useStockLocation(
     location_id!,
+    undefined,
+    { enabled: canViewLocation },
   );
 
   const ready =
@@ -47,12 +52,18 @@ export const AdjustInventoryDrawer = () => {
           <Heading>{t("inventory.manageLocations")}</Heading>
         </RouteDrawer.Title>
       </RouteDrawer.Header>
-      {ready && (
-        <AdjustInventoryForm
-          item={inventoryItem}
-          level={inventoryLevel}
-          location={stock_location}
-        />
+      {!canViewLocation ? (
+        <RouteDrawer.Body>
+          <SectionNoAccess className="p-0" />
+        </RouteDrawer.Body>
+      ) : (
+        ready && (
+          <AdjustInventoryForm
+            item={inventoryItem}
+            level={inventoryLevel}
+            location={stock_location}
+          />
+        )
       )}
     </RouteDrawer>
   );

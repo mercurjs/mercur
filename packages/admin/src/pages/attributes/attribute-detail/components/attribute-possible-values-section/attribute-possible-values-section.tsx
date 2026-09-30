@@ -11,6 +11,7 @@ import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
+import { PermissionAction } from "@mercurjs/dashboard-shared"
 
 import { ProductAttributeDTO, ProductAttributeValueDTO, AttributeType } from "@mercurjs/types"
 import { ActionMenu } from "../../../../../components/common/action-menu"
@@ -79,6 +80,7 @@ const PossibleValueActions = ({
             actions: [
               {
                 icon: <PencilSquare />,
+                permission: "product_attributes:edit",
                 label: t("actions.edit"),
                 to: `edit-possible-value?possible_value_id=${value.id}`,
               },
@@ -88,6 +90,7 @@ const PossibleValueActions = ({
             actions: [
               {
                 icon: <Trash />,
+                permission: "product_attributes:manage",
                 label: t("actions.delete"),
                 onClick: handleDelete,
               },
@@ -186,14 +189,18 @@ export const AttributePossibleValuesSection = ({
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t("attributes.fields.possibleValues")}</Heading>
         <div className="flex items-center gap-x-2">
-          <Button variant="secondary" size="small" asChild>
-            <Link to="edit-ranking">
-              {t("attributes.possibleValues.editRanking")}
-            </Link>
-          </Button>
-          <Button variant="secondary" size="small" asChild>
-            <Link to="create-possible-value">{t("actions.create")}</Link>
-          </Button>
+          <PermissionAction permission="product_attributes:edit">
+            <Button variant="secondary" size="small" asChild>
+              <Link to="edit-ranking">
+                {t("attributes.possibleValues.editRanking")}
+              </Link>
+            </Button>
+          </PermissionAction>
+          <PermissionAction permission="product_attributes:edit">
+            <Button variant="secondary" size="small" asChild>
+              <Link to="create-possible-value">{t("actions.create")}</Link>
+            </Button>
+          </PermissionAction>
         </div>
       </div>
       {allValues.length > 0 ? (
@@ -213,6 +220,7 @@ export const AttributePossibleValuesSection = ({
           message={t("attributes.possibleValues.noRecordsMessage")}
           action={{
             to: "create-possible-value",
+            permission: "product_attributes:edit",
             label: t("actions.create"),
           }}
         />

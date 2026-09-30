@@ -1,5 +1,10 @@
 import { ProductAttributeDTO } from "@mercurjs/types"
 import { Badge, Button, Checkbox } from "@medusajs/ui"
+import {
+  isForbidden,
+  SectionNoAccess,
+  useCan,
+} from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import {
   createColumnHelper,
@@ -61,9 +66,11 @@ export const ProductCreateAddAttributesModal = () => {
     () => ({ ...searchParams, category_id: categoryId || undefined }),
     [searchParams, categoryId]
   )
+  const canViewAttributes = useCan("product_attributes")
   const { product_attributes, count, isLoading, isError, error } =
     useProductAttributes(attributesQuery, {
       placeholderData: keepPreviousData,
+      enabled: canViewAttributes,
     })
 
   const open = getIsOpen(ADD_ATTRIBUTES_MODAL_ID)
@@ -203,8 +210,21 @@ export const ProductCreateAddAttributesModal = () => {
     prefix: ADD_ATTRIBUTES_MODAL_ID,
   })
 
-  if (isError) {
+  const noAccess = !canViewAttributes || (isError && isForbidden(error))
+
+  if (isError && !noAccess) {
     throw error
+  }
+
+  if (noAccess) {
+    return (
+      <StackedFocusModal.Content className="flex flex-col overflow-hidden">
+        <StackedFocusModal.Header />
+        <StackedFocusModal.Body>
+          <SectionNoAccess />
+        </StackedFocusModal.Body>
+      </StackedFocusModal.Content>
+    )
   }
 
   return (

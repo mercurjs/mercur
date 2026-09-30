@@ -72,6 +72,7 @@ const LocationListContent = () => {
         }}
         actions={[
           {
+            permission: "stock_locations:edit",
             label: t("actions.create"),
             to: "create",
           },

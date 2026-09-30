@@ -6,6 +6,7 @@ import type {
   CustomFormField,
   CustomListExtension,
   NavItemOverride,
+  Permission,
   SectionAction,
 } from "@mercurjs/dashboard-sdk"
 
@@ -15,6 +16,7 @@ export type Widget = {
   Component: ComponentType<{ data?: unknown }>
   zone: string[]
   widgetId: string
+  permission?: Permission[]
 }
 
 export type WidgetModule = { widgets?: Widget[] }
@@ -27,7 +29,11 @@ export type ResolvedDisplays = {
   actions: SectionAction[]
 }
 
-type ResolvedWidget = { Component: Widget["Component"]; widgetId: string }
+type ResolvedWidget = {
+  Component: Widget["Component"]
+  widgetId: string
+  permission?: Permission[]
+}
 
 export type ZoneWidgets = {
   before: ResolvedWidget[]
@@ -88,6 +94,7 @@ export class ExtensionRegistry {
         const resolved: ResolvedWidget = {
           Component: widget.Component,
           widgetId: widget.widgetId,
+          permission: widget.permission,
         }
         entry[placement].push(resolved)
       }

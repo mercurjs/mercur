@@ -1,3 +1,4 @@
+import { useCan } from "@mercurjs/dashboard-shared"
 import type { HttpTypes } from "@medusajs/types"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -30,9 +31,13 @@ export const ReservationItemTable = ({
       inventory_item_id: [inventoryItem.id],
     })
 
-  const { stock_locations } = useStockLocations({
-    id: (reservations || []).map((r) => r.location_id),
-  })
+  const canViewLocations = useCan("stock_locations")
+  const { stock_locations } = useStockLocations(
+    {
+      id: (reservations || []).map((r) => r.location_id),
+    },
+    { enabled: canViewLocations }
+  )
 
   const data = useMemo<ExtendedReservationItem[]>(() => {
     const locationMap = new Map((stock_locations || []).map((l) => [l.id, l]))

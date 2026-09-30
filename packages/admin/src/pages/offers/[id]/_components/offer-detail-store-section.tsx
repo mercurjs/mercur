@@ -1,3 +1,5 @@
+import { useCan } from "@mercurjs/dashboard-shared"
+
 import { useSeller } from "../../../../hooks/api/sellers"
 import { OfferStoreSidebar } from "./offer-store-sidebar"
 
@@ -6,8 +8,9 @@ export const OfferDetailStoreSection = ({
 }: {
   sellerId?: string
 }) => {
+  const canViewSellers = useCan("sellers")
   const { seller } = useSeller(sellerId ?? "", undefined, {
-    enabled: !!sellerId,
+    enabled: !!sellerId && canViewSellers,
   })
 
   if (!sellerId) {

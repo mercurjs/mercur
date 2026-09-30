@@ -8,6 +8,12 @@ import {
   toast,
   usePrompt,
 } from "@medusajs/ui"
+import {
+  SectionNoAccess,
+  isForbidden,
+  usePermissions,
+  usePermissionGate,
+} from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import { RowSelectionState, createColumnHelper } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
@@ -31,6 +37,9 @@ const PAGE_SIZE = 10
 
 export const MarketplaceCurrencySection = ({ store }: MarketplaceCurrencySectionProps) => {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+  const { can } = usePermissions()
+  const canViewCurrencies = can("regions")
+  const canViewPreferences = can("price_preferences")
 
   const { searchParams, raw } = useCurrenciesTableQuery({ pageSize: PAGE_SIZE })
 
@@ -47,7 +56,7 @@ export const MarketplaceCurrencySection = ({ store }: MarketplaceCurrencySection
     },
     {
       placeholderData: keepPreviousData,
-      enabled: !!store.supported_currencies?.length,
+      enabled: !!store.supported_currencies?.length && canViewCurrencies,
     }
   )
 
@@ -62,11 +71,16 @@ export const MarketplaceCurrencySection = ({ store }: MarketplaceCurrencySection
       value: store.supported_currencies?.map((c) => c.currency_code),
     },
     {
-      enabled: !!store.supported_currencies?.length,
+      enabled: !!store.supported_currencies?.length && canViewPreferences,
     }
   )
 
-  const columns = useColumns()
+  const currenciesForbidden =
+    !canViewCurrencies || isForbidden(currenciesError)
+  const preferencesForbidden =
+    !canViewPreferences || isForbidden(pricePreferencesError)
+
+  const columns = useColumns(!preferencesForbidden)
   const prefMap = useMemo(() => {
     return new Map(pricePreferences?.map((pref) => [pref.value!, pref]))
   }, [pricePreferences])
@@ -94,12 +108,15 @@ export const MarketplaceCurrencySection = ({ store }: MarketplaceCurrencySection
       defaultCurrencyCode: store.supported_currencies?.find((c) => c.is_default)
         ?.currency_code,
       preferencesMap: prefMap,
+      canTogglePreferences: !preferencesForbidden,
     },
   })
 
   const { mutateAsync } = useUpdateStore(store.id)
   const { t } = useTranslation()
   const prompt = usePrompt()
+
+  const editGate = usePermissionGate("store:edit")
 
   const handleDeleteCurrencies = async () => {
     const ids = Object.keys(rowSelection)
@@ -136,15 +153,16 @@ export const MarketplaceCurrencySection = ({ store }: MarketplaceCurrencySection
     )
   }
 
-  if (isCurrenciesError) {
+  if (isCurrenciesError && !currenciesForbidden) {
     throw currenciesError
   }
 
-  if (isPricePreferencesError) {
+  if (isPricePreferencesError && !preferencesForbidden) {
     throw pricePreferencesError
   }
 
-  const isLoading = isCurrenciesPending || isPricePreferencesPending
+  const isLoading =
+    isCurrenciesPending || (!preferencesForbidden && isPricePreferencesPending)
 
   return (
     <Container className="divide-y p-0" data-testid="store-currency-section-container">
@@ -156,6 +174,7 @@ export const MarketplaceCurrencySection = ({ store }: MarketplaceCurrencySection
               actions: [
                 {
                   icon: <Plus />,
+                  permission: "store:edit",
                   label: t("actions.add"),
                   to: "currencies",
                 },
@@ -165,22 +184,26 @@ export const MarketplaceCurrencySection = ({ store }: MarketplaceCurrencySection
           data-testid="store-currency-section-action-menu"
         />
       </div>
-      <_DataTable
-        orderBy={[
-          { key: "name", label: t("fields.name") },
-          { key: "code", label: t("fields.code") },
-        ]}
-        search
-        pagination
-        table={table}
-        pageSize={PAGE_SIZE}
-        columns={columns}
-        count={!store.supported_currencies?.length ? 0 : count}
-        isLoading={!store.supported_currencies?.length ? false : isLoading}
-        queryObject={raw}
-        data-testid="store-currency-section-table"
-      />
-      <CommandBar open={!!Object.keys(rowSelection).length} data-testid="store-currency-section-command-bar">
+      {currenciesForbidden ? (
+        <SectionNoAccess />
+      ) : (
+        <_DataTable
+          orderBy={[
+            { key: "name", label: t("fields.name") },
+            { key: "code", label: t("fields.code") },
+          ]}
+          search
+          pagination
+          table={table}
+          pageSize={PAGE_SIZE}
+          columns={columns}
+          count={!store.supported_currencies?.length ? 0 : count}
+          isLoading={!store.supported_currencies?.length ? false : isLoading}
+          queryObject={raw}
+          data-testid="store-currency-section-table"
+        />
+      )}
+      <CommandBar open={!!Object.keys(rowSelection).length && editGate.allowed} data-testid="store-currency-section-command-bar">
         <CommandBar.Bar data-testid="store-currency-section-command-bar-bar">
           <CommandBar.Value data-testid="store-currency-section-command-bar-value">
             {t("general.countSelected", {
@@ -206,12 +229,14 @@ const CurrencyActions = ({
   supportedCurrencies,
   defaultCurrencyCode,
   preferencesMap,
+  canTogglePreferences,
 }: {
   storeId: string
   currency: HttpTypes.AdminCurrency
   supportedCurrencies: HttpTypes.AdminStoreCurrency[]
   defaultCurrencyCode: string
   preferencesMap: Map<string, HttpTypes.AdminPricePreference>
+  canTogglePreferences: boolean
 }) => {
   const { mutateAsync } = useUpdateStore(storeId)
   const { t } = useTranslation()
@@ -279,24 +304,28 @@ const CurrencyActions = ({
     <ActionMenu
       groups={[
         {
-          actions: [
-            {
-              icon: preferencesMap.get(currency.code)?.is_tax_inclusive ? (
-                <XCircle />
-              ) : (
-                <CheckCircle />
-              ),
-              label: preferencesMap.get(currency.code)?.is_tax_inclusive
-                ? t("store.disableTaxInclusivePricing")
-                : t("store.enableTaxInclusivePricing"),
-              onClick: handleToggleTaxInclusivity,
-            },
-          ],
+          actions: canTogglePreferences
+            ? [
+                {
+                  icon: preferencesMap.get(currency.code)?.is_tax_inclusive ? (
+                    <XCircle />
+                  ) : (
+                    <CheckCircle />
+                  ),
+                  permission: "store:edit",
+                  label: preferencesMap.get(currency.code)?.is_tax_inclusive
+                    ? t("store.disableTaxInclusivePricing")
+                    : t("store.enableTaxInclusivePricing"),
+                  onClick: handleToggleTaxInclusivity,
+                },
+              ]
+            : [],
         },
         {
           actions: [
             {
               icon: <Trash />,
+              permission: "store:edit",
               label: t("actions.remove"),
               onClick: handleRemove,
               disabled: currency.code === defaultCurrencyCode,
@@ -313,7 +342,7 @@ const columnHelper = createColumnHelper<
   HttpTypes.AdminCurrency & { is_tax_inclusive?: boolean }
 >()
 
-const useColumns = () => {
+const useColumns = (withTaxInclusivity: boolean) => {
   const base = useCurrenciesTableColumns()
   const { t } = useTranslation()
 
@@ -350,17 +379,21 @@ const useColumns = () => {
         },
       }),
       ...base,
-      columnHelper.accessor("is_tax_inclusive", {
-        header: t("fields.taxInclusivePricing"),
-        cell: ({ getValue }) => {
-          const isTaxInclusive = getValue()
-          return (
-            <StatusCell color={isTaxInclusive ? "green" : "grey"}>
-              {isTaxInclusive ? t("fields.true") : t("fields.false")}
-            </StatusCell>
-          )
-        },
-      }),
+      ...(withTaxInclusivity
+        ? [
+            columnHelper.accessor("is_tax_inclusive", {
+              header: t("fields.taxInclusivePricing"),
+              cell: ({ getValue }) => {
+                const isTaxInclusive = getValue()
+                return (
+                  <StatusCell color={isTaxInclusive ? "green" : "grey"}>
+                    {isTaxInclusive ? t("fields.true") : t("fields.false")}
+                  </StatusCell>
+                )
+              },
+            }),
+          ]
+        : []),
       columnHelper.display({
         id: "actions",
         cell: ({ row, table }) => {
@@ -369,11 +402,13 @@ const useColumns = () => {
             storeId,
             defaultCurrencyCode,
             preferencesMap,
+            canTogglePreferences,
           } = table.options.meta as {
             supportedCurrencies: HttpTypes.AdminStoreCurrency[]
             storeId: string
             defaultCurrencyCode: string
             preferencesMap: Map<string, HttpTypes.AdminPricePreference>
+            canTogglePreferences: boolean
           }
 
           return (
@@ -383,11 +418,12 @@ const useColumns = () => {
               supportedCurrencies={supportedCurrencies}
               defaultCurrencyCode={defaultCurrencyCode}
               preferencesMap={preferencesMap}
+              canTogglePreferences={canTogglePreferences}
             />
           )
         },
       }),
     ],
-    [base, t]
+    [base, t, withTaxInclusivity]
   )
 }

@@ -111,6 +111,7 @@ export const ReservationListTable = () => {
           action: {
             to: "create",
             label: t("actions.create"),
+            permission: "reservations:edit",
           },
         }}
       />

@@ -5,6 +5,7 @@ import * as zod from "zod"
 
 import type { HttpTypes } from "@medusajs/types"
 import { Button, toast } from "@medusajs/ui"
+import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 
 import { DataGrid } from "../../../../../components/data-grid"
@@ -103,15 +104,19 @@ export function EditShippingOptionsPricingForm({
     [store]
   )
 
+  const canViewRegions = useCan("regions")
   const {
     regions,
     isLoading: isRegionsLoading,
     isError: isRegionsError,
     error: regionsError,
-  } = useRegions({
-    fields: "id,name,currency_code",
-    limit: 999,
-  })
+  } = useRegions(
+    {
+      fields: "id,name,currency_code",
+      limit: 999,
+    },
+    { enabled: canViewRegions }
+  )
 
   const { price_preferences: pricePreferences } = usePricePreferences({})
 
@@ -223,6 +228,17 @@ export function EditShippingOptionsPricingForm({
 
   if (isStoreError) {
     throw storeError
+  }
+
+  if (!canViewRegions || isForbidden(regionsError)) {
+    return (
+      <>
+        <RouteFocusModal.Header />
+        <RouteFocusModal.Body>
+          <SectionNoAccess />
+        </RouteFocusModal.Body>
+      </>
+    )
   }
 
   if (isRegionsError) {

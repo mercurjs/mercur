@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactElement, ReactNode, useState } from "react";
 import { ExclamationCircleSolid } from "@medusajs/icons";
 import {
   Button,
@@ -17,7 +17,12 @@ import {
   useSuspendSeller,
 } from "../../../../hooks/api/sellers";
 import { InferClientOutput } from "@mercurjs/client";
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
+import {
+  DisplayExtensionZone,
+  PermissionAction,
+  useCan,
+  usePermissionGate,
+} from "@mercurjs/dashboard-shared";
 import { sdk } from "@lib/client";
 
 type Seller = InferClientOutput<typeof sdk.admin.sellers.$id.query>["seller"];
@@ -43,7 +48,12 @@ export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
   const { mutateAsync: suspendSeller, isPending: isRejecting } =
     useSuspendSeller(seller.id);
 
-  const { seller_members } = useSellerMembers(seller.id, { limit: 100 });
+  const canViewMembers = useCan("members");
+  const { seller_members } = useSellerMembers(
+    seller.id,
+    { limit: 100 },
+    { enabled: canViewMembers },
+  );
   const owner = (seller_members as OwnerMember[] | undefined)?.find(
     (m) => m.is_owner,
   );
@@ -127,7 +137,7 @@ export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
 };
 
 type RequestActionPromptProps = {
-  trigger: ReactNode;
+  trigger: ReactElement<{ disabled?: boolean; children?: ReactNode }>;
   title: string;
   description: string;
   notePlaceholder: string;
@@ -148,6 +158,7 @@ const RequestActionPrompt = ({
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState("");
+  const gate = usePermissionGate("sellers.approval:edit");
 
   const handleSubmit = async () => {
     try {
@@ -161,7 +172,13 @@ const RequestActionPrompt = ({
 
   return (
     <Prompt open={open} onOpenChange={setOpen}>
-      <Prompt.Trigger asChild>{trigger}</Prompt.Trigger>
+      {gate.allowed ? (
+        <Prompt.Trigger asChild>{trigger}</Prompt.Trigger>
+      ) : (
+        <PermissionAction permission="sellers.approval:edit">
+          {trigger}
+        </PermissionAction>
+      )}
       <Prompt.Content>
         <Prompt.Header>
           <Prompt.Title>{title}</Prompt.Title>

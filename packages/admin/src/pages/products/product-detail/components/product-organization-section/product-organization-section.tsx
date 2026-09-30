@@ -33,6 +33,7 @@ export const ProductOrganizationSection = ({
                 {
                   label: t("actions.edit"),
                   to: "organization",
+                  permission: "products:edit",
                   icon: <PencilSquare />,
                 },
               ],

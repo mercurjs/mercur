@@ -33,6 +33,7 @@ export const CategoryMediaSection = ({
                   label: t("actions.edit"),
                   icon: <PencilSquare />,
                   to: "media?view=edit",
+                  permission: "product_categories:edit",
                 },
               ],
             },

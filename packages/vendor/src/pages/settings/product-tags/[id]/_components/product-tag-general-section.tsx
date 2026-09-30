@@ -1,9 +1,5 @@
-import { PencilSquare, Trash } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Container, Heading } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { ActionMenu } from "@components/common/action-menu"
-import { useDeleteProductTagAction } from "@pages/settings/product-tags/_common/hooks/use-delete-product-tag-action"
 
 type ProductTagGeneralSectionProps = {
   productTag: HttpTypes.AdminProductTag
@@ -12,40 +8,12 @@ type ProductTagGeneralSectionProps = {
 export const ProductTagGeneralSection = ({
   productTag,
 }: ProductTagGeneralSectionProps) => {
-  const { t } = useTranslation()
-  const handleDelete = useDeleteProductTagAction({ productTag })
-
   return (
     <Container className="flex items-center justify-between" data-testid="product-tag-general-section-container">
       <div className="flex items-center gap-x-1.5" data-testid="product-tag-general-section-heading-container">
         <span className="text-ui-fg-muted h1-core">#</span>
         <Heading data-testid="product-tag-general-section-heading">{productTag.value}</Heading>
       </div>
-      <ActionMenu
-        groups={[
-          {
-            actions: [
-              {
-                icon: <PencilSquare />,
-                permission: "product_tags:edit",
-                label: t("actions.edit"),
-                to: "edit",
-              },
-            ],
-          },
-          {
-            actions: [
-              {
-                icon: <Trash />,
-                permission: "product_tags:manage",
-                label: t("actions.delete"),
-                onClick: handleDelete,
-              },
-            ],
-          },
-        ]}
-        data-testid="product-tag-general-section-action-menu"
-      />
     </Container>
   )
 }

@@ -12,6 +12,7 @@ import { DateCell } from "@components/table/table-cells/common/date-cell";
 import { useMe, useSellerMembers, useRemoveSellerMember } from "@hooks/api";
 import { useMemberTableQuery } from "@hooks/table/query";
 import { useDataTable } from "@hooks/use-data-table";
+import { SectionNoAccess, isForbidden } from "@mercurjs/dashboard-shared";
 import { SellerMemberDTO, SellerRole } from "@mercurjs/types";
 
 const PAGE_SIZE = 20;
@@ -49,6 +50,10 @@ export const TeamListDataTable = () => {
     pageSize: PAGE_SIZE,
     getRowId: (row) => row.id,
   });
+
+  if (isForbidden(error)) {
+    return <SectionNoAccess />;
+  }
 
   if (isError) {
     throw error;
@@ -168,6 +173,7 @@ const MemberActions = ({
           actions: [
             {
               icon: <Trash />,
+              permission: "members:manage",
               label: t("actions.remove"),
               onClick: handleRemove,
             },

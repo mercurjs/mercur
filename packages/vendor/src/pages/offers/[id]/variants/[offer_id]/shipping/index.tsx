@@ -1,4 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import { ConditionalTooltip } from "@components/common/conditional-tooltip"
 import { Button, Heading, Select, toast } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -21,7 +23,11 @@ const EditShippingForm = ({ offer }: { offer: OfferDetail }) => {
   const { t } = useTranslation()
   const direction = useDocumentDirection()
   const { handleSuccess } = useRouteModal()
-  const { shipping_profiles } = useShippingProfiles({ limit: 1000 })
+  const profilesGate = usePermissionGate("shipping_profiles:view")
+  const { shipping_profiles } = useShippingProfiles(
+    { limit: 1000 },
+    { enabled: profilesGate.allowed }
+  )
 
   const form = useForm<Values>({
     defaultValues: { shipping_profile_id: offer.shipping_profile_id ?? "" },
@@ -56,25 +62,37 @@ const EditShippingForm = ({ offer }: { offer: OfferDetail }) => {
             render={({ field: { ref, onChange, ...f } }) => (
               <Form.Item>
                 <Form.Label>{t("offers.fields.shippingProfile")}</Form.Label>
-                <Form.Control>
-                  <Select {...f} onValueChange={onChange} dir={direction}>
-                    <Select.Trigger
-                      ref={ref}
-                      data-testid="offer-variant-shipping-select"
-                    >
-                      <Select.Value
-                        placeholder={t("offers.fields.shippingProfile")}
-                      />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {(shipping_profiles ?? []).map((p) => (
-                        <Select.Item key={p.id} value={p.id}>
-                          {p.name ?? ""}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
-                </Form.Control>
+                <ConditionalTooltip
+                  showTooltip={profilesGate.denied}
+                  content={profilesGate.tooltip}
+                >
+                  <div>
+                    <Form.Control>
+                      <Select
+                        {...f}
+                        onValueChange={onChange}
+                        dir={direction}
+                        disabled={profilesGate.denied}
+                      >
+                        <Select.Trigger
+                          ref={ref}
+                          data-testid="offer-variant-shipping-select"
+                        >
+                          <Select.Value
+                            placeholder={t("offers.fields.shippingProfile")}
+                          />
+                        </Select.Trigger>
+                        <Select.Content>
+                          {(shipping_profiles ?? []).map((p) => (
+                            <Select.Item key={p.id} value={p.id}>
+                              {p.name ?? ""}
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select>
+                    </Form.Control>
+                  </div>
+                </ConditionalTooltip>
                 <Form.ErrorMessage />
               </Form.Item>
             )}

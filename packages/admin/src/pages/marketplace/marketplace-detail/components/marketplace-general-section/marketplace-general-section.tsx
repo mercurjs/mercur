@@ -1,6 +1,7 @@
 import { PencilSquare } from "@medusajs/icons"
 import { AdminStore } from "@medusajs/types"
 import { Badge, Container, Heading, Text } from "@medusajs/ui"
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 
 import { Link } from "react-router-dom"
@@ -15,14 +16,19 @@ type MarketplaceGeneralSectionProps = {
 export const MarketplaceGeneralSection = ({ store }: MarketplaceGeneralSectionProps) => {
   const { t } = useTranslation()
 
+  const { can } = usePermissions()
+  const canViewRegions = can("regions")
+  const canViewSalesChannels = can("sales_channels")
+  const canViewLocations = can("stock_locations")
+
   const { region } = useRegion(store.default_region_id!, undefined, {
-    enabled: !!store.default_region_id,
+    enabled: !!store.default_region_id && canViewRegions,
   })
 
   const defaultCurrency = store.supported_currencies?.find((c) => c.is_default)
 
   const { sales_channel } = useSalesChannel(store.default_sales_channel_id!, {
-    enabled: !!store.default_sales_channel_id,
+    enabled: !!store.default_sales_channel_id && canViewSalesChannels,
   })
 
   const { stock_location } = useStockLocation(
@@ -31,7 +37,7 @@ export const MarketplaceGeneralSection = ({ store }: MarketplaceGeneralSectionPr
       fields: "id,name",
     },
     {
-      enabled: !!store.default_location_id,
+      enabled: !!store.default_location_id && canViewLocations,
     }
   )
 
@@ -50,6 +56,7 @@ export const MarketplaceGeneralSection = ({ store }: MarketplaceGeneralSectionPr
               actions: [
                 {
                   icon: <PencilSquare />,
+                  permission: "store:edit",
                   label: t("actions.edit"),
                   to: "edit",
                 },
@@ -97,7 +104,7 @@ export const MarketplaceGeneralSection = ({ store }: MarketplaceGeneralSectionPr
             </Badge>
           ) : (
             <Text size="small" leading="compact">
-              -
+              {(!canViewRegions && store.default_region_id) || "-"}
             </Text>
           )}
         </div>
@@ -115,7 +122,7 @@ export const MarketplaceGeneralSection = ({ store }: MarketplaceGeneralSectionPr
             </Badge>
           ) : (
             <Text size="small" leading="compact">
-              -
+              {(!canViewSalesChannels && store.default_sales_channel_id) || "-"}
             </Text>
           )}
         </div>
@@ -133,7 +140,7 @@ export const MarketplaceGeneralSection = ({ store }: MarketplaceGeneralSectionPr
             </Badge>
           ) : (
             <Text size="small" leading="compact">
-              -
+              {(!canViewLocations && store.default_location_id) || "-"}
             </Text>
           )}
         </div>

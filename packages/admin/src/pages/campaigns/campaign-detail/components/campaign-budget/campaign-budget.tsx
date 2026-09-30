@@ -55,6 +55,7 @@ const BudgetPills = ({ pills }: { pills: BudgetPill[] }) => {
                     actions: [
                       {
                         icon: <PencilSquare />,
+                        permission: "campaigns:edit",
                         label: t("actions.edit"),
                         to: pill.editTo,
                       },

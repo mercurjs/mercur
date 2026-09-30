@@ -2,6 +2,7 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
+import { updateUsersWorkflow } from "@medusajs/core-flows"
 import {
   ContainerRegistrationKeys,
   MedusaError,
@@ -39,4 +40,31 @@ export const GET = async (
   }
 
   res.status(200).json({ user: attachPermissions(req, user, withPermissions) })
+}
+
+export const POST = async (
+  req: AuthenticatedMedusaRequest<HttpTypes.AdminUpdateUser>,
+  res: MedusaResponse<HttpTypes.AdminUserResponse>
+) => {
+  const id = req.auth_context.actor_id
+
+  if (!id) {
+    throw new MedusaError(MedusaError.Types.NOT_FOUND, `User ID not found`)
+  }
+
+  await updateUsersWorkflow(req.scope).run({
+    input: { updates: [{ id, ...req.validatedBody }] },
+  })
+
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const {
+    data: [user],
+  } = await query.graph({
+    entity: "user",
+    fields: req.queryConfig.fields,
+    filters: { id },
+  })
+
+  res.status(200).json({ user })
 }

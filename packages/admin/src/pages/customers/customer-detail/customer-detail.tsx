@@ -1,7 +1,7 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared"
+import { PermissionGuard, WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
 import { useCustomer } from "../../../hooks/api/customers"
@@ -37,8 +37,12 @@ const Root = ({ children }: { children?: ReactNode }) => {
       <TwoColumnPage.Main>
         <WidgetZone id="customers.detail.main" data={customer}>
           <CustomerGeneralSection customer={customer} />
-          <CustomerOrderSection customer={customer} />
-          <CustomerGroupSection customer={customer} />
+          <PermissionGuard permission="orders:view">
+            <CustomerOrderSection customer={customer} />
+          </PermissionGuard>
+          <PermissionGuard permission="customer_groups:view">
+            <CustomerGroupSection customer={customer} />
+          </PermissionGuard>
         </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>

@@ -1,6 +1,6 @@
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { useExtensionActivity } from "@mercurjs/dashboard-shared"
+import { useCan, useExtensionActivity } from "@mercurjs/dashboard-shared"
 import { AdminClaim, AdminExchange, AdminReturn } from "@medusajs/types"
 import { Text } from "@medusajs/ui"
 import { ReactNode } from "react"
@@ -52,18 +52,29 @@ export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
     )
   }, [order.items])
 
-  const { returns: returnsList = [] } = useReturns({
-    order_id: order.id,
-    fields: "+received_at,*items",
-  })
-  const { claims: claimsList = [] } = useClaims({
-    order_id: order.id,
-    fields: "*additional_items",
-  })
-  const { exchanges: exchangesList = [] } = useExchanges({
-    order_id: order.id,
-    fields: "*additional_items",
-  })
+  const canViewReturns = useCan("orders.returns")
+
+  const { returns: returnsList = [] } = useReturns(
+    {
+      order_id: order.id,
+      fields: "+received_at,*items",
+    },
+    { enabled: canViewReturns }
+  )
+  const { claims: claimsList = [] } = useClaims(
+    {
+      order_id: order.id,
+      fields: "*additional_items",
+    },
+    { enabled: canViewReturns }
+  )
+  const { exchanges: exchangesList = [] } = useExchanges(
+    {
+      order_id: order.id,
+      fields: "*additional_items",
+    },
+    { enabled: canViewReturns }
+  )
 
   const returns = returnsList as AdminReturn[]
   const claims = claimsList as AdminClaim[]

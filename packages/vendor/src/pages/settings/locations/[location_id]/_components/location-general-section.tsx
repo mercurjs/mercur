@@ -15,6 +15,7 @@ import {
   IconButton,
   StatusBadge,
   Text,
+  Tooltip,
   toast,
   usePrompt,
 } from "@medusajs/ui"
@@ -22,6 +23,7 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
 import { NoRecords } from "@components/common/empty-table-content"
 import { IconAvatar } from "@components/common/icon-avatar"
@@ -156,10 +158,12 @@ function ShippingOption({
             actions: [
               {
                 icon: <PencilSquare />,
+                permission: "shipping_options:edit",
                 label: t("stockLocations.shippingOptions.edit.action"),
                 to: `/settings/locations/${locationId}/fulfillment-set/${fulfillmentSetId}/service-zone/${option.service_zone_id}/shipping-option/${option.id}/edit`,
               },
               {
+                permission: "shipping_options:edit",
                 label: t("stockLocations.shippingOptions.pricing.action"),
                 icon: <CurrencyDollar />,
                 disabled:
@@ -171,7 +175,7 @@ function ShippingOption({
           {
             actions: [
               {
-                permission: "stock_locations:manage",
+                permission: "shipping_options:manage",
                 label: t("actions.delete"),
                 icon: <Trash />,
                 onClick: handleDelete,
@@ -181,6 +185,27 @@ function ShippingOption({
         ]}
       />
     </div>
+  )
+}
+
+const CreateShippingOptionLink = ({ to }: { to: string }) => {
+  const { t } = useTranslation()
+  const gate = usePermissionGate("shipping_options:edit")
+
+  if (gate.denied) {
+    return (
+      <Tooltip content={gate.tooltip}>
+        <span className="txt-compact-small-plus text-ui-fg-disabled cursor-not-allowed">
+          {t("stockLocations.shippingOptions.create.action")}
+        </span>
+      </Tooltip>
+    )
+  }
+
+  return (
+    <LinkButton to={to}>
+      {t("stockLocations.shippingOptions.create.action")}
+    </LinkButton>
   )
 }
 
@@ -213,11 +238,9 @@ function ServiceZoneOptions({
           <span className="text-ui-fg-subtle txt-small self-center font-medium">
             {t(`stockLocations.shippingOptions.create.${type}.label`)}
           </span>
-          <LinkButton
+          <CreateShippingOptionLink
             to={`/settings/locations/${locationId}/fulfillment-set/${fulfillmentSetId}/service-zone/${zone.id}/shipping-option/create`}
-          >
-            {t("stockLocations.shippingOptions.create.action")}
-          </LinkButton>
+          />
         </div>
 
         {!!shippingOptions?.length && (
@@ -241,11 +264,9 @@ function ServiceZoneOptions({
           <span className="text-ui-fg-subtle txt-small self-center font-medium">
             {t("stockLocations.shippingOptions.create.returns.label")}
           </span>
-          <LinkButton
+          <CreateShippingOptionLink
             to={`/settings/locations/${locationId}/fulfillment-set/${fulfillmentSetId}/service-zone/${zone.id}/shipping-option/create?is_return`}
-          >
-            {t("stockLocations.shippingOptions.create.action")}
-          </LinkButton>
+          />
         </div>
 
         {!!returnOptions?.length && (
@@ -400,12 +421,13 @@ function ServiceZone({
               {
                 actions: [
                   {
-                    permission: "stock_locations:edit",
+                    permission: "fulfillment_sets:edit",
                     label: t("actions.edit"),
                     icon: <PencilSquare />,
                     to: `/settings/locations/${locationId}/fulfillment-set/${fulfillmentSetId}/service-zone/${zone.id}/edit`,
                   },
                   {
+                    permission: "fulfillment_sets:edit",
                     label: t("stockLocations.serviceZones.manageAreas.action"),
                     icon: <Map />,
                     to: `/settings/locations/${locationId}/fulfillment-set/${fulfillmentSetId}/service-zone/${zone.id}/areas`,
@@ -415,7 +437,7 @@ function ServiceZone({
               {
                 actions: [
                   {
-                    permission: "stock_locations:manage",
+                    permission: "fulfillment_sets:manage",
                     label: t("actions.delete"),
                     icon: <Trash />,
                     onClick: handleDelete,
@@ -511,6 +533,7 @@ function FulfillmentSet(props: FulfillmentSetProps) {
           actions: [
             {
               icon: <Plus />,
+              permission: "fulfillment_sets:edit" as const,
               label: t("stockLocations.serviceZones.create.action"),
               to: `/settings/locations/${locationId}/fulfillment-set/${fulfillmentSet.id}/service-zones/create`,
             },
@@ -520,6 +543,7 @@ function FulfillmentSet(props: FulfillmentSetProps) {
           actions: [
             {
               icon: <Trash />,
+              permission: "fulfillment_sets:manage" as const,
               label: t("actions.disable"),
               onClick: handleDelete,
             },
@@ -531,6 +555,7 @@ function FulfillmentSet(props: FulfillmentSetProps) {
           actions: [
             {
               icon: <Plus />,
+              permission: "stock_locations:edit" as const,
               label: t("actions.enable"),
               onClick: handleCreate,
             },
@@ -564,6 +589,7 @@ function FulfillmentSet(props: FulfillmentSetProps) {
               action={{
                 to: `/settings/locations/${locationId}/fulfillment-set/${fulfillmentSet.id}/service-zones/create`,
                 label: t("stockLocations.serviceZones.create.action"),
+                permission: "fulfillment_sets:edit",
               }}
             />
           </div>

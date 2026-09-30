@@ -2,6 +2,7 @@ import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
+import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { RouteDrawer } from "@components/modals"
 import { useShippingOptions } from "@hooks/api/shipping-options"
 import { EditShippingOptionForm } from "./_components/edit-shipping-option-form"
@@ -12,14 +13,21 @@ const LocationServiceZoneShippingOptionEdit = () => {
 
   const { location_id, so_id } = useParams()
 
+  const canViewShippingOptions = useCan("shipping_options")
+
   const { shipping_options, isPending, isFetching, isError, error } =
-    useShippingOptions({
-      fields: "+service_zone.fulfillment_set.type",
-    })
+    useShippingOptions(
+      {
+        fields: "+service_zone.fulfillment_set.type",
+      },
+      { enabled: canViewShippingOptions }
+    )
+
+  const isNoAccess = !canViewShippingOptions || isForbidden(error)
 
   const shippingOption = shipping_options?.find((so) => so?.id === so_id)
 
-  if (!isPending && !isFetching && !shippingOption) {
+  if (!isNoAccess && !isPending && !isFetching && !shippingOption) {
     throw new Response(
       JSON.stringify({
         message: `Shipping option with ID ${so_id} was not found`,
@@ -28,7 +36,7 @@ const LocationServiceZoneShippingOptionEdit = () => {
     )
   }
 
-  if (isError) {
+  if (isError && !isNoAccess) {
     throw error
   }
 
@@ -47,6 +55,7 @@ const LocationServiceZoneShippingOptionEdit = () => {
           </Heading>
         </RouteDrawer.Title>
       </RouteDrawer.Header>
+      {isNoAccess && <SectionNoAccess />}
       {shippingOption && (
         <EditShippingOptionForm
           shippingOption={shippingOption}

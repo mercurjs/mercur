@@ -10,6 +10,7 @@ import { keepPreviousData } from "@tanstack/react-query"
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import { DataTable } from "../../../../components/data-table"
 import * as hooks from "../../../../components/data-table/helpers/sales-channels"
 import { useStore } from "../../../../hooks/api"
@@ -71,6 +72,7 @@ export const SalesChannelListTable = () => {
           heading={t("salesChannels.domain")}
           subHeading={t("salesChannels.subtitle")}
           action={{
+            permission: "sales_channels:edit",
             label: t("actions.create"),
             to: "/settings/sales-channels/create",
           }}
@@ -87,6 +89,7 @@ const columnHelper = createDataTableColumnHelper<
 
 const useColumns = () => {
   const { t } = useTranslation()
+  const { can } = usePermissions()
   const prompt = usePrompt()
   const navigate = useNavigate()
   const base = hooks.useSalesChannelTableColumns()
@@ -132,7 +135,7 @@ const useColumns = () => {
             : undefined
 
           return [
-            [
+            !can("sales_channels", "edit") ? [] : [
               {
                 icon: <PencilSquare />,
                 label: t("actions.edit"),
@@ -142,7 +145,7 @@ const useColumns = () => {
                   ),
               },
             ],
-            [
+            !can("sales_channels", "manage") ? [] : [
               {
                 icon: <Trash />,
                 label: t("actions.delete"),
@@ -151,10 +154,10 @@ const useColumns = () => {
                 disabledTooltip,
               },
             ],
-          ]
+          ].filter((group) => group.length > 0)
         },
       }),
     ],
-    [base, handleDelete, navigate, t]
+    [base, handleDelete, navigate, t, can]
   )
 }

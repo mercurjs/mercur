@@ -1,6 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { Button, Container, Heading } from "@medusajs/ui"
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import { DisplayExtensionZone, PermissionAction } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
@@ -26,16 +26,18 @@ export const InventoryItemReservationsSection = ({
         <Heading data-testid="inventory-item-reservations-title">
           {t("reservations.domain")}
         </Heading>
-        <Button
-          size="small"
-          variant="secondary"
-          asChild
-          data-testid="inventory-create-reservation-button"
-        >
-          <Link to={`/reservations/create?item_id=${inventoryItem.id}`}>
-            {t("actions.create")}
-          </Link>
-        </Button>
+        <PermissionAction permission="reservations:edit">
+          <Button
+            size="small"
+            variant="secondary"
+            asChild
+            data-testid="inventory-create-reservation-button"
+          >
+            <Link to={`/reservations/create?item_id=${inventoryItem.id}`}>
+              {t("actions.create")}
+            </Link>
+          </Button>
+        </PermissionAction>
       </div>
       <ReservationItemTable inventoryItem={inventoryItem} />
       <DisplayExtensionZone

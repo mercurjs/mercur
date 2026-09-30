@@ -120,6 +120,7 @@ export const ReservationListDataTable = () => {
         action: {
           to: "create",
           label: t("actions.create"),
+          permission: "reservations:edit",
         },
       }}
     />

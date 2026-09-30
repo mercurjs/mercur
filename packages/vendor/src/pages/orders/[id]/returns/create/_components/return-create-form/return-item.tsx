@@ -1,4 +1,6 @@
 import { ChatBubble, DocumentText, XCircle, XMark } from "@medusajs/icons"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import { ConditionalTooltip } from "@components/common/conditional-tooltip"
 import {
   AdminOrderLineItem,
   AdminOrderPreview,
@@ -54,9 +56,13 @@ function ReturnItem({
 }: ReturnItemProps) {
   const { t } = useTranslation()
 
-  const { return_reasons: returnReasons = [] } = useReturnReasons({
-    fields: "+label",
-  })
+  const reasonsGate = usePermissionGate("return_reasons:view")
+  const { return_reasons: returnReasons = [] } = useReturnReasons(
+    {
+      fields: "+label",
+    },
+    { enabled: reasonsGate.allowed }
+  )
 
   const formItem = form.watch(`items.${index}`)
 
@@ -215,23 +221,31 @@ function ReturnItem({
                     void ref
                     return (
                       <Form.Item>
-                        <Form.Control>
-                          <Combobox
-                            value={value ?? undefined}
-                            onChange={(v) => {
-                              onUpdate({ reason_id: v })
-                              onChange(v)
-                            }}
-                            {...field}
-                            options={returnReasons.map(
-                              (reason: { id: string; label?: string; value?: string }) => ({
-                                label: reason.label ?? reason.value ?? reason.id,
-                                value: reason.id,
-                              })
-                            )}
-                            data-testid={`return-item-${item.id}-reason`}
-                          />
-                        </Form.Control>
+                        <ConditionalTooltip
+                          showTooltip={reasonsGate.denied}
+                          content={reasonsGate.tooltip}
+                        >
+                          <div>
+                            <Form.Control>
+                              <Combobox
+                                value={value ?? undefined}
+                                onChange={(v) => {
+                                  onUpdate({ reason_id: v })
+                                  onChange(v)
+                                }}
+                                {...field}
+                                disabled={reasonsGate.denied}
+                                options={returnReasons.map(
+                                  (reason: { id: string; label?: string; value?: string }) => ({
+                                    label: reason.label ?? reason.value ?? reason.id,
+                                    value: reason.id,
+                                  })
+                                )}
+                                data-testid={`return-item-${item.id}-reason`}
+                              />
+                            </Form.Control>
+                          </div>
+                        </ConditionalTooltip>
                         <Form.ErrorMessage />
                       </Form.Item>
                     )

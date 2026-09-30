@@ -1,4 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import { ConditionalTooltip } from "@components/common/conditional-tooltip"
 import { Button, Heading, Text, toast } from "@medusajs/ui"
 import { useEffect, useMemo } from "react"
 import { useFieldArray, UseFormReturn } from "react-hook-form"
@@ -146,9 +148,15 @@ export const ExchangeInboundSection = ({
 
   const locationId = form.watch("location_id")
 
-  const { stock_locations = [] } = useStockLocations({
-    limit: 999,
-  } as never)
+  const locationsGate = usePermissionGate("stock_locations:view")
+  const shippingOptionsGate = usePermissionGate("shipping_options:view")
+
+  const { stock_locations = [] } = useStockLocations(
+    {
+      limit: 999,
+    } as never,
+    { enabled: locationsGate.allowed }
+  )
   // Vendor's typed `useShippingOptions` overload requires a `queryKey` in
   // the options object — `enabled` alone is rejected. Cast through the
   // existing parameter shape to keep the call site readable.
@@ -157,7 +165,9 @@ export const ExchangeInboundSection = ({
       limit: 999,
       stock_location_id: locationId,
     } as never,
-    { enabled: !!locationId } as unknown as Parameters<
+    {
+      enabled: !!locationId && shippingOptionsGate.allowed,
+    } as unknown as Parameters<
       typeof useShippingOptions
     >[1]
   )
@@ -448,22 +458,30 @@ export const ExchangeInboundSection = ({
               render={({ field: { value, onChange, ...field } }) => {
                 return (
                   <Form.Item>
-                    <Form.Control>
-                      <Combobox
-                        {...field}
-                        value={value ?? undefined}
-                        onChange={(v) => {
-                          onChange(v)
-                          onLocationChange(v)
-                        }}
-                        options={(
-                          stock_locations as Array<{ id: string; name: string }>
-                        ).map((stockLocation) => ({
-                          label: stockLocation.name,
-                          value: stockLocation.id,
-                        }))}
-                      />
-                    </Form.Control>
+                    <ConditionalTooltip
+                      showTooltip={locationsGate.denied}
+                      content={locationsGate.tooltip}
+                    >
+                      <div>
+                        <Form.Control>
+                          <Combobox
+                            {...field}
+                            value={value ?? undefined}
+                            onChange={(v) => {
+                              onChange(v)
+                              onLocationChange(v)
+                            }}
+                            disabled={locationsGate.denied}
+                            options={(
+                              stock_locations as Array<{ id: string; name: string }>
+                            ).map((stockLocation) => ({
+                              label: stockLocation.name,
+                              value: stockLocation.id,
+                            }))}
+                          />
+                        </Form.Control>
+                      </div>
+                    </ConditionalTooltip>
                   </Form.Item>
                 )
               }}
@@ -495,22 +513,29 @@ export const ExchangeInboundSection = ({
               render={({ field: { value, onChange, ...field } }) => {
                 return (
                   <Form.Item>
-                    <Form.Control>
-                      <Combobox
-                        allowClear
-                        value={value ?? undefined}
-                        onChange={(val) => {
-                          onChange(val)
-                          onShippingOptionChange(val)
-                        }}
-                        {...field}
-                        options={inboundShippingOptions.map((so) => ({
-                          label: so.name,
-                          value: so.id,
-                        }))}
-                        disabled={!locationId}
-                      />
-                    </Form.Control>
+                    <ConditionalTooltip
+                      showTooltip={shippingOptionsGate.denied}
+                      content={shippingOptionsGate.tooltip}
+                    >
+                      <div>
+                        <Form.Control>
+                          <Combobox
+                            allowClear
+                            value={value ?? undefined}
+                            onChange={(val) => {
+                              onChange(val)
+                              onShippingOptionChange(val)
+                            }}
+                            {...field}
+                            options={inboundShippingOptions.map((so) => ({
+                              label: so.name,
+                              value: so.id,
+                            }))}
+                            disabled={!locationId || shippingOptionsGate.denied}
+                          />
+                        </Form.Control>
+                      </div>
+                    </ConditionalTooltip>
                   </Form.Item>
                 )
               }}

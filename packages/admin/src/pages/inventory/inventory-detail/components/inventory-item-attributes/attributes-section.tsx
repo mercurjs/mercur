@@ -27,6 +27,7 @@ export const InventoryItemAttributeSection = ({
                 {
                   label: t("actions.edit"),
                   to: "attributes",
+                  permission: "inventory_items:edit",
                   icon: <PencilSquare />,
                 },
               ],

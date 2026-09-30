@@ -93,6 +93,7 @@ const ReturnReasonRowActions = ({
           actions: [
             {
               icon: <PencilSquare />,
+              permission: "return_reasons:edit",
               label: t("actions.edit"),
               to: `${returnReason.id}/edit`,
             },
@@ -102,6 +103,7 @@ const ReturnReasonRowActions = ({
           actions: [
             {
               icon: <Trash />,
+              permission: "return_reasons:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
             },

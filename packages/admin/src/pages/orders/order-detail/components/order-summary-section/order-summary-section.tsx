@@ -42,6 +42,9 @@ import {
   isOrderAwaitingAction,
   useActionLocks,
   WidgetZone,
+  usePermissions,
+  useCan,
+  PermissionAction,
 } from "@mercurjs/dashboard-shared";
 import { format } from "date-fns";
 import { ActionMenu } from "../../../../../components/common/action-menu/index.ts";
@@ -78,13 +81,14 @@ type OrderSummarySectionProps = {
 export const OrderSummarySection = ({ order }: OrderSummarySectionProps) => {
   const { t } = useTranslation();
   const prompt = usePrompt();
+  const { can } = usePermissions();
 
   const { reservations } = useReservationItems(
     {
       line_item_id: order?.items?.map((i) => i.id),
       limit: getReservationsLimitCount(order),
     },
-    { enabled: Array.isArray(order?.items) },
+    { enabled: Array.isArray(order?.items) && can("reservations") },
   );
 
   const { order: orderPreview } = useOrderPreview(order.id!);
@@ -165,32 +169,36 @@ export const OrderSummarySection = ({ order }: OrderSummarySectionProps) => {
           data-testid="order-summary-actions"
         >
           {showPayment && (
-            <Button
-              size="small"
-              variant="secondary"
-              onClick={() => handleMarkAsPaid(unpaidPaymentCollection)}
-              data-testid="order-summary-mark-as-paid-button"
-            >
-              {t("orders.payment.markAsPaid")}
-            </Button>
+            <PermissionAction permission="payments:edit">
+              <Button
+                size="small"
+                variant="secondary"
+                onClick={() => handleMarkAsPaid(unpaidPaymentCollection)}
+                data-testid="order-summary-mark-as-paid-button"
+              >
+                {t("orders.payment.markAsPaid")}
+              </Button>
+            </PermissionAction>
           )}
 
           {showRefund && (
-            <Button
-              size="small"
-              variant="secondary"
-              asChild
-              data-testid="order-summary-refund-button"
-            >
-              <Link to={`/orders/${order.id}/refund`}>
-                {t("orders.payment.refundAmount", {
-                  amount: getStylizedAmount(
-                    pendingDifference * -1,
-                    order?.currency_code,
-                  ),
-                })}
-              </Link>
-            </Button>
+            <PermissionAction permission="orders.refunds:edit">
+              <Button
+                size="small"
+                variant="secondary"
+                asChild
+                data-testid="order-summary-refund-button"
+              >
+                <Link to={`/orders/${order.id}/refund`}>
+                  {t("orders.payment.refundAmount", {
+                    amount: getStylizedAmount(
+                      pendingDifference * -1,
+                      order?.currency_code,
+                    ),
+                  })}
+                </Link>
+              </Button>
+            </PermissionAction>
           )}
         </div>
       )}
@@ -243,6 +251,7 @@ const Header = ({
                     : "orders.summary.editOrder",
                 ),
                 to: `/orders/${order.id}/edits`,
+                permission: "orders.edits:edit",
                 icon: <PencilSquare />,
                 disabledTooltip:
                   editLock ??
@@ -264,6 +273,7 @@ const Header = ({
               {
                 label: t("orders.returns.create"),
                 to: `/orders/${order.id}/returns`,
+                permission: "orders.returns:edit",
                 icon: <ArrowUturnLeft />,
                 disabledTooltip:
                   returnLock ??
@@ -285,6 +295,7 @@ const Header = ({
                     ? t("orders.exchanges.manage")
                     : t("orders.exchanges.create"),
                 to: `/orders/${order.id}/exchanges`,
+                permission: "orders.returns:edit",
                 icon: <ArrowPath />,
                 disabledTooltip:
                   exchangeLock ??
@@ -307,6 +318,7 @@ const Header = ({
                     ? t("orders.claims.manage")
                     : t("orders.claims.create"),
                 to: `/orders/${order.id}/claims`,
+                permission: "orders.returns:edit",
                 icon: <ExclamationCircle />,
                 disabledTooltip:
                   claimLock ??
@@ -489,20 +501,31 @@ const ItemBreakdown = ({
   order: AdminOrder;
   reservations?: AdminReservation[];
 }) => {
-  const { claims = [] } = useClaims({
-    order_id: order.id,
-    fields: "*additional_items",
-  });
+  const canViewReturns = useCan("orders.returns");
 
-  const { exchanges = [] } = useExchanges({
-    order_id: order.id,
-    fields: "*additional_items",
-  });
+  const { claims = [] } = useClaims(
+    {
+      order_id: order.id,
+      fields: "*additional_items",
+    },
+    { enabled: canViewReturns },
+  );
 
-  const { returns = [] } = useReturns({
-    order_id: order.id,
-    fields: "*items,*items.reason",
-  });
+  const { exchanges = [] } = useExchanges(
+    {
+      order_id: order.id,
+      fields: "*additional_items",
+    },
+    { enabled: canViewReturns },
+  );
+
+  const { returns = [] } = useReturns(
+    {
+      order_id: order.id,
+      fields: "*items,*items.reason",
+    },
+    { enabled: canViewReturns },
+  );
 
   const reservationsMap = useMemo(
     () => new Map((reservations || []).map((r) => [r.line_item_id, r])),

@@ -17,6 +17,9 @@ import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
 
+import { usePermissionGate } from "@mercurjs/dashboard-shared";
+
+import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip";
 import { Form } from "../../../../../components/common/form";
 import { Combobox } from "../../../../../components/inputs/combobox";
 import {
@@ -184,6 +187,8 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
     setRowSelection({});
   };
 
+  const paymentsGate = usePermissionGate("payments:view");
+
   const comboboxProviders = useComboboxData({
     queryFn: (params) =>
       sdk.admin.payments.paymentProviders.query({
@@ -197,6 +202,7 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
         label: formatProvider(pp.id),
         value: pp.id,
       })),
+    enabled: paymentsGate.allowed,
   });
 
   return (
@@ -504,15 +510,23 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
                           <Form.Label data-testid="region-create-form-payment-providers-item-label">
                             {t("fields.paymentProviders")}
                           </Form.Label>
-                          <Form.Control data-testid="region-create-form-payment-providers-item-control">
-                            <Combobox
-                              forceHideInput
-                              options={comboboxProviders.options}
-                              fetchNextPage={comboboxProviders.fetchNextPage}
-                              {...field}
-                              data-testid="region-create-form-payment-providers-combobox"
-                            />
-                          </Form.Control>
+                          <ConditionalTooltip
+                            showTooltip={paymentsGate.denied}
+                            content={paymentsGate.tooltip}
+                          >
+                            <div>
+                              <Form.Control data-testid="region-create-form-payment-providers-item-control">
+                                <Combobox
+                                  forceHideInput
+                                  options={comboboxProviders.options}
+                                  fetchNextPage={comboboxProviders.fetchNextPage}
+                                  {...field}
+                                  data-testid="region-create-form-payment-providers-combobox"
+                                  disabled={paymentsGate.denied}
+                                />
+                              </Form.Control>
+                            </div>
+                          </ConditionalTooltip>
                           <Form.ErrorMessage data-testid="region-create-form-payment-providers-item-error" />
                         </Form.Item>
                       );

@@ -28,10 +28,13 @@ export const inventoryItemLevelsQueryKeys = queryKeysFactory(
 
 export const useInventoryItems = (
   query?: InferClientInput<typeof sdk.vendor.inventoryItems.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.inventoryItems.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.inventoryItems.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({
@@ -49,10 +52,13 @@ export const useInventoryItem = (
     InferClientInput<typeof sdk.vendor.inventoryItems.$id.query>,
     "$id"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.inventoryItems.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.inventoryItems.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({
@@ -169,10 +175,13 @@ export const useInventoryItemLevels = (
     InferClientInput<typeof sdk.vendor.inventoryItems.$id.locationLevels.query>,
     "$id"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.inventoryItems.$id.locationLevels.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.inventoryItems.$id.locationLevels.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({

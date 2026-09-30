@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import { useLogout } from "../../hooks/api/auth";
+import { PermissionsContext } from "@mercurjs/dashboard-shared";
+import { canReachRoute } from "../../lib/permissions/can-reach-route";
 import { queryClient } from "../../lib/query-client";
 import { KeybindContext } from "./keybind-context";
 import { Shortcut } from "./types";
@@ -99,6 +101,8 @@ export const useGlobalShortcuts = () => {
   const navigate = useNavigate();
 
   const { mutateAsync } = useLogout();
+  // Read directly: `usePermissions` throws outside a provider.
+  const permissions = useContext(PermissionsContext);
 
   const handleLogout = async () => {
     await mutateAsync(undefined, {
@@ -189,7 +193,7 @@ export const useGlobalShortcuts = () => {
       },
       label: t("app.keyboardShortcuts.navigation.goToSellers"),
       type: "pageShortcut",
-      to: "/sellers",
+      to: "/stores",
     },
     {
       keys: {
@@ -235,5 +239,8 @@ export const useGlobalShortcuts = () => {
     },
   ];
 
-  return globalShortcuts;
+  // A shortcut to a page the actor can't open would only land on Access Denied.
+  return globalShortcuts.filter(
+    (shortcut) => !shortcut.to || canReachRoute(permissions, shortcut.to),
+  );
 };

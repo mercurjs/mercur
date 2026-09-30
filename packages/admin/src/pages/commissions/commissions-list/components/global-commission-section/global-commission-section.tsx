@@ -36,6 +36,7 @@ export const GlobalCommissionSection = () => {
             {
               actions: [
                 {
+                  permission: "commission_rates:edit",
                   label: t("actions.edit"),
                   icon: <PencilSquare />,
                   to: "edit-global",

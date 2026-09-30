@@ -50,6 +50,7 @@ export const CollectionRowActions = ({
             {
               label: t("actions.edit"),
               to: `/collections/${collection.id}/edit`,
+              permission: "product_collections:edit",
               icon: <PencilSquare />,
             },
           ],
@@ -59,6 +60,7 @@ export const CollectionRowActions = ({
             {
               label: t("actions.delete"),
               onClick: handleDeleteCollection,
+              permission: "product_collections:manage",
               icon: <Trash />,
               disabled: !collection.id,
             },

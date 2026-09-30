@@ -17,6 +17,8 @@ import {
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
+import { PermissionAction, usePermissionGate } from "@mercurjs/dashboard-shared"
+
 import { ActionMenu } from "@components/common/action-menu"
 import { useUpdateProductVariant } from "@hooks/api/products"
 
@@ -54,6 +56,7 @@ export const VariantMediaSection = ({
 }) => {
   const { t } = useTranslation()
   const prompt = usePrompt()
+  const editGate = usePermissionGate("products:edit")
   const [selection, setSelection] = useState<Record<string, boolean>>({})
 
   const media = getMedia(variant)
@@ -163,13 +166,21 @@ export const VariantMediaSection = ({
                     </Tooltip>
                   </div>
                 )}
-                <Link to="media">
+                {editGate.denied ? (
                   <img
                     src={image.url}
                     alt={variant.title ?? ""}
                     className="size-full object-cover"
                   />
-                </Link>
+                ) : (
+                  <Link to="media">
+                    <img
+                      src={image.url}
+                      alt={variant.title ?? ""}
+                      className="size-full object-cover"
+                    />
+                  </Link>
+                )}
               </div>
             )
           })}
@@ -189,9 +200,11 @@ export const VariantMediaSection = ({
               {t("products.media.emptyState.description")}
             </Text>
           </div>
-          <Button size="small" variant="secondary" asChild>
-            <Link to="media">{t("products.media.emptyState.action")}</Link>
-          </Button>
+          <PermissionAction permission="products:edit">
+            <Button size="small" variant="secondary" asChild>
+              <Link to="media">{t("products.media.emptyState.action")}</Link>
+            </Button>
+          </PermissionAction>
         </div>
       )}
       <CommandBar open={!!Object.keys(selection).length}>
@@ -206,6 +219,7 @@ export const VariantMediaSection = ({
             action={handleDelete}
             label={t("actions.delete")}
             shortcut="d"
+            disabled={editGate.denied}
           />
         </CommandBar.Bar>
       </CommandBar>

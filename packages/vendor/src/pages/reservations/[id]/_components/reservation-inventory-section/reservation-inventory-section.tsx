@@ -47,6 +47,7 @@ export const ReservationInventorySection = ({
               actions: [
                 {
                   icon: <BuildingStorefront />,
+                  permission: "inventory_items:view",
                   label: t("inventory.reservation.goToInventoryItem"),
                   to: `/inventory/${inventoryItem.id}`,
                 },

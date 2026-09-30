@@ -2,7 +2,11 @@ import { AdminReservationResponse, HttpTypes } from "@medusajs/types"
 import { Container, Heading, Text } from "@medusajs/ui"
 
 import { ActionMenu } from "@components/common/action-menu"
-import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
+import {
+  DisplayExtensionZone,
+  DisplayField,
+  usePermissions,
+} from "@mercurjs/dashboard-shared"
 import { PencilSquare } from "@medusajs/icons"
 import { SectionRow } from "@components/common/section"
 import { useInventoryItem } from "@hooks/api/inventory"
@@ -17,15 +21,23 @@ export const ReservationGeneralSection = ({
   reservation,
 }: ReservationGeneralSectionProps) => {
   const { t } = useTranslation()
+  const { can } = usePermissions()
+  const canViewItem = can("inventory_items")
+  const canViewLocation = can("stock_locations")
 
   const { inventory_item: inventoryItem } = useInventoryItem(
     reservation.inventory_item_id,
     {
       fields: "*location_levels",
-    }
+    },
+    { enabled: canViewItem }
   )
 
-  const { stock_location: location } = useStockLocation(reservation.location_id)
+  const { stock_location: location } = useStockLocation(
+    reservation.location_id,
+    undefined,
+    { enabled: canViewLocation }
+  )
 
   const locationLevel = inventoryItem?.location_levels?.find(
     (l: HttpTypes.AdminInventoryLevel) =>
@@ -60,7 +72,11 @@ export const ReservationGeneralSection = ({
       <DisplayField model="reservation" zone="general" id="item_id" data={reservation}>
         <SectionRow
           title={t("inventory.reservation.itemId")}
-          value={inventoryItem?.sku ?? inventoryItem?.id}
+          value={
+            inventoryItem?.sku ??
+            inventoryItem?.id ??
+            (canViewItem ? undefined : reservation.inventory_item_id)
+          }
         />
       </DisplayField>
       <DisplayField model="reservation" zone="general" id="description" data={reservation}>
@@ -72,7 +88,7 @@ export const ReservationGeneralSection = ({
       <DisplayField model="reservation" zone="general" id="location" data={reservation}>
         <SectionRow
           title={t("inventory.reservation.location")}
-          value={location?.name}
+          value={canViewLocation ? location?.name : reservation.location_id}
         />
       </DisplayField>
       <DisplayField model="reservation" zone="general" id="stocked_quantity" data={reservation}>

@@ -4,6 +4,9 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
 
+import { usePermissionGate } from "@mercurjs/dashboard-shared";
+
+import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip/index.ts";
 import { Form } from "../../../../../components/common/form/index.ts";
 import { Combobox } from "../../../../../components/inputs/combobox/index.ts";
 import {
@@ -21,7 +24,7 @@ import { sdk } from "../../../../../lib/client/index.ts";
 type EditRegionFormProps = {
   region: HttpTypes.AdminRegion;
   currencies: CurrencyInfo[];
-  pricePreferences: HttpTypes.AdminPricePreference[];
+  pricePreferences?: HttpTypes.AdminPricePreference[];
 };
 
 const EditRegionSchema = zod.object({
@@ -54,6 +57,8 @@ export const EditRegionForm = ({
     },
   });
 
+  const paymentsGate = usePermissionGate("payments:view");
+
   const comboboxProviders = useComboboxData({
     queryKey: ["payment_providers"],
     queryFn: (params) =>
@@ -67,6 +72,7 @@ export const EditRegionForm = ({
         label: formatProvider(pp.id),
         value: pp.id,
       })),
+    enabled: paymentsGate.allowed,
   });
 
   const { mutateAsync: updateRegion, isPending: isPendingRegion } =
@@ -79,7 +85,9 @@ export const EditRegionForm = ({
         automatic_taxes: values.automatic_taxes,
         currency_code: values.currency_code.toLowerCase(),
         payment_providers: values.payment_providers,
-        is_tax_inclusive: values.is_tax_inclusive,
+        is_tax_inclusive: pricePreferences
+          ? values.is_tax_inclusive
+          : undefined,
       },
       {
         onSuccess: () => {
@@ -217,6 +225,7 @@ export const EditRegionForm = ({
                               {...field}
                               checked={value}
                               onCheckedChange={onChange}
+                              disabled={!pricePreferences}
                               data-testid="region-edit-form-tax-inclusive-switch"
                             />
                           </Form.Control>
@@ -261,15 +270,23 @@ export const EditRegionForm = ({
                       <Form.Label data-testid="region-edit-form-payment-providers-item-label">
                         {t("fields.paymentProviders")}
                       </Form.Label>
-                      <Form.Control data-testid="region-edit-form-payment-providers-item-control">
-                        <Combobox
-                          forceHideInput
-                          options={comboboxProviders.options}
-                          fetchNextPage={comboboxProviders.fetchNextPage}
-                          {...field}
-                          data-testid="region-edit-form-payment-providers-combobox"
-                        />
-                      </Form.Control>
+                      <ConditionalTooltip
+                        showTooltip={paymentsGate.denied}
+                        content={paymentsGate.tooltip}
+                      >
+                        <div>
+                          <Form.Control data-testid="region-edit-form-payment-providers-item-control">
+                            <Combobox
+                              forceHideInput
+                              options={comboboxProviders.options}
+                              fetchNextPage={comboboxProviders.fetchNextPage}
+                              {...field}
+                              data-testid="region-edit-form-payment-providers-combobox"
+                              disabled={paymentsGate.denied}
+                            />
+                          </Form.Control>
+                        </div>
+                      </ConditionalTooltip>
                       <Form.ErrorMessage data-testid="region-edit-form-payment-providers-item-error" />
                     </Form.Item>
                   );

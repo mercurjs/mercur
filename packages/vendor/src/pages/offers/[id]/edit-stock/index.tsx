@@ -5,6 +5,7 @@ import { useMemo, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
+import { isForbidden, SectionNoAccess, useCan } from "@mercurjs/dashboard-shared"
 
 import { Thumbnail } from "../../../../components/common/thumbnail"
 import {
@@ -254,14 +255,25 @@ const EditStockGrid = ({
 export const OfferEditStockPage = () => {
   const { id } = useParams()
   const { t } = useTranslation()
+  const canViewLocations = useCan("stock_locations")
   const { product, isPending, isError, error } = useProduct(id!, {
     fields: OFFER_PRODUCT_DETAIL_FIELDS,
   })
-  const { stock_locations, isPending: isLocationsPending } = useStockLocations({
-    limit: 100,
-  })
+  const {
+    stock_locations,
+    isPending: isLocationsPending,
+    error: locationsError,
+  } = useStockLocations(
+    {
+      limit: 100,
+    },
+    { enabled: canViewLocations }
+  )
 
-  if (isError) throw error
+  const forbidden =
+    isForbidden(error) || isForbidden(locationsError) || !canViewLocations
+
+  if (isError && !forbidden) throw error
 
   const ready =
     !isPending && !!product && !isLocationsPending && !!stock_locations
@@ -274,12 +286,21 @@ export const OfferEditStockPage = () => {
       <RouteFocusModal.Description asChild>
         <span className="sr-only">{t("offers.inventory.description")}</span>
       </RouteFocusModal.Description>
-      {ready && (
-        <EditStockGrid
-          product={product as StockProduct}
-          productId={id!}
-          locations={stock_locations as HttpTypes.AdminStockLocation[]}
-        />
+      {forbidden ? (
+        <>
+          <RouteFocusModal.Header />
+          <RouteFocusModal.Body>
+            <SectionNoAccess />
+          </RouteFocusModal.Body>
+        </>
+      ) : (
+        ready && (
+          <EditStockGrid
+            product={product as StockProduct}
+            productId={id!}
+            locations={stock_locations as HttpTypes.AdminStockLocation[]}
+          />
+        )
       )}
     </RouteFocusModal>
   )

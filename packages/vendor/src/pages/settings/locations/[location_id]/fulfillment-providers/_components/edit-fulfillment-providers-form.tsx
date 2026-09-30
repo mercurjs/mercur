@@ -17,6 +17,7 @@ import {
   RouteFocusModal,
   useRouteModal,
 } from "@components/modals"
+import { useCan } from "@mercurjs/dashboard-shared"
 import { _DataTable } from "@components/table/data-table"
 import { KeyboundForm } from "@components/utilities/keybound-form"
 import { useFulfillmentProviders } from "@hooks/api/fulfillment-providers"
@@ -78,7 +79,10 @@ export const LocationEditFulfillmentProvidersForm = ({
 
   const { fulfillment_providers, count, isLoading } = useFulfillmentProviders(
     {},
-    { placeholderData: keepPreviousData }
+    {
+      placeholderData: keepPreviousData,
+      enabled: useCan("fulfillment_sets"),
+    }
   )
 
   const filters = useDateTableFilters()

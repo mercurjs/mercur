@@ -1,6 +1,9 @@
 import { Heading, Input } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
+import { usePermissionGate } from "@mercurjs/dashboard-shared";
+
+import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip";
 import { Combobox } from "../../../../../components/inputs/combobox";
 import { Form } from "../../../../../components/common/form";
 import { defineTabMeta } from "../../../../../components/tabbed-form";
@@ -34,8 +37,13 @@ export const CreateCommissionRuleDetails = () => {
     },
   ];
 
+  const storesGate = usePermissionGate("sellers:view");
+  const productTypesGate = usePermissionGate("product_types:view");
+  const categoriesGate = usePermissionGate("product_categories:view");
+
   const stores = useComboboxData({
     queryKey: ["commission_stores"],
+    enabled: storesGate.allowed,
     queryFn: (params) => sdk.admin.sellers.query({ ...params }),
     getOptions: (data) =>
       data.sellers.map((s: { id: string; name: string }) => ({
@@ -46,6 +54,7 @@ export const CreateCommissionRuleDetails = () => {
 
   const productTypes = useComboboxData({
     queryKey: ["commission_product_types"],
+    enabled: productTypesGate.allowed,
     queryFn: (params) => sdk.admin.productTypes.query({ ...params }),
     getOptions: (data) =>
       data.product_types.map((pt: { id: string; value: string }) => ({
@@ -56,6 +65,7 @@ export const CreateCommissionRuleDetails = () => {
 
   const categories = useComboboxData({
     queryKey: ["commission_categories"],
+    enabled: categoriesGate.allowed,
     queryFn: (params) => sdk.admin.productCategories.query({ ...params }),
     getOptions: (data) =>
       data.product_categories.map((c: { id: string; name: string }) => ({
@@ -128,17 +138,25 @@ export const CreateCommissionRuleDetails = () => {
                 <Form.Label>
                   {t("commissions.fields.stores")}
                 </Form.Label>
-                <Form.Control>
-                  <Combobox
-                    {...field}
-                    value={field.value ?? []}
-                    options={stores.options}
-                    searchValue={stores.searchValue}
-                    onSearchValueChange={stores.onSearchValueChange}
-                    fetchNextPage={stores.fetchNextPage}
-                    data-testid="commission-rule-stores-input"
-                  />
-                </Form.Control>
+                <ConditionalTooltip
+                  showTooltip={storesGate.denied}
+                  content={storesGate.tooltip}
+                >
+                  <div>
+                    <Form.Control>
+                      <Combobox
+                        {...field}
+                        value={field.value ?? []}
+                        options={stores.options}
+                        searchValue={stores.searchValue}
+                        onSearchValueChange={stores.onSearchValueChange}
+                        fetchNextPage={stores.fetchNextPage}
+                        data-testid="commission-rule-stores-input"
+                        disabled={storesGate.denied}
+                      />
+                    </Form.Control>
+                  </div>
+                </ConditionalTooltip>
                 <Form.ErrorMessage />
               </Form.Item>
             )}
@@ -153,17 +171,25 @@ export const CreateCommissionRuleDetails = () => {
                 <Form.Label>
                   {t("commissions.fields.productTypes")}
                 </Form.Label>
-                <Form.Control>
-                  <Combobox
-                    {...field}
-                    value={field.value ?? []}
-                    options={productTypes.options}
-                    searchValue={productTypes.searchValue}
-                    onSearchValueChange={productTypes.onSearchValueChange}
-                    fetchNextPage={productTypes.fetchNextPage}
-                    data-testid="commission-rule-product-types-input"
-                  />
-                </Form.Control>
+                <ConditionalTooltip
+                  showTooltip={productTypesGate.denied}
+                  content={productTypesGate.tooltip}
+                >
+                  <div>
+                    <Form.Control>
+                      <Combobox
+                        {...field}
+                        value={field.value ?? []}
+                        options={productTypes.options}
+                        searchValue={productTypes.searchValue}
+                        onSearchValueChange={productTypes.onSearchValueChange}
+                        fetchNextPage={productTypes.fetchNextPage}
+                        data-testid="commission-rule-product-types-input"
+                        disabled={productTypesGate.denied}
+                      />
+                    </Form.Control>
+                  </div>
+                </ConditionalTooltip>
                 <Form.ErrorMessage />
               </Form.Item>
             )}
@@ -178,17 +204,25 @@ export const CreateCommissionRuleDetails = () => {
                 <Form.Label>
                   {t("commissions.fields.categories")}
                 </Form.Label>
-                <Form.Control>
-                  <Combobox
-                    {...field}
-                    value={field.value ?? []}
-                    options={categories.options}
-                    searchValue={categories.searchValue}
-                    onSearchValueChange={categories.onSearchValueChange}
-                    fetchNextPage={categories.fetchNextPage}
-                    data-testid="commission-rule-categories-input"
-                  />
-                </Form.Control>
+                <ConditionalTooltip
+                  showTooltip={categoriesGate.denied}
+                  content={categoriesGate.tooltip}
+                >
+                  <div>
+                    <Form.Control>
+                      <Combobox
+                        {...field}
+                        value={field.value ?? []}
+                        options={categories.options}
+                        searchValue={categories.searchValue}
+                        onSearchValueChange={categories.onSearchValueChange}
+                        fetchNextPage={categories.fetchNextPage}
+                        data-testid="commission-rule-categories-input"
+                        disabled={categoriesGate.denied}
+                      />
+                    </Form.Control>
+                  </div>
+                </ConditionalTooltip>
                 <Form.ErrorMessage />
               </Form.Item>
             )}

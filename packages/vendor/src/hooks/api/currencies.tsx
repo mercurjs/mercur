@@ -13,10 +13,13 @@ const currenciesQueryKeys = queryKeysFactory(CURRENCIES_QUERY_KEY);
 
 export const useCurrencies = (
   query?: InferClientInput<typeof sdk.vendor.currencies.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.currencies.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.currencies.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -34,10 +37,13 @@ export const useCurrency = (
     InferClientInput<typeof sdk.vendor.currencies.$code.query>,
     "$code"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.currencies.$code.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.currencies.$code.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({

@@ -5,6 +5,8 @@ import { useEffect } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 import * as zod from "zod"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import { ConditionalTooltip } from "@components/common/conditional-tooltip"
 import { Form } from "@components/common/form"
 import { RouteDrawer, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
@@ -32,6 +34,7 @@ export const AddCampaignPromotionFields = ({
   withNewCampaign?: boolean
 }) => {
   const { t } = useTranslation()
+  const campaignsGate = usePermissionGate("campaigns:view")
   const watchCampaignId = useWatch({
     control: form.control,
     name: "campaign_id",
@@ -104,8 +107,17 @@ export const AddCampaignPromotionFields = ({
                   {t("promotions.form.campaign.existing.title")}
                 </Form.Label>
 
+                <ConditionalTooltip
+                  showTooltip={campaignsGate.denied}
+                  content={campaignsGate.tooltip}
+                >
+                  <div>
                 <Form.Control>
-                  <Select onValueChange={onChange} {...field}>
+                  <Select
+                    onValueChange={onChange}
+                    {...field}
+                    disabled={campaignsGate.denied}
+                  >
                     <Select.Trigger ref={ref}>
                       <Select.Value />
                     </Select.Trigger>
@@ -133,6 +145,8 @@ export const AddCampaignPromotionFields = ({
                     </Select.Content>
                   </Select>
                 </Form.Control>
+                  </div>
+                </ConditionalTooltip>
 
                 <Text
                   size="small"

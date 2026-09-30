@@ -65,11 +65,14 @@ export const OfferActions = ({ product }: { product: OfferProductActions }) => {
           actions: [
             {
               icon: <CurrencyDollar />,
+              permission: "offers:edit",
               label: t("offers.actions.edit_prices"),
               to: `${product.id}/edit-price`,
             },
             {
               icon: <Buildings />,
+              permission: ["offers:edit", "inventory_items:edit"],
+              requireAll: true,
               label: t("offers.actions.edit_stock_levels"),
               to: `${product.id}/edit-stock`,
             },

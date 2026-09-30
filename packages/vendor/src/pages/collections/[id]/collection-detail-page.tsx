@@ -3,7 +3,11 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { SingleColumnPageSkeleton } from "@components/common/skeleton";
 import { SingleColumnPage } from "@components/layout/pages";
-import { WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared";
+import {
+  PermissionGuard,
+  WidgetZone,
+  useLinkQuery,
+} from "@mercurjs/dashboard-shared";
 import { useCollection } from "@hooks/api/collections";
 
 import { CollectionGeneralSection } from "./_components/collection-general-section";
@@ -40,7 +44,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
             <CollectionGeneralSection collection={collection} />
             <CollectionMediaSection collection={collection} />
             <CollectionIconSection collection={collection} />
-            <CollectionProductSection collection={collection} />
+            <PermissionGuard permission="products:view">
+              <CollectionProductSection collection={collection} />
+            </PermissionGuard>
           </WidgetZone>
         </SingleColumnPage>
       )}

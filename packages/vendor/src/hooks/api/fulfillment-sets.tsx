@@ -59,10 +59,13 @@ export const useFulfillmentSetServiceZone = (
     InferClientInput<typeof sdk.vendor.fulfillmentSets.$id.serviceZones.$zoneId.query>,
     "$id" | "$zoneId"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.fulfillmentSets.$id.serviceZones.$zoneId.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.fulfillmentSets.$id.serviceZones.$zoneId.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({

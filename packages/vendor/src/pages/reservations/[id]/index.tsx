@@ -4,7 +4,7 @@ import { HttpTypes } from "@medusajs/types"
 import { UIMatch } from "react-router-dom"
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
 import { TwoColumnPage } from "@components/layout/pages"
-import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
+import { useCan, useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
 import { useReservationItem } from "@hooks/api/reservations"
 import { useInventoryItem } from "@hooks/api"
 import { ReservationGeneralSection } from "./_components/reservation-general-section"
@@ -41,9 +41,11 @@ export const Component = () => {
   )
 
   // TEMP: fetch directly since the fields are not populated with reservation call
+  const canViewItem = useCan("inventory_items")
   const { inventory_item } = useInventoryItem(
     reservation?.inventory_item?.id,
-    useLinkQuery("inventory_item", "*location_levels")
+    useLinkQuery("inventory_item", "*location_levels"),
+    { enabled: canViewItem }
   )
 
   if (isLoading || !reservation) {

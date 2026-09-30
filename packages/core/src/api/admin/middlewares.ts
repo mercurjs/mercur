@@ -28,6 +28,7 @@ import { adminInventoryItemsMiddlewares } from "./inventory-items/middlewares"
 import { adminShippingOptionsMiddlewares } from "./shipping-options/middlewares"
 import { adminShippingProfilesMiddlewares } from "./shipping-profiles/middlewares"
 import { adminReviewsMiddlewares } from "./reviews/middlewares"
+import { adminUsersMiddlewares } from "./users/middlewares"
 
 export const adminMiddlewares: MiddlewareRoute[] = [
   {
@@ -69,4 +70,5 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminShippingOptionsMiddlewares,
   ...adminShippingProfilesMiddlewares,
   ...adminReviewsMiddlewares,
+  ...adminUsersMiddlewares,
 ]

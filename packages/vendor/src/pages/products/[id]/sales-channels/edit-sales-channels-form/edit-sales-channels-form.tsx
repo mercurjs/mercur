@@ -3,6 +3,7 @@ import { HttpTypes } from "@medusajs/types"
 import { RowSelectionState } from "@tanstack/react-table"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { isForbidden, SectionNoAccess } from "@mercurjs/dashboard-shared"
 import * as zod from "zod"
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -102,6 +103,16 @@ export const EditSalesChannelsForm = ({
   })
 
   if (isError) {
+    if (isForbidden(error)) {
+      return (
+        <>
+          <RouteFocusModal.Header />
+          <RouteFocusModal.Body>
+            <SectionNoAccess />
+          </RouteFocusModal.Body>
+        </>
+      )
+    }
     throw error
   }
 

@@ -1,3 +1,4 @@
+import { usePermissions } from "@mercurjs/dashboard-shared";
 import { useTranslation } from "react-i18next";
 import { ProductStatus } from "@mercurjs/types";
 import { Filter } from "../../../components/table/data-table";
@@ -15,11 +16,16 @@ export const useProductTableFilters = (
   exclude?: (typeof excludeableFields)[number][],
 ) => {
   const { t } = useTranslation();
+  const { can } = usePermissions();
 
-  const isCategoryExcluded = exclude?.includes("categories");
-  const isCollectionExcluded = exclude?.includes("collections");
-  const isProductTypeExcluded = exclude?.includes("product_types");
-  const isProductTagExcluded = exclude?.includes("product_tags");
+  const isCategoryExcluded =
+    exclude?.includes("categories") || !can("product_categories");
+  const isCollectionExcluded =
+    exclude?.includes("collections") || !can("product_collections");
+  const isProductTypeExcluded =
+    exclude?.includes("product_types") || !can("product_types");
+  const isProductTagExcluded =
+    exclude?.includes("product_tags") || !can("product_tags");
 
   const { product_types } = useProductTypes(
     { limit: 1000, offset: 0 },

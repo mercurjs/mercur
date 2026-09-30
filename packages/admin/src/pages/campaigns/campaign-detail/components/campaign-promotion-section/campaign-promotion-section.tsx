@@ -12,7 +12,7 @@ import { RowSelectionState, createColumnHelper } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import { DisplayExtensionZone, PermissionAction } from "@mercurjs/dashboard-shared"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { _DataTable } from "../../../../../components/table/data-table"
@@ -98,11 +98,13 @@ export const CampaignPromotionSection = ({
     <Container className="divide-y p-0" data-testid="campaign-promotion-section-container">
       <div className="flex items-center justify-between px-6 py-4" data-testid="campaign-promotion-section-header">
         <Heading level="h2" data-testid="campaign-promotion-section-heading">{t("promotions.domain")}</Heading>
-        <Link to={`/campaigns/${campaign.id}/add-promotions`}>
-          <Button variant="secondary" size="small" data-testid="campaign-promotion-section-add-button">
-            {t("general.add")}
+        <PermissionAction permission="campaigns:edit">
+          <Button variant="secondary" size="small" asChild data-testid="campaign-promotion-section-add-button">
+            <Link to={`/campaigns/${campaign.id}/add-promotions`}>
+              {t("general.add")}
+            </Link>
           </Button>
-        </Link>
+        </PermissionAction>
       </div>
 
       <_DataTable
@@ -125,6 +127,7 @@ export const CampaignPromotionSection = ({
         commands={[
           {
             action: handleRemove,
+            permission: "campaigns:edit",
             label: t("actions.remove"),
             shortcut: "r",
           },
@@ -190,6 +193,7 @@ const PromotionActions = ({
           actions: [
             {
               icon: <PencilSquare />,
+              permission: "promotions:edit",
               label: t("actions.edit"),
               to: `/promotions/${promotion.id}/edit`,
             },
@@ -199,6 +203,7 @@ const PromotionActions = ({
           actions: [
             {
               icon: <Trash />,
+              permission: "campaigns:edit",
               label: t("actions.remove"),
               onClick: handleRemove,
             },

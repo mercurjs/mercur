@@ -1,6 +1,7 @@
 // Route: /price-lists/:id/products/:variant_id/edit
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
+import { SectionNoAccess } from "@mercurjs/dashboard-shared"
 import { RouteFocusModal } from "@components/modals"
 import { usePriceListEditGrid } from "./price-list-prices-edit-form/use-price-list-edit-grid"
 import { PriceListPricesEditForm } from "./price-list-prices-edit-form"
@@ -15,6 +16,7 @@ export const Component = () => {
     variantIdByOffer,
     currencyData,
     ready,
+    isNoAccess,
     isError,
     error,
     isProductsError,
@@ -39,6 +41,7 @@ export const Component = () => {
       <RouteFocusModal.Description className="sr-only">
         {t("priceLists.products.edit.description")}
       </RouteFocusModal.Description>
+      {isNoAccess && <SectionNoAccess />}
       {ready && (
         <PriceListPricesEditForm
           priceList={price_list}

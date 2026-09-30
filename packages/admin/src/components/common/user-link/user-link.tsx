@@ -1,4 +1,5 @@
 import { Avatar, Text } from "@medusajs/ui"
+import { useCan } from "@mercurjs/dashboard-shared"
 import { Link } from "react-router-dom"
 import { useUser } from "../../../hooks/api/users"
 
@@ -35,7 +36,8 @@ export const UserLink = ({
 }
 
 export const By = ({ id }: { id: string }) => {
-  const { user } = useUser(id) // todo: extend to support customers
+  const canViewUsers = useCan("users")
+  const { user } = useUser(id, undefined, { enabled: canViewUsers }) // todo: extend to support customers
 
   if (!user) {
     return null

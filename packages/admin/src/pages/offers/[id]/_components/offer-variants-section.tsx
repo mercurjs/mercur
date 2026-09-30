@@ -217,6 +217,7 @@ const useColumns = ({
                   {
                     icon: <Trash />,
                     label: t("actions.delete"),
+                    permission: "offers:manage",
                     onClick: () =>
                       onDelete(row.original.offer.id, skuOf(row.original)),
                   },

@@ -1,4 +1,6 @@
-import { Fragment, type ReactNode } from "react"
+import { Fragment, useContext, type ReactNode } from "react"
+import { isPermitted } from "../permissions/permission-check"
+import { PermissionsContext } from "../permissions/permissions-context"
 import { useExtension } from "./context"
 
 export type WidgetZoneProps = {
@@ -16,7 +18,15 @@ export type WidgetZoneProps = {
  * `after` widgets. A zone that no page renders as a host can never be targeted.
  */
 export const WidgetZone = ({ id, data, children }: WidgetZoneProps) => {
-  const { before, after } = useExtension().getWidgets(id)
+  const widgets = useExtension().getWidgets(id)
+  const permissions = useContext(PermissionsContext)
+
+  const before = widgets.before.filter((widget) =>
+    isPermitted(permissions, widget.permission)
+  )
+  const after = widgets.after.filter((widget) =>
+    isPermitted(permissions, widget.permission)
+  )
 
   return (
     <Fragment>

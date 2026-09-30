@@ -1,16 +1,14 @@
-import { CalendarMini, EllipsisHorizontal, PencilSquare, Trash } from "@medusajs/icons";
+import { CalendarMini, PencilSquare, Trash } from "@medusajs/icons";
 import {
   Container,
-  DropdownMenu,
   Heading,
-  IconButton,
   toast,
   usePrompt,
 } from "@medusajs/ui";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 
+import { ActionMenu } from "@components/common/action-menu";
 import { DataTable } from "@components/data-table/data-table";
 import { NoRecords } from "@components/common/empty-table-content";
 import { useDate } from "../../../../hooks/use-date";
@@ -101,26 +99,30 @@ export const StoreTimeOffSection = ({ seller }: StoreTimeOffSectionProps) => {
         header: "",
         cell: () => (
           <div className="flex justify-end">
-            <DropdownMenu>
-              <DropdownMenu.Trigger asChild>
-                <IconButton variant="transparent" size="small">
-                  <EllipsisHorizontal />
-                </IconButton>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content>
-                <DropdownMenu.Item asChild>
-                  <Link to="store-closure">
-                    <PencilSquare className="mr-2" />
-                    {t("actions.edit")}
-                  </Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Separator />
-                <DropdownMenu.Item onClick={handleDelete}>
-                  <Trash className="mr-2" />
-                  {t("actions.delete")}
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu>
+            <ActionMenu
+              groups={[
+                {
+                  actions: [
+                    {
+                      permission: "store:edit",
+                      label: t("actions.edit"),
+                      icon: <PencilSquare />,
+                      to: "store-closure",
+                    },
+                  ],
+                },
+                {
+                  actions: [
+                    {
+                      permission: "store:edit",
+                      label: t("actions.delete"),
+                      icon: <Trash />,
+                      onClick: handleDelete,
+                    },
+                  ],
+                },
+              ]}
+            />
           </div>
         ),
         meta: {
@@ -150,6 +152,7 @@ export const StoreTimeOffSection = ({ seller }: StoreTimeOffSectionProps) => {
           action={{
             to: "store-closure",
             label: t("store.timeOff.empty.action"),
+            permission: "store:edit",
           }}
           className="h-[300px]"
         />

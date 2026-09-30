@@ -49,10 +49,13 @@ export const usePromotion = (
     InferClientInput<typeof sdk.vendor.promotions.$id.query>,
     "$id"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.promotions.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.promotions.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({
@@ -71,10 +74,13 @@ export const usePromotionRules = (
     InferClientInput<typeof sdk.vendor.promotions.$id.$ruleType.query>,
     "$id" | "$ruleType"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.promotions.$id.$ruleType.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.promotions.$id.$ruleType.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({
@@ -93,10 +99,13 @@ export const usePromotionRules = (
 
 export const usePromotions = (
   query?: InferClientInput<typeof sdk.vendor.promotions.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.promotions.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.promotions.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({
@@ -112,12 +121,15 @@ export const usePromotionRuleAttributes = (
   ruleType: string,
   promotionType?: string,
   applicationMethodTargetType?: string,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<
-      typeof sdk.vendor.promotions.ruleAttributeOptions.$ruleType.query
-    >
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<
+        typeof sdk.vendor.promotions.ruleAttributeOptions.$ruleType.query
+      >
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({
@@ -148,12 +160,15 @@ export const usePromotionRuleValues = (
     >,
     "ruleType" | "ruleAttributeId"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<
-      typeof sdk.vendor.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query
-    >
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<
+        typeof sdk.vendor.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query
+      >
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({

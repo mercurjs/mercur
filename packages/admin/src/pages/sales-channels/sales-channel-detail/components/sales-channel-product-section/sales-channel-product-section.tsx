@@ -11,6 +11,7 @@ import { RowSelectionState, createColumnHelper } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
+import { PermissionAction } from "@mercurjs/dashboard-shared"
 
 import { HttpTypes, SalesChannelDTO } from "@medusajs/types"
 import { keepPreviousData } from "@tanstack/react-query"
@@ -112,11 +113,13 @@ export const SalesChannelProductSection = ({
     <Container className="divide-y p-0" data-testid="sales-channel-product-section-container">
       <div className="flex items-center justify-between px-6 py-4" data-testid="sales-channel-product-section-header">
         <Heading level="h2" data-testid="sales-channel-product-section-heading">{t("products.domain")}</Heading>
-        <Link to={`/settings/sales-channels/${salesChannel.id}/add-products`}>
-          <Button size="small" variant="secondary" data-testid="sales-channel-product-section-add-button">
-            {t("general.add")}
+        <PermissionAction permission="sales_channels:edit">
+          <Button size="small" variant="secondary" asChild data-testid="sales-channel-product-section-add-button">
+            <Link to={`/settings/sales-channels/${salesChannel.id}/add-products`}>
+              {t("general.add")}
+            </Link>
           </Button>
-        </Link>
+        </PermissionAction>
       </div>
       <_DataTable
         table={table}
@@ -125,6 +128,7 @@ export const SalesChannelProductSection = ({
         commands={[
           {
             action: handleRemove,
+            permission: "sales_channels:edit",
             label: t("actions.remove"),
             shortcut: "r",
           },
@@ -247,6 +251,7 @@ const ProductListCellActions = ({
           actions: [
             {
               icon: <Trash />,
+              permission: "sales_channels:edit",
               label: t("actions.remove"),
               onClick: onRemove,
             },

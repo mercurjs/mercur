@@ -1,3 +1,4 @@
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { Filter } from "../../../components/table/data-table"
 import { useCustomerGroups } from "../../api/customer-groups"
@@ -8,8 +9,10 @@ export const useCustomerTableFilters = (
   exclude?: (typeof excludeableFields)[number][]
 ) => {
   const { t } = useTranslation()
+  const { can } = usePermissions()
 
-  const isGroupsExcluded = exclude?.includes("groups")
+  const isGroupsExcluded =
+    exclude?.includes("groups") || !can("customer_groups")
 
   const { customer_groups } = useCustomerGroups(
     {

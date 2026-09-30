@@ -178,6 +178,7 @@ export const ProductListDataTable = () => {
               );
             },
             label: t("products.bulkEdit.action"),
+            permission: "products:edit",
             shortcut: "e",
           },
           {
@@ -219,6 +220,7 @@ export const ProductListDataTable = () => {
               );
             },
             label: t("actions.delete"),
+            permission: "products:manage",
             shortcut: "d",
           },
         ]}
@@ -290,6 +292,7 @@ const ProductActions = ({ product }: { product: ProductDTO }) => {
               icon: <PencilSquare />,
               label: t("actions.edit"),
               to: `/products/${product.id}/edit`,
+              permission: "products:edit",
             },
           ],
         },
@@ -299,6 +302,7 @@ const ProductActions = ({ product }: { product: ProductDTO }) => {
               icon: <Trash />,
               label: t("actions.delete"),
               onClick: handleDelete,
+              permission: "products:manage",
             },
           ],
         },

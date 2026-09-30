@@ -12,7 +12,7 @@ import {
   Tooltip,
   usePrompt,
 } from "@medusajs/ui";
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
+import { DisplayExtensionZone, PermissionAction } from "@mercurjs/dashboard-shared";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
@@ -81,14 +81,16 @@ export const ProductVariantSection = ({
     <Container className="divide-y p-0" data-testid="product-variant-section">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t("products.variants.header")}</Heading>
-        <Button
-          size="small"
-          variant="secondary"
-          asChild
-          data-testid="product-variants-create-button"
-        >
-          <Link to="variants/create">{t("actions.create")}</Link>
-        </Button>
+        <PermissionAction permission="products:edit">
+          <Button
+            size="small"
+            variant="secondary"
+            asChild
+            data-testid="product-variants-create-button"
+          >
+            <Link to="variants/create">{t("actions.create")}</Link>
+          </Button>
+        </PermissionAction>
       </div>
       <_DataTable
         table={table}
