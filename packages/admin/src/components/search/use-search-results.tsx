@@ -1,4 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import { TFunction } from "i18next"
 import { useCallback, useEffect, useMemo, useState } from "react"
@@ -20,7 +21,10 @@ import {
 } from "../../hooks/api"
 import { Shortcut, ShortcutType } from "../../providers/keybind-provider"
 import { useGlobalShortcuts } from "../../providers/keybind-provider/hooks"
+import { useSearch } from "../../providers/search-provider"
+import { getRoutePermission } from "../../lib/permissions/route-permissions"
 import { DynamicSearchResult, SearchArea } from "./types"
+import { useSearchAreaAccess } from "./use-search-area-access"
 
 type UseSearchProps = {
   q?: string
@@ -45,11 +49,17 @@ export const useSearchResults = ({
 
 const useStaticSearchResults = (currentArea: SearchArea) => {
   const globalCommands = useGlobalShortcuts()
+  const { hasPermission } = usePermissions()
 
   const results = useMemo(() => {
     const groups = new Map<ShortcutType, Shortcut[]>()
 
     globalCommands.forEach((command) => {
+      const permission = command.to && getRoutePermission(command.to)
+      if (permission && !hasPermission(permission)) {
+        return
+      }
+
       const group = groups.get(command.type) || []
       group.push(command)
       groups.set(command.type, group)
@@ -79,7 +89,7 @@ const useStaticSearchResults = (currentArea: SearchArea) => {
       title,
       items,
     }))
-  }, [globalCommands, currentArea])
+  }, [globalCommands, currentArea, hasPermission])
 
   return results
 }
@@ -92,7 +102,14 @@ const useDynamicSearchResults = (
   const { t } = useTranslation()
 
   const debouncedSearch = useDebouncedSearch(q, 300)
-  const isSearchEnabled = Boolean(debouncedSearch)
+  const { open } = useSearch()
+  const canSearchArea = useSearchAreaAccess()
+
+  const isQueryEnabled = (area: SearchArea) =>
+    open &&
+    Boolean(debouncedSearch) &&
+    isAreaEnabled(currentArea, area) &&
+    canSearchArea(area)
 
   const orderResponse = useOrders(
     {
@@ -101,7 +118,7 @@ const useDynamicSearchResults = (
       fields: "id,display_id,email",
     },
     {
-      enabled: isSearchEnabled && isAreaEnabled(currentArea, "order"),
+      enabled: isQueryEnabled("order"),
       placeholderData: keepPreviousData,
     }
   )
@@ -115,7 +132,7 @@ const useDynamicSearchResults = (
         "id,title,thumbnail,-type,-collection,-options,-tags,-images,-variants,-sales_channels",
     },
     {
-      enabled: isSearchEnabled && isAreaEnabled(currentArea, "product"),
+      enabled: isQueryEnabled("product"),
       placeholderData: keepPreviousData,
     }
   )
@@ -128,7 +145,7 @@ const useDynamicSearchResults = (
       fields: "id,name",
     },
     {
-      enabled: isSearchEnabled && isAreaEnabled(currentArea, "category"),
+      enabled: isQueryEnabled("category"),
       placeholderData: keepPreviousData,
     }
   )
@@ -140,7 +157,7 @@ const useDynamicSearchResults = (
       fields: "id,title",
     },
     {
-      enabled: isSearchEnabled && isAreaEnabled(currentArea, "collection"),
+      enabled: isQueryEnabled("collection"),
       placeholderData: keepPreviousData,
     }
   )
@@ -152,7 +169,7 @@ const useDynamicSearchResults = (
       fields: "id,email,first_name,last_name",
     },
     {
-      enabled: isSearchEnabled && isAreaEnabled(currentArea, "customer"),
+      enabled: isQueryEnabled("customer"),
       placeholderData: keepPreviousData,
     }
   )
@@ -164,7 +181,7 @@ const useDynamicSearchResults = (
       fields: "id,name",
     },
     {
-      enabled: isSearchEnabled && isAreaEnabled(currentArea, "seller"),
+      enabled: isQueryEnabled("seller"),
       placeholderData: keepPreviousData,
     }
   )
@@ -176,7 +193,7 @@ const useDynamicSearchResults = (
       fields: "id,title,sku",
     },
     {
-      enabled: isSearchEnabled && isAreaEnabled(currentArea, "inventory"),
+      enabled: isQueryEnabled("inventory"),
       placeholderData: keepPreviousData,
     }
   )
@@ -188,7 +205,7 @@ const useDynamicSearchResults = (
       fields: "id,code,status",
     },
     {
-      enabled: isSearchEnabled && isAreaEnabled(currentArea, "promotion"),
+      enabled: isQueryEnabled("promotion"),
       placeholderData: keepPreviousData,
     }
   )
@@ -200,7 +217,7 @@ const useDynamicSearchResults = (
       fields: "id,name",
     },
     {
-      enabled: isSearchEnabled && isAreaEnabled(currentArea, "campaign"),
+      enabled: isQueryEnabled("campaign"),
       placeholderData: keepPreviousData,
     }
   )
@@ -212,7 +229,7 @@ const useDynamicSearchResults = (
       fields: "id,title",
     },
     {
-      enabled: isSearchEnabled && isAreaEnabled(currentArea, "priceList"),
+      enabled: isQueryEnabled("priceList"),
       placeholderData: keepPreviousData,
     }
   )
@@ -224,7 +241,7 @@ const useDynamicSearchResults = (
       fields: "id,value",
     },
     {
-      enabled: isSearchEnabled && isAreaEnabled(currentArea, "productType"),
+      enabled: isQueryEnabled("productType"),
       placeholderData: keepPreviousData,
     }
   )
@@ -236,7 +253,7 @@ const useDynamicSearchResults = (
       fields: "id,value",
     },
     {
-      enabled: isSearchEnabled && isAreaEnabled(currentArea, "productTag"),
+      enabled: isQueryEnabled("productTag"),
       placeholderData: keepPreviousData,
     }
   )
@@ -248,7 +265,7 @@ const useDynamicSearchResults = (
       fields: "id,name",
     },
     {
-      enabled: isSearchEnabled && isAreaEnabled(currentArea, "location"),
+      enabled: isQueryEnabled("location"),
       placeholderData: keepPreviousData,
     }
   )
@@ -290,7 +307,10 @@ const useDynamicSearchResults = (
     const groups = Object.entries(responseMap)
       .map(([key, response]) => {
         const area = key as SearchArea
-        if (isAreaEnabled(currentArea, area) || currentArea === "all") {
+        if (
+          canSearchArea(area) &&
+          (isAreaEnabled(currentArea, area) || currentArea === "all")
+        ) {
           return transformDynamicSearchResults(area, limit, t, response)
         }
         return null
@@ -298,7 +318,7 @@ const useDynamicSearchResults = (
       .filter(Boolean) // Remove null values
 
     return groups
-  }, [responseMap, currentArea, limit, t])
+  }, [responseMap, currentArea, limit, t, canSearchArea])
 
   const isAreaFetching = useCallback(
     (area: SearchArea): boolean => {
