@@ -1184,7 +1184,7 @@ export function getRouteMap({
               {
                 index: true,
                 errorElement: <ErrorBoundary />,
-                lazy: () => import("./pages/settings"),
+                lazy: () => import("./pages/settings/settings"),
               },
 
               // PROFILE
