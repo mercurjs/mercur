@@ -11,6 +11,7 @@ import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
+import { useCan } from "@mercurjs/dashboard-shared"
 import { RouteFocusModal, useRouteModal } from "../../../../components/modals"
 import { _DataTable } from "../../../../components/table/data-table"
 import { KeyboundForm } from "../../../../components/utilities/keybound-form"
@@ -60,12 +61,16 @@ export const AddCampaignPromotionsForm = ({
     setRowSelection(state)
   }
 
+  const canViewPromotions = useCan("promotions")
   const { searchParams, raw } = usePromotionTableQuery({ pageSize: PAGE_SIZE })
   const {
     promotions,
     count,
     isPending: isLoading,
-  } = usePromotions({ ...searchParams }, { placeholderData: keepPreviousData })
+  } = usePromotions(
+    { ...searchParams },
+    { placeholderData: keepPreviousData, enabled: canViewPromotions }
+  )
 
   const columns = useColumns()
   const filters = usePromotionTableFilters()

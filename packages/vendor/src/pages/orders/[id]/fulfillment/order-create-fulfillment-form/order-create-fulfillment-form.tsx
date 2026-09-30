@@ -1,4 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import { ConditionalTooltip } from "@components/common/conditional-tooltip"
 import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
@@ -67,7 +69,12 @@ export function OrderCreateFulfillmentForm({
     control: form.control,
   })
 
-  const { stock_locations = [] } = useStockLocations()
+  const locationsGate = usePermissionGate("stock_locations:view")
+  const shippingOptionsGate = usePermissionGate("shipping_options:view")
+
+  const { stock_locations = [] } = useStockLocations(undefined, {
+    enabled: locationsGate.allowed,
+  })
 
   // Per-item "no inventory level at the selected location" flags, reported
   // up from each item row, used to render the aggregate warning below.
@@ -100,9 +107,12 @@ export function OrderCreateFulfillmentForm({
   const selection = useWatch({ name: "selection", control: form.control })
 
   const { shipping_options = [], isLoading: isShippingOptionsLoading } =
-    useShippingOptions({
-      fields: "+service_zone.fulfillment_set.location.id,*rules",
-    })
+    useShippingOptions(
+      {
+        fields: "+service_zone.fulfillment_set.location.id,*rules",
+      },
+      { enabled: shippingOptionsGate.allowed }
+    )
 
   const filteredShippingOptions = shipping_options.filter(
     (o) =>
@@ -312,23 +322,34 @@ export function OrderCreateFulfillmentForm({
                               </Form.Hint>
                             </div>
                             <div className="flex-1">
-                              <Form.Control>
-                                <Select onValueChange={onChange} {...field}>
-                                  <Select.Trigger
-                                    className="bg-ui-bg-base"
-                                    ref={ref}
-                                  >
-                                    <Select.Value />
-                                  </Select.Trigger>
-                                  <Select.Content>
-                                    {stock_locations.map((l) => (
-                                      <Select.Item key={l.id} value={l.id}>
-                                        {l.name}
-                                      </Select.Item>
-                                    ))}
-                                  </Select.Content>
-                                </Select>
-                              </Form.Control>
+                              <ConditionalTooltip
+                                showTooltip={locationsGate.denied}
+                                content={locationsGate.tooltip}
+                              >
+                                <div>
+                                  <Form.Control>
+                                    <Select
+                                      onValueChange={onChange}
+                                      {...field}
+                                      disabled={locationsGate.denied}
+                                    >
+                                      <Select.Trigger
+                                        className="bg-ui-bg-base"
+                                        ref={ref}
+                                      >
+                                        <Select.Value />
+                                      </Select.Trigger>
+                                      <Select.Content>
+                                        {stock_locations.map((l) => (
+                                          <Select.Item key={l.id} value={l.id}>
+                                            {l.name}
+                                          </Select.Item>
+                                        ))}
+                                      </Select.Content>
+                                    </Select>
+                                  </Form.Control>
+                                </div>
+                              </ConditionalTooltip>
                             </div>
                           </div>
                           <Form.ErrorMessage />
@@ -371,34 +392,41 @@ export function OrderCreateFulfillmentForm({
                               </Form.Hint>
                             </div>
                             <div className="flex-1">
-                              <Form.Control>
-                                <Select
-                                  onValueChange={onChange}
-                                  {...field}
-                                  disabled={!selectedLocationId}
-                                >
-                                  <Select.Trigger
-                                    className="bg-ui-bg-base"
-                                    ref={ref}
-                                  >
-                                    {isShippingOptionsLoading ? (
-                                      <span className="text-right">
-                                        {t("labels.loading")}
-                                        ...
-                                      </span>
-                                    ) : (
-                                      <Select.Value />
-                                    )}
-                                  </Select.Trigger>
-                                  <Select.Content>
-                                    {filteredShippingOptions.map((o) => (
-                                      <Select.Item key={o?.id} value={o?.id}>
-                                        {o?.name}
-                                      </Select.Item>
-                                    ))}
-                                  </Select.Content>
-                                </Select>
-                              </Form.Control>
+                              <ConditionalTooltip
+                                showTooltip={shippingOptionsGate.denied}
+                                content={shippingOptionsGate.tooltip}
+                              >
+                                <div>
+                                  <Form.Control>
+                                    <Select
+                                      onValueChange={onChange}
+                                      {...field}
+                                      disabled={!selectedLocationId || shippingOptionsGate.denied}
+                                    >
+                                      <Select.Trigger
+                                        className="bg-ui-bg-base"
+                                        ref={ref}
+                                      >
+                                        {isShippingOptionsLoading ? (
+                                          <span className="text-right">
+                                            {t("labels.loading")}
+                                            ...
+                                          </span>
+                                        ) : (
+                                          <Select.Value />
+                                        )}
+                                      </Select.Trigger>
+                                      <Select.Content>
+                                        {filteredShippingOptions.map((o) => (
+                                          <Select.Item key={o?.id} value={o?.id}>
+                                            {o?.name}
+                                          </Select.Item>
+                                        ))}
+                                      </Select.Content>
+                                    </Select>
+                                  </Form.Control>
+                                </div>
+                              </ConditionalTooltip>
                             </div>
                           </div>
                           <Form.ErrorMessage />

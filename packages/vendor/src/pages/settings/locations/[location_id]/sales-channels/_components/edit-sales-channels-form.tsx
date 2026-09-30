@@ -78,6 +78,7 @@ export const LocationEditSalesChannelsForm = ({
     },
     {
       placeholderData: keepPreviousData,
+      enabled: canViewSalesChannels,
     }
   )
 

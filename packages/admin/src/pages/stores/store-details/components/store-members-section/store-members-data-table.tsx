@@ -1,3 +1,4 @@
+import { useCan } from "@mercurjs/dashboard-shared";
 import { useMemo } from "react";
 
 import { ArrowPath, Link as LinkIcon, Trash, User } from "@medusajs/icons";
@@ -97,8 +98,12 @@ export const StoreMembersDataTable = ({
     { placeholderData: keepPreviousData },
   );
 
-  const { member_invites, isPending: isInvitesPending } =
-    useSellerInvites(sellerId);
+  const canViewInvites = useCan("members.invites");
+  const { member_invites, isPending: isInvitesPending } = useSellerInvites(
+    sellerId,
+    undefined,
+    { enabled: canViewInvites },
+  );
 
   const rows: UserRow[] = useMemo(() => {
     const members: MemberRow[] = (
@@ -162,7 +167,7 @@ export const StoreMembersDataTable = ({
       count={rows.length}
       pageSize={PAGE_SIZE}
       pagination
-      isLoading={isMembersPending || isInvitesPending}
+      isLoading={isMembersPending || (canViewInvites && isInvitesPending)}
       queryObject={raw}
       orderBy={[
         { key: "created_at", label: t("fields.createdAt") },

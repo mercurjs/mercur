@@ -23,6 +23,7 @@ import {
   CreateShippingOptionSchema,
 } from "./schema"
 import { useFulfillmentProviderOptions } from "@hooks/api"
+import { useCan } from "@mercurjs/dashboard-shared"
 
 enum Tab {
   DETAILS = "details",
@@ -69,9 +70,11 @@ export function CreateShippingOptionsForm({
     name: "provider_id",
   })
 
+  const canViewFulfillmentSets = useCan("fulfillment_sets")
+
   const { fulfillment_options: fulfillmentProviderOptions } =
     useFulfillmentProviderOptions(selectedProviderId, {
-      enabled: !!selectedProviderId,
+      enabled: !!selectedProviderId && canViewFulfillmentSets,
     })
 
   const isCalculatedPriceType =

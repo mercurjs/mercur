@@ -76,7 +76,10 @@ export const useUpdateMe = (
 export const useSellerMembers = (
   sellerId: string,
   query?: Record<string, any>,
-  options?: UseQueryOptions<any, ClientError>,
+  options?: Omit<
+    UseQueryOptions<any, ClientError>,
+    "queryKey" | "queryFn"
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () =>

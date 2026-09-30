@@ -1,8 +1,10 @@
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
 import { HttpTypes } from "@medusajs/types"
 import { Button, toast } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
 
+import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip"
 import { Form } from "../../../../../components/common/form"
 import { Combobox } from "../../../../../components/inputs/combobox"
 import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
@@ -30,6 +32,8 @@ export const ProductShippingProfileForm = ({
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
+  const shippingProfilesGate = usePermissionGate("shipping_profiles:view")
+
   const shippingProfiles = useComboboxData({
     queryKey: ["shipping_profiles"],
     queryFn: (params) => sdk.admin.shippingProfiles.query(params),
@@ -38,6 +42,7 @@ export const ProductShippingProfileForm = ({
         label: shippingProfile.name,
         value: shippingProfile.id,
       })),
+    enabled: shippingProfilesGate.allowed,
   })
 
   const form = useForm({
@@ -93,19 +98,27 @@ export const ProductShippingProfileForm = ({
                     <Form.Label data-testid="product-shipping-profile-form-shipping-profile-label">
                       {t("products.fields.shipping_profile.label")}
                     </Form.Label>
-                    <Form.Control data-testid="product-shipping-profile-form-shipping-profile-control">
-                      <Combobox
-                        {...field}
-                        allowClear
-                        options={shippingProfiles.options}
-                        searchValue={shippingProfiles.searchValue}
-                        onSearchValueChange={
-                          shippingProfiles.onSearchValueChange
-                        }
-                        fetchNextPage={shippingProfiles.fetchNextPage}
-                        data-testid="product-shipping-profile-form-shipping-profile-combobox"
-                      />
-                    </Form.Control>
+                    <ConditionalTooltip
+                      showTooltip={shippingProfilesGate.denied}
+                      content={shippingProfilesGate.tooltip}
+                    >
+                      <div>
+                        <Form.Control data-testid="product-shipping-profile-form-shipping-profile-control">
+                          <Combobox
+                            {...field}
+                            allowClear
+                            disabled={shippingProfilesGate.denied}
+                            options={shippingProfiles.options}
+                            searchValue={shippingProfiles.searchValue}
+                            onSearchValueChange={
+                              shippingProfiles.onSearchValueChange
+                            }
+                            fetchNextPage={shippingProfiles.fetchNextPage}
+                            data-testid="product-shipping-profile-form-shipping-profile-combobox"
+                          />
+                        </Form.Control>
+                      </div>
+                    </ConditionalTooltip>
                     <Form.ErrorMessage data-testid="product-shipping-profile-form-shipping-profile-error" />
                   </Form.Item>
                 )

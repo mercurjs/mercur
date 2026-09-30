@@ -23,10 +23,13 @@ export const customerAddressesQueryKeys = queryKeysFactory(
 export const useCustomer = (
   id: string,
   query?: Omit<InferClientInput<typeof sdk.vendor.customers.$id.query>, "$id">,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.customers.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.customers.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({
@@ -40,10 +43,13 @@ export const useCustomer = (
 
 export const useCustomers = (
   query?: InferClientInput<typeof sdk.vendor.customers.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.customers.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.customers.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({
@@ -256,10 +262,13 @@ export const useListCustomerAddresses = (
     InferClientInput<typeof sdk.vendor.customers.$id.addresses.query>,
     "$id"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.customers.$id.addresses.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.customers.$id.addresses.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({
@@ -275,12 +284,15 @@ export const useListCustomerAddresses = (
 export const useCustomerAddress = (
   id: string,
   addressId: string,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<
-      typeof sdk.vendor.customers.$id.addresses.$addressId.query
-    >
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<
+        typeof sdk.vendor.customers.$id.addresses.$addressId.query
+      >
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({

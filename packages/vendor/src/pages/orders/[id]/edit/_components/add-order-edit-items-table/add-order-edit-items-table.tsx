@@ -1,4 +1,5 @@
 import { HttpTypes } from "@medusajs/types";
+import { useCan } from "@mercurjs/dashboard-shared";
 import { OfferDTO } from "@mercurjs/types";
 import { OnChangeFn, RowSelectionState } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
@@ -117,10 +118,14 @@ export const AddOrderEditItemsTable = ({
     prefix: PREFIX,
   });
 
-  const offersResponse = useOffers({
-    ...searchParams,
-    fields: OFFER_PICKER_FIELDS,
-  });
+  const canViewOffers = useCan("offers");
+  const offersResponse = useOffers(
+    {
+      ...searchParams,
+      fields: OFFER_PICKER_FIELDS,
+    },
+    { enabled: canViewOffers }
+  );
   const rawOffersSource = (offersResponse as any).offers as
     | OfferPickerRowExtended[]
     | undefined;

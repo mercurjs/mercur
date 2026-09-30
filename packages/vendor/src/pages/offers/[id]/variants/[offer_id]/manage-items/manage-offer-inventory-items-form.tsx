@@ -1,4 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import { ConditionalTooltip } from "@components/common/conditional-tooltip"
 import { XMarkMini } from "@medusajs/icons"
 import { Button, Heading, IconButton, Input, Label, Text, toast } from "@medusajs/ui"
 import { useMemo } from "react"
@@ -81,6 +83,8 @@ export const ManageOfferInventoryItemsForm = ({
   const rows = useWatch({ control: form.control, name: "inventory" })
   const hasKit = fields.length > 1
 
+  const itemsGate = usePermissionGate("inventory_items:view")
+
   const items = useComboboxData({
     queryKey: ["offer_inventory_items"],
     queryFn: (params) => sdk.vendor.inventoryItems.query({ ...params }),
@@ -91,6 +95,7 @@ export const ManageOfferInventoryItemsForm = ({
           : (item.title ?? item.id),
         value: item.id,
       })),
+    enabled: itemsGate.allowed,
   })
 
   const isItemOptionDisabled = (value: string, currentIndex: number) =>
@@ -213,24 +218,32 @@ export const ManageOfferInventoryItemsForm = ({
                         name={`inventory.${index}.inventory_item_id`}
                         render={({ field: { ref: _ref, ...rest } }) => (
                           <Form.Item>
-                            <Form.Control>
-                              <Combobox
-                                {...rest}
-                                options={items.options.map((option) => ({
-                                  ...option,
-                                  disabled: isItemOptionDisabled(
-                                    option.value,
-                                    index,
-                                  ),
-                                }))}
-                                searchValue={items.searchValue}
-                                onSearchValueChange={items.onSearchValueChange}
-                                fetchNextPage={items.fetchNextPage}
-                                placeholder={t(
-                                  "offers.inventory.itemPlaceholder",
-                                )}
-                              />
-                            </Form.Control>
+                            <ConditionalTooltip
+                              showTooltip={itemsGate.denied}
+                              content={itemsGate.tooltip}
+                            >
+                              <div>
+                                <Form.Control>
+                                  <Combobox
+                                    {...rest}
+                                    disabled={itemsGate.denied}
+                                    options={items.options.map((option) => ({
+                                      ...option,
+                                      disabled: isItemOptionDisabled(
+                                        option.value,
+                                        index,
+                                      ),
+                                    }))}
+                                    searchValue={items.searchValue}
+                                    onSearchValueChange={items.onSearchValueChange}
+                                    fetchNextPage={items.fetchNextPage}
+                                    placeholder={t(
+                                      "offers.inventory.itemPlaceholder",
+                                    )}
+                                  />
+                                </Form.Control>
+                              </div>
+                            </ConditionalTooltip>
                             <Form.ErrorMessage />
                           </Form.Item>
                         )}

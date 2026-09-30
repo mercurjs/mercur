@@ -1,3 +1,4 @@
+import { useCan } from "@mercurjs/dashboard-shared"
 import { RouteFocusModal } from "@components/modals/route-focus-modal"
 import { usePaymentProviders } from "@hooks/api/payments"
 import { useCurrentSeller } from "@hooks/api/sellers"
@@ -15,9 +16,12 @@ const RegionCreate = () => {
   const sellerCurrency = currency_code
     ? currencies[currency_code.toUpperCase()]
     : undefined
-  const { payment_providers: paymentProviders = [] } = usePaymentProviders({
-    is_enabled: true,
-  })
+  const { payment_providers: paymentProviders = [] } = usePaymentProviders(
+    {
+      is_enabled: true,
+    },
+    { enabled: useCan("payments") }
+  )
 
   if (isError) {
     throw error

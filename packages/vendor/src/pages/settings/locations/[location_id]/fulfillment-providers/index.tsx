@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom"
 
+import { SectionNoAccess, useCan } from "@mercurjs/dashboard-shared"
 import { RouteFocusModal } from "@components/modals"
 import { useStockLocation } from "@hooks/api/stock-locations"
 import { LocationEditFulfillmentProvidersForm } from "./_components/edit-fulfillment-providers-form"
@@ -11,6 +12,8 @@ const LocationFulfillmentProviders = () => {
     { fields: "id,*fulfillment_providers" }
   )
 
+  const canViewFulfillmentSets = useCan("fulfillment_sets")
+
   const ready = !isPending && !!stock_location
 
   if (isError) {
@@ -19,7 +22,8 @@ const LocationFulfillmentProviders = () => {
 
   return (
     <RouteFocusModal>
-      {ready && (
+      {!canViewFulfillmentSets && <SectionNoAccess />}
+      {ready && canViewFulfillmentSets && (
         <LocationEditFulfillmentProvidersForm location={stock_location} />
       )}
     </RouteFocusModal>

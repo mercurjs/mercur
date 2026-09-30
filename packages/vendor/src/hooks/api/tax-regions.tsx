@@ -22,10 +22,13 @@ export const useTaxRegion = (
     InferClientInput<typeof sdk.vendor.taxRegions.$id.query>,
       "$id"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.taxRegions.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.taxRegions.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -39,10 +42,13 @@ export const useTaxRegion = (
 
 export const useTaxRegions = (
   query?: InferClientInput<typeof sdk.vendor.taxRegions.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.taxRegions.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.taxRegions.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({

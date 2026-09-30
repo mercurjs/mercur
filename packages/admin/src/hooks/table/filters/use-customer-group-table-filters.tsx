@@ -1,18 +1,24 @@
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { Filter } from "../../../components/table/data-table"
 import { useSellers } from "../../api/sellers"
 
 export const useCustomerGroupTableFilters = () => {
   const { t } = useTranslation()
+  const { can } = usePermissions()
+  const canViewSellers = can("sellers")
 
-  const { sellers } = useSellers({
-    limit: 1000,
-    fields: "id,name",
-  })
+  const { sellers } = useSellers(
+    {
+      limit: 1000,
+      fields: "id,name",
+    },
+    { enabled: canViewSellers }
+  )
 
   let filters: Filter[] = []
 
-  if (sellers?.length) {
+  if (canViewSellers && sellers?.length) {
     filters.push({
       key: "seller_id",
       label: t("fields.owner"),

@@ -20,10 +20,13 @@ export const fulfillmentProviderOptionsQueryKeys = queryKeysFactory(
 
 export const useFulfillmentProviders = (
   query?: InferClientInput<typeof sdk.vendor.fulfillmentProviders.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.fulfillmentProviders.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.fulfillmentProviders.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -37,10 +40,13 @@ export const useFulfillmentProviders = (
 
 export const useFulfillmentProviderOptions = (
   providerId: string,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.fulfillmentProviders.$id.options.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.fulfillmentProviders.$id.options.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({

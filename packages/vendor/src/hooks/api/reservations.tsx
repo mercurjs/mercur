@@ -28,10 +28,13 @@ export const useReservationItem = (
     InferClientInput<typeof sdk.vendor.reservations.$id.query>,
       "$id"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.reservations.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.reservations.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -45,10 +48,13 @@ export const useReservationItem = (
 
 export const useReservationItems = (
   query?: InferClientInput<typeof sdk.vendor.reservations.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.reservations.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.reservations.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({

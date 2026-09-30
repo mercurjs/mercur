@@ -22,9 +22,13 @@ function LocationServiceZoneShippingOptionPricing() {
     shipping_option: shippingOption,
     isError,
     error,
-  } = useShippingOption(so_id, {
-    fields: "*prices,*prices.price_rules",
-  })
+  } = useShippingOption(
+    so_id,
+    {
+      fields: "*prices,*prices.price_rules",
+    },
+    { enabled: canViewShippingOptions }
+  )
 
   const isNoAccess = !canViewShippingOptions || isForbidden(error)
 

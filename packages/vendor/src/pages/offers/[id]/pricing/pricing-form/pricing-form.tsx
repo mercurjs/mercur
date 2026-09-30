@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useCan } from "@mercurjs/dashboard-shared"
 import { HttpTypes } from "@medusajs/types"
 import { Button, toast } from "@medusajs/ui"
 import { useMemo } from "react"
@@ -80,7 +81,11 @@ const PricingFormInner = ({
 }) => {
   const { t } = useTranslation()
   const { handleSuccess, setCloseOnEscape } = useRouteModal()
-  const { price_preferences: pricePreferences } = usePricePreferences({})
+  const canViewPricePreferences = useCan("price_preferences")
+  const { price_preferences: pricePreferences } = usePricePreferences(
+    {},
+    { enabled: canViewPricePreferences }
+  )
 
   const defaults = useMemo(
     () => buildDefaults(offer, currencies),

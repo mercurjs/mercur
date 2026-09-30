@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useCan } from "@mercurjs/dashboard-shared";
 import { Button, toast } from "@medusajs/ui";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -70,7 +71,11 @@ export const CreateOfferForm = () => {
 
   const { mutateAsync: bulkCreateOffers } = useBulkCreateOffers();
   const { currency_code } = useCurrentSeller();
-  const { stock_locations } = useStockLocations({ limit: 100 });
+  const canViewLocations = useCan("stock_locations");
+  const { stock_locations } = useStockLocations(
+    { limit: 100 },
+    { enabled: canViewLocations }
+  );
 
   const locationIds = (stock_locations ?? []).map((l) => l.id);
 

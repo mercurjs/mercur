@@ -16,7 +16,11 @@ import { useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import {
+  DisplayExtensionZone,
+  SectionNoAccess,
+  useCan,
+} from "@mercurjs/dashboard-shared"
 import { OfferDTO } from "@mercurjs/types"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
@@ -54,6 +58,8 @@ export const PriceListProductSection = ({
     fields: "id,+prices.price_rules.attribute,+prices.price_rules.value",
   })
 
+  const canViewOffers = useCan("offers")
+
   const offerIds = useMemo(() => {
     const ids = new Set<string>()
     for (const price of pricedList?.prices ?? []) {
@@ -78,7 +84,7 @@ export const PriceListProductSection = ({
     { ...ungroupedParams, id: offerIds, limit: offerIds.length || 1, offset: 0 },
     {
       placeholderData: keepPreviousData,
-      enabled: offerIds.length > 0,
+      enabled: offerIds.length > 0 && canViewOffers,
     }
   )
 
@@ -204,7 +210,9 @@ export const PriceListProductSection = ({
           </Button>
         </div>
       </div>
-      {isError ? (
+      {!canViewOffers && offerIds.length > 0 ? (
+        <SectionNoAccess />
+      ) : isError ? (
         <div className="flex items-center gap-x-2 px-6 py-4" data-testid="price-list-product-section-error">
           <ExclamationCircle className="text-ui-fg-subtle" />
           <Text size="small" className="text-ui-fg-subtle">

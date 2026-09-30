@@ -10,6 +10,7 @@ import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
+import { SectionNoAccess, useCan } from "@mercurjs/dashboard-shared"
 import { RouteFocusModal, useRouteModal } from "@components/modals"
 import { _DataTable } from "@components/table/data-table"
 import { KeyboundForm } from "@components/utilities/keybound-form"
@@ -61,10 +62,14 @@ export const AddCampaignPromotionsForm = ({
   }
 
   const { searchParams, raw } = usePromotionTableQuery({ pageSize: PAGE_SIZE })
-  const { promotions: promotionsRaw, isPending: isLoading } = usePromotions({
-    ...searchParams,
-    fields: "+status",
-  })
+  const canViewPromotions = useCan("promotions")
+  const { promotions: promotionsRaw, isPending: isLoading } = usePromotions(
+    {
+      ...searchParams,
+      fields: "+status",
+    },
+    { enabled: canViewPromotions }
+  )
 
   const promotions = promotionsRaw?.filter((item) => item !== null)
   const count = promotions?.length ?? 0
@@ -126,6 +131,9 @@ export const AddCampaignPromotionsForm = ({
           </div>
         </RouteFocusModal.Header>
         <RouteFocusModal.Body className="flex size-full flex-col overflow-y-auto">
+          {!canViewPromotions ? (
+            <SectionNoAccess />
+          ) : (
           <_DataTable
             table={table}
             count={count}
@@ -147,6 +155,7 @@ export const AddCampaignPromotionsForm = ({
               message: t("campaigns.promotions.add.list.noRecordsMessage"),
             }}
           />
+          )}
         </RouteFocusModal.Body>
         <RouteFocusModal.Footer>
           <div className="flex w-full items-center justify-between gap-x-4">

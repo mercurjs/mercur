@@ -26,10 +26,13 @@ export const useProductType = (
     InferClientInput<typeof sdk.vendor.productTypes.$id.query>,
       "$id"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.productTypes.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.productTypes.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -43,10 +46,13 @@ export const useProductType = (
 
 export const useProductTypes = (
   query?: InferClientInput<typeof sdk.vendor.productTypes.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.productTypes.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.productTypes.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({

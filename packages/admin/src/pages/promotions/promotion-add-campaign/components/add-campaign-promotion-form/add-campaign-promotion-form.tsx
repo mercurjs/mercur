@@ -5,6 +5,8 @@ import { useEffect } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip"
 import { Form } from "../../../../../components/common/form"
 import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
@@ -48,6 +50,8 @@ export const AddCampaignPromotionFields = ({
     name: "campaign_choice",
   })
 
+  const campaignsGate = usePermissionGate("campaigns:view")
+
   const campaignsCombobox = useComboboxData({
     queryFn: (params) =>
       sdk.admin.campaigns.query({
@@ -63,13 +67,14 @@ export const AddCampaignPromotionFields = ({
           campaign.budget?.currency_code?.toLowerCase() !==
             promotionCurrencyCode?.toLowerCase(), // also cannot add promotion which doesn't have currency defined to a campaign with a currency amount budget
       })),
+    enabled: campaignsGate.allowed,
   })
 
   const { campaign: selectedCampaign } = useCampaign(
     watchCampaignId as string,
     undefined,
     {
-      enabled: !!watchCampaignId,
+      enabled: !!watchCampaignId && campaignsGate.allowed,
     }
   )
 
@@ -138,17 +143,25 @@ export const AddCampaignPromotionFields = ({
                   {t("promotions.form.campaign.existing.title")}
                 </Form.Label>
 
-                <Form.Control data-testid="promotion-add-campaign-form-campaign-id-control">
-                  <Combobox
-                    dir={direction}
-                    options={campaignsCombobox.options}
-                    searchValue={campaignsCombobox.searchValue}
-                    onSearchValueChange={campaignsCombobox.onSearchValueChange}
-                    onChange={onChange}
-                    {...field}
-                    data-testid="promotion-add-campaign-form-campaign-id-combobox"
-                  ></Combobox>
-                </Form.Control>
+                <ConditionalTooltip
+                  showTooltip={campaignsGate.denied}
+                  content={campaignsGate.tooltip}
+                >
+                  <div>
+                    <Form.Control data-testid="promotion-add-campaign-form-campaign-id-control">
+                      <Combobox
+                        dir={direction}
+                        options={campaignsCombobox.options}
+                        searchValue={campaignsCombobox.searchValue}
+                        onSearchValueChange={campaignsCombobox.onSearchValueChange}
+                        onChange={onChange}
+                        {...field}
+                        disabled={campaignsGate.denied}
+                        data-testid="promotion-add-campaign-form-campaign-id-combobox"
+                      ></Combobox>
+                    </Form.Control>
+                  </div>
+                </ConditionalTooltip>
 
                 {!promotionCurrencyCode && (
                   <Form.Hint data-testid="promotion-add-campaign-form-campaign-id-hint">

@@ -1,3 +1,4 @@
+import { useCan } from "@mercurjs/dashboard-shared"
 import {
   AdminInventoryItem,
   AdminStockLocation,
@@ -37,7 +38,11 @@ export const ManageLocationsForm = ({
     existingLocationLevels
   )
 
-  const { count } = useStockLocations({ limit: 1, fields: "id" })
+  const canViewLocations = useCan("stock_locations")
+  const { count } = useStockLocations(
+    { limit: 1, fields: "id" },
+    { enabled: canViewLocations }
+  )
 
   const handleLocationSelect = (locationId: string, selected: boolean) => {
     setSelectedLocationIds((prev) => {

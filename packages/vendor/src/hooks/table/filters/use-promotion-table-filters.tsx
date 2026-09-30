@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next"
 import { useMemo } from "react"
+import { useCan } from "@mercurjs/dashboard-shared"
 
 import type { Filter } from "../../../components/table/data-table"
 import { useCampaigns } from "../../api/campaigns"
@@ -7,7 +8,12 @@ import { useCampaigns } from "../../api/campaigns"
 export const usePromotionTableFilters = (): Filter[] => {
   const { t } = useTranslation()
 
-  const { campaigns } = useCampaigns({ limit: 100, fields: "id,name" })
+  const canViewCampaigns = useCan("campaigns")
+
+  const { campaigns } = useCampaigns(
+    { limit: 100, fields: "id,name" },
+    { enabled: canViewCampaigns }
+  )
 
   return useMemo(() => {
     const typeFilter: Filter = {
@@ -55,6 +61,11 @@ export const usePromotionTableFilters = (): Filter[] => {
       { label: t("fields.updatedAt"), key: "updated_at", type: "date" },
     ]
 
-    return [typeFilter, methodFilter, campaignFilter, ...dateFilters]
-  }, [t, campaigns])
+    return [
+      typeFilter,
+      methodFilter,
+      ...(canViewCampaigns ? [campaignFilter] : []),
+      ...dateFilters,
+    ]
+  }, [t, campaigns, canViewCampaigns])
 }

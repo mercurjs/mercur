@@ -16,9 +16,12 @@ const LocationServiceZoneShippingOptionEdit = () => {
   const canViewShippingOptions = useCan("shipping_options")
 
   const { shipping_options, isPending, isFetching, isError, error } =
-    useShippingOptions({
-      fields: "+service_zone.fulfillment_set.type",
-    })
+    useShippingOptions(
+      {
+        fields: "+service_zone.fulfillment_set.type",
+      },
+      { enabled: canViewShippingOptions }
+    )
 
   const isNoAccess = !canViewShippingOptions || isForbidden(error)
 

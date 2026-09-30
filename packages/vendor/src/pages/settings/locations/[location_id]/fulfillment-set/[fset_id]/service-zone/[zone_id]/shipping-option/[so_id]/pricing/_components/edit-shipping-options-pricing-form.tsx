@@ -7,6 +7,7 @@ import { HttpTypes } from "@medusajs/types"
 import { Button, toast } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import { DataGrid } from "@components/data-grid"
 import {
   RouteFocusModal,
@@ -102,12 +103,20 @@ export function EditShippingOptionsPricingForm({
     [currency_code]
   )
 
-  const { price_preferences: pricePreferences } = usePricePreferences({})
+  const { can } = usePermissions()
 
-  const { regions } = useRegions({
-    fields: "id,name,currency_code",
-    limit: 999,
-  })
+  const { price_preferences: pricePreferences } = usePricePreferences(
+    {},
+    { enabled: can("price_preferences") }
+  )
+
+  const { regions } = useRegions(
+    {
+      fields: "id,name,currency_code",
+      limit: 999,
+    },
+    { enabled: can("regions") }
+  )
 
   const { setCloseOnEscape } = useRouteModal()
 

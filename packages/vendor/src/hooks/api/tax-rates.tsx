@@ -20,10 +20,13 @@ export const taxRatesQueryKeys = queryKeysFactory(TAX_RATES_QUERY_KEY);
 export const useTaxRate = (
   id: string,
   query?: Omit<InferClientInput<typeof sdk.vendor.taxRates.$id.query>, "$id">,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.taxRates.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.taxRates.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -37,10 +40,13 @@ export const useTaxRate = (
 
 export const useTaxRates = (
   query?: InferClientInput<typeof sdk.vendor.taxRates.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.taxRates.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.taxRates.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({

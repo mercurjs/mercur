@@ -63,10 +63,13 @@ export const CreateShippingOptionsPricesForm = ({
     isLoading: isRegionsLoading,
     isError: isRegionsError,
     error: regionsError,
-  } = useRegions({
-    fields: "id,name,currency_code",
-    limit: 999,
-  })
+  } = useRegions(
+    {
+      fields: "id,name,currency_code",
+      limit: 999,
+    },
+    { enabled: canViewRegions }
+  )
 
   const isRegionsNoAccess = !canViewRegions || isForbidden(regionsError)
 

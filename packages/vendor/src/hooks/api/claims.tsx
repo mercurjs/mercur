@@ -28,10 +28,13 @@ const invalidateOrder = (orderId: string) => {
 export const useClaim = (
   id: string,
   query?: Omit<InferClientInput<typeof sdk.vendor.claims.$id.query>, "$id">,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.claims.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.claims.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -45,10 +48,13 @@ export const useClaim = (
 
 export const useClaims = (
   query?: InferClientInput<typeof sdk.vendor.claims.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.claims.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.claims.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({

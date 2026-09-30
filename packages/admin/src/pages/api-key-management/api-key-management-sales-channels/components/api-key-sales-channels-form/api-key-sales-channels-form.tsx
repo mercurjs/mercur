@@ -14,6 +14,7 @@ import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
+import { useCan } from "@mercurjs/dashboard-shared"
 
 import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip"
 import { DataTable } from "../../../../../components/data-table"
@@ -69,10 +70,13 @@ export const ApiKeySalesChannelsForm = ({
   const filters = hooks.useSalesChannelTableFilters()
   const emptyState = hooks.useSalesChannelTableEmptyState()
 
+  const canViewSalesChannels = useCan("sales_channels")
+
   const { sales_channels, count, isPending } = useSalesChannels(
     { ...searchParams },
     {
       placeholderData: keepPreviousData,
+      enabled: canViewSalesChannels,
     }
   )
 

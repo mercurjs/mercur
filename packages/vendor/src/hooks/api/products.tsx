@@ -44,10 +44,13 @@ export const useProduct = (
     InferClientInput<typeof sdk.vendor.products.$id.query>,
     "$id"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.products.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.products.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -61,10 +64,13 @@ export const useProduct = (
 
 export const useProducts = (
   query?: InferClientInput<typeof sdk.vendor.products.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.products.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.products.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -236,12 +242,15 @@ export const useProductVariant = (
     InferClientInput<typeof sdk.vendor.products.$id.variants.$variantId.query>,
     "$id" | "$variantId"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<
-      typeof sdk.vendor.products.$id.variants.$variantId.query
-    >
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<
+        typeof sdk.vendor.products.$id.variants.$variantId.query
+      >
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -264,10 +273,13 @@ export const useProductVariants = (
     InferClientInput<typeof sdk.vendor.products.$id.variants.query>,
     "$id"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.products.$id.variants.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.products.$id.variants.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({

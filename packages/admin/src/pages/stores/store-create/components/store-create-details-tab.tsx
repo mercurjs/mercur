@@ -1,3 +1,4 @@
+import { usePermissionGate } from "@mercurjs/dashboard-shared";
 import { Heading, Input, Select } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
@@ -7,11 +8,13 @@ import { useTabbedForm } from "../../../../components/tabbed-form/tabbed-form";
 import { defineTabMeta } from "../../../../components/tabbed-form/types";
 import { useStore } from "../../../../hooks/api";
 import { CreateStoreSchemaType } from "./schema";
+import { ConditionalTooltip } from "../../../../components/common/conditional-tooltip";
 
 const Root = () => {
   const { t } = useTranslation();
   const form = useTabbedForm<CreateStoreSchemaType>();
-  const { store } = useStore();
+  const storeGate = usePermissionGate("store:view");
+  const { store } = useStore(undefined, { enabled: storeGate.allowed });
 
   return (
     <div className="flex flex-1 flex-col items-center overflow-y-auto px-3">
@@ -80,23 +83,34 @@ const Root = () => {
             render={({ field: { onChange, ref, ...field } }) => (
               <Form.Item>
                 <Form.Label>{t("fields.currency")}</Form.Label>
-                <Form.Control>
-                  <Select {...field} onValueChange={onChange}>
-                    <Select.Trigger ref={ref}>
-                      <Select.Value placeholder={t("fields.selectPlaceholder")} />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {store?.supported_currencies?.map((sc) => (
-                        <Select.Item
-                          key={sc.currency_code}
-                          value={sc.currency_code}
-                        >
-                          {sc.currency_code.toUpperCase()}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
-                </Form.Control>
+                <ConditionalTooltip
+                  showTooltip={storeGate.denied}
+                  content={storeGate.tooltip}
+                >
+                  <div>
+                    <Form.Control>
+                      <Select
+                        {...field}
+                        disabled={field.disabled || storeGate.denied}
+                        onValueChange={onChange}
+                      >
+                        <Select.Trigger ref={ref}>
+                          <Select.Value placeholder={t("fields.selectPlaceholder")} />
+                        </Select.Trigger>
+                        <Select.Content>
+                          {store?.supported_currencies?.map((sc) => (
+                            <Select.Item
+                              key={sc.currency_code}
+                              value={sc.currency_code}
+                            >
+                              {sc.currency_code.toUpperCase()}
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select>
+                    </Form.Control>
+                  </div>
+                </ConditionalTooltip>
                 <Form.ErrorMessage />
               </Form.Item>
             )}

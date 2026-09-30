@@ -27,10 +27,13 @@ export const useStockLocation = (
     InferClientInput<typeof sdk.vendor.stockLocations.$id.query>,
     "$id"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.stockLocations.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.stockLocations.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({
@@ -44,10 +47,13 @@ export const useStockLocation = (
 
 export const useStockLocations = (
   query?: InferClientInput<typeof sdk.vendor.stockLocations.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    HttpTypes.VendorStockLocationListResponse
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      HttpTypes.VendorStockLocationListResponse
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({

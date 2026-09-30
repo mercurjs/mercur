@@ -6,6 +6,9 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import * as zod from "zod";
 
+import { usePermissionGate } from "@mercurjs/dashboard-shared";
+
+import { ConditionalTooltip } from "../../../components/common/conditional-tooltip";
 import { Combobox } from "../../../components/inputs/combobox";
 import { Form } from "../../../components/common/form";
 import { RouteDrawer, useRouteModal } from "../../../components/modals";
@@ -95,8 +98,13 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
   const { mutateAsync: batchRules, isPending: isBatching } =
     useBatchCommissionRules(rule.id);
 
+  const storesGate = usePermissionGate("sellers:view");
+  const productTypesGate = usePermissionGate("product_types:view");
+  const categoriesGate = usePermissionGate("product_categories:view");
+
   const stores = useComboboxData({
     queryKey: ["commission_stores"],
+    enabled: storesGate.allowed,
     queryFn: (params) => sdk.admin.sellers.query({ ...params }),
     getOptions: (data) =>
       data.sellers.map((s: { id: string; name: string }) => ({
@@ -107,6 +115,7 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
 
   const productTypes = useComboboxData({
     queryKey: ["commission_product_types"],
+    enabled: productTypesGate.allowed,
     queryFn: (params) => sdk.admin.productTypes.query({ ...params }),
     getOptions: (data) =>
       data.product_types.map((pt: { id: string; value: string }) => ({
@@ -117,6 +126,7 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
 
   const categories = useComboboxData({
     queryKey: ["commission_categories"],
+    enabled: categoriesGate.allowed,
     queryFn: (params) => sdk.admin.productCategories.query({ ...params }),
     getOptions: (data) =>
       data.product_categories.map((c: { id: string; name: string }) => ({
@@ -276,15 +286,23 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
                     <Form.Label>
                       {t("commissions.fields.stores")}
                     </Form.Label>
-                    <Form.Control>
-                      <Combobox
-                        options={stores.options}
-                        fetchNextPage={stores.fetchNextPage}
-                        searchValue={stores.searchValue}
-                        onSearchValueChange={stores.onSearchValueChange}
-                        {...field}
-                      />
-                    </Form.Control>
+                    <ConditionalTooltip
+                      showTooltip={storesGate.denied}
+                      content={storesGate.tooltip}
+                    >
+                      <div>
+                        <Form.Control>
+                          <Combobox
+                            options={stores.options}
+                            fetchNextPage={stores.fetchNextPage}
+                            searchValue={stores.searchValue}
+                            onSearchValueChange={stores.onSearchValueChange}
+                            {...field}
+                            disabled={storesGate.denied}
+                          />
+                        </Form.Control>
+                      </div>
+                    </ConditionalTooltip>
                     <Form.ErrorMessage />
                   </Form.Item>
                 )}
@@ -299,15 +317,23 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
                     <Form.Label>
                       {t("commissions.fields.productTypes")}
                     </Form.Label>
-                    <Form.Control>
-                      <Combobox
-                        options={productTypes.options}
-                        fetchNextPage={productTypes.fetchNextPage}
-                        searchValue={productTypes.searchValue}
-                        onSearchValueChange={productTypes.onSearchValueChange}
-                        {...field}
-                      />
-                    </Form.Control>
+                    <ConditionalTooltip
+                      showTooltip={productTypesGate.denied}
+                      content={productTypesGate.tooltip}
+                    >
+                      <div>
+                        <Form.Control>
+                          <Combobox
+                            options={productTypes.options}
+                            fetchNextPage={productTypes.fetchNextPage}
+                            searchValue={productTypes.searchValue}
+                            onSearchValueChange={productTypes.onSearchValueChange}
+                            {...field}
+                            disabled={productTypesGate.denied}
+                          />
+                        </Form.Control>
+                      </div>
+                    </ConditionalTooltip>
                     <Form.ErrorMessage />
                   </Form.Item>
                 )}
@@ -322,15 +348,23 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
                     <Form.Label>
                       {t("commissions.fields.categories")}
                     </Form.Label>
-                    <Form.Control>
-                      <Combobox
-                        options={categories.options}
-                        fetchNextPage={categories.fetchNextPage}
-                        searchValue={categories.searchValue}
-                        onSearchValueChange={categories.onSearchValueChange}
-                        {...field}
-                      />
-                    </Form.Control>
+                    <ConditionalTooltip
+                      showTooltip={categoriesGate.denied}
+                      content={categoriesGate.tooltip}
+                    >
+                      <div>
+                        <Form.Control>
+                          <Combobox
+                            options={categories.options}
+                            fetchNextPage={categories.fetchNextPage}
+                            searchValue={categories.searchValue}
+                            onSearchValueChange={categories.onSearchValueChange}
+                            {...field}
+                            disabled={categoriesGate.denied}
+                          />
+                        </Form.Control>
+                      </div>
+                    </ConditionalTooltip>
                     <Form.ErrorMessage />
                   </Form.Item>
                 )}

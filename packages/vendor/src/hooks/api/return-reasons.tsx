@@ -18,10 +18,13 @@ export const returnReasonsQueryKeys = queryKeysFactory(RETURN_REASONS_QUERY_KEY)
 
 export const useReturnReasons = (
   query?: InferClientInput<typeof sdk.vendor.returnReasons.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.returnReasons.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.returnReasons.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -39,10 +42,13 @@ export const useReturnReason = (
     InferClientInput<typeof sdk.vendor.returnReasons.$id.query>,
       "$id"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.returnReasons.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.returnReasons.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({

@@ -5,7 +5,7 @@ import { useMemo, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
-import { isForbidden, SectionNoAccess } from "@mercurjs/dashboard-shared"
+import { isForbidden, SectionNoAccess, useCan } from "@mercurjs/dashboard-shared"
 
 import { Thumbnail } from "../../../../components/common/thumbnail"
 import {
@@ -255,6 +255,7 @@ const EditStockGrid = ({
 export const OfferEditStockPage = () => {
   const { id } = useParams()
   const { t } = useTranslation()
+  const canViewLocations = useCan("stock_locations")
   const { product, isPending, isError, error } = useProduct(id!, {
     fields: OFFER_PRODUCT_DETAIL_FIELDS,
   })
@@ -262,11 +263,15 @@ export const OfferEditStockPage = () => {
     stock_locations,
     isPending: isLocationsPending,
     error: locationsError,
-  } = useStockLocations({
-    limit: 100,
-  })
+  } = useStockLocations(
+    {
+      limit: 100,
+    },
+    { enabled: canViewLocations }
+  )
 
-  const forbidden = isForbidden(error) || isForbidden(locationsError)
+  const forbidden =
+    isForbidden(error) || isForbidden(locationsError) || !canViewLocations
 
   if (isError && !forbidden) throw error
 

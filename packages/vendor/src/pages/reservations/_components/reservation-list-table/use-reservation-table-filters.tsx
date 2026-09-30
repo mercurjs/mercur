@@ -1,12 +1,17 @@
 import { Filter } from "@components/table/data-table"
 import { useStockLocations } from "@hooks/api/stock-locations"
+import { useCan } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 
 export const useReservationTableFilters = () => {
   const { t } = useTranslation()
-  const { stock_locations } = useStockLocations({
-    limit: 1000,
-  })
+  const canViewLocations = useCan("stock_locations")
+  const { stock_locations } = useStockLocations(
+    {
+      limit: 1000,
+    },
+    { enabled: canViewLocations }
+  )
 
   const filters: Filter[] = []
 
@@ -16,7 +21,7 @@ export const useReservationTableFilters = () => {
     label: t("fields.sku"),
   })
 
-  if (stock_locations) {
+  if (stock_locations && canViewLocations) {
     const stockLocationFilter: Filter = {
       type: "select",
       options: stock_locations.map((s) => ({

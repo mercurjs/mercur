@@ -20,6 +20,8 @@
 //     `/vendor/order-changes/:id` route yet; this is the only admin
 //     feature deferred in the port.
 import { zodResolver } from "@hookform/resolvers/zod"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import { ConditionalTooltip } from "@components/common/conditional-tooltip"
 import {
   AdminClaim,
   AdminInventoryLevel,
@@ -204,9 +206,15 @@ export const ClaimCreateForm = ({
   /**
    * HOOKS
    */
-  const { stock_locations: stockLocations = [] } = useStockLocations({
-    limit: 999,
-  })
+  const locationsGate = usePermissionGate("stock_locations:view")
+  const shippingOptionsGate = usePermissionGate("shipping_options:view")
+
+  const { stock_locations: stockLocations = [] } = useStockLocations(
+    {
+      limit: 999,
+    },
+    { enabled: locationsGate.allowed }
+  )
   const { shipping_options: shippingOptions = [] } = useShippingOptions(
     locationId
       ? ({
@@ -215,7 +223,7 @@ export const ClaimCreateForm = ({
           stock_location_id: locationId,
         } as never)
       : undefined,
-    { enabled: !!locationId } as never
+    { enabled: !!locationId && shippingOptionsGate.allowed } as never
   )
 
   const inboundShippingOptions = (shippingOptions ?? []).filter(
@@ -590,25 +598,33 @@ export const ClaimCreateForm = ({
                     render={({ field: { value, onChange, ...field } }) => {
                       return (
                         <Form.Item>
-                          <Form.Control>
-                            <Combobox
-                              {...field}
-                              value={value ?? undefined}
-                              onChange={(v) => {
-                                onChange(v)
-                                onLocationChange(v)
-                              }}
-                              options={(stockLocations ?? []).map(
-                                (stockLocation: {
-                                  id: string
-                                  name: string
-                                }) => ({
-                                  label: stockLocation.name,
-                                  value: stockLocation.id,
-                                })
-                              )}
-                            />
-                          </Form.Control>
+                          <ConditionalTooltip
+                            showTooltip={locationsGate.denied}
+                            content={locationsGate.tooltip}
+                          >
+                            <div>
+                              <Form.Control>
+                                <Combobox
+                                  {...field}
+                                  value={value ?? undefined}
+                                  onChange={(v) => {
+                                    onChange(v)
+                                    onLocationChange(v)
+                                  }}
+                                  disabled={locationsGate.denied}
+                                  options={(stockLocations ?? []).map(
+                                    (stockLocation: {
+                                      id: string
+                                      name: string
+                                    }) => ({
+                                      label: stockLocation.name,
+                                      value: stockLocation.id,
+                                    })
+                                  )}
+                                />
+                              </Form.Control>
+                            </div>
+                          </ConditionalTooltip>
                         </Form.Item>
                       )
                     }}
@@ -640,27 +656,34 @@ export const ClaimCreateForm = ({
                     render={({ field: { value, onChange, ...field } }) => {
                       return (
                         <Form.Item>
-                          <Form.Control>
-                            <Combobox
-                              allowClear
-                              value={value ?? undefined}
-                              onChange={(val) => {
-                                onChange(val)
-                                onShippingOptionChange(val)
-                              }}
-                              {...field}
-                              options={inboundShippingOptions.map(
-                                (so: { id: string; name: string }) => ({
-                                  label: so.name,
-                                  value: so.id,
-                                })
-                              )}
-                              disabled={!locationId}
-                              noResultsPlaceholder={
-                                <ReturnShippingPlaceholder />
-                              }
-                            />
-                          </Form.Control>
+                          <ConditionalTooltip
+                            showTooltip={shippingOptionsGate.denied}
+                            content={shippingOptionsGate.tooltip}
+                          >
+                            <div>
+                              <Form.Control>
+                                <Combobox
+                                  allowClear
+                                  value={value ?? undefined}
+                                  onChange={(val) => {
+                                    onChange(val)
+                                    onShippingOptionChange(val)
+                                  }}
+                                  {...field}
+                                  options={inboundShippingOptions.map(
+                                    (so: { id: string; name: string }) => ({
+                                      label: so.name,
+                                      value: so.id,
+                                    })
+                                  )}
+                                  disabled={!locationId || shippingOptionsGate.denied}
+                                  noResultsPlaceholder={
+                                    <ReturnShippingPlaceholder />
+                                  }
+                                />
+                              </Form.Control>
+                            </div>
+                          </ConditionalTooltip>
                         </Form.Item>
                       )
                     }}

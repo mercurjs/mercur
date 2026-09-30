@@ -1,4 +1,5 @@
 import { useMemo } from "react"
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 
 import { Filter } from "../../../components/table/data-table"
@@ -8,11 +9,21 @@ import { useSellers } from "../../../hooks/api/sellers"
 export const useReviewTableFilters = (): Filter[] => {
   const { t } = useTranslation()
 
-  const { sellers } = useSellers({ limit: 100, fields: "id,name" })
-  const { customers } = useCustomers({
-    limit: 100,
-    fields: "id,first_name,last_name,email",
-  })
+  const { can } = usePermissions()
+  const canViewSellers = can("sellers")
+  const canViewCustomers = can("customers")
+
+  const { sellers } = useSellers(
+    { limit: 100, fields: "id,name" },
+    { enabled: canViewSellers }
+  )
+  const { customers } = useCustomers(
+    {
+      limit: 100,
+      fields: "id,first_name,last_name,email",
+    },
+    { enabled: canViewCustomers }
+  )
 
   return useMemo(() => {
     const ratingFilter: Filter = {
@@ -74,10 +85,10 @@ export const useReviewTableFilters = (): Filter[] => {
 
     return [
       ratingFilter,
-      storeFilter,
-      customerFilter,
+      ...(canViewSellers ? [storeFilter] : []),
+      ...(canViewCustomers ? [customerFilter] : []),
       createdFilter,
       statusFilter,
     ]
-  }, [t, sellers, customers])
+  }, [t, sellers, customers, canViewSellers, canViewCustomers])
 }

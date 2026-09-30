@@ -9,10 +9,13 @@ export const featureFlagsQueryKeys =
   queryKeysFactory(FEATURE_FLAGS_QUERY_KEY);
 
 export const useFeatureFlags = (
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.featureFlags.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.featureFlags.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({

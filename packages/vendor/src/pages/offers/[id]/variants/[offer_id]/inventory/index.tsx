@@ -1,4 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
+import { SectionNoAccess, useCan } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
@@ -16,9 +17,13 @@ export const OfferVariantInventoryPage = () => {
   const { offer, isPending, isError, error } = useOffer(offer_id!, {
     fields: OFFER_VARIANT_DETAIL_FIELDS,
   })
-  const { stock_locations, isPending: isLocationsPending } = useStockLocations({
-    limit: 100,
-  })
+  const canViewLocations = useCan("stock_locations")
+  const { stock_locations, isPending: isLocationsPending } = useStockLocations(
+    {
+      limit: 100,
+    },
+    { enabled: canViewLocations }
+  )
 
   if (isError) throw error
 
@@ -33,11 +38,20 @@ export const OfferVariantInventoryPage = () => {
       <RouteFocusModal.Description asChild>
         <span className="sr-only">{t("offers.inventory.description")}</span>
       </RouteFocusModal.Description>
-      {ready && (
-        <InventoryBatchForm
-          offer={offer as OfferDetail}
-          locations={stock_locations as HttpTypes.AdminStockLocation[]}
-        />
+      {!canViewLocations ? (
+        <>
+          <RouteFocusModal.Header />
+          <RouteFocusModal.Body>
+            <SectionNoAccess />
+          </RouteFocusModal.Body>
+        </>
+      ) : (
+        ready && (
+          <InventoryBatchForm
+            offer={offer as OfferDetail}
+            locations={stock_locations as HttpTypes.AdminStockLocation[]}
+          />
+        )
       )}
     </RouteFocusModal>
   )

@@ -19,6 +19,8 @@ import * as zod from "zod"
 
 import { PaymentProviderDTO } from "@medusajs/types"
 
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import { ConditionalTooltip } from "@components/common/conditional-tooltip"
 import { Form } from "@components/common/form"
 import { Combobox } from "@components/inputs/combobox"
 import {
@@ -64,6 +66,7 @@ export const CreateRegionForm = ({
   const { setIsOpen } = useStackedModal()
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const { handleSuccess } = useRouteModal()
+  const paymentsGate = usePermissionGate("payments:view")
 
   const form = useForm<zod.infer<typeof CreateRegionSchema>>({
     defaultValues: {
@@ -415,15 +418,23 @@ export const CreateRegionForm = ({
                           <Form.Label>
                             {t("fields.paymentProviders")}
                           </Form.Label>
-                          <Form.Control>
-                            <Combobox
-                              options={paymentProviders.map((pp) => ({
-                                label: formatProvider(pp.id),
-                                value: pp.id,
-                              }))}
-                              {...field}
-                            />
-                          </Form.Control>
+                          <ConditionalTooltip
+                            showTooltip={paymentsGate.denied}
+                            content={paymentsGate.tooltip}
+                          >
+                            <div>
+                              <Form.Control>
+                                <Combobox
+                                  options={paymentProviders.map((pp) => ({
+                                    label: formatProvider(pp.id),
+                                    value: pp.id,
+                                  }))}
+                                  {...field}
+                                  disabled={paymentsGate.denied}
+                                />
+                              </Form.Control>
+                            </div>
+                          </ConditionalTooltip>
                           <Form.ErrorMessage />
                         </Form.Item>
                       )

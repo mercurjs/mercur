@@ -21,10 +21,13 @@ export const productVariantQueryKeys = queryKeysFactory(
 
 export const useVariants = (
   query?: InferClientInput<typeof sdk.vendor.productVariants.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.productVariants.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.productVariants.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({

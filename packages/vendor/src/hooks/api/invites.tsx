@@ -19,7 +19,10 @@ export const invitesQueryKeys = queryKeysFactory(INVITES_QUERY_KEY);
 export const useInvites = (
   sellerId: string,
   query?: Record<string, any>,
-  options?: UseQueryOptions<any, ClientError>,
+  options?: Omit<
+    UseQueryOptions<any, ClientError>,
+    "queryKey" | "queryFn"
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () =>

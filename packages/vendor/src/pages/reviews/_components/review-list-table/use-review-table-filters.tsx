@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
 
+import { useCan } from "@mercurjs/dashboard-shared";
 import type { Filter } from "@mercurjs/dashboard-shared";
 
 import { useCustomers } from "@hooks/api/customers";
@@ -18,7 +19,11 @@ const customerLabel = (customer: {
 
 export const useReviewTableFilters = (): Filter[] => {
   const { t } = useTranslation();
-  const { customers } = useCustomers({ limit: 100 });
+  const canViewCustomers = useCan("customers");
+  const { customers } = useCustomers(
+    { limit: 100 },
+    { enabled: canViewCustomers },
+  );
 
   return useMemo(() => {
     const ratingFilter: Filter = {
@@ -61,6 +66,11 @@ export const useReviewTableFilters = (): Filter[] => {
       ],
     };
 
-    return [ratingFilter, customerFilter, createdFilter, statusFilter];
-  }, [t, customers]);
+    return [
+      ratingFilter,
+      ...(canViewCustomers ? [customerFilter] : []),
+      createdFilter,
+      statusFilter,
+    ];
+  }, [t, customers, canViewCustomers]);
 };

@@ -1,6 +1,7 @@
 import { PencilSquare } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Badge, Container, Heading } from "@medusajs/ui"
+import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
@@ -22,11 +23,16 @@ export const PriceListCustomerAvailabilitySection = ({
     | string[]
     | undefined
 
-  const { customer_groups, isPending, isError } = useCustomerGroups(
+  const canViewCustomerGroups = useCan("customer_groups")
+
+  const { customer_groups, isPending, isError, error } = useCustomerGroups(
     { id: customerGroupIds },
-    { enabled: !!customerGroupIds?.length }
+    { enabled: !!customerGroupIds?.length && canViewCustomerGroups }
   )
 
+  const isNoAccess =
+    !!customerGroupIds?.length &&
+    (!canViewCustomerGroups || isForbidden(error))
   const isEmpty = !customerGroupIds?.length || isError
 
   return (
@@ -52,7 +58,9 @@ export const PriceListCustomerAvailabilitySection = ({
       </div>
 
       <div className="text-ui-fg-subtle flex flex-col gap-2 px-6 pb-4 pt-2" data-testid="price-list-customer-availability-section-content">
-        {isEmpty ? (
+        {isNoAccess ? (
+          <SectionNoAccess className="" />
+        ) : isEmpty ? (
           <NoRecords
             className="h-[180px]"
             icon={null}

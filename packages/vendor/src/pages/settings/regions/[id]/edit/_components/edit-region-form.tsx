@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
 
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import { ConditionalTooltip } from "@components/common/conditional-tooltip"
 import { Form } from "@components/common/form/index.ts"
 import { Combobox } from "@components/inputs/combobox/index.ts"
 import {
@@ -38,6 +40,8 @@ export const EditRegionForm = ({
 }: EditRegionFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
+  const paymentsGate = usePermissionGate("payments:view")
+  const preferencesGate = usePermissionGate("price_preferences:view")
   const pricePreferenceForRegion = pricePreferences?.find(
     (preference) =>
       preference.attribute === "region_id" && preference.value === region.id
@@ -63,7 +67,10 @@ export const EditRegionForm = ({
         automatic_taxes: values.automatic_taxes,
         currency_code: values.currency_code.toLowerCase(),
         payment_providers: values.payment_providers,
-        is_tax_inclusive: values.is_tax_inclusive,
+        // Unknown without read access, so the stored value is left untouched.
+        is_tax_inclusive: preferencesGate.denied
+          ? undefined
+          : values.is_tax_inclusive,
       },
       {
         onSuccess: () => {
@@ -162,13 +169,21 @@ export const EditRegionForm = ({
                           <Form.Label>
                             {t("fields.taxInclusivePricing")}
                           </Form.Label>
-                          <Form.Control>
-                            <Switch
-                              {...field}
-                              checked={value}
-                              onCheckedChange={onChange}
-                            />
-                          </Form.Control>
+                          <ConditionalTooltip
+                            showTooltip={preferencesGate.denied}
+                            content={preferencesGate.tooltip}
+                          >
+                            <div>
+                              <Form.Control>
+                                <Switch
+                                  {...field}
+                                  checked={value}
+                                  onCheckedChange={onChange}
+                                  disabled={preferencesGate.denied}
+                                />
+                              </Form.Control>
+                            </div>
+                          </ConditionalTooltip>
                         </div>
                         <Form.Hint>{t("regions.taxInclusiveHint")}</Form.Hint>
                         <Form.ErrorMessage />
@@ -194,15 +209,23 @@ export const EditRegionForm = ({
                   return (
                     <Form.Item>
                       <Form.Label>{t("fields.paymentProviders")}</Form.Label>
-                      <Form.Control>
-                        <Combobox
-                          options={paymentProviders.map((pp) => ({
-                            label: formatProvider(pp.id),
-                            value: pp.id,
-                          }))}
-                          {...field}
-                        />
-                      </Form.Control>
+                      <ConditionalTooltip
+                        showTooltip={paymentsGate.denied}
+                        content={paymentsGate.tooltip}
+                      >
+                        <div>
+                          <Form.Control>
+                            <Combobox
+                              options={paymentProviders.map((pp) => ({
+                                label: formatProvider(pp.id),
+                                value: pp.id,
+                              }))}
+                              {...field}
+                              disabled={paymentsGate.denied}
+                            />
+                          </Form.Control>
+                        </div>
+                      </ConditionalTooltip>
                       <Form.ErrorMessage />
                     </Form.Item>
                   )

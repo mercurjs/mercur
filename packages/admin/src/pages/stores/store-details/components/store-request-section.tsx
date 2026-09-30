@@ -17,7 +17,7 @@ import {
   useSuspendSeller,
 } from "../../../../hooks/api/sellers";
 import { InferClientOutput } from "@mercurjs/client";
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
+import { DisplayExtensionZone, useCan } from "@mercurjs/dashboard-shared";
 import { sdk } from "@lib/client";
 
 type Seller = InferClientOutput<typeof sdk.admin.sellers.$id.query>["seller"];
@@ -43,7 +43,12 @@ export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
   const { mutateAsync: suspendSeller, isPending: isRejecting } =
     useSuspendSeller(seller.id);
 
-  const { seller_members } = useSellerMembers(seller.id, { limit: 100 });
+  const canViewMembers = useCan("members");
+  const { seller_members } = useSellerMembers(
+    seller.id,
+    { limit: 100 },
+    { enabled: canViewMembers },
+  );
   const owner = (seller_members as OwnerMember[] | undefined)?.find(
     (m) => m.is_owner,
   );

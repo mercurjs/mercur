@@ -28,10 +28,13 @@ export const useCollection = (
     InferClientInput<typeof sdk.vendor.collections.$id.query>,
     "$id"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.collections.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.collections.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({
@@ -45,10 +48,13 @@ export const useCollection = (
 
 export const useCollections = (
   query?: InferClientInput<typeof sdk.vendor.collections.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.collections.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.collections.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({

@@ -1,6 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { OfferDTO } from "@mercurjs/types"
-import { buildOfferGridData } from "@mercurjs/dashboard-shared"
+import { buildOfferGridData, usePermissions } from "@mercurjs/dashboard-shared"
 import { useEffect, useMemo } from "react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 
@@ -36,13 +36,15 @@ export const PriceListPricesAddPricesForm = ({
   const offerIds = useWatch({ control: form.control, name: "offer_ids" })
   const existingOffers = useWatch({ control: form.control, name: "offers" })
 
+  const { can } = usePermissions()
+
   const { offers: selectedOffers } = useOffers(
     {
       id: offerIds,
       limit: offerIds?.length || 1,
       fields: OFFER_GRID_FIELDS,
     },
-    { enabled: (offerIds?.length ?? 0) > 0 }
+    { enabled: (offerIds?.length ?? 0) > 0 && can("offers") }
   )
 
   const productIds = useMemo(
@@ -57,7 +59,7 @@ export const PriceListPricesAddPricesForm = ({
 
   const { products, isLoading } = useProducts(
     { id: productIds, limit: productIds.length || 1, fields: "id,*variants" },
-    { enabled: productIds.length > 0 }
+    { enabled: productIds.length > 0 && can("products") }
   )
 
   const { gridData, variantIdByOffer } = useMemo(

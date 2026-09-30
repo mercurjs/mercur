@@ -24,10 +24,13 @@ export const useShippingOptionType = (
     InferClientInput<typeof sdk.vendor.shippingOptionTypes.$id.query>,
       "$id"
   >,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.shippingOptionTypes.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.shippingOptionTypes.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -41,10 +44,13 @@ export const useShippingOptionType = (
 
 export const useShippingOptionTypes = (
   query?: InferClientInput<typeof sdk.vendor.shippingOptionTypes.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.shippingOptionTypes.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.shippingOptionTypes.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({

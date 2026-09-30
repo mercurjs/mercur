@@ -37,6 +37,8 @@ import {
 import {
   DisplayExtensionZone,
   useActionLocks,
+  useCan,
+  usePermissions,
   WidgetZone,
 } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
@@ -78,13 +80,14 @@ export const OrderSummarySection = ({
   order,
 }: OrderSummarySectionProps) => {
   const { t } = useTranslation()
+  const { can } = usePermissions()
 
   const { reservations } = useReservationItems(
     {
       line_item_id: order?.items?.map((i) => i.id),
       limit: getReservationsLimitCount(order),
     },
-    { enabled: Array.isArray(order?.items) }
+    { enabled: Array.isArray(order?.items) && can("reservations") }
   )
 
   const { order: orderPreview } = useOrderPreview(order.id)
@@ -94,11 +97,14 @@ export const OrderSummarySection = ({
     [reservations]
   )
 
-  const { returns: receivableReturnsList = [] } = useReturns({
-    status: "requested",
-    order_id: order.id,
-    fields: "+received_at",
-  })
+  const { returns: receivableReturnsList = [] } = useReturns(
+    {
+      status: "requested",
+      order_id: order.id,
+      fields: "+received_at",
+    },
+    { enabled: can("orders.returns") }
+  )
 
   const receivableReturns = useMemo(
     () =>
@@ -500,10 +506,14 @@ const ItemBreakdown = ({
   order: AdminOrder
   reservations: AdminReservation[]
 }) => {
-  const { returns: returnsList = [] } = useReturns({
-    order_id: order.id,
-    fields: "*items,*items.reason",
-  })
+  const canViewReturns = useCan("orders.returns")
+  const { returns: returnsList = [] } = useReturns(
+    {
+      order_id: order.id,
+      fields: "*items,*items.reason",
+    },
+    { enabled: canViewReturns }
+  )
 
   const returns = useMemo<ReturnWithReason[]>(
     () =>
@@ -719,7 +729,10 @@ const CostBreakdown = ({
   const [isShippingOpen, setIsShippingOpen] = useState(false)
   const [isCommissionOpen, setIsCommissionOpen] = useState(false)
 
-  const { commission_lines } = useOrderCommissionLines(order.id)
+  const canViewCommission = useCan("commission_lines")
+  const { commission_lines } = useOrderCommissionLines(order.id, {
+    enabled: canViewCommission,
+  })
   const hasCommission = commission_lines.length > 0
   const commissionTotal = commission_lines.reduce(
     (acc, line) => acc + (line.amount ?? 0),

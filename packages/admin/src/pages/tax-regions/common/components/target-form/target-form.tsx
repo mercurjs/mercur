@@ -739,9 +739,13 @@ const ShippingOptionTable = ({
     setRowSelection(state)
   }
 
-  const { stock_locations } = useStockLocations({
-    limit: 1000,
-  })
+  const canViewLocations = useCan("stock_locations")
+  const { stock_locations } = useStockLocations(
+    {
+      limit: 1000,
+    },
+    { enabled: canViewLocations }
+  )
 
   const filters = useShippingOptionTableFilters(stock_locations || [])
   const columns = useShippingOptionColumns()

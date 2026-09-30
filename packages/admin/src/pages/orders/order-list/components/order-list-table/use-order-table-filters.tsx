@@ -1,3 +1,4 @@
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Filter } from "@components/table/data-table/data-table-filter"
@@ -7,21 +8,31 @@ import { useSellers } from "@hooks/api/sellers"
 
 export const useOrderGroupTableFilters = () => {
   const { t } = useTranslation()
+  const { can } = usePermissions()
 
-  const { customers } = useCustomers({
-    limit: 1000,
-    fields: "id,first_name,last_name,email",
-  })
+  const { customers } = useCustomers(
+    {
+      limit: 1000,
+      fields: "id,first_name,last_name,email",
+    },
+    { enabled: can("customers") }
+  )
 
-  const { sellers } = useSellers({
-    limit: 1000,
-    fields: "id,name",
-  })
+  const { sellers } = useSellers(
+    {
+      limit: 1000,
+      fields: "id,name",
+    },
+    { enabled: can("sellers") }
+  )
 
-  const { sales_channels } = useSalesChannels({
-    limit: 1000,
-    fields: "id,name",
-  })
+  const { sales_channels } = useSalesChannels(
+    {
+      limit: 1000,
+      fields: "id,name",
+    },
+    { enabled: can("sales_channels") }
+  )
 
   return useMemo(() => {
     const filters: Filter[] = []

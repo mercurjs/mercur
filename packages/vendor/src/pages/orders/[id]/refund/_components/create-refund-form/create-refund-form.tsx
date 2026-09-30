@@ -5,6 +5,8 @@
 // vendor's `useRefundReasons` hook, and the vendor's optional
 // `payment_id` search-param (admin uses `paymentId`).
 import { useMemo } from "react"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import { ConditionalTooltip } from "@components/common/conditional-tooltip"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useSearchParams } from "react-router-dom"
@@ -43,7 +45,11 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
 
   const requestedPaymentId = searchParams.get("payment_id") ?? ""
 
-  const { refund_reasons } = useRefundReasons({ limit: 100 })
+  const reasonsGate = usePermissionGate("refund_reasons:view")
+  const { refund_reasons } = useRefundReasons(
+    { limit: 100 },
+    { enabled: reasonsGate.allowed }
+  )
 
   const payment = useMemo(() => {
     const allPayments = (order.payment_collections ?? []).flatMap(
@@ -224,26 +230,38 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
               render={({ field: { ref, onChange, ...field } }) => (
                 <Form.Item>
                   <Form.Label optional>{t("orders.returns.reason")}</Form.Label>
-                  <Form.Control>
-                    <Select onValueChange={onChange} {...field} dir={dir}>
-                      <Select.Trigger
-                        ref={ref}
-                        data-testid="refund-reason-select"
-                      >
-                        <Select.Value />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {(refund_reasons as Array<{
-                          id: string
-                          label?: string | null
-                        }> | undefined ?? []).map((r) => (
-                          <Select.Item key={r.id} value={r.id}>
-                            {r.label}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
+                  <ConditionalTooltip
+                    showTooltip={reasonsGate.denied}
+                    content={reasonsGate.tooltip}
+                  >
+                    <div>
+                      <Form.Control>
+                        <Select
+                          onValueChange={onChange}
+                          {...field}
+                          dir={dir}
+                          disabled={reasonsGate.denied}
+                        >
+                          <Select.Trigger
+                            ref={ref}
+                            data-testid="refund-reason-select"
+                          >
+                            <Select.Value />
+                          </Select.Trigger>
+                          <Select.Content>
+                            {(refund_reasons as Array<{
+                              id: string
+                              label?: string | null
+                            }> | undefined ?? []).map((r) => (
+                              <Select.Item key={r.id} value={r.id}>
+                                {r.label}
+                              </Select.Item>
+                            ))}
+                          </Select.Content>
+                        </Select>
+                      </Form.Control>
+                    </div>
+                  </ConditionalTooltip>
                   <Form.ErrorMessage />
                 </Form.Item>
               )}

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { RouteFocusModal } from "@components/modals";
 import { useInventoryItems, useStockLocations } from "@hooks/api";
-import { isForbidden, SectionNoAccess } from "@mercurjs/dashboard-shared";
+import { isForbidden, SectionNoAccess, useCan } from "@mercurjs/dashboard-shared";
 import { InventoryStockForm } from "./inventory-stock-form";
 
 const INVENTORY_ITEM_IDS_KEY = "inventory_item_ids";
@@ -13,6 +13,8 @@ export const Component = () => {
   const [searchParams] = useSearchParams();
   const inventoryItemIds =
     searchParams.get(INVENTORY_ITEM_IDS_KEY)?.split(",") || undefined;
+
+  const canViewLocations = useCan("stock_locations");
 
   const { inventory_items, isPending, isError, error } = useInventoryItems({
     fields:
@@ -25,7 +27,10 @@ export const Component = () => {
     isPending: isPendingStockLocations,
     isError: isErrorStockLocations,
     error: errorStockLocations,
-  } = useStockLocations({ limit: 9999, fields: "id,name" });
+  } = useStockLocations(
+    { limit: 9999, fields: "id,name" },
+    { enabled: canViewLocations },
+  );
 
   const ready =
     !isPending &&
@@ -33,7 +38,8 @@ export const Component = () => {
     !isPendingStockLocations &&
     !!stock_locations;
 
-  const forbidden = isForbidden(error) || isForbidden(errorStockLocations);
+  const forbidden =
+    isForbidden(error) || isForbidden(errorStockLocations) || !canViewLocations;
 
   if (isError && !forbidden) throw error;
   if (isErrorStockLocations && !forbidden) throw errorStockLocations;

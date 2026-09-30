@@ -1,3 +1,4 @@
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { useMemo } from "react"
 
@@ -7,9 +8,18 @@ import { useSellers } from "../../api/sellers"
 
 export const usePromotionTableFilters = (): Filter[] => {
   const { t } = useTranslation()
+  const { can } = usePermissions()
+  const canViewCampaigns = can("campaigns")
+  const canViewSellers = can("sellers")
 
-  const { campaigns } = useCampaigns({ limit: 100, fields: "id,name" })
-  const { sellers } = useSellers({ limit: 100, fields: "id,name" })
+  const { campaigns } = useCampaigns(
+    { limit: 100, fields: "id,name" },
+    { enabled: canViewCampaigns }
+  )
+  const { sellers } = useSellers(
+    { limit: 100, fields: "id,name" },
+    { enabled: canViewSellers }
+  )
 
   return useMemo(() => {
     const typeFilter: Filter = {
@@ -74,9 +84,9 @@ export const usePromotionTableFilters = (): Filter[] => {
     return [
       typeFilter,
       methodFilter,
-      campaignFilter,
-      ownerFilter,
+      ...(canViewCampaigns ? [campaignFilter] : []),
+      ...(canViewSellers ? [ownerFilter] : []),
       ...dateFilters,
     ]
-  }, [t, campaigns, sellers])
+  }, [t, campaigns, sellers, canViewCampaigns, canViewSellers])
 }

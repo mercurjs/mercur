@@ -20,10 +20,13 @@ export const returnsQueryKeys = queryKeysFactory(RETURNS_QUERY_KEY);
 export const useReturn = (
   id: string,
   query?: Omit<InferClientInput<typeof sdk.vendor.returns.$id.query>, "$id">,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.returns.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.returns.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({
@@ -37,10 +40,13 @@ export const useReturn = (
 
 export const useReturns = (
   query?: InferClientInput<typeof sdk.vendor.returns.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.returns.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.returns.query>
+    >,
+    "queryKey" | "queryFn"
   >
 ) => {
   const { data, ...rest } = useQuery({

@@ -1,3 +1,4 @@
+import { SectionNoAccess, useCan } from "@mercurjs/dashboard-shared"
 import { HttpTypes } from "@medusajs/types"
 import { OfferDTO } from "@mercurjs/types"
 import { OnChangeFn, RowSelectionState } from "@tanstack/react-table"
@@ -103,10 +104,14 @@ export const AddClaimOutboundItemsTable = ({
     prefix: PREFIX,
   })
 
-  const offersResponse = useOffers({
-    ...searchParams,
-    fields: OFFER_PICKER_FIELDS,
-  }) as unknown as {
+  const canViewOffers = useCan("offers")
+  const offersResponse = useOffers(
+    {
+      ...searchParams,
+      fields: OFFER_PICKER_FIELDS,
+    },
+    { enabled: canViewOffers }
+  ) as unknown as {
     offers?: ClaimOutboundOfferPickerRowExtended[]
     count?: number
   }
@@ -168,6 +173,10 @@ export const AddClaimOutboundItemsTable = ({
     },
     prefix: PREFIX,
   })
+
+  if (!canViewOffers) {
+    return <SectionNoAccess />
+  }
 
   return (
     <div

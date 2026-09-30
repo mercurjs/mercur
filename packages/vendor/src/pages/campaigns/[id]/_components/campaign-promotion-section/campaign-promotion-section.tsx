@@ -13,7 +13,7 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import { DisplayExtensionZone, useCan } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
 import { _DataTable } from "@components/table/data-table"
 import {
@@ -49,10 +49,14 @@ export const CampaignPromotionSection = ({
     pageSize: PAGE_SIZE,
   })
 
-  const { promotions, count, isLoading } = usePromotions({
-    ...searchParams,
-    campaign_id: campaign.id,
-  })
+  const canViewPromotions = useCan("promotions")
+  const { promotions, count, isLoading } = usePromotions(
+    {
+      ...searchParams,
+      campaign_id: campaign.id,
+    },
+    { enabled: canViewPromotions }
+  )
 
   const { table } = useDataTable({
     data: (promotions ?? []) as unknown as AdminPromotion[],

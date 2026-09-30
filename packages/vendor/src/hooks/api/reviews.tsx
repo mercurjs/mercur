@@ -39,10 +39,13 @@ export type ReviewDTO = InferClientOutput<
 
 export const useReviews = (
   query?: InferClientInput<typeof sdk.vendor.reviews.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.reviews.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.reviews.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({
@@ -57,10 +60,13 @@ export const useReviews = (
 export const useReview = (
   id: string,
   query?: Omit<InferClientInput<typeof sdk.vendor.reviews.$id.query>, "$id">,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.reviews.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.reviews.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({

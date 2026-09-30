@@ -5,6 +5,7 @@ import { Children, ReactNode, useCallback, useMemo } from "react"
 import { DeepPartial, useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
+import { useCan } from "@mercurjs/dashboard-shared"
 
 import { useRouteModal } from "../../../../../components/modals"
 import { TabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
@@ -67,9 +68,11 @@ export function CreateShippingOptionsForm({
     name: "provider_id",
   })
 
+  const canViewProviders = useCan("fulfillment_sets")
+
   const { fulfillment_options: fulfillmentProviderOptions } =
     useFulfillmentProviderOptions(selectedProviderId, {
-      enabled: !!selectedProviderId,
+      enabled: !!selectedProviderId && canViewProviders,
     })
 
   const watchedPriceType = useWatch({

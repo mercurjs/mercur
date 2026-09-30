@@ -2,6 +2,7 @@ import { Button, toast, usePrompt } from "@medusajs/ui"
 import { ProductChangeStatus } from "@mercurjs/types"
 import {
   ProductChangePanel,
+  usePermissions,
   type ProductChangeAttribute,
   type ProductChangeProduct,
   type ProductChangeResolvers,
@@ -33,26 +34,34 @@ type ProductActiveEditSectionProps = {
 
 const VARIANT_LOOKUP_FIELDS = "id,title,sku,*images"
 
-const resolversFor = (productId: string): ProductChangeResolvers => ({
+const resolversFor = (
+  productId: string,
+  can: ReturnType<typeof usePermissions>["can"]
+): ProductChangeResolvers => ({
   getType: async (id) => {
+    if (!can("product_types")) return null
     const { product_type } = await sdk.vendor.productTypes.$id.query({ $id: id })
     return product_type?.value ?? null
   },
   getCollection: async (id) => {
+    if (!can("product_collections")) return null
     const { collection } = await sdk.vendor.collections.$id.query({ $id: id })
     return collection?.title ?? null
   },
   getCategory: async (id) => {
+    if (!can("product_categories")) return null
     const { product_category } = await sdk.vendor.productCategories.$id.query({
       $id: id,
     })
     return product_category?.name ?? null
   },
   getTag: async (id) => {
+    if (!can("product_tags")) return null
     const { product_tag } = await sdk.vendor.productTags.$id.query({ $id: id })
     return product_tag?.value ?? null
   },
   getAttribute: async (id) => {
+    if (!can("product_attributes")) return null
     const { product_attribute } = await sdk.vendor.productAttributes.$id.query({
       $id: id,
     })
@@ -80,6 +89,7 @@ export const ProductActiveEditSection = ({
 }: ProductActiveEditSectionProps) => {
   const { t } = useTranslation()
   const prompt = usePrompt()
+  const { can } = usePermissions()
 
   const { product_change, isError } = useProductChange(product.id, {
     retry: false,
@@ -126,7 +136,7 @@ export const ProductActiveEditSection = ({
     <ProductChangePanel
       product={panelProduct}
       actions={product_change.actions ?? []}
-      resolvers={resolversFor(product.id)}
+      resolvers={resolversFor(product.id, can)}
       footer={
         <Button
           size="small"

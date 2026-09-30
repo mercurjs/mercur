@@ -7,6 +7,7 @@ import {
 } from "@medusajs/icons"
 import { AdminProductCategoryResponse } from "@medusajs/types"
 import { Divider, Text, clx } from "@medusajs/ui"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
 import { Popover as RadixPopover } from "radix-ui"
 import {
   CSSProperties,
@@ -22,6 +23,7 @@ import {
   useState,
 } from "react"
 import { Trans, useTranslation } from "react-i18next"
+import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip"
 import { TextSkeleton } from "../../../../../components/common/skeleton"
 import { useProductCategories } from "../../../../../hooks/api/categories"
 import { useDebouncedSearch } from "../../../../../hooks/use-debounced-search"
@@ -47,7 +49,8 @@ const TAG_BASE_WIDTH = 28
 export const CategoryCombobox = forwardRef<
   HTMLInputElement,
   CategoryComboboxProps
->(({ value, onChange, className, isSingleSelect, ...props }, ref) => {
+>(({ value, onChange, className, isSingleSelect, disabled, ...props }, ref) => {
+  const categoriesGate = usePermissionGate("product_categories:view")
   const innerRef = useRef<HTMLInputElement>(null)
 
   useImperativeHandle<HTMLInputElement | null, HTMLInputElement | null>(
@@ -71,7 +74,7 @@ export const CategoryCombobox = forwardRef<
         include_descendants_tree: !searchValue,
       },
       {
-        enabled: open,
+        enabled: open && categoriesGate.allowed,
       }
     )
 
@@ -241,81 +244,88 @@ export const CategoryCombobox = forwardRef<
 
   return (
     <RadixPopover.Root open={open} onOpenChange={handleOpenChange}>
-      <RadixPopover.Anchor
-        asChild
-        onClick={() => {
-          if (!open) {
-            handleOpenChange(true)
-          }
-        }}
+      <ConditionalTooltip
+        showTooltip={categoriesGate.denied}
+        content={categoriesGate.tooltip}
       >
-        <div
-          data-anchor
-          className={clx(
-            "relative flex cursor-pointer items-center gap-x-2 overflow-hidden",
-            "h-8 w-full rounded-md",
-            "bg-ui-bg-field transition-fg shadow-borders-base",
-            "has-[input:focus]:shadow-borders-interactive-with-active",
-            "has-[:invalid]:shadow-borders-error has-[[aria-invalid=true]]:shadow-borders-error",
-            "has-[:disabled]:bg-ui-bg-disabled has-[:disabled]:text-ui-fg-disabled has-[:disabled]:cursor-not-allowed",
-            {
-              "shadow-borders-interactive-with-active": open,
-            },
-            className
-          )}
-          style={
-            {
-              "--tag-width": `${tagWidth}px`,
-            } as CSSProperties
-          }
+        <RadixPopover.Anchor
+          asChild
+          onClick={() => {
+            if (!open && categoriesGate.allowed) {
+              handleOpenChange(true)
+            }
+          }}
         >
-          {showTag && (
+          <div
+            data-anchor
+            className={clx(
+              "relative flex cursor-pointer items-center gap-x-2 overflow-hidden",
+              "h-8 w-full rounded-md",
+              "bg-ui-bg-field transition-fg shadow-borders-base",
+              "has-[input:focus]:shadow-borders-interactive-with-active",
+              "has-[:invalid]:shadow-borders-error has-[[aria-invalid=true]]:shadow-borders-error",
+              "has-[:disabled]:bg-ui-bg-disabled has-[:disabled]:text-ui-fg-disabled has-[:disabled]:cursor-not-allowed",
+              {
+                "shadow-borders-interactive-with-active": open,
+              },
+              className
+            )}
+            style={
+              {
+                "--tag-width": `${tagWidth}px`,
+              } as CSSProperties
+            }
+          >
+            {showTag && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  onChange([])
+                }}
+                className="bg-ui-bg-base hover:bg-ui-bg-base-hover txt-compact-small-plus text-ui-fg-subtle focus-within:border-ui-fg-interactive transition-fg absolute start-0.5 top-0.5 flex h-[28px] items-center rounded-[4px] border py-[3px] ps-1.5 pe-1 outline-none"
+              >
+                <span className="tabular-nums">{value.length}</span>
+                <XMarkMini className="text-ui-fg-muted" />
+              </button>
+            )}
+            {showSelected && (
+              <div className="pointer-events-none absolute inset-y-0 start-[calc(var(--tag-width)+8px)] flex size-full items-center">
+                <Text size="small" leading="compact">
+                  {t("general.selected")}
+                </Text>
+              </div>
+            )}
+            <input
+              ref={innerRef}
+              value={searchValue}
+              onChange={(e) => {
+                onSearchValueChange(e.target.value)
+              }}
+              className={clx(
+                "txt-compact-small size-full cursor-pointer appearance-none bg-transparent pe-8 outline-none",
+                "hover:bg-ui-bg-field-hover",
+                "focus:cursor-text",
+                "placeholder:text-ui-fg-muted",
+                {
+                  "ps-2": !showTag,
+                  "ps-[calc(var(--tag-width)+8px)]": showTag,
+                }
+              )}
+              {...props}
+              disabled={disabled || categoriesGate.denied}
+            />
             <button
               type="button"
-              onClick={(e) => {
-                e.preventDefault()
-                onChange([])
-              }}
-              className="bg-ui-bg-base hover:bg-ui-bg-base-hover txt-compact-small-plus text-ui-fg-subtle focus-within:border-ui-fg-interactive transition-fg absolute start-0.5 top-0.5 flex h-[28px] items-center rounded-[4px] border py-[3px] ps-1.5 pe-1 outline-none"
+              disabled={disabled || categoriesGate.denied}
+              onClick={() => handleOpenChange(true)}
+              className="text-ui-fg-muted transition-fg hover:bg-ui-bg-field-hover absolute end-0 flex size-8 items-center justify-center rounded-r outline-none"
             >
-              <span className="tabular-nums">{value.length}</span>
-              <XMarkMini className="text-ui-fg-muted" />
+              <TrianglesMini className="text-ui-fg-muted" />
             </button>
-          )}
-          {showSelected && (
-            <div className="pointer-events-none absolute inset-y-0 start-[calc(var(--tag-width)+8px)] flex size-full items-center">
-              <Text size="small" leading="compact">
-                {t("general.selected")}
-              </Text>
-            </div>
-          )}
-          <input
-            ref={innerRef}
-            value={searchValue}
-            onChange={(e) => {
-              onSearchValueChange(e.target.value)
-            }}
-            className={clx(
-              "txt-compact-small size-full cursor-pointer appearance-none bg-transparent pe-8 outline-none",
-              "hover:bg-ui-bg-field-hover",
-              "focus:cursor-text",
-              "placeholder:text-ui-fg-muted",
-              {
-                "ps-2": !showTag,
-                "ps-[calc(var(--tag-width)+8px)]": showTag,
-              }
-            )}
-            {...props}
-          />
-          <button
-            type="button"
-            onClick={() => handleOpenChange(true)}
-            className="text-ui-fg-muted transition-fg hover:bg-ui-bg-field-hover absolute end-0 flex size-8 items-center justify-center rounded-r outline-none"
-          >
-            <TrianglesMini className="text-ui-fg-muted" />
-          </button>
-        </div>
-      </RadixPopover.Anchor>
+          </div>
+        </RadixPopover.Anchor>
+      </ConditionalTooltip>
       <RadixPopover.Content
         sideOffset={4}
         // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role

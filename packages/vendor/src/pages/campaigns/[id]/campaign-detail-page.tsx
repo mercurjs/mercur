@@ -3,7 +3,11 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
-import { WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared";
+import {
+  PermissionGuard,
+  WidgetZone,
+  useLinkQuery,
+} from "@mercurjs/dashboard-shared";
 import { useCampaign } from "@hooks/api/campaigns";
 
 import { CampaignBudget } from "./_components/campaign-budget";
@@ -43,7 +47,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
           <TwoColumnPage.Main>
             <WidgetZone id="campaigns.detail.main" data={campaign}>
               <CampaignGeneralSection campaign={campaign} />
-              <CampaignPromotionSection campaign={campaign} />
+              <PermissionGuard permission="promotions:view">
+                <CampaignPromotionSection campaign={campaign} />
+              </PermissionGuard>
             </WidgetZone>
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>

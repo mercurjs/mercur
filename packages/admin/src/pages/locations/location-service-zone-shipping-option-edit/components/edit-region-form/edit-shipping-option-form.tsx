@@ -5,6 +5,9 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
 
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+
+import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip"
 import { Form } from "../../../../../components/common/form"
 import { SwitchBox } from "../../../../../components/common/switch-box"
 import { Combobox } from "../../../../../components/inputs/combobox"
@@ -46,6 +49,8 @@ export const EditShippingOptionForm = ({
   const direction = useDocumentDirection()
   const isPickup = type === FulfillmentSetType.Pickup
 
+  const shippingProfilesGate = usePermissionGate("shipping_profiles:view")
+
   const shippingProfiles = useComboboxData({
     queryFn: (params) => sdk.admin.shippingProfiles.query(params),
     queryKey: ["shipping_profiles"],
@@ -55,6 +60,7 @@ export const EditShippingOptionForm = ({
         value: profile.id,
       })),
     defaultValue: shippingOption.shipping_profile_id,
+    enabled: shippingProfilesGate.allowed,
   })
 
   const shippingOptionTypes = useComboboxData({
@@ -213,18 +219,25 @@ export const EditShippingOptionForm = ({
                         <Form.Label data-testid="location-shipping-option-edit-form-shipping-profile-label">
                           {t("stockLocations.shippingOptions.fields.profile")}
                         </Form.Label>
-                        <Form.Control data-testid="location-shipping-option-edit-form-shipping-profile-control">
-                          <Combobox
-                            {...field}
-                            options={shippingProfiles.options}
-                            searchValue={shippingProfiles.searchValue}
-                            onSearchValueChange={
-                              shippingProfiles.onSearchValueChange
-                            }
-                            disabled={shippingProfiles.disabled}
-                            data-testid="location-shipping-option-edit-form-shipping-profile-combobox"
-                          />
-                        </Form.Control>
+                        <ConditionalTooltip
+                          showTooltip={shippingProfilesGate.denied}
+                          content={shippingProfilesGate.tooltip}
+                        >
+                          <div>
+                            <Form.Control data-testid="location-shipping-option-edit-form-shipping-profile-control">
+                              <Combobox
+                                {...field}
+                                options={shippingProfiles.options}
+                                searchValue={shippingProfiles.searchValue}
+                                onSearchValueChange={
+                                  shippingProfiles.onSearchValueChange
+                                }
+                                disabled={shippingProfiles.disabled}
+                                data-testid="location-shipping-option-edit-form-shipping-profile-combobox"
+                              />
+                            </Form.Control>
+                          </div>
+                        </ConditionalTooltip>
                         <Form.ErrorMessage data-testid="location-shipping-option-edit-form-shipping-profile-error" />
                       </Form.Item>
                     )

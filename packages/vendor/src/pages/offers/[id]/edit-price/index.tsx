@@ -5,7 +5,7 @@ import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
-import { isForbidden, SectionNoAccess } from "@mercurjs/dashboard-shared"
+import { isForbidden, SectionNoAccess, useCan } from "@mercurjs/dashboard-shared"
 
 import { Thumbnail } from "../../../../components/common/thumbnail"
 import {
@@ -118,7 +118,11 @@ const EditPriceGrid = ({
   const { t } = useTranslation()
   const { handleSuccess, setCloseOnEscape } = useRouteModal()
   const { currency_code } = useCurrentSeller()
-  const { price_preferences: pricePreferences } = usePricePreferences({})
+  const canViewPricePreferences = useCan("price_preferences")
+  const { price_preferences: pricePreferences } = usePricePreferences(
+    {},
+    { enabled: canViewPricePreferences }
+  )
 
   const currencies = useMemo(
     () => (currency_code ? [currency_code] : []),

@@ -1,7 +1,7 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { PermissionGuard, WidgetZone } from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { useApiKey } from "../../../hooks/api/api-keys"
@@ -49,7 +49,11 @@ const Root = ({ children }: { children?: ReactNode }) => {
     >
       <WidgetZone id="api-keys.detail.main" data={api_key}>
         <ApiKeyGeneralSection apiKey={api_key} />
-        {isPublishable && <ApiKeySalesChannelSection apiKey={api_key} />}
+        {isPublishable && (
+          <PermissionGuard permission="sales_channels:view">
+            <ApiKeySalesChannelSection apiKey={api_key} />
+          </PermissionGuard>
+        )}
       </WidgetZone>
     </SingleColumnPage>
   )

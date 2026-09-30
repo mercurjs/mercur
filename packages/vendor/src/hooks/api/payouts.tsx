@@ -13,10 +13,13 @@ export const payoutsQueryKeys = queryKeysFactory(PAYOUTS_QUERY_KEY);
 
 export const usePayouts = (
   query?: InferClientInput<typeof sdk.vendor.payouts.query>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.payouts.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.payouts.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({
@@ -31,10 +34,13 @@ export const usePayouts = (
 export const usePayout = (
   id: string,
   query?: Record<string, any>,
-  options?: UseQueryOptions<
-    unknown,
-    ClientError,
-    InferClientOutput<typeof sdk.vendor.payouts.$id.query>
+  options?: Omit<
+    UseQueryOptions<
+      unknown,
+      ClientError,
+      InferClientOutput<typeof sdk.vendor.payouts.$id.query>
+    >,
+    "queryKey" | "queryFn"
   >,
 ) => {
   const { data, ...rest } = useQuery({

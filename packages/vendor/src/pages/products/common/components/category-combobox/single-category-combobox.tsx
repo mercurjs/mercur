@@ -7,7 +7,7 @@ import {
 import { AdminProductCategoryResponse } from "@medusajs/types"
 import { Divider, Text, clx } from "@medusajs/ui"
 import { Popover as RadixPopover } from "radix-ui"
-import { isForbidden, SectionNoAccess } from "@mercurjs/dashboard-shared"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
 import {
   ComponentPropsWithoutRef,
   Fragment,
@@ -21,6 +21,7 @@ import {
 } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
+import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip"
 import { TextSkeleton } from "../../../../../components/common/skeleton"
 import { useProductCategories } from "../../../../../hooks/api/categories"
 import { useDebouncedSearch } from "../../../../../hooks/use-debounced-search"
@@ -60,6 +61,7 @@ export const SingleCategoryCombobox = forwardRef<
   const [open, setOpen] = useState(false)
 
   const { i18n, t } = useTranslation()
+  const gate = usePermissionGate("product_categories:view")
 
   const [level, setLevel] = useState<Level[]>([])
   const { searchValue, onSearchValueChange, query } = useDebouncedSearch()
@@ -72,15 +74,16 @@ export const SingleCategoryCombobox = forwardRef<
         include_descendants_tree: !searchValue ? true : false,
       } as any,
       {
-        enabled: open,
+        enabled: open && gate.allowed,
       }
     )
 
   const { product_categories: selectedCategories } = useProductCategories(
     { id: value ? [value] : [] } as any,
-    { enabled: !!value }
+    { enabled: !!value && gate.allowed }
   )
-  const selectedLabel = selectedCategories?.[0]?.name ?? null
+  const selectedLabel =
+    selectedCategories?.[0]?.name ?? (gate.denied ? value : null)
 
   const [showLoading, setShowLoading] = useState(false)
 
@@ -146,6 +149,10 @@ export const SingleCategoryCombobox = forwardRef<
   )
 
   function handleOpenChange(open: boolean) {
+    if (open && gate.denied) {
+      return
+    }
+
     if (!open) {
       onSearchValueChange("")
       setLevel([])
@@ -231,70 +238,71 @@ export const SingleCategoryCombobox = forwardRef<
   }, [handleKeyDown])
 
   if (isError) {
-    if (isForbidden(error)) {
-      return <SectionNoAccess className="" />
-    }
     throw error
   }
 
   return (
     <RadixPopover.Root open={open} onOpenChange={handleOpenChange}>
-      <RadixPopover.Anchor
-        asChild
-        onClick={() => {
-          if (!open) {
-            handleOpenChange(true)
-          }
-        }}
-      >
-        <div
-          data-anchor
-          className={clx(
-            "relative flex cursor-pointer items-center gap-x-2 overflow-hidden",
-            "h-8 w-full rounded-md",
-            "bg-ui-bg-field transition-fg shadow-borders-base",
-            "has-[input:focus]:shadow-borders-interactive-with-active",
-            "has-[:invalid]:shadow-borders-error has-[[aria-invalid=true]]:shadow-borders-error",
-            "has-[:disabled]:bg-ui-bg-disabled has-[:disabled]:text-ui-fg-disabled has-[:disabled]:cursor-not-allowed",
-            {
-              "shadow-borders-interactive-with-active": open,
-            },
-            className
-          )}
+      <ConditionalTooltip showTooltip={gate.denied} content={gate.tooltip}>
+        <RadixPopover.Anchor
+          asChild
+          onClick={() => {
+            if (!open) {
+              handleOpenChange(true)
+            }
+          }}
         >
-          {hideInput && (
-            <div className="pointer-events-none absolute inset-y-0 start-2 flex size-full items-center overflow-hidden">
-              <Text size="small" leading="compact" className="truncate">
-                {selectedLabel}
-              </Text>
-            </div>
-          )}
-          <input
-            ref={innerRef}
-            value={searchValue}
-            onChange={(e) => {
-              onSearchValueChange(e.target.value)
-            }}
+          <div
+            data-anchor
             className={clx(
-              "txt-compact-small size-full cursor-pointer appearance-none bg-transparent ps-2 pe-8 outline-none",
-              "hover:bg-ui-bg-field-hover",
-              "focus:cursor-text",
-              "placeholder:text-ui-fg-muted",
+              "relative flex cursor-pointer items-center gap-x-2 overflow-hidden",
+              "h-8 w-full rounded-md",
+              "bg-ui-bg-field transition-fg shadow-borders-base",
+              "has-[input:focus]:shadow-borders-interactive-with-active",
+              "has-[:invalid]:shadow-borders-error has-[[aria-invalid=true]]:shadow-borders-error",
+              "has-[:disabled]:bg-ui-bg-disabled has-[:disabled]:text-ui-fg-disabled has-[:disabled]:cursor-not-allowed",
               {
-                "opacity-0": hideInput,
-              }
+                "shadow-borders-interactive-with-active": open,
+              },
+              className
             )}
-            {...props}
-          />
-          <button
-            type="button"
-            onClick={() => handleOpenChange(true)}
-            className="text-ui-fg-muted transition-fg hover:bg-ui-bg-field-hover absolute end-0 flex size-8 items-center justify-center rounded-r outline-none"
           >
-            <TrianglesMini className="text-ui-fg-muted" />
-          </button>
-        </div>
-      </RadixPopover.Anchor>
+            {hideInput && (
+              <div className="pointer-events-none absolute inset-y-0 start-2 flex size-full items-center overflow-hidden">
+                <Text size="small" leading="compact" className="truncate">
+                  {selectedLabel}
+                </Text>
+              </div>
+            )}
+            <input
+              ref={innerRef}
+              value={searchValue}
+              onChange={(e) => {
+                onSearchValueChange(e.target.value)
+              }}
+              className={clx(
+                "txt-compact-small size-full cursor-pointer appearance-none bg-transparent ps-2 pe-8 outline-none",
+                "hover:bg-ui-bg-field-hover",
+                "focus:cursor-text",
+                "placeholder:text-ui-fg-muted",
+                {
+                  "opacity-0": hideInput,
+                }
+              )}
+              {...props}
+              disabled={props.disabled || gate.denied}
+            />
+            <button
+              type="button"
+              disabled={gate.denied}
+              onClick={() => handleOpenChange(true)}
+              className="text-ui-fg-muted transition-fg hover:bg-ui-bg-field-hover absolute end-0 flex size-8 items-center justify-center rounded-r outline-none"
+            >
+              <TrianglesMini className="text-ui-fg-muted" />
+            </button>
+          </div>
+        </RadixPopover.Anchor>
+      </ConditionalTooltip>
       <RadixPopover.Content
         sideOffset={4}
         // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role

@@ -1,3 +1,4 @@
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
 import * as zod from "zod"
 
 import { Button, Heading, InlineTip, Input, Text, Textarea, toast } from "@medusajs/ui"
@@ -18,6 +19,7 @@ import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useInventoryItems } from "../../../../../hooks/api/inventory"
 import { useCreateReservationItem } from "../../../../../hooks/api/reservations"
 import { useStockLocations } from "../../../../../hooks/api/stock-locations"
+import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip"
 
 const AttributeGridRow = ({
   title,
@@ -78,10 +80,16 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
     resolver: zodResolver(CreateReservationSchema),
   })
 
-  const { inventory_items: searchedItems } = useInventoryItems({
-    q: inventorySearch,
-    fields: "id,title,sku,+offers.product.title",
-  })
+  const itemsGate = usePermissionGate("inventory_items:view")
+  const locationsGate = usePermissionGate("stock_locations:view")
+
+  const { inventory_items: searchedItems } = useInventoryItems(
+    {
+      q: inventorySearch,
+      fields: "id,title,sku,+offers.product.title",
+    },
+    { enabled: itemsGate.allowed }
+  )
 
   // The preselected item (from `?item_id=`) may not be in the search results,
   // so fetch it explicitly and merge it into the options so it stays selected.
@@ -90,7 +98,7 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
       id: props.inventoryItemId ? [props.inventoryItemId] : undefined,
       fields: "id,sku,title,*location_levels",
     },
-    { enabled: !!props.inventoryItemId }
+    { enabled: !!props.inventoryItemId && itemsGate.allowed }
   )
 
   const inventory_items = React.useMemo(() => {
@@ -121,7 +129,7 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
         ) ?? [],
     },
     {
-      enabled: !!selectedInventoryItem,
+      enabled: !!selectedInventoryItem && locationsGate.allowed,
     }
   )
 
@@ -189,29 +197,36 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
                       <Form.Label>
                         {t("inventory.reservation.itemToReserve")}
                       </Form.Label>
-                      <Form.Control>
-                        <Combobox
-                          onSearchValueChange={(value: string) =>
-                            setInventorySearch(value)
-                          }
-                          value={value}
-                          onChange={(v) => {
-                            onChange(v)
-                          }}
-                          {...field}
-                          placeholder={t(
-                            "inventory.reservation.itemPlaceholder"
-                          )}
-                          disabled={!!props.inventoryItemId}
-                          options={(inventory_items ?? []).map(
-                            (inventoryItem) => ({
-                              label: inventoryItem.title ?? inventoryItem.sku!,
-                              secondaryLabel: getProductTitle(inventoryItem),
-                              value: inventoryItem.id,
-                            })
-                          )}
-                        />
-                      </Form.Control>
+                      <ConditionalTooltip
+                        showTooltip={itemsGate.denied}
+                        content={itemsGate.tooltip}
+                      >
+                        <div>
+                          <Form.Control>
+                            <Combobox
+                              onSearchValueChange={(value: string) =>
+                                setInventorySearch(value)
+                              }
+                              value={value}
+                              onChange={(v) => {
+                                onChange(v)
+                              }}
+                              {...field}
+                              placeholder={t(
+                                "inventory.reservation.itemPlaceholder"
+                              )}
+                              disabled={!!props.inventoryItemId || itemsGate.denied}
+                              options={(inventory_items ?? []).map(
+                                (inventoryItem) => ({
+                                  label: inventoryItem.title ?? inventoryItem.sku!,
+                                  secondaryLabel: getProductTitle(inventoryItem),
+                                  value: inventoryItem.id,
+                                })
+                              )}
+                            />
+                          </Form.Control>
+                        </div>
+                      </ConditionalTooltip>
                       <Form.ErrorMessage />
                     </Form.Item>
                   )
@@ -225,25 +240,32 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
                   return (
                     <Form.Item>
                       <Form.Label>{t("fields.location")}</Form.Label>
-                      <Form.Control>
-                        <Combobox
-                          value={value}
-                          onChange={(v) => {
-                            onChange(v)
-                          }}
-                          {...field}
-                          placeholder={t(
-                            "inventory.reservation.locationPlaceholder"
-                          )}
-                          disabled={!inventoryItemId}
-                          options={(stock_locations ?? []).map(
-                            (stockLocation) => ({
-                              label: stockLocation.name,
-                              value: stockLocation.id,
-                            })
-                          )}
-                        />
-                      </Form.Control>
+                      <ConditionalTooltip
+                        showTooltip={locationsGate.denied}
+                        content={locationsGate.tooltip}
+                      >
+                        <div>
+                          <Form.Control>
+                            <Combobox
+                              value={value}
+                              onChange={(v) => {
+                                onChange(v)
+                              }}
+                              {...field}
+                              placeholder={t(
+                                "inventory.reservation.locationPlaceholder"
+                              )}
+                              disabled={!inventoryItemId || locationsGate.denied}
+                              options={(stock_locations ?? []).map(
+                                (stockLocation) => ({
+                                  label: stockLocation.name,
+                                  value: stockLocation.id,
+                                })
+                              )}
+                            />
+                          </Form.Control>
+                        </div>
+                      </ConditionalTooltip>
                       <Form.ErrorMessage />
                     </Form.Item>
                   )

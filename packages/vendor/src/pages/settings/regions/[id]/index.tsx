@@ -1,6 +1,6 @@
 import { useLoaderData, useParams } from "react-router-dom";
 
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { WidgetZone, useCan } from "@mercurjs/dashboard-shared";
 
 import { useRegion } from "@hooks/api/regions";
 import { RegionCountrySection } from "./_components/region-country-section";
@@ -18,6 +18,7 @@ const RegionDetail = () => {
   const initialData = useLoaderData() as any;
 
   const { id } = useParams();
+  const canViewPreferences = useCan("price_preferences");
   const {
     region,
     isPending: isLoading,
@@ -41,10 +42,10 @@ const RegionDetail = () => {
       attribute: "region_id",
       value: id,
     },
-    { enabled: !!region },
+    { enabled: !!region && canViewPreferences },
   );
 
-  if (isLoading || isLoadingPreferences || !region) {
+  if (isLoading || (canViewPreferences && isLoadingPreferences) || !region) {
     return <SingleColumnPageSkeleton sections={2} />;
   }
 

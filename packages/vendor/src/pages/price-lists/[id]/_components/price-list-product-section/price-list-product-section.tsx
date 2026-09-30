@@ -24,7 +24,12 @@ import { useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import {
+  DisplayExtensionZone,
+  SectionNoAccess,
+  isForbidden,
+  useCan,
+} from "@mercurjs/dashboard-shared"
 import { OfferDTO, ProductStatus } from "@mercurjs/types"
 
 import { ActionMenu } from "@components/common/action-menu"
@@ -104,6 +109,8 @@ export const PriceListProductSection = ({
     PREFIX
   )
 
+  const canViewOffers = useCan("offers")
+
   const { offers, isLoading, isError, error } = useOffers(
     {
       id: offerIds,
@@ -116,7 +123,7 @@ export const PriceListProductSection = ({
     },
     {
       placeholderData: keepPreviousData,
-      enabled: offerIds.length > 0,
+      enabled: offerIds.length > 0 && canViewOffers,
     }
   )
 
@@ -255,7 +262,9 @@ export const PriceListProductSection = ({
           </Button>
         </div>
       </div>
-      {isError ? (
+      {(offerIds.length > 0 && !canViewOffers) || isForbidden(error) ? (
+        <SectionNoAccess />
+      ) : isError ? (
         <div className="flex items-center gap-x-2 px-6 py-4" data-testid="price-list-product-section-error">
           <ExclamationCircle className="text-ui-fg-subtle" />
           <Text size="small" className="text-ui-fg-subtle">

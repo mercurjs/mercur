@@ -42,6 +42,8 @@ import {
   isOrderAwaitingAction,
   useActionLocks,
   WidgetZone,
+  usePermissions,
+  useCan,
 } from "@mercurjs/dashboard-shared";
 import { format } from "date-fns";
 import { ActionMenu } from "../../../../../components/common/action-menu/index.ts";
@@ -78,13 +80,14 @@ type OrderSummarySectionProps = {
 export const OrderSummarySection = ({ order }: OrderSummarySectionProps) => {
   const { t } = useTranslation();
   const prompt = usePrompt();
+  const { can } = usePermissions();
 
   const { reservations } = useReservationItems(
     {
       line_item_id: order?.items?.map((i) => i.id),
       limit: getReservationsLimitCount(order),
     },
-    { enabled: Array.isArray(order?.items) },
+    { enabled: Array.isArray(order?.items) && can("reservations") },
   );
 
   const { order: orderPreview } = useOrderPreview(order.id!);
@@ -489,20 +492,31 @@ const ItemBreakdown = ({
   order: AdminOrder;
   reservations?: AdminReservation[];
 }) => {
-  const { claims = [] } = useClaims({
-    order_id: order.id,
-    fields: "*additional_items",
-  });
+  const canViewReturns = useCan("orders.returns");
 
-  const { exchanges = [] } = useExchanges({
-    order_id: order.id,
-    fields: "*additional_items",
-  });
+  const { claims = [] } = useClaims(
+    {
+      order_id: order.id,
+      fields: "*additional_items",
+    },
+    { enabled: canViewReturns },
+  );
 
-  const { returns = [] } = useReturns({
-    order_id: order.id,
-    fields: "*items,*items.reason",
-  });
+  const { exchanges = [] } = useExchanges(
+    {
+      order_id: order.id,
+      fields: "*additional_items",
+    },
+    { enabled: canViewReturns },
+  );
+
+  const { returns = [] } = useReturns(
+    {
+      order_id: order.id,
+      fields: "*items,*items.reason",
+    },
+    { enabled: canViewReturns },
+  );
 
   const reservationsMap = useMemo(
     () => new Map((reservations || []).map((r) => [r.line_item_id, r])),

@@ -1,3 +1,4 @@
+import { usePermissions } from "@mercurjs/dashboard-shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import i18n from "i18next";
 import { Button, Input, Select, Text, clx, toast } from "@medusajs/ui";
@@ -67,19 +68,28 @@ export const InviteMemberForm = () => {
 
   const emailValue = form.watch("email");
 
+  const { can } = usePermissions();
+  const canViewMembers = can("members");
+
   const { members } = useMembers(
     { q: emailValue || undefined, limit: 10 },
-    { placeholderData: (prev: any) => prev },
+    { placeholderData: (prev: any) => prev, enabled: canViewMembers },
   );
 
   // Fetch current sellers members and pending invites so we can filter
   // suggestions to never show emails that are already added or invited.
-  const { seller_members: currentMembers } = useSellerMembers(id!, {
-    limit: 100,
-    offset: 0,
-  });
+  const { seller_members: currentMembers } = useSellerMembers(
+    id!,
+    {
+      limit: 100,
+      offset: 0,
+    },
+    { enabled: canViewMembers },
+  );
 
-  const { member_invites: pendingInvites } = useSellerInvites(id!);
+  const { member_invites: pendingInvites } = useSellerInvites(id!, undefined, {
+    enabled: can("members.invites"),
+  });
 
   const existingEmails = useMemo(() => {
     const emails = new Set<string>();

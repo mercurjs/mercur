@@ -22,17 +22,20 @@ export const usePriceListCurrencyData = () => {
     isPending: isRegionsPending,
     isError: isRegionsError,
     error: regionsError,
-  } = useRegions({
-    fields: "id,name,currency_code",
-    limit: 999,
-  })
+  } = useRegions(
+    {
+      fields: "id,name,currency_code",
+      limit: 999,
+    },
+    { enabled: canViewRegions }
+  )
 
   const {
     price_preferences: pricePreferences,
     isPending: isPreferencesPending,
     isError: isPreferencesError,
     error: preferencesError,
-  } = usePricePreferences({})
+  } = usePricePreferences({}, { enabled: canViewPreferences })
 
   const isReady =
     !!currencies &&

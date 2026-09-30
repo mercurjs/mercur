@@ -70,7 +70,7 @@ export const PriceListPricesAddProductIdsForm = ({
   const canViewProducts = useCan("products")
   const { products, count, isLoading, isError, error } = useProducts(
     searchParams,
-    { placeholderData: keepPreviousData }
+    { placeholderData: keepPreviousData, enabled: canViewProducts }
   )
 
   const rows = (products ?? []) as OfferProduct[]

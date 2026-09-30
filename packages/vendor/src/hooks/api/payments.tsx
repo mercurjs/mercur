@@ -21,7 +21,10 @@ export const paymentProvidersQueryKeys = queryKeysFactory(
 
 export const usePaymentProviders = (
   query: HttpTypes.AdminPaymentProviderListParams,
-  options?: UseQueryOptions<unknown, ClientError, HttpTypes.AdminPaymentProviderListResponse>
+  options?: Omit<
+    UseQueryOptions<unknown, ClientError, HttpTypes.AdminPaymentProviderListResponse>,
+    "queryKey" | "queryFn"
+  >
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: async () =>
@@ -36,7 +39,10 @@ export const usePaymentProviders = (
 export const usePayment = (
   id: string,
   query?: Record<string, unknown>,
-  options?: UseQueryOptions<unknown, ClientError, HttpTypes.AdminPaymentCollectionResponse>
+  options?: Omit<
+    UseQueryOptions<unknown, ClientError, HttpTypes.AdminPaymentCollectionResponse>,
+    "queryKey" | "queryFn"
+  >
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.vendor.payments.$id.query({ $id: id, ...query }),

@@ -5,6 +5,9 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+
+import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip"
 import { Form } from "../../../../../components/common/form"
 import { Combobox } from "../../../../../components/inputs/combobox"
 import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
@@ -38,6 +41,8 @@ export const PriceListCustomerAvailabilityForm = ({
     resolver: zodResolver(PriceListCustomerAvailabilitySchema),
   })
 
+  const groupsGate = usePermissionGate("customer_groups:view")
+
   const groups = useComboboxData({
     queryKey: ["price-list-customer-groups"],
     queryFn: (params) => sdk.admin.customerGroups.query(params),
@@ -48,6 +53,7 @@ export const PriceListCustomerAvailabilityForm = ({
       })),
     defaultValue: customerGroups.map((group) => group.id),
     defaultValueKey: "id",
+    enabled: groupsGate.allowed,
   })
 
   const { mutateAsync } = useUpdatePriceList(priceList.id)
@@ -110,6 +116,10 @@ export const PriceListCustomerAvailabilityForm = ({
                       <Select.Item value="in">{t("operators.in")}</Select.Item>
                     </Select.Content>
                   </Select>
+                  <ConditionalTooltip
+                    showTooltip={groupsGate.denied}
+                    content={groupsGate.tooltip}
+                  >
                   <div className="md:basis-1/2">
                     <Form.Control>
                       <Combobox
@@ -123,6 +133,7 @@ export const PriceListCustomerAvailabilityForm = ({
                       />
                     </Form.Control>
                   </div>
+                  </ConditionalTooltip>
                 </div>
                 <Form.ErrorMessage />
               </Form.Item>

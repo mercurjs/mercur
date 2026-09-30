@@ -1,6 +1,7 @@
 import { HandTruck, PencilSquare } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Container, Heading } from "@medusajs/ui"
+import { SectionNoAccess, useCan } from "@mercurjs/dashboard-shared"
 import { Fragment } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -18,11 +19,15 @@ function LocationsFulfillmentProvidersSection({
   location,
 }: LocationsFulfillmentProvidersSectionProps) {
   const { t } = useTranslation()
-  const { fulfillment_providers } = useFulfillmentProviders({
-    stock_location_id: location.id,
-    fields: "id",
-    is_enabled: true,
-  })
+  const canViewProviders = useCan("fulfillment_sets")
+  const { fulfillment_providers } = useFulfillmentProviders(
+    {
+      stock_location_id: location.id,
+      fields: "id",
+      is_enabled: true,
+    },
+    { enabled: canViewProviders }
+  )
 
   return (
     <Container className="flex flex-col px-6 py-4" data-testid="location-fulfillment-providers-section-container">
@@ -47,7 +52,9 @@ function LocationsFulfillmentProvidersSection({
         />
       </div>
 
-      {fulfillment_providers?.length ? (
+      {!canViewProviders ? (
+        <SectionNoAccess className="px-0 pb-0 pt-4" />
+      ) : fulfillment_providers?.length ? (
         <div className="flex flex-col gap-y-4 pt-4" data-testid="location-fulfillment-providers-section-content">
           <div className="grid grid-cols-[28px_1fr] items-center gap-x-3 gap-y-3" data-testid="location-fulfillment-providers-section-list">
             {fulfillment_providers?.map((fulfillmentProvider: { id: string }) => {

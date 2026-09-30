@@ -8,6 +8,7 @@ import {
   type ProductChangeProduct,
   type ProductChangeResolvers,
   type ProductChangeVariant,
+  usePermissions,
 } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 
@@ -31,26 +32,36 @@ type ProductActiveEditSectionProps = {
 
 const VARIANT_LOOKUP_FIELDS = "id,title,sku,*images"
 
-const resolversFor = (productId: string): ProductChangeResolvers => ({
+type Can = ReturnType<typeof usePermissions>["can"]
+
+const resolversFor = (
+  productId: string,
+  can: Can
+): ProductChangeResolvers => ({
   getType: async (id) => {
+    if (!can("product_types")) return null
     const { product_type } = await sdk.admin.productTypes.$id.query({ $id: id })
     return product_type?.value ?? null
   },
   getCollection: async (id) => {
+    if (!can("product_collections")) return null
     const { collection } = await sdk.admin.collections.$id.query({ $id: id })
     return collection?.title ?? null
   },
   getCategory: async (id) => {
+    if (!can("product_categories")) return null
     const { product_category } = await sdk.admin.productCategories.$id.query({
       $id: id,
     })
     return product_category?.name ?? null
   },
   getTag: async (id) => {
+    if (!can("product_tags")) return null
     const { product_tag } = await sdk.admin.productTags.$id.query({ $id: id })
     return product_tag?.value ?? null
   },
   getAttribute: async (id) => {
+    if (!can("product_attributes")) return null
     const { product_attribute } = await sdk.admin.productAttributes.$id.query({
       $id: id,
     })
@@ -77,6 +88,7 @@ export const ProductActiveEditSection = ({
   product,
 }: ProductActiveEditSectionProps) => {
   const { t } = useTranslation()
+  const { can } = usePermissions()
 
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [rejectOpen, setRejectOpen] = useState(false)
@@ -87,7 +99,7 @@ export const ProductActiveEditSection = ({
 
   const requesterId = product_change?.created_by ?? ""
   const { seller: requesterSeller } = useSeller(requesterId, undefined, {
-    enabled: !!requesterId,
+    enabled: !!requesterId && can("sellers"),
   })
 
   const { mutateAsync: confirmChange, isPending: isConfirming } =
@@ -136,7 +148,7 @@ export const ProductActiveEditSection = ({
       <ProductChangePanel
         product={panelProduct}
         actions={product_change.actions ?? []}
-        resolvers={resolversFor(product.id)}
+        resolvers={resolversFor(product.id, can)}
         headerDescription={
           <Text size="small" leading="compact" className="text-ui-fg-subtle">
             {t("products.edits.panel.description", {

@@ -1,4 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { usePermissionGate, useCan } from "@mercurjs/dashboard-shared"
+import { ConditionalTooltip } from "@components/common/conditional-tooltip"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
@@ -43,12 +45,15 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
   const { mutateAsync: allocateItems, isPending: isMutating } =
     useCreateReservationItem()
 
+  const canViewReservations = useCan("reservations")
+  const locationsGate = usePermissionGate("stock_locations:view")
+
   const { reservations } = useReservationItems(
     {
       line_item_id: order?.items?.map((i) => i.id),
       limit: getReservationsLimitCount(order),
     },
-    { enabled: Array.isArray(order?.items) }
+    { enabled: Array.isArray(order?.items) && canViewReservations }
   )
 
   const itemsToAllocate = useMemo(
@@ -77,7 +82,9 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
     resolver: zodResolver(AllocateItemsSchema),
   })
 
-  const { stock_locations = [] } = useStockLocations()
+  const { stock_locations = [] } = useStockLocations(undefined, {
+    enabled: locationsGate.allowed,
+  })
 
   const handleSubmit = form.handleSubmit(async (data) => {
     try {
@@ -258,23 +265,34 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
                               </Form.Hint>
                             </div>
                             <div className="flex-1">
-                              <Form.Control>
-                                <Select onValueChange={onChange} {...field}>
-                                  <Select.Trigger
-                                    className="bg-ui-bg-base"
-                                    ref={ref}
-                                  >
-                                    <Select.Value />
-                                  </Select.Trigger>
-                                  <Select.Content>
-                                    {stock_locations.map((l) => (
-                                      <Select.Item key={l.id} value={l.id}>
-                                        {l.name}
-                                      </Select.Item>
-                                    ))}
-                                  </Select.Content>
-                                </Select>
-                              </Form.Control>
+                              <ConditionalTooltip
+                                showTooltip={locationsGate.denied}
+                                content={locationsGate.tooltip}
+                              >
+                                <div>
+                                  <Form.Control>
+                                    <Select
+                                      onValueChange={onChange}
+                                      {...field}
+                                      disabled={locationsGate.denied}
+                                    >
+                                      <Select.Trigger
+                                        className="bg-ui-bg-base"
+                                        ref={ref}
+                                      >
+                                        <Select.Value />
+                                      </Select.Trigger>
+                                      <Select.Content>
+                                        {stock_locations.map((l) => (
+                                          <Select.Item key={l.id} value={l.id}>
+                                            {l.name}
+                                          </Select.Item>
+                                        ))}
+                                      </Select.Content>
+                                    </Select>
+                                  </Form.Control>
+                                </div>
+                              </ConditionalTooltip>
                             </div>
                           </div>
                           <Form.ErrorMessage />

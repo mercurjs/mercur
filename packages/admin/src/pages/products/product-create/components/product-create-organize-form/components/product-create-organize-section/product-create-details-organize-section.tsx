@@ -1,7 +1,9 @@
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
 import { Heading } from "@medusajs/ui"
 import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { ConditionalTooltip } from "../../../../../../../components/common/conditional-tooltip"
 import { Form } from "../../../../../../../components/common/form"
 import { SwitchBox } from "../../../../../../../components/common/switch-box"
 import { Combobox } from "../../../../../../../components/inputs/combobox"
@@ -15,6 +17,11 @@ export const ProductCreateOrganizationSection = () => {
   const form = useTabbedForm<ProductCreateSchemaType>()
   const { t } = useTranslation()
 
+  const collectionsGate = usePermissionGate("product_collections:view")
+  const typesGate = usePermissionGate("product_types:view")
+  const tagsGate = usePermissionGate("product_tags:view")
+  const sellersGate = usePermissionGate("sellers:view")
+
   const collections = useComboboxData({
     queryKey: ["product_collections"],
     queryFn: (params) => sdk.admin.collections.query(params),
@@ -23,6 +30,7 @@ export const ProductCreateOrganizationSection = () => {
         label: collection.title!,
         value: collection.id!,
       })),
+    enabled: collectionsGate.allowed,
   })
 
   const types = useComboboxData({
@@ -33,6 +41,7 @@ export const ProductCreateOrganizationSection = () => {
         label: type.value,
         value: type.id,
       })),
+    enabled: typesGate.allowed,
   })
 
   const tags = useComboboxData({
@@ -43,6 +52,7 @@ export const ProductCreateOrganizationSection = () => {
         label: tag.value,
         value: tag.id,
       })),
+    enabled: tagsGate.allowed,
   })
 
   const sellers = useComboboxData({
@@ -53,6 +63,7 @@ export const ProductCreateOrganizationSection = () => {
         label: seller.name,
         value: seller.id,
       })),
+    enabled: sellersGate.allowed,
   })
 
   const isGloballyAvailable = useWatch({
@@ -93,16 +104,24 @@ export const ProductCreateOrganizationSection = () => {
                 <Form.Label optional data-testid="product-create-organize-section-collection-label">
                   {t("products.fields.collection.label")}
                 </Form.Label>
-                <Form.Control data-testid="product-create-organize-section-collection-control">
-                  <Combobox
-                    {...field}
-                    options={collections.options}
-                    searchValue={collections.searchValue}
-                    onSearchValueChange={collections.onSearchValueChange}
-                    fetchNextPage={collections.fetchNextPage}
-                    data-testid="product-create-organize-section-collection-input"
-                  />
-                </Form.Control>
+                <ConditionalTooltip
+                  showTooltip={collectionsGate.denied}
+                  content={collectionsGate.tooltip}
+                >
+                  <div>
+                    <Form.Control data-testid="product-create-organize-section-collection-control">
+                      <Combobox
+                        {...field}
+                        disabled={collectionsGate.denied}
+                        options={collections.options}
+                        searchValue={collections.searchValue}
+                        onSearchValueChange={collections.onSearchValueChange}
+                        fetchNextPage={collections.fetchNextPage}
+                        data-testid="product-create-organize-section-collection-input"
+                      />
+                    </Form.Control>
+                  </div>
+                </ConditionalTooltip>
                 <Form.ErrorMessage />
               </Form.Item>
             )
@@ -119,16 +138,24 @@ export const ProductCreateOrganizationSection = () => {
                 <Form.Label optional data-testid="product-create-organize-section-type-label">
                   {t("products.fields.type.label")}
                 </Form.Label>
-                <Form.Control data-testid="product-create-organize-section-type-control">
-                  <Combobox
-                    {...field}
-                    options={types.options}
-                    searchValue={types.searchValue}
-                    onSearchValueChange={types.onSearchValueChange}
-                    fetchNextPage={types.fetchNextPage}
-                    data-testid="product-create-organize-section-type-input"
-                  />
-                </Form.Control>
+                <ConditionalTooltip
+                  showTooltip={typesGate.denied}
+                  content={typesGate.tooltip}
+                >
+                  <div>
+                    <Form.Control data-testid="product-create-organize-section-type-control">
+                      <Combobox
+                        {...field}
+                        disabled={typesGate.denied}
+                        options={types.options}
+                        searchValue={types.searchValue}
+                        onSearchValueChange={types.onSearchValueChange}
+                        fetchNextPage={types.fetchNextPage}
+                        data-testid="product-create-organize-section-type-input"
+                      />
+                    </Form.Control>
+                  </div>
+                </ConditionalTooltip>
                 <Form.ErrorMessage />
               </Form.Item>
             )
@@ -143,16 +170,24 @@ export const ProductCreateOrganizationSection = () => {
                 <Form.Label optional data-testid="product-create-organize-section-tags-label">
                   {t("products.fields.tags.label")}
                 </Form.Label>
-                <Form.Control data-testid="product-create-organize-section-tags-control">
-                  <Combobox
-                    {...field}
-                    options={tags.options}
-                    searchValue={tags.searchValue}
-                    onSearchValueChange={tags.onSearchValueChange}
-                    fetchNextPage={tags.fetchNextPage}
-                    data-testid="product-create-organize-section-tags-input"
-                  />
-                </Form.Control>
+                <ConditionalTooltip
+                  showTooltip={tagsGate.denied}
+                  content={tagsGate.tooltip}
+                >
+                  <div>
+                    <Form.Control data-testid="product-create-organize-section-tags-control">
+                      <Combobox
+                        {...field}
+                        disabled={tagsGate.denied}
+                        options={tags.options}
+                        searchValue={tags.searchValue}
+                        onSearchValueChange={tags.onSearchValueChange}
+                        fetchNextPage={tags.fetchNextPage}
+                        data-testid="product-create-organize-section-tags-input"
+                      />
+                    </Form.Control>
+                  </div>
+                </ConditionalTooltip>
                 <Form.ErrorMessage />
               </Form.Item>
             )
@@ -187,17 +222,25 @@ export const ProductCreateOrganizationSection = () => {
                 <Form.Label data-testid="product-create-organize-section-stores-label">
                   {t("products.fields.stores.label")}
                 </Form.Label>
-                <Form.Control data-testid="product-create-organize-section-stores-control">
-                  <Combobox
-                    {...field}
-                    value={field.value ?? []}
-                    options={sellers.options}
-                    searchValue={sellers.searchValue}
-                    onSearchValueChange={sellers.onSearchValueChange}
-                    fetchNextPage={sellers.fetchNextPage}
-                    data-testid="product-create-organize-section-stores-input"
-                  />
-                </Form.Control>
+                <ConditionalTooltip
+                  showTooltip={sellersGate.denied}
+                  content={sellersGate.tooltip}
+                >
+                  <div>
+                    <Form.Control data-testid="product-create-organize-section-stores-control">
+                      <Combobox
+                        {...field}
+                        value={field.value ?? []}
+                        disabled={sellersGate.denied}
+                        options={sellers.options}
+                        searchValue={sellers.searchValue}
+                        onSearchValueChange={sellers.onSearchValueChange}
+                        fetchNextPage={sellers.fetchNextPage}
+                        data-testid="product-create-organize-section-stores-input"
+                      />
+                    </Form.Control>
+                  </div>
+                </ConditionalTooltip>
                 <Form.ErrorMessage />
               </Form.Item>
             )

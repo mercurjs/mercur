@@ -1,3 +1,4 @@
+import { useCan } from "@mercurjs/dashboard-shared"
 import { XMarkMini } from "@medusajs/icons"
 import {
   Button,
@@ -448,13 +449,14 @@ const RequiredAttributes = () => {
   const { t } = useTranslation()
   const form = useTabbedForm<ProductCreateSchemaType>()
   const categoryId = form.watch("category_id")
+  const canViewAttributes = useCan("product_attributes")
 
   const { product_attributes } = useProductAttributes(
     {
       category_id: categoryId,
       is_required: true,
     },
-    { enabled: !!categoryId }
+    { enabled: !!categoryId && canViewAttributes }
   )
 
   const attributes = form.watch("attributes") || []
