@@ -20,6 +20,19 @@ const usersQueryKeys = {
   me: () => [USERS_QUERY_KEY, "me"],
 }
 
+// Shared by `useMe` and route loaders so every entry under the `me` key
+// carries `permissions`.
+export const meQueryOptions = (
+  query?: Omit<InferClientInput<typeof sdk.admin.users.me.query>, "$id">
+) => ({
+  queryFn: () =>
+    sdk.admin.users.me.query({
+      ...query,
+      fields: [query?.fields, "+permissions"].filter(Boolean).join(","),
+    }),
+  queryKey: usersQueryKeys.me(),
+})
+
 export const useMe = (
   query?: Omit<
     InferClientInput<typeof sdk.admin.users.me.query>,
@@ -33,12 +46,7 @@ export const useMe = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () =>
-      sdk.admin.users.me.query({
-        ...query,
-        fields: [query?.fields, "+permissions"].filter(Boolean).join(","),
-      }),
-    queryKey: usersQueryKeys.me(),
+    ...meQueryOptions(query),
     ...options,
   })
 

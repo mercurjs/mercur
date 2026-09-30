@@ -17,7 +17,7 @@ import {
   filterMenuItemsByPermissions,
   getMenuItemsByType,
 } from "../../../utils/routes";
-import { getRoutePermission } from "../../../lib/permissions/route-permissions";
+import { canReachRoute } from "../../../lib/permissions/can-reach-route";
 import { useLandingRoute } from "../main-layout/main-layout";
 
 export const SettingsLayout = () => {
@@ -161,12 +161,9 @@ const getSafeFromValue = (from: string, landing: string) => {
 // `RoutePermissionGuard` is what actually refuses a route; this keeps the
 // sidebar and the redirects from pointing at one the actor can't open.
 const useCanReach = () => {
-  const { hasPermission } = usePermissions();
+  const permissions = usePermissions();
 
-  return ({ to }: INavItem) => {
-    const permission = getRoutePermission(to);
-    return !permission || hasPermission(permission);
-  };
+  return ({ to }: INavItem) => canReachRoute(permissions, to);
 };
 
 const PROFILE_ROUTE = "/settings/profile";

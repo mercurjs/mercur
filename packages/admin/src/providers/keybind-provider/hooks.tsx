@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import { useLogout } from "../../hooks/api/auth";
-import { isPermitted, PermissionsContext } from "@mercurjs/dashboard-shared";
-import { getRoutePermission } from "../../lib/permissions/route-permissions";
+import { PermissionsContext } from "@mercurjs/dashboard-shared";
+import { canReachRoute } from "../../lib/permissions/can-reach-route";
 import { queryClient } from "../../lib/query-client";
 import { KeybindContext } from "./keybind-context";
 import { Shortcut } from "./types";
@@ -241,7 +241,6 @@ export const useGlobalShortcuts = () => {
 
   // A shortcut to a page the actor can't open would only land on Access Denied.
   return globalShortcuts.filter(
-    (shortcut) =>
-      !shortcut.to || isPermitted(permissions, getRoutePermission(shortcut.to)),
+    (shortcut) => !shortcut.to || canReachRoute(permissions, shortcut.to),
   );
 };

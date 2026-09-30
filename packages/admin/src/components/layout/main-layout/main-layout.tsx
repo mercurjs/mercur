@@ -58,7 +58,7 @@ import {
   getMenuItemsByType,
   getNestedMenuItems,
 } from "../../../utils/routes";
-import { getRoutePermission } from "../../../lib/permissions/route-permissions";
+import { canReachRoute } from "../../../lib/permissions/can-reach-route";
 
 export const MainLayout = () => {
   return (
@@ -92,15 +92,12 @@ const addNestedItems = (
 const useSidebarRoutes = () => {
   const coreRoutes = useCoreRoutes();
   const navOverrides = useExtension().getNavOverrides();
-  const { hasAnyPermission, hasAllPermissions, hasPermission } =
-    usePermissions();
+  const permissions = usePermissions();
+  const { hasAnyPermission, hasAllPermissions } = permissions;
 
   // Hides links the actor can't open. `RoutePermissionGuard` is what actually
   // refuses the route; this only keeps the sidebar honest.
-  const canReach = ({ to }: { to: string }) => {
-    const permission = getRoutePermission(to);
-    return !permission || hasPermission(permission);
-  };
+  const canReach = ({ to }: { to: string }) => canReachRoute(permissions, to);
 
   const visibleMenuItems = useMemo(
     () =>

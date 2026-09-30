@@ -10,6 +10,10 @@ import { PublicLayout } from "@components/layout/public-layout";
 import { SettingsLayout } from "@components/layout/settings-layout";
 import { ErrorBoundary } from "@components/utilities/error-boundary";
 import { RoutePermissionGuard } from "@mercurjs/dashboard-shared";
+import {
+  withLoaderPermission,
+  withPermission,
+} from "./lib/permissions/with-permission";
 
 import { TaxRegionDetailBreadcrumb } from "./pages/tax-regions/tax-region-detail/breadcrumb";
 import { taxRegionLoader } from "./pages/tax-regions/tax-region-detail/loader";
@@ -105,6 +109,7 @@ export function getRouteMap({
                       },
                       {
                         path: "bulk-edit",
+                        handle: { permissions: "products:edit" },
                         lazy: () =>
                           import("./pages/products/product-bulk-edit"),
                       },
@@ -119,7 +124,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "products:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminProductResponse>,
@@ -130,7 +135,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/products/product-detail"),
+                        lazy: () => import("./pages/products/product-detail").then(withLoaderPermission("products:view")),
                         children: [
                           {
                             path: "edit",
@@ -139,56 +144,67 @@ export function getRouteMap({
                           },
                           {
                             path: "edit-variant",
+                            handle: { permissions: "products:edit" },
                             lazy: () =>
-                              import("./pages/product-variants/product-variant-edit"),
+                              import("./pages/product-variants/product-variant-edit").then(withLoaderPermission("products:edit")),
                           },
                           {
                             path: "sales-channels",
+                            handle: { permissions: ["products:edit", "sales_channels:view"] },
                             lazy: () =>
                               import("./pages/products/product-sales-channels"),
                           },
                           {
                             path: "attributes",
+                            handle: { permissions: "products:edit" },
                             lazy: () =>
                               import("./pages/products/product-attributes"),
                           },
                           {
                             path: "attributes/create",
+                            handle: { permissions: "products:edit" },
                             lazy: () =>
                               import("./pages/products/product-create-attribute"),
                           },
                           {
                             path: "attributes/add",
+                            handle: { permissions: ["products:edit", "product_attributes:view"] },
                             lazy: () =>
                               import("./pages/products/product-add-existing-attributes"),
                           },
                           {
                             path: "attributes/:attribute_id/edit",
+                            handle: { permissions: "products:edit" },
                             lazy: () =>
                               import("./pages/products/product-edit-attribute"),
                           },
                           {
                             path: "organization",
+                            handle: { permissions: "products:edit" },
                             lazy: () =>
                               import("./pages/products/product-organization"),
                           },
                           {
                             path: "shipping-profile",
+                            handle: { permissions: "products:edit" },
                             lazy: () =>
                               import("./pages/products/product-shipping-profile"),
                           },
                           {
                             path: "media",
+                            handle: { permissions: "products:edit" },
                             lazy: () =>
                               import("./pages/products/product-media"),
                           },
                           {
                             path: "variants/create",
+                            handle: { permissions: "products:edit" },
                             lazy: () =>
                               import("./pages/products/product-create-variant"),
                           },
                           {
                             path: "metadata/edit",
+                            handle: { permissions: "products:edit" },
                             lazy: () =>
                               import("./pages/products/product-metadata"),
                           },
@@ -202,7 +218,7 @@ export function getRouteMap({
 
                           return {
                             Component: Outlet,
-                            loader,
+                            loader: withPermission(loader, "products:view"),
                             handle: {
                               breadcrumb: (
                                 // eslint-disable-next-line max-len
@@ -215,16 +231,17 @@ export function getRouteMap({
                           {
                             path: "",
                             lazy: () =>
-                              import("./pages/product-variants/product-variant-detail"),
+                              import("./pages/product-variants/product-variant-detail").then(withLoaderPermission("products:view")),
                             children: [
                               {
                                 path: "edit",
                                 handle: { permissions: "products:edit" },
                                 lazy: () =>
-                                  import("./pages/product-variants/product-variant-edit"),
+                                  import("./pages/product-variants/product-variant-edit").then(withLoaderPermission("products:edit")),
                               },
                               {
                                 path: "metadata/edit",
+                                handle: { permissions: "products:edit" },
                                 lazy: () =>
                                   import("./pages/product-variants/product-variant-metadata"),
                               },
@@ -256,6 +273,7 @@ export function getRouteMap({
                       },
                       {
                         path: "organize",
+                        handle: { permissions: "product_categories:edit" },
                         lazy: () =>
                           import("./pages/categories/category-organize"),
                       },
@@ -269,7 +287,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "product_categories:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminProductCategoryResponse>,
@@ -281,7 +299,7 @@ export function getRouteMap({
                       {
                         path: "",
                         lazy: () =>
-                          import("./pages/categories/category-detail"),
+                          import("./pages/categories/category-detail").then(withLoaderPermission("product_categories:view")),
                         children: [
                           {
                             path: "edit",
@@ -291,26 +309,31 @@ export function getRouteMap({
                           },
                           {
                             path: "media",
+                            handle: { permissions: "product_categories:edit" },
                             lazy: () =>
                               import("./pages/categories/category-media"),
                           },
                           {
                             path: "icon/edit",
+                            handle: { permissions: "product_categories:edit" },
                             lazy: () =>
                               import("./pages/categories/category-icon-edit"),
                           },
                           {
                             path: "products",
+                            handle: { permissions: ["product_categories:edit", "products:view"] },
                             lazy: () =>
                               import("./pages/categories/category-products"),
                           },
                           {
                             path: "organize",
+                            handle: { permissions: "product_categories:edit" },
                             lazy: () =>
                               import("./pages/categories/category-organize"),
                           },
                           {
                             path: "metadata/edit",
+                            handle: { permissions: "product_categories:edit" },
                             lazy: () =>
                               import("./pages/categories/categories-metadata"),
                           },
@@ -340,7 +363,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "orders:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminOrderResponse>,
@@ -351,55 +374,65 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/orders/order-detail"),
+                        lazy: () => import("./pages/orders/order-detail").then(withLoaderPermission("orders:view")),
                         children: [
                           {
                             path: "returns",
+                            handle: { permissions: "orders.returns:edit" },
                             lazy: () =>
                               import("./pages/orders/order-create-return"),
                           },
                           {
                             path: "claims",
+                            handle: { permissions: "orders.returns:edit" },
                             lazy: () =>
                               import("./pages/orders/order-create-claim"),
                           },
                           {
                             path: "exchanges",
+                            handle: { permissions: "orders.returns:edit" },
                             lazy: () =>
                               import("./pages/orders/order-create-exchange"),
                           },
                           {
                             path: "edits",
+                            handle: { permissions: "orders.edits:edit" },
                             lazy: () =>
                               import("./pages/orders/order-create-edit"),
                           },
                           {
                             path: "refund",
+                            handle: { permissions: "orders.refunds:edit" },
                             lazy: () =>
                               import("./pages/orders/order-create-refund"),
                           },
                           {
                             path: "transfer",
+                            handle: { permissions: "orders:edit" },
                             lazy: () =>
                               import("./pages/orders/order-request-transfer"),
                           },
                           {
                             path: "email",
+                            handle: { permissions: "orders:edit" },
                             lazy: () =>
                               import("./pages/orders/order-edit-email"),
                           },
                           {
                             path: "shipping-address",
+                            handle: { permissions: "orders:edit" },
                             lazy: () =>
                               import("./pages/orders/order-edit-shipping-address"),
                           },
                           {
                             path: "billing-address",
+                            handle: { permissions: "orders:edit" },
                             lazy: () =>
                               import("./pages/orders/order-edit-billing-address"),
                           },
                           {
                             path: "metadata/edit",
+                            handle: { permissions: "orders:edit" },
                             lazy: () => import("./pages/orders/order-metadata"),
                           },
                         ],
@@ -433,7 +466,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "promotions:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminPromotionResponse>,
@@ -445,7 +478,7 @@ export function getRouteMap({
                       {
                         path: "",
                         lazy: () =>
-                          import("./pages/promotions/promotion-detail"),
+                          import("./pages/promotions/promotion-detail").then(withLoaderPermission("promotions:view")),
                         children: [
                           {
                             path: "edit",
@@ -455,11 +488,13 @@ export function getRouteMap({
                           },
                           {
                             path: "add-to-campaign",
+                            handle: { permissions: ["promotions:edit", "campaigns:view"] },
                             lazy: () =>
                               import("./pages/promotions/promotion-add-campaign"),
                           },
                           {
                             path: ":ruleType/edit",
+                            handle: { permissions: "promotions:edit" },
                             lazy: () =>
                               import("./pages/promotions/common/edit-rules"),
                           },
@@ -495,7 +530,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "campaigns:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminCampaignResponse>,
@@ -506,7 +541,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/campaigns/campaign-detail"),
+                        lazy: () => import("./pages/campaigns/campaign-detail").then(withLoaderPermission("campaigns:view")),
                         children: [
                           {
                             path: "edit",
@@ -516,16 +551,19 @@ export function getRouteMap({
                           },
                           {
                             path: "configuration",
+                            handle: { permissions: "campaigns:edit" },
                             lazy: () =>
                               import("./pages/campaigns/campaign-configuration"),
                           },
                           {
                             path: "edit-budget",
+                            handle: { permissions: "campaigns:edit" },
                             lazy: () =>
                               import("./pages/campaigns/campaign-budget-edit"),
                           },
                           {
                             path: "add-promotions",
+                            handle: { permissions: ["campaigns:edit", "promotions:view"] },
                             lazy: () =>
                               import("./pages/campaigns/add-campaign-promotions"),
                           },
@@ -557,7 +595,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "reviews:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<AdminReviewResponse>,
@@ -568,7 +606,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/reviews/review-detail"),
+                        lazy: () => import("./pages/reviews/review-detail").then(withLoaderPermission("reviews:view")),
                         children: [
                           {
                             path: "edit",
@@ -577,6 +615,7 @@ export function getRouteMap({
                           },
                           {
                             path: "respond",
+                            handle: { permissions: "reviews:edit" },
                             lazy: () =>
                               import("./pages/reviews/review-respond"),
                           },
@@ -614,7 +653,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "product_collections:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminCollectionResponse>,
@@ -626,7 +665,7 @@ export function getRouteMap({
                       {
                         path: "",
                         lazy: () =>
-                          import("./pages/collections/collection-detail"),
+                          import("./pages/collections/collection-detail").then(withLoaderPermission("product_collections:view")),
                         children: [
                           {
                             path: "edit",
@@ -636,21 +675,25 @@ export function getRouteMap({
                           },
                           {
                             path: "media",
+                            handle: { permissions: "product_collections:edit" },
                             lazy: () =>
                               import("./pages/collections/collection-media"),
                           },
                           {
                             path: "icon/edit",
+                            handle: { permissions: "product_collections:edit" },
                             lazy: () =>
                               import("./pages/collections/collection-icon-edit"),
                           },
                           {
                             path: "products",
+                            handle: { permissions: ["product_collections:edit", "products:view"] },
                             lazy: () =>
                               import("./pages/collections/collection-add-products"),
                           },
                           {
                             path: "metadata/edit",
+                            handle: { permissions: "product_collections:edit" },
                             lazy: () =>
                               import("./pages/collections/collection-metadata"),
                           },
@@ -688,7 +731,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "price_lists:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminPriceListResponse>,
@@ -700,7 +743,7 @@ export function getRouteMap({
                       {
                         path: "",
                         lazy: () =>
-                          import("./pages/price-lists/price-list-detail"),
+                          import("./pages/price-lists/price-list-detail").then(withLoaderPermission("price_lists:view")),
                         children: [
                           {
                             path: "edit",
@@ -710,11 +753,13 @@ export function getRouteMap({
                           },
                           {
                             path: "configuration",
+                            handle: { permissions: "price_lists:edit" },
                             lazy: () =>
                               import("./pages/price-lists/price-list-configuration"),
                           },
                           {
                             path: "customer-availability",
+                            handle: { permissions: "price_lists:edit" },
                             lazy: () =>
                               import(
                                 "./pages/price-lists/price-list-customer-availability"
@@ -722,11 +767,13 @@ export function getRouteMap({
                           },
                           {
                             path: "products/add",
+                            handle: { permissions: "price_lists:edit" },
                             lazy: () =>
                               import("./pages/price-lists/price-list-prices-add"),
                           },
                           {
                             path: "products/edit",
+                            handle: { permissions: "price_lists:edit" },
                             lazy: () =>
                               import("./pages/price-lists/price-list-prices-edit"),
                           },
@@ -763,7 +810,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "customers:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminCustomerResponse>,
@@ -774,7 +821,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/customers/customer-detail"),
+                        lazy: () => import("./pages/customers/customer-detail").then(withLoaderPermission("customers:view")),
                         children: [
                           {
                             path: "edit",
@@ -784,26 +831,31 @@ export function getRouteMap({
                           },
                           {
                             path: "create-address",
+                            handle: { permissions: "customers:edit" },
                             lazy: () =>
                               import("./pages/customers/customer-create-address"),
                           },
                           {
                             path: "edit-address/:address_id",
+                            handle: { permissions: "customers:edit" },
                             lazy: () =>
                               import("./pages/customers/customer-edit-address"),
                           },
                           {
                             path: "add-customer-groups",
+                            handle: { permissions: ["customers:edit", "customer_groups:view"] },
                             lazy: () =>
                               import("./pages/customers/customers-add-customer-group"),
                           },
                           {
                             path: ":order_id/transfer",
+                            handle: { permissions: "orders:edit" },
                             lazy: () =>
                               import("./pages/orders/order-request-transfer"),
                           },
                           {
                             path: "metadata/edit",
+                            handle: { permissions: "customers:edit" },
                             lazy: () =>
                               import("./pages/customers/customer-metadata"),
                           },
@@ -842,7 +894,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "customer_groups:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminCustomerGroupResponse>,
@@ -854,7 +906,7 @@ export function getRouteMap({
                       {
                         path: "",
                         lazy: () =>
-                          import("./pages/customer-groups/customer-group-detail"),
+                          import("./pages/customer-groups/customer-group-detail").then(withLoaderPermission("customer_groups:view")),
                         children: [
                           {
                             path: "edit",
@@ -864,11 +916,13 @@ export function getRouteMap({
                           },
                           {
                             path: "add-customers",
+                            handle: { permissions: ["customer_groups:edit", "customers:view"] },
                             lazy: () =>
                               import("./pages/customer-groups/customer-group-add-customers"),
                           },
                           {
                             path: "metadata/edit",
+                            handle: { permissions: "customer_groups:edit" },
                             lazy: () =>
                               import("./pages/customer-groups/customer-group-metadata"),
                           },
@@ -897,6 +951,7 @@ export function getRouteMap({
                       },
                       {
                         path: "bulk-edit",
+                        handle: { permissions: "sellers:edit" },
                         lazy: () => import("./pages/stores/store-bulk-edit"),
                       },
                     ],
@@ -919,7 +974,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/stores/store-details"),
+                        lazy: () => import("./pages/stores/store-details").then(withLoaderPermission("sellers:view")),
                         children: [
                           {
                             path: "edit",
@@ -928,26 +983,31 @@ export function getRouteMap({
                           },
                           {
                             path: "edit-address",
+                            handle: { permissions: "sellers:edit" },
                             lazy: () =>
                               import("./pages/stores/store-address-edit"),
                           },
                           {
                             path: "professional-details",
+                            handle: { permissions: "sellers:edit" },
                             lazy: () =>
                               import("./pages/stores/store-professional-details-edit"),
                           },
                           {
                             path: "payment-details",
+                            handle: { permissions: "sellers:edit" },
                             lazy: () =>
                               import("./pages/stores/store-payment-details-edit"),
                           },
                           {
                             path: "store-closure",
+                            handle: { permissions: "sellers:edit" },
                             lazy: () =>
                               import("./pages/stores/store-closure-edit"),
                           },
                           {
                             path: "invite",
+                            handle: { permissions: "members.invites:edit" },
                             lazy: () =>
                               import("./pages/stores/store-member-invite"),
                           },
@@ -977,7 +1037,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "payouts:view"),
                         handle: {
                           breadcrumb: (match: UIMatch) => (
                             <Breadcrumb {...match} />
@@ -988,7 +1048,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/payouts/payout-detail"),
+                        lazy: () => import("./pages/payouts/payout-detail").then(withLoaderPermission("payouts:view")),
                       },
                     ],
                   },
@@ -1022,7 +1082,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "reservations:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminReservationResponse>,
@@ -1034,7 +1094,7 @@ export function getRouteMap({
                       {
                         path: "",
                         lazy: () =>
-                          import("./pages/reservations/reservation-detail"),
+                          import("./pages/reservations/reservation-detail").then(withLoaderPermission("reservations:view")),
                         children: [
                           {
                             path: "edit",
@@ -1044,6 +1104,7 @@ export function getRouteMap({
                           },
                           {
                             path: "metadata/edit",
+                            handle: { permissions: "reservations:edit" },
                             lazy: () =>
                               import("./pages/reservations/reservation-metadata"),
                           },
@@ -1058,7 +1119,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 handle: {
                   breadcrumb: () => t("offers.domain"),
-                  permissions: "offers:view",
+                  permissions: ["offers:view", "products:view"],
                 },
                 children: [
                   {
@@ -1081,7 +1142,7 @@ export function getRouteMap({
                       );
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, ["offers:view", "products:view"]),
                         handle: {
                           breadcrumb: (match: UIMatch) => (
                             <Breadcrumb {...match} />
@@ -1110,7 +1171,7 @@ export function getRouteMap({
                           );
                           return {
                             Component: Outlet,
-                            loader,
+                            loader: withPermission(loader, ["offers:view", "products:view"]),
                             handle: {
                               breadcrumb: (match: UIMatch) => (
                                 <Breadcrumb {...match} />
@@ -1148,6 +1209,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "stock",
+                        handle: { permissions: ["inventory_items:edit", "stock_locations:view"] },
                         lazy: () => import("./pages/inventory/inventory-stock"),
                       },
                     ],
@@ -1160,7 +1222,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "inventory_items:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminInventoryItemResponse>,
@@ -1172,7 +1234,7 @@ export function getRouteMap({
                       {
                         path: "",
                         lazy: () =>
-                          import("./pages/inventory/inventory-detail"),
+                          import("./pages/inventory/inventory-detail").then(withLoaderPermission("inventory_items:view")),
                         children: [
                           {
                             path: "edit",
@@ -1182,21 +1244,25 @@ export function getRouteMap({
                           },
                           {
                             path: "attributes",
+                            handle: { permissions: "inventory_items:edit" },
                             lazy: () =>
                               import("./pages/inventory/inventory-detail/components/edit-inventory-item-attributes"),
                           },
                           {
                             path: "metadata/edit",
+                            handle: { permissions: "inventory_items:edit" },
                             lazy: () =>
                               import("./pages/inventory/inventory-metadata"),
                           },
                           {
                             path: "locations",
+                            handle: { permissions: ["inventory_items:edit", "stock_locations:view"] },
                             lazy: () =>
                               import("./pages/inventory/inventory-detail/components/manage-locations"),
                           },
                           {
                             path: "locations/:location_id",
+                            handle: { permissions: "inventory_items:edit" },
                             lazy: () =>
                               import("./pages/inventory/inventory-detail/components/adjust-inventory"),
                           },
@@ -1282,7 +1348,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "regions:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminRegionResponse>,
@@ -1293,7 +1359,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/regions/region-detail"),
+                        lazy: () => import("./pages/regions/region-detail").then(withLoaderPermission("regions:view")),
                         children: [
                           {
                             path: "edit",
@@ -1302,11 +1368,13 @@ export function getRouteMap({
                           },
                           {
                             path: "countries/add",
+                            handle: { permissions: "regions:edit" },
                             lazy: () =>
                               import("./pages/regions/region-add-countries"),
                           },
                           {
                             path: "metadata/edit",
+                            handle: { permissions: "regions:edit" },
                             lazy: () =>
                               import("./pages/regions/region-metadata"),
                           },
@@ -1328,7 +1396,7 @@ export function getRouteMap({
                   {
                     path: "",
                     lazy: () =>
-                      import("./pages/marketplace/marketplace-detail"),
+                      import("./pages/marketplace/marketplace-detail").then(withLoaderPermission("store:view")),
                     children: [
                       {
                         path: "edit",
@@ -1338,11 +1406,13 @@ export function getRouteMap({
                       },
                       {
                         path: "currencies",
+                        handle: { permissions: ["store:edit", "regions:view", "price_preferences:view"] },
                         lazy: () =>
                           import("./pages/marketplace/marketplace-add-currencies"),
                       },
                       {
                         path: "metadata/edit",
+                        handle: { permissions: "store:edit" },
                         lazy: () =>
                           import("./pages/marketplace/marketplace-metadata"),
                       },
@@ -1372,6 +1442,7 @@ export function getRouteMap({
                       },
                       {
                         path: "edit-global",
+                        handle: { permissions: "commission_rates:edit" },
                         lazy: () =>
                           import("./pages/commissions/global-commission-edit"),
                       },
@@ -1407,6 +1478,7 @@ export function getRouteMap({
                           },
                           {
                             path: "edit-commission",
+                            handle: { permissions: "commission_rates:edit" },
                             lazy: () =>
                               import(
                                 "./pages/commissions/commission-rule-commission-edit"
@@ -1446,7 +1518,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "users:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminUserResponse>,
@@ -1457,7 +1529,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/users/user-detail"),
+                        lazy: () => import("./pages/users/user-detail").then(withLoaderPermission("users:view")),
                         children: [
                           {
                             path: "edit",
@@ -1466,6 +1538,7 @@ export function getRouteMap({
                           },
                           {
                             path: "metadata/edit",
+                            handle: { permissions: "users:edit" },
                             lazy: () => import("./pages/users/user-metadata"),
                           },
                         ],
@@ -1504,7 +1577,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "sales_channels:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminSalesChannelResponse>,
@@ -1516,7 +1589,7 @@ export function getRouteMap({
                       {
                         path: "",
                         lazy: () =>
-                          import("./pages/sales-channels/sales-channel-detail"),
+                          import("./pages/sales-channels/sales-channel-detail").then(withLoaderPermission("sales_channels:view")),
                         children: [
                           {
                             path: "edit",
@@ -1526,11 +1599,13 @@ export function getRouteMap({
                           },
                           {
                             path: "add-products",
+                            handle: { permissions: ["sales_channels:edit", "products:view"] },
                             lazy: () =>
                               import("./pages/sales-channels/sales-channel-add-products"),
                           },
                           {
                             path: "metadata/edit",
+                            handle: { permissions: "sales_channels:edit" },
                             lazy: () =>
                               import("./pages/sales-channels/sales-channel-metadata"),
                           },
@@ -1587,7 +1662,7 @@ export function getRouteMap({
 
                           return {
                             Component: Outlet,
-                            loader,
+                            loader: withPermission(loader, "shipping_profiles:view"),
                             handle: {
                               breadcrumb: (
                                 // eslint-disable-next-line max-len
@@ -1600,10 +1675,11 @@ export function getRouteMap({
                           {
                             path: "",
                             lazy: () =>
-                              import("./pages/shipping-profiles/shipping-profile-detail"),
+                              import("./pages/shipping-profiles/shipping-profile-detail").then(withLoaderPermission("shipping_profiles:view")),
                             children: [
                               {
                                 path: "metadata/edit",
+                                handle: { permissions: "shipping_profiles:edit" },
                                 lazy: () =>
                                   import("./pages/shipping-profiles/shipping-profile-metadata"),
                               },
@@ -1643,7 +1719,7 @@ export function getRouteMap({
 
                           return {
                             Component: Outlet,
-                            loader,
+                            loader: withPermission(loader, "shipping_options:view"),
                             handle: {
                               breadcrumb: (
                                 // eslint-disable-next-line max-len
@@ -1656,7 +1732,7 @@ export function getRouteMap({
                           {
                             path: "",
                             lazy: () =>
-                              import("./pages/shipping-option-types/shipping-option-type-detail"),
+                              import("./pages/shipping-option-types/shipping-option-type-detail").then(withLoaderPermission("shipping_options:view")),
                             children: [
                               {
                                 path: "edit",
@@ -1678,7 +1754,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "stock_locations:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminStockLocationResponse>,
@@ -1689,7 +1765,7 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/locations/location-detail"),
+                        lazy: () => import("./pages/locations/location-detail").then(withLoaderPermission("stock_locations:view")),
                         children: [
                           {
                             path: "edit",
@@ -1699,11 +1775,13 @@ export function getRouteMap({
                           },
                           {
                             path: "sales-channels",
+                            handle: { permissions: ["stock_locations:edit", "sales_channels:view"] },
                             lazy: () =>
                               import("./pages/locations/location-sales-channels"),
                           },
                           {
                             path: "fulfillment-providers",
+                            handle: { permissions: ["stock_locations:edit", "fulfillment_sets:view"] },
                             lazy: () =>
                               import("./pages/locations/location-fulfillment-providers"),
                           },
@@ -1712,6 +1790,7 @@ export function getRouteMap({
                             children: [
                               {
                                 path: "service-zones/create",
+                                handle: { permissions: "fulfillment_sets:edit" },
                                 lazy: () =>
                                   import("./pages/locations/location-service-zone-create"),
                               },
@@ -1720,12 +1799,13 @@ export function getRouteMap({
                                 children: [
                                   {
                                     path: "edit",
-                                    handle: { permissions: "stock_locations:edit" },
+                                    handle: { permissions: "fulfillment_sets:edit" },
                                     lazy: () =>
                                       import("./pages/locations/location-service-zone-edit"),
                                   },
                                   {
                                     path: "areas",
+                                    handle: { permissions: "fulfillment_sets:edit" },
                                     lazy: () =>
                                       import("./pages/locations/location-service-zone-manage-areas"),
                                   },
@@ -1749,6 +1829,7 @@ export function getRouteMap({
                                           },
                                           {
                                             path: "pricing",
+                                            handle: { permissions: "shipping_options:edit" },
                                             lazy: () =>
                                               import("./pages/locations/location-service-zone-shipping-option-pricing"),
                                           },
@@ -1777,7 +1858,7 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/product-tags/product-tag-list"),
+                    lazy: () => import("./pages/product-tags/product-tag-list").then(withLoaderPermission("product_tags:view")),
                     children: [
                       {
                         path: "create",
@@ -1795,7 +1876,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "product_tags:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminProductTagResponse>,
@@ -1807,7 +1888,7 @@ export function getRouteMap({
                       {
                         path: "",
                         lazy: () =>
-                          import("./pages/product-tags/product-tag-detail"),
+                          import("./pages/product-tags/product-tag-detail").then(withLoaderPermission("product_tags:view")),
                         children: [
                           {
                             path: "edit",
@@ -1817,6 +1898,7 @@ export function getRouteMap({
                           },
                           {
                             path: "metadata/edit",
+                            handle: { permissions: "product_tags:edit" },
                             lazy: () =>
                               import("./pages/product-tags/product-tag-metadata"),
                           },
@@ -1837,7 +1919,7 @@ export function getRouteMap({
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/attributes/attribute-list"),
+                    lazy: () => import("./pages/attributes/attribute-list").then(withLoaderPermission("product_attributes:view")),
                     children: [
                       {
                         path: "create",
@@ -1855,7 +1937,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "product_attributes:view"),
                         handle: {
                           breadcrumb: (match: UIMatch) => (
                             <Breadcrumb {...match} />
@@ -1867,7 +1949,7 @@ export function getRouteMap({
                       {
                         path: "",
                         lazy: () =>
-                          import("./pages/attributes/attribute-detail"),
+                          import("./pages/attributes/attribute-detail").then(withLoaderPermission("product_attributes:view")),
                         children: [
                           {
                             path: "edit",
@@ -1877,16 +1959,19 @@ export function getRouteMap({
                           },
                           {
                             path: "edit-possible-value",
+                            handle: { permissions: "product_attributes:edit" },
                             lazy: () =>
                               import("./pages/attributes/attribute-edit-possible-value"),
                           },
                           {
                             path: "create-possible-value",
+                            handle: { permissions: "product_attributes:edit" },
                             lazy: () =>
                               import("./pages/attributes/attribute-create-possible-value"),
                           },
                           {
                             path: "edit-ranking",
+                            handle: { permissions: "product_attributes:edit" },
                             lazy: () =>
                               import("./pages/attributes/attribute-edit-ranking"),
                           },
@@ -1926,7 +2011,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "product_types:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminProductTypeResponse>,
@@ -1938,7 +2023,7 @@ export function getRouteMap({
                       {
                         path: "",
                         lazy: () =>
-                          import("./pages/product-types/product-type-detail"),
+                          import("./pages/product-types/product-type-detail").then(withLoaderPermission("product_types:view")),
                         children: [
                           {
                             path: "edit",
@@ -1948,6 +2033,7 @@ export function getRouteMap({
                           },
                           {
                             path: "metadata/edit",
+                            handle: { permissions: "product_types:edit" },
                             lazy: () =>
                               import("./pages/product-types/product-type-metadata"),
                           },
@@ -1992,7 +2078,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "api_keys:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminApiKeyResponse>,
@@ -2004,7 +2090,7 @@ export function getRouteMap({
                       {
                         path: "",
                         lazy: () =>
-                          import("./pages/api-key-management/api-key-management-detail"),
+                          import("./pages/api-key-management/api-key-management-detail").then(withLoaderPermission("api_keys:view")),
                         children: [
                           {
                             path: "edit",
@@ -2014,6 +2100,7 @@ export function getRouteMap({
                           },
                           {
                             path: "sales-channels",
+                            handle: { permissions: ["api_keys:edit", "sales_channels:view"] },
                             lazy: () =>
                               import("./pages/api-key-management/api-key-management-sales-channels"),
                           },
@@ -2058,7 +2145,7 @@ export function getRouteMap({
 
                       return {
                         Component: Outlet,
-                        loader,
+                        loader: withPermission(loader, "api_keys:view"),
                         handle: {
                           breadcrumb: (
                             match: UIMatch<HttpTypes.AdminApiKeyResponse>,
@@ -2070,7 +2157,7 @@ export function getRouteMap({
                       {
                         path: "",
                         lazy: () =>
-                          import("./pages/api-key-management/api-key-management-detail"),
+                          import("./pages/api-key-management/api-key-management-detail").then(withLoaderPermission("api_keys:view")),
                         children: [
                           {
                             path: "edit",
@@ -2107,7 +2194,7 @@ export function getRouteMap({
                   {
                     path: ":id",
                     Component: Outlet,
-                    loader: taxRegionLoader,
+                    loader: withPermission(taxRegionLoader, "tax_regions:view"),
                     handle: {
                       breadcrumb: (
                         match: UIMatch<HttpTypes.AdminTaxRegionResponse>,
@@ -2133,31 +2220,37 @@ export function getRouteMap({
                           },
                           {
                             path: "provinces/create",
+                            handle: { permissions: "tax_regions:edit" },
                             lazy: () =>
                               import("./pages/tax-regions/tax-region-province-create"),
                           },
                           {
                             path: "overrides/create",
+                            handle: { permissions: "tax_regions:edit" },
                             lazy: () =>
                               import("./pages/tax-regions/tax-region-tax-override-create"),
                           },
                           {
                             path: "overrides/:tax_rate_id/edit",
+                            handle: { permissions: "tax_regions:edit" },
                             lazy: () =>
                               import("./pages/tax-regions/tax-region-tax-override-edit"),
                           },
                           {
                             path: "tax-rates/create",
+                            handle: { permissions: "tax_regions:edit" },
                             lazy: () =>
                               import("./pages/tax-regions/tax-region-tax-rate-create"),
                           },
                           {
                             path: "tax-rates/:tax_rate_id/edit",
+                            handle: { permissions: "tax_regions:edit" },
                             lazy: () =>
                               import("./pages/tax-regions/tax-region-tax-rate-edit"),
                           },
                           {
                             path: "metadata/edit",
+                            handle: { permissions: "tax_regions:edit" },
                             lazy: () =>
                               import("./pages/tax-regions/tax-region-metadata"),
                           },
@@ -2171,7 +2264,7 @@ export function getRouteMap({
 
                           return {
                             Component: Outlet,
-                            loader,
+                            loader: withPermission(loader, "tax_regions:view"),
                             handle: {
                               breadcrumb: (
                                 match: UIMatch<HttpTypes.AdminTaxRegionResponse>,
@@ -2183,25 +2276,29 @@ export function getRouteMap({
                           {
                             path: "",
                             lazy: () =>
-                              import("./pages/tax-regions/tax-region-province-detail"),
+                              import("./pages/tax-regions/tax-region-province-detail").then(withLoaderPermission("tax_regions:view")),
                             children: [
                               {
                                 path: "tax-rates/create",
+                                handle: { permissions: "tax_regions:edit" },
                                 lazy: () =>
                                   import("./pages/tax-regions/tax-region-tax-rate-create"),
                               },
                               {
                                 path: "tax-rates/:tax_rate_id/edit",
+                                handle: { permissions: "tax_regions:edit" },
                                 lazy: () =>
                                   import("./pages/tax-regions/tax-region-tax-rate-edit"),
                               },
                               {
                                 path: "overrides/create",
+                                handle: { permissions: "tax_regions:edit" },
                                 lazy: () =>
                                   import("./pages/tax-regions/tax-region-tax-override-create"),
                               },
                               {
                                 path: "overrides/:tax_rate_id/edit",
+                                handle: { permissions: "tax_regions:edit" },
                                 lazy: () =>
                                   import("./pages/tax-regions/tax-region-tax-override-edit"),
                               },
@@ -2224,7 +2321,7 @@ export function getRouteMap({
                   {
                     path: "",
                     lazy: () =>
-                      import("./pages/return-reasons/return-reason-list"),
+                      import("./pages/return-reasons/return-reason-list").then(withLoaderPermission("return_reasons:view")),
                     children: [
                       {
                         path: "create",
@@ -2259,7 +2356,7 @@ export function getRouteMap({
                   {
                     path: "",
                     lazy: () =>
-                      import("./pages/refund-reasons/refund-reason-list"),
+                      import("./pages/refund-reasons/refund-reason-list").then(withLoaderPermission("refund_reasons:view")),
                     children: [
                       {
                         path: "create",
