@@ -1,3 +1,4 @@
+import { PermissionAction } from "@mercurjs/dashboard-shared"
 import { ArrowPath } from "@medusajs/icons"
 import { Button, Container, Heading, Text, toast } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
@@ -65,18 +66,22 @@ export const ActiveOrderExchangeSection = ({
           </div>
 
           <div className="flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4" data-testid="active-order-exchange-actions">
-            <Button size="small" variant="secondary" onClick={onCancelExchange} data-testid="active-order-exchange-cancel-button">
-              {t("orders.exchanges.cancel.title")}
-            </Button>
+            <PermissionAction permission="orders.returns:manage">
+              <Button size="small" variant="secondary" onClick={onCancelExchange} data-testid="active-order-exchange-cancel-button">
+                {t("orders.exchanges.cancel.title")}
+              </Button>
+            </PermissionAction>
 
-            <Button
-              size="small"
-              variant="secondary"
-              onClick={onContinueExchange}
-              data-testid="active-order-exchange-continue-button"
-            >
-              {t("actions.continue")}
-            </Button>
+            <PermissionAction permission="orders.returns:edit">
+              <Button
+                size="small"
+                variant="secondary"
+                onClick={onContinueExchange}
+                data-testid="active-order-exchange-continue-button"
+              >
+                {t("actions.continue")}
+              </Button>
+            </PermissionAction>
           </div>
         </div>
       </Container>

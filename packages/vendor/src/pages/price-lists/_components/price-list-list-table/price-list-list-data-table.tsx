@@ -78,6 +78,7 @@ export const PriceListListDataTable = () => {
         action: {
           to: "create",
           label: t("actions.create"),
+          permission: "price_lists:edit",
         },
       }}
       pagination

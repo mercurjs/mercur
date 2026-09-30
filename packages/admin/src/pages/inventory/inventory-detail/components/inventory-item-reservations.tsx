@@ -1,6 +1,6 @@
 import type { HttpTypes } from "@medusajs/types"
 import { Button, Container, Heading } from "@medusajs/ui"
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import { DisplayExtensionZone, PermissionAction } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 import { ReservationItemTable } from "./reservations-table/reservation-list-table"
@@ -17,11 +17,13 @@ export const InventoryItemReservationsSection = ({
     <Container className="divide-y p-0" data-testid="inventory-item-reservations-section">
       <div className="flex items-center justify-between px-6 py-4" data-testid="inventory-item-reservations-header">
         <Heading data-testid="inventory-item-reservations-title">{t("reservations.domain")}</Heading>
-        <Button size="small" variant="secondary" asChild data-testid="inventory-create-reservation-button">
-          <Link to={`/reservations/create?item_id=${inventoryItem.id}`} data-testid="inventory-create-reservation-link">
-            {t("actions.create")}
-          </Link>
-        </Button>
+        <PermissionAction permission="reservations:edit">
+          <Button size="small" variant="secondary" asChild data-testid="inventory-create-reservation-button">
+            <Link to={`/reservations/create?item_id=${inventoryItem.id}`} data-testid="inventory-create-reservation-link">
+              {t("actions.create")}
+            </Link>
+          </Button>
+        </PermissionAction>
       </div>
       <ReservationItemTable inventoryItem={inventoryItem} />
       <DisplayExtensionZone

@@ -1,3 +1,4 @@
+import { PermissionAction } from "@mercurjs/dashboard-shared";
 import { Button, Container, Copy, Heading, toast } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { ExclamationCircleSolid } from "@medusajs/icons";
@@ -174,32 +175,38 @@ export const OrderActiveEditSection = ({
             data-testid="order-active-edit-actions"
           >
             {isPending ? (
-              <Button
-                size="small"
-                variant="secondary"
-                onClick={() => navigate(`/orders/${order.id}/edits`)}
-                data-testid="order-active-edit-continue-button"
-              >
-                {t("actions.continueEdit")}
-              </Button>
+              <PermissionAction permission="orders.edits:edit">
+                <Button
+                  size="small"
+                  variant="secondary"
+                  onClick={() => navigate(`/orders/${order.id}/edits`)}
+                  data-testid="order-active-edit-continue-button"
+                >
+                  {t("actions.continueEdit")}
+                </Button>
+              </PermissionAction>
             ) : (
+              <PermissionAction permission="orders.edits:edit">
+                <Button
+                  size="small"
+                  variant="secondary"
+                  onClick={onConfirmOrderEdit}
+                  data-testid="order-active-edit-confirm-button"
+                >
+                  {t("actions.forceConfirm")}
+                </Button>
+              </PermissionAction>
+            )}
+            <PermissionAction permission="orders.edits:manage">
               <Button
                 size="small"
                 variant="secondary"
-                onClick={onConfirmOrderEdit}
-                data-testid="order-active-edit-confirm-button"
+                onClick={onCancelOrderEdit}
+                data-testid="order-active-edit-cancel-button"
               >
-                {t("actions.forceConfirm")}
+                {t("actions.cancel")}
               </Button>
-            )}
-            <Button
-              size="small"
-              variant="secondary"
-              onClick={onCancelOrderEdit}
-              data-testid="order-active-edit-cancel-button"
-            >
-              {t("actions.cancel")}
-            </Button>
+            </PermissionAction>
           </div>
         </div>
       </Container>

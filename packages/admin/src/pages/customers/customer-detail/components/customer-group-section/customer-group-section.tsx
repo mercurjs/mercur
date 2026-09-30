@@ -12,7 +12,7 @@ import { t } from "i18next"
 import { useMemo, useState } from "react"
 
 import { PencilSquare, Trash } from "@medusajs/icons"
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import { DisplayExtensionZone, PermissionAction } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
@@ -127,11 +127,13 @@ export const CustomerGroupSection = ({
     <Container className="divide-y p-0" data-testid="customer-group-section">
       <div className="flex items-center justify-between px-6 py-4" data-testid="customer-group-section-header">
         <Heading level="h2" data-testid="customer-group-section-heading">{t("customerGroups.domain")}</Heading>
-        <Link to={`/customers/${customer.id}/add-customer-groups`} data-testid="customer-group-section-add-link">
-          <Button variant="secondary" size="small" data-testid="customer-group-section-add-button">
-            {t("general.add")}
+        <PermissionAction permission="customers:edit">
+          <Button variant="secondary" size="small" asChild data-testid="customer-group-section-add-button">
+            <Link to={`/customers/${customer.id}/add-customer-groups`} data-testid="customer-group-section-add-link">
+              {t("general.add")}
+            </Link>
           </Button>
-        </Link>
+        </PermissionAction>
       </div>
       <_DataTable
         table={table}
@@ -153,6 +155,7 @@ export const CustomerGroupSection = ({
         commands={[
           {
             action: handleRemove,
+            permission: "customers:edit",
             label: t("actions.remove"),
             shortcut: "r",
           },
@@ -217,10 +220,12 @@ const CustomerGroupRowActions = ({
               label: t("actions.edit"),
               icon: <PencilSquare />,
               to: `/customer-groups/${group.id}/edit`,
+              permission: "customer_groups:edit",
             },
             {
               label: t("actions.remove"),
               onClick: onRemove,
+              permission: "customer_groups:edit",
               icon: <Trash />,
             },
           ],

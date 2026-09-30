@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 
 import { HttpTypes } from "@medusajs/types";
 import { SellerDTO, ProductStatus } from "@mercurjs/types";
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
+import { DisplayExtensionZone, PermissionAction } from "@mercurjs/dashboard-shared";
 import { ConfirmPrompt } from "../../../../../components/common/confirm-prompt";
 import {
   useConfirmProduct,
@@ -99,30 +99,36 @@ export const ProductActiveRequestSection = ({
         className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-6 py-4"
         data-testid="product-active-request-actions"
       >
-        <Button
-          size="small"
-          variant="secondary"
-          onClick={() => setConfirmOpen(true)}
-          data-testid="product-active-request-confirm-button"
-        >
-          {t("actions.confirm")}
-        </Button>
-        <Button
-          size="small"
-          variant="secondary"
-          onClick={() => setRequestUpdateOpen(true)}
-          data-testid="product-active-request-request-update-button"
-        >
-          {t("products.request.actions.requestUpdate")}
-        </Button>
-        <Button
-          size="small"
-          variant="secondary"
-          onClick={() => setRejectOpen(true)}
-          data-testid="product-active-request-reject-button"
-        >
-          {t("products.request.actions.reject")}
-        </Button>
+        <PermissionAction permission="products.review:edit">
+          <Button
+            size="small"
+            variant="secondary"
+            onClick={() => setConfirmOpen(true)}
+            data-testid="product-active-request-confirm-button"
+          >
+            {t("actions.confirm")}
+          </Button>
+        </PermissionAction>
+        <PermissionAction permission="products.review:edit">
+          <Button
+            size="small"
+            variant="secondary"
+            onClick={() => setRequestUpdateOpen(true)}
+            data-testid="product-active-request-request-update-button"
+          >
+            {t("products.request.actions.requestUpdate")}
+          </Button>
+        </PermissionAction>
+        <PermissionAction permission="products.review:edit">
+          <Button
+            size="small"
+            variant="secondary"
+            onClick={() => setRejectOpen(true)}
+            data-testid="product-active-request-reject-button"
+          >
+            {t("products.request.actions.reject")}
+          </Button>
+        </PermissionAction>
       </div>
 
       <ConfirmPrompt

@@ -85,6 +85,7 @@ export const OfferListDataTable = () => {
         action: {
           to: "create",
           label: t("offers.actions.create"),
+          permission: "offers:edit",
         },
       }}
     />

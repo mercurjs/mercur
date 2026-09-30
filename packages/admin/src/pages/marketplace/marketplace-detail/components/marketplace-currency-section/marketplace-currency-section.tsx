@@ -12,6 +12,7 @@ import {
   SectionNoAccess,
   isForbidden,
   usePermissions,
+  usePermissionGate,
 } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import { RowSelectionState, createColumnHelper } from "@tanstack/react-table"
@@ -115,6 +116,8 @@ export const MarketplaceCurrencySection = ({ store }: MarketplaceCurrencySection
   const { t } = useTranslation()
   const prompt = usePrompt()
 
+  const editGate = usePermissionGate("store:edit")
+
   const handleDeleteCurrencies = async () => {
     const ids = Object.keys(rowSelection)
 
@@ -171,6 +174,7 @@ export const MarketplaceCurrencySection = ({ store }: MarketplaceCurrencySection
               actions: [
                 {
                   icon: <Plus />,
+                  permission: "store:edit",
                   label: t("actions.add"),
                   to: "currencies",
                 },
@@ -199,7 +203,7 @@ export const MarketplaceCurrencySection = ({ store }: MarketplaceCurrencySection
           data-testid="store-currency-section-table"
         />
       )}
-      <CommandBar open={!!Object.keys(rowSelection).length} data-testid="store-currency-section-command-bar">
+      <CommandBar open={!!Object.keys(rowSelection).length && editGate.allowed} data-testid="store-currency-section-command-bar">
         <CommandBar.Bar data-testid="store-currency-section-command-bar-bar">
           <CommandBar.Value data-testid="store-currency-section-command-bar-value">
             {t("general.countSelected", {
@@ -308,6 +312,7 @@ const CurrencyActions = ({
                   ) : (
                     <CheckCircle />
                   ),
+                  permission: "store:edit",
                   label: preferencesMap.get(currency.code)?.is_tax_inclusive
                     ? t("store.disableTaxInclusivePricing")
                     : t("store.enableTaxInclusivePricing"),
@@ -320,6 +325,7 @@ const CurrencyActions = ({
           actions: [
             {
               icon: <Trash />,
+              permission: "store:edit",
               label: t("actions.remove"),
               onClick: handleRemove,
               disabled: currency.code === defaultCurrencyCode,

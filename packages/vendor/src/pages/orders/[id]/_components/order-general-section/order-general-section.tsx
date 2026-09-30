@@ -120,6 +120,7 @@ export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
             {
               actions: [
                 {
+                  permission: "orders:edit",
                   label: t("actions.cancel"),
                   onClick: handleCancel,
                   disabled: cancelDisabled,

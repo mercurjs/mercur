@@ -186,11 +186,13 @@ const PromotionActions = ({ promotion }: { promotion: HttpTypes.AdminPromotion }
           actions: [
             {
               icon: <PencilSquare />,
+              permission: "promotions:edit",
               label: t("actions.edit"),
               to: `/promotions/${promotion.id}/edit`,
             },
             {
               icon: <Trash />,
+              permission: "promotions:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
             },

@@ -56,6 +56,7 @@ export const MarketplaceGeneralSection = ({ store }: MarketplaceGeneralSectionPr
               actions: [
                 {
                   icon: <PencilSquare />,
+                  permission: "store:edit",
                   label: t("actions.edit"),
                   to: "edit",
                 },

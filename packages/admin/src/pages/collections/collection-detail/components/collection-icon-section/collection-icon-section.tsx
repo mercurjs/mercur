@@ -33,6 +33,7 @@ export const CollectionIconSection = ({
                   label: t("actions.edit"),
                   icon: <PencilSquare />,
                   to: "icon/edit",
+                  permission: "product_collections:edit",
                 },
               ],
             },

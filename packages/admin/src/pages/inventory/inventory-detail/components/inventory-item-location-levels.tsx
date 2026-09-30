@@ -1,6 +1,6 @@
 import { Button, Container, Heading } from "@medusajs/ui";
 
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
+import { DisplayExtensionZone, PermissionAction } from "@mercurjs/dashboard-shared";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
@@ -27,16 +27,18 @@ export const InventoryItemLocationLevelsSection = ({
         <Heading data-testid="inventory-item-location-levels-title">
           {t("inventory.locationLevels")}
         </Heading>
-        <Button
-          size="small"
-          variant="secondary"
-          asChild
-          data-testid="inventory-manage-locations-button"
-        >
-          <Link to="locations" data-testid="inventory-manage-locations-link">
-            {t("inventory.manageLocations")}
-          </Link>
-        </Button>
+        <PermissionAction permission="inventory_items:edit">
+          <Button
+            size="small"
+            variant="secondary"
+            asChild
+            data-testid="inventory-manage-locations-button"
+          >
+            <Link to="locations" data-testid="inventory-manage-locations-link">
+              {t("inventory.manageLocations")}
+            </Link>
+          </Button>
+        </PermissionAction>
       </div>
       <ItemLocationListTable inventory_item_id={inventoryItem.id} />
       <DisplayExtensionZone

@@ -162,6 +162,7 @@ export const InventoryListDataTable = () => {
               )
             },
             label: t("inventory.stock.action"),
+            permission: "inventory_items:edit",
             shortcut: "i",
           },
         ]}

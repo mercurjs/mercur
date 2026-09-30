@@ -1,3 +1,4 @@
+import { PermissionAction } from "@mercurjs/dashboard-shared"
 import { ExclamationCircle } from "@medusajs/icons"
 import { Button, Container, Heading, Text, toast } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
@@ -65,13 +66,17 @@ export const ActiveOrderClaimSection = ({
           </div>
 
           <div className="flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4" data-testid="active-order-claim-actions">
-            <Button size="small" variant="secondary" onClick={onCancelClaim} data-testid="active-order-claim-cancel-button">
-              {t("orders.claims.cancel.title")}
-            </Button>
+            <PermissionAction permission="orders.returns:manage">
+              <Button size="small" variant="secondary" onClick={onCancelClaim} data-testid="active-order-claim-cancel-button">
+                {t("orders.claims.cancel.title")}
+              </Button>
+            </PermissionAction>
 
-            <Button size="small" variant="secondary" onClick={onContinueClaim} data-testid="active-order-claim-continue-button">
-              {t("actions.continue")}
-            </Button>
+            <PermissionAction permission="orders.returns:edit">
+              <Button size="small" variant="secondary" onClick={onContinueClaim} data-testid="active-order-claim-continue-button">
+                {t("actions.continue")}
+              </Button>
+            </PermissionAction>
           </div>
         </div>
       </Container>

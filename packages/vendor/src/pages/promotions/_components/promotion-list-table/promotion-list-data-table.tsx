@@ -76,7 +76,11 @@ export const PromotionListDataTable = () => {
           icon: <ReceiptPercent className="text-ui-fg-subtle" />,
           title: t("promotions.list.noRecords.title"),
           message: t("promotions.list.noRecords.message"),
-          action: { to: "create", label: t("actions.create") },
+          action: {
+            to: "create",
+            label: t("actions.create"),
+            permission: "promotions:edit",
+          },
         }}
         navigateTo={(row) => `${row.original.id}`}
         defaultOrderBy="-created_at"

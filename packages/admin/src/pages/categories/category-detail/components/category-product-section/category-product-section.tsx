@@ -1,6 +1,6 @@
 import { ExclamationCircle, PlusMini } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
+import { DisplayExtensionZone, usePermissionGate } from "@mercurjs/dashboard-shared";
 import { ProductDTO } from "@mercurjs/types";
 import {
   Checkbox,
@@ -36,6 +36,7 @@ export const CategoryProductSection = ({
 }: CategoryProductSectionProps) => {
   const { t } = useTranslation();
   const prompt = usePrompt();
+  const editGate = usePermissionGate("product_categories:edit");
 
   const [selection, setSelection] = useState<RowSelectionState>({});
 
@@ -118,6 +119,7 @@ export const CategoryProductSection = ({
                   label: t("actions.add"),
                   icon: <PlusMini />,
                   to: "products",
+                  permission: "product_categories:edit",
                 },
               ],
             },
@@ -164,6 +166,7 @@ export const CategoryProductSection = ({
           <CommandBar.Seperator />
           <CommandBar.Command
             action={handleRemove}
+            disabled={editGate.denied}
             label={t("actions.remove")}
             shortcut="r"
           />

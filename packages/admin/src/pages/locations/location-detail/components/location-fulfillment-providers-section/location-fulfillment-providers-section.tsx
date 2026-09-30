@@ -41,6 +41,7 @@ function LocationsFulfillmentProvidersSection({
             {
               actions: [
                 {
+                  permission: "stock_locations:edit",
                   label: t("actions.edit"),
                   to: "fulfillment-providers",
                   icon: <PencilSquare />,
@@ -76,6 +77,7 @@ function LocationsFulfillmentProvidersSection({
         <NoRecords
           className="h-fit pb-2 pt-6 text-center"
           action={{
+            permission: "stock_locations:edit",
             label: t("stockLocations.fulfillmentProviders.action"),
             to: "fulfillment-providers",
           }}

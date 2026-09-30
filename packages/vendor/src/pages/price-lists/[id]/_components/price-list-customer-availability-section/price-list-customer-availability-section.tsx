@@ -69,6 +69,7 @@ export const PriceListCustomerAvailabilitySection = ({
             action={{
               to: "customer-availability",
               label: t("priceLists.customerAvailability.add"),
+              permission: "price_lists:edit",
             }}
           />
         ) : isPending || !customer_groups ? (

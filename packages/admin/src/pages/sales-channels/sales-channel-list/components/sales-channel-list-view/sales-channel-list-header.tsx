@@ -2,6 +2,7 @@ import { Children, ReactNode } from "react"
 import { Button, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
+import { PermissionAction } from "@mercurjs/dashboard-shared"
 
 export const SalesChannelListTitle = () => {
   const { t } = useTranslation()
@@ -26,11 +27,13 @@ export const SalesChannelListActions = ({
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <Button size="small" variant="secondary" asChild>
-          <Link to="/settings/sales-channels/create">
-            {t("actions.create")}
-          </Link>
-        </Button>
+        <PermissionAction permission="sales_channels:edit">
+          <Button size="small" variant="secondary" asChild>
+            <Link to="/settings/sales-channels/create">
+              {t("actions.create")}
+            </Link>
+          </Button>
+        </PermissionAction>
       )}
     </div>
   )

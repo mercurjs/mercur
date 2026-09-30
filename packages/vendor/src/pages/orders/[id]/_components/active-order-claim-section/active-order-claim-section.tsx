@@ -4,7 +4,7 @@ import { Button, Container, Heading, Text, toast } from "@medusajs/ui"
 import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import { DisplayExtensionZone, PermissionAction } from "@mercurjs/dashboard-shared"
 import { useCancelClaimBegin } from "@hooks/api/claims"
 
 /**
@@ -85,23 +85,27 @@ export const ActiveOrderClaimSection = ({
           </div>
 
           <div className="flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
-            <Button
-              size="small"
-              variant="secondary"
-              onClick={onCancelClaim}
-              data-testid="active-order-claim-cancel"
-            >
-              {t("orders.claims.cancel.title")}
-            </Button>
+            <PermissionAction permission="orders.returns:manage">
+              <Button
+                size="small"
+                variant="secondary"
+                onClick={onCancelClaim}
+                data-testid="active-order-claim-cancel"
+              >
+                {t("orders.claims.cancel.title")}
+              </Button>
+            </PermissionAction>
 
-            <Button
-              size="small"
-              variant="secondary"
-              onClick={onContinueClaim}
-              data-testid="active-order-claim-continue"
-            >
-              {t("actions.continue")}
-            </Button>
+            <PermissionAction permission="orders.returns:edit">
+              <Button
+                size="small"
+                variant="secondary"
+                onClick={onContinueClaim}
+                data-testid="active-order-claim-continue"
+              >
+                {t("actions.continue")}
+              </Button>
+            </PermissionAction>
           </div>
         </div>
         <DisplayExtensionZone

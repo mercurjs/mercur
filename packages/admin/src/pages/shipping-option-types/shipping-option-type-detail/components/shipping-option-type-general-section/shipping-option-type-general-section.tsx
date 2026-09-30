@@ -27,6 +27,7 @@ export const ShippingOptionTypeGeneralSection = ({
             {
               actions: [
                 {
+                  permission: "shipping_options:edit",
                   label: t("actions.edit"),
                   icon: <PencilSquare />,
                   to: "edit",
@@ -36,6 +37,7 @@ export const ShippingOptionTypeGeneralSection = ({
             {
               actions: [
                 {
+                  permission: "shipping_options:manage",
                   label: t("actions.delete"),
                   icon: <Trash />,
                   onClick: handleDelete,

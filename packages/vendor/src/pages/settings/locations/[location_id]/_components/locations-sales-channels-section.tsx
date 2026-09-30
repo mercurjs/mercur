@@ -73,6 +73,7 @@ function LocationsSalesChannelsSection({
           action={{
             label: t("stockLocations.salesChannels.action"),
             to: "sales-channels",
+            permission: "stock_locations:edit",
           }}
           message={t("stockLocations.salesChannels.noChannels")}
         />

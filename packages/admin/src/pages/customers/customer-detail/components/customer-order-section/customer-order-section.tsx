@@ -213,6 +213,7 @@ const CustomerOrderActions = ({ orderId }: { orderId: string }) => {
             {
               label: t("transferOwnership.label"),
               to: `${orderId}/transfer`,
+              permission: "orders:edit",
               icon: <ArrowPath />,
             },
           ],

@@ -115,6 +115,7 @@ const RegionActions = ({ region }: { region: HttpTypes.AdminRegion }) => {
         {
           actions: [
             {
+              permission: "regions:edit",
               label: t("actions.edit"),
               to: `/settings/regions/${region.id}/edit`,
               icon: <PencilSquare />,
@@ -124,6 +125,7 @@ const RegionActions = ({ region }: { region: HttpTypes.AdminRegion }) => {
         {
           actions: [
             {
+              permission: "regions:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
               icon: <Trash />,

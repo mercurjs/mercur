@@ -1,6 +1,4 @@
-import { HttpTypes } from "@medusajs/types"
 import { keepPreviousData } from "@tanstack/react-query"
-import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,7 +8,6 @@ import { useProductTypeTableColumns } from "@hooks/table/columns/use-product-typ
 import { useProductTypeTableFilters } from "@hooks/table/filters/use-product-type-table-filters"
 import { useProductTypeTableQuery } from "@hooks/table/query/use-product-type-table-query"
 import { useDataTable } from "@hooks/use-data-table"
-import { ProductTypeRowActions } from "./product-table-row-actions"
 
 const PAGE_SIZE = 20
 
@@ -69,21 +66,11 @@ export const ProductTypeListDataTable = () => {
   )
 }
 
-const columnHelper = createColumnHelper<HttpTypes.AdminProductType>()
-
 const useColumns = () => {
   const base = useProductTypeTableColumns()
 
   return useMemo(
-    () => [
-      ...base,
-      columnHelper.display({
-        id: "actions",
-        cell: ({ row }) => {
-          return <ProductTypeRowActions productType={row.original} />
-        },
-      }),
-    ],
+    () => [...base],
     [base]
   )
 }

@@ -259,6 +259,7 @@ const InviteActions = ({ invite }: { invite: HttpTypes.AdminInvite }) => {
           actions: [
             {
               icon: <ArrowPath />,
+              permission: "users:edit",
               label: t("users.resendInvite"),
               onClick: handleResend,
             },
@@ -277,6 +278,7 @@ const InviteActions = ({ invite }: { invite: HttpTypes.AdminInvite }) => {
           actions: [
             {
               icon: <Trash />,
+              permission: "users:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
             },

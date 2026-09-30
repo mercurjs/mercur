@@ -205,6 +205,7 @@ const useColumns = ({
                     inventoryItemId
                       ? {
                           icon: <Buildings />,
+                          permission: "inventory_items:view",
                           label: t("offers.detail.goToInventoryItem"),
                           to: `/inventory/${inventoryItemId}`,
                         }
@@ -417,11 +418,14 @@ export const OfferVariantsSection = ({
               {
                 actions: [
                   {
+                    permission: "offers:edit",
                     label: t("offers.actions.edit_prices"),
                     icon: <CurrencyDollar />,
                     to: "edit-price",
                   },
                   {
+                    permission: ["offers:edit", "inventory_items:edit"],
+                    requireAll: true,
                     label: t("offers.actions.edit_stock_levels"),
                     icon: <Buildings />,
                     to: "edit-stock",

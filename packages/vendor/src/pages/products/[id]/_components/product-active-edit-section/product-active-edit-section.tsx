@@ -1,6 +1,7 @@
 import { Button, toast, usePrompt } from "@medusajs/ui"
 import { ProductChangeStatus } from "@mercurjs/types"
 import {
+  PermissionAction,
   ProductChangePanel,
   usePermissions,
   type ProductChangeAttribute,
@@ -138,16 +139,18 @@ export const ProductActiveEditSection = ({
       actions={product_change.actions ?? []}
       resolvers={resolversFor(product.id, can)}
       footer={
-        <Button
-          size="small"
-          variant="secondary"
-          onClick={onCancel}
-          disabled={isCanceling}
-          isLoading={isCanceling}
-          data-testid="product-active-edit-cancel-button"
-        >
-          {t("actions.cancel")}
-        </Button>
+        <PermissionAction permission="products:edit">
+          <Button
+            size="small"
+            variant="secondary"
+            onClick={onCancel}
+            disabled={isCanceling}
+            isLoading={isCanceling}
+            data-testid="product-active-edit-cancel-button"
+          >
+            {t("actions.cancel")}
+          </Button>
+        </PermissionAction>
       }
     />
   )

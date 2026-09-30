@@ -20,6 +20,7 @@ import {
   DisplayExtensionZone,
   SectionNoAccess,
   useCan,
+  PermissionAction,
 } from "@mercurjs/dashboard-shared"
 import { OfferDTO } from "@mercurjs/types"
 
@@ -190,6 +191,7 @@ export const PriceListProductSection = ({
               {
                 actions: [
                   {
+                    permission: "price_lists:edit",
                     label: t("priceLists.products.actions.editPrices"),
                     to: "products/edit",
                     icon: <PencilSquare />,
@@ -205,9 +207,11 @@ export const PriceListProductSection = ({
               <EllipsisHorizontal />
             </Button>
           </ActionMenu>
-          <Button size="small" variant="secondary" asChild data-testid="price-list-product-section-add-button">
-            <Link to="products/add">{t("actions.add")}</Link>
-          </Button>
+          <PermissionAction permission="price_lists:edit">
+            <Button size="small" variant="secondary" asChild data-testid="price-list-product-section-add-button">
+              <Link to="products/add">{t("actions.add")}</Link>
+            </Button>
+          </PermissionAction>
         </div>
       </div>
       {!canViewOffers && offerIds.length > 0 ? (
@@ -238,11 +242,13 @@ export const PriceListProductSection = ({
           commands={[
             {
               action: handleEdit,
+              permission: "price_lists:edit",
               label: t("priceLists.products.actions.editPrices"),
               shortcut: "e",
             },
             {
               action: handleDelete,
+              permission: "price_lists:edit",
               label: t("actions.remove"),
               shortcut: "r",
             },
@@ -302,6 +308,7 @@ const OfferRowAction = ({
           actions: [
             {
               icon: <PencilSquare />,
+              permission: "price_lists:edit",
               label: t("priceLists.products.actions.editPrices"),
               to: `products/edit?ids[]=${offer.product_id}`,
             },
@@ -311,6 +318,7 @@ const OfferRowAction = ({
           actions: [
             {
               icon: <Trash />,
+              permission: "price_lists:edit",
               label: t("actions.remove"),
               onClick: handleDelete,
             },

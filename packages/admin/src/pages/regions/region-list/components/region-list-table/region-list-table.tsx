@@ -13,6 +13,7 @@ import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
+import { PermissionAction } from "@mercurjs/dashboard-shared"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { _DataTable } from "../../../../../components/table/data-table"
@@ -69,11 +70,11 @@ export const RegionListTable = () => {
             {t("regions.subtitle")}
           </Text>
         </div>
-        <Link to="/settings/regions/create">
-          <Button size="small" variant="secondary" data-testid="region-list-table-create-button">
-            {t("actions.create")}
+        <PermissionAction permission="regions:edit">
+          <Button size="small" variant="secondary" asChild data-testid="region-list-table-create-button">
+            <Link to="/settings/regions/create">{t("actions.create")}</Link>
           </Button>
-        </Link>
+        </PermissionAction>
       </div>
 
       <_DataTable
@@ -139,6 +140,7 @@ const RegionActions = ({ region }: { region: HttpTypes.AdminRegion }) => {
         {
           actions: [
             {
+              permission: "regions:edit",
               label: t("actions.edit"),
               to: `/settings/regions/${region.id}/edit`,
               icon: <PencilSquare />,
@@ -148,6 +150,7 @@ const RegionActions = ({ region }: { region: HttpTypes.AdminRegion }) => {
         {
           actions: [
             {
+              permission: "regions:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
               icon: <Trash />,

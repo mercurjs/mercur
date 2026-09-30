@@ -104,6 +104,7 @@ export const CampaignSection = ({
           action={{
             to: `/promotions/${id}/add-to-campaign`,
             label: t("promotions.campaignSection.addToCampaign"),
+            permission: "promotions:edit",
           }}
         />
       )}

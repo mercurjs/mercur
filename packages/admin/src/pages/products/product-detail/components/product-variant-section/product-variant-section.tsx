@@ -3,7 +3,7 @@ import { useCallback, useMemo } from "react";
 import { PencilSquare, Trash } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
 import { ProductDTO, ProductVariantDTO } from "@mercurjs/types";
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
+import { DisplayExtensionZone, PermissionAction } from "@mercurjs/dashboard-shared";
 import {
   Badge,
   Button,
@@ -81,14 +81,16 @@ export const ProductVariantSection = ({
     <Container className="divide-y p-0" data-testid="product-variant-section">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t("products.variants.header")}</Heading>
-        <Button
-          size="small"
-          variant="secondary"
-          asChild
-          data-testid="product-variants-create-button"
-        >
-          <Link to="variants/create">{t("actions.create")}</Link>
-        </Button>
+        <PermissionAction permission="products:edit">
+          <Button
+            size="small"
+            variant="secondary"
+            asChild
+            data-testid="product-variants-create-button"
+          >
+            <Link to="variants/create">{t("actions.create")}</Link>
+          </Button>
+        </PermissionAction>
       </div>
       <_DataTable
         table={table}
@@ -249,6 +251,7 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
                   {
                     icon: <PencilSquare />,
                     label: t("actions.edit"),
+                    permission: "products:edit",
                     onClick: () =>
                       navigate(
                         `edit-variant?variant_id=${row.original.id}&${tableSearchParams.toString()}`,
@@ -266,6 +269,7 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
                   {
                     icon: <Trash />,
                     label: t("actions.delete"),
+                    permission: "products:manage",
                     onClick: () =>
                       handleDelete(row.original.id, row.original.title ?? ""),
                   },

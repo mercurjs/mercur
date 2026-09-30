@@ -150,6 +150,7 @@ export const CustomerGroupListDataTable = () => {
         action: {
           to: "/customer-groups/create",
           label: t("actions.create"),
+          permission: "customer_groups:edit",
         },
       }}
     />

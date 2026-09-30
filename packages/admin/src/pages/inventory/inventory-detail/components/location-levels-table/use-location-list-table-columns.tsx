@@ -161,6 +161,7 @@ export const useLocationListTableColumns =
                     {
                       icon: <PencilSquare />,
                       label: t("actions.edit"),
+                      permission: "inventory_items:edit",
                       onClick: () => {
                         navigate(`locations/${level.location_id}`);
                       },
@@ -173,6 +174,7 @@ export const useLocationListTableColumns =
                       icon: <Trash />,
                       label: t("actions.delete"),
                       onClick: () => handleDelete(level),
+                      permission: "inventory_items:manage",
                       disabled:
                         level.reserved_quantity > 0 ||
                         level.stocked_quantity > 0,

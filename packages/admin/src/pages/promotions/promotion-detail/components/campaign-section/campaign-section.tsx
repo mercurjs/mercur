@@ -6,7 +6,10 @@ import { useParams } from "react-router-dom"
 
 import { DisplayExtensionZone, useLinkQuery } from "@mercurjs/dashboard-shared"
 
-import { ActionMenu } from "../../../../../components/common/action-menu"
+import {
+  ActionMenu,
+  type Action,
+} from "../../../../../components/common/action-menu"
 import { DateRangeDisplay } from "../../../../../components/common/date-range-display"
 import { NoRecords } from "../../../../../components/common/empty-table-content"
 import { usePromotion } from "../../../../../hooks/api/promotions"
@@ -71,8 +74,9 @@ export const CampaignSection = ({
         ? t("promotions.campaignSection.warnings.promotionExpires")
         : undefined
 
-  const actions = [
+  const actions: Action[] = [
     {
+      permission: "promotions:edit",
       label: t("actions.edit"),
       to: "add-to-campaign",
       icon: <PencilSquare />,
@@ -114,6 +118,7 @@ export const CampaignSection = ({
             message={t("promotions.campaignSection.noRecordsMessage")}
             action={{
               to: `/promotions/${id}/add-to-campaign`,
+              permission: "promotions:edit",
               label: t("promotions.campaignSection.addToCampaign"),
             }}
             dataTestId="promotion-campaign-section-add-to-campaign-button"

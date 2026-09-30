@@ -2,11 +2,14 @@ import { toast, usePrompt } from "@medusajs/ui"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import type { Permission } from "@mercurjs/dashboard-sdk"
+
 import { useBulkDeleteOffers } from "../../../hooks/api/offers"
 
 type OfferTableCommand = {
   label: string
   shortcut: string
+  permission?: Permission
   action: (selection: Record<string, boolean>) => Promise<void>
 }
 
@@ -23,6 +26,7 @@ export const useOfferTableCommands = (options?: {
       {
         label: t("offers.actions.bulkDelete"),
         shortcut: "d",
+        permission: "offers:manage",
         action: async (currentSelection) => {
           const offerIds = Object.keys(currentSelection)
           if (offerIds.length === 0) {

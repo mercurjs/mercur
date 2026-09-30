@@ -46,6 +46,7 @@ export const PriceListCustomerAvailabilitySection = ({
             {
               actions: [
                 {
+                  permission: "price_lists:edit",
                   label: t("actions.edit"),
                   to: "customer-availability",
                   icon: <PencilSquare />,
@@ -68,6 +69,7 @@ export const PriceListCustomerAvailabilitySection = ({
             message={t("priceLists.customerAvailability.list.noRecordsMessage")}
             action={{
               to: "customer-availability",
+              permission: "price_lists:edit",
               label: t("priceLists.customerAvailability.add"),
             }}
             dataTestId="price-list-customer-availability-section-add-button"

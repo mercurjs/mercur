@@ -335,6 +335,7 @@ const InviteActions = ({
           icon: <ArrowPath />,
           label: t("users.resendInvite"),
           onClick: handleResend,
+          permission: "members.invites:edit" as const,
         },
         {
           icon: <LinkIcon />,
@@ -349,6 +350,7 @@ const InviteActions = ({
           icon: <Trash />,
           label: t("actions.delete"),
           onClick: handleDelete,
+          permission: "members.invites:manage" as const,
         },
       ],
     },
@@ -392,6 +394,7 @@ const MemberActions = ({
               icon: <Trash />,
               label: t("actions.remove"),
               onClick: handleRemove,
+              permission: "members:manage",
             },
           ],
         },

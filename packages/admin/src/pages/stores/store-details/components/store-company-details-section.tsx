@@ -36,6 +36,7 @@ export const StoreCompanyDetailsSection = ({
                   label: t("actions.edit"),
                   icon: <PencilSquare />,
                   to: `/stores/${seller.id}/professional-details`,
+                  permission: "sellers:edit",
                 },
               ],
             },

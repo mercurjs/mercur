@@ -106,7 +106,11 @@ export const InventoryListDataTable = () => {
         icon: <Buildings className="text-ui-fg-subtle" />,
         title: t("inventory.list.noRecordsTitle"),
         message: t("inventory.list.noRecordsMessage"),
-        action: { to: "create", label: t("actions.create") },
+        action: {
+          to: "create",
+          label: t("actions.create"),
+          permission: "inventory_items:edit",
+        },
       }}
       navigateTo={(row) => `${row.id}`}
       commands={[
@@ -120,6 +124,7 @@ export const InventoryListDataTable = () => {
           },
           label: t("inventory.stock.action"),
           shortcut: "i",
+          permission: "inventory_items:edit",
         },
       ]}
     />

@@ -2,6 +2,7 @@ import { PencilSquare, Trash } from "@medusajs/icons"
 import { Button, Container, Heading, StatusBadge, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
+import { PermissionAction } from "@mercurjs/dashboard-shared"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
 import { AdminReview } from "../../../../hooks/api/reviews"
@@ -50,6 +51,7 @@ export const ReviewGeneralSection = ({ review }: { review: AdminReview }) => {
                 actions: [
                   {
                     icon: <PencilSquare />,
+                    permission: "reviews:edit",
                     label: t("actions.edit"),
                     to: "edit",
                   },
@@ -59,6 +61,7 @@ export const ReviewGeneralSection = ({ review }: { review: AdminReview }) => {
                 actions: [
                   {
                     icon: <Trash />,
+                    permission: "reviews:manage",
                     label: t("actions.delete"),
                     onClick: handleDelete,
                   },
@@ -86,14 +89,16 @@ export const ReviewGeneralSection = ({ review }: { review: AdminReview }) => {
 
       {!hasResponse && (
         <div className="flex items-center justify-end px-6 py-4">
-          <Button
-            size="small"
-            variant="secondary"
-            asChild
-            data-testid="review-general-section-respond-button"
-          >
-            <Link to="respond">{t("reviews.respond.action")}</Link>
-          </Button>
+          <PermissionAction permission="reviews:edit">
+            <Button
+              size="small"
+              variant="secondary"
+              asChild
+              data-testid="review-general-section-respond-button"
+            >
+              <Link to="respond">{t("reviews.respond.action")}</Link>
+            </Button>
+          </PermissionAction>
         </div>
       )}
     </Container>

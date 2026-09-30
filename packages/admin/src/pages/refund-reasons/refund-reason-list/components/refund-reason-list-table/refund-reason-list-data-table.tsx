@@ -12,6 +12,7 @@ import {
 import { keepPreviousData } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
+import { usePermissions } from "@mercurjs/dashboard-shared"
 
 import { DataTable } from "../../../../../components/data-table"
 import {
@@ -63,6 +64,7 @@ export const RefundReasonListDataTable = () => {
         }}
         actions={[
           {
+            permission: "refund_reasons:edit",
             label: t("actions.create"),
             to: "create",
           },
@@ -78,6 +80,7 @@ const columnHelper = createDataTableColumnHelper<HttpTypes.AdminRefundReason>()
 
 const useColumns = () => {
   const { t } = useTranslation()
+  const { can } = usePermissions()
   const prompt = usePrompt()
   const navigate = useNavigate()
   const base = useRefundReasonTableColumns()
@@ -116,7 +119,7 @@ const useColumns = () => {
       ...base,
       columnHelper.action({
         actions: (ctx) => [
-          [
+          !can("refund_reasons", "edit") ? [] : [
             {
               icon: <PencilSquare />,
               label: t("actions.edit"),
@@ -126,16 +129,16 @@ const useColumns = () => {
                 ),
             },
           ],
-          [
+          !can("refund_reasons", "manage") ? [] : [
             {
               icon: <Trash />,
               label: t("actions.delete"),
               onClick: () => handleDelete(ctx.row.original),
             },
           ],
-        ],
+        ].filter((group) => group.length > 0),
       }),
     ],
-    [base, handleDelete, navigate, t],
+    [base, handleDelete, navigate, t, can],
   )
 }

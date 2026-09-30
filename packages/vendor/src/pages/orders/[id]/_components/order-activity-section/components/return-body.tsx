@@ -1,6 +1,7 @@
 import { Button, Text, usePrompt } from "@medusajs/ui"
 import { AdminReturn } from "@medusajs/types"
 import { useTranslation } from "react-i18next"
+import { PermissionAction } from "@mercurjs/dashboard-shared"
 import { useCancelReturn } from "@hooks/api/returns"
 
 type ReturnBodyProps = {
@@ -51,14 +52,16 @@ export const ReturnBody = ({
       {isCreated && (
         <>
           <div className="mt-[2px] flex items-center leading-none">⋅</div>
-          <Button
-            onClick={onCancel}
-            className="text-ui-fg-subtle h-auto px-0 leading-none hover:bg-transparent"
-            variant="transparent"
-            size="small"
-          >
-            {t("actions.cancel")}
-          </Button>
+          <PermissionAction permission="orders.returns:edit">
+            <Button
+              onClick={onCancel}
+              className="text-ui-fg-subtle h-auto px-0 leading-none hover:bg-transparent"
+              variant="transparent"
+              size="small"
+            >
+              {t("actions.cancel")}
+            </Button>
+          </PermissionAction>
         </>
       )}
     </div>

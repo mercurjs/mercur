@@ -23,6 +23,7 @@ export const ShippingOptionTypeRowActions = ({
         {
           actions: [
             {
+              permission: "shipping_options:edit",
               label: t("actions.edit"),
               icon: <PencilSquare />,
               to: `/settings/locations/shipping-option-types/${shippingOptionType.id}/edit`,
@@ -32,6 +33,7 @@ export const ShippingOptionTypeRowActions = ({
         {
           actions: [
             {
+              permission: "shipping_options:manage",
               label: t("actions.delete"),
               icon: <Trash />,
               onClick: handleDelete,

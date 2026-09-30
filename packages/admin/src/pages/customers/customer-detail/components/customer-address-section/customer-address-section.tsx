@@ -3,7 +3,7 @@ import { Button, clx, Container, Heading, toast, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
 import { PencilSquare, Trash } from "@medusajs/icons"
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import { DisplayExtensionZone, PermissionAction } from "@mercurjs/dashboard-shared"
 import { Link, useNavigate } from "react-router-dom"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { NoRecords } from "../../../../../components/common/empty-table-content"
@@ -55,11 +55,13 @@ export const CustomerAddressSection = ({
     <Container className="p-0" data-testid="customer-address-section">
       <div className="flex items-center justify-between px-6 py-4" data-testid="customer-address-section-header">
         <Heading level="h2" data-testid="customer-address-section-heading">{t("addresses.title")}</Heading>
-        <Link to={`create-address`} data-testid="customer-address-section-add-link">
-          <Button variant="secondary" size="small" data-testid="customer-address-section-create-button">
-            {t("actions.create")}
+        <PermissionAction permission="customers:edit">
+          <Button variant="secondary" size="small" asChild data-testid="customer-address-section-create-button">
+            <Link to={`create-address`} data-testid="customer-address-section-add-link">
+              {t("actions.create")}
+            </Link>
           </Button>
-        </Link>
+        </PermissionAction>
       </div>
 
       {addresses.length === 0 && (
@@ -91,6 +93,7 @@ export const CustomerAddressSection = ({
                         icon: <PencilSquare />,
                         label: t("actions.edit"),
                         to: `edit-address/${address.id}`,
+                        permission: "customers:edit",
                       },
                     ],
                   },
@@ -99,6 +102,7 @@ export const CustomerAddressSection = ({
                       {
                         icon: <Trash />,
                         label: t("actions.delete"),
+                        permission: "customers:manage",
                         onClick: async () => {
                           await handleDelete(address)
                         },

@@ -14,6 +14,7 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
+import { PermissionAction } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
 import { _DataTable } from "@components/table/data-table"
 import { useDeleteRegion, useRegions } from "@hooks/api/regions"
@@ -69,11 +70,11 @@ export const RegionListTable = () => {
             {t("regions.subtitle")}
           </Text>
         </div>
-        <Link to="/settings/regions/create">
-          <Button size="small" variant="secondary">
-            {t("actions.create")}
+        <PermissionAction permission="regions:edit">
+          <Button size="small" variant="secondary" asChild>
+            <Link to="/settings/regions/create">{t("actions.create")}</Link>
           </Button>
-        </Link>
+        </PermissionAction>
       </div>
 
       <_DataTable

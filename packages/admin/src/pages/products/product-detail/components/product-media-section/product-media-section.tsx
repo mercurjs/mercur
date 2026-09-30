@@ -14,7 +14,7 @@ import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 import { HttpTypes } from "@medusajs/types"
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import { DisplayExtensionZone, PermissionAction, usePermissionGate } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { useUpdateProduct } from "../../../../../hooks/api/products"
 
@@ -27,6 +27,7 @@ export const ProductMediaSection = ({
 }) => {
   const { t } = useTranslation()
   const prompt = usePrompt()
+  const editGate = usePermissionGate("products:edit")
   const [selection, setSelection] = useState<Record<string, boolean>>({})
 
   const media = getMedia(product)
@@ -96,6 +97,7 @@ export const ProductMediaSection = ({
                   {
                     label: t("actions.edit"),
                     to: "media?view=edit",
+                    permission: "products:edit",
                     icon: <PencilSquare />,
                   },
                 ],
@@ -184,11 +186,13 @@ export const ProductMediaSection = ({
             </Text>
           </div>
           {!readOnly && (
-            <Button size="small" variant="secondary" asChild data-testid="product-media-empty-state-button">
-              <Link to="media?view=edit" data-testid="product-media-empty-state-link">
-                {t("products.media.emptyState.action")}
-              </Link>
-            </Button>
+            <PermissionAction permission="products:edit">
+              <Button size="small" variant="secondary" asChild data-testid="product-media-empty-state-button">
+                <Link to="media?view=edit" data-testid="product-media-empty-state-link">
+                  {t("products.media.emptyState.action")}
+                </Link>
+              </Button>
+            </PermissionAction>
           )}
         </div>
       )}
@@ -203,6 +207,7 @@ export const ProductMediaSection = ({
             <CommandBar.Seperator data-testid="product-media-command-bar-separator" />
             <CommandBar.Command
               action={handleDelete}
+              disabled={editGate.denied}
               label={t("actions.delete")}
               shortcut="d"
               data-testid="product-media-command-bar-delete"

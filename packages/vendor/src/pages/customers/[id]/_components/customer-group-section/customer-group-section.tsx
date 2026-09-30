@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import { DisplayExtensionZone, PermissionAction } from "@mercurjs/dashboard-shared"
 import {
   Button,
   Checkbox,
@@ -155,11 +155,13 @@ export const CustomerGroupSection = ({
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t("customerGroups.domain")}</Heading>
-        <Link to={`/customers/${customer.id}/add-customer-groups`}>
-          <Button variant="secondary" size="small">
-            {t("general.add")}
+        <PermissionAction permission="customers:edit">
+          <Button variant="secondary" size="small" asChild>
+            <Link to={`/customers/${customer.id}/add-customer-groups`}>
+              {t("general.add")}
+            </Link>
           </Button>
-        </Link>
+        </PermissionAction>
       </div>
       <_DataTable
         table={table}
@@ -183,6 +185,7 @@ export const CustomerGroupSection = ({
             action: handleRemove,
             label: t("actions.remove"),
             shortcut: "r",
+            permission: "customers:edit",
           },
         ]}
         queryObject={raw}
@@ -241,12 +244,13 @@ const CustomerGroupRowActions = ({
         {
           actions: [
             {
-              permission: "customers:edit",
+              permission: "customer_groups:edit",
               label: t("actions.edit"),
               icon: <PencilSquare />,
               to: `/customer-groups/${group.id}/edit`,
             },
             {
+              permission: "customer_groups:edit",
               label: t("actions.remove"),
               onClick: onRemove,
               icon: <Trash />,

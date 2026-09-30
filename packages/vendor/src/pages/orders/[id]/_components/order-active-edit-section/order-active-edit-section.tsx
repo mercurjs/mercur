@@ -5,7 +5,7 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import { DisplayExtensionZone, PermissionAction } from "@mercurjs/dashboard-shared"
 import { Thumbnail } from "@components/common/thumbnail/thumbnail"
 import {
   useCancelOrderEdit,
@@ -182,33 +182,37 @@ export const OrderActiveEditSection = ({
           )}
 
           <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
-            {isPending ? (
+            <PermissionAction permission="orders.edits:edit">
+              {isPending ? (
+                <Button
+                  size="small"
+                  variant="secondary"
+                  onClick={() => navigate(`/orders/${order.id}/edit`)}
+                  data-testid="order-active-edit-continue"
+                >
+                  {t("actions.continueEdit")}
+                </Button>
+              ) : (
+                <Button
+                  size="small"
+                  variant="secondary"
+                  onClick={onConfirmOrderEdit}
+                  data-testid="order-active-edit-force-confirm"
+                >
+                  {t("actions.forceConfirm")}
+                </Button>
+              )}
+            </PermissionAction>
+            <PermissionAction permission="orders.edits:manage">
               <Button
                 size="small"
                 variant="secondary"
-                onClick={() => navigate(`/orders/${order.id}/edit`)}
-                data-testid="order-active-edit-continue"
+                onClick={onCancelOrderEdit}
+                data-testid="order-active-edit-cancel"
               >
-                {t("actions.continueEdit")}
+                {t("actions.cancel")}
               </Button>
-            ) : (
-              <Button
-                size="small"
-                variant="secondary"
-                onClick={onConfirmOrderEdit}
-                data-testid="order-active-edit-force-confirm"
-              >
-                {t("actions.forceConfirm")}
-              </Button>
-            )}
-            <Button
-              size="small"
-              variant="secondary"
-              onClick={onCancelOrderEdit}
-              data-testid="order-active-edit-cancel"
-            >
-              {t("actions.cancel")}
-            </Button>
+            </PermissionAction>
           </div>
         </div>
         <DisplayExtensionZone model="order" zone="active-edit" data={order} />

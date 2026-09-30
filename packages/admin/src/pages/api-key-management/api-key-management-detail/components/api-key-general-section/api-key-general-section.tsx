@@ -104,6 +104,7 @@ export const ApiKeyGeneralSection = ({ apiKey }: ApiKeyGeneralSectionProps) => {
   const dangerousActions: Action[] = [
     {
       icon: <Trash />,
+      permission: "api_keys:manage",
       label: t("actions.delete"),
       onClick: handleDelete,
       disabled: !apiKey.revoked_at,
@@ -113,6 +114,7 @@ export const ApiKeyGeneralSection = ({ apiKey }: ApiKeyGeneralSectionProps) => {
   if (!apiKey.revoked_at) {
     dangerousActions.unshift({
       icon: <XCircle />,
+      permission: "api_keys:edit",
       label: t("apiKeyManagement.actions.revoke"),
       onClick: handleRevoke,
       disabled: !!apiKey.revoked_at,
@@ -137,6 +139,7 @@ export const ApiKeyGeneralSection = ({ apiKey }: ApiKeyGeneralSectionProps) => {
               {
                 actions: [
                   {
+                    permission: "api_keys:edit",
                     label: t("actions.edit"),
                     icon: <PencilSquare />,
                     to: "edit",

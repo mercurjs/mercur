@@ -164,6 +164,7 @@ const CustomerActions = ({
               icon: <PencilSquare />,
               label: t("actions.edit"),
               to: `/customers/${customer.id}/edit`,
+              permission: "customers:edit",
             },
           ],
         },

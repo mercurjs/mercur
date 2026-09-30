@@ -53,6 +53,7 @@ export const ShippingOptionsRowActions = ({
           actions: [
             {
               icon: <Trash />,
+              permission: "shipping_profiles:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
             },

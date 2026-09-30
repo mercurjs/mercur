@@ -9,6 +9,7 @@ import {
   type ProductChangeResolvers,
   type ProductChangeVariant,
   usePermissions,
+  PermissionAction,
 } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 
@@ -159,22 +160,26 @@ export const ProductActiveEditSection = ({
         }
         footer={
           <>
-            <Button
-              size="small"
-              variant="secondary"
-              onClick={() => setConfirmOpen(true)}
-              data-testid="product-active-edit-confirm-button"
-            >
-              {t("actions.confirm")}
-            </Button>
-            <Button
-              size="small"
-              variant="secondary"
-              onClick={() => setRejectOpen(true)}
-              data-testid="product-active-edit-reject-button"
-            >
-              {t("products.edits.actions.reject")}
-            </Button>
+            <PermissionAction permission="products.review:edit">
+              <Button
+                size="small"
+                variant="secondary"
+                onClick={() => setConfirmOpen(true)}
+                data-testid="product-active-edit-confirm-button"
+              >
+                {t("actions.confirm")}
+              </Button>
+            </PermissionAction>
+            <PermissionAction permission="products.review:edit">
+              <Button
+                size="small"
+                variant="secondary"
+                onClick={() => setRejectOpen(true)}
+                data-testid="product-active-edit-reject-button"
+              >
+                {t("products.edits.actions.reject")}
+              </Button>
+            </PermissionAction>
           </>
         }
       />

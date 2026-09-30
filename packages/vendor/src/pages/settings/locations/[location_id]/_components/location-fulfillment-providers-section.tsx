@@ -63,6 +63,7 @@ function LocationsFulfillmentProvidersSection({
           action={{
             label: t("stockLocations.fulfillmentProviders.action"),
             to: "fulfillment-providers",
+            permission: "stock_locations:edit",
           }}
           message={t("stockLocations.fulfillmentProviders.noProviders")}
         />

@@ -44,6 +44,7 @@ import {
   WidgetZone,
   usePermissions,
   useCan,
+  PermissionAction,
 } from "@mercurjs/dashboard-shared";
 import { format } from "date-fns";
 import { ActionMenu } from "../../../../../components/common/action-menu/index.ts";
@@ -168,32 +169,36 @@ export const OrderSummarySection = ({ order }: OrderSummarySectionProps) => {
           data-testid="order-summary-actions"
         >
           {showPayment && (
-            <Button
-              size="small"
-              variant="secondary"
-              onClick={() => handleMarkAsPaid(unpaidPaymentCollection)}
-              data-testid="order-summary-mark-as-paid-button"
-            >
-              {t("orders.payment.markAsPaid")}
-            </Button>
+            <PermissionAction permission="payments:edit">
+              <Button
+                size="small"
+                variant="secondary"
+                onClick={() => handleMarkAsPaid(unpaidPaymentCollection)}
+                data-testid="order-summary-mark-as-paid-button"
+              >
+                {t("orders.payment.markAsPaid")}
+              </Button>
+            </PermissionAction>
           )}
 
           {showRefund && (
-            <Button
-              size="small"
-              variant="secondary"
-              asChild
-              data-testid="order-summary-refund-button"
-            >
-              <Link to={`/orders/${order.id}/refund`}>
-                {t("orders.payment.refundAmount", {
-                  amount: getStylizedAmount(
-                    pendingDifference * -1,
-                    order?.currency_code,
-                  ),
-                })}
-              </Link>
-            </Button>
+            <PermissionAction permission="orders.refunds:edit">
+              <Button
+                size="small"
+                variant="secondary"
+                asChild
+                data-testid="order-summary-refund-button"
+              >
+                <Link to={`/orders/${order.id}/refund`}>
+                  {t("orders.payment.refundAmount", {
+                    amount: getStylizedAmount(
+                      pendingDifference * -1,
+                      order?.currency_code,
+                    ),
+                  })}
+                </Link>
+              </Button>
+            </PermissionAction>
           )}
         </div>
       )}
@@ -246,6 +251,7 @@ const Header = ({
                     : "orders.summary.editOrder",
                 ),
                 to: `/orders/${order.id}/edits`,
+                permission: "orders.edits:edit",
                 icon: <PencilSquare />,
                 disabledTooltip:
                   editLock ??
@@ -267,6 +273,7 @@ const Header = ({
               {
                 label: t("orders.returns.create"),
                 to: `/orders/${order.id}/returns`,
+                permission: "orders.returns:edit",
                 icon: <ArrowUturnLeft />,
                 disabledTooltip:
                   returnLock ??
@@ -288,6 +295,7 @@ const Header = ({
                     ? t("orders.exchanges.manage")
                     : t("orders.exchanges.create"),
                 to: `/orders/${order.id}/exchanges`,
+                permission: "orders.returns:edit",
                 icon: <ArrowPath />,
                 disabledTooltip:
                   exchangeLock ??
@@ -310,6 +318,7 @@ const Header = ({
                     ? t("orders.claims.manage")
                     : t("orders.claims.create"),
                 to: `/orders/${order.id}/claims`,
+                permission: "orders.returns:edit",
                 icon: <ExclamationCircle />,
                 disabledTooltip:
                   claimLock ??

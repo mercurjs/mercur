@@ -102,6 +102,7 @@ export const PromotionConditionsSection = ({
               actions: [
                 {
                   icon: <PencilSquare />,
+                  permission: "promotions:edit",
                   label: t("actions.edit"),
                   to: `${ruleType}/edit`,
                 },
@@ -127,6 +128,7 @@ export const PromotionConditionsSection = ({
               message={t("promotions.conditions.list.noRecordsMessage")}
               action={{
                 to: `${ruleType}/edit`,
+                permission: "promotions:edit",
                 label: t("promotions.conditions.add"),
               }}
               dataTestId={`promotion-conditions-section-add-condition-button-${ruleType}`}

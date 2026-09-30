@@ -87,6 +87,7 @@ export const ApiKeyRowActions = ({
           actions: [
             {
               icon: <PencilSquare />,
+              permission: "api_keys:edit",
               label: t("actions.edit"),
               to: `${apiKey.id}/edit`,
             },
@@ -105,12 +106,14 @@ export const ApiKeyRowActions = ({
           actions: [
             {
               icon: <XCircle />,
+              permission: "api_keys:edit",
               label: t("apiKeyManagement.actions.revoke"),
               onClick: handleRevoke,
               disabled: !!apiKey.revoked_at,
             },
             {
               icon: <Trash />,
+              permission: "api_keys:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
               disabled: !apiKey.revoked_at,

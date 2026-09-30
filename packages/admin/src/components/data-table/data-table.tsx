@@ -1,3 +1,5 @@
+import type { Permission } from "@mercurjs/dashboard-sdk"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
 import {
   usePermittedCommands,
   type PermissionedCommand,
@@ -17,6 +19,7 @@ import {
   DataTableFilteringState,
   DataTablePaginationState,
   DataTableSortingState,
+  Tooltip,
 } from "@medusajs/ui"
 import React, { ReactNode, useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -34,6 +37,8 @@ type ColumnOrderState = string[]
 type DataTableActionProps = {
   label: string
   disabled?: boolean
+  /** Permission of the endpoint the action calls; disabled without it. */
+  permission?: Permission | Permission[]
 } & (
   | {
       to: string
@@ -526,13 +531,27 @@ const useDataTableTranslations = () => {
 const DataTableAction = ({
   label,
   disabled,
+  permission,
   ...props
 }: DataTableActionProps) => {
+  const gate = usePermissionGate(permission)
   const buttonProps = {
     size: "small" as const,
     disabled: disabled ?? false,
     type: "button" as const,
     variant: "secondary" as const,
+  }
+
+  if (gate.denied) {
+    return (
+      <Tooltip content={gate.tooltip}>
+        <span className="inline-flex">
+          <Button {...buttonProps} disabled>
+            {label}
+          </Button>
+        </span>
+      </Tooltip>
+    )
   }
 
   if ("to" in props) {

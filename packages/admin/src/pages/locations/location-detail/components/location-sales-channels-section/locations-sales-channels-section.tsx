@@ -35,6 +35,7 @@ function LocationsSalesChannelsSection({
             {
               actions: [
                 {
+                  permission: "stock_locations:edit",
                   label: t("actions.edit"),
                   to: "sales-channels",
                   icon: <PencilSquare />,
@@ -72,6 +73,7 @@ function LocationsSalesChannelsSection({
         <NoRecords
           className="h-fit pb-2 pt-6"
           action={{
+            permission: "stock_locations:edit",
             label: t("stockLocations.salesChannels.action"),
             to: "sales-channels",
           }}

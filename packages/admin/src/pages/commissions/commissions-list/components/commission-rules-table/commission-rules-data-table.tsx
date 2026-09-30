@@ -111,6 +111,7 @@ const CommissionRuleRowActions = ({ rule }: { rule: CommissionRate }) => {
         {
           actions: [
             {
+              permission: "commission_rates:edit",
               label: t("actions.edit"),
               to: `/settings/commissions/${rule.id}/edit`,
               icon: <PencilSquare />,
@@ -120,6 +121,7 @@ const CommissionRuleRowActions = ({ rule }: { rule: CommissionRate }) => {
         {
           actions: [
             {
+              permission: "commission_rates:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
               icon: <Trash />,

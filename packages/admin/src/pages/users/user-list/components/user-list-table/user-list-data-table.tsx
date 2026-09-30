@@ -185,6 +185,7 @@ const UserActions = ({ user }: { user: HttpTypes.AdminUser }) => {
           actions: [
             {
               icon: <PencilSquare />,
+              permission: "users:edit",
               label: t("actions.edit"),
               onClick: () => {
                 navigate(`${user.id}/edit`)

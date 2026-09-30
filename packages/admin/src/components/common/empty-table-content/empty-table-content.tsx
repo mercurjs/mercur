@@ -1,5 +1,8 @@
+import type { Permission } from "@mercurjs/dashboard-sdk"
+import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import { cloneElement, type ReactElement } from "react"
 import { ExclamationCircle, MagnifyingGlass, PlusMini } from "@medusajs/icons"
-import { Button, Text, clx } from "@medusajs/ui"
+import { Button, Text, clx, Tooltip } from "@medusajs/ui"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
@@ -43,6 +46,8 @@ type ActionProps = {
   action?: {
     to: string
     label: string
+    /** Permission of what the target route does; disabled without it. */
+    permission?: Permission | Permission[]
   }
   dataTestId?: string
 }
@@ -55,18 +60,40 @@ export type NoRecordsProps = {
   icon?: React.ReactNode
 } & ActionProps
 
+const ActionLink = ({
+  action,
+  children,
+}: {
+  action: NonNullable<ActionProps["action"]>
+  children: ReactElement<{ disabled?: boolean }>
+}) => {
+  const gate = usePermissionGate(action.permission)
+
+  if (gate.denied) {
+    return (
+      <Tooltip content={gate.tooltip}>
+        <span className="inline-flex">
+          {cloneElement(children, { disabled: true })}
+        </span>
+      </Tooltip>
+    )
+  }
+
+  return <Link to={action.to}>{children}</Link>
+}
+
 const DefaultButton = ({ action, dataTestId }: ActionProps) =>
   action && (
-    <Link to={action.to}>
+    <ActionLink action={action}>
       <Button variant="secondary" size="small" data-testid={dataTestId}>
         {action.label}
       </Button>
-    </Link>
+    </ActionLink>
   )
 
 const TransparentIconLeftButton = ({ action, dataTestId }: ActionProps) =>
   action && (
-    <Link to={action.to}>
+    <ActionLink action={action}>
       <Button
         variant="transparent"
         className="text-ui-fg-interactive"
@@ -74,7 +101,7 @@ const TransparentIconLeftButton = ({ action, dataTestId }: ActionProps) =>
       >
         <PlusMini /> {action.label}
       </Button>
-    </Link>
+    </ActionLink>
   )
 
 export const NoRecords = ({

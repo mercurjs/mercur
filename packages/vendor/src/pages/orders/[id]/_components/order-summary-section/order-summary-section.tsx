@@ -36,6 +36,7 @@ import {
 
 import {
   DisplayExtensionZone,
+  PermissionAction,
   useActionLocks,
   useCan,
   usePermissions,
@@ -162,13 +163,15 @@ export const OrderSummarySection = ({
         <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
           {showReturns &&
             (receivableReturns.length === 1 ? (
-              <Button asChild variant="secondary" size="small">
-                <Link
-                  to={`/orders/${order.id}/returns/${receivableReturns[0].id}/receive`}
-                >
-                  {t("orders.returns.receive.action")}
-                </Link>
-              </Button>
+              <PermissionAction permission="orders.returns:edit">
+                <Button asChild variant="secondary" size="small">
+                  <Link
+                    to={`/orders/${order.id}/returns/${receivableReturns[0].id}/receive`}
+                  >
+                    {t("orders.returns.receive.action")}
+                  </Link>
+                </Button>
+              </PermissionAction>
             ) : (
               <ActionMenu
                 groups={[
@@ -188,6 +191,7 @@ export const OrderSummarySection = ({
                       }
 
                       return {
+                        permission: "orders.returns:edit" as const,
                         label: t("orders.returns.receive.receiveItems", {
                           id: `#${id?.slice(-7)}`,
                           returnType,
@@ -206,29 +210,33 @@ export const OrderSummarySection = ({
             ))}
 
           {showAllocateButton && (
-            <Button
-              asChild
-              variant="secondary"
-              size="small"
-              data-testid="order-summary-allocate-items-cta"
-            >
-              <Link to="allocate-items">
-                {t("orders.allocateItems.action")}
-              </Link>
-            </Button>
+            <PermissionAction permission="reservations:edit">
+              <Button
+                asChild
+                variant="secondary"
+                size="small"
+                data-testid="order-summary-allocate-items-cta"
+              >
+                <Link to="allocate-items">
+                  {t("orders.allocateItems.action")}
+                </Link>
+              </Button>
+            </PermissionAction>
           )}
 
           {showRefund && (
-            <Button size="small" variant="secondary" asChild>
-              <Link to={`/orders/${order.id}/refund`}>
-                {t("orders.payment.refundAmount", {
-                  amount: getStylizedAmount(
-                    pendingDifference * -1,
-                    order?.currency_code
-                  ),
-                })}
-              </Link>
-            </Button>
+            <PermissionAction permission="payments:edit">
+              <Button size="small" variant="secondary" asChild>
+                <Link to={`/orders/${order.id}/refund`}>
+                  {t("orders.payment.refundAmount", {
+                    amount: getStylizedAmount(
+                      pendingDifference * -1,
+                      order?.currency_code
+                    ),
+                  })}
+                </Link>
+              </Button>
+            </PermissionAction>
           )}
         </div>
       )}
@@ -302,6 +310,7 @@ const Header = ({
           {
             actions: [
               {
+                permission: "orders.edits:edit",
                 label: t(
                   isOrderEditPending
                     ? "orders.summary.editOrderContinue"
@@ -317,6 +326,7 @@ const Header = ({
           {
             actions: [
               {
+                permission: "orders.returns:edit",
                 label: t("orders.returns.create"),
                 to: "returns/create",
                 disabled:
@@ -336,6 +346,7 @@ const Header = ({
                 icon: <ArrowUturnLeft />,
               },
               {
+                permission: "orders.returns:edit",
                 label:
                   orderChange?.id && orderChange?.exchange_id
                     ? t("orders.exchanges.manage")
@@ -358,6 +369,7 @@ const Header = ({
                 icon: <ArrowPath />,
               },
               {
+                permission: "orders.returns:edit",
                 label:
                   orderChange?.id && orderChange?.claim_id
                     ? t("orders.claims.manage")

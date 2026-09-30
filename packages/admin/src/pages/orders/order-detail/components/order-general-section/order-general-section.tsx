@@ -112,6 +112,7 @@ export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
                 {
                   label: t("actions.cancel"),
                   onClick: handleCancel,
+                  permission: "orders:edit",
                   disabled: cancelDisabled,
                   disabledTooltip: cancelDisabledTooltip,
                   icon: <XCircle />,

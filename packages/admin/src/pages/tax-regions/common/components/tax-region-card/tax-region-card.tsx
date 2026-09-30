@@ -191,6 +191,7 @@ const TaxRegionCardActions = ({
                 actions: [
                   {
                     icon: <Plus />,
+                    permission: "tax_regions:edit" as const,
                     label: t("taxRegions.fields.defaultTaxRate.action"),
                     to: `tax-rates/create`,
                   },
@@ -202,11 +203,13 @@ const TaxRegionCardActions = ({
           actions: [
             !hasParent && {
               icon: <PencilSquare />,
+              permission: "tax_regions:edit",
               label: t("actions.edit"),
               to: `/settings/tax-regions/${taxRegion.id}/edit`,
             },
             {
               icon: <Trash />,
+              permission: "tax_regions:manage",
               label: t("actions.delete"),
               onClick: handleDelete,
             },

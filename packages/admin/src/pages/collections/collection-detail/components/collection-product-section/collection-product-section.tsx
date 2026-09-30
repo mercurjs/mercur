@@ -109,6 +109,7 @@ export const CollectionProductSection = ({
                   icon: <Plus />,
                   label: t("actions.add"),
                   to: "products",
+                  permission: "product_collections:edit",
                 },
               ],
             },
@@ -135,6 +136,7 @@ export const CollectionProductSection = ({
         commands={[
           {
             action: handleRemove,
+            permission: "product_collections:edit",
             label: t("actions.remove"),
             shortcut: "r",
           },
@@ -203,6 +205,7 @@ const ProductActions = ({
               icon: <PencilSquare />,
               label: t("actions.edit"),
               to: `/products/${product.id}/edit`,
+              permission: "products:edit",
             },
           ],
         },
@@ -212,6 +215,7 @@ const ProductActions = ({
               icon: <Trash />,
               label: t("actions.remove"),
               onClick: handleRemove,
+              permission: "product_collections:edit",
             },
           ],
         },

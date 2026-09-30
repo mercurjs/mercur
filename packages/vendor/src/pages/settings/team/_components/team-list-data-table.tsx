@@ -173,6 +173,7 @@ const MemberActions = ({
           actions: [
             {
               icon: <Trash />,
+              permission: "members:manage",
               label: t("actions.remove"),
               onClick: handleRemove,
             },

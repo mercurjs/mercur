@@ -10,6 +10,7 @@ import {
 import { useTranslation } from "react-i18next"
 import { useMemo } from "react"
 import { useNavigate } from "react-router-dom"
+import { usePermissions } from "@mercurjs/dashboard-shared"
 import type { ClientError } from "@mercurjs/client"
 import { sdk } from "@lib/client"
 import { queryClient } from "@lib/query-client"
@@ -24,6 +25,7 @@ const columnHelper = createDataTableColumnHelper<HttpTypes.AdminStockLocation>()
 export const useLocationListTableColumns =
   (): DataTableColumnDef<HttpTypes.AdminStockLocation>[] => {
   const { t } = useTranslation()
+  const { can } = usePermissions()
   const navigate = useNavigate()
   const prompt = usePrompt()
 
@@ -162,7 +164,7 @@ export const useLocationListTableColumns =
           const location = ctx.row.original
 
           return [
-            [
+            !can("stock_locations", "edit") ? [] : [
               {
                 icon: <PencilSquare />,
                 label: t("actions.edit"),
@@ -171,18 +173,18 @@ export const useLocationListTableColumns =
                 },
               },
             ],
-            [
+            !can("stock_locations", "manage") ? [] : [
               {
                 icon: <Trash />,
                 label: t("actions.delete"),
                 onClick: () => handleDelete(location),
               },
             ],
-          ]
+          ].filter((group) => group.length > 0)
         },
       }),
     ],
     // oxlint-disable-next-line react-hooks/exhaustive-deps
-    [navigate, t]
+    [navigate, t, can]
   )
 }
