@@ -18,6 +18,7 @@ import {
   getMenuItemsByType,
 } from "../../../utils/routes";
 import { getRoutePermission } from "../../../lib/permissions/route-permissions";
+import { useLandingRoute } from "../main-layout/main-layout";
 
 export const SettingsLayout = () => {
   useExpandedSidebar();
@@ -149,23 +150,38 @@ const useMyAccountRoutes = (): INavItem[] => {
  * Ensure that the `from` prop is not another settings route, to avoid
  * the user getting stuck in a navigation loop.
  */
-const getSafeFromValue = (from: string) => {
+const getSafeFromValue = (from: string, landing: string) => {
   if (from.startsWith("/settings")) {
-    return "/orders";
+    return landing;
   }
 
   return from;
 };
 
-const SettingsSidebar = () => {
+// `RoutePermissionGuard` is what actually refuses a route; this keeps the
+// sidebar and the redirects from pointing at one the actor can't open.
+const useCanReach = () => {
   const { hasPermission } = usePermissions();
 
-  // Hides links the actor can't open. `RoutePermissionGuard` is what actually
-  // refuses the route; this only keeps the sidebar honest.
-  const canReach = ({ to }: INavItem) => {
+  return ({ to }: INavItem) => {
     const permission = getRoutePermission(to);
     return !permission || hasPermission(permission);
   };
+};
+
+const PROFILE_ROUTE = "/settings/profile";
+
+// Where `/settings` lands: the first settings page the actor can open, or
+// their own profile, which needs no permission.
+export const useSettingsLandingRoute = () => {
+  const canReach = useCanReach();
+  const routes = [...useSettingRoutes(), ...useDeveloperRoutes()].filter(canReach);
+
+  return routes.find(({ to }) => to !== PROFILE_ROUTE)?.to ?? PROFILE_ROUTE;
+};
+
+const SettingsSidebar = () => {
+  const canReach = useCanReach();
 
   const routes = useSettingRoutes().filter(canReach);
   const developerRoutes = useDeveloperRoutes().filter(canReach);
@@ -211,21 +227,22 @@ const SettingsSidebar = () => {
 };
 
 const Header = () => {
-  const [from, setFrom] = useState("/orders");
+  const landing = useLandingRoute();
+  const [from, setFrom] = useState<string>();
 
   const { t } = useTranslation();
   const location = useLocation();
 
   useEffect(() => {
     if (location.state?.from) {
-      setFrom(getSafeFromValue(location.state.from));
+      setFrom(getSafeFromValue(location.state.from, landing));
     }
-  }, [location]);
+  }, [location, landing]);
 
   return (
     <div className="bg-ui-bg-subtle p-3">
       <Link
-        to={from}
+        to={from ?? landing}
         replace
         className={clx(
           "flex items-center rounded-md bg-ui-bg-subtle outline-none transition-fg",

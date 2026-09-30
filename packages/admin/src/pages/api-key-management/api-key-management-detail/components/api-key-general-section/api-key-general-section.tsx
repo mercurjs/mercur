@@ -10,6 +10,7 @@ import {
   toast,
   usePrompt,
 } from "@medusajs/ui"
+import { useCan } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 import {
@@ -213,14 +214,15 @@ export const ApiKeyGeneralSection = ({ apiKey }: ApiKeyGeneralSectionProps) => {
 }
 
 const ActionBy = ({ userId, "data-testid": dataTestId }: { userId: string | null; "data-testid"?: string }) => {
+  const canViewUsers = useCan("users")
   const { user, isLoading, isError, error } = useUser(userId!, undefined, {
-    enabled: !!userId,
+    enabled: !!userId && canViewUsers,
   })
 
-  if (!userId) {
+  if (!userId || !canViewUsers) {
     return (
       <Text size="small" className="text-ui-fg-subtle" data-testid={dataTestId}>
-        -
+        {userId ?? "-"}
       </Text>
     )
   }
