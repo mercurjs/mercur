@@ -34,7 +34,6 @@ export const ROUTE_PERMISSIONS: Record<string, Permission | Permission[]> = {
   "/settings/product-types": "product_types:view",
   "/settings/return-reasons": "return_reasons:view",
   "/settings/locations/shipping-profiles": "shipping_profiles:view",
-  "/settings/tax-regions": "tax_regions:view",
 }
 
 export const getRoutePermission = (

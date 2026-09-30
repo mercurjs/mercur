@@ -1,4 +1,4 @@
-import { requirePermission } from "../../utils"
+import { requireAnyPermission } from "../../utils"
 import multer from "multer"
 
 import { MiddlewareRoute } from "@medusajs/framework/http"
@@ -10,7 +10,12 @@ export const vendorUploadsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/uploads",
     middlewares: [
-      requirePermission("products", "edit"),
-      upload.array("files")],
+      // Product media and the store logo/banner both upload through here.
+      requireAnyPermission([
+        { key: "products", right: "edit" },
+        { key: "store", right: "edit" },
+      ]),
+      upload.array("files"),
+    ],
   },
 ]

@@ -120,6 +120,24 @@ export const useCreateUser = (
   })
 }
 
+export const useUpdateMe = (
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.users.me.mutate>,
+    ClientError,
+    InferClientInput<typeof sdk.admin.users.me.mutate>
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) => sdk.admin.users.me.mutate(payload),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: usersQueryKeys.all })
+
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
+
 export const useUpdateUser = (
   id: string,
   options?: UseMutationOptions<

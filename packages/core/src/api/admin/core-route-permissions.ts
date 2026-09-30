@@ -61,7 +61,8 @@ export const CORE_ROUTE_PERMISSIONS: CoreRoutePermission[] = [
   { pattern: /^\/admin\/stores(\/[^/]+)?$/, key: "store", methods: { GET: undefined } },
   { pattern: /^\/admin\/stores(\/|$)/, key: "store" },
   { pattern: /^\/admin\/invites(\/|$)/, key: "users" },
-  { pattern: /^\/admin\/users\/me$/, key: "users", methods: { GET: undefined } },
+  // Reading and editing your own profile needs no users permission.
+  { pattern: /^\/admin\/users\/me$/, key: "users", methods: { GET: undefined, POST: undefined } },
   { pattern: /^\/admin\/users(\/|$)/, key: "users" },
   { pattern: /^\/admin\/api-keys(\/|$)/, key: "api_keys" },
   { pattern: /^\/admin\/(translations|locales)(\/|$)/, key: "translations" },

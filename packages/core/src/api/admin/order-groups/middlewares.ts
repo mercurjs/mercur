@@ -1,4 +1,4 @@
-import { requirePermission } from "../../utils"
+import { requireAnyPermission } from "../../utils"
 import {
   validateAndTransformQuery,
 } from "@medusajs/framework"
@@ -11,12 +11,19 @@ import {
   AdminGetOrderGroupsParams,
 } from "./validators"
 
+// The admin orders list is a list of order groups, so orders:view is enough
+// to read them.
+const canViewOrderGroups = requireAnyPermission([
+  { key: "orders", right: "view" },
+  { key: "order_groups", right: "view" },
+])
+
 export const adminOrderGroupsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["GET"],
     matcher: "/admin/order-groups",
     middlewares: [
-      requirePermission("order_groups", "view"),
+      canViewOrderGroups,
       validateAndTransformQuery(
         AdminGetOrderGroupsParams,
         adminOrderGroupQueryConfig.list
@@ -28,7 +35,7 @@ export const adminOrderGroupsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/order-groups/:id",
     middlewares: [
-      requirePermission("order_groups", "view"),
+      canViewOrderGroups,
       validateAndTransformQuery(
         AdminGetOrderGroupParams,
         adminOrderGroupQueryConfig.retrieve
