@@ -37,5 +37,15 @@ export const PATCHES: PatchEntry[] = [
       "hook, unlike createOrderWorkflow and cancelOrderWorkflow. A ledger that must " +
       "record every capture and refund inside the movement's own transaction, with " +
       "compensation, needs paymentCaptured and paymentRefunded.",
+  },,
+  {
+    file: "@medusajs+core-flows@2.20.1-delivery-hook.patch",
+    package: "@medusajs/core-flows",
+    compatible: { from: "2.18.0", to: "2.22.0" },
+    reason:
+      "markOrderFulfillmentAsDeliveredWorkflow ends in an event and exposes no hook. " +
+      "Delivery is where a marketplace releases the seller's money from pending to " +
+      "payable, and that release must run in the delivery's own transaction, with " +
+      "compensation, so it needs fulfillmentDelivered.",
   },
 ]
