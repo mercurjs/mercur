@@ -89,7 +89,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
         const [orderGroup, cartData] = parallelize(
             useQueryGraphStep({
                 entity: "order_group",
-                fields: ["cart_id"],
+                fields: ["id", "cart_id"],
                 filters: { cart_id: input.cart_id },
                 options: {
                     isList: false,

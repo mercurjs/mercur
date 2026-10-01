@@ -90,6 +90,15 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
       params.push(...customerIds)
     }
 
+    if (filters.cart_id) {
+      const cartIds = Array.isArray(filters.cart_id)
+        ? filters.cart_id
+        : [filters.cart_id]
+      const placeholders = cartIds.map(() => "?").join(",")
+      whereClauses.push(`og.cart_id IN (${placeholders})`)
+      params.push(...cartIds)
+    }
+
     if (filters.seller_id) {
       const sellerIds = Array.isArray(filters.seller_id)
         ? filters.seller_id
