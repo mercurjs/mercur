@@ -531,6 +531,93 @@ medusaIntegrationTestRunner({
                     expect(order.items).toBeDefined()
                 })
 
+                it("should return the existing order group when the cart is completed again", async () => {
+                    const cartResponse = await api.post(
+                        `/store/carts`,
+                        {
+                            region_id: region.id,
+                            sales_channel_id: salesChannel.id,
+                            currency_code: "usd",
+                        },
+                        storeHeaders
+                    )
+                    const cart = cartResponse.data.cart
+
+                    await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        {
+                            offer_id: offer1.id,
+                            quantity: 1,
+                        },
+                        storeHeaders
+                    )
+
+                    const shippingOptionsResponse = await api.get(
+                        `/store/shipping-options?cart_id=${cart.id}`,
+                        storeHeaders
+                    )
+
+                    const sellerShippingOptions = shippingOptionsResponse.data.shipping_options as Record<string, any[]>
+
+                    for (const [, options] of Object.entries(sellerShippingOptions)) {
+                        if (options.length > 0) {
+                            await api.post(
+                                `/store/carts/${cart.id}/shipping-methods`,
+                                {
+                                    option_id: options[0].id,
+                                },
+                                storeHeaders
+                            )
+                        }
+                    }
+
+                    const paymentCollectionResponse = await api.post(
+                        `/store/payment-collections`,
+                        { cart_id: cart.id },
+                        storeHeaders
+                    )
+                    const paymentCollection = paymentCollectionResponse.data.payment_collection
+
+                    await api.post(
+                        `/store/payment-collections/${paymentCollection.id}/payment-sessions`,
+                        {
+                            provider_id: "pp_system_default",
+                        },
+                        storeHeaders
+                    )
+
+                    const firstResponse = await api.post(
+                        `/store/carts/${cart.id}/complete`,
+                        {},
+                        storeHeaders
+                    )
+
+                    expect(firstResponse.status).toEqual(200)
+                    expect(firstResponse.data.type).toEqual("order_group")
+
+                    const secondResponse = await api.post(
+                        `/store/carts/${cart.id}/complete`,
+                        {},
+                        storeHeaders
+                    )
+
+                    expect(secondResponse.status).toEqual(200)
+                    expect(secondResponse.data.type).toEqual("order_group")
+                    expect(secondResponse.data.order_group.id).toEqual(
+                        firstResponse.data.order_group.id
+                    )
+
+                    const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+                    const { data: orderGroups } = await query.graph({
+                        entity: "order_group",
+                        fields: ["id", "orders.id"],
+                        filters: { cart_id: cart.id },
+                    })
+
+                    expect(orderGroups).toHaveLength(1)
+                    expect(orderGroups[0].orders).toHaveLength(1)
+                })
+
                 it("should allow vendor to view their own orders", async () => {
                     // 1. Create and complete a cart with items from both sellers
                     const cartResponse = await api.post(
