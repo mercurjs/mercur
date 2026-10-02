@@ -8,7 +8,12 @@ const targets = fs.readFileSync(
 )
 
 describe("extension targets", () => {
-  test.each(["topbar.before", "topbar.after"])(
+  test.each([
+    "topbar.before",
+    "topbar.after",
+    "stores.detail.tabs.before",
+    "stores.detail.tabs.after",
+  ])(
     "registers the %s widget zone",
     (zone) => {
       expect(targets).toContain(`"${zone}": true`)

@@ -45,6 +45,11 @@ export interface WidgetConfig {
      * one is enough.
      */
     permission?: Permission | Permission[]
+    /**
+     * i18n key or literal naming the tab. Required for a `*.tabs.*` zone, where
+     * the widget renders as a tab's panel; ignored elsewhere.
+     */
+    label?: string
 }
 
 /** Override for a single built-in navigation item. */

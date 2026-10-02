@@ -17,6 +17,7 @@ export type Widget = {
   zone: string[]
   widgetId: string
   permission?: Permission[]
+  label?: string
 }
 
 export type WidgetModule = { widgets?: Widget[] }
@@ -33,6 +34,7 @@ type ResolvedWidget = {
   Component: Widget["Component"]
   widgetId: string
   permission?: Permission[]
+  label?: string
 }
 
 export type ZoneWidgets = {
@@ -95,6 +97,7 @@ export class ExtensionRegistry {
           Component: widget.Component,
           widgetId: widget.widgetId,
           permission: widget.permission,
+          label: widget.label,
         }
         entry[placement].push(resolved)
       }

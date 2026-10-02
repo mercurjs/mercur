@@ -70,6 +70,7 @@ finds it at build time. There is no manifest to edit and no route to register.
 | ------ | -------------------------------- | ----------------------------------------------------------------------- |
 | `zone` | `WidgetZoneId \| WidgetZoneId[]` | The zone or zones to render in. Multiple widgets in one zone stack in registration order. |
 | `id`   | `string` (optional)              | A stable id. Derived from the file path at build time when omitted.     |
+| `label` | `string` (optional)             | The tab label, as an i18n key or a literal. Only used by [tab zones](#tabs). |
 
 ## Component props
 
@@ -92,6 +93,40 @@ const ProductDetailNote = ({ data }: { data?: HttpTypes.AdminProduct }) => (
   The public `login.logo`, `login.before`, and `login.after` zones render before
   authentication and receive no `data`.
 </Note>
+
+## Tabs
+
+Some detail pages group their content into tabs. A tab zone lets a widget add a
+tab of its own: the widget's `label` names the tab and its component renders as
+the tab's panel. The placement decides whether the tab sits before or after the
+built-in ones.
+
+```tsx apps/admin-test/src/widgets/store-loyalty-tab.tsx
+import { defineWidgetConfig } from "@mercurjs/dashboard-sdk"
+import { Container, Heading } from "@medusajs/ui"
+import type { SellerDTO } from "@mercurjs/types"
+
+const StoreLoyaltyTab = ({ data }: { data?: SellerDTO }) => (
+  <Container>
+    <Heading level="h2">Loyalty for {data?.name}</Heading>
+  </Container>
+)
+
+export const config = defineWidgetConfig({
+  zone: "stores.detail.tabs.after",
+  id: "loyalty",
+  label: "Loyalty",
+})
+
+export default StoreLoyaltyTab
+```
+
+A widget that targets a tab zone without a `label` is not shown. `permission`
+works as on any other widget and hides the tab from actors who lack it.
+
+| Panel | Tab zone            | Page                                                    |
+| ----- | ------------------- | ------------------------------------------------------- |
+| Admin | `stores.detail.tabs` | Store detail, next to Orders, Offers, Users and Time off. |
 
 ## Zone ids
 
