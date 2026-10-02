@@ -9,6 +9,6 @@ const hookTypes = () => {
 }
 
 const before = hookTypes()
-applyMercurPatches({ logger: { info: () => {}, warn: () => {} } })
+applyMercurPatches({ logger: { debug: () => {}, warn: () => {} } })
 
 process.stdout.write(JSON.stringify({ before, after: hookTypes() }))

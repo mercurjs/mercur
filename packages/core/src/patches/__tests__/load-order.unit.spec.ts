@@ -5,14 +5,21 @@ import { join } from "path"
 // loader, which is where the patches live, so each case runs in a real process.
 const CORE_ROOT = join(__dirname, "..", "..", "..")
 
-function run(fixture: string): unknown {
-  const output = execFileSync(
+function execute(fixture: string, env: NodeJS.ProcessEnv = {}): string {
+  return execFileSync(
     process.execPath,
     [require.resolve("tsx/cli"), join(__dirname, "fixtures", fixture)],
-    { cwd: CORE_ROOT, encoding: "utf8", env: { ...process.env, NODE_ENV: "test" } }
+    {
+      cwd: CORE_ROOT,
+      encoding: "utf8",
+      env: { ...process.env, NODE_ENV: "test", ...env },
+    }
   )
-  // Importing `@mercurjs/core` logs each applied patch to stdout ahead of the result.
-  return JSON.parse(output.trim().split("\n").pop()!)
+}
+
+function run(fixture: string): unknown {
+  // With LOG_LEVEL=debug each applied patch is logged to stdout ahead of the result.
+  return JSON.parse(execute(fixture).trim().split("\n").pop()!)
 }
 
 describe("patch load order", () => {
@@ -25,6 +32,15 @@ describe("patch load order", () => {
       before: ["undefined", "undefined"],
       after: ["function", "function"],
     })
+  })
+
+  it("logs applied patches at debug, out of the default console output", () => {
+    expect(execute("core-imported-first.ts", { LOG_LEVEL: "http" })).not.toContain(
+      "Applied patch"
+    )
+    expect(execute("core-imported-first.ts", { LOG_LEVEL: "debug" })).toContain(
+      "Applied patch"
+    )
   })
 
   it("exposes fulfillmentDelivered on the workflow exported from @mercurjs/core/workflows", () => {

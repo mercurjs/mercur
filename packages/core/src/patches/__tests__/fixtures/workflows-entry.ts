@@ -1,6 +1,6 @@
 import { applyMercurPatches } from "../../index"
 
-applyMercurPatches({ logger: { info: () => {}, warn: () => {} } })
+applyMercurPatches({ logger: { debug: () => {}, warn: () => {} } })
 
 const { markOrderFulfillmentAsDeliveredWorkflow } = require("../../../workflows")
 
