@@ -90,7 +90,7 @@
     },
     "apps/storefront": {
       "name": "@mercurjs/storefront",
-      "version": "2.3.6-canary.8",
+      "version": "2.3.6-canary.9",
       "dependencies": {
         "@headlessui/react": "^2.2.1",
         "@hookform/resolvers": "^3.10.0",
@@ -98,8 +98,8 @@
         "@medusajs/medusa": "2.21.0",
         "@medusajs/types": "2.21.0",
         "@medusajs/ui": "^4.0.33",
-        "@mercurjs/client": "2.3.6-canary.2",
-        "@mercurjs/types": "2.3.6-canary.2",
+        "@mercurjs/client": "2.3.5",
+        "@mercurjs/types": "2.3.5",
         "@stripe/react-stripe-js": "^3.7.0",
         "@stripe/stripe-js": "^7.1.0",
         "@talkjs/react": "^0.1.11",
@@ -280,7 +280,7 @@
     },
     "packages/admin": {
       "name": "@mercurjs/admin",
-      "version": "2.3.6-canary.8",
+      "version": "2.3.6-canary.9",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^8.0.0",
@@ -344,7 +344,7 @@
     },
     "packages/cli": {
       "name": "@mercurjs/cli",
-      "version": "2.3.6-canary.8",
+      "version": "2.3.6-canary.9",
       "bin": {
         "mercurjs": "./dist/index.js",
       },
@@ -380,7 +380,7 @@
     },
     "packages/client": {
       "name": "@mercurjs/client",
-      "version": "2.3.6-canary.8",
+      "version": "2.3.6-canary.9",
       "dependencies": {
         "@tanstack/react-query": "^5.64.2",
         "qs": "^6.12.1",
@@ -397,7 +397,7 @@
     },
     "packages/core": {
       "name": "@mercurjs/core",
-      "version": "2.3.6-canary.8",
+      "version": "2.3.6-canary.9",
       "dependencies": {
         "@orama/orama": "^3.1.18",
         "pkg-dir": "4",
@@ -448,7 +448,7 @@
     },
     "packages/create-mercur-app": {
       "name": "create-mercur-app",
-      "version": "2.3.6-canary.8",
+      "version": "2.3.6-canary.9",
       "bin": {
         "create-mercur-app": "./dist/index.js",
       },
@@ -480,7 +480,7 @@
     },
     "packages/dashboard-sdk": {
       "name": "@mercurjs/dashboard-sdk",
-      "version": "2.3.6-canary.8",
+      "version": "2.3.6-canary.9",
       "dependencies": {
         "@babel/parser": "8.0.5",
         "@babel/traverse": "8.0.6",
@@ -497,7 +497,7 @@
     },
     "packages/dashboard-shared": {
       "name": "@mercurjs/dashboard-shared",
-      "version": "2.3.6-canary.8",
+      "version": "2.3.6-canary.9",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^8.0.0",
@@ -564,11 +564,11 @@
     },
     "packages/docs": {
       "name": "@mercurjs/docs",
-      "version": "2.3.6-canary.8",
+      "version": "2.3.6-canary.9",
     },
     "packages/providers/payout-stripe-connect": {
       "name": "@mercurjs/payout-stripe-connect",
-      "version": "2.3.6-canary.8",
+      "version": "2.3.6-canary.9",
       "dependencies": {
         "stripe": "^15.5.0",
       },
@@ -583,7 +583,7 @@
     },
     "packages/registry": {
       "name": "@mercurjs/registry",
-      "version": "2.3.6-canary.8",
+      "version": "2.3.6-canary.9",
       "dependencies": {
         "@hookform/resolvers": "5.4.0",
         "@medusajs/core-flows": "2.21.0",
@@ -626,7 +626,7 @@
     },
     "packages/types": {
       "name": "@mercurjs/types",
-      "version": "2.3.6-canary.8",
+      "version": "2.3.6-canary.9",
       "dependencies": {
         "@medusajs/types": "2.21.0",
       },
@@ -636,7 +636,7 @@
     },
     "packages/vendor": {
       "name": "@mercurjs/vendor",
-      "version": "2.3.6-canary.8",
+      "version": "2.3.6-canary.9",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^8.0.0",
@@ -5148,6 +5148,10 @@
     "@mercurjs/integration-tests/typescript": ["typescript@7.0.2", "", { "optionalDependencies": { "@typescript/typescript-aix-ppc64": "7.0.2", "@typescript/typescript-darwin-arm64": "7.0.2", "@typescript/typescript-darwin-x64": "7.0.2", "@typescript/typescript-freebsd-arm64": "7.0.2", "@typescript/typescript-freebsd-x64": "7.0.2", "@typescript/typescript-linux-arm": "7.0.2", "@typescript/typescript-linux-arm64": "7.0.2", "@typescript/typescript-linux-loong64": "7.0.2", "@typescript/typescript-linux-mips64el": "7.0.2", "@typescript/typescript-linux-ppc64": "7.0.2", "@typescript/typescript-linux-riscv64": "7.0.2", "@typescript/typescript-linux-s390x": "7.0.2", "@typescript/typescript-linux-x64": "7.0.2", "@typescript/typescript-netbsd-arm64": "7.0.2", "@typescript/typescript-netbsd-x64": "7.0.2", "@typescript/typescript-openbsd-arm64": "7.0.2", "@typescript/typescript-openbsd-x64": "7.0.2", "@typescript/typescript-sunos-x64": "7.0.2", "@typescript/typescript-win32-arm64": "7.0.2", "@typescript/typescript-win32-x64": "7.0.2" }, "bin": { "tsc": "bin/tsc" } }, "sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA=="],
 
     "@mercurjs/storefront/@hookform/resolvers": ["@hookform/resolvers@3.10.0", "", { "peerDependencies": { "react-hook-form": "^7.0.0" } }, "sha512-79Dv+3mDF7i+2ajj7SkypSKHhl1cbln1OGavqrsF7p6mbUv11xpqpacPsGDCTRvCSjEEIez2ef1NveSVL3b0Ag=="],
+
+    "@mercurjs/storefront/@mercurjs/client": ["@mercurjs/client@2.3.5", "", { "dependencies": { "@tanstack/react-query": "^5.64.2", "qs": "^6.12.1" }, "peerDependencies": { "typescript": ">=4.8.0" } }, "sha512-MeNQmMvTYVApJq27px+Jpt8Qscf5zkqDXSl3dIaTFluH/dBruY7IXG8RwrdCZuI46V7msSVyArpgXM4KLyhmeA=="],
+
+    "@mercurjs/storefront/@mercurjs/types": ["@mercurjs/types@2.3.5", "", { "dependencies": { "@medusajs/types": "2.20.1" } }, "sha512-WOmTvUwJ/ivjYfe/r7YTjYL8LxVTiY9KjXgk/NG31am5cdCT3tVqoz+Ls6IE8ylkqDH/M0GOwT2+aKBwnZ2iLg=="],
 
     "@mercurjs/storefront/date-fns": ["date-fns@4.4.0", "", {}, "sha512-+1UMbeh68lH1SegH83CGWwpb6OHHbpSgr3+s5Eww5M4CAgswBpoWS0AjTOfEJ33HiYKz1hdj/KTFprzXHmq/6w=="],
 
