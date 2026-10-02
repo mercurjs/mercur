@@ -52,7 +52,11 @@ describe("jest transformer", () => {
     it.each([
         ["dist/payment/workflows/capture-payment.js", "paymentCaptured"],
         ["dist/payment/workflows/refund-payment.js", "paymentRefunded"],
-    ])("exposes the payment hook in %s", (relativePath, hookName) => {
+        [
+            "dist/order/workflows/mark-order-fulfillment-as-delivered.js",
+            "fulfillmentDelivered",
+        ],
+    ])("exposes the hook in %s", (relativePath, hookName) => {
         const sourcePath = join(copy().dir, relativePath)
         const { code } = transform(readFileSync(sourcePath, "utf8"), sourcePath)
 

@@ -51,11 +51,11 @@ through `transformIgnorePatterns` (see `integration-tests/jest.config.js`):
 
 ```js
 transform: {
-  "node_modules[\\/].*core-flows[\\/]dist[\\/](cart|payment)[\\/].*\\.js$":
+  "node_modules[\\/].*core-flows[\\/]dist[\\/](cart|order|payment)[\\/].*\\.js$":
     "@mercurjs/core/patches/jest-transformer",
   "^.+\\.[jt]s$": ["@swc/jest", { /* ... */ }],
 },
-transformIgnorePatterns: ["/node_modules/(?!.*core-flows[\\/]dist[\\/](cart|payment)[\\/])"],
+transformIgnorePatterns: ["/node_modules/(?!.*core-flows[\\/]dist[\\/](cart|order|payment)[\\/])"],
 ```
 
 Both paths funnel through `patchSourceForPath`, so a patch means the same thing
@@ -76,7 +76,9 @@ package manager is detected and skipped rather than treated as a conflict.
 - **out of range** — the copy this project resolves is outside the patch's
   `compatible` range: boot fails with the installed version. Incidental copies in
   a shared package-manager store are skipped rather than fatal.
-- **applied** — one log line per patch, with the number of copies touched.
+- **applied** — one log line per patch, with the number of copies touched, at
+  `debug` through Medusa's logger. The default `LOG_LEVEL` (`http`) hides it;
+  run with `LOG_LEVEL=debug` to see it in the console or in `LOG_FILE`.
 
 The diff's own context is the real guard: if upstream moves the code, the hunk
 stops matching and boot fails with the patch name and the bug it corrects. The

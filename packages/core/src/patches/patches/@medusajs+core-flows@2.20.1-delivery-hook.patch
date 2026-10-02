@@ -1,0 +1,39 @@
+diff --git a/dist/order/workflows/mark-order-fulfillment-as-delivered.d.ts b/dist/order/workflows/mark-order-fulfillment-as-delivered.d.ts
+index ca18c8e..0017842 100644
+--- a/dist/order/workflows/mark-order-fulfillment-as-delivered.d.ts
++++ b/dist/order/workflows/mark-order-fulfillment-as-delivered.d.ts
+@@ -94,5 +94,10 @@ export declare const markOrderFulfillmentAsDeliveredWorkflowId = "mark-order-ful
+  *
+  * Mark a fulfillment in an order as delivered.
+  */
+-export declare const markOrderFulfillmentAsDeliveredWorkflow: import("@medusajs/framework/workflows-sdk").ReturnWorkflow<MarkOrderFulfillmentAsDeliveredWorkflowInput, undefined, []>;
++export declare const markOrderFulfillmentAsDeliveredWorkflow: import("@medusajs/framework/workflows-sdk").ReturnWorkflow<MarkOrderFulfillmentAsDeliveredWorkflowInput, undefined, [
++    import("@medusajs/framework/workflows-sdk").Hook<"fulfillmentDelivered", {
++        order_id: string;
++        fulfillment_id: string;
++    }, unknown>
++]>;
+ //# sourceMappingURL=mark-order-fulfillment-as-delivered.d.ts.map
+\ No newline at end of file
+diff --git a/dist/order/workflows/mark-order-fulfillment-as-delivered.js b/dist/order/workflows/mark-order-fulfillment-as-delivered.js
+index 1829603..ee0814f 100644
+--- a/dist/order/workflows/mark-order-fulfillment-as-delivered.js
++++ b/dist/order/workflows/mark-order-fulfillment-as-delivered.js
+@@ -160,6 +160,15 @@ exports.markOrderFulfillmentAsDeliveredWorkflow = (0, workflows_sdk_1.createWork
+             no_notification: input.no_notification,
+         },
+     });
+-    return new workflows_sdk_1.WorkflowResponse(void 0);
++    // MERCUR: delivery is the point a marketplace releases the seller's money,
++    // and that release must sit in the delivery's own transaction, with
++    // compensation. The event above fires after commit and cannot be undone.
++    const fulfillmentDelivered = (0, workflows_sdk_1.createHook)("fulfillmentDelivered", {
++        order_id: orderId,
++        fulfillment_id: (0, workflows_sdk_1.transform)({ deliveredFulfillment }, ({ deliveredFulfillment }) => deliveredFulfillment.id),
++    });
++    return new workflows_sdk_1.WorkflowResponse(void 0, {
++        hooks: [fulfillmentDelivered],
++    });
+ });
+ //# sourceMappingURL=mark-order-fulfillment-as-delivered.js.map
+\ No newline at end of file

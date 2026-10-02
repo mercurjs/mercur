@@ -1,6 +1,8 @@
 import { existsSync, realpathSync } from "fs"
 import { join } from "path"
 
+import { logger as medusaLogger } from "@medusajs/framework/logger"
+
 import { isPatchApplied, readPatchedFiles } from "./apply-patch"
 import {
   isAlreadyLoaded,
@@ -31,7 +33,7 @@ const PATCH_DIR = join(__dirname, "patches")
 export type ApplyPatchesOptions = {
   /** Patch file names to skip, for adopters who need to opt out of one. */
   disabled?: string[]
-  logger?: Pick<Console, "info" | "warn">
+  logger?: Pick<typeof medusaLogger, "debug" | "warn">
 }
 
 function fail(entry: PatchEntry, copy: PackageCopy, detail: string): never {
@@ -105,7 +107,7 @@ function applyToCopy(
 
 export function applyMercurPatches(options: ApplyPatchesOptions = {}): void {
   const disabled = new Set(options.disabled ?? [])
-  const logger = options.logger ?? console
+  const logger = options.logger ?? medusaLogger
   const patchedPackages = new Set<string>()
 
   for (const entry of PATCHES) {
@@ -140,7 +142,9 @@ export function applyMercurPatches(options: ApplyPatchesOptions = {}): void {
       )
     }
 
-    logger.info(
+    // Medusa's own loaders report what they registered at debug, which the
+    // default LOG_LEVEL ("http") keeps out of the console.
+    logger.debug(
       `[mercur] Applied patch "${entry.file}" to ${patchedCount} copy/copies of ` +
         `${entry.package}`
     )
