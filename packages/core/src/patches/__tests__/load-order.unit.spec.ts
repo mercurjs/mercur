@@ -26,4 +26,8 @@ describe("patch load order", () => {
       after: ["function", "function"],
     })
   })
+
+  it("exposes fulfillmentDelivered on the workflow exported from @mercurjs/core/workflows", () => {
+    expect(run("workflows-entry.ts")).toEqual("function")
+  })
 })

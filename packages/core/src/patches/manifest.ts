@@ -37,7 +37,7 @@ export const PATCHES: PatchEntry[] = [
       "hook, unlike createOrderWorkflow and cancelOrderWorkflow. A ledger that must " +
       "record every capture and refund inside the movement's own transaction, with " +
       "compensation, needs paymentCaptured and paymentRefunded.",
-  },,
+  },
   {
     file: "@medusajs+core-flows@2.20.1-delivery-hook.patch",
     package: "@medusajs/core-flows",

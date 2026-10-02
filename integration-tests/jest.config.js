@@ -21,8 +21,8 @@ module.exports = {
     ],
   },
   testEnvironment: "node",
-  // Everything in node_modules is left untransformed except the core-flows cart
-  // and payment files the patches target.
+  // Everything in node_modules is left untransformed except the core-flows cart,
+  // order and payment files the patches target.
   transformIgnorePatterns: [
     "/node_modules/(?!.*core-flows[\\\\/]dist[\\\\/](cart|order|payment)[\\\\/])",
   ],
