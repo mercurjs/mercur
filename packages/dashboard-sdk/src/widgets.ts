@@ -23,6 +23,7 @@ import type { BuiltMercurConfig } from "./types"
 type WidgetInfo = {
     zones: string[]
     id?: string
+    label?: string
     permissions: string[]
 }
 
@@ -45,6 +46,7 @@ function readWidgetConfig(properties: any[]): WidgetInfo | null {
     const zones: string[] = []
     const permissions: string[] = []
     let id: string | undefined
+    let label: string | undefined
 
     for (const prop of properties) {
         if (!isObjectProperty(prop)) continue
@@ -57,10 +59,13 @@ function readWidgetConfig(properties: any[]): WidgetInfo | null {
         if (isIdentifier(prop.key, { name: "id" }) && isStringLiteral(prop.value)) {
             id = prop.value.value
         }
+        if (isIdentifier(prop.key, { name: "label" }) && isStringLiteral(prop.value)) {
+            label = prop.value.value
+        }
     }
 
     if (zones.length === 0) return null
-    return { zones, id, permissions }
+    return { zones, id, label, permissions }
 }
 
 function getConfigProperties(node: any): any[] | null {
@@ -144,7 +149,7 @@ function parseWidgetFile(
         import: `import ${name} from "${importPath}"`,
         entry: `    { Component: ${name}, zone: ${zonesLiteral}, widgetId: ${JSON.stringify(
             id
-        )}${
+        )}${info.label ? `, label: ${JSON.stringify(info.label)}` : ""}${
             info.permissions.length
                 ? `, permission: ${JSON.stringify(info.permissions)}`
                 : ""

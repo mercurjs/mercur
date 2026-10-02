@@ -3,7 +3,8 @@
  * usages, so extension authors get typed target ids without a hand-maintained
  * list. It scans:
  *
- *   - `<WidgetZone id="…">` usages           → WidgetZoneRegistry (+ placement suffixes)
+ *   - `<WidgetZone id="…">` usages,           → WidgetZoneRegistry (+ placement suffixes)
+ *     `useWidgetTabs("…")` calls
  *   - `useCoreRoutes()` `to:` literals        → NavItemRegistry / NavParentRegistry
  *   - `<FormExtensionZone model zone>` /       → CustomFieldsRegistry (form/display zones)
  *     `<DisplayExtensionZone model zone>`
@@ -34,10 +35,12 @@ function walk(dir: string, out: string[] = []): string[] {
 function collectWidgetSlots(files: string[]): Set<string> {
   const slots = new Set<string>()
   const re = /<WidgetZone[^>]*\bid=["'`]([^"'`]+)["'`]/g
+  const tabsRe = /\buseWidgetTabs\(\s*["'`]([^"'`]+)["'`]/g
   for (const file of files) {
     const code = fs.readFileSync(file, "utf-8")
     let m: RegExpExecArray | null
     while ((m = re.exec(code))) slots.add(m[1])
+    while ((m = tabsRe.exec(code))) slots.add(m[1])
   }
   return slots
 }

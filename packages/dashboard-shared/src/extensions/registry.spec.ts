@@ -10,6 +10,29 @@ const openDispute = (entity: unknown) =>
     : undefined
 
 describe("ExtensionRegistry", () => {
+  test("keeps a tab widget's label and placement", () => {
+    const Component = () => null
+    const registry = new ExtensionRegistry({
+      widgets: {
+        widgets: [
+          {
+            Component,
+            zone: ["stores.detail.tabs.after"],
+            widgetId: "loyalty",
+            label: "Loyalty",
+          },
+          { Component, zone: ["stores.detail.tabs.before"], widgetId: "kyc" },
+        ],
+      },
+    })
+
+    const tabs = registry.getWidgets("stores.detail.tabs")
+    expect(tabs.after).toEqual([
+      { Component, widgetId: "loyalty", label: "Loyalty", permission: undefined },
+    ])
+    expect(tabs.before.map((widget) => widget.label)).toEqual([undefined])
+  })
+
   test("action locks return undefined without configs", () => {
     const registry = new ExtensionRegistry()
     expect(registry.getActionLock("order", "return", { id: "o" })).toBeUndefined()

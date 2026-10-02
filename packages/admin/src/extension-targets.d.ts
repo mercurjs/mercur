@@ -140,6 +140,8 @@ declare module "@mercurjs/dashboard-sdk" {
     "stores.detail.main.before": true
     "stores.detail.side.after": true
     "stores.detail.side.before": true
+    "stores.detail.tabs.after": true
+    "stores.detail.tabs.before": true
     "stores.list.after": true
     "stores.list.before": true
     "tax-regions.detail.main.after": true
