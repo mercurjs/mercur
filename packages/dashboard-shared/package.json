@@ -30,9 +30,9 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/error-message": "^2.0.1",
     "@hookform/resolvers": "5.4.0",
-    "@medusajs/admin-shared": "2.21.0",
-    "@medusajs/dashboard": "2.21.0",
-    "@medusajs/icons": "2.21.0",
+    "@medusajs/admin-shared": "2.21.2",
+    "@medusajs/dashboard": "2.21.2",
+    "@medusajs/icons": "2.21.2",
     "@medusajs/ui": "4.2.3",
     "@mercurjs/client": "2.3.6-canary.9",
     "@radix-ui/react-dialog": "1.1.19",
@@ -69,7 +69,7 @@
     "zod": "4.6.5"
   },
   "devDependencies": {
-    "@medusajs/types": "2.21.0",
+    "@medusajs/types": "2.21.2",
     "@mercurjs/core": "2.3.6-canary.9",
     "@mercurjs/dashboard-sdk": "2.3.6-canary.9",
     "@mercurjs/types": "2.3.6-canary.9",

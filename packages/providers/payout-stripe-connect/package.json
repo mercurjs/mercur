@@ -28,7 +28,7 @@
     "@medusajs/framework": ">=2.21.0"
   },
   "devDependencies": {
-    "@medusajs/framework": "2.21.0",
+    "@medusajs/framework": "2.21.2",
     "@mercurjs/types": "2.3.6-canary.9",
     "tsup": "^8.5.0"
   },
