@@ -46,7 +46,7 @@
     "plusCountMore": "+ {{count}} plus",
     "areYouSure": "Êtes-vous sûr ?",
     "noRecordsFound": "Aucun enregistrement trouvé",
-    "typeToConfirm": "Veuillez entrer {{val}} pour confirmer :",
+    "typeToConfirm": "Veuillez entrer {val} pour confirmer :",
     "noResultsTitle": "Aucun résultat",
     "noResultsMessage": "Essayez de changer les filtres ou la requête de recherche",
     "noSearchResults": "Aucun résultat de recherche",

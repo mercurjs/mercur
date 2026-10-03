@@ -1497,11 +1497,11 @@
       "placeholders": {
         "noReturnShippingOptions": {
           "title": "לא נמצאו אפשרויות משלוח להחזרה",
-          "hint": "לא נוצרו אפשרויות משלוח להחזרה למיקום. ניתן ליצור אחת ב< LinkComponent >מיקום ומשלוח< /LinkComponent >."
+          "hint": "לא נוצרו אפשרויות משלוח להחזרה למיקום. ניתן ליצור אחת ב<LinkComponent>מיקום ומשלוח</LinkComponent>."
         },
         "outboundShippingOptions": {
           "title": "לא נמצאו אפשרויות משלוח יוצאות",
-          "hint": "לא נוצרו אפשרויות משלוח יוצאות למיקום. ניתן ליצור אחת ב< LinkComponent >מיקום ומשלוח< /LinkComponent >."
+          "hint": "לא נוצרו אפשרויות משלוח יוצאות למיקום. ניתן ליצור אחת ב<LinkComponent>מיקום ומשלוח</LinkComponent>."
         }
       },
       "receive": {

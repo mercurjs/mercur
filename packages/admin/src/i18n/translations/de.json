@@ -1430,7 +1430,7 @@
     "edit": {
       "email": {
         "title": "E-Mail bearbeiten",
-        "requestSuccess": "Bestellungs-E-Mail aktualisiert auf {{email}}."
+        "requestSuccess": "E-Mail wurde erfolgreich aktualisiert."
       },
       "shippingAddress": {
         "title": "Lieferadresse bearbeiten",
@@ -2801,7 +2801,7 @@
     "resendInvite": "Einladung erneut senden",
     "copyInviteLink": "Einladungslink kopieren",
     "expiredOnDate": "Abgelaufen am {{date}}",
-    "validFromUntil": "Gültig von <0>{{von}}</0> - <1>{{bis}}</1>",
+    "validFromUntil": "Gültig von <0>{{from}}</0> - <1>{{until}}</1>",
     "acceptedOnDate": "Akzeptiert am {{date}}",
     "inviteStatus": {
       "accepted": "Akzeptiert",
