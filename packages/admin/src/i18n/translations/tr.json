@@ -786,7 +786,7 @@
       "edit": {
         "header": "Kargo yapılandırması",
         "toasts": {
-          "success": "Kargo yapılandırması başarıyla güncellendi."
+          "success": "{{title}} için kargo profili başarıyla güncellendi."
         }
       },
       "create": {
