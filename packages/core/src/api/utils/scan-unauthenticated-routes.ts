@@ -40,7 +40,9 @@ function hasAuthenticateFalse(filePath: string): boolean {
     const content = fs.readFileSync(filePath, "utf-8")
     return (
       /export\s+const\s+AUTHENTICATE\s*=\s*false/.test(content) ||
-      /export\s*\{[^}]*\bAUTHENTICATE\b[^}]*\}/.test(content)
+      /export\s*\{[^}]*\bAUTHENTICATE\b[^}]*\}/.test(content) ||
+      // Plugin routes are scanned in their compiled CommonJS output.
+      /\bexports\.AUTHENTICATE\s*=\s*false\b/.test(content)
     )
   } catch {
     return false
