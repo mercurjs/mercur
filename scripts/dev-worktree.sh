@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
-REPO_ROOT="/Users/viktorholik/Desktop/mercur"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORKTREES_DIR="$REPO_ROOT/.claude/worktrees"
 STATE_ROOT="$WORKTREES_DIR/.dev-state"
 
