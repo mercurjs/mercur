@@ -13,6 +13,7 @@ import {
 } from "@medusajs/framework/types"
 import {
   createInventoryItemsWorkflow,
+  type CreateInventoryItemsWorkflowInput,
   createRemoteLinkStep,
   emitEventStep,
   useQueryGraphStep,
@@ -44,6 +45,17 @@ export type CreateOffersWorkflowHooks = [
   >,
 ]
 
+const VARIANT_INVENTORY_ATTRIBUTES = [
+  "origin_country",
+  "mid_code",
+  "material",
+  "weight",
+  "length",
+  "height",
+  "width",
+  "hs_code",
+] as const
+
 export const createOffersWorkflowId = "create-offers"
 
 export const createOffersWorkflow: ReturnWorkflow<
@@ -61,25 +73,24 @@ export const createOffersWorkflow: ReturnWorkflow<
 
     const { data: variants } = useQueryGraphStep({
       entity: "product_variant",
-      fields: ["id", "title", "ean", "upc", "price_set.id", "product.id"],
+      fields: [
+        "id",
+        "title",
+        "ean",
+        "upc",
+        "price_set.id",
+        "product.id",
+        ...VARIANT_INVENTORY_ATTRIBUTES,
+      ],
       filters: { id: variantIds },
     }).config({ name: "get-variants" })
 
     const inventoryItemsToCreate = transform(
       { input, variants },
       ({ input, variants }) => {
-        const variantTitleById = new Map(
-          variants.map((v) => [v.id, v.title as string | undefined]),
-        )
+        const variantById = new Map(variants.map((v) => [v.id, v]))
 
-        const items: Array<{
-          sku?: string
-          title: string
-          location_levels: Array<{
-            location_id: string
-            stocked_quantity: number
-          }>
-        }> = []
+        const items: CreateInventoryItemsWorkflowInput["items"] = []
         const offerSpans: Array<{ start: number; length: number }> = []
 
         input.offers.forEach((offer) => {
@@ -89,10 +100,26 @@ export const createOffersWorkflow: ReturnWorkflow<
               "Offer must have at least one inventory item",
             )
           }
-          const variantTitle = variantTitleById.get(offer.variant_id)
+          const variant = variantById.get(offer.variant_id)
+          const variantTitle = variant?.title as string | undefined
+          // Variant measurements describe one sellable unit, so they only fit
+          // an item that is the whole unit, not a kit component.
+          const isSingleUnit =
+            offer.inventory_items.length === 1 &&
+            (offer.inventory_items[0].required_quantity ?? 1) === 1
+          const variantAttributes =
+            isSingleUnit && variant
+              ? Object.fromEntries(
+                  VARIANT_INVENTORY_ATTRIBUTES.map((field) => [
+                    field,
+                    variant[field] ?? undefined,
+                  ]),
+                )
+              : {}
           const start = items.length
           offer.inventory_items.forEach((item) => {
             items.push({
+              ...variantAttributes,
               sku: item.sku,
               title: variantTitle ?? item.title ?? item.sku ?? offer.sku,
               location_levels: item.stock_levels ?? [],
