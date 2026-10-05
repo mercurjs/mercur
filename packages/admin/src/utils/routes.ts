@@ -18,6 +18,7 @@ export type MenuItem = {
     path: string
     rank?: number
     nested?: string
+    group?: string
     translationNs?: string
     permissions?: Permission[]
     requireAll?: boolean

@@ -21,9 +21,9 @@ export function defineWidgetConfig(config: WidgetConfig): WidgetConfig {
     return createConfigHelper(config)
 }
 
-export function defineNavigationConfig(
-    config: NavigationConfig
-): NavigationConfig {
+export function defineNavigationConfig<TGroup extends string = never>(
+    config: NavigationConfig<TGroup>
+): NavigationConfig<TGroup> {
     return createConfigHelper(config)
 }
 

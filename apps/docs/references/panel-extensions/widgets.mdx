@@ -128,6 +128,55 @@ works as on any other widget and hides the tab from actors who lack it.
 | ----- | ------------------- | ------------------------------------------------------- |
 | Admin | `stores.detail.tabs` | Store detail, next to Orders, Offers, Users and Time off. |
 
+## List item rows
+
+The locations list renders one card per stock location. The `locations.list.item`
+zone sits inside each card, so a widget there adds a row to the card instead of a
+separate block above or below the list. `locations.list.item.before` renders
+between the card header and the built-in rows, and `locations.list.item.after`
+renders after them. `data` is the stock location of that card.
+
+```tsx apps/vendor/src/widgets/location-local-delivery-row.tsx
+import { defineWidgetConfig } from "@mercurjs/dashboard-sdk"
+import { StatusBadge, Text } from "@medusajs/ui"
+import type { HttpTypes } from "@mercurjs/types"
+
+type StockLocation = HttpTypes.VendorStockLocationResponse["stock_location"]
+
+const LocationLocalDeliveryRow = ({ data }: { data?: StockLocation }) => {
+  const enabled = data?.fulfillment_sets?.some(
+    (set) => set.type === "local_delivery"
+  )
+
+  return (
+    <div className="flex items-center justify-between px-6 py-4">
+      <Text size="small" weight="plus" className="text-ui-fg-subtle flex-1">
+        Local delivery
+      </Text>
+      <div className="flex-1">
+        <StatusBadge color={enabled ? "green" : "grey"}>
+          {enabled ? "Enabled" : "Disabled"}
+        </StatusBadge>
+      </div>
+    </div>
+  )
+}
+
+export const config = defineWidgetConfig({
+  zone: "locations.list.item.after",
+})
+
+export default LocationLocalDeliveryRow
+```
+
+Return a single row element, without a `Container` of its own. The card draws the
+divider between rows.
+
+| Panel  | Zone                  | Page                                   |
+| ------ | --------------------- | -------------------------------------- |
+| Vendor | `locations.list.item` | Settings → Locations, each location card. |
+| Admin  | `locations.list.item` | Settings → Locations, each location card. |
+
 ## Zone ids
 
 A zone id reads `<domain>.<view>.<placement>`.
@@ -155,7 +204,7 @@ expands to a `.before` and an `.after` zone.
 | `customer-groups`  |  ✓   |      ✓      |             |       |
 | `customers`        |  ✓   |      ✓      |      ✓      |       |
 | `inventory`        |  ✓   |      ✓      |      ✓      |       |
-| `locations`        |  ✓   |      ✓      |      ✓      |       |
+| `locations`        |  ✓   |      ✓      |      ✓      | `list.item` |
 | `offer-variants`   |      |      ✓      |      ✓      |       |
 | `offers`           |  ✓   |      ✓      |      ✓      |       |
 | `orders`           |  ✓   |      ✓      |      ✓      | `detail.summary` |
@@ -202,7 +251,7 @@ cell expands to a `.before` and an `.after` zone.
 | `customer-groups`       |  ✓   |      ✓      |             |       |
 | `customers`             |  ✓   |      ✓      |      ✓      |       |
 | `inventory`             |  ✓   |      ✓      |      ✓      |       |
-| `locations`             |  ✓   |      ✓      |      ✓      |       |
+| `locations`             |  ✓   |      ✓      |      ✓      | `list.item` |
 | `marketplace`           |      |      ✓      |             |       |
 | `offer-variants`        |      |      ✓      |      ✓      |       |
 | `offers`                |  ✓   |      ✓      |      ✓      |       |
