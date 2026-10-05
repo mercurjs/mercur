@@ -1430,7 +1430,7 @@
     "edit": {
       "email": {
         "title": "Editar email",
-        "requestSuccess": "Email do pedido atualizado para {{email}}."
+        "requestSuccess": "Email atualizado com sucesso."
       },
       "shippingAddress": {
         "title": "Editar endereço de entrega",
