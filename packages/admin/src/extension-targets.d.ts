@@ -54,6 +54,8 @@ declare module "@mercurjs/dashboard-sdk" {
     "locations.detail.side.before": true
     "locations.list.after": true
     "locations.list.before": true
+    "locations.list.item.after": true
+    "locations.list.item.before": true
     "marketplace.detail.main.after": true
     "marketplace.detail.main.before": true
     "offer-variants.detail.main.after": true
