@@ -35,6 +35,8 @@ import { UserMenu } from "../user-menu";
 import menuItemsModule from "virtual:mercur/menu-items";
 import {
   applyNavOverrides,
+  groupNavItems,
+  type NavItemGroup,
   useExtension,
   usePermissions,
   type CoreNavItem,
@@ -89,9 +91,12 @@ const addNestedItems = (
   return [...(items ?? []), ...nestedNavItems];
 };
 
+type SidebarRoute = Omit<INavItem, "pathname"> & { group?: string };
+
 const useSidebarRoutes = () => {
   const coreRoutes = useCoreRoutes();
-  const navOverrides = useExtension().getNavOverrides();
+  const extension = useExtension();
+  const navOverrides = extension.getNavOverrides();
   const permissions = usePermissions();
   const { hasAnyPermission, hasAllPermissions } = permissions;
 
@@ -129,22 +134,36 @@ const useSidebarRoutes = () => {
       to: item.path,
       icon: item.icon ? <item.icon /> : undefined,
       translationNs: item.translationNs,
+      group: item.group,
       items: addNestedItems(item.path, visibleMenuItems),
     }));
 
-  return { routesWithNested, customRoutesWithNested };
+  const groupById = new Map<string, string | undefined>(
+    navOverrides.map((o) => [o.id, o.group]),
+  );
+
+  return groupNavItems<SidebarRoute>(
+    [
+      ...routesWithNested.map((route) => ({
+        ...route,
+        group: groupById.get(route.id),
+      })),
+      ...customRoutesWithNested,
+    ],
+    extension.getNavGroups(),
+  );
 };
 
 // First sidebar entry the actor can open, in sidebar order. Falls back to the
 // profile page, which needs no permission.
 export const useLandingRoute = () => {
-  const { routesWithNested, customRoutesWithNested } = useSidebarRoutes();
-  const first = [...routesWithNested, ...customRoutesWithNested][0];
+  const { ungrouped, groups } = useSidebarRoutes();
+  const first = [...ungrouped, ...groups.flatMap((group) => group.items)][0];
   return first?.to ?? "/settings/profile";
 };
 
 const MainSidebar = () => {
-  const { routesWithNested, customRoutesWithNested } = useSidebarRoutes();
+  const { ungrouped, groups } = useSidebarRoutes();
 
   return (
     <aside
@@ -168,11 +187,11 @@ const MainSidebar = () => {
               data-testid="sidebar-core-routes"
             >
               <Searchbar />
-              {routesWithNested.map((route) => {
-                return <NavItem key={route.to} {...route} />;
-              })}
-              {customRoutesWithNested.map((route) => (
+              {ungrouped.map((route) => (
                 <NavItem key={route.to} {...route} />
+              ))}
+              {groups.map((group) => (
+                <SidebarGroup key={group.id} group={group} />
               ))}
             </nav>
           </div>
@@ -186,6 +205,33 @@ const MainSidebar = () => {
         </div>
       </div>
     </aside>
+  );
+};
+
+const SidebarGroup = ({ group }: { group: NavItemGroup<SidebarRoute> }) => {
+  const { t } = useTranslation(group.translationNs);
+
+  return (
+    <div
+      className="flex flex-col gap-y-1 pt-2"
+      data-testid={`sidebar-group-${group.id}`}
+    >
+      <div className="px-3">
+        <div
+          className={clx(
+            "flex h-7 items-center overflow-hidden whitespace-nowrap px-2 text-ui-fg-muted",
+            SIDEBAR_RAIL_FADE,
+          )}
+        >
+          <Text size="small" leading="compact">
+            {group.translationNs ? t(group.label) : group.label}
+          </Text>
+        </div>
+      </div>
+      {group.items.map((route) => (
+        <NavItem key={route.to} {...route} />
+      ))}
+    </div>
   );
 };
 
