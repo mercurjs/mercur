@@ -1,14 +1,25 @@
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 import { PaymentEvents } from "@medusajs/framework/utils"
 
-import { splitCapturedCartPaymentWorkflow } from "../workflows/payment"
+import {
+  resolveSplitOrderCartId,
+  splitCapturedCartPaymentWorkflow,
+} from "../workflows/payment"
 
 export default async function splitOrderPaymentCapturedHandler({
   event,
   container,
 }: SubscriberArgs<{ id: string }>) {
+  const cartId = await resolveSplitOrderCartId(container, {
+    payment_id: event.data.id,
+  })
+
+  if (!cartId) {
+    return
+  }
+
   await splitCapturedCartPaymentWorkflow(container).run({
-    input: { payment_id: event.data.id },
+    input: { cart_id: cartId },
   })
 }
 
