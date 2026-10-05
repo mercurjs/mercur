@@ -151,6 +151,7 @@ export default defineNavigationConfig({
 
 - `id` targets any built-in item, top-level routes or nested children, by its stable id, typed as `NavItemId`.
 - `rank` orders an item within its parent, `hidden` removes it from the sidebar, `label` and `icon` relabel it, and `nested` re-parents it (`nested: null` promotes to top level, typed against `NavParentId`).
+- `groups` declares or reshapes the group headings of the settings sidebar, and an item's `group` moves a settings item (targeted as `settings/<segment>`) between them. A custom settings page picks its group with `group` in its route config.
 - Navigation is a single host-owned file. Installed blocks cannot reorder the sidebar, so it stays one source of truth. It does not change custom routes, which still place themselves via `defineRouteConfig`.
 
 Walk through it in [Customize navigation](/rc/resources/tutorials/customize-navigation).
@@ -242,6 +243,7 @@ For the full walkthrough (forms, sections, and list columns), see [Extend forms 
     | `icon` | `ComponentType` | Icon component (for example from `@medusajs/icons`) |
     | `rank` | `number` | Sort order (lower numbers appear first) |
     | `nested` | `string` | Parent path for nested menu items |
+    | `group` | `string` | Settings sidebar group for a `/settings/*` route |
     | `translationNs` | `string` | i18n namespace for the label |
     | `public` | `boolean` | If `true`, the route is accessible without authentication |
 

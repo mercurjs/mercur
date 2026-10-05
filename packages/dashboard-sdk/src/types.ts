@@ -1,4 +1,5 @@
 import { ComponentType, ReactNode } from "react";
+import type { NavGroupId } from "./config/types";
 import type { Permission } from "./permissions";
 
 /**
@@ -70,6 +71,11 @@ export type RouteConfig = {
     icon?: ComponentType
     rank?: number
     nested?: string
+    /**
+     * Settings sidebar group to list a `/settings/*` route under: a built-in
+     * group id or one declared in `_navigation.ts`. Must be a string literal.
+     */
+    group?: NavGroupId | (string & {})
     translationNs?: string
     public?: boolean
     /**

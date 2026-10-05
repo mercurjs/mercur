@@ -17,7 +17,13 @@ export {
 } from "./context"
 export { WidgetZone, type WidgetZoneProps } from "./widget-zone"
 export { useWidgetTabs, type WidgetTab, type WidgetTabs } from "./use-widget-tabs"
-export { applyNavOverrides, type CoreNavItem } from "./nav"
+export {
+  applyNavOverrides,
+  applyNavGroups,
+  type CoreNavItem,
+  type NavGroup,
+  type NavGroupItem,
+} from "./nav"
 export {
   FormExtensionZone,
   type FormExtensionZoneProps,

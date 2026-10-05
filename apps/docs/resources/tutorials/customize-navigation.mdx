@@ -1,7 +1,7 @@
 ---
 title: "How to Customize Navigation"
 sidebarTitle: "Customize Navigation"
-description: "Reorder, hide, relabel, and re-parent the panel's built-in sidebar items from a single _navigation.ts file."
+description: "Reorder, hide, relabel, re-parent, and group the panel's built-in sidebar items from a single _navigation.ts file."
 ---
 
 Reshape the built-in sidebar without replacing it. You author one host-owned file, `src/_navigation.ts`, and it reorders, hides, relabels, and re-parents the built-in items.
@@ -55,8 +55,9 @@ With it present, `id` and `nested` autocomplete and an unknown id fails `tsc`.
     | `label` | `string` | Relabel with an i18n key or literal. |
     | `icon` | `ComponentType` | Replace its icon. |
     | `nested` | `NavParentId \| null` | Re-parent under another top-level item. `null` promotes a nested item to top level. |
+    | `group` | `NavGroupId` | Settings items only. Move the item into another [settings group](#group-settings-items). |
 
-    Both `id` and `nested` are checked against the panel's generated `NavItemRegistry` and `NavParentRegistry`.
+    `id`, `nested`, and `group` are checked against the panel's generated `NavItemRegistry`, `NavParentRegistry`, and `NavGroupRegistry`.
   </Step>
   <Step title="Reload the panel">
     Open the vendor portal. Orders sits at the top, Price Lists is gone from the menu, and Campaigns now appears under Orders.
@@ -80,6 +81,52 @@ export default defineNavigationConfig({
 })
 ```
 
+## Group settings items
+
+The settings sidebar lists its items under group headings. The admin panel ships three groups, `general`, `developer`, and `myAccount`. The vendor portal ships `general`. Use `groups` to declare your own or reshape the built-in ones, and `group` to move an item between them.
+
+```ts apps/admin/src/_navigation.ts
+import { defineNavigationConfig } from "@mercurjs/dashboard-sdk"
+
+export default defineNavigationConfig({
+  groups: [
+    { id: "integrations", label: "Integrations", rank: 1 }, // new group, after General
+    { id: "developer", label: "API" },                      // relabel a built-in group
+  ],
+  items: [
+    { id: "settings/secret-api-keys", group: "integrations" }, // move a built-in item
+    { id: "settings/tax-regions", group: "integrations", rank: 0 },
+  ],
+})
+```
+
+Settings items are targeted by their path without the leading slash, such as `settings/users`.
+
+| Field | Type | Effect |
+|-------|------|--------|
+| `id` | `string` | **Required.** A built-in group id to override, or a new keyword to declare a group. |
+| `label` | `string` | Heading text. A literal, or an i18n key when `translationNs` is set. Defaults to the `id`. |
+| `translationNs` | `string` | i18n namespace used to resolve `label`. |
+| `rank` | `number` | Order among groups, lower first. Built-in groups rank `0`, `1`, `2` in their default order, and new groups follow them. |
+| `hidden` | `boolean` | Remove the group and its items from the sidebar. |
+
+The `group` of an item only accepts a built-in group id or an id declared in the same file's `groups`, so a typo fails `tsc`.
+
+A custom settings page picks its group in its own route config with the same keyword. Pages without a `group` stay in the first group.
+
+```tsx apps/admin/src/routes/settings/webhooks/page.tsx
+import type { RouteConfig } from "@mercurjs/dashboard-sdk"
+
+export const config: RouteConfig = {
+  label: "Webhooks",
+  group: "integrations",
+}
+```
+
+<Note>
+  Groups exist only in the settings sidebar. `group` has no effect on main sidebar items, and `nested` has no effect on settings items. A group with no visible items isn't rendered.
+</Note>
+
 ## Verify
 
 1. The top-level order reflects your `rank` values, with `orders` first.
@@ -93,6 +140,9 @@ export default defineNavigationConfig({
 <AccordionGroup>
   <Accordion title="Can an installed block reorder the sidebar?">
     No. Navigation is deliberately host-only. Blocks can ship pages, widgets, and custom fields, but the sidebar order stays a single source of truth in your app's `_navigation.ts`.
+  </Accordion>
+  <Accordion title="Can a block put its settings page in a group?">
+    Yes. A block's settings page sets `group` in its route config like any other page. If the host hasn't declared that group, the page falls back to the first group.
   </Accordion>
   <Accordion title="What ids can I target?">
     Any built-in item, top-level or nested, by its own id, such as `orders`, `products`, `categories`, `collections`, `campaigns`, or `customer-groups`. Let your editor autocomplete `id:` against `NavItemId`. The full set is generated into your panel's `extension-targets.d.ts`.

@@ -17,6 +17,7 @@ import type { Permission } from "../permissions"
 export interface WidgetZoneRegistry {}
 export interface NavItemRegistry {}
 export interface NavParentRegistry {}
+export interface NavGroupRegistry {}
 
 export type WidgetZoneId = keyof WidgetZoneRegistry extends never
     ? string
@@ -29,6 +30,10 @@ export type NavItemId = keyof NavItemRegistry extends never
 export type NavParentId = keyof NavParentRegistry extends never
     ? string
     : keyof NavParentRegistry
+
+export type NavGroupId = keyof NavGroupRegistry extends never
+    ? string
+    : keyof NavGroupRegistry
 
 /**
  * A widget is a React component attached to a named zone on a page. The
@@ -53,7 +58,7 @@ export interface WidgetConfig {
 }
 
 /** Override for a single built-in navigation item. */
-export interface NavItemOverride {
+export interface NavItemOverride<TGroup extends string = never> {
     id: NavItemId
     /** Order within the item's parent (or among top-level items). */
     rank?: number
@@ -68,8 +73,26 @@ export interface NavItemOverride {
      * children; `null` promotes a nested item to the top level.
      */
     nested?: NavParentId | null
+    /**
+     * Move a settings item into another group: a built-in group id or one
+     * declared in `groups`. Only the settings sidebar renders groups.
+     */
+    group?: NavGroupId | TGroup
 }
 
-export interface NavigationConfig {
-    items: NavItemOverride[]
+/** Declares a new settings sidebar group, or overrides a built-in one by id. */
+export interface NavGroupConfig<TId extends string = string> {
+    id: NavGroupId | TId
+    /** i18n key (with `translationNs`) or literal. Falls back to the id. */
+    label?: string
+    translationNs?: string
+    /** Order among groups, lower first. Built-in groups rank 0, 1, 2… */
+    rank?: number
+    /** Remove the group and its items from the sidebar. */
+    hidden?: boolean
+}
+
+export interface NavigationConfig<TGroup extends string = never> {
+    groups?: NavGroupConfig<TGroup>[]
+    items?: NavItemOverride<NoInfer<TGroup>>[]
 }

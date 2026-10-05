@@ -147,6 +147,12 @@ declare module "@mercurjs/dashboard-sdk" {
     "promotions": true
     "reservations": true
     "reviews": true
+    "settings/locations": true
+    "settings/product-tags": true
+    "settings/product-types": true
+    "settings/profile": true
+    "settings/store": true
+    "settings/users": true
   }
 
   interface NavParentRegistry {
@@ -158,6 +164,10 @@ declare module "@mercurjs/dashboard-sdk" {
     "products": true
     "promotions": true
     "reviews": true
+  }
+
+  interface NavGroupRegistry {
+    "general": true
   }
 
   interface CustomFieldsRegistry {

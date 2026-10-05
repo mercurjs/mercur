@@ -5,6 +5,7 @@ import type {
   CustomFieldsConfig,
   CustomFormField,
   CustomListExtension,
+  NavGroupConfig,
   NavItemOverride,
   Permission,
   SectionAction,
@@ -21,7 +22,10 @@ export type Widget = {
 }
 
 export type WidgetModule = { widgets?: Widget[] }
-export type NavigationModule = { items?: NavItemOverride[] }
+export type NavigationModule = {
+  groups?: NavGroupConfig[]
+  items?: NavItemOverride<string>[]
+}
 export type CustomFieldsModule = { configs?: CustomFieldsConfig[] }
 
 export type ResolvedFormField = { name: string; field: CustomFormField }
@@ -63,7 +67,8 @@ function splitZone(zone: string): { slot: string; placement: WidgetPlacement } {
  */
 export class ExtensionRegistry {
   private widgets = new Map<string, ZoneWidgets>()
-  private navOverrides: NavItemOverride[] = []
+  private navOverrides: NavItemOverride<string>[] = []
+  private navGroups: NavGroupConfig[] = []
   private customFields: CustomFieldsConfig[] = []
 
   constructor(
@@ -75,6 +80,7 @@ export class ExtensionRegistry {
   ) {
     this.populateWidgets(input.widgets?.widgets ?? [])
     this.navOverrides = input.navigation?.items ?? []
+    this.navGroups = input.navigation?.groups ?? []
     this.customFields = input.customFields?.configs ?? []
   }
 
@@ -108,8 +114,12 @@ export class ExtensionRegistry {
     return this.widgets.get(slot) ?? { before: [], after: [] }
   }
 
-  getNavOverrides(): NavItemOverride[] {
+  getNavOverrides(): NavItemOverride<string>[] {
     return this.navOverrides
+  }
+
+  getNavGroups(): NavGroupConfig[] {
+    return this.navGroups
   }
 
   private configsFor(model: string): CustomFieldsConfig[] {

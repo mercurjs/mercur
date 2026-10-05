@@ -1,7 +1,7 @@
 import { ArrowUturnLeft, MinusMini } from "@medusajs/icons";
 import { clx, Divider, IconButton, Text } from "@medusajs/ui";
 import { Collapsible as RadixCollapsible } from "radix-ui";
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
@@ -9,7 +9,13 @@ import { INavItem, NavItem } from "../nav-item";
 import { Shell } from "../shell";
 import { UserMenu } from "../user-menu";
 import menuItemsModule from "virtual:mercur/menu-items";
-import { usePermissions } from "@mercurjs/dashboard-shared";
+import {
+  type NavGroup,
+  type NavGroupItem,
+  applyNavGroups,
+  useExtension,
+  usePermissions,
+} from "@mercurjs/dashboard-shared";
 import { useExpandedSidebar } from "../../../providers/sidebar-provider";
 import {
   filterMenuItemsByPermissions,
@@ -30,8 +36,17 @@ export const SettingsLayout = () => {
 
 const allMenuItems = menuItemsModule.menuItems ?? [];
 
-const useExtensionNavItems = (): INavItem[] => {
+const navId = (to: string) => to.replace(/^\//, "");
+
+const toGroupItem = ({ label, to }: INavItem): NavGroupItem => ({
+  id: navId(to),
+  label,
+  to,
+});
+
+const useExtensionNavItems = () => {
   const { hasAnyPermission, hasAllPermissions } = usePermissions();
+  const canReach = useCanReach();
 
   return useMemo(
     () =>
@@ -42,19 +57,21 @@ const useExtensionNavItems = (): INavItem[] => {
         }),
         "settings",
       )
-        .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
         .map((item) => ({
+          id: navId(item.path),
           label: item.label,
           to: item.path,
           translationNs: item.translationNs,
-        })),
-    [hasAnyPermission, hasAllPermissions],
+          group: item.group,
+          rank: item.rank,
+        }))
+        .filter(canReach),
+    [hasAnyPermission, hasAllPermissions, canReach],
   );
 };
 
 const useSettingRoutes = (): INavItem[] => {
   const { t } = useTranslation();
-  const extensionNavItems = useExtensionNavItems();
 
   return useMemo(
     () => [
@@ -82,9 +99,8 @@ const useSettingRoutes = (): INavItem[] => {
         label: t("stockLocations.domain"),
         to: "/settings/locations",
       },
-      ...extensionNavItems,
     ],
-    [t, extensionNavItems],
+    [t],
   );
 };
 
@@ -105,7 +121,38 @@ const getSafeFromValue = (from: string, landing: string) => {
 const useCanReach = () => {
   const permissions = usePermissions();
 
-  return ({ to }: INavItem) => canReachRoute(permissions, to);
+  return useCallback(
+    ({ to }: { to: string }) => canReachRoute(permissions, to),
+    [permissions],
+  );
+};
+
+const useSettingsGroups = (): NavGroup[] => {
+  const { t } = useTranslation();
+  const canReach = useCanReach();
+  const extension = useExtension();
+
+  const routes = useSettingRoutes();
+  const extensionNavItems = useExtensionNavItems();
+
+  return useMemo(
+    () =>
+      applyNavGroups(
+        [
+          {
+            id: "general",
+            label: t("app.nav.settings.general"),
+            items: routes.filter(canReach).map(toGroupItem),
+          },
+        ],
+        extensionNavItems,
+        {
+          groups: extension.getNavGroups(),
+          items: extension.getNavOverrides(),
+        },
+      ),
+    [t, canReach, extension, routes, extensionNavItems],
+  );
 };
 
 const PROFILE_ROUTE = "/settings/profile";
@@ -113,18 +160,13 @@ const PROFILE_ROUTE = "/settings/profile";
 // Where `/settings` lands: the first settings page the actor can open, or
 // their own profile, which needs no permission.
 export const useSettingsLandingRoute = () => {
-  const canReach = useCanReach();
-  const routes = useSettingRoutes().filter(canReach);
+  const routes = useSettingsGroups().flatMap((group) => group.items);
 
   return routes.find(({ to }) => to !== PROFILE_ROUTE)?.to ?? PROFILE_ROUTE;
 };
 
 const SettingsSidebar = () => {
-  const canReach = useCanReach();
-
-  const generalRoutes = useSettingRoutes().filter(canReach);
-
-  const { t } = useTranslation();
+  const groups = useSettingsGroups();
 
   return (
     <aside className="relative flex flex-1 flex-col justify-between overflow-y-auto">
@@ -136,10 +178,16 @@ const SettingsSidebar = () => {
       </div>
       <div className="flex flex-1 flex-col">
         <div className="flex flex-1 flex-col overflow-y-auto">
-          <RadixCollapsibleSection
-            label={t("app.nav.settings.general")}
-            items={generalRoutes}
-          />
+          {groups.map((group, index) => (
+            <Fragment key={group.id}>
+              {index > 0 && (
+                <div className="flex items-center justify-center px-3">
+                  <Divider variant="dashed" />
+                </div>
+              )}
+              <RadixCollapsibleSection group={group} />
+            </Fragment>
+          ))}
         </div>
         <div className="bg-ui-bg-subtle sticky bottom-0">
           <UserSection />
@@ -186,13 +234,10 @@ const Header = () => {
   );
 };
 
-const RadixCollapsibleSection = ({
-  label,
-  items,
-}: {
-  label: string;
-  items: INavItem[];
-}) => {
+const RadixCollapsibleSection = ({ group }: { group: NavGroup }) => {
+  const { t } = useTranslation(group.translationNs);
+  const label = group.translationNs ? t(group.label) : group.label;
+
   return (
     <RadixCollapsible.Root defaultOpen className="py-3">
       <div className="px-3">
@@ -210,7 +255,7 @@ const RadixCollapsibleSection = ({
       <RadixCollapsible.Content>
         <div className="pt-0.5">
           <nav className="flex flex-col gap-y-0.5">
-            {items.map((setting) => (
+            {group.items.map(({ id: _id, ...setting }) => (
               <NavItem key={setting.to} type="setting" {...setting} />
             ))}
           </nav>

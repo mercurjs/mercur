@@ -101,6 +101,7 @@ The `config` object controls the page's sidebar entry.
 | `icon`          | `ComponentType` (optional) | Sidebar icon, from `@medusajs/icons`.                          |
 | `rank`          | `number` (optional)        | Order among sibling items. Lower ranks first.                  |
 | `nested`        | `string` (optional)        | Parent item id to nest this entry under.                       |
+| `group`         | `string` (optional)        | Settings routes only. Group to list the entry under, as a string literal. Defaults to the first group. |
 | `translationNs` | `string` (optional)        | i18n namespace used to resolve `label` as a translation key.   |
 | `public`        | `boolean` (optional)       | Render the route before authentication under the public layout. |
 
@@ -131,7 +132,7 @@ Read the loader's result with `useLoaderData()` inside the component.
 
 ## Reshape built-in navigation
 
-Use `defineNavigationConfig` to reorder, hide, relabel, or re-parent built-in
+Use `defineNavigationConfig` to reorder, hide, relabel, re-parent, or group built-in
 sidebar items. It lives in a single host-owned file, `src/_navigation.ts`. Blocks
 cannot contribute navigation overrides.
 
@@ -159,6 +160,39 @@ Each entry is a `NavItemOverride`.
 | `label`  | `string` (optional)              | i18n key or literal replacing the item's label.                                 |
 | `icon`   | `ComponentType` (optional)       | Icon component replacing the item's icon, from `@medusajs/icons`.              |
 | `nested` | `NavParentId \| null` (optional) | Re-parent under a built-in parent id. `null` promotes a nested item to top level. |
+| `group`  | `NavGroupId` (optional)          | Settings items only. Move the item into a built-in group or one declared in `groups`. |
+
+### Settings groups
+
+The settings sidebar renders its items under group headings. `groups` declares
+new groups and overrides the built-in ones, `general`, `developer`, and
+`myAccount` in the admin panel and `general` in the vendor portal. Settings
+items are targeted as `settings/<segment>`.
+
+```ts apps/admin/src/_navigation.ts
+import { defineNavigationConfig } from "@mercurjs/dashboard-sdk"
+
+export default defineNavigationConfig({
+  groups: [
+    { id: "integrations", label: "Integrations", rank: 1 },
+    { id: "developer", hidden: true },
+  ],
+  items: [{ id: "settings/tax-regions", group: "integrations" }],
+})
+```
+
+Each entry is a `NavGroupConfig`.
+
+| Field           | Type                 | Description                                                                 |
+| --------------- | -------------------- | --------------------------------------------------------------------------- |
+| `id`            | `string`             | A built-in group id to override, or a new keyword that declares a group.    |
+| `label`         | `string` (optional)  | Heading text. A literal, or an i18n key with `translationNs`. Defaults to the `id`. |
+| `translationNs` | `string` (optional)  | i18n namespace used to resolve `label`.                                     |
+| `rank`          | `number` (optional)  | Order among groups, lower first. Built-in groups rank `0`, `1`, `2`.         |
+| `hidden`        | `boolean` (optional) | Remove the group and its items from the sidebar.                            |
+
+A custom settings page joins a group through `config.group`. An unknown group
+falls back to the first group, and a group with no visible items isn't rendered.
 
 Navigation overrides reshape existing items only. To add a new item, register a
 page with a `config.label` as shown above.
