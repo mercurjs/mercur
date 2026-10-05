@@ -13,11 +13,6 @@ module.exports = {
     ],
   },
   testEnvironment: "node",
-  // sanitize-html (via @mercurjs/core) require()s the ESM-only htmlparser2
-  // chain, which Jest can only load once it is transpiled.
-  transformIgnorePatterns: [
-    "/node_modules/(?!(?:.*[\\\\/])?(htmlparser2|domhandler|domutils|domelementtype|dom-serializer|entities)[\\\\/]dist[\\\\/])",
-  ],
   moduleFileExtensions: ["js", "ts", "json"],
   modulePathIgnorePatterns: ["dist/", "<rootDir>/.medusa/"],
   setupFiles: ["./integration-tests/setup.js"],
