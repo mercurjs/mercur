@@ -141,13 +141,12 @@ export const seedSellerOfferWithShipping = async (opts: {
     return { sellerId: result.seller.id, headers, offer }
 }
 
-export const completeSplitOrderCheckout = async (opts: {
+type SplitOrderCheckoutOptions = {
     container: MedusaContainer
     api: any
     storeHeaders: any
     regionId: string
     salesChannelId: string
-    offerId: string
     /**
      * Must be the authenticated customer's own email. Medusa's
      * findOrCreateCustomerStep treats a customer without `has_account` as a
@@ -155,7 +154,23 @@ export const completeSplitOrderCheckout = async (opts: {
      * guest customer — and the resulting orders stop belonging to the buyer.
      */
     email: string
-}) => {
+}
+
+export const completeSplitOrderCheckout = async (
+    opts: SplitOrderCheckoutOptions & { offerId: string }
+) => {
+    const [order] = await completeSplitOrderGroupCheckout({
+        ...opts,
+        offerIds: [opts.offerId],
+    })
+
+    return order
+}
+
+/** Checks out one cart holding every given offer; resolves to its split orders. */
+export const completeSplitOrderGroupCheckout = async (
+    opts: SplitOrderCheckoutOptions & { offerIds: string[] }
+): Promise<{ id: string }[]> => {
     const { container, api, storeHeaders } = opts
 
     const cart = (
@@ -170,11 +185,13 @@ export const completeSplitOrderCheckout = async (opts: {
         )
     ).data.cart
 
-    await api.post(
-        `/store/carts/${cart.id}/line-items`,
-        { offer_id: opts.offerId, quantity: 1 },
-        storeHeaders
-    )
+    for (const offerId of opts.offerIds) {
+        await api.post(
+            `/store/carts/${cart.id}/line-items`,
+            { offer_id: offerId, quantity: 1 },
+            storeHeaders
+        )
+    }
 
     const address = {
         first_name: "Buyer",
@@ -236,5 +253,5 @@ export const completeSplitOrderCheckout = async (opts: {
         fields: ["id", "orders.id"],
     })
 
-    return (orderGroup[0] as any).orders[0]
+    return (orderGroup[0] as any).orders
 }
