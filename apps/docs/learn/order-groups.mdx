@@ -64,6 +64,28 @@ Order groups are created automatically during checkout by the `completeCartWithS
   Order-group and vendor order reads normalize `cart.payment_collection` back onto `payment_collections` and recompute `payment_status` from it, so consumers keep the familiar shape. When requesting fields on vendor order routes, make sure the request does not replace route defaults that already include `cart.payment_collection.*` (a `fields=` list containing bare fields replaces defaults in Medusa; use `+`-prefixed fields to merge, or include the `cart.payment_collection.*` paths explicitly).
 </Info>
 
+### Capturing, refunding and canceling
+
+Medusa's `capturePaymentWorkflow`, `refundPaymentWorkflow` and `cancelOrderWorkflow` find an order's payment through the `order ↔ payment_collection` link, which split orders do not have. Run directly on a split order they capture without recording it on the orders, throw `NOT_FOUND`, or cancel the order without touching its payment. Use the Mercur workflows instead, exported from `@mercurjs/core/workflows`. The admin and vendor cancel, capture and refund routes already do.
+
+| Workflow | Behavior on a shared payment |
+|----------|------------------------------|
+| `captureSplitOrderPaymentWorkflow` | Captures the payment and records the capture on every open order of the cart, in proportion to what each still owes. Shares are rounded to the currency precision and sum exactly to the capture. Without an explicit `amount`, canceled orders' shares are left uncaptured. |
+| `refundSplitOrderPaymentWorkflow` | Refunds the payment and records the refund on one order. `order_id` is required when the cart has several orders, and the amount is capped at what that order still holds of the payment. Without an `amount` it refunds that order's whole share. Exposes a `paymentRefunded` hook. |
+| `cancelSplitOrderWorkflow` | Refunds the order's share of a captured payment, then runs `cancelOrderWorkflow`. An authorization is voided, and the payment collection canceled, only once every order of the cart is canceled. |
+
+```ts
+import { refundSplitOrderPaymentWorkflow } from "@mercurjs/core/workflows"
+
+await refundSplitOrderPaymentWorkflow(container).run({
+  input: { payment_id, order_id, amount: 1000 },
+})
+```
+
+`POST /admin/payments/:id/refund` accepts the same `order_id`. `POST /vendor/payments/:id/refund` always refunds the calling seller's own order.
+
+Payment collections that Medusa links to an order directly, such as the one created for the outstanding amount of an order edit, behave as in Medusa.
+
 ## Events
 
 | Event | Payload | When |

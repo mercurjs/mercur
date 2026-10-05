@@ -1,10 +1,10 @@
-import { refundPaymentWorkflow } from "@medusajs/core-flows"
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { HttpTypes } from "@mercurjs/types"
 
+import { refundSplitOrderPaymentWorkflow } from "../../../../../workflows/payment"
 import { refetchPayment, validateSellerPayment } from "../../helpers"
 import { VendorCreatePaymentRefundType } from "../../validators"
 
@@ -15,11 +15,12 @@ export const POST = async (
   const sellerId = req.seller_context!.seller_id
   const { id } = req.params
 
-  await validateSellerPayment(req.scope, sellerId, id)
+  const orderId = await validateSellerPayment(req.scope, sellerId, id)
 
-  await refundPaymentWorkflow(req.scope).run({
+  await refundSplitOrderPaymentWorkflow(req.scope).run({
     input: {
       payment_id: id,
+      order_id: orderId,
       created_by: sellerId,
       ...req.validatedBody,
     },

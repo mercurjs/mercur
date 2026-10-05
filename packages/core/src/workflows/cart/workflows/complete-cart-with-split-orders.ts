@@ -8,7 +8,6 @@ import {
 } from "@medusajs/framework/types"
 import {
     generateEntityId,
-    MathBN,
     Modules,
     OrderStatus,
     OrderWorkflowEvents,
@@ -50,6 +49,10 @@ import {
     prepareTaxLinesData,
 } from "../utils"
 import { registerUsageStep } from "../../promotion"
+import {
+    allocateProportionally,
+    getCurrencyDecimalDigits,
+} from "../../payment/utils"
 import { refreshOrderCommissionLinesWorkflow } from "../../commission/workflows/refresh-order-commission-lines"
 import {
     prepareOfferInventoryInput,
@@ -600,21 +603,24 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                         return []
                     }
 
-                    const transactions = createdOrders.flatMap((order) => {
-                        const proportion = MathBN.div(order.total, payment.amount)
+                    const decimalDigits = getCurrencyDecimalDigits(
+                        payment.currency_code
+                    )
 
-                        return (payment.captures ?? []).map((capture) => {
-                            const captureAmount = capture.raw_amount ?? capture.amount
-                            const proportionalAmount = MathBN.mult(captureAmount, proportion)
-
-                            return {
-                                order_id: order.id,
-                                amount: proportionalAmount,
-                                currency_code: payment.currency_code,
-                                reference: "capture",
-                                reference_id: capture.id,
-                            }
+                    const transactions = (payment.captures ?? []).flatMap((capture) => {
+                        const shares = allocateProportionally({
+                            amount: capture.raw_amount ?? capture.amount,
+                            weights: createdOrders.map((order) => order.total),
+                            decimalDigits,
                         })
+
+                        return createdOrders.map((order, index) => ({
+                            order_id: order.id,
+                            amount: shares[index],
+                            currency_code: payment.currency_code,
+                            reference: "capture",
+                            reference_id: capture.id,
+                        }))
                     })
 
                     return transactions

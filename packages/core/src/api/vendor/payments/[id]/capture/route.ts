@@ -1,10 +1,10 @@
-import { capturePaymentWorkflow } from "@medusajs/core-flows"
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { HttpTypes } from "@mercurjs/types"
 
+import { captureSplitOrderPaymentWorkflow } from "../../../../../workflows/payment"
 import { refetchPayment, validateSellerPayment } from "../../helpers"
 import { VendorCreatePaymentCaptureType } from "../../validators"
 
@@ -17,7 +17,7 @@ export const POST = async (
 
   await validateSellerPayment(req.scope, sellerId, id)
 
-  await capturePaymentWorkflow(req.scope).run({
+  await captureSplitOrderPaymentWorkflow(req.scope).run({
     input: {
       payment_id: id,
       captured_by: sellerId,

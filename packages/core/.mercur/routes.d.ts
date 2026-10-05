@@ -190,7 +190,7 @@ export type Routes = {
         orders: typeof import("../src/api/admin/orders/route") & {
             $id: typeof import("../src/api/admin/orders/[id]/route") & {
                 archive: typeof import("@medusajs/medusa/api/admin/orders/[id]/archive/route");
-                cancel: typeof import("@medusajs/medusa/api/admin/orders/[id]/cancel/route");
+                cancel: typeof import("../src/api/admin/orders/[id]/cancel/route");
                 changes: typeof import("@medusajs/medusa/api/admin/orders/[id]/changes/route");
                 commissionLines: typeof import("../src/api/admin/orders/[id]/commission-lines/route");
                 complete: typeof import("@medusajs/medusa/api/admin/orders/[id]/complete/route");
@@ -223,8 +223,8 @@ export type Routes = {
         };
         payments: typeof import("@medusajs/medusa/api/admin/payments/route") & {
             $id: typeof import("@medusajs/medusa/api/admin/payments/[id]/route") & {
-                capture: typeof import("@medusajs/medusa/api/admin/payments/[id]/capture/route");
-                refund: typeof import("@medusajs/medusa/api/admin/payments/[id]/refund/route");
+                capture: typeof import("../src/api/admin/payments/[id]/capture/route");
+                refund: typeof import("../src/api/admin/payments/[id]/refund/route");
             };
             paymentProviders: typeof import("@medusajs/medusa/api/admin/payments/payment-providers/route");
         };

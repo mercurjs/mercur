@@ -105,7 +105,11 @@ export const useRefundPayment = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.payments.$id.refund.mutate({ $id: paymentId, ...payload }),
+      sdk.admin.payments.$id.refund.mutate({
+        $id: paymentId,
+        order_id: orderId,
+        ...payload,
+      }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),

@@ -2,25 +2,21 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
+import { HttpTypes } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { HttpTypes } from "@mercurjs/types"
 
 import { cancelSplitOrderWorkflow } from "../../../../../workflows/payment"
-import { validateSellerOrder } from "../../helpers"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse<HttpTypes.VendorOrderResponse>
+  res: MedusaResponse<HttpTypes.AdminOrderResponse>
 ) => {
   const { id } = req.params
-  const sellerId = req.seller_context!.seller_id
-
-  await validateSellerOrder(req.scope, sellerId, id)
 
   await cancelSplitOrderWorkflow(req.scope).run({
     input: {
       order_id: id,
-      canceled_by: sellerId,
+      canceled_by: req.auth_context.actor_id,
     },
   })
 
@@ -34,5 +30,7 @@ export const POST = async (
     filters: { id },
   })
 
-  res.json({ order })
+  res.status(200).json({
+    order: order as unknown as HttpTypes.AdminOrderResponse["order"],
+  })
 }

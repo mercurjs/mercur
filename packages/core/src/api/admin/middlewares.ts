@@ -7,6 +7,7 @@ import { adminOrderGroupsMiddlewares } from "./order-groups/middlewares"
 import { adminOrderGroupQueryConfig } from "./order-groups/query-config"
 import { AdminGetOrderGroupParams } from "./order-groups/validators"
 import { adminOrdersMiddlewares } from "./orders/middlewares"
+import { adminPaymentsMiddlewares } from "./payments/middlewares"
 import { adminCustomerGroupsMiddlewares } from "./customer-groups/middlewares"
 import { adminOffersMiddlewares } from "./offers/middlewares"
 import { adminPayoutsMiddlewares } from "./payouts/middlewares"
@@ -50,6 +51,7 @@ export const adminMiddlewares: MiddlewareRoute[] = [
     ],
   },
   ...adminOrdersMiddlewares,
+  ...adminPaymentsMiddlewares,
   ...adminCustomerGroupsMiddlewares,
   ...adminOffersMiddlewares,
   ...adminPayoutsMiddlewares,

@@ -1,2 +1,5 @@
 export * from "./process-payment"
 export * from "./payment-hooks"
+export * from "./capture-split-order-payment"
+export * from "./refund-split-order-payment"
+export * from "./cancel-split-order"

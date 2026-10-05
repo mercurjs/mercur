@@ -8,12 +8,12 @@ import {
 import {
     acquireLockStep,
     authorizePaymentSessionStep,
-    capturePaymentWorkflow,
     releaseLockStep,
     useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 
 import { completeCartWithSplitOrdersWorkflow } from "../../cart/workflows/complete-cart-with-split-orders"
+import { captureSplitOrderPaymentWorkflow } from "./capture-split-order-payment"
 
 export type ProcessPaymentWorkflowInput = {
     action: string
@@ -95,7 +95,7 @@ export const processPaymentWorkflow = createWorkflow(
                 !!paymentData.data.length
             )
         }).then(() => {
-            capturePaymentWorkflow
+            captureSplitOrderPaymentWorkflow
                 .runAsStep({
                     input: {
                         payment_id: paymentData.data[0].id,
@@ -119,7 +119,7 @@ export const processPaymentWorkflow = createWorkflow(
                 context: {},
             }).config({ name: "authorize-payment-session-autocapture" })
 
-            capturePaymentWorkflow
+            captureSplitOrderPaymentWorkflow
                 .runAsStep({
                     input: {
                         payment_id: payment.id,

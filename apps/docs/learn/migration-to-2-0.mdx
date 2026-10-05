@@ -116,7 +116,7 @@ The 1.x `OrderSet` entity is renamed to `OrderGroup` in 2.x. This is a breaking 
 
 Two fields were removed from the group:
 
-- **`payment_collection_id`**: payment collections are now linked at the individual order level. Query the linked orders to get the payment collection.
+- **`payment_collection_id`**: the payment collection is shared by all of a cart's split orders and stays on the cart. Read it through `order.cart.payment_collection` (see [Order Groups](/learn/order-groups)).
 - **`sales_channel_id`**: the sales channel is stored on each individual order.
 
 Two fields are now computed at query time rather than stored: **`seller_count`** (distinct sellers across linked orders) and **`total`** (sum of order totals).
@@ -127,7 +127,7 @@ To migrate:
 2. Update API calls: `/order-sets` to `/order-groups`.
 3. Update workflow references: `getFormattedOrderSetListWorkflow` to `getOrderGroupsListWorkflow`.
 4. Update event listeners: `OrderSetWorkflowEvents` to `OrderGroupWorkflowEvents`.
-5. If you read `payment_collection_id` or `sales_channel_id` from the order set, read them from the individual orders instead (via the `order_group_order` link).
+5. If you read `sales_channel_id` from the order set, read it from the individual orders instead (via the `order_group_order` link). If you read `payment_collection_id`, read the payment collection from the cart of any of those orders.
 
 See [Order Group](/platform/order-group/overview) for the full 2.x data model and API reference.
 

@@ -22,11 +22,15 @@ export const refetchPayment = async (
   return payment
 }
 
+/**
+ * Throws unless the seller owns an order paid by this payment. Resolves to that
+ * order's id: a cart is split per seller, so there is exactly one.
+ */
 export const validateSellerPayment = async (
   scope: MedusaContainer,
   sellerId: string,
   paymentId: string
-) => {
+): Promise<string> => {
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
   // The payment collection is shared across all split orders of a cart, so it
@@ -75,7 +79,7 @@ export const validateSellerPayment = async (
   } = await query.graph({
     entity: "order_seller",
     filters: { seller_id: sellerId, order_id: orderIds },
-    fields: ["seller_id"],
+    fields: ["seller_id", "order_id"],
   })
 
   if (!sellerOrder) {
@@ -84,4 +88,6 @@ export const validateSellerPayment = async (
       `Payment with id: ${paymentId} was not found`
     )
   }
+
+  return sellerOrder.order_id as string
 }
