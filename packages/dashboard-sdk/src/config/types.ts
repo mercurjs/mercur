@@ -74,19 +74,22 @@ export interface NavItemOverride<TGroup extends string = never> {
      */
     nested?: NavParentId | null
     /**
-     * Move a settings item into another group: a built-in group id or one
-     * declared in `groups`. Only the settings sidebar renders groups.
+     * List the item under a group heading: a built-in settings group id or one
+     * declared in `groups`. Main sidebar items only join declared groups.
      */
     group?: NavGroupId | TGroup
 }
 
-/** Declares a new settings sidebar group, or overrides a built-in one by id. */
+/**
+ * Declares a sidebar group, or overrides a built-in settings group by id. A
+ * group renders in whichever sidebar its items live in.
+ */
 export interface NavGroupConfig<TId extends string = string> {
     id: NavGroupId | TId
     /** i18n key (with `translationNs`) or literal. Falls back to the id. */
     label?: string
     translationNs?: string
-    /** Order among groups, lower first. Built-in groups rank 0, 1, 2… */
+    /** Order among groups, lower first. Built-in settings groups rank 0, 1, 2… */
     rank?: number
     /** Remove the group and its items from the sidebar. */
     hidden?: boolean

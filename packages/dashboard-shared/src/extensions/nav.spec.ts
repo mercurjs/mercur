@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest"
 
-import { applyNavGroups, type NavGroup } from "./nav"
+import { applyNavGroups, groupNavItems, type NavGroup } from "./nav"
 
 const item = (to: string) => ({ id: to.replace(/^\//, ""), label: to, to })
 
@@ -119,6 +119,38 @@ describe("applyNavGroups", () => {
     expect(groups.map((g) => [g.id, g.items.map((i) => i.label)])).toEqual([
       ["general", ["Markets", "/settings/users"]],
       ["myAccount", ["/settings/profile"]],
+    ])
+  })
+})
+
+describe("groupNavItems", () => {
+  const items = [
+    { to: "/orders" },
+    { to: "/products", group: "catalog" },
+    { to: "/payouts", group: "finance" },
+    { to: "/inventory", group: "catalog" },
+    { to: "/reviews", group: "undeclared" },
+    { to: "/secret", group: "internal" },
+  ]
+
+  test("keeps everything ungrouped without declared groups", () => {
+    expect(groupNavItems(items)).toEqual({ ungrouped: items, groups: [] })
+  })
+
+  test("splits items into declared groups ordered by rank", () => {
+    const result = groupNavItems(items, [
+      { id: "catalog", label: "Catalog" },
+      { id: "finance", rank: -1 },
+      { id: "internal", hidden: true },
+      { id: "empty", label: "Empty" },
+    ])
+
+    expect(result.ungrouped.map((i) => i.to)).toEqual(["/orders", "/reviews"])
+    expect(
+      result.groups.map((g) => [g.id, g.label, g.items.map((i) => i.to)])
+    ).toEqual([
+      ["finance", "finance", ["/payouts"]],
+      ["catalog", "Catalog", ["/products", "/inventory"]],
     ])
   })
 })

@@ -73,7 +73,7 @@ export default BlogPage
 | `icon` | `ComponentType` | Icon component shown next to the label |
 | `rank` | `number` | Controls ordering in the sidebar |
 | `nested` | `string` | Parent menu item path to nest under |
-| `group` | `string` | Settings sidebar group for a `/settings/*` route |
+| `group` | `string` | Sidebar group declared in `_navigation.ts` to list the item under |
 | `translationNs` | `string` | i18n translation namespace for the label |
 
 ## 4. Add Data Loading
@@ -214,13 +214,20 @@ export default defineNavigationConfig({
 })
 ```
 
-Settings sidebar items are grouped under headings. Declare a group by keyword in
-`groups`, then move items into it with `group`:
+Group sidebar items under headings by declaring a keyword in `groups` and
+assigning items to it with `group`. It works for the main sidebar and for
+settings items (`settings/<segment>`):
 
 ```ts
 export default defineNavigationConfig({
-  groups: [{ id: "integrations", label: "Integrations" }],
-  items: [{ id: "settings/users", group: "integrations" }],
+  groups: [
+    { id: "catalog", label: "Catalog" },
+    { id: "integrations", label: "Integrations" },
+  ],
+  items: [
+    { id: "products", group: "catalog" },
+    { id: "settings/users", group: "integrations" },
+  ],
 })
 ```
 

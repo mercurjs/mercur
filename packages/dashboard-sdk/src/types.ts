@@ -72,8 +72,9 @@ export type RouteConfig = {
     rank?: number
     nested?: string
     /**
-     * Settings sidebar group to list a `/settings/*` route under: a built-in
-     * group id or one declared in `_navigation.ts`. Must be a string literal.
+     * Sidebar group to list the route under: one declared in `_navigation.ts`
+     * or, for a `/settings/*` route, a built-in settings group. Must be a
+     * string literal.
      */
     group?: NavGroupId | (string & {})
     translationNs?: string

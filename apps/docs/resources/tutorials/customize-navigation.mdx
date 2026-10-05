@@ -55,7 +55,7 @@ With it present, `id` and `nested` autocomplete and an unknown id fails `tsc`.
     | `label` | `string` | Relabel with an i18n key or literal. |
     | `icon` | `ComponentType` | Replace its icon. |
     | `nested` | `NavParentId \| null` | Re-parent under another top-level item. `null` promotes a nested item to top level. |
-    | `group` | `NavGroupId` | Settings items only. Move the item into another [settings group](#group-settings-items). |
+    | `group` | `NavGroupId` | List the item under a [group heading](#group-items-under-headings). |
 
     `id`, `nested`, and `group` are checked against the panel's generated `NavItemRegistry`, `NavParentRegistry`, and `NavGroupRegistry`.
   </Step>
@@ -81,9 +81,35 @@ export default defineNavigationConfig({
 })
 ```
 
-## Group settings items
+## Group items under headings
 
-The settings sidebar lists its items under group headings. The admin panel ships three groups, `general`, `developer`, and `myAccount`. The vendor portal ships `general`. Use `groups` to declare your own or reshape the built-in ones, and `group` to move an item between them.
+Declare groups by keyword in `groups`, then assign items to them with `group`. A group renders in whichever sidebar its items live in, and a group with no visible items isn't rendered.
+
+### Main sidebar
+
+The main sidebar ships without groups. Items you assign to a declared group move out of the default list and render below it, under the group's heading.
+
+```ts apps/vendor/src/_navigation.ts
+import { defineNavigationConfig } from "@mercurjs/dashboard-sdk"
+
+export default defineNavigationConfig({
+  groups: [
+    { id: "catalog", label: "Catalog" },
+    { id: "finance", label: "Finance" },
+  ],
+  items: [
+    { id: "products", group: "catalog" },
+    { id: "inventory", group: "catalog" },
+    { id: "payouts", group: "finance" },
+  ],
+})
+```
+
+Only top-level items can be grouped. Nested children follow their parent.
+
+### Settings sidebar
+
+The settings sidebar already lists its items under groups. The admin panel ships `general`, `developer`, and `myAccount`. The vendor portal ships `general`. You can reshape these built-in groups, add your own, and move items between them. Settings items are targeted by their path without the leading slash, such as `settings/users`.
 
 ```ts apps/admin/src/_navigation.ts
 import { defineNavigationConfig } from "@mercurjs/dashboard-sdk"
@@ -94,25 +120,27 @@ export default defineNavigationConfig({
     { id: "developer", label: "API" },                      // relabel a built-in group
   ],
   items: [
-    { id: "settings/secret-api-keys", group: "integrations" }, // move a built-in item
+    { id: "settings/secret-api-keys", group: "integrations" },
     { id: "settings/tax-regions", group: "integrations", rank: 0 },
   ],
 })
 ```
 
-Settings items are targeted by their path without the leading slash, such as `settings/users`.
+### Group fields
 
 | Field | Type | Effect |
 |-------|------|--------|
-| `id` | `string` | **Required.** A built-in group id to override, or a new keyword to declare a group. |
+| `id` | `string` | **Required.** A new keyword to declare a group, or a built-in settings group id to override. |
 | `label` | `string` | Heading text. A literal, or an i18n key when `translationNs` is set. Defaults to the `id`. |
 | `translationNs` | `string` | i18n namespace used to resolve `label`. |
-| `rank` | `number` | Order among groups, lower first. Built-in groups rank `0`, `1`, `2` in their default order, and new groups follow them. |
+| `rank` | `number` | Order among groups, lower first. Defaults to declaration order. Built-in settings groups rank `0`, `1`, `2`. |
 | `hidden` | `boolean` | Remove the group and its items from the sidebar. |
 
-The `group` of an item only accepts a built-in group id or an id declared in the same file's `groups`, so a typo fails `tsc`.
+An item's `group` only accepts a built-in group id or an id declared in the same file's `groups`, so a typo fails `tsc`.
 
-A custom settings page picks its group in its own route config with the same keyword. Pages without a `group` stay in the first group.
+### Group a custom page
+
+A custom page picks its group in its own route config with the same keyword.
 
 ```tsx apps/admin/src/routes/settings/webhooks/page.tsx
 import type { RouteConfig } from "@mercurjs/dashboard-sdk"
@@ -124,7 +152,7 @@ export const config: RouteConfig = {
 ```
 
 <Note>
-  Groups exist only in the settings sidebar. `group` has no effect on main sidebar items, and `nested` has no effect on settings items. A group with no visible items isn't rendered.
+  A page whose group isn't declared falls back to the default placement: the ungrouped list in the main sidebar, or the first group in the settings sidebar.
 </Note>
 
 ## Verify
@@ -141,8 +169,8 @@ export const config: RouteConfig = {
   <Accordion title="Can an installed block reorder the sidebar?">
     No. Navigation is deliberately host-only. Blocks can ship pages, widgets, and custom fields, but the sidebar order stays a single source of truth in your app's `_navigation.ts`.
   </Accordion>
-  <Accordion title="Can a block put its settings page in a group?">
-    Yes. A block's settings page sets `group` in its route config like any other page. If the host hasn't declared that group, the page falls back to the first group.
+  <Accordion title="Can a block put its page in a group?">
+    Yes. A block's page sets `group` in its route config like any other page. If the host hasn't declared that group, the page falls back to the default placement.
   </Accordion>
   <Accordion title="What ids can I target?">
     Any built-in item, top-level or nested, by its own id, such as `orders`, `products`, `categories`, `collections`, `campaigns`, or `customer-groups`. Let your editor autocomplete `id:` against `NavItemId`. The full set is generated into your panel's `extension-targets.d.ts`.

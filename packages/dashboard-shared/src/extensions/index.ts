@@ -20,6 +20,8 @@ export { useWidgetTabs, type WidgetTab, type WidgetTabs } from "./use-widget-tab
 export {
   applyNavOverrides,
   applyNavGroups,
+  groupNavItems,
+  type NavItemGroup,
   type CoreNavItem,
   type NavGroup,
   type NavGroupItem,

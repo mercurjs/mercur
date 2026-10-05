@@ -189,3 +189,52 @@ export function applyNavGroups(
     }))
     .filter((group) => group.items.length > 0)
 }
+
+export type NavItemGroup<T> = {
+  id: string
+  label: string
+  translationNs?: string
+  items: T[]
+}
+
+/**
+ * Splits main sidebar items into the ungrouped list and the groups declared in
+ * the host's `_navigation.ts`. The main sidebar has no built-in groups, so an
+ * item whose group isn't declared stays ungrouped. Item order is preserved.
+ */
+export function groupNavItems<T extends { group?: string }>(
+  items: T[],
+  groups: NavGroupConfig[] = []
+): { ungrouped: T[]; groups: NavItemGroup<T>[] } {
+  const defs = new Map<string, NavGroupConfig & { rank: number }>()
+  groups.forEach((group, index) => {
+    if (group?.id) defs.set(group.id, { ...group, rank: group.rank ?? index })
+  })
+
+  const ungrouped: T[] = []
+  const buckets = new Map<string, T[]>()
+  for (const item of items) {
+    const def = item.group ? defs.get(item.group) : undefined
+    if (!def) {
+      ungrouped.push(item)
+      continue
+    }
+    if (def.hidden) continue
+    const bucket = buckets.get(def.id) ?? []
+    bucket.push(item)
+    buckets.set(def.id, bucket)
+  }
+
+  return {
+    ungrouped,
+    groups: [...defs.values()]
+      .filter((def) => buckets.has(def.id))
+      .sort((a, b) => a.rank - b.rank)
+      .map((def) => ({
+        id: def.id,
+        label: def.label ?? def.id,
+        translationNs: def.label ? def.translationNs : undefined,
+        items: buckets.get(def.id) ?? [],
+      })),
+  }
+}
