@@ -8,6 +8,8 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
 
+import { resolveOrderPaymentCollections } from "../../payment/utils/split-order-payment-group"
+
 import {
   getLastFulfillmentStatus,
   getLastPaymentStatus,
@@ -45,6 +47,11 @@ export const getOrderGroupsListWorkflow = createWorkflow(
         "orders.cart.payment_collection.amount",
         "orders.cart.payment_collection.captured_amount",
         "orders.cart.payment_collection.refunded_amount",
+        "orders.cart.payment_collection.metadata",
+        "orders.payment_collections.status",
+        "orders.payment_collections.amount",
+        "orders.payment_collections.captured_amount",
+        "orders.payment_collections.refunded_amount",
         "orders.fulfillments.packed_at",
         "orders.fulfillments.shipped_at",
         "orders.fulfillments.delivered_at",
@@ -93,16 +100,16 @@ export const getOrderGroupsListWorkflow = createWorkflow(
 
           for (const order of group.orders) {
             const order_ = order as OrderDetailDTO & {
-              cart?: { payment_collection?: unknown }
+              cart?: {
+                payment_collection?: {
+                  metadata?: Record<string, unknown> | null
+                } | null
+              }
             }
 
-            // The shared cart payment collection is fetched via
-            // `cart.payment_collection`; expose it under `payment_collections`
-            // so the status helper and API response keep the same shape.
-            const cartPaymentCollection = order_.cart?.payment_collection
-            order_.payment_collections = cartPaymentCollection
-              ? [cartPaymentCollection as OrderDetailDTO["payment_collections"][number]]
-              : []
+            order_.payment_collections = resolveOrderPaymentCollections(
+              order_
+            ) as OrderDetailDTO["payment_collections"]
 
             order_.payment_status = getLastPaymentStatus(
               order_

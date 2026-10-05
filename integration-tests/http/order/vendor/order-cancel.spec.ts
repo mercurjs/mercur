@@ -20,18 +20,10 @@ jest.setTimeout(120000)
 /**
  * SPEC-008 §B — Cancel Order MVP rule. The kebab-level "cannot cancel
  * when items have been fulfilled" gate is enforced by the vendor UI
- * (`OrderGeneralSection`, session hh). The backend route at
- * `packages/core/src/api/vendor/orders/[id]/cancel/route.ts` calls
- * Medusa's `cancelOrderWorkflow` directly, which handles the cascade
- * (status flip → captured-payment refund → authorized-payment void →
- * customer notification). These tests lock in:
- *   - The happy path (no fulfillments, captured payment) refunds.
- *   - Cross-seller scope is enforced on the cancel route.
- *
- * The fulfilled-items gate is intentionally **not** asserted at the
- * backend layer — Medusa's workflow cancels fulfillments alongside
- * the order, so the "no fulfilled items" rule lives only in the UI
- * (per `docs/vendor-orders-design-diff.md` §MVP).
+ * (`OrderGeneralSection`). The backend route runs Medusa's
+ * `cancelOrderWorkflow`, which reaches the order's payment through its own
+ * payment collection; the payment side is covered in
+ * `http/payment/split-order-payments.spec.ts`.
  */
 
 const approveSeller = async (
@@ -344,14 +336,7 @@ medusaIntegrationTestRunner({
             })
 
             describe("POST /vendor/orders/:id/cancel", () => {
-                // The Mercur cancel route surfaces a pre-existing MikroORM
-                // 'strategy' error in `getJoinedFilters` (mikro-orm 6.4.16 +
-                // Medusa 2.13.4 + Mercur order extensions). The same error
-                // appears in the legacy `order.spec.ts` cancel cases — not
-                // introduced by SPEC-008 work. Skipping until the upstream
-                // MikroORM populate path is fixed; the route itself does call
-                // `cancelOrderWorkflow` correctly per UI verification.
-                it.skip("cancels a seller-owned order and flips status to canceled", async () => {
+                it("cancels a seller-owned order and flips status to canceled", async () => {
                     const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     const response = await api.post(
@@ -373,12 +358,6 @@ medusaIntegrationTestRunner({
                 it("rejects cross-seller cancel — seller B cannot cancel seller A's order", async () => {
                     const orderA = await completeCartCheckout(seller1Seed.offer.id)
 
-                    // `validateSellerOrder` runs at the top of the route
-                    // handler and throws NOT_FOUND before either the
-                    // `cancelOrderWorkflow` or the post-cancel `query.graph`
-                    // is invoked — so the cross-seller path is unaffected
-                    // by the MikroORM populate regression that gates the
-                    // happy-path test above.
                     const response = await api
                         .post(
                             `/vendor/orders/${orderA.id}/cancel`,

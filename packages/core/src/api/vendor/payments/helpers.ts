@@ -29,39 +29,46 @@ export const validateSellerPayment = async (
 ) => {
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  // The payment collection is shared across all split orders of a cart, so it
-  // is not linked directly to any single order. Resolve the owning cart and
-  // check the seller owns one of that cart's orders.
+  // A payment is either an order's own, or the cart payment its orders share
+  // until it is captured, which is reachable only through the cart.
   const {
     data: [payment],
   } = await query.graph({
     entity: "payment",
     filters: { id: paymentId },
-    fields: ["id", "payment_collection.cart.id"],
+    fields: [
+      "id",
+      "payment_collection.order.id",
+      "payment_collection.cart.id",
+    ],
   })
 
-  const cartId = (
+  const paymentCollection = (
     payment as
-      | { payment_collection?: { cart?: { id?: string } | null } | null }
+      | {
+          payment_collection?: {
+            order?: { id?: string } | null
+            cart?: { id?: string } | null
+          } | null
+        }
       | undefined
-  )?.payment_collection?.cart?.id
+  )?.payment_collection
 
-  if (!cartId) {
-    throw new MedusaError(
-      MedusaError.Types.NOT_FOUND,
-      `Payment with id: ${paymentId} was not found`
-    )
+  let orderIds: string[] = []
+
+  if (paymentCollection?.order?.id) {
+    orderIds = [paymentCollection.order.id]
+  } else if (paymentCollection?.cart?.id) {
+    const { data: orderCartLinks } = await query.graph({
+      entity: "order_cart",
+      filters: { cart_id: paymentCollection.cart.id },
+      fields: ["order_id"],
+    })
+
+    orderIds = orderCartLinks
+      .map((link) => (link as { order_id?: string }).order_id)
+      .filter((id): id is string => Boolean(id))
   }
-
-  const { data: orderCartLinks } = await query.graph({
-    entity: "order_cart",
-    filters: { cart_id: cartId },
-    fields: ["order_id"],
-  })
-
-  const orderIds = orderCartLinks
-    .map((link) => (link as { order_id?: string }).order_id)
-    .filter((id): id is string => Boolean(id))
 
   if (!orderIds.length) {
     throw new MedusaError(
