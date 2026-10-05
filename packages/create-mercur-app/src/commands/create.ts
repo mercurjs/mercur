@@ -33,6 +33,7 @@ import { manageEnvFiles } from "../utils/manage-env-files";
 import {
   applyReleaseChannel,
   detectReleaseChannel,
+  resolveTemplateRef,
   type ReleaseChannel,
 } from "../utils/release-channel";
 import { spinner } from "../utils/spinner";
@@ -178,15 +179,17 @@ export const create = new Command()
       const downloadSpinner = spinner("Downloading template...").start();
       // Fetch the repo tarball once, then extract each subpath from it locally
       // so opting into the storefront doesn't trigger a second network download.
-      const tarballPath = await downloadRepoTarball();
+      const { tarballPath, ref } = await downloadRepoTarball(
+        await resolveTemplateRef(channel)
+      );
       try {
-        await extractTemplate({ tarballPath, projectDir, template });
+        await extractTemplate({ tarballPath, ref, projectDir, template });
         downloadSpinner.succeed("Template downloaded successfully.");
 
         if (addStorefront) {
           const storefrontSpinner = spinner("Adding Next.js storefront...").start();
           try {
-            await extractStorefront({ tarballPath, projectDir });
+            await extractStorefront({ tarballPath, ref, projectDir });
             storefrontSpinner.succeed("Next.js storefront added successfully.");
           } catch (error) {
             storefrontSpinner.fail(
@@ -402,37 +405,54 @@ async function createOrFindProjectDir(projectDir: string): Promise<void> {
 
 // Downloads the repo tarball once to a temp file. Callers then extract whichever
 // subpaths they need from it locally, avoiding a network fetch per directory.
-async function downloadRepoTarball(): Promise<string> {
-  const url = `https://codeload.github.com/mercurjs/mercur/tar.gz/${DEFAULT_BRANCH}`;
-  const res = await fetch(url);
+// Falls back to the default branch when the release tag can't be fetched.
+async function downloadRepoTarball(
+  preferredRef: string | null
+): Promise<{ tarballPath: string; ref: string }> {
+  const refs = preferredRef ? [preferredRef, DEFAULT_BRANCH] : [DEFAULT_BRANCH];
 
-  if (!res.body) {
-    throw new Error(`Failed to download: ${url}`);
+  for (const ref of refs) {
+    const url = `https://codeload.github.com/mercurjs/mercur/tar.gz/${ref}`;
+    const res = await fetch(url);
+
+    if (!res.ok || !res.body) {
+      if (ref !== DEFAULT_BRANCH) {
+        continue;
+      }
+      throw new Error(`Failed to download: ${url}`);
+    }
+
+    const tarballPath = path.join(
+      os.tmpdir(),
+      `mercur-${ref.replaceAll("/", "-")}-${process.pid}.tar.gz`
+    );
+    await pipeline(
+      Readable.from(res.body as unknown as NodeJS.ReadableStream),
+      fs.createWriteStream(tarballPath)
+    );
+
+    return { tarballPath, ref };
   }
 
-  const tarballPath = path.join(os.tmpdir(), `mercur-${DEFAULT_BRANCH.replaceAll("/", "-")}-${process.pid}.tar.gz`);
-  await pipeline(
-    Readable.from(res.body as unknown as NodeJS.ReadableStream),
-    fs.createWriteStream(tarballPath)
-  );
-
-  return tarballPath;
+  throw new Error("Failed to download the Mercur template.");
 }
 
 // Extracts a single directory out of the local tarball. `strip` controls how many
 // leading path segments are removed so files land at the right place under `cwd`.
 async function extractRepoDir({
   tarballPath,
+  ref,
   cwd,
   repoPath,
   strip,
 }: {
   tarballPath: string;
+  ref: string;
   cwd: string;
   repoPath: string;
   strip: number;
 }) {
-  const branchDir = `mercur-${DEFAULT_BRANCH.replace(/^v/, "").replaceAll("/", "-")}`;
+  const branchDir = `mercur-${ref.replace(/^v/, "").replaceAll("/", "-")}`;
   const filter = `${branchDir}/${repoPath}/`;
 
   await x({
@@ -445,10 +465,12 @@ async function extractRepoDir({
 
 async function extractTemplate({
   tarballPath,
+  ref,
   projectDir,
   template,
 }: {
   tarballPath: string;
+  ref: string;
   projectDir: string;
   template: keyof typeof CREATE_TEMPLATES;
 }) {
@@ -459,6 +481,7 @@ async function extractTemplate({
   // becomes the project root.
   await extractRepoDir({
     tarballPath,
+    ref,
     cwd: projectDir,
     repoPath,
     strip: 1 + repoPath.split("/").length,
@@ -467,9 +490,11 @@ async function extractTemplate({
 
 async function extractStorefront({
   tarballPath,
+  ref,
   projectDir,
 }: {
   tarballPath: string;
+  ref: string;
   projectDir: string;
 }) {
   await fs.ensureDir(path.join(projectDir, "apps"));
@@ -478,6 +503,7 @@ async function extractStorefront({
   // and land alongside the other workspace apps.
   await extractRepoDir({
     tarballPath,
+    ref,
     cwd: projectDir,
     repoPath: "apps/storefront",
     strip: 1,
