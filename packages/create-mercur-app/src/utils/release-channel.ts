@@ -25,7 +25,7 @@ export function detectReleaseChannel(cliVersion: string): ReleaseChannel {
   return "latest";
 }
 
-async function resolveDistTag(
+export async function resolveDistTag(
   packageName: string,
   channel: ReleaseChannel
 ): Promise<string | null> {
@@ -129,4 +129,15 @@ export async function applyReleaseChannel({
   }
 
   return pinnedVersion;
+}
+
+// Medusa versions and the patches `@mercurjs/core` applies to them move in
+// lockstep, so the template has to come from the same commit as the packages
+// it pins. `main` runs ahead of the latest release and pins Medusa versions the
+// published `@mercurjs/core` does not support yet.
+export async function resolveTemplateRef(
+  channel: ReleaseChannel
+): Promise<string | null> {
+  const version = await resolveDistTag("@mercurjs/core", channel);
+  return version ? `v${version}` : null;
 }
