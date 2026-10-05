@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/storefront",
-  "version": "2.3.6-canary.9",
+  "version": "2.3.6-canary.10",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
