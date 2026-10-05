@@ -216,6 +216,9 @@ const SidebarGroup = ({ group }: { group: NavItemGroup<SidebarRoute> }) => {
       className="flex flex-col gap-y-1 pt-2"
       data-testid={`sidebar-group-${group.id}`}
     >
+      <div className="px-3 pb-2">
+        <Divider variant="dashed" />
+      </div>
       <div className="px-3">
         <div
           className={clx(
