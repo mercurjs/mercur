@@ -8,7 +8,6 @@ import {
 } from "@medusajs/framework/types"
 import {
     generateEntityId,
-    MathBN,
     Modules,
     OrderStatus,
     OrderWorkflowEvents,
@@ -23,7 +22,6 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import {
     acquireLockStep,
-    addOrderTransactionStep,
     authorizePaymentSessionStep,
     createOrdersStep,
     createRemoteLinkStep,
@@ -50,6 +48,7 @@ import {
     prepareTaxLinesData,
 } from "../utils"
 import { registerUsageStep } from "../../promotion"
+import { createSplitOrderPaymentCollectionsWorkflow } from "../../payment/workflows/split-order-payments"
 import { refreshOrderCommissionLinesWorkflow } from "../../commission/workflows/refresh-order-commission-lines"
 import {
     prepareOfferInventoryInput,
@@ -523,13 +522,10 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                         })
                     }
 
-                    // The cart's payment collection is shared across every
-                    // split order, but Medusa's order↔payment_collection link is
-                    // one-to-one on the payment-collection side, so it cannot be
-                    // linked to more than one order. Each order already links to
-                    // the cart, and the cart links to the payment collection, so
-                    // the shared collection stays reachable per order via
-                    // `order.cart.payment_collection`.
+                    // Orders are not linked to the cart's payment collection:
+                    // Medusa allows a payment collection only one order. Each
+                    // order gets a payment collection of its own once the
+                    // cart payment is authorized.
 
                     links.push(...Object.entries(sellerOrdersMap).map(([sellerId, orderId]) => ({
                         [Modules.ORDER]: { order_id: orderId },
@@ -593,45 +589,26 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 id: paymentSessions![0].id,
             })
 
-            const orderTransactions = transform(
-                { payment, createdOrders },
-                ({ payment, createdOrders }) => {
-                    if (!payment?.captures?.length) {
-                        return []
-                    }
-
-                    const transactions = createdOrders.flatMap((order) => {
-                        const proportion = MathBN.div(order.total, payment.amount)
-
-                        return (payment.captures ?? []).map((capture) => {
-                            const captureAmount = capture.raw_amount ?? capture.amount
-                            const proportionalAmount = MathBN.mult(captureAmount, proportion)
-
-                            return {
-                                order_id: order.id,
-                                amount: proportionalAmount,
-                                currency_code: payment.currency_code,
-                                reference: "capture",
-                                reference_id: capture.id,
-                            }
-                        })
-                    })
-
-                    return transactions
-                }
-            )
-
             const orderIds = transform({ createdOrders }, ({ createdOrders }) => {
                 return createdOrders.map((order) => order.id)
             })
 
-            parallelize(
-                addOrderTransactionStep(orderTransactions),
-                refreshOrderCommissionLinesWorkflow.runAsStep({
-                    input: {
-                        order_ids: orderIds
-                    }
-                }))
+            // Runs once the cart payment is authorized: each order's payment
+            // is a share of it. A payment still pending authorization gets
+            // its shares from the payment webhook instead.
+            const splitPaymentInput = transform({ payment, cart: cartData.data }, ({ cart }) => {
+                return { cart_id: cart.id }
+            })
+
+            createSplitOrderPaymentCollectionsWorkflow.runAsStep({
+                input: splitPaymentInput,
+            })
+
+            refreshOrderCommissionLinesWorkflow.runAsStep({
+                input: {
+                    order_ids: orderIds
+                }
+            })
 
             createHook("orderGroupCreated", {
                 order_group_id: createdOrderGroup.id,

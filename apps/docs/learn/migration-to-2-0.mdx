@@ -116,7 +116,7 @@ The 1.x `OrderSet` entity is renamed to `OrderGroup` in 2.x. This is a breaking 
 
 Two fields were removed from the group:
 
-- **`payment_collection_id`**: payment collections are now linked at the individual order level. Query the linked orders to get the payment collection.
+- **`payment_collection_id`**: every order has its own payment collection, linked to the order. Read it from `order.payment_collections` (see [Order Groups](/learn/order-groups)).
 - **`sales_channel_id`**: the sales channel is stored on each individual order.
 
 Two fields are now computed at query time rather than stored: **`seller_count`** (distinct sellers across linked orders) and **`total`** (sum of order totals).

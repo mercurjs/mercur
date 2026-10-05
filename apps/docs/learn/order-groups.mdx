@@ -54,15 +54,32 @@ Order groups are created automatically during checkout by the `completeCartWithS
    - Each seller and the customer (if new relationship)
 6. **Finalize** — Inventory is reserved, payment is authorized, and the `order_group.created` event is emitted
 
+## Payments
+
+The customer pays for the cart once: one payment collection on the cart, one payment at the payment provider. When the cart is split, every order also gets a payment collection of its own, linked to the order, holding a payment for that order's share of the cart payment. Shares are proportional to the order totals, rounded to the currency precision, and sum exactly to the cart payment.
+
+```text
+cart  → payment_collection → payment          (the customer's charge)
+order → payment_collections → payment         (the order's share of it)
+```
+
+Because each order is linked to a payment of its own, Medusa's order and payment workflows and the stock admin and vendor routes work on split orders unchanged:
+
+| Action | What happens |
+|--------|--------------|
+| Refund an order's payment | The amount is refunded at the provider against the customer's charge and recorded on that order. It cannot exceed the order's share. |
+| Capture | An authorization can only be captured as a whole. Capturing the cart payment (which is what the provider webhook does) or any one order's payment captures the charge, and the capture is then recorded on every other payment of the cart. |
+| Cancel an order | A captured share is refunded. An authorized share is canceled, while the authorization stays in place for the cart's other orders; when the charge is later captured, the canceled share is refunded. Once every order of the cart is canceled, the authorization is voided. |
+
+An order's share is a payment on the `pp_split-order_mercur` provider, which `withMercur()` registers in the Payment Module. It forwards refunds and captures to the provider that holds the customer's charge.
+
 <Info>
-  A single payment collection is shared across all of a cart's split orders and stays on the **cart**, not on each order. Split orders are **not** linked directly to the payment collection (Medusa's `order ↔ payment_collection` link is one-to-one on the payment-collection side). Read the payment collection through the cart:
-
-  ```text
-  order → cart → payment_collection
-  ```
-
-  Order-group and vendor order reads normalize `cart.payment_collection` back onto `payment_collections` and recompute `payment_status` from it, so consumers keep the familiar shape. When requesting fields on vendor order routes, make sure the request does not replace route defaults that already include `cart.payment_collection.*` (a `fields=` list containing bare fields replaces defaults in Medusa; use `+`-prefixed fields to merge, or include the `cart.payment_collection.*` paths explicitly).
+  Recording a capture on the cart's other payments, and voiding the authorization after the last cancel, happen in subscribers to `payment.captured` and `order.canceled`, shortly after the request returns.
 </Info>
+
+<Note>
+  Orders placed before this model have no payment collection of their own: they share the one on the cart. Order reads still expose it under `payment_collections`, but Medusa's cancel, refund and capture workflows do not reach it.
+</Note>
 
 ## Events
 

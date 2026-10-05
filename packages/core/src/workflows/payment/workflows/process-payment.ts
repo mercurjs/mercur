@@ -14,6 +14,7 @@ import {
 } from "@medusajs/medusa/core-flows"
 
 import { completeCartWithSplitOrdersWorkflow } from "../../cart/workflows/complete-cart-with-split-orders"
+import { createSplitOrderPaymentCollectionsWorkflow } from "./split-order-payments"
 
 export type ProcessPaymentWorkflowInput = {
     action: string
@@ -151,7 +152,7 @@ export const processPaymentWorkflow = createWorkflow(
         // payment has now been authorized, so create the Payment record.
         when(
             "authorize-existing-order",
-            { input, paymentData, cartPaymentCollection, order },
+            { input, paymentData, cartPaymentCollection, order, cartId },
             ({ input, paymentData, cartPaymentCollection, order }) => {
                 return (
                     !!order &&
@@ -166,6 +167,10 @@ export const processPaymentWorkflow = createWorkflow(
                 id: input.data!.session_id!,
                 context: {},
             }).config({ name: "authorize-payment-session-deferred" })
+
+            createSplitOrderPaymentCollectionsWorkflow
+                .runAsStep({ input: { cart_id: cartId as string } })
+                .config({ name: "create-split-order-payment-collections" })
         })
 
         // Released before completion to prevent a deadlock: the split-order
