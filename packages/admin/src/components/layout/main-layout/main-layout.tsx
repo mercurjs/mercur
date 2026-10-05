@@ -6,15 +6,24 @@ import {
   CurrencyDollar,
   EllipsisHorizontal,
   MagnifyingGlass,
+  MinusMini,
   OpenRectArrowOut,
   ReceiptPercent,
   ShoppingCart,
   Tag,
   Users,
 } from "@medusajs/icons";
-import { Avatar, Divider, DropdownMenu, Text, clx } from "@medusajs/ui";
+import {
+  Avatar,
+  Divider,
+  DropdownMenu,
+  IconButton,
+  Text,
+  clx,
+} from "@medusajs/ui";
 
-import { useMemo } from "react";
+import { Fragment, useMemo } from "react";
+import { Collapsible as RadixCollapsible } from "radix-ui";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -190,10 +199,15 @@ const MainSidebar = () => {
               {ungrouped.map((route) => (
                 <NavItem key={route.to} {...route} />
               ))}
-              {groups.map((group) => (
-                <SidebarGroup key={group.id} group={group} />
-              ))}
             </nav>
+            {groups.map((group) => (
+              <Fragment key={group.id}>
+                <div className="px-3">
+                  <Divider variant="dashed" />
+                </div>
+                <SidebarGroup group={group} />
+              </Fragment>
+            ))}
           </div>
           <UtilitySection />
         </div>
@@ -212,29 +226,43 @@ const SidebarGroup = ({ group }: { group: NavItemGroup<SidebarRoute> }) => {
   const { t } = useTranslation(group.translationNs);
 
   return (
-    <div
-      className="flex flex-col gap-y-1 pt-2"
+    <RadixCollapsible.Root
+      defaultOpen
+      className="py-3"
       data-testid={`sidebar-group-${group.id}`}
     >
-      <div className="px-3 pb-2">
-        <Divider variant="dashed" />
-      </div>
       <div className="px-3">
         <div
           className={clx(
-            "flex h-7 items-center overflow-hidden whitespace-nowrap px-2 text-ui-fg-muted",
+            "flex h-7 items-center justify-between overflow-hidden whitespace-nowrap px-2 text-ui-fg-muted",
             SIDEBAR_RAIL_FADE,
           )}
         >
           <Text size="small" leading="compact">
             {group.translationNs ? t(group.label) : group.label}
           </Text>
+          <RadixCollapsible.Trigger asChild>
+            <IconButton
+              size="2xsmall"
+              variant="transparent"
+              className="static"
+              data-testid={`sidebar-group-${group.id}-toggle`}
+            >
+              <MinusMini className="text-ui-fg-muted" />
+            </IconButton>
+          </RadixCollapsible.Trigger>
         </div>
       </div>
-      {group.items.map((route) => (
-        <NavItem key={route.to} {...route} />
-      ))}
-    </div>
+      <RadixCollapsible.Content>
+        <div className="pt-0.5">
+          <nav className="flex flex-col gap-y-1">
+            {group.items.map((route) => (
+              <NavItem key={route.to} {...route} />
+            ))}
+          </nav>
+        </div>
+      </RadixCollapsible.Content>
+    </RadixCollapsible.Root>
   );
 };
 
