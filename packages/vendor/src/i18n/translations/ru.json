@@ -1791,7 +1791,7 @@
         "transfer": {
           "requested": "Передача заказа #{{transferId}} запрошена",
           "confirmed": "Передача заказа #{{transferId}} подтверждена",
-          "declined": "Передача отклонена"
+          "declined": "Передача заказа #{{transferId}} отклонена"
         },
         "update_order": {
           "shipping_address": "Адрес доставки обновлен",
@@ -2858,7 +2858,7 @@
         "description": "Нет пользователей, соответствующих текущим критериям фильтра."
       }
     },
-    "deleteUserSuccess": "Пользователь успешно удален",
+    "deleteUserSuccess": "Пользователь {{name}} успешно удален",
     "selectRole": "Выберите роль",
     "inviteForm": {
       "validation": {

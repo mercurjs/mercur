@@ -1,6 +1,7 @@
 import { Buildings, PencilSquare, Trash } from "@medusajs/icons"
 import type { HttpTypes } from "@medusajs/types"
 import { Container, StatusBadge, Text, toast, usePrompt } from "@medusajs/ui"
+import { WidgetZone } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
@@ -168,20 +169,22 @@ function LocationListItem(props: LocationProps) {
         </div>
       </div>
 
-      <SalesChannels salesChannels={location.sales_channels} />
+      <WidgetZone id="locations.list.item" data={location}>
+        <SalesChannels salesChannels={location.sales_channels} />
 
-      <FulfillmentSet
-        type={FulfillmentSetType.Pickup}
-        fulfillmentSet={location.fulfillment_sets?.find(
-          (f) => f.type === FulfillmentSetType.Pickup
-        )}
-      />
-      <FulfillmentSet
-        type={FulfillmentSetType.Shipping}
-        fulfillmentSet={location.fulfillment_sets?.find(
-          (f) => f.type === FulfillmentSetType.Shipping
-        )}
-      />
+        <FulfillmentSet
+          type={FulfillmentSetType.Pickup}
+          fulfillmentSet={location.fulfillment_sets?.find(
+            (f) => f.type === FulfillmentSetType.Pickup
+          )}
+        />
+        <FulfillmentSet
+          type={FulfillmentSetType.Shipping}
+          fulfillmentSet={location.fulfillment_sets?.find(
+            (f) => f.type === FulfillmentSetType.Shipping
+          )}
+        />
+      </WidgetZone>
     </Container>
   )
 }

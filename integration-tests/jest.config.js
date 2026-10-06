@@ -22,9 +22,10 @@ module.exports = {
   },
   testEnvironment: "node",
   // Everything in node_modules is left untransformed except the core-flows cart,
-  // order and payment files the patches target.
+  // order and payment files the patches target, and the ESM-only htmlparser2
+  // chain that sanitize-html require()s (Jest can't load ESM through require).
   transformIgnorePatterns: [
-    "/node_modules/(?!.*core-flows[\\\\/]dist[\\\\/](cart|order|payment)[\\\\/])",
+    "/node_modules/(?!.*core-flows[\\\\/]dist[\\\\/](cart|order|payment)[\\\\/]|(?:.*[\\\\/])?(htmlparser2|domhandler|domutils|domelementtype|dom-serializer|entities)[\\\\/]dist[\\\\/])",
   ],
   moduleFileExtensions: ["js", "ts", "json"],
   modulePathIgnorePatterns: ["dist/"],

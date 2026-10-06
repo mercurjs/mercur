@@ -16,7 +16,7 @@ export const PATCHES: PatchEntry[] = [
   {
     file: "@medusajs+core-flows@2.18.0.patch",
     package: "@medusajs/core-flows",
-    // Both targeted files are byte-identical from 2.17.2 through 2.21.0.
+    // Both targeted files are byte-identical from 2.17.2 through 2.21.2.
     compatible: { from: "2.17.0", to: "2.22.0" },
     reason:
       "refreshCartShippingMethodsWorkflow deletes any shipping method whose " +
@@ -30,7 +30,7 @@ export const PATCHES: PatchEntry[] = [
   {
     file: "@medusajs+core-flows@2.21.0-payment-hooks.patch",
     package: "@medusajs/core-flows",
-    // Both targeted workflows are unchanged from 2.18.0 through 2.21.0.
+    // Both targeted workflows are unchanged from 2.18.0 through 2.21.2.
     compatible: { from: "2.18.0", to: "2.22.0" },
     reason:
       "capturePaymentWorkflow and refundPaymentWorkflow end in an event and expose no " +

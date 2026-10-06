@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
-REPO_ROOT="/Users/viktorholik/Desktop/mercur"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # api=9000, admin=7001, vendor=7002
 PORTS=(9000 7001 7002)

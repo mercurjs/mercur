@@ -54,6 +54,8 @@ declare module "@mercurjs/dashboard-sdk" {
     "locations.detail.side.before": true
     "locations.list.after": true
     "locations.list.before": true
+    "locations.list.item.after": true
+    "locations.list.item.before": true
     "marketplace.detail.main.after": true
     "marketplace.detail.main.before": true
     "offer-variants.detail.main.after": true
@@ -173,6 +175,21 @@ declare module "@mercurjs/dashboard-sdk" {
     "promotions": true
     "reservations": true
     "reviews": true
+    "settings/attributes": true
+    "settings/commissions": true
+    "settings/locations": true
+    "settings/marketplace": true
+    "settings/product-tags": true
+    "settings/product-types": true
+    "settings/profile": true
+    "settings/publishable-api-keys": true
+    "settings/refund-reasons": true
+    "settings/regions": true
+    "settings/return-reasons": true
+    "settings/sales-channels": true
+    "settings/secret-api-keys": true
+    "settings/tax-regions": true
+    "settings/users": true
     "stores": true
   }
 
@@ -185,6 +202,12 @@ declare module "@mercurjs/dashboard-sdk" {
     "products": true
     "promotions": true
     "stores": true
+  }
+
+  interface NavGroupRegistry {
+    "developer": true
+    "general": true
+    "myAccount": true
   }
 
   interface CustomFieldsRegistry {

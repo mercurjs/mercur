@@ -22,6 +22,7 @@ type MenuItemConfig = {
     icon?: boolean
     rank?: number
     nested?: string
+    group?: string
     translationNs?: string
     permissions?: boolean
     requireAll?: boolean
@@ -33,6 +34,7 @@ type MenuItem = {
     path: string
     rank?: number
     nested?: string
+    group?: string
     translationNs?: string
     permissions?: string
     requireAll?: boolean
@@ -158,6 +160,14 @@ function processConfigProperties(
         nestedValue = nested.value.value
     }
 
+    const group = properties.find(
+        (prop) => isObjectProperty(prop) && isIdentifier(prop.key, { name: "group" })
+    )
+    let groupValue: string | undefined
+    if (group && isObjectProperty(group) && isStringLiteral(group.value)) {
+        groupValue = group.value.value
+    }
+
     const translationNs = properties.find(
         (prop) => isObjectProperty(prop) && isIdentifier(prop.key, { name: "translationNs" })
     )
@@ -187,6 +197,7 @@ function processConfigProperties(
         icon: hasIcon,
         rank: rankValue,
         nested: nestedValue,
+        group: groupValue,
         translationNs: translationNsValue,
         // Referenced by identifier at runtime rather than extracted here, so
         // the array may be computed instead of a string-literal list.
@@ -248,6 +259,7 @@ function generateMenuItem(
         path: getRoute(file, routesDir),
         rank: config.rank,
         nested: config.nested,
+        group: config.group,
         translationNs: config.translationNs
             ? `${configName}.translationNs`
             : undefined,
@@ -265,6 +277,7 @@ export function formatMenuItem(menuItem: MenuItem): string {
         `        path: "${menuItem.path}"`,
         `        rank: ${menuItem.rank !== undefined ? menuItem.rank : "undefined"}`,
         `        nested: ${menuItem.nested ? `"${menuItem.nested}"` : "undefined"}`,
+        `        group: ${menuItem.group ? JSON.stringify(menuItem.group) : "undefined"}`,
         `        translationNs: ${menuItem.translationNs || "undefined"}`,
         `        permissions: ${menuItem.permissions || "undefined"}`,
         `        requireAll: ${menuItem.requireAll !== undefined ? menuItem.requireAll : "undefined"}`,

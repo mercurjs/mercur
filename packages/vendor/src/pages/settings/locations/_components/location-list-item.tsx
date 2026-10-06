@@ -7,6 +7,7 @@ import { ActionMenu } from "@components/common/action-menu";
 import { LinkButton } from "@components/common/link-button";
 import { useDeleteStockLocation } from "@hooks/api/stock-locations";
 import { getFormattedAddress } from "@lib/addresses";
+import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { FulfillmentSetType } from "@pages/settings/locations/_common/constants";
 import { HttpTypes } from "@mercurjs/types";
 
@@ -179,18 +180,20 @@ function LocationListItem(props: LocationProps) {
 
       {/* <SalesChannels salesChannels={location.sales_channels} /> */}
 
-      <FulfillmentSet
-        type={FulfillmentSetType.Pickup}
-        fulfillmentSet={location.fulfillment_sets?.find(
-          (f) => f.type === FulfillmentSetType.Pickup,
-        )}
-      />
-      <FulfillmentSet
-        type={FulfillmentSetType.Shipping}
-        fulfillmentSet={location.fulfillment_sets?.find(
-          (f) => f.type === FulfillmentSetType.Shipping,
-        )}
-      />
+      <WidgetZone id="locations.list.item" data={location}>
+        <FulfillmentSet
+          type={FulfillmentSetType.Pickup}
+          fulfillmentSet={location.fulfillment_sets?.find(
+            (f) => f.type === FulfillmentSetType.Pickup,
+          )}
+        />
+        <FulfillmentSet
+          type={FulfillmentSetType.Shipping}
+          fulfillmentSet={location.fulfillment_sets?.find(
+            (f) => f.type === FulfillmentSetType.Shipping,
+          )}
+        />
+      </WidgetZone>
     </Container>
   );
 }

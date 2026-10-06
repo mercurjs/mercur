@@ -6,15 +6,24 @@ import {
   CurrencyDollar,
   EllipsisHorizontal,
   MagnifyingGlass,
+  MinusMini,
   OpenRectArrowOut,
   ReceiptPercent,
   ShoppingCart,
   Tag,
   Users,
 } from "@medusajs/icons";
-import { Avatar, Divider, DropdownMenu, Text, clx } from "@medusajs/ui";
+import {
+  Avatar,
+  Divider,
+  DropdownMenu,
+  IconButton,
+  Text,
+  clx,
+} from "@medusajs/ui";
 
-import { useMemo } from "react";
+import { Fragment, useMemo } from "react";
+import { Collapsible as RadixCollapsible } from "radix-ui";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -35,6 +44,8 @@ import { UserMenu } from "../user-menu";
 import menuItemsModule from "virtual:mercur/menu-items";
 import {
   applyNavOverrides,
+  groupNavItems,
+  type NavItemGroup,
   useExtension,
   usePermissions,
   type CoreNavItem,
@@ -89,9 +100,12 @@ const addNestedItems = (
   return [...(items ?? []), ...nestedNavItems];
 };
 
+type SidebarRoute = Omit<INavItem, "pathname"> & { group?: string };
+
 const useSidebarRoutes = () => {
   const coreRoutes = useCoreRoutes();
-  const navOverrides = useExtension().getNavOverrides();
+  const extension = useExtension();
+  const navOverrides = extension.getNavOverrides();
   const permissions = usePermissions();
   const { hasAnyPermission, hasAllPermissions } = permissions;
 
@@ -129,22 +143,36 @@ const useSidebarRoutes = () => {
       to: item.path,
       icon: item.icon ? <item.icon /> : undefined,
       translationNs: item.translationNs,
+      group: item.group,
       items: addNestedItems(item.path, visibleMenuItems),
     }));
 
-  return { routesWithNested, customRoutesWithNested };
+  const groupById = new Map<string, string | undefined>(
+    navOverrides.map((o) => [o.id, o.group]),
+  );
+
+  return groupNavItems<SidebarRoute>(
+    [
+      ...routesWithNested.map((route) => ({
+        ...route,
+        group: groupById.get(route.id),
+      })),
+      ...customRoutesWithNested,
+    ],
+    extension.getNavGroups(),
+  );
 };
 
 // First sidebar entry the actor can open, in sidebar order. Falls back to the
 // profile page, which needs no permission.
 export const useLandingRoute = () => {
-  const { routesWithNested, customRoutesWithNested } = useSidebarRoutes();
-  const first = [...routesWithNested, ...customRoutesWithNested][0];
+  const { ungrouped, groups } = useSidebarRoutes();
+  const first = [...ungrouped, ...groups.flatMap((group) => group.items)][0];
   return first?.to ?? "/settings/profile";
 };
 
 const MainSidebar = () => {
-  const { routesWithNested, customRoutesWithNested } = useSidebarRoutes();
+  const { ungrouped, groups } = useSidebarRoutes();
 
   return (
     <aside
@@ -168,13 +196,18 @@ const MainSidebar = () => {
               data-testid="sidebar-core-routes"
             >
               <Searchbar />
-              {routesWithNested.map((route) => {
-                return <NavItem key={route.to} {...route} />;
-              })}
-              {customRoutesWithNested.map((route) => (
+              {ungrouped.map((route) => (
                 <NavItem key={route.to} {...route} />
               ))}
             </nav>
+            {groups.map((group) => (
+              <Fragment key={group.id}>
+                <div className="px-3">
+                  <Divider variant="dashed" />
+                </div>
+                <SidebarGroup group={group} />
+              </Fragment>
+            ))}
           </div>
           <UtilitySection />
         </div>
@@ -186,6 +219,50 @@ const MainSidebar = () => {
         </div>
       </div>
     </aside>
+  );
+};
+
+const SidebarGroup = ({ group }: { group: NavItemGroup<SidebarRoute> }) => {
+  const { t } = useTranslation(group.translationNs);
+
+  return (
+    <RadixCollapsible.Root
+      defaultOpen
+      className="py-3"
+      data-testid={`sidebar-group-${group.id}`}
+    >
+      <div className="px-3">
+        <div
+          className={clx(
+            "flex h-7 items-center justify-between overflow-hidden whitespace-nowrap px-2 text-ui-fg-muted",
+            SIDEBAR_RAIL_FADE,
+          )}
+        >
+          <Text size="small" leading="compact">
+            {group.translationNs ? t(group.label) : group.label}
+          </Text>
+          <RadixCollapsible.Trigger asChild>
+            <IconButton
+              size="2xsmall"
+              variant="transparent"
+              className="static"
+              data-testid={`sidebar-group-${group.id}-toggle`}
+            >
+              <MinusMini className="text-ui-fg-muted" />
+            </IconButton>
+          </RadixCollapsible.Trigger>
+        </div>
+      </div>
+      <RadixCollapsible.Content>
+        <div className="pt-0.5">
+          <nav className="flex flex-col gap-y-1">
+            {group.items.map((route) => (
+              <NavItem key={route.to} {...route} />
+            ))}
+          </nav>
+        </div>
+      </RadixCollapsible.Content>
+    </RadixCollapsible.Root>
   );
 };
 

@@ -13,6 +13,8 @@ describe("extension targets", () => {
     "topbar.after",
     "stores.detail.tabs.before",
     "stores.detail.tabs.after",
+    "locations.list.item.before",
+    "locations.list.item.after",
   ])(
     "registers the %s widget zone",
     (zone) => {

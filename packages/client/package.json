@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/client",
-  "version": "2.3.6-canary.9",
+  "version": "2.3.6-canary.11",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -39,7 +39,7 @@
     "qs": "^6.12.1"
   },
   "devDependencies": {
-    "@medusajs/framework": "2.21.0",
+    "@medusajs/framework": "2.21.2",
     "@types/qs": "^6.9.18",
     "tsup": "^8.5.0",
     "typescript": "5.9.3"

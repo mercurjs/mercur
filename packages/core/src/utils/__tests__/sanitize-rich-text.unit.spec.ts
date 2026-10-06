@@ -19,6 +19,19 @@ describe("sanitizeRichText", () => {
     ).toBe('<p>ok</p><a rel="noopener noreferrer nofollow" target="_blank">x</a>')
   })
 
+  it("neutralizes textarea mis-close and SVG animation payloads", () => {
+    expect(
+      sanitizeRichText(
+        "<textarea></textarea/><img src=x onerror=alert(1)></textarea>"
+      )
+    ).toBe('<img src="x" />')
+    expect(
+      sanitizeRichText(
+        '<svg><a><animate attributeName="href" values="#a;javascript:alert(1)"/><text>x</text></a></svg>'
+      )
+    ).toBe('<a rel="noopener noreferrer nofollow" target="_blank">x</a>')
+  })
+
   it("forces safe link attributes", () => {
     expect(sanitizeRichText('<a href="https://example.com" target="_self">x</a>')).toBe(
       '<a href="https://example.com" target="_blank" rel="noopener noreferrer nofollow">x</a>'

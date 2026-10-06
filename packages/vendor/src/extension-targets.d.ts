@@ -42,6 +42,8 @@ declare module "@mercurjs/dashboard-sdk" {
     "locations.detail.side.before": true
     "locations.list.after": true
     "locations.list.before": true
+    "locations.list.item.after": true
+    "locations.list.item.before": true
     "login.after.after": true
     "login.after.before": true
     "login.before.after": true
@@ -147,6 +149,12 @@ declare module "@mercurjs/dashboard-sdk" {
     "promotions": true
     "reservations": true
     "reviews": true
+    "settings/locations": true
+    "settings/product-tags": true
+    "settings/product-types": true
+    "settings/profile": true
+    "settings/store": true
+    "settings/users": true
   }
 
   interface NavParentRegistry {
@@ -158,6 +166,10 @@ declare module "@mercurjs/dashboard-sdk" {
     "products": true
     "promotions": true
     "reviews": true
+  }
+
+  interface NavGroupRegistry {
+    "general": true
   }
 
   interface CustomFieldsRegistry {
