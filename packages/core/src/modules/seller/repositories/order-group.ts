@@ -16,6 +16,16 @@ const OPERATOR_MAP = {
   $ilike: "ILIKE",
 }
 
+const SORTABLE_COLUMNS = ["display_id", "created_at", "updated_at"] as const
+
+const normalizeDirection = (value: unknown): "ASC" | "DESC" | undefined => {
+  if (typeof value !== "string") {
+    return undefined
+  }
+  const upper = value.toUpperCase()
+  return upper.startsWith("ASC") ? "ASC" : upper.startsWith("DESC") ? "DESC" : undefined
+}
+
 export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory(
   OrderGroup
 ) {
@@ -155,11 +165,11 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
     }
 
     const orderByClauses: string[] = []
-    if (orderBy.created_at) {
-      orderByClauses.push(`og.created_at ${orderBy.created_at}`)
-    }
-    if (orderBy.updated_at) {
-      orderByClauses.push(`og.updated_at ${orderBy.updated_at}`)
+    for (const column of SORTABLE_COLUMNS) {
+      const direction = normalizeDirection(orderBy[column])
+      if (direction) {
+        orderByClauses.push(`og.${column} ${direction}`)
+      }
     }
     if (orderByClauses.length === 0) {
       orderByClauses.push("og.created_at DESC")

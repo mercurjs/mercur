@@ -573,6 +573,46 @@ medusaIntegrationTestRunner({
                     expect(pendingGroup.total).toEqual(baseline.total)
                 })
             })
+
+            describe("GET /admin/order-groups?order=...", () => {
+                it("sorts by display_id in both directions", async () => {
+                    const { orderGroupId: first } = await completeCartCheckout(
+                        seller1Seed.offer.id
+                    )
+                    const { orderGroupId: second } = await completeCartCheckout(
+                        seller2Seed.offer.id
+                    )
+                    const { orderGroupId: third } = await completeCartCheckout(
+                        seller1Seed.offer.id
+                    )
+
+                    const ascending = await api.get(
+                        `/admin/order-groups?order=display_id&fields=id,display_id`,
+                        adminHeaders
+                    )
+                    expect(ascending.status).toEqual(200)
+                    const ascIds = ascending.data.order_groups.map(
+                        (g: any) => g.id
+                    )
+                    expect(ascIds).toEqual([first, second, third])
+                    const ascDisplayIds = ascending.data.order_groups.map(
+                        (g: any) => g.display_id
+                    )
+                    expect(ascDisplayIds).toEqual(
+                        [...ascDisplayIds].sort((a, b) => a - b)
+                    )
+
+                    const descending = await api.get(
+                        `/admin/order-groups?order=-display_id&fields=id,display_id`,
+                        adminHeaders
+                    )
+                    expect(descending.status).toEqual(200)
+                    const descIds = descending.data.order_groups.map(
+                        (g: any) => g.id
+                    )
+                    expect(descIds).toEqual([third, second, first])
+                })
+            })
         })
     },
 })
