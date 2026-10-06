@@ -106,6 +106,21 @@ medusaIntegrationTestRunner({
         expect(payouts).toHaveLength(0)
       })
 
+      it("persists the processing status", async () => {
+        const payout = await payoutService.createPayouts({
+          account_id: accountId,
+          amount: 1000,
+          currency_code: "usd",
+        })
+
+        await payoutService.updatePayouts({
+          id: payout.id,
+          status: PayoutStatus.PROCESSING,
+        })
+
+        const updated = await payoutService.retrievePayout(payout.id)
+        expect(updated.status).toEqual(PayoutStatus.PROCESSING)
+      })
     })
   },
 })
