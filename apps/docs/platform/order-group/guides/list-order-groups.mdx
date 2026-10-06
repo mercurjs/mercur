@@ -42,6 +42,10 @@ The workflow returns `{ rows, metadata }`, where `metadata` carries the `count`,
   Filters go inside `variables`: the group repository understands `id`,
   `customer_id`, `seller_id`, `status`, `sales_channel_id`, `created_at`,
   `updated_at`, and a free-text `q` (matched against group id and customer id).
+  Order-level filters (`seller_id`, `status`, `sales_channel_id`) only decide
+  which groups match. A matching group's `seller_count` and `total` still
+  describe every order in the group, as covered in
+  [Computed totals](/platform/order-group/concepts/computed-totals).
 </Note>
 
 ## Scope to a seller
