@@ -104,7 +104,8 @@ Mercur is modular. Each piece is a separate, independently deployable app that t
 - **Vendor Panel**: sellers manage their products, orders, and payouts.
 - **Storefronts**: customer-facing B2C/B2B apps with multi-vendor browsing, cart, and checkout.
 
-<img width="100%" alt="Mercur Admin Vendor Storefonrt" src="https://github.com/user-attachments/assets/4a0c801b-1d69-40dc-a075-f96a97774079" />
+<img width="100%" alt="Mercur Admin Vendor Storefonrt" src="https://github.com/user-attachments/assets/cda889e8-03fe-4ac1-9999-3c798bc61f5f" />
+
 
 ## What's in this repo
 
