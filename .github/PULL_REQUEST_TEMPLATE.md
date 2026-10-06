@@ -12,7 +12,7 @@ List the tests or commands you ran to validate the change.
 
 ## Checklist
 
-- [ ] This pull request targets `new`.
+- [ ] This pull request targets `main`.
 - [ ] I updated documentation, locales if the change requires it.
 - [ ] I added or adjusted tests that cover the change.
 
