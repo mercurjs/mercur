@@ -493,6 +493,31 @@ medusaIntegrationTestRunner({
                     expect(response.data.order_groups.length).toEqual(0)
                 })
 
+                it("intersects id with seller_id instead of dropping both filters", async () => {
+                    const { orderGroupId: groupA } = await completeCartCheckout(
+                        seller1Seed.offer.id
+                    )
+                    await completeCartCheckout(seller2Seed.offer.id)
+
+                    const mismatch = await api.get(
+                        `/admin/order-groups?id=${groupA}&seller_id=${seller2Seed.sellerId}`,
+                        adminHeaders
+                    )
+
+                    expect(mismatch.status).toEqual(200)
+                    expect(mismatch.data.count).toEqual(0)
+                    expect(mismatch.data.order_groups).toEqual([])
+
+                    const match = await api.get(
+                        `/admin/order-groups?id=${groupA}&seller_id=${seller1Seed.sellerId}`,
+                        adminHeaders
+                    )
+
+                    expect(match.status).toEqual(200)
+                    expect(match.data.count).toEqual(1)
+                    expect(match.data.order_groups[0].id).toEqual(groupA)
+                })
+
                 it("returns all groups when no seller filter is applied", async () => {
                     const { orderGroupId: groupA } = await completeCartCheckout(
                         seller1Seed.offer.id
