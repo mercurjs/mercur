@@ -1,7 +1,7 @@
 <br>
 <p align="center">
   <a href="https://github.com/mercurjs/mercur">
-    <img src="https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67a225dc6fa298afc1cc4ae6_Mercur%20Cover.png" alt="Mercur">
+    <img width="100%" alt="Mercur Admin Vendor Storefonrt" src="https://github.com/user-attachments/assets/4a0c801b-1d69-40dc-a075-f96a97774079" />
   </a>
 </p>
 
@@ -44,7 +44,7 @@
 - **Standing on [Medusa](https://medusajs.com/)**: Inherit a mature, battle-tested commerce core — catalog, orders, payments, shipping, tax, and stock — instead of reinventing it. Mercur adds the marketplace layer on top of **[Medusa](https://medusajs.com/)**.
 - **Production-ready and AI-native**: Run real marketplaces in production today, on an architecture designed for AI-assisted development — an introspectable, API-first stack that works hand in hand with your AI coding tools.
 
-![Mercur Use Cases](https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67b46aa08180d5b8499c6a15_Use-cases.jpg)
+![Mercur Use Cases](https://github.com/user-attachments/assets/808e283e-6d42-4c9f-bcd7-53c318f6f1e3)
 
 <!-- GETTING STARTED -->
 
@@ -104,7 +104,7 @@ Mercur is modular. Each piece is a separate, independently deployable app that t
 - **Vendor Panel**: sellers manage their products, orders, and payouts.
 - **Storefronts**: customer-facing B2C/B2B apps with multi-vendor browsing, cart, and checkout.
 
-![Mercur](https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67a1020f202572832c954ead_6b96703adfe74613f85133f83a19b1f0_Fleek%20Tilt%20-%20Readme.png)
+<img width="100%" alt="Mercur Admin Vendor Storefonrt" src="https://github.com/user-attachments/assets/4a0c801b-1d69-40dc-a075-f96a97774079" />
 
 ## What's in this repo
 
