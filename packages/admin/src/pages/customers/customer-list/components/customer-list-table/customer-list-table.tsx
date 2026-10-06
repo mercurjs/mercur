@@ -2,7 +2,7 @@ import { PencilSquare } from "@medusajs/icons"
 import { Button, Container, Heading } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
-import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
+import { useExtendableTable, useLinkQuery, mergeListFilters } from "@mercurjs/dashboard-shared"
 import { ReactNode, useMemo, Children } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
@@ -88,7 +88,7 @@ export const CustomerListDataTable = () => {
   const baseFilters = useCustomerTableFilters()
   const { columns, filters: extFilters } = useColumns()
   const filters = useMemo(
-    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    () => mergeListFilters(baseFilters, extFilters),
     [baseFilters, extFilters]
   )
 

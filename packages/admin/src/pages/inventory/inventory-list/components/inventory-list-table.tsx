@@ -3,7 +3,7 @@ import { Buildings } from "@medusajs/icons"
 import { Container, Heading, Text } from "@medusajs/ui"
 
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table"
-import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
+import { useExtendableTable, useLinkQuery, mergeListFilters } from "@mercurjs/dashboard-shared"
 import { Children, ReactNode, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
@@ -105,7 +105,7 @@ export const InventoryListDataTable = () => {
     [extended, actionsColumn]
   )
   const filters = useMemo(
-    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    () => mergeListFilters(baseFilters, extFilters),
     [baseFilters, extFilters]
   )
 

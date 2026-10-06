@@ -3,7 +3,7 @@ import { Button, Container, Heading, Text } from "@medusajs/ui"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
-import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
+import { useExtendableTable, useLinkQuery, mergeListFilters } from "@mercurjs/dashboard-shared"
 import { _DataTable } from "@components/table/data-table"
 import { useReservationItems } from "@hooks/api/reservations"
 import { useDataTable } from "@hooks/use-data-table"
@@ -59,7 +59,7 @@ export const ReservationListTable = () => {
   const baseFilters = useReservationTableFilters()
   const { columns, filters: extFilters } = useColumns()
   const filters = useMemo(
-    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    () => mergeListFilters(baseFilters, extFilters),
     [baseFilters, extFilters]
   )
 

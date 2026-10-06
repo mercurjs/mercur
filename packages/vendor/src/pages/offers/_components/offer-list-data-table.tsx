@@ -7,6 +7,7 @@ import {
   isForbidden,
   SectionNoAccess,
   useExtendableTable,
+  mergeListFilters,
 } from "@mercurjs/dashboard-shared"
 
 import { _DataTable } from "../../../components/table/data-table"
@@ -41,7 +42,7 @@ export const OfferListDataTable = () => {
   const baseFilters = useOfferTableFilters()
   const { columns, filters: extFilters } = useColumns()
   const filters = useMemo(
-    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    () => mergeListFilters(baseFilters, extFilters),
     [baseFilters, extFilters],
   )
 

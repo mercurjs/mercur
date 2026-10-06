@@ -1,5 +1,5 @@
 import { Button, Container, Heading, Text } from "@medusajs/ui"
-import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
+import { useExtendableTable, useLinkQuery, mergeListFilters } from "@mercurjs/dashboard-shared"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { Children, ReactNode, useMemo } from "react"
@@ -78,7 +78,7 @@ export const ReservationListDataTable = () => {
   const baseFilters = useReservationTableFilters()
   const { columns, filters: extFilters } = useColumns()
   const filters = useMemo(
-    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    () => mergeListFilters(baseFilters, extFilters),
     [baseFilters, extFilters]
   )
 

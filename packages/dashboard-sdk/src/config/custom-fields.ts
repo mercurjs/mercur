@@ -109,10 +109,32 @@ export type CustomColumn = {
   component?: ComponentType<{ row?: unknown; value?: unknown }>
 }
 
+export type CustomListFilterOption = {
+  label: string
+  value: unknown
+}
+
+/**
+ * ADD (unknown key), REPLACE (built-in key + a full filter definition), or
+ * REMOVE (built-in key + `remove: true`) a list filter. Mirrors
+ * `CustomDisplayField`: the `key` is the query param the filter writes.
+ */
+export type CustomListFilter =
+  | ({ key: string; label: string; remove?: never } & (
+      | {
+          type: "select"
+          options: CustomListFilterOption[]
+          multiple?: boolean
+          searchable?: boolean
+        }
+      | { type: "date" | "string" | "number"; options?: never }
+    ))
+  | { key: string; remove: true }
+
 export type CustomListExtension = {
   columns?: CustomColumn[]
   bulkActions?: SectionAction[]
-  filters?: unknown[]
+  filters?: CustomListFilter[]
   viewDefaults?: {
     columnVisibility?: Record<string, boolean>
     columnOrder?: string[]

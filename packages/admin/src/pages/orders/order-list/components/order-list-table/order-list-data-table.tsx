@@ -9,6 +9,7 @@ import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import {
   useExtendableTable,
   useLinkQuery,
+  mergeListFilters,
 } from "@mercurjs/dashboard-shared";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -136,7 +137,7 @@ export const OrderListDataTable = () => {
   const baseFilters = useOrderGroupTableFilters();
   const { columns, filters: extFilters } = useColumns();
   const filters = useMemo(
-    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    () => mergeListFilters(baseFilters, extFilters),
     [baseFilters, extFilters],
   );
 

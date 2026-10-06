@@ -4,7 +4,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 
 import { HttpTypes } from "@mercurjs/types";
-import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared";
+import { useExtendableTable, useLinkQuery, mergeListFilters } from "@mercurjs/dashboard-shared";
 
 import { _DataTable } from "@components/table/data-table";
 import { useCollections } from "@hooks/api/collections";
@@ -33,7 +33,7 @@ export const CollectionListDataTable = () => {
   const baseFilters = useCollectionTableFilters();
   const { columns, filters: extFilters } = useColumns();
   const filters = useMemo(
-    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    () => mergeListFilters(baseFilters, extFilters),
     [baseFilters, extFilters],
   );
 

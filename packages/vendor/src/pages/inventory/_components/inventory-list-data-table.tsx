@@ -1,7 +1,7 @@
 import { InventoryTypes } from "@medusajs/types";
 import { Buildings } from "@medusajs/icons";
 
-import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared";
+import { useExtendableTable, useLinkQuery, mergeListFilters } from "@mercurjs/dashboard-shared";
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -62,7 +62,7 @@ export const InventoryListDataTable = () => {
     [extended, actionsColumn],
   );
   const filters = useMemo(
-    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    () => mergeListFilters(baseFilters, extFilters),
     [baseFilters, extFilters],
   );
 

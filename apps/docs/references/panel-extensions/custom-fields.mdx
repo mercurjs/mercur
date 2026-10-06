@@ -191,7 +191,11 @@ list: {
     { id: "brand_name", header: "Brand", component: ({ row }) => row.brand?.name },  // add from link
   ],
   bulkActions: [{ rank: 0, component: ArchiveBulkAction }],
-  filters: [/* add or remove list filters */],
+  filters: [
+    { key: "customer_id", label: "Buyer email", type: "select", options: buyerEmails, searchable: true }, // replace a built-in filter
+    { key: "status", remove: true },                                                                     // remove a built-in filter
+    { key: "erp_synced", label: "Synced to ERP", type: "select", options: yesNo },                       // add a new one
+  ],
   viewDefaults: {
     columnVisibility: { created_at: false },
     columnOrder: ["title", "sku", "erp_id"],
@@ -206,6 +210,21 @@ list: {
 | `id`        | `string`                                     | Column id. Matches a built-in column to override, or adds a new one. |
 | `header`    | `string` (optional)                          | Column header text, for added columns.                              |
 | `component` | `ComponentType<{ row?, value? }>` (optional) | Cell renderer. Receives the full `row` and the cell `value`.        |
+
+`filters[]` is `CustomListFilter`. The `key` is the query param the filter
+writes, so it matches a built-in filter by its param name (`customer_id`,
+`status`, `created_at`, ...).
+
+| Field     | Type                                                  | Description                                                                                   |
+| --------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `key`     | `string`                                              | Built-in filter key to replace or remove. Any other string adds a new filter.                 |
+| `remove`  | `true` (optional)                                     | Drop the built-in filter with this `key`. No other fields are needed.                         |
+| `label`   | `string`                                              | Label shown in the "Add filter" menu.                                                         |
+| `type`    | `"select" \| "string" \| "number" \| "date"`          | Filter control.                                                                               |
+| `options` | `{ label: string; value: unknown }[]`                 | Choices for a `select` filter. `multiple` and `searchable` are also accepted.                 |
+
+A replacement keeps the built-in filter's position; added filters go after the
+built-in ones.
 
 <Note>
   **Bulk-action rendering is deferred in the MVP.** `bulkActions` are accepted and

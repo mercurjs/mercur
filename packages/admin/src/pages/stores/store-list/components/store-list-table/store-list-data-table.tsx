@@ -12,7 +12,7 @@ import {
   type ColumnDef,
 } from "@tanstack/react-table"
 
-import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
+import { useExtendableTable, useLinkQuery, mergeListFilters } from "@mercurjs/dashboard-shared"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { _DataTable } from "../../../../../components/table/data-table"
@@ -50,7 +50,7 @@ export const StoreListDataTable = () => {
   const { columns, filters: extFilters } = useColumns()
   const baseFilters = useSellerTableFilters()
   const filters = useMemo(
-    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    () => mergeListFilters(baseFilters, extFilters),
     [baseFilters, extFilters],
   )
 
