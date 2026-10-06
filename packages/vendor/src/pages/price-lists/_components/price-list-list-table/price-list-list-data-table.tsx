@@ -3,7 +3,7 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared";
+import { useExtendableTable, useLinkQuery, mergeListFilters } from "@mercurjs/dashboard-shared";
 import { ExtendedPriceList } from "@custom-types/price-list";
 import { _DataTable } from "@components/table/data-table";
 import { usePriceLists } from "@hooks/api/price-lists";
@@ -32,7 +32,7 @@ export const PriceListListDataTable = () => {
   const baseFilters = usePricingTableFilters();
   const { columns, filters: extFilters } = useColumns();
   const filters = useMemo(
-    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    () => mergeListFilters(baseFilters, extFilters),
     [baseFilters, extFilters],
   );
 

@@ -1,6 +1,10 @@
 import { useMemo } from "react"
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
-import type { CustomColumn, SectionAction } from "@mercurjs/dashboard-sdk"
+import type {
+  CustomColumn,
+  CustomListFilter,
+  SectionAction,
+} from "@mercurjs/dashboard-sdk"
 
 import { useExtension } from "./context"
 
@@ -21,8 +25,8 @@ export type UseExtendableTableProps<TData> = {
 export type ExtendableTable<TData> = {
   /** Base columns with custom override/add/hide/order applied. */
   columns: ColumnDef<TData, unknown>[]
-  /** Extra list filters contributed by custom-fields configs. */
-  filters: unknown[]
+  /** List filters contributed by custom-fields configs; apply with `mergeListFilters`. */
+  filters: CustomListFilter[]
   /** Extra multi-select bulk actions (rank-sorted). */
   bulkActions: SectionAction[]
 }
@@ -32,8 +36,9 @@ export type ExtendableTable<TData> = {
  * mirrors `useExtendableForm` for tables. A `columns[]` entry whose `id` matches
  * a base column **overrides** it (custom header/cell), an unknown `id` **adds** a
  * column, `viewDefaults.columnVisibility[id] === false` **hides** it, and
- * `viewDefaults.columnOrder` reorders. Also surfaces the config's `filters` and
- * `bulkActions` for the caller to render.
+ * `viewDefaults.columnOrder` reorders. Also surfaces the config's `filters`
+ * (merge them into the base filters with `mergeListFilters`) and `bulkActions`
+ * for the caller to render.
  */
 export function useExtendableTable<TData>({
   model,

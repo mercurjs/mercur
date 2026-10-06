@@ -45,6 +45,7 @@ export {
   type UseExtendableTableProps,
   type ExtendableTable,
 } from "./use-extendable-table"
+export { mergeListFilters } from "./list-filters"
 export { withLinkFields, linkFields, getLinkQuery, useLinkQuery } from "./links"
 export {
   createFormHelper,

@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { keepPreviousData } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { useExtendableTable } from "@mercurjs/dashboard-shared";
+import { useExtendableTable, mergeListFilters } from "@mercurjs/dashboard-shared";
 
 import { _DataTable } from "@components/table/data-table/data-table";
 import { usePayouts } from "@hooks/api/payouts";
@@ -33,7 +33,7 @@ export const PayoutListDataTable = () => {
   });
   const baseFilters = usePayoutTableFilters();
   const filters = useMemo(
-    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    () => mergeListFilters(baseFilters, extFilters),
     [baseFilters, extFilters],
   );
 

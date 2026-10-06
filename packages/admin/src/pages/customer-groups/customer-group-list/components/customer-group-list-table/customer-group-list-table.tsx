@@ -7,7 +7,7 @@ import {
   toast,
   usePrompt,
 } from "@medusajs/ui"
-import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
+import { useExtendableTable, useLinkQuery, mergeListFilters } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
 import { Children, ReactNode, useCallback, useMemo } from "react"
@@ -100,7 +100,7 @@ export const CustomerGroupListDataTable = () => {
   const baseFilters = useCustomerGroupTableFilters()
   const { columns, filters: extFilters } = useColumns()
   const filters = useMemo(
-    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    () => mergeListFilters(baseFilters, extFilters),
     [baseFilters, extFilters]
   )
 

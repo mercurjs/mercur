@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { type ColumnDef } from "@tanstack/react-table";
 import { HttpTypes } from "@medusajs/types";
-import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared";
+import { useExtendableTable, useLinkQuery, mergeListFilters } from "@mercurjs/dashboard-shared";
 
 import { _DataTable } from "@components/table/data-table/data-table";
 import { useOrders } from "@hooks/api/orders";
@@ -28,7 +28,7 @@ export const OrderListDataTable = () => {
     });
 
   const filters = useMemo(
-    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    () => mergeListFilters(baseFilters, extFilters),
     [baseFilters, extFilters],
   );
 

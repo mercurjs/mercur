@@ -1,7 +1,7 @@
 import { keepPreviousData } from "@tanstack/react-query";
 import { type ColumnDef } from "@tanstack/react-table";
 import { HttpTypes } from "@medusajs/types";
-import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared";
+import { useExtendableTable, useLinkQuery, mergeListFilters } from "@mercurjs/dashboard-shared";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -35,7 +35,7 @@ export const CustomerListDataTable = () => {
   const baseFilters = useCustomerTableFilters();
   const { columns, filters: extFilters } = useColumns();
   const filters = useMemo(
-    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    () => mergeListFilters(baseFilters, extFilters),
     [baseFilters, extFilters],
   );
 

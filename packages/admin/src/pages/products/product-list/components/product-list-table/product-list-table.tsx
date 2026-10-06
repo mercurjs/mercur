@@ -13,7 +13,7 @@ import {
   RowSelectionState,
   type ColumnDef,
 } from "@tanstack/react-table";
-import { useExtendableTable } from "@mercurjs/dashboard-shared";
+import { useExtendableTable, mergeListFilters } from "@mercurjs/dashboard-shared";
 import { ReactNode, useMemo, useState, Children } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Outlet, useLoaderData, useNavigate } from "react-router-dom";
@@ -127,7 +127,7 @@ export const ProductListDataTable = () => {
   const baseFilters = useProductTableFilters();
   const { columns, filters: extFilters } = useColumns();
   const filters = useMemo(
-    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    () => mergeListFilters(baseFilters, extFilters),
     [baseFilters, extFilters],
   );
 

@@ -3,7 +3,7 @@ import { ColumnDef, RowSelectionState } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { OfferDTO } from "@mercurjs/types"
-import { useExtendableTable } from "@mercurjs/dashboard-shared"
+import { useExtendableTable, mergeListFilters } from "@mercurjs/dashboard-shared"
 
 import { _DataTable } from "../../../components/table/data-table"
 import { useDataTable } from "../../../hooks/use-data-table"
@@ -45,7 +45,7 @@ export const OfferListDataTable = () => {
     [extended, actionColumn],
   )
   const filters = useMemo(
-    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    () => mergeListFilters(baseFilters, extFilters),
     [baseFilters, extFilters],
   )
   const commands = useOfferTableCommands({
