@@ -19,8 +19,6 @@ const OPERATOR_MAP = {
 export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory(
   OrderGroup
 ) {
-  
-
   private parseFilterValue(
     column: string,
     value: any,
@@ -73,6 +71,8 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
 
     const params: any[] = []
     const whereClauses: string[] = ["og.deleted_at IS NULL"]
+    const orderParams: any[] = []
+    const orderClauses: string[] = []
 
     if (filters.id) {
       const ids = Array.isArray(filters.id) ? filters.id : [filters.id]
@@ -104,8 +104,8 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
         ? filters.seller_id
         : [filters.seller_id]
       const placeholders = sellerIds.map(() => "?").join(",")
-      whereClauses.push(`oso.seller_id IN (${placeholders})`)
-      params.push(...sellerIds)
+      orderClauses.push(`fo_seller.seller_id IN (${placeholders})`)
+      orderParams.push(...sellerIds)
     }
 
     if (filters.status) {
@@ -113,8 +113,8 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
         ? filters.status
         : [filters.status]
       const placeholders = statuses.map(() => "?").join(",")
-      whereClauses.push(`o.status IN (${placeholders})`)
-      params.push(...statuses)
+      orderClauses.push(`fo.status IN (${placeholders})`)
+      orderParams.push(...statuses)
     }
 
     if (filters.sales_channel_id) {
@@ -122,8 +122,8 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
         ? filters.sales_channel_id
         : [filters.sales_channel_id]
       const placeholders = salesChannelIds.map(() => "?").join(",")
-      whereClauses.push(`o.sales_channel_id IN (${placeholders})`)
-      params.push(...salesChannelIds)
+      orderClauses.push(`fo.sales_channel_id IN (${placeholders})`)
+      orderParams.push(...salesChannelIds)
     }
 
     if (filters.created_at) {
@@ -140,6 +140,20 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
       params.push(searchPattern, searchPattern)
     }
 
+    // Order-level filters only decide which groups match. The aggregates below
+    // must still span every order in the group, so those filters live in an
+    // EXISTS subquery instead of the join the aggregates run over.
+    if (orderClauses.length > 0) {
+      whereClauses.push(`EXISTS (
+        SELECT 1
+        FROM order_group_order fogo
+        JOIN "order" fo ON fo.id = fogo.order_id
+        LEFT JOIN order_order_seller_seller fo_seller ON fo_seller.order_id = fo.id
+        WHERE fogo.order_group_id = og.id AND ${orderClauses.join(" AND ")}
+      )`)
+      params.push(...orderParams)
+    }
+
     const orderByClauses: string[] = []
     if (orderBy.created_at) {
       orderByClauses.push(`og.created_at ${orderBy.created_at}`)
@@ -154,11 +168,8 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
     const whereClause = whereClauses.join(" AND ")
 
     const countQuery = `
-      SELECT COUNT(DISTINCT og.id) as count
+      SELECT COUNT(*) as count
       FROM order_group og
-      LEFT JOIN order_group_order ogo ON ogo.order_group_id = og.id
-      LEFT JOIN "order" o ON o.id = ogo.order_id
-      LEFT JOIN order_order_seller_seller oso ON oso.order_id = o.id
       WHERE ${whereClause}
     `
 

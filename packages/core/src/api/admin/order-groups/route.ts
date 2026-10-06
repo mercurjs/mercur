@@ -10,7 +10,8 @@ export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminOrderGroupListResponse>
 ) => {
-  const { seller_id: sellerId, ...filterableFields } = req.filterableFields
+  // `applyOrderGroupSellerFilter` already narrowed `id` to the seller's groups.
+  const { seller_id: _sellerId, ...filterableFields } = req.filterableFields
 
   const { result } = await getOrderGroupsListWorkflow(req.scope).run({
     input: {
@@ -21,7 +22,6 @@ export const GET = async (
         take: req.queryConfig.pagination?.take,
         order: req.queryConfig.pagination?.order as Record<string, string>,
       },
-      sellerId: sellerId as string | string[] | undefined,
     },
   })
 

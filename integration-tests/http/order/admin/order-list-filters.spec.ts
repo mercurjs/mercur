@@ -350,7 +350,22 @@ medusaIntegrationTestRunner({
                     {},
                     storeHeaders
                 )
-                return { orderGroupId: completeResp.data.order_group.id }
+                const orderGroupId = completeResp.data.order_group.id
+                const query = appContainer.resolve(
+                    ContainerRegistrationKeys.QUERY
+                )
+                const { data: orderGroup } = await query.graph({
+                    entity: "order_group",
+                    filters: { id: orderGroupId },
+                    fields: ["id", "orders.id", "orders.seller.id"],
+                })
+                return {
+                    orderGroupId,
+                    orders: (orderGroup[0] as any).orders as {
+                        id: string
+                        seller: { id: string }
+                    }[],
+                }
             }
 
             beforeAll(async () => {
@@ -436,11 +451,20 @@ medusaIntegrationTestRunner({
                     expect(ids).not.toContain(groupB)
                 })
 
-                it("trims child orders to the selected seller within a multi-seller group", async () => {
+                it("keeps every child order and the full aggregates of a matching multi-seller group", async () => {
                     const { orderGroupId } = await completeMultiSellerCheckout([
                         seller1Seed.offer.id,
                         seller2Seed.offer.id,
                     ])
+
+                    const unfiltered = await api.get(
+                        `/admin/order-groups?id=${orderGroupId}`,
+                        adminHeaders
+                    )
+                    const baseline = unfiltered.data.order_groups[0]
+                    expect(baseline.orders.length).toEqual(2)
+                    expect(baseline.seller_count).toEqual(2)
+                    expect(baseline.total).toBeGreaterThan(0)
 
                     const response = await api.get(
                         `/admin/order-groups?seller_id=${seller1Seed.sellerId}`,
@@ -452,12 +476,9 @@ medusaIntegrationTestRunner({
                         (g: any) => g.id === orderGroupId
                     )
                     expect(group).toBeDefined()
-                    expect(group.orders.length).toEqual(1)
-                    expect(
-                        group.orders.every(
-                            (o: any) => o.seller?.id === seller1Seed.sellerId
-                        )
-                    ).toBe(true)
+                    expect(group.orders.length).toEqual(2)
+                    expect(group.seller_count).toEqual(2)
+                    expect(group.total).toEqual(baseline.total)
                 })
 
                 it("returns an empty list for an unknown seller", async () => {
@@ -489,6 +510,67 @@ medusaIntegrationTestRunner({
                     const ids = response.data.order_groups.map((g: any) => g.id)
                     expect(ids).toContain(groupA)
                     expect(ids).toContain(groupB)
+                })
+            })
+
+            describe("GET /admin/order-groups?status=...", () => {
+                it("matches groups by child order status without shrinking seller_count or total", async () => {
+                    const { orderGroupId, orders } =
+                        await completeMultiSellerCheckout([
+                            seller1Seed.offer.id,
+                            seller2Seed.offer.id,
+                        ])
+                    const { orderGroupId: pendingOnlyGroupId } =
+                        await completeCartCheckout(seller1Seed.offer.id)
+
+                    const baseline = (
+                        await api.get(
+                            `/admin/order-groups?id=${orderGroupId}`,
+                            adminHeaders
+                        )
+                    ).data.order_groups[0]
+                    expect(baseline.seller_count).toEqual(2)
+                    expect(baseline.orders.length).toEqual(2)
+
+                    const seller2Order = orders.find(
+                        (o) => o.seller?.id === seller2Seed.sellerId
+                    )!
+                    const cancelResp = await api.post(
+                        `/vendor/orders/${seller2Order.id}/cancel`,
+                        {},
+                        seller2Seed.headers
+                    )
+                    expect(cancelResp.status).toEqual(200)
+
+                    const canceled = await api.get(
+                        `/admin/order-groups?status=canceled`,
+                        adminHeaders
+                    )
+                    expect(canceled.status).toEqual(200)
+                    const canceledIds = canceled.data.order_groups.map(
+                        (g: any) => g.id
+                    )
+                    expect(canceledIds).toContain(orderGroupId)
+                    expect(canceledIds).not.toContain(pendingOnlyGroupId)
+
+                    const group = canceled.data.order_groups.find(
+                        (g: any) => g.id === orderGroupId
+                    )
+                    expect(group.orders.length).toEqual(2)
+                    expect(group.seller_count).toEqual(2)
+                    expect(group.total).toEqual(baseline.total)
+
+                    const pending = await api.get(
+                        `/admin/order-groups?status=pending`,
+                        adminHeaders
+                    )
+                    const pendingGroup = pending.data.order_groups.find(
+                        (g: any) => g.id === orderGroupId
+                    )
+                    expect(pendingGroup).toBeDefined()
+                    expect(pendingGroup.orders.length).toEqual(2)
+                    expect(pendingGroup.seller_count).toEqual(2)
+                    expect(pendingGroup.total).toEqual(baseline.total)
                 })
             })
         })
