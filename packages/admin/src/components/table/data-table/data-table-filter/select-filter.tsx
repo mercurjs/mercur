@@ -15,6 +15,8 @@ interface SelectFilterProps extends IFilter {
   readonly?: boolean
   multiple?: boolean
   searchable?: boolean
+  onSearch?: (value: string) => void
+  isLoading?: boolean
 }
 
 export const SelectFilter = ({
@@ -23,6 +25,8 @@ export const SelectFilter = ({
   readonly,
   multiple,
   searchable,
+  onSearch,
+  isLoading,
   options,
   openOnMount,
 }: SelectFilterProps) => {
@@ -68,8 +72,13 @@ export const SelectFilter = ({
     }
   }
 
+  const handleSearchChange = (value: string) => {
+    setSearch(value)
+    onSearch?.(value)
+  }
+
   const handleClearSearch = () => {
-    setSearch("")
+    handleSearchChange("")
 
     if (searchRef) {
       searchRef.focus()
@@ -129,14 +138,14 @@ export const SelectFilter = ({
               }
             }}
           >
-            <Command className="h-full">
+            <Command className="h-full" shouldFilter={!onSearch}>
               {searchable && (
                 <div className="border-b p-1">
                   <div className="grid grid-cols-[1fr_20px] gap-x-2 rounded-md px-2 py-1">
                     <Command.Input
                       ref={setSearchRef}
                       value={search}
-                      onValueChange={setSearch}
+                      onValueChange={handleSearchChange}
                       className="txt-compact-small placeholder:text-ui-fg-muted bg-transparent outline-none"
                       placeholder={t("general.search")}
                     />
@@ -159,7 +168,9 @@ export const SelectFilter = ({
               )}
               <Command.Empty className="txt-compact-small flex items-center justify-center p-1">
                 <span className="w-full px-2 py-1 text-center">
-                  {t("general.noResultsTitle")}
+                  {isLoading
+                    ? t("general.loading")
+                    : t("general.noResultsTitle")}
                 </span>
               </Command.Empty>
               <Command.List className="h-full max-h-[163px] min-h-[0] overflow-auto p-1 outline-none">
