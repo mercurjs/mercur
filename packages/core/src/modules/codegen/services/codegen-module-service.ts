@@ -1,7 +1,5 @@
-import { exec } from "child_process"
-import { existsSync } from "fs"
-import { join } from "path"
 import { Logger } from "@medusajs/medusa"
+import { runCodegen } from "../utils"
 
 export default class CodegenModuleService {
     private readonly logger: Logger
@@ -21,36 +19,15 @@ export default class CodegenModuleService {
             return
         }
 
-        try {
-            await this.runCodegen_()
-        } catch (error) {
-            this.logger.warn(`Codegen failed: ${error}`)
+        if (process.env.MERCUR_DEV_CODEGEN === "false") {
+            return
         }
-    }
 
-    private detectPackageRunner_(): string {
-        const cwd = process.cwd()
-        const lockfiles: [string, string][] = [
-            ["bun.lockb", "bunx"],
-            ["bun.lock", "bunx"],
-            ["pnpm-lock.yaml", "pnpm exec"],
-            ["yarn.lock", "yarn"],
-        ]
-
-        const runner = lockfiles.find(([file]) => existsSync(join(cwd, file)))
-        return `${runner ? runner[1] : "npx"} @mercurjs/cli codegen`
-    }
-
-    private runCodegen_(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            const command = this.detectPackageRunner_()
-            exec(command, { cwd: process.cwd() }, (error, _stdout, stderr) => {
-                if (error) {
-                    reject(stderr || error.message)
-                    return
-                }
-                resolve()
-            })
-        })
+        try {
+            await runCodegen(process.cwd())
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error)
+            this.logger.warn(`Codegen failed: ${message}`)
+        }
     }
 }
