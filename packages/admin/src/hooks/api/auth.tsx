@@ -4,7 +4,7 @@ import {
   InferClientOutput,
 } from "@mercurjs/client"
 import { UseMutationOptions, useMutation } from "@tanstack/react-query"
-import { sdk } from "../../lib/client"
+import { clearAuthToken, sdk, setAuthToken } from "../../lib/client"
 
 export const useSignInWithEmailPass = (
   options?: UseMutationOptions<
@@ -24,13 +24,7 @@ export const useSignInWithEmailPass = (
         ...payload,
       })) as { token: string }
 
-      await sdk.auth.session.mutate({
-        fetchOptions: {
-          headers: {
-            Authorization: `Bearer ${data.token}`,
-          },
-        },
-      })
+      setAuthToken(data.token)
 
       return data
     },
@@ -93,12 +87,12 @@ export const useResetPasswordForEmailPass = (
 
 export const useLogout = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.auth.session.delete>,
+    void,
     ClientError
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.auth.session.delete({}),
+    mutationFn: async () => clearAuthToken(),
     ...options,
   })
 }

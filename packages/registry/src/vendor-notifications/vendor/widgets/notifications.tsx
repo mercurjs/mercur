@@ -7,6 +7,7 @@ import { clx, Drawer, Heading, IconButton, Text } from "@medusajs/ui"
 import { useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { defineWidgetConfig } from "@mercurjs/dashboard-sdk"
+import { getAuthHeaders } from "@mercurjs/vendor"
 import {
   FilePreview,
   InfiniteList,
@@ -59,7 +60,7 @@ const fetchNotifications = async (
 
   const response = await fetch(
     `${__BACKEND_URL__}/vendor/notifications?${search.toString()}`,
-    { credentials: "include" }
+    { credentials: "omit", headers: getAuthHeaders() }
   )
 
   if (!response.ok) {

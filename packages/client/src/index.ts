@@ -72,7 +72,7 @@ const toFormData = (payload: Record<string, any>): FormData => {
 };
 
 export function createClient(options: ClientOptions) {
-    const { baseUrl, fetchOptions: defaultFetchOptions } = options;
+    const { baseUrl, fetchOptions: defaultFetchOptions, headers: resolveHeaders } = options;
 
     return createRecursiveProxy((path, args) => {
         const action = path.pop() as ActionType;
@@ -129,6 +129,7 @@ export function createClient(options: ClientOptions) {
         const headers = new Headers({
             ...defaultHeaders,
             ...defaultFetchOptions?.headers,
+            ...resolveHeaders?.(),
             ...inputFetchOptions?.headers,
         });
 

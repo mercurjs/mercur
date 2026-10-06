@@ -3,14 +3,16 @@ import { Routes } from '@mercurjs/core/_generated'
 import config from 'virtual:mercur/config'
 
 import { assetUrl } from '../../utils/asset-url'
+import { clearAuthToken, getAuthHeaders } from './auth-token'
 
 export const backendUrl = config.backendUrl ?? 'http://localhost:9000'
 
 export const sdk: InferClient<Routes> = createClient({
   baseUrl: backendUrl,
   fetchOptions: {
-    credentials: 'include',
+    credentials: 'omit',
   },
+  headers: getAuthHeaders,
 })
 
 export const fetchQuery = async (
@@ -55,9 +57,10 @@ export const fetchQuery = async (
     `${backendUrl}${url}${params ? `?${params}` : ''}`,
     {
       method,
-      credentials: 'include',
+      credentials: 'omit',
       headers: {
         'Content-Type': 'application/json',
+        ...getAuthHeaders(),
         ...headers,
       },
       body: body ? JSON.stringify(body) : null,
@@ -68,6 +71,7 @@ export const fetchQuery = async (
     const errorData = await response.json()
 
     if (response.status === 401) {
+      clearAuthToken()
       window.location.href = `${assetUrl('/login')}?reason=Unauthorized`
       return
     }

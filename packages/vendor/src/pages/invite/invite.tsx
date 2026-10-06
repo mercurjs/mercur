@@ -27,7 +27,7 @@ import { useAcceptInvite } from "@hooks/api/invites";
 import { assetUrl } from "@/utils/asset-url";
 import { useSelectSeller } from "@hooks/api";
 import { isFetchError } from "@lib/is-fetch-error";
-import { sdk } from "@lib/client";
+import { sdk, setAuthToken } from "@lib/client";
 
 const CreateAccountBaseSchema = z.object({
   email: z.string().email(),
@@ -277,14 +277,7 @@ const CreateView = ({
         password: data.password,
       });
 
-      // Establish session with the fresh token
-      await sdk.auth.session.mutate({
-        fetchOptions: {
-          headers: {
-            Authorization: `Bearer ${freshToken}`,
-          },
-        },
-      });
+      setAuthToken(freshToken);
 
       toast.success(t("invite.toast.accepted"));
       onSuccess();

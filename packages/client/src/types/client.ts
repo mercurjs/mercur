@@ -5,6 +5,7 @@ export type ActionType = "query" | "mutate" | "delete";
 export type ClientOptions = {
     baseUrl: string;
     fetchOptions?: RequestInit;
+    headers?: () => Record<string, string>;
 };
 
 type AddParamsToFn<Fn, TParams> =

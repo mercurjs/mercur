@@ -37,7 +37,9 @@ export const POST = async (
     )
   }
 
-  req.session.seller_id = seller_id
+  if (req.session?.auth_context) {
+    req.session.seller_id = seller_id
+  }
 
-  res.json({ success: true })
+  res.json({ success: true, seller_id })
 }

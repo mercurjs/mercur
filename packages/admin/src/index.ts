@@ -37,3 +37,5 @@ export type {
   PermissionRight,
   RouteHandle,
 } from '@mercurjs/dashboard-sdk'
+
+export { getAuthHeaders } from './lib/client/auth-token'

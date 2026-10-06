@@ -14,6 +14,18 @@ session detail aggressively. The per-spec source of truth lives in
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
 
+## Session — Panel auth collision, branch `fix/panel-auth-session-collision`
+
+Admin and vendor panels shared one API session cookie, so logging in to one logged the other out.
+Both panels now keep their JWT in origin-local storage and send `Authorization` (+ `x-seller-id`
+for vendor) via `getAuthHeaders` (exported from `@mercurjs/admin` / `@mercurjs/vendor`);
+`@mercurjs/client` gained a `headers` option; `POST /vendor/sellers/select` returns `seller_id` and
+only writes the session for session-authenticated callers. Host apps + `templates/basic` clients
+updated. Verified: `bun run build`, `test:integration:http -- panel-auth` (2/2). Not verified in a
+browser. **Open risk**: the messaging block's panel SSE (`EventSource` + `withCredentials`) can't
+send a bearer header, so it falls back to polling until it gets a token-exchange flow.
+Uncommitted.
+
 ## Session — Admin Inventory (MER-139), branch `feat/admin-inventory`
 
 Spec + audit: `docs/specs/spec-3-admin-inventory/`. Implemented (type-clean; deps built; lint
