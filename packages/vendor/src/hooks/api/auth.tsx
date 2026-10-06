@@ -4,7 +4,12 @@ import {
   InferClientOutput,
 } from "@mercurjs/client";
 import { UseMutationOptions, useMutation } from "@tanstack/react-query";
-import { sdk } from "../../lib/client";
+import {
+  clearAuthToken,
+  clearSellerId,
+  sdk,
+  setAuthToken,
+} from "../../lib/client";
 
 export const useSignInWithEmailPass = (
   options?: UseMutationOptions<
@@ -24,13 +29,8 @@ export const useSignInWithEmailPass = (
         ...payload,
       })) as { token: string };
 
-      await sdk.auth.session.mutate({
-        fetchOptions: {
-          headers: {
-            Authorization: `Bearer ${data.token}`,
-          },
-        },
-      });
+      clearSellerId();
+      setAuthToken(data.token);
 
       return data;
     },
@@ -61,15 +61,10 @@ export const useSignUpWithEmailPass = (
         ...payload,
       }),
     onSuccess: async (data, variables, context) => {
-      options?.onSuccess?.(data, variables, context);
+      clearSellerId();
+      setAuthToken((data as { token: string }).token);
 
-      await sdk.auth.session.mutate({
-        fetchOptions: {
-          headers: {
-            Authorization: `Bearer ${(data as { token: string }).token}`,
-          },
-        },
-      });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
   });
@@ -151,12 +146,15 @@ export const useResetPasswordForEmailPass = (
 
 export const useLogout = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.auth.session.delete>,
+    void,
     ClientError
   >,
 ) => {
   return useMutation({
-    mutationFn: () => sdk.auth.session.delete({}),
+    mutationFn: async () => {
+      clearAuthToken();
+      clearSellerId();
+    },
     ...options,
   });
 };
