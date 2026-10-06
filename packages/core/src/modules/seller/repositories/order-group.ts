@@ -18,6 +18,88 @@ const OPERATOR_MAP = {
 
 const SORTABLE_COLUMNS = ["display_id", "created_at", "updated_at"] as const
 
+// SQL twin of `getLastPaymentStatus` in workflows/order-group/utils, applied
+// to the collections `resolveOrderPaymentCollections` picks for an order: its
+// own collections when the cart payment was split into them, otherwise the
+// shared cart collection. Keep the three in sync.
+const ORDER_PAYMENT_STATUS_JOIN = `
+  LEFT JOIN currency fo_currency ON fo_currency.code = fo.currency_code
+  CROSS JOIN LATERAL (
+    WITH own AS (
+      SELECT pc.amount, pc.captured_amount, pc.refunded_amount, pc.status
+      FROM order_payment_collection opc
+      JOIN payment_collection pc
+        ON pc.id = opc.payment_collection_id AND pc.deleted_at IS NULL
+      WHERE opc.order_id = fo.id AND opc.deleted_at IS NULL
+    ),
+    cart_pc AS (
+      SELECT pc.amount, pc.captured_amount, pc.refunded_amount, pc.status,
+        COALESCE(pc.metadata->>'split_order_collections', '') = 'true' AS is_split
+      FROM order_cart oc
+      JOIN cart_payment_collection cpc
+        ON cpc.cart_id = oc.cart_id AND cpc.deleted_at IS NULL
+      JOIN payment_collection pc
+        ON pc.id = cpc.payment_collection_id AND pc.deleted_at IS NULL
+      WHERE oc.order_id = fo.id AND oc.deleted_at IS NULL
+      LIMIT 1
+    ),
+    resolved AS (
+      SELECT amount, captured_amount, refunded_amount, status FROM own
+      WHERE NOT EXISTS (SELECT 1 FROM cart_pc WHERE NOT is_split)
+      UNION ALL
+      SELECT amount, captured_amount, refunded_amount, status FROM cart_pc
+      WHERE NOT (is_split AND EXISTS (SELECT 1 FROM own))
+    ),
+    scored AS (
+      SELECT
+        status,
+        CASE
+          WHEN captured_amount > 0 OR amount = 0 THEN
+            CASE WHEN amount - COALESCE(captured_amount, 0)
+              <= power(10::numeric, -COALESCE(fo_currency.decimal_digits, 2))
+            THEN 1 ELSE 0.5 END
+          ELSE 0
+        END AS captured,
+        CASE
+          WHEN refunded_amount > 0 THEN
+            CASE WHEN amount - refunded_amount
+              <= power(10::numeric, -COALESCE(fo_currency.decimal_digits, 2))
+            THEN 1 ELSE 0.5 END
+          ELSE 0
+        END AS refunded,
+        (status = 'captured' AND (captured_amount > 0 OR amount = 0))
+          OR (status = 'refunded' AND refunded_amount > 0) AS amount_derived
+      FROM resolved
+    ),
+    agg AS (
+      SELECT
+        COUNT(*) AS total,
+        COALESCE(SUM(captured), 0)
+          + COUNT(*) FILTER (WHERE NOT amount_derived AND status = 'captured') AS captured,
+        COALESCE(SUM(refunded), 0)
+          + COUNT(*) FILTER (WHERE NOT amount_derived AND status = 'refunded') AS refunded,
+        COUNT(*) FILTER (WHERE NOT amount_derived AND status = 'requires_action') AS requires_action,
+        COUNT(*) FILTER (WHERE NOT amount_derived AND status = 'authorized') AS authorized,
+        COUNT(*) FILTER (WHERE NOT amount_derived AND status = 'canceled') AS canceled,
+        COUNT(*) FILTER (WHERE NOT amount_derived AND status = 'awaiting') AS awaiting
+      FROM scored
+    )
+    SELECT CASE
+      WHEN requires_action > 0 THEN 'requires_action'
+      WHEN refunded > 0 THEN
+        CASE WHEN refunded = captured THEN 'refunded' ELSE 'partially_refunded' END
+      WHEN captured > 0 THEN
+        CASE WHEN captured = total - canceled THEN 'captured' ELSE 'partially_captured' END
+      WHEN authorized > 0 THEN
+        CASE WHEN authorized = total - canceled THEN 'authorized' ELSE 'partially_authorized' END
+      WHEN canceled > 0 AND canceled = total THEN 'canceled'
+      WHEN awaiting > 0 THEN 'awaiting'
+      ELSE 'not_paid'
+    END AS payment_status
+    FROM agg
+  ) fo_payment
+`
+
 const normalizeDirection = (value: unknown): "ASC" | "DESC" | undefined => {
   if (typeof value !== "string") {
     return undefined
@@ -118,6 +200,17 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
       orderParams.push(...sellerIds)
     }
 
+    let needsPaymentStatus = false
+    if (filters.payment_status) {
+      const paymentStatuses = Array.isArray(filters.payment_status)
+        ? filters.payment_status
+        : [filters.payment_status]
+      const placeholders = paymentStatuses.map(() => "?").join(",")
+      orderClauses.push(`fo_payment.payment_status IN (${placeholders})`)
+      orderParams.push(...paymentStatuses)
+      needsPaymentStatus = true
+    }
+
     if (filters.status) {
       const statuses = Array.isArray(filters.status)
         ? filters.status
@@ -159,6 +252,7 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
         FROM order_group_order fogo
         JOIN "order" fo ON fo.id = fogo.order_id
         LEFT JOIN order_order_seller_seller fo_seller ON fo_seller.order_id = fo.id
+        ${needsPaymentStatus ? ORDER_PAYMENT_STATUS_JOIN : ""}
         WHERE fogo.order_group_id = og.id AND ${orderClauses.join(" AND ")}
       )`)
       params.push(...orderParams)

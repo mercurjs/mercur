@@ -513,6 +513,92 @@ medusaIntegrationTestRunner({
                 })
             })
 
+            describe("GET /admin/order-groups?payment_status=...", () => {
+                const listIds = async (paymentStatus: string) => {
+                    const response = await api.get(
+                        `/admin/order-groups?payment_status=${paymentStatus}`,
+                        adminHeaders
+                    )
+                    expect(response.status).toEqual(200)
+                    return response.data.order_groups.map((g: any) => g.id)
+                }
+
+                const eventually = async (assertion: () => Promise<void>) => {
+                    const deadline = Date.now() + 15000
+                    for (;;) {
+                        try {
+                            return await assertion()
+                        } catch (error) {
+                            if (Date.now() > deadline) {
+                                throw error
+                            }
+                            await new Promise((r) => setTimeout(r, 250))
+                        }
+                    }
+                }
+
+                const paymentStatusOf = async (orderGroupId: string) => {
+                    const response = await api.get(
+                        `/admin/order-groups/${orderGroupId}?fields=+orders.payment_status`,
+                        adminHeaders
+                    )
+                    return response.data.order_group.orders[0].payment_status
+                }
+
+                it("matches groups by the payment status computed for their orders", async () => {
+                    const { orderGroupId } = await completeCartCheckout(
+                        seller1Seed.offer.id
+                    )
+                    const status = await paymentStatusOf(orderGroupId)
+                    expect(["authorized", "captured"]).toContain(status)
+
+                    expect(await listIds(status)).toContain(orderGroupId)
+                    expect(await listIds("refunded")).not.toContain(orderGroupId)
+                    expect(await listIds("not_paid")).not.toContain(orderGroupId)
+                })
+
+                it("follows the status after the payment is captured", async () => {
+                    const { orderGroupId, order } = await completeCartCheckout(
+                        seller1Seed.offer.id
+                    )
+
+                    const query = appContainer.resolve(
+                        ContainerRegistrationKeys.QUERY
+                    )
+                    const {
+                        data: [orderWithPayments],
+                    } = await query.graph({
+                        entity: "order",
+                        filters: { id: order.id },
+                        fields: [
+                            "payment_collections.payments.id",
+                            "cart.payment_collection.payments.id",
+                        ],
+                    })
+                    const paymentId =
+                        (orderWithPayments as any).payment_collections?.[0]
+                            ?.payments?.[0]?.id ??
+                        (orderWithPayments as any).cart.payment_collection
+                            .payments[0].id
+                    await api.post(
+                        `/admin/payments/${paymentId}/capture`,
+                        {},
+                        adminHeaders
+                    )
+
+                    await eventually(async () => {
+                        expect(await paymentStatusOf(orderGroupId)).toEqual(
+                            "captured"
+                        )
+                    })
+
+                    expect(await listIds("captured")).toContain(orderGroupId)
+                    expect(await listIds("authorized")).not.toContain(
+                        orderGroupId
+                    )
+                })
+            })
+
             describe("GET /admin/order-groups?status=...", () => {
                 it("matches groups by child order status without shrinking seller_count or total", async () => {
                     const { orderGroupId, orders } =

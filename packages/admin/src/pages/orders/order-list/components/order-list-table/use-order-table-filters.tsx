@@ -6,6 +6,22 @@ import { useSalesChannels } from "@hooks/api/sales-channels"
 import { useCustomers } from "@hooks/api/customers"
 import { useSellers } from "@hooks/api/sellers"
 
+const PAYMENT_STATUSES = [
+  "not_paid",
+  "awaiting",
+  "authorized",
+  "partially_authorized",
+  "captured",
+  "partially_captured",
+  "refunded",
+  "partially_refunded",
+  "canceled",
+  "requires_action",
+] as const
+
+const camelCase = (value: string) =>
+  value.replace(/_([a-z])/g, (_, char: string) => char.toUpperCase())
+
 export const useOrderGroupTableFilters = () => {
   const { t } = useTranslation()
   const { can } = usePermissions()
@@ -81,6 +97,16 @@ export const useOrderGroupTableFilters = () => {
     }
 
     filters.push(
+      {
+        key: "payment_status",
+        label: t("orders.payment.statusLabel"),
+        type: "select",
+        multiple: true,
+        options: PAYMENT_STATUSES.map((status) => ({
+          label: t(`orders.payment.status.${camelCase(status)}`),
+          value: status,
+        })),
+      },
       {
         key: "created_at",
         label: t("fields.createdAt"),
