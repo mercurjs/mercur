@@ -24,7 +24,7 @@ Describe what actually happened, including screenshots or logs if helpful.
 
 ## Environment
 
-- Branch: `new` / other?
+- Branch: `main` / other?
 - Module or area:
 - Browser/Runtime:
 
