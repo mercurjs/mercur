@@ -44,7 +44,7 @@ class SellerModuleService extends MedusaService({
 }) {
   protected readonly orderGroupRepository_: OrderGroupRepository
   protected readonly baseRepository_: DAL.RepositoryService
-  protected readonly options_: SellerModuleOptions
+  protected readonly options_: SellerModuleOptions & { jwt_secret: string }
 
   constructor(
     { orderGroupRepository, baseRepository }: InjectedDependencies,

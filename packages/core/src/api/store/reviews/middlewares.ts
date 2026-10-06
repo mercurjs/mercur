@@ -7,14 +7,22 @@ import {
   AuthenticatedMedusaRequest,
   maybeApplyLinkFilter,
   MedusaNextFunction,
+  MedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { MiddlewareRoute } from "@medusajs/medusa"
+import { ReviewReference } from "@mercurjs/types"
 
 import customerReview from "../../../links/customer-review"
-import { storeReviewQueryConfig } from "./query-config"
+import productReview from "../../../links/product-review"
+import sellerReview from "../../../links/seller-review"
+import {
+  storePublicReviewQueryConfig,
+  storeReviewQueryConfig,
+} from "./query-config"
 import {
   StoreCreateReview,
+  StoreGetPublicReviewsParams,
   StoreGetReviewsParams,
   StoreUpdateReview,
 } from "./validators"
@@ -31,6 +39,33 @@ const applyCustomerReviewLinkFilter = (
     resourceId: "review_id",
     filterableField: "customer_id",
   })(req, res, next)
+}
+
+/**
+ * Scopes a public review listing to one product or seller. The reference and
+ * status are pinned server-side so an unpublished review can never be reached
+ * by passing them as query params.
+ */
+const applyPublicReviewFilters = (
+  reference: ReviewReference,
+  entryPoint: string,
+  filterableField: string
+) => {
+  return (
+    req: MedusaRequest,
+    res: MedusaResponse,
+    next: MedusaNextFunction
+  ) => {
+    req.filterableFields[filterableField] = req.params.id
+    req.filterableFields.reference = reference
+    req.filterableFields.status = "published"
+
+    return maybeApplyLinkFilter({
+      entryPoint,
+      resourceId: "review_id",
+      filterableField,
+    })(req, res, next)
+  }
 }
 
 export const storeReviewsMiddlewares: MiddlewareRoute[] = [
@@ -84,6 +119,32 @@ export const storeReviewsMiddlewares: MiddlewareRoute[] = [
         storeReviewQueryConfig.retrieve
       ),
       validateAndTransformBody(StoreUpdateReview),
+    ],
+  },
+  {
+    method: ["GET"],
+    matcher: "/store/products/:id/reviews",
+    middlewares: [
+      validateAndTransformQuery(
+        StoreGetPublicReviewsParams,
+        storePublicReviewQueryConfig.list
+      ),
+      applyPublicReviewFilters(
+        "product",
+        productReview.entryPoint,
+        "product_id"
+      ),
+    ],
+  },
+  {
+    method: ["GET"],
+    matcher: "/store/sellers/:id/reviews",
+    middlewares: [
+      validateAndTransformQuery(
+        StoreGetPublicReviewsParams,
+        storePublicReviewQueryConfig.list
+      ),
+      applyPublicReviewFilters("seller", sellerReview.entryPoint, "seller_id"),
     ],
   },
 ]
