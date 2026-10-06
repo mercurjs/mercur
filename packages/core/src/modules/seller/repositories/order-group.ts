@@ -18,6 +18,13 @@ const OPERATOR_MAP = {
 
 const SORTABLE_COLUMNS = ["display_id", "created_at", "updated_at"] as const
 
+// Operators search by the numbers they see: the group shown as `#G258` in the
+// list and the order `#264` quoted in customer and seller emails.
+const parseDisplayIdSearch = (search: string): number | undefined => {
+  const match = /^#?g?(\d{1,9})$/i.exec(search)
+  return match ? Number(match[1]) : undefined
+}
+
 const normalizeDirection = (value: unknown): "ASC" | "DESC" | undefined => {
   if (typeof value !== "string") {
     return undefined
@@ -145,9 +152,26 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
     }
 
     if (filters.q) {
-      whereClauses.push("(og.id ILIKE ? OR og.customer_id ILIKE ?)")
-      const searchPattern = `%${filters.q}%`
+      const search = String(filters.q).trim()
+      const searchClauses = ["og.id ILIKE ?", "og.customer_id ILIKE ?"]
+      const searchPattern = `%${search}%`
       params.push(searchPattern, searchPattern)
+
+      const displayId = parseDisplayIdSearch(search)
+      if (displayId !== undefined) {
+        searchClauses.push(
+          "og.display_id = ?",
+          `EXISTS (
+            SELECT 1
+            FROM order_group_order qogo
+            JOIN "order" qo ON qo.id = qogo.order_id
+            WHERE qogo.order_group_id = og.id AND qo.display_id = ?
+          )`
+        )
+        params.push(displayId, displayId)
+      }
+
+      whereClauses.push(`(${searchClauses.join(" OR ")})`)
     }
 
     // Order-level filters only decide which groups match. The aggregates below
