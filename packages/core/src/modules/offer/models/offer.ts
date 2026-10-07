@@ -1,5 +1,7 @@
 import { model } from "@medusajs/framework/utils"
 
+import OfferCondition from "./offer-condition"
+
 const Offer = model
   .define("Offer", {
     id: model.id({ prefix: "offer" }).primaryKey(),
@@ -16,6 +18,9 @@ const Offer = model
     created_by: model.text(),
     variant_count: model.number().computed(),
     metadata: model.json().nullable(),
+    condition: model
+      .belongsTo(() => OfferCondition, { mappedBy: "offers" })
+      .nullable(),
   })
   .indexes([
     {
@@ -48,6 +53,11 @@ const Offer = model
       name: "IDX_offer_ean",
       on: ["ean"],
       where: "deleted_at IS NULL AND ean IS NOT NULL",
+    },
+    {
+      name: "IDX_offer_condition_id",
+      on: ["condition_id"],
+      where: "deleted_at IS NULL AND condition_id IS NOT NULL",
     },
     {
       name: "IDX_offer_upc",
