@@ -7,7 +7,7 @@ import { Context, FindConfig } from "@medusajs/framework/types"
 import { SqlEntityManager } from "@medusajs/framework/mikro-orm/postgresql"
 import { OfferDTO } from "@mercurjs/types"
 
-import { Offer } from "./models"
+import { Offer, OfferCondition } from "./models"
 
 type OfferFilters = Record<string, unknown> & { group_by_seller?: boolean }
 
@@ -16,6 +16,7 @@ const toArray = (value: unknown): string[] =>
 
 class OfferModuleService extends MedusaService({
   Offer,
+  OfferCondition,
 }) {
   @InjectManager()
   // @ts-ignore - override narrows the generated signature

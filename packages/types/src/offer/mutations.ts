@@ -68,6 +68,7 @@ export interface CreateOfferDTO {
   manage_inventory?: boolean
   allow_backorder?: boolean
   leadtime_to_ship?: number | null
+  condition_id?: string | null
   metadata?: Record<string, unknown> | null
 }
 
@@ -90,6 +91,7 @@ export interface CreateOfferRowDTO {
   manage_inventory?: boolean
   allow_backorder?: boolean
   leadtime_to_ship?: number | null
+  condition_id?: string | null
   created_by: string
   metadata?: Record<string, unknown> | null
 }
@@ -107,6 +109,7 @@ export interface UpdateOfferDTO {
   manage_inventory?: boolean
   allow_backorder?: boolean
   leadtime_to_ship?: number | null
+  condition_id?: string | null
   metadata?: Record<string, unknown> | null
   prices?: UpsertOfferPriceDTO[]
 }
@@ -127,4 +130,30 @@ export interface BatchOfferInventoryItemsDTO {
     required_quantity: number
   }>
   delete?: string[]
+}
+
+/**
+ * Input to `createOfferConditionsWorkflow`. `code` must be unique across
+ * non-deleted conditions; `rank` orders the list sellers see.
+ */
+export interface CreateOfferConditionDTO {
+  code: string
+  label: string
+  is_active?: boolean
+  rank?: number
+  metadata?: Record<string, unknown> | null
+}
+
+/**
+ * Input to `updateOfferConditionsWorkflow`, keyed by `id`. Deactivating a
+ * condition keeps the offers already listed under it, but blocks new
+ * assignments.
+ */
+export interface UpdateOfferConditionDTO {
+  id: string
+  code?: string
+  label?: string
+  is_active?: boolean
+  rank?: number
+  metadata?: Record<string, unknown> | null
 }

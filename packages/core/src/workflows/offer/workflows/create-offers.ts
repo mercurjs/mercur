@@ -25,6 +25,7 @@ import {
   addOfferPricesStep,
   createOffersStep,
   ensureVariantPriceSetsStep,
+  validateOfferConditionsStep,
 } from "../steps"
 import { linkSellerInventoryItemStep } from "../../inventory-item/steps"
 import { OfferWorkflowEvents } from "../../events"
@@ -70,6 +71,14 @@ export const createOffersWorkflow: ReturnWorkflow<
     const variantIds = transform({ input }, ({ input }) =>
       Array.from(new Set(input.offers.map((o) => o.variant_id))),
     )
+
+    const conditionIds = transform({ input }, ({ input }) =>
+      input.offers
+        .map((o) => o.condition_id)
+        .filter((id): id is string => !!id),
+    )
+
+    validateOfferConditionsStep({ condition_ids: conditionIds })
 
     const { data: variants } = useQueryGraphStep({
       entity: "product_variant",
@@ -182,6 +191,7 @@ export const createOffersWorkflow: ReturnWorkflow<
             manage_inventory: offer.manage_inventory ?? true,
             allow_backorder: offer.allow_backorder ?? false,
             leadtime_to_ship: offer.leadtime_to_ship ?? null,
+            condition_id: offer.condition_id ?? null,
             created_by: offer.created_by,
             metadata: offer.metadata ?? null,
           }

@@ -40,6 +40,7 @@ export const POST = async (
     ean: o.ean ?? null,
     upc: o.upc ?? null,
     leadtime_to_ship: o.leadtime_to_ship ?? null,
+    condition_id: o.condition_id ?? null,
     metadata: o.metadata ?? null,
   }))
 
