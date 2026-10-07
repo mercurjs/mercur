@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/dashboard-shared",
-  "version": "2.3.7-canary.0",
+  "version": "2.3.7-canary.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -34,7 +34,7 @@
     "@medusajs/dashboard": "2.21.2",
     "@medusajs/icons": "2.21.2",
     "@medusajs/ui": "4.2.3",
-    "@mercurjs/client": "2.3.7-canary.0",
+    "@mercurjs/client": "2.3.7-canary.1",
     "@radix-ui/react-dialog": "1.1.19",
     "@radix-ui/react-dismissable-layer": "1.1.4",
     "@tanstack/react-query": "5.64.2",
@@ -70,9 +70,9 @@
   },
   "devDependencies": {
     "@medusajs/types": "2.21.2",
-    "@mercurjs/core": "2.3.7-canary.0",
-    "@mercurjs/dashboard-sdk": "2.3.7-canary.0",
-    "@mercurjs/types": "2.3.7-canary.0",
+    "@mercurjs/core": "2.3.7-canary.1",
+    "@mercurjs/dashboard-sdk": "2.3.7-canary.1",
+    "@mercurjs/types": "2.3.7-canary.1",
     "@types/lodash.debounce": "^4.0.8",
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.2.22",
