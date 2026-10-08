@@ -223,6 +223,58 @@ medusaIntegrationTestRunner({
                 })
             }
 
+            describe("vendor capture", () => {
+                it("does not let a seller capture the shared payment of a multi-seller cart", async () => {
+                    const { orderA, orderB } = await checkoutBothSellers()
+                    const payment = await cartPayment(orderA)
+
+                    const response = await api
+                        .post(
+                            `/vendor/payments/${payment.id}/capture`,
+                            {},
+                            sellerA.headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
+                    expect((await cartPayment(orderA)).captured_at).toBeFalsy()
+                    expect((await cartPayment(orderB)).captured_at).toBeFalsy()
+                })
+
+                it("lets a seller capture the payment of a cart that only holds its own order", async () => {
+                    const { orderA } = await checkout([sellerA.offer.id])
+                    const payment = await cartPayment(orderA)
+
+                    const response = await api.post(
+                        `/vendor/payments/${payment.id}/capture`,
+                        {},
+                        sellerA.headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    await eventually(async () => {
+                        expect(
+                            (await orderPayment(orderA))?.captured_at
+                        ).toBeTruthy()
+                    })
+                })
+
+                it("does not let a seller capture a payment of a cart it has no order in", async () => {
+                    const { orderB } = await checkout([sellerB.offer.id])
+                    const payment = await cartPayment(orderB)
+
+                    const response = await api
+                        .post(
+                            `/vendor/payments/${payment.id}/capture`,
+                            {},
+                            sellerA.headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(404)
+                })
+            })
+
             describe("before capture", () => {
                 it("keeps the orders on the cart's shared payment collection", async () => {
                     const { orderA, orderB } = await checkoutBothSellers()

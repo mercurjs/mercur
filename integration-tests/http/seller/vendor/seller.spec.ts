@@ -6,6 +6,8 @@ import {
 } from "../../../helpers/create-admin-user"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { SellerRole } from "@mercurjs/types"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { createProductsWorkflow } from "@mercurjs/core/workflows"
 
 jest.setTimeout(50000)
 
@@ -1203,6 +1205,150 @@ medusaIntegrationTestRunner({
           )
           expect(responseA.data.seller_member.is_owner).toBe(true)
           expect(responseB.data.seller_member.is_owner).toBe(false)
+        })
+      })
+
+      describe("Cross-seller field traversal", () => {
+        const registerIdentity = async (email: string) => {
+          const { data } = await api.post(`/auth/member/emailpass/register`, {
+            email,
+            password: "somepassword",
+          })
+          return { headers: { authorization: `Bearer ${data.token}` } }
+        }
+
+        const inviteIntoSellerA = async (email: string) => {
+          await api.post(
+            `/vendor/sellers/${sellerA.id}/members`,
+            { email, role_id: SellerRole.SELLER_ADMINISTRATION },
+            headersA
+          )
+          const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+          const {
+            data: [invite],
+          } = await query.graph({
+            entity: "member_invite",
+            fields: ["id", "token", "accepted"],
+            filters: { email },
+          })
+          return invite
+        }
+
+        beforeEach(async () => {
+          await api.post(
+            `/vendor/sellers/${sellerA.id}/payment-details`,
+            { holder_name: "Alpha Owner", iban: "DE89370400440532013000" },
+            headersA
+          )
+        })
+
+        it("does not expose another seller's private relations through a shared product", async () => {
+          await inviteIntoSellerA("traversal-invitee@test.com")
+
+          const { result } = await createProductsWorkflow(appContainer).run({
+            input: {
+              products: [
+                {
+                  title: "Shared Product",
+                  status: "published",
+                  seller_ids: [sellerA.id, sellerB.id],
+                } as any,
+              ],
+              created_by: "other-actor",
+            },
+          })
+          const productId = (result as { id: string }[])[0].id
+
+          const response = await api.get(
+            `/vendor/products/${productId}?fields=+sellers.*,+sellers.payment_details.*,+sellers.member_invites.*`,
+            headersB
+          )
+
+          expect(response.status).toEqual(200)
+          expect(response.data.product.sellers).toBeUndefined()
+          expect(JSON.stringify(response.data)).not.toContain("DE89370400440532013000")
+          expect(JSON.stringify(response.data)).not.toContain("traversal-invitee@test.com")
+        })
+
+        it("keeps the seller's own payment details readable while blocking traversal out of it", async () => {
+          const response = await api.get(
+            `/vendor/sellers/me?fields=+customers.sellers.payment_details.*`,
+            headersA
+          )
+
+          expect(response.status).toEqual(200)
+          expect(response.data.seller.payment_details.iban).toEqual(
+            "DE89370400440532013000"
+          )
+          expect(response.data.seller.customers).toBeUndefined()
+        })
+
+        it("does not expose invite tokens on the seller's own invite list", async () => {
+          await inviteIntoSellerA("token-invitee@test.com")
+
+          const response = await api.get(
+            `/vendor/sellers/${sellerA.id}/members/invites?fields=+token`,
+            headersA
+          )
+
+          expect(response.status).toEqual(200)
+          expect(response.data.member_invites).toHaveLength(1)
+          expect(response.data.member_invites[0].token).toBeUndefined()
+        })
+
+        it("rejects accepting an invite from an identity registered to a different email", async () => {
+          const invite = await inviteIntoSellerA("victim@test.com")
+
+          const fresh = await registerIdentity("attacker@test.com")
+          const asFreshIdentity = await api
+            .post(
+              `/vendor/members/invites/accept`,
+              { invite_token: invite.token },
+              fresh
+            )
+            .catch((e) => e.response)
+          expect(asFreshIdentity.status).toEqual(400)
+
+          const asOtherSellersMember = await api
+            .post(
+              `/vendor/members/invites/accept`,
+              { invite_token: invite.token },
+              { headers: { authorization: headersB.headers.authorization } }
+            )
+            .catch((e) => e.response)
+          expect(asOtherSellersMember.status).toEqual(400)
+
+          const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+          const { data: invites } = await query.graph({
+            entity: "member_invite",
+            fields: ["id", "accepted"],
+            filters: { id: invite.id },
+          })
+          expect(invites).toHaveLength(1)
+          expect(invites[0].accepted).toEqual(false)
+
+          const { data: members } = await query.graph({
+            entity: "seller_member",
+            fields: ["id", "member.email"],
+            filters: { seller_id: sellerA.id },
+          })
+          const memberEmails = members.map((m: any) => m.member.email)
+          expect(memberEmails).not.toContain("victim@test.com")
+          expect(memberEmails).not.toContain("attacker@test.com")
+          expect(memberEmails).not.toContain("beta@test.com")
+        })
+
+        it("accepts an invite from the invited email regardless of case", async () => {
+          const invite = await inviteIntoSellerA("Cased.Invitee@test.com")
+          const identity = await registerIdentity("cased.invitee@test.com")
+
+          const response = await api.post(
+            `/vendor/members/invites/accept`,
+            { invite_token: invite.token },
+            identity
+          )
+
+          expect(response.status).toEqual(200)
         })
       })
 

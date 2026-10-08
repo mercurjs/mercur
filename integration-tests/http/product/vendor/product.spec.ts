@@ -445,6 +445,58 @@ medusaIntegrationTestRunner({
         expect(idsB).not.toContain(restrictedToA)
       })
 
+      it("does not retrieve another seller's unpublished product by id", async () => {
+        const proposedByA = await createProduct("A Proposed Detail", "proposed", sellerA.id)
+
+        const asA = await api.get(`/vendor/products/${proposedByA}`, headersA)
+        expect(asA.status).toEqual(200)
+
+        const asB = await api
+          .get(`/vendor/products/${proposedByA}`, headersB)
+          .catch((e) => e.response)
+        expect(asB.status).toEqual(404)
+
+        const preview = await api
+          .get(`/vendor/products/${proposedByA}/preview`, headersB)
+          .catch((e) => e.response)
+        expect(preview.status).toEqual(404)
+      })
+
+      it("does not retrieve a published product restricted to other sellers by id", async () => {
+        const restrictedToA = await createProduct(
+          "Restricted Detail",
+          "published",
+          "other-actor",
+          [sellerA.id]
+        )
+
+        const asA = await api.get(`/vendor/products/${restrictedToA}`, headersA)
+        expect(asA.status).toEqual(200)
+
+        const asB = await api
+          .get(`/vendor/products/${restrictedToA}`, headersB)
+          .catch((e) => e.response)
+        expect(asB.status).toEqual(404)
+      })
+
+      it("does not delete or edit another seller's draft product", async () => {
+        const draftByA = await createProduct("A Draft", "draft", sellerA.id)
+
+        const remove = await api
+          .delete(`/vendor/products/${draftByA}`, headersB)
+          .catch((e) => e.response)
+        expect(remove.status).toEqual(404)
+
+        const update = await api
+          .post(`/vendor/products/${draftByA}`, { title: "Hijacked" }, headersB)
+          .catch((e) => e.response)
+        expect(update.status).toEqual(404)
+
+        const stillThere = await api.get(`/vendor/products/${draftByA}`, headersA)
+        expect(stillThere.status).toEqual(200)
+        expect(stillThere.data.product.title).toEqual("A Draft")
+      })
+
       it("hides a published product from its creator once restricted to other sellers", async () => {
         const b = await createSellerUser(appContainer, {
           email: "scope-c@test.com",

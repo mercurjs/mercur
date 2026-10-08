@@ -58,6 +58,23 @@ export const getProductIdsRestrictedFromSeller = async (
   return Array.from(restricted).filter((id) => !assigned.has(id))
 }
 
+export const getProductStatus = async (
+  scope: MedusaContainer,
+  productId: string
+): Promise<{ id: string; status: string } | undefined> => {
+  const query = scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const {
+    data: [product],
+  } = await query.graph({
+    entity: "product",
+    fields: ["id", "status"],
+    filters: { id: productId },
+  })
+
+  return product
+}
+
 export const ensureSellerOwnsProduct = async (
   scope: MedusaContainer,
   sellerId: string,

@@ -5,6 +5,10 @@ import {
 } from "@medusajs/framework"
 import { MiddlewareRoute } from "@medusajs/medusa"
 
+import {
+  restrictVendorFields,
+  VENDOR_CROSS_SELLER_FIELD_SEGMENTS,
+} from "../../utils"
 import { VendorGetSellerParams } from "../sellers/validators"
 import { VendorAcceptMemberInvite, VendorUpdateMember } from "./validators"
 
@@ -38,6 +42,7 @@ export const vendorMembersMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/members/me",
     middlewares: [
+      restrictVendorFields(VENDOR_CROSS_SELLER_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetSellerParams,
         retrieveVendorMemberMeQueryConfig
@@ -49,6 +54,7 @@ export const vendorMembersMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/members/me",
     middlewares: [
       validateAndTransformBody(VendorUpdateMember),
+      restrictVendorFields(VENDOR_CROSS_SELLER_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetSellerParams,
         retrieveVendorMemberMeQueryConfig

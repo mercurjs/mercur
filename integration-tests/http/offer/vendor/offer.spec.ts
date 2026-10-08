@@ -806,6 +806,73 @@ medusaIntegrationTestRunner({
                     expect(response.status).toEqual(404)
                 })
 
+                it("should not link another seller's inventory item to the seller's own offer", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+                    const otherSellerInventoryId =
+                        await seedExtraInventoryItem(
+                            seller2Headers,
+                            "Seller2 Private Inventory"
+                        )
+
+                    const created = await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "BATCH-FOREIGN-ITEM",
+                            variant_id: deps.variant_id,
+                            shipping_profile_id: deps.shipping_profile_id,
+                            inventory_items: [{}],
+                            prices: [
+                                { amount: 1000, currency_code: "usd" },
+                            ],
+                        },
+                        seller1Headers
+                    )
+                    const offerId = created.data.offer.id
+
+                    const create = await api
+                        .post(
+                            `/vendor/offers/${offerId}/inventory-items/batch`,
+                            {
+                                create: [
+                                    {
+                                        inventory_item_id:
+                                            otherSellerInventoryId,
+                                    },
+                                ],
+                            },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+                    expect(create.status).toEqual(404)
+
+                    const update = await api
+                        .post(
+                            `/vendor/offers/${offerId}/inventory-items/batch`,
+                            {
+                                update: [
+                                    {
+                                        inventory_item_id:
+                                            otherSellerInventoryId,
+                                        required_quantity: 2,
+                                    },
+                                ],
+                            },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+                    expect(update.status).toEqual(404)
+
+                    const offer = await api.get(
+                        `/vendor/offers/${offerId}`,
+                        seller1Headers
+                    )
+                    expect(
+                        offer.data.offer.inventory_items.map(
+                            (i: { id: string }) => i.id
+                        )
+                    ).not.toContain(otherSellerInventoryId)
+                })
+
                 it("should not allow seller to batch another seller's offer", async () => {
                     const deps = await seedSellerOfferDeps(seller1Headers)
                     const otherSellerInventoryId =
@@ -844,6 +911,128 @@ medusaIntegrationTestRunner({
                         .catch((e) => e.response)
 
                     expect(response.status).toEqual(404)
+                })
+            })
+
+            describe("stock levels at another seller's location", () => {
+                const seedStockLocation = async (headers: any, name: string) => {
+                    const r = await api.post(
+                        `/vendor/stock-locations`,
+                        { name },
+                        headers
+                    )
+                    return r.data.stock_location.id as string
+                }
+
+                it("should reject an offer stocked at another seller's location", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+                    const foreignLocationId = await seedStockLocation(
+                        seller2Headers,
+                        "Seller2 Warehouse"
+                    )
+
+                    const response = await api
+                        .post(
+                            `/vendor/offers`,
+                            {
+                                sku: "FOREIGN-LOCATION",
+                                variant_id: deps.variant_id,
+                                shipping_profile_id: deps.shipping_profile_id,
+                                inventory_items: [
+                                    {
+                                        stock_levels: [
+                                            {
+                                                location_id: foreignLocationId,
+                                                stocked_quantity: 5,
+                                            },
+                                        ],
+                                    },
+                                ],
+                                prices: [
+                                    { amount: 1000, currency_code: "usd" },
+                                ],
+                            },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(404)
+
+                    const batch = await api
+                        .post(
+                            `/vendor/offers/batch`,
+                            {
+                                offers: [
+                                    {
+                                        sku: "FOREIGN-LOCATION-BATCH",
+                                        variant_id: deps.variant_id,
+                                        shipping_profile_id:
+                                            deps.shipping_profile_id,
+                                        inventory_items: [
+                                            {
+                                                stock_levels: [
+                                                    {
+                                                        location_id:
+                                                            foreignLocationId,
+                                                        stocked_quantity: 5,
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                        prices: [
+                                            {
+                                                amount: 1000,
+                                                currency_code: "usd",
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(batch.status).toEqual(404)
+                })
+
+                it("should reject inventory levels at another seller's location", async () => {
+                    const ownItemId = (
+                        await api.post(
+                            `/vendor/inventory-items`,
+                            { title: "Own Item" },
+                            seller1Headers
+                        )
+                    ).data.inventory_item.id
+                    const foreignLocationId = await seedStockLocation(
+                        seller2Headers,
+                        "Seller2 Other Warehouse"
+                    )
+
+                    const single = await api
+                        .post(
+                            `/vendor/inventory-items/${ownItemId}/location-levels`,
+                            { location_id: foreignLocationId, stocked_quantity: 3 },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+                    expect(single.status).toEqual(404)
+
+                    const batch = await api
+                        .post(
+                            `/vendor/inventory-items/location-levels/batch`,
+                            {
+                                create: [
+                                    {
+                                        inventory_item_id: ownItemId,
+                                        location_id: foreignLocationId,
+                                        stocked_quantity: 3,
+                                    },
+                                ],
+                            },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+                    expect(batch.status).toEqual(404)
                 })
             })
 

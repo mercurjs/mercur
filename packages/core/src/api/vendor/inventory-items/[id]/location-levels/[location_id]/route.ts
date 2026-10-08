@@ -12,6 +12,7 @@ import {
 } from "@medusajs/core-flows"
 import { HttpTypes } from "@mercurjs/types"
 
+import { validateSellerStockLocations } from "../../../../stock-locations/helpers"
 import { refetchInventoryItem, validateSellerInventoryItem } from "../../../helpers"
 import { VendorUpdateInventoryLocationLevelType } from "../../../validators"
 
@@ -21,7 +22,10 @@ export const POST = async (
 ) => {
   const { id, location_id } = req.params
 
-  await validateSellerInventoryItem(req.scope,  req.seller_context!.seller_id, id)
+  await validateSellerInventoryItem(req.scope, req.seller_context!.seller_id, id)
+  await validateSellerStockLocations(req.scope, req.seller_context!.seller_id, [
+    location_id,
+  ])
 
   await updateInventoryLevelsWorkflow(req.scope).run({
     input: {

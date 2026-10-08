@@ -5,7 +5,11 @@ import {
 import { batchInventoryItemLevelsWorkflow } from "@medusajs/core-flows"
 import { HttpTypes } from "@mercurjs/types"
 
-import { validateSellerInventoryItem } from "../../../helpers"
+import { validateSellerStockLocations } from "../../../../stock-locations/helpers"
+import {
+  validateSellerInventoryItem,
+  validateSellerInventoryLevels,
+} from "../../../helpers"
 import { VendorBatchInventoryItemLocationsLevelType } from "../../../validators"
 
 export const POST = async (
@@ -14,7 +18,21 @@ export const POST = async (
 ) => {
   const { id } = req.params
 
-  await validateSellerInventoryItem(req.scope,  req.seller_context!.seller_id, id)
+  const sellerId = req.seller_context!.seller_id
+  await validateSellerInventoryItem(req.scope, sellerId, id)
+  await validateSellerStockLocations(
+    req.scope,
+    sellerId,
+    [
+      ...(req.validatedBody.create ?? []),
+      ...(req.validatedBody.update ?? []),
+    ].map((level) => level.location_id)
+  )
+  await validateSellerInventoryLevels(
+    req.scope,
+    sellerId,
+    req.validatedBody.delete ?? []
+  )
 
   const { result } = await batchInventoryItemLevelsWorkflow(req.scope).run({
     input: {
