@@ -36,16 +36,19 @@ import { CreateOrderGroupDTO, MercurModules, SellerDTO } from "@mercurjs/types"
 import { createOrderGroupStep } from "../../order-group"
 import { OrderGroupWorkflowEvents } from "../../events"
 import {
+    getPromotionSellerIdsStep,
     mirrorLineItemOfferLinksToOrderStep,
     validateSellerCartItemsStep,
     validateSellerCartShippingStep,
 } from "../steps"
 import {
     completeCartFields,
+    isAdjustmentInSellerScope,
     prepareAdjustmentsData,
     PrepareLineItemDataInput,
     prepareLineItemData,
     prepareTaxLinesData,
+    PromotionSellerIds,
 } from "../utils"
 import { registerUsageStep } from "../../promotion"
 import { splitCapturedCartPaymentWorkflow } from "../../payment/workflows/split-order-payments"
@@ -162,8 +165,27 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
 
             const orderStatusResult = setOrderStatus.getResult()
 
-            const { ordersToCreate, sellerOrdersMap, offerIdsByOrderId } = transform({ cart: cartData.data, shippingOptionsData: shippingOptionsData.data, orderStatusResult }, ({ cart, shippingOptionsData, orderStatusResult }) => {
+            const cartPromotionIds = transform({ cart: cartData.data }, ({ cart }) => {
+                const adjustments = [
+                    ...(cart.items ?? []).flatMap((item) => item.adjustments ?? []),
+                    ...(cart.shipping_methods ?? []).flatMap((sm) => sm.adjustments ?? []),
+                ]
+                return { promotion_ids: adjustments.map((adjustment) => adjustment.promotion_id) }
+            })
+
+            const promotionSellerIds = getPromotionSellerIdsStep(cartPromotionIds)
+
+            const { ordersToCreate, sellerOrdersMap, offerIdsByOrderId } = transform({ cart: cartData.data, shippingOptionsData: shippingOptionsData.data, orderStatusResult, promotionSellerIds }, ({ cart, shippingOptionsData, orderStatusResult, promotionSellerIds }) => {
                 const statusResult = orderStatusResult as SetOrderStatusHookResult
+                const sellerIdOfPromotion = (promotionId?: string | null) =>
+                    promotionId ? ((promotionSellerIds as PromotionSellerIds)[promotionId] ?? null) : null
+                const sellerAdjustments = <T extends { promotion_id?: string | null }>(
+                    adjustments: T[],
+                    sellerId: string
+                ) =>
+                    adjustments.filter((adjustment) =>
+                        isAdjustmentInSellerScope(sellerIdOfPromotion(adjustment.promotion_id), sellerId)
+                    )
                 const cartSellerIds = new Set<string>(
                     (cart.items ?? [])
                         .map((item: any) => item.offer?.seller_id)
@@ -215,7 +237,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                             unitPrice: item.unit_price,
                             isTaxInclusive: item.is_tax_inclusive,
                             taxLines: item.tax_lines ?? [],
-                            adjustments: item.adjustments ?? [],
+                            adjustments: sellerAdjustments(item.adjustments ?? [], sellerId),
                         }
                         return prepareLineItemData(input)
                     })
@@ -230,7 +252,9 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                             data: sm.data,
                             metadata: sm.metadata,
                             tax_lines: prepareTaxLinesData(sm.tax_lines ?? []),
-                            adjustments: prepareAdjustmentsData(sm.adjustments ?? []),
+                            adjustments: prepareAdjustmentsData(
+                                sellerAdjustments(sm.adjustments ?? [], sellerId)
+                            ),
                         }
                     })
 
