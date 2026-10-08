@@ -39,15 +39,15 @@ export const PATCHES: PatchEntry[] = [
       "compensation, needs paymentCaptured and paymentRefunded.",
   },
   {
-    file: "@medusajs+core-flows@2.21.2-promotion-filter-hook.patch",
+    file: "@medusajs+core-flows@2.21.2-seller-promotion-scope.patch",
     package: "@medusajs/core-flows",
     compatible: { from: "2.21.0", to: "2.22.0" },
     reason:
-      "updateCartPromotionsWorkflow writes every adjustment the promotion module " +
-      "computes and exposes no hook between computing and writing them. Every cart " +
-      "refresh runs it, so without filterAdjustments a seller's promotion lands on " +
-      "other sellers' line items and shipping methods as soon as the cart is touched. " +
-      "See GHSA-w4vq-6jvh-cfpg.",
+      "prepareAdjustmentsFromPromotionActionsStep hands back every adjustment the " +
+      "promotion module computes for the whole cart, and every cart refresh runs it " +
+      "through updateCartPromotionsWorkflow. Without the seller scope applied in the " +
+      "step itself, a seller's promotion lands on other sellers' line items and " +
+      "shipping methods as soon as the cart is touched. See GHSA-w4vq-6jvh-cfpg.",
   },
   {
     file: "@medusajs+core-flows@2.20.1-delivery-hook.patch",

@@ -56,13 +56,23 @@ describe("jest transformer", () => {
             "dist/order/workflows/mark-order-fulfillment-as-delivered.js",
             "fulfillmentDelivered",
         ],
-        ["dist/cart/workflows/update-cart-promotions.js", "filterAdjustments"],
     ])("exposes the hook in %s", (relativePath, hookName) => {
         const sourcePath = join(copy().dir, relativePath)
         const { code } = transform(readFileSync(sourcePath, "utf8"), sourcePath)
 
         expect(code).toContain(`createHook)("${hookName}"`)
         expect(code).toMatch(new RegExp(`hooks: \\[[^\\]]*\\b${hookName}\\]`))
+    })
+
+    it("scopes promotion adjustments to the seller in prepare-adjustments-from-promotion-actions", () => {
+        const sourcePath = join(
+            copy().dir,
+            "dist/cart/steps/prepare-adjustments-from-promotion-actions.js"
+        )
+        const { code } = transform(readFileSync(sourcePath, "utf8"), sourcePath)
+
+        expect(code).toContain('fields: ["id", "code", "seller.id"]')
+        expect(code).toContain('fields: ["id", "offer.seller_id"]')
     })
 
     it("leaves files it does not target untouched", () => {

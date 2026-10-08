@@ -1,0 +1,62 @@
+diff --git a/dist/cart/steps/prepare-adjustments-from-promotion-actions.js b/dist/cart/steps/prepare-adjustments-from-promotion-actions.js
+index cf494cc..b2be9fc 100644
+--- a/dist/cart/steps/prepare-adjustments-from-promotion-actions.js
++++ b/dist/cart/steps/prepare-adjustments-from-promotion-actions.js
+@@ -33,13 +33,13 @@ exports.prepareAdjustmentsFromPromotionActionsStep = (0, workflows_sdk_1.createS
+     }
+     const { data: promotions } = await query.graph({
+         entity: "promotion",
+-        fields: ["id", "code"],
++        fields: ["id", "code", "seller.id"],
+         filters: { code: actions.map((a) => a.code) },
+     }, { cache: { enable: true } });
+     const promotionsMap = new Map(promotions.map((promotion) => [promotion.code, promotion]));
+-    const lineItemAdjustmentsToCreate = [];
++    let lineItemAdjustmentsToCreate = [];
+     const lineItemAdjustmentIdsToRemove = [];
+-    const shippingMethodAdjustmentsToCreate = [];
++    let shippingMethodAdjustmentsToCreate = [];
+     const shippingMethodAdjustmentIdsToRemove = [];
+     const skippedPromoCodes = [];
+     for (const action of actions) {
+@@ -83,6 +83,40 @@ exports.prepareAdjustmentsFromPromotionActionsStep = (0, workflows_sdk_1.createS
+                 break;
+         }
+     }
++    // MERCUR: the promotion module computes adjustments against the whole cart,
++    // so a seller's promotion lands on every seller's lines and shipping. Every
++    // cart refresh funnels through this step, so the seller scope is enforced
++    // here, before anything is written. A promotion without a seller link is a
++    // platform promotion and may discount anything. See GHSA-w4vq-6jvh-cfpg.
++    const sellerOfPromotion = new Map(promotions.map((promotion) => [promotion.id, promotion.seller?.id ?? null]));
++    const inSellerScope = (promotionId, targetSellerId) => {
++        const promotionSellerId = promotionId ? (sellerOfPromotion.get(promotionId) ?? null) : null;
++        return !promotionSellerId || promotionSellerId === targetSellerId;
++    };
++    if (lineItemAdjustmentsToCreate.length) {
++        const { data: lineItems } = await query.graph({
++            entity: "line_item",
++            fields: ["id", "offer.seller_id"],
++            filters: { id: [...new Set(lineItemAdjustmentsToCreate.map((a) => a.item_id))] },
++        }, { cache: { enable: true } });
++        const sellerOfLineItem = new Map(lineItems.map((item) => [item.id, item.offer?.seller_id ?? null]));
++        lineItemAdjustmentsToCreate = lineItemAdjustmentsToCreate.filter((adjustment) => inSellerScope(adjustment.promotion_id, sellerOfLineItem.get(adjustment.item_id)));
++    }
++    if (shippingMethodAdjustmentsToCreate.length) {
++        const { data: shippingMethods } = await query.graph({
++            entity: "shipping_method",
++            fields: ["id", "shipping_option_id"],
++            filters: { id: [...new Set(shippingMethodAdjustmentsToCreate.map((a) => a.shipping_method_id))] },
++        }, { cache: { enable: true } });
++        const { data: shippingOptions } = await query.graph({
++            entity: "shipping_option",
++            fields: ["id", "seller.id"],
++            filters: { id: [...new Set(shippingMethods.map((sm) => sm.shipping_option_id).filter(Boolean))] },
++        }, { cache: { enable: true } });
++        const sellerOfShippingOption = new Map(shippingOptions.map((option) => [option.id, option.seller?.id ?? null]));
++        const sellerOfShippingMethod = new Map(shippingMethods.map((sm) => [sm.id, sm.shipping_option_id ? (sellerOfShippingOption.get(sm.shipping_option_id) ?? null) : null]));
++        shippingMethodAdjustmentsToCreate = shippingMethodAdjustmentsToCreate.filter((adjustment) => inSellerScope(adjustment.promotion_id, sellerOfShippingMethod.get(adjustment.shipping_method_id)));
++    }
+     const computedPromotionCodes = [
+         ...lineItemAdjustmentsToCreate,
+         ...shippingMethodAdjustmentsToCreate,
