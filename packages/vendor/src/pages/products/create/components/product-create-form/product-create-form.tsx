@@ -1,7 +1,7 @@
 import { MercurFeatureFlags } from "@mercurjs/types"
 import { Button, toast } from "@medusajs/ui"
 import { ReactNode, useEffect, useMemo, Children } from "react"
-import { useForm, useWatch, DeepPartial } from "react-hook-form"
+import { useForm, DeepPartial } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { zodResolver } from "@hookform/resolvers/zod"
 
@@ -13,7 +13,7 @@ import { sdk } from "@lib/client"
 import { PRODUCT_CREATE_FORM_DEFAULTS, ProductCreateSchema } from "../../constants"
 import { ProductCreateSchemaType } from "../../types"
 import {
-  generateVariantsFromAttributes,
+  subscribeVariantsToAttributes,
   normalizeProductFormValues,
 } from "../../utils"
 import { ProductCreateAttributesForm } from "../product-create-attributes-form"
@@ -50,26 +50,7 @@ export const ProductCreateForm = ({
   const productRequestEnabled =
     !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST]
 
-  const watchedAttributes = useWatch({
-    control: form.control,
-    name: "attributes",
-  })
-
-  // Generate variants from variant-axis attributes
-  useEffect(() => {
-    const currentVariants = form.getValues("variants") ?? []
-    const newVariants = generateVariantsFromAttributes(
-      watchedAttributes ?? [],
-      currentVariants
-    )
-
-    if (
-      JSON.stringify(newVariants.map((v) => v.options)) !==
-      JSON.stringify(currentVariants.map((v) => v.options))
-    ) {
-      form.setValue("variants", newVariants)
-    }
-  }, [watchedAttributes, form])
+  useEffect(() => subscribeVariantsToAttributes(form), [form])
 
   const submitProduct = async (
     values: ProductCreateSchemaType,
@@ -106,31 +87,31 @@ export const ProductCreateForm = ({
         ? "proposed"
         : "published"
 
-    await mutateAsync(
-      normalizeProductFormValues({
-        ...payload,
-        media: uploadedMedia,
-        status: submittedStatus as any,
-      }) as any,
-      {
-        onSuccess: (data: any) => {
-          if (submittedStatus === "proposed") {
-            toast.success(t("products.create.requestSuccessToast"))
-          } else {
-            toast.success(
-              t("products.create.successToast", {
-                title: data.product.title,
-              })
-            )
-          }
+    try {
+      const data = await mutateAsync(
+        normalizeProductFormValues({
+          ...payload,
+          media: uploadedMedia,
+          status: submittedStatus as any,
+        }) as any
+      )
 
-          handleSuccess(`../${data.product.id}`)
-        },
-        onError: (error: any) => {
-          toast.error(error.message)
-        },
+      if (submittedStatus === "proposed") {
+        toast.success(t("products.create.requestSuccessToast"))
+      } else {
+        toast.success(
+          t("products.create.successToast", {
+            title: data.product.title,
+          })
+        )
       }
-    )
+
+      handleSuccess(`../${data.product.id}`)
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message)
+      }
+    }
   }
 
   const handleSubmit = form.handleSubmit(async (values) => {

@@ -1,5 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { AttributeType, ProductAttributeBatchAdd } from "@mercurjs/types"
+import { UseFormReturn } from "react-hook-form"
 import { ProductCreateSchemaType } from "./types"
 
 export const normalizeProductFormValues = (
@@ -247,4 +248,38 @@ export const generateVariantsFromAttributes = (
   }
 
   return newVariants
+}
+
+type VariantSyncForm = Pick<
+  UseFormReturn<ProductCreateSchemaType>,
+  "getValues" | "setValue" | "subscribe"
+>
+
+export const syncVariantsWithAttributes = (form: VariantSyncForm) => {
+  const currentVariants = form.getValues("variants") ?? []
+  const nextVariants = generateVariantsFromAttributes(
+    form.getValues("attributes") ?? [],
+    currentVariants
+  )
+
+  const sameOptions =
+    JSON.stringify(nextVariants.map((v) => v.options)) ===
+    JSON.stringify(currentVariants.map((v) => v.options))
+
+  if (!sameOptions) {
+    form.setValue("variants", nextVariants)
+  }
+}
+
+// `useWatch({ name: "attributes" })` hands back the same array reference RHF
+// mutates in place, so a dependent effect only fires on the first change.
+// Subscribing by name fires for every nested update instead.
+export const subscribeVariantsToAttributes = (form: VariantSyncForm) => {
+  syncVariantsWithAttributes(form)
+
+  return form.subscribe({
+    name: "attributes",
+    formState: { values: true },
+    callback: () => syncVariantsWithAttributes(form),
+  })
 }
