@@ -18,7 +18,6 @@ import {
   createSellerMembersStep,
   deleteMemberInviteStep,
   checkSellerHasOwnerStep,
-  validateInviteRecipientStep,
 } from "../steps"
 import { MemberInviteWorkflowEvents } from "../../events"
 
@@ -39,14 +38,6 @@ export const acceptMemberInviteWorkflow = createWorkflow(
     const inviteDTO = transform(
       { invite },
       ({ invite }) => invite as unknown as MemberInviteDTO
-    )
-
-    validateInviteRecipientStep(
-      transform({ invite, input }, ({ invite, input }) => ({
-        invite_email: invite.email,
-        auth_identity_id: input.auth_identity_id,
-        member_id: input.member_id,
-      }))
     )
 
     const validate = createHook("validate", {

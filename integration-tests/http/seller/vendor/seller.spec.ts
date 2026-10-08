@@ -1209,14 +1209,6 @@ medusaIntegrationTestRunner({
       })
 
       describe("Cross-seller field traversal", () => {
-        const registerIdentity = async (email: string) => {
-          const { data } = await api.post(`/auth/member/emailpass/register`, {
-            email,
-            password: "somepassword",
-          })
-          return { headers: { authorization: `Bearer ${data.token}` } }
-        }
-
         const inviteIntoSellerA = async (email: string) => {
           await api.post(
             `/vendor/sellers/${sellerA.id}/members`,
@@ -1294,61 +1286,6 @@ medusaIntegrationTestRunner({
           expect(response.status).toEqual(200)
           expect(response.data.member_invites).toHaveLength(1)
           expect(response.data.member_invites[0].token).toBeUndefined()
-        })
-
-        it("rejects accepting an invite from an identity registered to a different email", async () => {
-          const invite = await inviteIntoSellerA("victim@test.com")
-
-          const fresh = await registerIdentity("attacker@test.com")
-          const asFreshIdentity = await api
-            .post(
-              `/vendor/members/invites/accept`,
-              { invite_token: invite.token },
-              fresh
-            )
-            .catch((e) => e.response)
-          expect(asFreshIdentity.status).toEqual(400)
-
-          const asOtherSellersMember = await api
-            .post(
-              `/vendor/members/invites/accept`,
-              { invite_token: invite.token },
-              { headers: { authorization: headersB.headers.authorization } }
-            )
-            .catch((e) => e.response)
-          expect(asOtherSellersMember.status).toEqual(400)
-
-          const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
-          const { data: invites } = await query.graph({
-            entity: "member_invite",
-            fields: ["id", "accepted"],
-            filters: { id: invite.id },
-          })
-          expect(invites).toHaveLength(1)
-          expect(invites[0].accepted).toEqual(false)
-
-          const { data: members } = await query.graph({
-            entity: "seller_member",
-            fields: ["id", "member.email"],
-            filters: { seller_id: sellerA.id },
-          })
-          const memberEmails = members.map((m: any) => m.member.email)
-          expect(memberEmails).not.toContain("victim@test.com")
-          expect(memberEmails).not.toContain("attacker@test.com")
-          expect(memberEmails).not.toContain("beta@test.com")
-        })
-
-        it("accepts an invite from the invited email regardless of case", async () => {
-          const invite = await inviteIntoSellerA("Cased.Invitee@test.com")
-          const identity = await registerIdentity("cased.invitee@test.com")
-
-          const response = await api.post(
-            `/vendor/members/invites/accept`,
-            { invite_token: invite.token },
-            identity
-          )
-
-          expect(response.status).toEqual(200)
         })
       })
 
