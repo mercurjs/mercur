@@ -7,9 +7,9 @@ import {
     when,
     WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
-import { acquireLockStep, createLineItemAdjustmentsStep, createShippingMethodAdjustmentsStep, getActionsToComputeFromPromotionsStep, getPromotionCodesToApply, refreshPaymentCollectionForCartWorkflow, releaseLockStep, removeLineItemAdjustmentsStep, removeShippingMethodAdjustmentsStep, updateCartPromotionsStep, UpdateCartPromotionsWorkflowInput, useQueryGraphStep, validateCartStep } from "@medusajs/medusa/core-flows"
+import { acquireLockStep, createLineItemAdjustmentsStep, createShippingMethodAdjustmentsStep, getActionsToComputeFromPromotionsStep, getPromotionCodesToApply, prepareAdjustmentsFromPromotionActionsStep, refreshPaymentCollectionForCartWorkflow, releaseLockStep, removeLineItemAdjustmentsStep, removeShippingMethodAdjustmentsStep, updateCartPromotionsStep, UpdateCartPromotionsWorkflowInput, useQueryGraphStep, validateCartStep } from "@medusajs/medusa/core-flows"
 import { cartFieldsForRefreshSteps } from "../utils"
-import { prepareSellerAdjustmentsFromPromotionActionsStep } from "../steps/prepare-adjustments-from-promotion-actions"
+import { filterSellerAdjustmentsStep } from "../steps/filter-seller-adjustments"
 
 
 export const updateCartSellerPromotionsWorkflow = createWorkflow(
@@ -67,13 +67,18 @@ export const updateCartSellerPromotionsWorkflow = createWorkflow(
             promotionCodesToApply,
         })
 
+        const prepared = prepareAdjustmentsFromPromotionActionsStep({ actions })
+
         const {
             lineItemAdjustmentsToCreate,
-            lineItemAdjustmentIdsToRemove,
             shippingMethodAdjustmentsToCreate,
-            shippingMethodAdjustmentIdsToRemove,
             computedPromotionCodes,
-        } = prepareSellerAdjustmentsFromPromotionActionsStep({ actions })
+        } = filterSellerAdjustmentsStep({
+            lineItemAdjustmentsToCreate: prepared.lineItemAdjustmentsToCreate,
+            shippingMethodAdjustmentsToCreate: prepared.shippingMethodAdjustmentsToCreate,
+        })
+
+        const { lineItemAdjustmentIdsToRemove, shippingMethodAdjustmentIdsToRemove } = prepared
 
         parallelize(
             removeLineItemAdjustmentsStep({ lineItemAdjustmentIdsToRemove }),
