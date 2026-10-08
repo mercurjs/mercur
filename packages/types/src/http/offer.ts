@@ -2,6 +2,7 @@ import { DeleteResponse, PaginatedResponse } from "@medusajs/types"
 import {
   CreateOfferInventoryItemDTO,
   CreateOfferPriceDTO,
+  OfferConditionDTO,
   OfferDTO,
   UpsertOfferPriceDTO,
 } from "../offer"
@@ -23,6 +24,7 @@ export interface VendorCreateOfferReq {
   shipping_profile_id: string
   inventory_items: CreateOfferInventoryItemDTO[]
   prices: CreateOfferPriceDTO[]
+  condition_id?: string | null
   metadata?: Record<string, unknown> | null
 }
 
@@ -33,6 +35,7 @@ export interface VendorCreateOfferReq {
 export interface VendorUpdateOfferReq {
   sku?: string
   shipping_profile_id?: string
+  condition_id?: string | null
   metadata?: Record<string, unknown> | null
   prices?: UpsertOfferPriceDTO[]
 }
@@ -89,4 +92,44 @@ export interface AdminOfferResponse {
 
 export type AdminOfferListResponse = PaginatedResponse<{
   offers: OfferDTO[]
+}>
+
+/*
+ * --------------------------------------------------------------------
+ * Offer conditions
+ * --------------------------------------------------------------------
+ */
+
+export interface AdminCreateOfferConditionReq {
+  code: string
+  label: string
+  is_active?: boolean
+  rank?: number
+  metadata?: Record<string, unknown> | null
+}
+
+export interface AdminUpdateOfferConditionReq {
+  code?: string
+  label?: string
+  is_active?: boolean
+  rank?: number
+  metadata?: Record<string, unknown> | null
+}
+
+export interface AdminOfferConditionResponse {
+  offer_condition: OfferConditionDTO
+}
+
+export type AdminOfferConditionListResponse = PaginatedResponse<{
+  offer_conditions: OfferConditionDTO[]
+}>
+
+export type AdminOfferConditionDeleteResponse = DeleteResponse<"offer_condition">
+
+export interface VendorOfferConditionResponse {
+  offer_condition: OfferConditionDTO
+}
+
+export type VendorOfferConditionListResponse = PaginatedResponse<{
+  offer_conditions: OfferConditionDTO[]
 }>

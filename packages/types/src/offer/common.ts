@@ -33,6 +33,24 @@ export interface OfferInventoryItemLinkDTO {
 export type OfferPriceDTO = MoneyAmountDTO
 
 /**
+ * An operator-defined physical condition an offer can be listed under
+ * (e.g. `new`, `refurbished`, `used_like_new`). Sellers pick from the active
+ * conditions when creating or updating an offer; the same seller can hold one
+ * offer per condition on the same variant. `rank` drives the display order.
+ */
+export interface OfferConditionDTO {
+  id: string
+  code: string
+  label: string
+  is_active: boolean
+  rank: number
+  metadata: Record<string, unknown> | null
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+}
+
+/**
  * The marketplace's per-vendor sellable. An offer is the thin marketplace-side
  * record that points at a Medusa `ProductVariant` (which owns the shared
  * `PriceSet`) and links to one or more Medusa `InventoryItem` rows. The base
@@ -54,6 +72,7 @@ export interface OfferDTO {
   manage_inventory: boolean
   allow_backorder: boolean
   leadtime_to_ship: number | null
+  condition_id: string | null
   created_by: string
   metadata: Record<string, unknown> | null
   created_at: Date
@@ -84,6 +103,8 @@ export interface OfferDTO {
    * `InventoryItem` when requested.
    */
   inventory_items?: OfferInventoryItemLinkDTO[]
+  /** The condition the offer is listed under, when one was assigned. */
+  condition?: OfferConditionDTO | null
   /** The seller that owns this offer (joined through `offer ↔ seller`). */
   seller?: SellerDTO
   /** The product this offer points at (joined through `offer ↔ product`). */

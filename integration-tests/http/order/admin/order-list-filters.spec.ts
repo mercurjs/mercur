@@ -493,6 +493,31 @@ medusaIntegrationTestRunner({
                     expect(response.data.order_groups.length).toEqual(0)
                 })
 
+                it("intersects id with seller_id instead of dropping both filters", async () => {
+                    const { orderGroupId: groupA } = await completeCartCheckout(
+                        seller1Seed.offer.id
+                    )
+                    await completeCartCheckout(seller2Seed.offer.id)
+
+                    const mismatch = await api.get(
+                        `/admin/order-groups?id=${groupA}&seller_id=${seller2Seed.sellerId}`,
+                        adminHeaders
+                    )
+
+                    expect(mismatch.status).toEqual(200)
+                    expect(mismatch.data.count).toEqual(0)
+                    expect(mismatch.data.order_groups).toEqual([])
+
+                    const match = await api.get(
+                        `/admin/order-groups?id=${groupA}&seller_id=${seller1Seed.sellerId}`,
+                        adminHeaders
+                    )
+
+                    expect(match.status).toEqual(200)
+                    expect(match.data.count).toEqual(1)
+                    expect(match.data.order_groups[0].id).toEqual(groupA)
+                })
+
                 it("returns all groups when no seller filter is applied", async () => {
                     const { orderGroupId: groupA } = await completeCartCheckout(
                         seller1Seed.offer.id
@@ -596,6 +621,66 @@ medusaIntegrationTestRunner({
                     expect(await listIds("authorized")).not.toContain(
                         orderGroupId
                     )
+                })
+            })
+
+            describe("GET /admin/order-groups?q=...", () => {
+                const detail = async (orderGroupId: string) => {
+                    const response = await api.get(
+                        `/admin/order-groups/${orderGroupId}?fields=+display_id,+orders.display_id`,
+                        adminHeaders
+                    )
+                    return response.data.order_group
+                }
+
+                it("finds a group by its own display_id, with or without the #G prefix", async () => {
+                    const { orderGroupId } = await completeCartCheckout(
+                        seller1Seed.offer.id
+                    )
+                    const { display_id } = await detail(orderGroupId)
+
+                    for (const q of [`${display_id}`, `#G${display_id}`, `g${display_id}`]) {
+                        const response = await api.get(
+                            `/admin/order-groups?q=${encodeURIComponent(q)}`,
+                            adminHeaders
+                        )
+                        expect(response.status).toEqual(200)
+                        const ids = response.data.order_groups.map((g: any) => g.id)
+                        expect(ids).toContain(orderGroupId)
+                    }
+                })
+
+                it("finds a group by the display_id of one of its orders", async () => {
+                    const { orderGroupId } = await completeMultiSellerCheckout([
+                        seller1Seed.offer.id,
+                        seller2Seed.offer.id,
+                    ])
+                    const group = await detail(orderGroupId)
+                    const orderDisplayId = group.orders[1].display_id
+
+                    const response = await api.get(
+                        `/admin/order-groups?q=${orderDisplayId}`,
+                        adminHeaders
+                    )
+
+                    expect(response.status).toEqual(200)
+                    const ids = response.data.order_groups.map((g: any) => g.id)
+                    expect(ids).toContain(orderGroupId)
+                })
+
+                it("still matches id fragments", async () => {
+                    const { orderGroupId } = await completeCartCheckout(
+                        seller1Seed.offer.id
+                    )
+
+                    const response = await api.get(
+                        `/admin/order-groups?q=${orderGroupId.slice(-8)}`,
+                        adminHeaders
+                    )
+
+                    expect(response.status).toEqual(200)
+                    const ids = response.data.order_groups.map((g: any) => g.id)
+                    expect(ids).toContain(orderGroupId)
                 })
             })
 

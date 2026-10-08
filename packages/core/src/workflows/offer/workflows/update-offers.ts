@@ -11,7 +11,7 @@ import { AdditionalData } from "@medusajs/framework/types"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { UpdateOfferDTO, OfferDTO } from "@mercurjs/types"
 
-import { updateOffersStep } from "../steps"
+import { updateOffersStep, validateOfferConditionsStep } from "../steps"
 import { upsertOfferPricesWorkflow } from "./upsert-offer-prices"
 import { OfferWorkflowEvents } from "../../events"
 
@@ -42,6 +42,14 @@ export const updateOffersWorkflow: ReturnWorkflow<
   function (input: UpdateOffersWorkflowInput) {
     const validate = createHook("validate", { input })
 
+    const conditionIds = transform(input, ({ offers }) =>
+      offers
+        .map((o) => o.condition_id)
+        .filter((id): id is string => !!id),
+    )
+
+    validateOfferConditionsStep({ condition_ids: conditionIds })
+
     const rowUpdates = transform(input, ({ offers }) =>
       offers.map((o) => ({
         id: o.id,
@@ -50,6 +58,7 @@ export const updateOffersWorkflow: ReturnWorkflow<
         manage_inventory: o.manage_inventory,
         allow_backorder: o.allow_backorder,
         leadtime_to_ship: o.leadtime_to_ship,
+        condition_id: o.condition_id,
         metadata: o.metadata,
       })),
     )

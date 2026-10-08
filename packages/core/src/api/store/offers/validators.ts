@@ -19,6 +19,7 @@ const StoreOfferFilterFields = z.object({
   variant_id: z.union([z.string(), z.array(z.string())]).optional(),
   seller_id: z.union([z.string(), z.array(z.string())]).optional(),
   sku: z.union([z.string(), z.array(z.string())]).optional(),
+  condition_id: z.union([z.string(), z.array(z.string())]).optional(),
   created_at: createOperatorMap().optional(),
   updated_at: createOperatorMap().optional(),
 })

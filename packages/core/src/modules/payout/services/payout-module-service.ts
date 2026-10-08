@@ -18,6 +18,7 @@ import {
     PayoutWebhookActionInput,
     PayoutWebhookResult,
     PayoutModuleOptions,
+    PayoutStatus,
     PAYOUT_MODULE_OPTION_DEFAULTS,
 } from "@mercurjs/types"
 import PayoutProviderService from "./provider-service"
@@ -157,13 +158,55 @@ export default class PayoutModuleService extends MedusaService({
         return await this.baseRepository_.serialize<OnboardingDTO>(onboarding)
     }
 
-    @InjectTransactionManager()
+    @InjectManager()
     @EmitEvents()
     // @ts-ignore
     async createPayouts(
         input: CreatePayoutDTO,
         @MedusaContext() sharedContext?: Context<EntityManager>
     ): Promise<PayoutDTO> {
+        const { payout, payoutAccount } = await this.createPayouts_(input, sharedContext)
+
+        let updated: InferEntityType<typeof Payout>
+        try {
+            const providerResponse = await this.payoutProviderService_.createPayout({
+                account_id: input.account_id,
+                amount: input.amount,
+                currency_code: input.currency_code,
+                context: {
+                    idempotency_key: payout.id,
+                    ...input.context
+                },
+                data: {
+                    ...payoutAccount.data,
+                    ...input.data
+                }
+            })
+
+            updated = await this.updatePayouts(
+                {
+                    id: payout.id,
+                    data: providerResponse.data,
+                    status: providerResponse.status,
+                },
+                sharedContext
+            )
+        } catch (error) {
+            await this.deletePayouts(payout.id, sharedContext).catch(() => null)
+            throw error
+        }
+
+        return await this.baseRepository_.serialize<PayoutDTO>(updated)
+    }
+
+    @InjectTransactionManager()
+    protected async createPayouts_(
+        input: CreatePayoutDTO,
+        @MedusaContext() sharedContext?: Context<EntityManager>
+    ): Promise<{
+        payout: InferEntityType<typeof Payout>
+        payoutAccount: InferEntityType<typeof PayoutAccount>
+    }> {
         const payoutAccount = await this.retrievePayoutAccount(input.account_id, {
             select: ['id', 'status', 'data']
         }, sharedContext)
@@ -175,29 +218,17 @@ export default class PayoutModuleService extends MedusaService({
             )
         }
 
-        const providerResponse = await this.payoutProviderService_.createPayout({
-            account_id: input.account_id,
-            amount: input.amount,
-            currency_code: input.currency_code,
-            context: input.context,
-            data: {
-                ...payoutAccount.data,
-                ...input.data
-            }
-        })
-
         const payout = await super.createPayouts(
             {
                 amount: input.amount,
                 currency_code: input.currency_code,
                 account_id: payoutAccount.id,
-                data: providerResponse.data,
-                status: providerResponse.status,
+                status: PayoutStatus.PENDING,
             },
             sharedContext
         )
 
-        return await this.baseRepository_.serialize<PayoutDTO>(payout)
+        return { payout, payoutAccount }
     }
 
     async getWebhookActionAndData(

@@ -24,6 +24,13 @@ export type Filter = {
       options: Option[]
       multiple?: boolean
       searchable?: boolean
+      /**
+       * Hands the search text to the owner so options can be fetched from the
+       * server instead of filtered client-side. Selected values must still be
+       * present in `options` for their labels to render.
+       */
+      onSearch?: (value: string) => void
+      isLoading?: boolean
     }
   | {
       type: "date"
@@ -136,6 +143,8 @@ export const DataTableFilter = ({
                   options={filter.options}
                   multiple={filter.multiple}
                   searchable={filter.searchable}
+                  onSearch={filter.onSearch}
+                  isLoading={filter.isLoading}
                   openOnMount={filter.openOnMount}
                 />
               )

@@ -57,10 +57,20 @@ export const applyOrderGroupSellerFilter = async (
     return respondEmpty(req, res)
   }
 
-  const existingId = filterableFields.id
+  // The order-group repository only reads top-level filter keys, so the two
+  // id constraints have to be intersected here rather than combined via $and.
+  const existingId = filterableFields.id as string | string[] | undefined
   if (existingId !== undefined) {
-    filterableFields.$and = [{ id: existingId }, { id: matchingOrderGroupIds }]
-    delete filterableFields.id
+    const requestedIds = new Set(
+      Array.isArray(existingId) ? existingId : [existingId]
+    )
+    const intersection = matchingOrderGroupIds.filter((id) =>
+      requestedIds.has(id)
+    )
+    if (intersection.length === 0) {
+      return respondEmpty(req, res)
+    }
+    filterableFields.id = intersection
   } else {
     // QueryGraph for `order_group` treats a plain array as IN; `{$in: [...]}`
     // returns no matches for the primary key, so pass the array directly.

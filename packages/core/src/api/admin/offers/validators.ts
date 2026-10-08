@@ -27,6 +27,7 @@ export const AdminGetOffersParams = createFindParams({
     sku: z.union([z.string(), z.array(z.string())]).optional(),
     ean: z.union([z.string(), z.array(z.string())]).optional(),
     upc: z.union([z.string(), z.array(z.string())]).optional(),
+    condition_id: z.union([z.string(), z.array(z.string())]).optional(),
     group_by_seller: booleanString().optional(),
     status: z.union([z.string(), z.array(z.string())]).optional(),
     category_id: z.union([z.string(), z.array(z.string())]).optional(),
@@ -74,6 +75,7 @@ const AdminCreateOffersBatchItem = z
     ean: z.string().min(1).nullish(),
     upc: z.string().min(1).nullish(),
     leadtime_to_ship: z.number().int().min(0).nullish(),
+    condition_id: z.string().min(1).nullish(),
     metadata: z.record(z.string(), z.unknown()).nullish(),
   })
   .strict()
