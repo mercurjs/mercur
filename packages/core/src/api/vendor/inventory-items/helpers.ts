@@ -22,28 +22,79 @@ export const refetchInventoryItem = async (
   return inventoryItem
 }
 
-export const validateSellerInventoryItem = async (
+export const validateSellerInventoryItems = async (
   scope: MedusaContainer,
   sellerId: string,
-  inventoryItemId: string
+  inventoryItemIds: string[]
 ) => {
+  const ids = Array.from(new Set(inventoryItemIds))
+  if (!ids.length) {
+    return
+  }
+
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const {
-    data: [sellerInventoryItem],
-  } = await query.graph({
+  const { data: links } = await query.graph({
     entity: "inventory_item_seller",
     filters: {
       seller_id: sellerId,
-      inventory_item_id: inventoryItemId,
+      inventory_item_id: ids,
     },
-    fields: ["seller_id"],
+    fields: ["inventory_item_id"],
   })
 
-  if (!sellerInventoryItem) {
+  const owned = new Set(
+    links.map(
+      (link) => (link as { inventory_item_id?: string }).inventory_item_id
+    )
+  )
+  const missing = ids.find((id) => !owned.has(id))
+
+  if (missing) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,
-      `Inventory item with id: ${inventoryItemId} was not found`
+      `Inventory item with id: ${missing} was not found`
     )
   }
+}
+
+export const validateSellerInventoryItem = (
+  scope: MedusaContainer,
+  sellerId: string,
+  inventoryItemId: string
+) => validateSellerInventoryItems(scope, sellerId, [inventoryItemId])
+
+export const validateSellerInventoryLevels = async (
+  scope: MedusaContainer,
+  sellerId: string,
+  inventoryLevelIds: string[]
+) => {
+  const ids = Array.from(new Set(inventoryLevelIds))
+  if (!ids.length) {
+    return
+  }
+
+  const query = scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const { data: levels } = await query.graph({
+    entity: "inventory_level",
+    filters: { id: ids },
+    fields: ["id", "inventory_item_id"],
+  })
+
+  const found = new Set(levels.map((level) => level.id))
+  const missing = ids.find((id) => !found.has(id))
+
+  if (missing) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `Inventory level with id: ${missing} was not found`
+    )
+  }
+
+  await validateSellerInventoryItems(
+    scope,
+    sellerId,
+    levels.map((level) => level.inventory_item_id)
+  )
 }

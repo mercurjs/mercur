@@ -43,7 +43,16 @@ import { vendorShippingProfilesMiddlewares } from "./shipping-profiles/middlewar
 import { vendorStockLocationsMiddlewares } from "./stock-locations/middlewares"
 import { vendorStoresMiddlewares } from "./stores/middlewares"
 import { vendorUploadsMiddlewares } from "./uploads/middlewares"
-import { ensureSellerMiddleware, resolvePermissionsMiddleware, resolvePluginUnauthenticatedRoutes, scanUnauthenticatedRoutes, unlessBaseUrl, vendorCorsMiddleware } from "../utils"
+import {
+  ensureSellerMiddleware,
+  resolvePermissionsMiddleware,
+  resolvePluginUnauthenticatedRoutes,
+  restrictVendorFields,
+  scanUnauthenticatedRoutes,
+  unlessBaseUrl,
+  vendorCorsMiddleware,
+  VENDOR_SELLER_PRIVATE_FIELD_SEGMENTS,
+} from "../utils"
 import { vendorProductAttributesMiddlewares } from "./product-attributes/middlewares"
 import { vendorProductTagsMiddlewares } from "./product-tags/middlewares"
 
@@ -97,6 +106,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/*",
     middlewares: [
       vendorCorsMiddleware,
+      restrictVendorFields(VENDOR_SELLER_PRIVATE_FIELD_SEGMENTS),
       unlessBaseUrl(
         resolveSellerlessRoutes,
         authenticate("member", ["session", "bearer"], {

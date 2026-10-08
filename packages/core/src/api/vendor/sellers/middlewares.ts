@@ -1,4 +1,8 @@
-import { requirePermission } from "../../utils"
+import {
+  requirePermission,
+  restrictVendorFields,
+  VENDOR_CROSS_SELLER_FIELD_SEGMENTS,
+} from "../../utils"
 import {
   ensureSellerIdParamMiddleware,
   ensureSellerMemberParamMiddleware,
@@ -35,6 +39,7 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/sellers/me",
     middlewares: [
+      restrictVendorFields(VENDOR_CROSS_SELLER_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetSellerParams,
         QueryConfig.retrieveVendorSellerQueryConfig
@@ -47,6 +52,7 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       requirePermission("store", "edit"),
       validateAndTransformBody(VendorUpdateSeller),
+      restrictVendorFields(VENDOR_CROSS_SELLER_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetSellerParams,
         QueryConfig.retrieveVendorSellerQueryConfig
@@ -64,6 +70,7 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/sellers",
     middlewares: [
+      restrictVendorFields(VENDOR_CROSS_SELLER_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetSellersParams,
         QueryConfig.listVendorSellersQueryConfig
@@ -76,6 +83,7 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       requirePermission("store", "view"),
       ensureSellerIdParamMiddleware,
+      restrictVendorFields(VENDOR_CROSS_SELLER_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetSellerParams,
         QueryConfig.retrieveVendorSellerQueryConfig
@@ -89,6 +97,7 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       requirePermission("store", "edit"),
       ensureSellerIdParamMiddleware,
       validateAndTransformBody(VendorUpdateSeller),
+      restrictVendorFields(VENDOR_CROSS_SELLER_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetSellerParams,
         QueryConfig.retrieveVendorSellerQueryConfig
@@ -102,6 +111,7 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       requirePermission("store", "edit"),
       ensureSellerIdParamMiddleware,
       validateAndTransformBody(VendorUpsertSellerAddress),
+      restrictVendorFields(VENDOR_CROSS_SELLER_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetSellerParams,
         QueryConfig.retrieveVendorSellerQueryConfig
@@ -115,6 +125,7 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       requirePermission("store", "edit"),
       ensureSellerIdParamMiddleware,
       validateAndTransformBody(VendorUpsertSellerPaymentDetails),
+      restrictVendorFields(VENDOR_CROSS_SELLER_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetSellerParams,
         QueryConfig.retrieveVendorSellerQueryConfig
@@ -128,6 +139,7 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       requirePermission("store", "edit"),
       ensureSellerIdParamMiddleware,
       validateAndTransformBody(VendorUpsertSellerProfessionalDetails),
+      restrictVendorFields(VENDOR_CROSS_SELLER_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetSellerParams,
         QueryConfig.retrieveVendorSellerQueryConfig
@@ -140,6 +152,7 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       requirePermission("store", "edit"),
       ensureSellerIdParamMiddleware,
+      restrictVendorFields(VENDOR_CROSS_SELLER_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetSellerParams,
         QueryConfig.retrieveVendorSellerQueryConfig
@@ -152,6 +165,7 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       requirePermission("store", "view"),
       ensureSellerIdParamMiddleware,
+      restrictVendorFields(VENDOR_CROSS_SELLER_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetSellerParams,
         QueryConfig.retrieveVendorMemberQueryConfig
@@ -164,6 +178,7 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       requirePermission("members", "view"),
       ensureSellerIdParamMiddleware,
+      restrictVendorFields(VENDOR_CROSS_SELLER_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetSellersParams,
         QueryConfig.listVendorMemberInvitesQueryConfig
@@ -176,6 +191,7 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       requirePermission("members", "view"),
       ensureSellerIdParamMiddleware,
+      restrictVendorFields(VENDOR_CROSS_SELLER_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetSellersParams,
         QueryConfig.listVendorMembersQueryConfig

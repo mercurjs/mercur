@@ -6,6 +6,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { CreateOfferDTO } from "@mercurjs/types"
 
 import { createOffersWorkflow } from "../../../../workflows/offer"
+import { validateSellerStockLocations } from "../../stock-locations/helpers"
 import { VendorCreateOffersBatchType } from "../validators"
 
 export const POST = async (
@@ -30,6 +31,16 @@ export const POST = async (
     leadtime_to_ship: o.leadtime_to_ship ?? null,
     metadata: o.metadata ?? null,
   }))
+
+  await validateSellerStockLocations(
+    req.scope,
+    sellerId,
+    offers.flatMap((offer) =>
+      (offer.inventory_items ?? []).flatMap((item) =>
+        (item.stock_levels ?? []).map((level) => level.location_id)
+      )
+    )
+  )
 
   const { result } = await createOffersWorkflow(req.scope).run({
     input: { offers, additional_data },

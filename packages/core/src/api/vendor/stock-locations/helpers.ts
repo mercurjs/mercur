@@ -4,31 +4,47 @@ import {
   MedusaError,
 } from "@medusajs/framework/utils"
 
-export const validateSellerStockLocation = async (
+export const validateSellerStockLocations = async (
   scope: MedusaContainer,
   sellerId: string,
-  stockLocationId: string
+  stockLocationIds: string[]
 ) => {
+  const ids = Array.from(new Set(stockLocationIds))
+  if (!ids.length) {
+    return
+  }
+
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const {
-    data: [sellerStockLocation],
-  } = await query.graph({
+  const { data: links } = await query.graph({
     entity: "stock_location_seller",
     filters: {
       seller_id: sellerId,
-      stock_location_id: stockLocationId,
+      stock_location_id: ids,
     },
-    fields: ["seller_id", "stock_location_id"],
+    fields: ["stock_location_id"],
   })
 
-  if (!sellerStockLocation) {
+  const owned = new Set(
+    links.map(
+      (link) => (link as { stock_location_id?: string }).stock_location_id
+    )
+  )
+  const missing = ids.find((id) => !owned.has(id))
+
+  if (missing) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,
-      `Stock location with id: ${stockLocationId} was not found`
+      `Stock location with id: ${missing} was not found`
     )
   }
 }
+
+export const validateSellerStockLocation = (
+  scope: MedusaContainer,
+  sellerId: string,
+  stockLocationId: string
+) => validateSellerStockLocations(scope, sellerId, [stockLocationId])
 
 export const refetchStockLocation = async (
   scope: MedusaContainer,

@@ -25,7 +25,8 @@ export const refetchPayment = async (
 export const validateSellerPayment = async (
   scope: MedusaContainer,
   sellerId: string,
-  paymentId: string
+  paymentId: string,
+  options: { requireAllOrders?: boolean } = {}
 ) => {
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -77,18 +78,27 @@ export const validateSellerPayment = async (
     )
   }
 
-  const {
-    data: [sellerOrder],
-  } = await query.graph({
+  const { data: orderSellers } = await query.graph({
     entity: "order_seller",
-    filters: { seller_id: sellerId, order_id: orderIds },
-    fields: ["seller_id"],
+    filters: { order_id: orderIds },
+    fields: ["order_id", "seller_id"],
   })
 
-  if (!sellerOrder) {
+  const sellerIds = orderSellers.map(
+    (link) => (link as { seller_id?: string }).seller_id
+  )
+
+  if (!sellerIds.includes(sellerId)) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,
       `Payment with id: ${paymentId} was not found`
+    )
+  }
+
+  if (options.requireAllOrders && sellerIds.some((id) => id !== sellerId)) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_ALLOWED,
+      `Payment with id: ${paymentId} is shared with other sellers' orders and can only be captured by the marketplace operator`
     )
   }
 }

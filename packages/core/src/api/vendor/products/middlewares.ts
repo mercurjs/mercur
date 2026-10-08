@@ -14,6 +14,7 @@ import { ProductStatus } from "@mercurjs/types"
 import { applyOfferedProductsFilter } from "../../utils"
 import {
   getProductIdsRestrictedFromSeller,
+  getProductStatus,
   getSellerOwnedProductIds,
 } from "./helpers"
 import {
@@ -71,6 +72,38 @@ const applySellerProductLinkFilter = async (
   return next()
 }
 
+const ensureProductVisibleToSeller = async (
+  req: AuthenticatedMedusaRequest,
+  _res: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  const sellerId = req.seller_context!.seller_id
+  const productId = req.params.id
+
+  const [ownProductIds, restrictedFromSellerIds, product] = await promiseAll([
+    getSellerOwnedProductIds(req.scope, sellerId),
+    getProductIdsRestrictedFromSeller(req.scope, sellerId),
+    getProductStatus(req.scope, productId),
+  ])
+
+  const visible =
+    !!product &&
+    (ownProductIds.includes(productId) ||
+      (product.status === ProductStatus.PUBLISHED &&
+        !restrictedFromSellerIds.includes(productId)))
+
+  if (!visible) {
+    return next(
+      new MedusaError(
+        MedusaError.Types.NOT_FOUND,
+        `Product with id ${productId} was not found`
+      )
+    )
+  }
+
+  return next()
+}
+
 const ensureVariantBelongsToProduct = async (
   req: AuthenticatedMedusaRequest,
   _res: MedusaResponse,
@@ -100,7 +133,10 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["GET"],
     matcher: "/vendor/products/:id/preview",
-    middlewares: [requirePermission("products", "view")],
+    middlewares: [
+      requirePermission("products", "view"),
+      ensureProductVisibleToSeller,
+    ],
   },
   {
     method: ["GET"],
@@ -133,6 +169,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/products/:id",
     middlewares: [
       requirePermission("products", "view"),
+      ensureProductVisibleToSeller,
       validateAndTransformQuery(
         VendorGetProductParams,
         vendorProductQueryConfig.retrieve
@@ -144,6 +181,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/products/:id",
     middlewares: [
       requirePermission("products", "edit"),
+      ensureProductVisibleToSeller,
       validateAndTransformBody(VendorUpdateProduct),
       validateAndTransformQuery(
         VendorGetProductParams,
@@ -156,6 +194,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/products/:id",
     middlewares: [
       requirePermission("products", "manage"),
+      ensureProductVisibleToSeller,
     ],
   },
 
@@ -164,6 +203,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/products/:id/cancel",
     middlewares: [
       requirePermission("products", "edit"),
+      ensureProductVisibleToSeller,
       validateAndTransformBody(VendorCancelProductChange)],
   },
 
@@ -172,6 +212,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/products/:id/variants",
     middlewares: [
       requirePermission("products", "view"),
+      ensureProductVisibleToSeller,
       validateAndTransformQuery(
         VendorGetProductVariantsParams,
         vendorProductVariantQueryConfig.list
@@ -183,6 +224,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/products/:id/variants",
     middlewares: [
       requirePermission("products", "edit"),
+      ensureProductVisibleToSeller,
       validateAndTransformBody(VendorAddProductVariant),
       validateAndTransformQuery(
         VendorGetProductParams,
@@ -196,6 +238,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/products/:id/variants/:variant_id",
     middlewares: [
       requirePermission("products", "view"),
+      ensureProductVisibleToSeller,
       validateAndTransformQuery(
         VendorGetProductVariantParams,
         vendorProductVariantQueryConfig.retrieve
@@ -207,6 +250,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/products/:id/variants/:variant_id",
     middlewares: [
       requirePermission("products", "edit"),
+      ensureProductVisibleToSeller,
       ensureVariantBelongsToProduct,
       validateAndTransformBody(VendorUpdateProductVariant),
       validateAndTransformQuery(
@@ -220,6 +264,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/products/:id/variants/:variant_id",
     middlewares: [
       requirePermission("products", "manage"),
+      ensureProductVisibleToSeller,
       ensureVariantBelongsToProduct],
   },
 
@@ -228,6 +273,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/products/:id/attributes/batch",
     middlewares: [
       requirePermission("products", "edit"),
+      ensureProductVisibleToSeller,
       validateAndTransformBody(VendorBatchProductAttributes),
       validateAndTransformQuery(
         VendorGetProductParams,

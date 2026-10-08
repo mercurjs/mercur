@@ -8,6 +8,7 @@ import {
 
 import { createOffersWorkflow } from "../../../workflows/offer"
 import { refetchOffer } from "./helpers"
+import { validateSellerStockLocations } from "../stock-locations/helpers"
 import { VendorCreateOfferType, VendorGetOffersParamsType } from "./validators"
 
 export const GET = async (
@@ -39,6 +40,14 @@ export const POST = async (
   const memberId = req.auth_context.actor_id
 
   const { additional_data, ...offerData } = req.validatedBody
+
+  await validateSellerStockLocations(
+    req.scope,
+    sellerId,
+    offerData.inventory_items.flatMap((item) =>
+      (item.stock_levels ?? []).map((level) => level.location_id)
+    )
+  )
 
   const { result } = await createOffersWorkflow(req.scope).run({
     input: {
