@@ -20,6 +20,7 @@ import {
   FieldArrayWithId,
   UseFieldArrayRemove,
   useFieldArray,
+  useWatch,
 } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -113,138 +114,155 @@ const Root = () => {
             className="flex flex-col gap-y-4"
             data-testid="product-create-attributes-list"
           >
-            {fields.map((field, index) => {
-              if (!field.is_custom) return null
-              const useForVariants = form.watch(
-                `attributes.${index}.use_for_variants`
-              )
-
-              return (
-                <li
+            {fields.map((field, index) =>
+              field.is_custom ? (
+                <CustomAttributeRow
                   key={field.id}
-                  className="bg-ui-bg-component shadow-elevation-card-rest grid grid-cols-[1fr_28px] items-start gap-1.5 rounded-xl p-1.5"
-                  data-testid={`product-create-attribute-row-${index}`}
-                >
-                  <div className="grid grid-cols-[min-content,1fr] items-center gap-1.5">
-                    <div className="flex items-center px-2 py-1.5">
-                      <Label
-                        size="xsmall"
-                        weight="plus"
-                        className="text-ui-fg-subtle"
-                        htmlFor={`attributes.${index}.title`}
-                      >
-                        {t("fields.title")}
-                      </Label>
-                    </div>
-                    <Input
-                      className="bg-ui-bg-field-component hover:bg-ui-bg-field-component-hover"
-                      {...form.register(
-                        `attributes.${index}.title` as const
-                      )}
-                      placeholder={t(
-                        "products.create.attributes.titlePlaceholder"
-                      )}
-                      data-testid={`product-create-attribute-title-${index}`}
-                    />
-                    <div className="flex items-center px-2 py-1.5">
-                      <Label
-                        size="xsmall"
-                        weight="plus"
-                        className="text-ui-fg-subtle"
-                        htmlFor={`attributes.${index}.values`}
-                      >
-                        {t("fields.values")}
-                      </Label>
-                    </div>
-                    <Controller
-                      control={form.control}
-                      name={`attributes.${index}.values` as const}
-                      render={({ field: { onChange, value, ...field } }) =>
-                        useForVariants ? (
-                          <ChipInput
-                            {...field}
-                            variant="contrast"
-                            value={Array.isArray(value) ? value : []}
-                            onChange={onChange}
-                            placeholder={t(
-                              "products.create.attributes.valuePlaceholder"
-                            )}
-                            data-testid={`product-create-attribute-values-${index}`}
-                          />
-                        ) : (
-                          <Textarea
-                            {...field}
-                            className="bg-ui-bg-field-component hover:bg-ui-bg-field-component-hover"
-                            value={
-                              Array.isArray(value)
-                                ? value[0] ?? ""
-                                : value ?? ""
-                            }
-                            onChange={(e) => onChange(e.target.value)}
-                            placeholder={t(
-                              "products.create.attributes.valuePlaceholder"
-                            )}
-                            data-testid={`product-create-attribute-values-${index}`}
-                          />
-                        )
-                      }
-                    />
-                    <div />
-                    <Form.Field
-                      control={form.control}
-                      name={`attributes.${index}.use_for_variants`}
-                      render={({
-                        field: { value, onChange, ref },
-                      }) => (
-                        <Form.Item>
-                          <div
-                            className="flex items-start gap-x-3 py-1.5"
-                            data-testid={`product-create-attribute-use-for-variants-${index}`}
-                          >
-                            <Form.Control>
-                              <Switch
-                                ref={ref}
-                                className="shrink-0 rtl:rotate-180"
-                                checked={value}
-                                onCheckedChange={onChange}
-                              />
-                            </Form.Control>
-                            <div className="flex flex-col">
-                              <Label size="xsmall" weight="plus">
-                                {t(
-                                  "products.create.attributes.useForVariants"
-                                )}
-                              </Label>
-                              <Hint className="!txt-small">
-                                {t(
-                                  "products.create.attributes.useForVariantsDescription"
-                                )}
-                              </Hint>
-                            </div>
-                          </div>
-                        </Form.Item>
-                      )}
-                    />
-                  </div>
-                  <IconButton
-                    type="button"
-                    size="small"
-                    variant="transparent"
-                    className="text-ui-fg-muted"
-                    onClick={() => remove(index)}
-                    data-testid={`product-create-attribute-remove-${index}`}
-                  >
-                    <XMarkMini />
-                  </IconButton>
-                </li>
-              )
-            })}
+                  index={index}
+                  remove={remove}
+                />
+              ) : null
+            )}
           </ul>
         )}
 
         <RequiredAttributes />
       </div>
     </div>
+  )
+}
+
+const CustomAttributeRow = ({
+  index,
+  remove,
+}: {
+  index: number
+  remove: UseFieldArrayRemove
+}) => {
+  const { t } = useTranslation()
+  const form = useTabbedForm<ProductCreateSchemaType>()
+  const useForVariants = useWatch({
+    control: form.control,
+    name: `attributes.${index}.use_for_variants`,
+  })
+
+  return (
+    <li
+      className="bg-ui-bg-component shadow-elevation-card-rest grid grid-cols-[1fr_28px] items-start gap-1.5 rounded-xl p-1.5"
+      data-testid={`product-create-attribute-row-${index}`}
+    >
+      <div className="grid grid-cols-[min-content,1fr] items-center gap-1.5">
+        <div className="flex items-center px-2 py-1.5">
+          <Label
+            size="xsmall"
+            weight="plus"
+            className="text-ui-fg-subtle"
+            htmlFor={`attributes.${index}.title`}
+          >
+            {t("fields.title")}
+          </Label>
+        </div>
+        <Input
+          className="bg-ui-bg-field-component hover:bg-ui-bg-field-component-hover"
+          {...form.register(
+            `attributes.${index}.title` as const
+          )}
+          placeholder={t(
+            "products.create.attributes.titlePlaceholder"
+          )}
+          data-testid={`product-create-attribute-title-${index}`}
+        />
+        <div className="flex items-center px-2 py-1.5">
+          <Label
+            size="xsmall"
+            weight="plus"
+            className="text-ui-fg-subtle"
+            htmlFor={`attributes.${index}.values`}
+          >
+            {t("fields.values")}
+          </Label>
+        </div>
+        <Controller
+          control={form.control}
+          name={`attributes.${index}.values` as const}
+          render={({ field: { onChange, value, ...field } }) =>
+            useForVariants ? (
+              <ChipInput
+                {...field}
+                variant="contrast"
+                value={Array.isArray(value) ? value : []}
+                onChange={onChange}
+                placeholder={t(
+                  "products.create.attributes.valuePlaceholder"
+                )}
+                data-testid={`product-create-attribute-values-${index}`}
+              />
+            ) : (
+              <Textarea
+                {...field}
+                className="bg-ui-bg-field-component hover:bg-ui-bg-field-component-hover"
+                value={
+                  Array.isArray(value)
+                    ? value[0] ?? ""
+                    : value ?? ""
+                }
+                onChange={(e) => onChange(e.target.value)}
+                placeholder={t(
+                  "products.create.attributes.valuePlaceholder"
+                )}
+                data-testid={`product-create-attribute-values-${index}`}
+              />
+            )
+          }
+        />
+        <div />
+        <Form.Field
+          control={form.control}
+          name={`attributes.${index}.use_for_variants`}
+          render={({
+            field: { value, onChange, ref },
+          }) => (
+            <Form.Item>
+              <div
+                className="flex items-start gap-x-3 py-1.5"
+                data-testid={`product-create-attribute-use-for-variants-${index}`}
+              >
+                <Form.Control>
+                  <Switch
+                    ref={ref}
+                    className="shrink-0 rtl:rotate-180"
+                    checked={value}
+                    onCheckedChange={onChange}
+                  />
+                </Form.Control>
+                <div className="flex flex-col">
+                  <Label size="xsmall" weight="plus">
+                    {t(
+                      "products.create.attributes.useForVariants"
+                    )}
+                  </Label>
+                  <Hint className="!txt-small">
+                    {t(
+                      "products.create.attributes.useForVariantsDescription"
+                    )}
+                  </Hint>
+                </div>
+              </div>
+            </Form.Item>
+          )}
+        />
+      </div>
+      <IconButton
+        type="button"
+        size="small"
+        variant="transparent"
+        className="text-ui-fg-muted"
+        onClick={() => remove(index)}
+        data-testid={`product-create-attribute-remove-${index}`}
+      >
+        <XMarkMini />
+      </IconButton>
+    </li>
   )
 }
 

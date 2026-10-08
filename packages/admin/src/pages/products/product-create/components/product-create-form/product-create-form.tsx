@@ -1,7 +1,7 @@
 import { HttpTypes } from "@medusajs/types";
 import { Button, toast } from "@medusajs/ui";
 import { ReactNode, useEffect, useMemo, Children } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { isForbidden, useCan } from "@mercurjs/dashboard-shared";
 import {
@@ -18,8 +18,8 @@ import {
 } from "../../constants";
 import { ProductCreateSchemaType } from "../../types";
 import {
-  generateVariantsFromAttributes,
   normalizeProductFormValues,
+  subscribeVariantsToAttributes,
 } from "../../utils";
 import { ProductCreateAttributesForm } from "../product-create-attributes-form";
 import { ProductCreateDetailsForm } from "../product-create-details-form";
@@ -80,26 +80,7 @@ export const ProductCreateForm = ({
     );
   }, [regions]);
 
-  const watchedAttributes = useWatch({
-    control: form.control,
-    name: "attributes",
-  });
-
-  // Generate variants from variant-axis attributes
-  useEffect(() => {
-    const currentVariants = form.getValues("variants") ?? [];
-    const newVariants = generateVariantsFromAttributes(
-      watchedAttributes ?? [],
-      currentVariants,
-    );
-
-    if (
-      JSON.stringify(newVariants.map((v) => v.options)) !==
-      JSON.stringify(currentVariants.map((v) => v.options))
-    ) {
-      form.setValue("variants", newVariants);
-    }
-  }, [watchedAttributes, form]);
+  useEffect(() => subscribeVariantsToAttributes(form), [form]);
 
   const handleSubmit = form.handleSubmit(async (values, e) => {
     if (isRegionsPending) {
@@ -147,28 +128,28 @@ export const ProductCreateForm = ({
       }
     }
 
-    await mutateAsync(
-      normalizeProductFormValues({
-        ...payload,
-        media: uploadedMedia,
-        status: (isDraftSubmission ? "draft" : "published") as any,
-        regionsCurrencyMap,
-      }) as any,
-      {
-        onSuccess: (data) => {
-          toast.success(
-            t("products.create.successToast", {
-              title: data.product.title,
-            }),
-          );
+    try {
+      const data = await mutateAsync(
+        normalizeProductFormValues({
+          ...payload,
+          media: uploadedMedia,
+          status: (isDraftSubmission ? "draft" : "published") as any,
+          regionsCurrencyMap,
+        }) as any,
+      );
 
-          handleSuccess(`../${data.product.id}`);
-        },
-        onError: (error) => {
-          toast.error(error.message);
-        },
-      },
-    );
+      toast.success(
+        t("products.create.successToast", {
+          title: data.product.title,
+        }),
+      );
+
+      handleSuccess(`../${data.product.id}`);
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
+    }
   });
 
   const defaultTabs = useMemo(
