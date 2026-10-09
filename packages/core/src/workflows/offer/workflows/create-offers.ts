@@ -29,6 +29,7 @@ import {
 } from "../steps"
 import { linkSellerInventoryItemStep } from "../../inventory-item/steps"
 import { OfferWorkflowEvents } from "../../events"
+import { OFFER_PRICE_FIELDS, pickOfferPrices } from "./upsert-offer-prices"
 
 export type CreateOffersWorkflowInput = {
   offers: CreateOfferDTO[]
@@ -362,8 +363,31 @@ export const createOffersWorkflow: ReturnWorkflow<
       data: eventData,
     })
 
+    const createdOfferIds = transform({ offers }, ({ offers }) =>
+      offers.map((o) => o.id),
+    )
+
+    const { data: offersWithPrices } = useQueryGraphStep({
+      entity: "offer",
+      fields: ["*", ...OFFER_PRICE_FIELDS],
+      filters: { id: createdOfferIds },
+    }).config({ name: "get-created-offers" })
+
+    const createdOffers = transform(
+      { offers, offersWithPrices },
+      ({ offers, offersWithPrices }) => {
+        const byId = new Map(
+          (offersWithPrices as unknown as OfferDTO[]).map((o) => [o.id, o]),
+        )
+        return offers.map((o): OfferDTO => {
+          const loaded = byId.get(o.id)
+          return { ...o, prices: loaded ? pickOfferPrices(loaded) : [] }
+        })
+      },
+    )
+
     const offersCreated = createHook("offersCreated", {
-      offers,
+      offers: createdOffers,
       additional_data: input.additional_data,
     })
 
