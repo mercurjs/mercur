@@ -8,7 +8,7 @@ import {
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import { AdditionalData } from "@medusajs/framework/types"
-import { emitEventStep } from "@medusajs/medusa/core-flows"
+import { emitEventStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
 import { UpdateOfferDTO, OfferDTO } from "@mercurjs/types"
 
 import { updateOffersStep, validateOfferConditionsStep } from "../steps"
@@ -17,6 +17,7 @@ import { OfferWorkflowEvents } from "../../events"
 
 export type UpdateOffersWorkflowInput = {
   offers: UpdateOfferDTO[]
+  updated_by?: string
 } & AdditionalData
 
 export type UpdateOffersWorkflowHooks = [
@@ -25,6 +26,8 @@ export type UpdateOffersWorkflowHooks = [
     "offersUpdated",
     {
       offers: OfferDTO[]
+      previous_offers: OfferDTO[]
+      updated_by: string | undefined
       additional_data: Record<string, unknown> | undefined
     },
     unknown
@@ -50,6 +53,14 @@ export const updateOffersWorkflow: ReturnWorkflow<
 
     validateOfferConditionsStep({ condition_ids: conditionIds })
 
+    const offerIds = transform(input, ({ offers }) => offers.map((o) => o.id))
+
+    const { data: previousOffers } = useQueryGraphStep({
+      entity: "offer",
+      fields: ["*"],
+      filters: { id: offerIds },
+    }).config({ name: "get-offers-before-update" })
+
     const rowUpdates = transform(input, ({ offers }) =>
       offers.map((o) => ({
         id: o.id,
@@ -69,6 +80,7 @@ export const updateOffersWorkflow: ReturnWorkflow<
       offers: input.offers
         .filter((o) => Array.isArray(o.prices))
         .map((o) => ({ id: o.id, prices: o.prices ?? [] })),
+      updated_by: input.updated_by,
     }))
 
     when({ offerPrices }, ({ offerPrices }) => offerPrices.offers.length > 0).then(
@@ -88,6 +100,8 @@ export const updateOffersWorkflow: ReturnWorkflow<
 
     const offersUpdated = createHook("offersUpdated", {
       offers,
+      previous_offers: previousOffers as unknown as OfferDTO[],
+      updated_by: input.updated_by,
       additional_data: input.additional_data,
     })
 

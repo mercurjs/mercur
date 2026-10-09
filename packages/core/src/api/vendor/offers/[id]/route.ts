@@ -43,6 +43,7 @@ export const POST = async (
   await updateOffersWorkflow(req.scope).run({
     input: {
       offers: [{ id, ...update }],
+      updated_by: req.auth_context.actor_id,
       additional_data,
     },
   })

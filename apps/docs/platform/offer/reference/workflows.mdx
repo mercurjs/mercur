@@ -12,7 +12,7 @@ This reference lists the workflows for the Offer domain. Import them from
 | Workflow | Input | Purpose |
 | --- | --- | --- |
 | `createOffersWorkflow` | `{ offers[], additional_data? }` | Create offers with prices, inventory, and links |
-| `updateOffersWorkflow` | `{ offers[], additional_data? }` | Update offer rows and rewrite their price ladders |
+| `updateOffersWorkflow` | `{ offers[], updated_by?, additional_data? }` | Update offer rows and rewrite their price ladders |
 | `deleteOffersWorkflow` | `{ ids[], additional_data? }` | Delete offers |
 | `batchOfferInventoryItemsWorkflow` | `{ offer_id, create?, update?, delete?, additional_data? }` | Add, update, and detach an offer's inventory-item links |
 
@@ -24,8 +24,36 @@ Each workflow exposes hooks so you can extend it without forking:
 | --- | --- |
 | `createOffersWorkflow` | `validate`, `offersCreated` |
 | `updateOffersWorkflow` | `validate`, `offersUpdated` |
+| `upsertOfferPricesWorkflow` | `offerPricesUpserted` |
 | `deleteOffersWorkflow` | `offersDeleted` |
 | `batchOfferInventoryItemsWorkflow` | `validate`, `offerInventoryItemsBatched` |
+
+### Hook payloads
+
+| Hook | Payload |
+| --- | --- |
+| `offersCreated` | `{ offers: OfferDTO[], additional_data? }` — each offer carries `created_by` and its `prices` |
+| `offersUpdated` | `{ offers: OfferDTO[], previous_offers: OfferDTO[], updated_by?, additional_data? }` — `previous_offers` is the row state before the write |
+| `offerPricesUpserted` | `{ offers: Array<{ offer_id, previous_prices: OfferPriceDTO[], prices: OfferPriceDTO[], created: string[], updated: string[], deleted: string[] }>, updated_by: string \| null }` |
+| `offersDeleted` | `{ ids: string[], offers: OfferDTO[], additional_data? }` — `offers` is a snapshot taken before deletion, including `prices` |
+
+`updated_by` is the authenticated actor id. Vendor routes fill it from the session; pass it yourself when running `updateOffersWorkflow` or `upsertOfferPricesWorkflow` directly.
+
+In `offerPricesUpserted`, `previous_prices` and `prices` are the offer's ladder before and after the write (`amount`, `currency_code`, `min_quantity`, `max_quantity`, `price_rules`). `created` and `deleted` hold the price ids added and removed; `updated` holds the ids rewritten in place whose amount, quantity bounds, or rules actually changed — an unchanged row resent with its id is not listed. The hook also fires when `updateOffersWorkflow` runs the price upsert for you, so a single handler on `upsertOfferPricesWorkflow` covers both entry points. Prices are hard-deleted and Medusa's pricing events carry ids only, so these payloads (and the `offersDeleted` snapshot) are the only place the previous values can be read.
+
+```ts
+import { upsertOfferPricesWorkflow } from "@mercurjs/core/workflows"
+import { StepResponse } from "@medusajs/framework/workflows-sdk"
+
+upsertOfferPricesWorkflow.hooks.offerPricesUpserted(
+  async ({ offers, updated_by }, { container }) => {
+    for (const { offer_id, previous_prices, prices, updated } of offers) {
+      // record a price-history entry for every id in `updated`
+    }
+    return new StepResponse(undefined)
+  }
+)
+```
 
 ## Behavior notes
 
