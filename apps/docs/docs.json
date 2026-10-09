@@ -869,39 +869,39 @@
     },
     {
       "source": "/get-started",
-      "destination": "/learn/installation"
+      "destination": "/learn/introduction#create-a-project"
     },
     {
       "source": "/rc/get-started",
-      "destination": "/learn/installation"
+      "destination": "/learn/introduction#create-a-project"
     },
     {
       "source": "/v2/get-started",
-      "destination": "/learn/installation"
+      "destination": "/learn/introduction#create-a-project"
     },
     {
       "source": "/installation",
-      "destination": "/learn/installation"
+      "destination": "/learn/introduction#create-a-project"
     },
     {
       "source": "/rc/installation",
-      "destination": "/learn/installation"
+      "destination": "/learn/introduction#create-a-project"
     },
     {
       "source": "/v2/installation",
-      "destination": "/learn/installation"
+      "destination": "/learn/introduction#create-a-project"
     },
     {
       "source": "/cli-installation",
-      "destination": "/learn/installation"
+      "destination": "/learn/introduction#create-a-project"
     },
     {
       "source": "/rc/cli-installation",
-      "destination": "/learn/installation"
+      "destination": "/learn/introduction#create-a-project"
     },
     {
       "source": "/v2/cli-installation",
-      "destination": "/learn/installation"
+      "destination": "/learn/introduction#create-a-project"
     },
     {
       "source": "/getting-started/introduction",
@@ -917,27 +917,27 @@
     },
     {
       "source": "/getting-started/installation",
-      "destination": "/learn/installation"
+      "destination": "/learn/introduction#create-a-project"
     },
     {
       "source": "/rc/getting-started/installation",
-      "destination": "/learn/installation"
+      "destination": "/learn/introduction#create-a-project"
     },
     {
       "source": "/v2/getting-started/installation",
-      "destination": "/learn/installation"
+      "destination": "/learn/introduction#create-a-project"
     },
     {
       "source": "/getting-started/concepts",
-      "destination": "/learn/concepts"
+      "destination": "/learn/architecture"
     },
     {
       "source": "/rc/getting-started/concepts",
-      "destination": "/learn/concepts"
+      "destination": "/learn/architecture"
     },
     {
       "source": "/v2/getting-started/concepts",
-      "destination": "/learn/concepts"
+      "destination": "/learn/architecture"
     },
     {
       "source": "/developer-guide/overview",
@@ -1001,27 +1001,27 @@
     },
     {
       "source": "/developer-guide/cli",
-      "destination": "/tools/cli"
+      "destination": "/learn/blocks"
     },
     {
       "source": "/rc/developer-guide/cli",
-      "destination": "/tools/cli"
+      "destination": "/learn/blocks"
     },
     {
       "source": "/v2/developer-guide/cli",
-      "destination": "/tools/cli"
+      "destination": "/learn/blocks"
     },
     {
       "source": "/developer-guide/api-client",
-      "destination": "/tools/api-client"
+      "destination": "/references/api/conventions"
     },
     {
       "source": "/rc/developer-guide/api-client",
-      "destination": "/tools/api-client"
+      "destination": "/references/api/conventions"
     },
     {
       "source": "/v2/developer-guide/api-client",
-      "destination": "/tools/api-client"
+      "destination": "/references/api/conventions"
     },
     {
       "source": "/core-concepts/seller",
@@ -1290,6 +1290,186 @@
     {
       "source": "/rc/migration/from-2-0-to-2-1",
       "destination": "/learn/migration-to-2-0"
+    },
+    {
+      "source": "/v1",
+      "destination": "/learn/introduction"
+    },
+    {
+      "source": "/v1/:slug*",
+      "destination": "/:slug*"
+    },
+    {
+      "source": "/canary",
+      "destination": "/learn/introduction"
+    },
+    {
+      "source": "/canary/quick-start",
+      "destination": "/learn/introduction"
+    },
+    {
+      "source": "/canary/whats-new",
+      "destination": "/learn/introduction"
+    },
+    {
+      "source": "/canary/:slug*",
+      "destination": "/:slug*"
+    },
+    {
+      "source": "/components/:slug*",
+      "destination": "/learn/architecture"
+    },
+    {
+      "source": "/product/:slug*",
+      "destination": "/references/overview"
+    },
+    {
+      "source": "/docs/:slug*",
+      "destination": "/references/overview"
+    },
+    {
+      "source": "/development/:slug*",
+      "destination": "/learn/introduction#create-a-project"
+    },
+    {
+      "source": "/integrations/stripe",
+      "destination": "/resources/integrations/stripe-connect"
+    },
+    {
+      "source": "/integrations/:slug*",
+      "destination": "/resources/integrations/overview"
+    },
+    {
+      "source": "/essentials/:slug*",
+      "destination": "/references/api/conventions"
+    },
+    {
+      "source": "/try-the-api",
+      "destination": "/references/api/conventions"
+    },
+    {
+      "source": "/help/llm",
+      "destination": "/resources/ai/overview"
+    },
+    {
+      "source": "/help/mcp",
+      "destination": "/resources/ai/mcp"
+    },
+    {
+      "source": "/help/:slug*",
+      "destination": "/learn/introduction"
+    },
+    {
+      "source": "/core-concepts/marketplace-settings",
+      "destination": "/references/configuration"
+    },
+    {
+      "source": "/core-concepts/requests",
+      "destination": "/learn/product-requests"
+    },
+    {
+      "source": "/core-concepts/reviews",
+      "destination": "/platform/review/concepts/the-review-model"
+    },
+    {
+      "source": "/core-concepts/notifications",
+      "destination": "/resources/integrations/overview"
+    },
+    {
+      "source": "/core-concepts/subscriptions",
+      "destination": "/learn/sellers"
+    },
+    {
+      "source": "/core-concepts/:slug*",
+      "destination": "/learn/architecture"
+    },
+    {
+      "source": "/learn/installation",
+      "destination": "/learn/introduction#create-a-project"
+    },
+    {
+      "source": "/learn/concepts",
+      "destination": "/learn/architecture"
+    },
+    {
+      "source": "/learn/mirakl-alternative",
+      "destination": "/learn/why-mercur"
+    },
+    {
+      "source": "/learn/security-and-governance",
+      "destination": "/learn/why-mercur"
+    },
+    {
+      "source": "/tools/cli",
+      "destination": "/learn/blocks"
+    },
+    {
+      "source": "/tools/api-client",
+      "destination": "/references/api/conventions"
+    },
+    {
+      "source": "/tools/dashboard-sdk",
+      "destination": "/references/panel-extensions/overview"
+    },
+    {
+      "source": "/references/panel-extension-api",
+      "destination": "/references/panel-extensions/overview"
+    },
+    {
+      "source": "/references/modules/:slug*",
+      "destination": "/references/overview"
+    },
+    {
+      "source": "/references/workflows/:slug*",
+      "destination": "/references/overview"
+    },
+    {
+      "source": "/resources/ai/llms",
+      "destination": "/resources/ai/overview"
+    },
+    {
+      "source": "/resources/integrations/notifications",
+      "destination": "/resources/integrations/overview"
+    },
+    {
+      "source": "/resources/integrations/search",
+      "destination": "/resources/integrations/overview"
+    },
+    {
+      "source": "/resources/tutorials/first-marketplace",
+      "destination": "/learn/introduction"
+    },
+    {
+      "source": "/resources/tutorials/configure-commissions",
+      "destination": "/user-guide/admin/commissions/overview"
+    },
+    {
+      "source": "/resources/tutorials/handle-product-requests",
+      "destination": "/user-guide/admin/product-requests/overview"
+    },
+    {
+      "source": "/resources/tutorials/import-export-products",
+      "destination": "/learn/products"
+    },
+    {
+      "source": "/resources/tutorials/seller-payouts-stripe",
+      "destination": "/resources/integrations/stripe-connect"
+    },
+    {
+      "source": "/resources/tutorials/store-setup-checklist",
+      "destination": "/user-guide/vendor/onboarding"
+    },
+    {
+      "source": "/resources/tutorials/order-payment-link-widget",
+      "destination": "/resources/tutorials/add-order-detail-button"
+    },
+    {
+      "source": "/resources/tutorials/recompose-a-page",
+      "destination": "/resources/tutorials/custom-panel-page"
+    },
+    {
+      "source": "/resources/tutorials/replace-panel-components",
+      "destination": "/resources/customization/extending-panels"
     }
   ],
   "footer": {
