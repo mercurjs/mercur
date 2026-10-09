@@ -74,6 +74,12 @@ type LoadedOfferPrices = {
 export const pickOfferPrices = (offer: LoadedOfferPrices): OfferPriceDTO[] =>
   (offer.prices ?? []).filter((p): p is OfferPriceDTO => !!p?.id)
 
+const serializeRules = (rules: Array<{ attribute: string; value: string }>) =>
+  rules
+    .map((r) => `${r.attribute}=${r.value}`)
+    .sort()
+    .join(",")
+
 const serializePrice = (
   amount: unknown,
   min_quantity: unknown,
@@ -84,9 +90,7 @@ const serializePrice = (
     amount: Number(amount),
     min_quantity: min_quantity ?? null,
     max_quantity: max_quantity ?? null,
-    rules: [...rules].sort((a, b) =>
-      `${a.attribute}=${a.value}`.localeCompare(`${b.attribute}=${b.value}`),
-    ),
+    rules: serializeRules(rules),
   })
 
 export const upsertOfferPricesWorkflowId = "upsert-offer-prices"
@@ -192,10 +196,26 @@ export const upsertOfferPricesWorkflow: ReturnWorkflow<
             PricingTypes.CreatePricesDTO & { id?: string }
           > = offer.prices.map((p) => {
             const rules = { ...(p.rules ?? {}), offer_id: offer.id }
+            const ruleRows = Object.entries(rules).map(
+              ([attribute, value]) => ({ attribute, value }),
+            )
+            const existing = p.id ? ownedById.get(p.id) : undefined
+            const rulesUnchanged =
+              !!existing &&
+              serializeRules(existing.price_rules ?? []) ===
+                serializeRules(ruleRows)
+
             const base: PricingTypes.CreatePricesDTO & { id?: string } = {
               amount: p.amount,
               currency_code: p.currency_code,
-              rules,
+            }
+            // Medusa matches an incoming row to an existing price by a hash of
+            // its bounds and rules and, on a match, feeds the serialized
+            // existing rule rows back into its upsert, which never completes.
+            // Leaving `rules` out of an unchanged-rules update skips that
+            // match and keeps the stored rule rows as they are.
+            if (!rulesUnchanged) {
+              base.rules = rules
             }
             if (p.id) {
               base.id = p.id
@@ -207,7 +227,6 @@ export const upsertOfferPricesWorkflow: ReturnWorkflow<
               base.max_quantity = p.max_quantity
             }
 
-            const existing = p.id ? ownedById.get(p.id) : undefined
             if (existing) {
               const before = serializePrice(
                 existing.amount,
@@ -219,10 +238,7 @@ export const upsertOfferPricesWorkflow: ReturnWorkflow<
                 p.amount,
                 p.min_quantity,
                 p.max_quantity,
-                Object.entries(rules).map(([attribute, value]) => ({
-                  attribute,
-                  value,
-                })),
+                ruleRows,
               )
               if (before !== after || existing.currency_code !== p.currency_code) {
                 updated.push(existing.id)

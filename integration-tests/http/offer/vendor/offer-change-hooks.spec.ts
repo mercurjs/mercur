@@ -109,8 +109,13 @@ medusaIntegrationTestRunner({
                         shipping_profile_id: shippingProfileId,
                         inventory_items: [{ required_quantity: 1 }],
                         prices: [
-                            { amount: 1000, currency_code: "usd" },
-                            { amount: 800, currency_code: "gbp" },
+                            {
+                                amount: 1000,
+                                currency_code: "usd",
+                                min_quantity: 1,
+                                max_quantity: 9,
+                            },
+                            { amount: 800, currency_code: "usd", min_quantity: 10 },
                             { amount: 900, currency_code: "eur" },
                         ],
                     },
@@ -139,8 +144,8 @@ medusaIntegrationTestRunner({
 
             it("reports the price ladder diff, the previous row and the actor on update", async () => {
                 const offer = await createOffer()
-                const usd = offer.prices.find((p) => p.amount === 1000)!
-                const gbp = offer.prices.find((p) => p.amount === 800)!
+                const usdTier1 = offer.prices.find((p) => p.amount === 1000)!
+                const usdTier2 = offer.prices.find((p) => p.amount === 800)!
                 const eur = offer.prices.find((p) => p.amount === 900)!
 
                 const response = await api.post(
@@ -148,9 +153,15 @@ medusaIntegrationTestRunner({
                     {
                         sku: "HOOKED-SKU-2",
                         prices: [
-                            { id: usd.id, amount: 1200, currency_code: "usd" },
+                            {
+                                id: usdTier1.id,
+                                amount: 1200,
+                                currency_code: "usd",
+                                min_quantity: 1,
+                                max_quantity: 9,
+                            },
                             { id: eur.id, amount: 900, currency_code: "eur" },
-                            { amount: 700, currency_code: "pln" },
+                            { amount: 700, currency_code: "usd", min_quantity: 20 },
                         ],
                     },
                     headers
@@ -165,9 +176,10 @@ medusaIntegrationTestRunner({
                 expect(change.offer_id).toEqual(offer.id)
                 expect(byAmount(change.previous_prices)).toEqual([
                     expect.objectContaining({
-                        id: gbp.id,
+                        id: usdTier2.id,
                         amount: 800,
-                        currency_code: "gbp",
+                        currency_code: "usd",
+                        min_quantity: 10,
                     }),
                     expect.objectContaining({
                         id: eur.id,
@@ -175,13 +187,15 @@ medusaIntegrationTestRunner({
                         currency_code: "eur",
                     }),
                     expect.objectContaining({
-                        id: usd.id,
+                        id: usdTier1.id,
                         amount: 1000,
                         currency_code: "usd",
+                        min_quantity: 1,
+                        max_quantity: 9,
                     }),
                 ])
-                expect(change.updated).toEqual([usd.id])
-                expect(change.deleted).toEqual([gbp.id])
+                expect(change.updated).toEqual([usdTier1.id])
+                expect(change.deleted).toEqual([usdTier2.id])
                 expect(change.created).toHaveLength(1)
 
                 const [createdId] = change.created
@@ -189,13 +203,19 @@ medusaIntegrationTestRunner({
                     expect.objectContaining({
                         id: createdId,
                         amount: 700,
-                        currency_code: "pln",
+                        currency_code: "usd",
+                        min_quantity: 20,
                     }),
                     expect.objectContaining({ id: eur.id, amount: 900 }),
-                    expect.objectContaining({ id: usd.id, amount: 1200 }),
+                    expect.objectContaining({
+                        id: usdTier1.id,
+                        amount: 1200,
+                        min_quantity: 1,
+                        max_quantity: 9,
+                    }),
                 ])
                 expect(
-                    change.prices.find((p) => p.id === usd.id)?.price_rules
+                    change.prices.find((p) => p.id === usdTier1.id)?.price_rules
                 ).toEqual([
                     expect.objectContaining({
                         attribute: "offer_id",
