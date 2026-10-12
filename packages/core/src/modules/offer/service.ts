@@ -5,19 +5,58 @@ import {
 } from "@medusajs/framework/utils"
 import { Context, FindConfig } from "@medusajs/framework/types"
 import { SqlEntityManager } from "@medusajs/framework/mikro-orm/postgresql"
-import { OfferDTO } from "@mercurjs/types"
+import {
+  IOfferModuleService,
+  OfferDTO,
+  OfferStatisticsInput,
+  OfferStatisticsOutput,
+} from "@mercurjs/types"
 
 import { Offer, OfferCondition } from "./models"
+import { OfferStatisticsRepository } from "./repositories"
+
+type InjectedDependencies = {
+  offerStatisticsRepository: OfferStatisticsRepository
+}
 
 type OfferFilters = Record<string, unknown> & { group_by_seller?: boolean }
 
 const toArray = (value: unknown): string[] =>
   (Array.isArray(value) ? value : [value]).map(String)
 
-class OfferModuleService extends MedusaService({
-  Offer,
-  OfferCondition,
-}) {
+class OfferModuleService
+  extends MedusaService({
+    Offer,
+    OfferCondition,
+  })
+  implements IOfferModuleService
+{
+  protected readonly offerStatisticsRepository_: OfferStatisticsRepository
+
+  constructor({ offerStatisticsRepository }: InjectedDependencies) {
+    // @ts-ignore
+    // eslint-disable-next-line prefer-rest-params
+    super(...arguments)
+    this.offerStatisticsRepository_ = offerStatisticsRepository
+  }
+
+  @InjectManager()
+  async getStatistics(
+    input: OfferStatisticsInput = {},
+    @MedusaContext() sharedContext: Context = {}
+  ): Promise<OfferStatisticsOutput> {
+    const row = await this.offerStatisticsRepository_.countAt(
+      { at: input.at ?? new Date(), filters: input.filters },
+      sharedContext
+    )
+
+    return {
+      offers: Number(row.offers),
+      sellers: Number(row.sellers),
+      products: Number(row.products),
+    }
+  }
+
   @InjectManager()
   // @ts-ignore - override narrows the generated signature
   async listOffers(

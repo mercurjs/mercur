@@ -4,6 +4,7 @@ import {
   CreateOfferPriceDTO,
   OfferConditionDTO,
   OfferDTO,
+  OfferStatisticsOutput,
   UpsertOfferPriceDTO,
 } from "../offer"
 
@@ -93,6 +94,15 @@ export interface AdminOfferResponse {
 export type AdminOfferListResponse = PaginatedResponse<{
   offers: OfferDTO[]
 }>
+
+export interface AdminOfferStatisticsParams {
+  at?: string
+  seller_id?: string | string[]
+}
+
+export interface AdminOfferStatisticsResponse {
+  statistics: OfferStatisticsOutput
+}
 
 /*
  * --------------------------------------------------------------------
