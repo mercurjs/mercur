@@ -4,6 +4,7 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework"
+import { z } from "zod"
 
 import {
   adminSellerQueryConfig,
@@ -61,6 +62,14 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
       ),
+    ],
+  },
+  {
+    method: ["GET"],
+    matcher: "/admin/sellers/statistics",
+    middlewares: [
+      requirePermission("sellers", "view"),
+      validateAndTransformQuery(z.object({}), {}),
     ],
   },
   {

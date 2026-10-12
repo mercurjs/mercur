@@ -165,6 +165,7 @@ export type Routes = {
         offers: typeof import("../src/api/admin/offers/route") & {
             $id: typeof import("../src/api/admin/offers/[id]/route");
             batch: typeof import("../src/api/admin/offers/batch/route");
+            statistics: typeof import("../src/api/admin/offers/statistics/route");
         };
         orderChanges: {
             $id: typeof import("@medusajs/medusa/api/admin/order-changes/[id]/route");
@@ -430,6 +431,7 @@ export type Routes = {
                 unsuspend: typeof import("../src/api/admin/sellers/[id]/unsuspend/route");
                 unterminate: typeof import("../src/api/admin/sellers/[id]/unterminate/route");
             };
+            statistics: typeof import("../src/api/admin/sellers/statistics/route");
         };
         shippingOptionTypes: typeof import("@medusajs/medusa/api/admin/shipping-option-types/route") & {
             $id: typeof import("@medusajs/medusa/api/admin/shipping-option-types/[id]/route");

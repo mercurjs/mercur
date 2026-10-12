@@ -89,3 +89,11 @@ const CreateOffersBatch = z
 export type AdminCreateOffersBatchType = z.infer<typeof CreateOffersBatch> &
   AdditionalData
 export const AdminCreateOffersBatch = WithAdditionalData(CreateOffersBatch)
+
+export type AdminGetOfferStatisticsParamsType = z.infer<
+  typeof AdminGetOfferStatisticsParams
+>
+export const AdminGetOfferStatisticsParams = z.object({
+  at: z.coerce.date().optional(),
+  seller_id: z.union([z.string(), z.array(z.string())]).optional(),
+})

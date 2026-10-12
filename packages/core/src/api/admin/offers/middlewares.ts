@@ -10,6 +10,7 @@ import { adminOfferQueryConfig } from "./query-config"
 import {
   AdminCreateOffersBatch,
   AdminGetOfferParams,
+  AdminGetOfferStatisticsParams,
   AdminGetOffersParams,
 } from "./validators"
 
@@ -41,6 +42,14 @@ export const adminOffersMiddlewares: MiddlewareRoute[] = [
         AdminGetOffersParams,
         adminOfferQueryConfig.list
       ),
+    ],
+  },
+  {
+    method: ["GET"],
+    matcher: "/admin/offers/statistics",
+    middlewares: [
+      requirePermission("offers", "view"),
+      validateAndTransformQuery(AdminGetOfferStatisticsParams, {}),
     ],
   },
   {

@@ -120,3 +120,19 @@ export interface OfferDTO {
    */
   calculated_price?: StoreCalculatedPrice
 }
+
+export interface OfferStatisticsInput {
+  /**
+   * Count offers as they existed at this instant. Defaults to now.
+   */
+  at?: Date
+  filters?: {
+    seller_id?: string | string[]
+  }
+}
+
+export interface OfferStatisticsOutput {
+  offers: number
+  sellers: number
+  products: number
+}

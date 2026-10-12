@@ -211,3 +211,11 @@ export interface SellerDTO {
   updated_at: Date
   deleted_at: Date | null
 }
+
+export interface SellerStatisticsInput {}
+
+export interface SellerStatisticsOutput {
+  total: number
+  premium: number
+  by_status: Record<SellerStatus, number>
+}

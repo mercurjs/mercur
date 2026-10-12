@@ -22,13 +22,24 @@ import {
   MemberInvite,
   OrderGroup,
 } from "./models"
-import { OrderGroupRepository } from "./repositories"
-import { MemberDTO, MemberInviteDTO, OrderGroupDTO, SellerDTO, SellerModuleOptions } from "@mercurjs/types"
+import { OrderGroupRepository, SellerStatisticsRepository } from "./repositories"
+import {
+  ISellerModuleService,
+  MemberDTO,
+  MemberInviteDTO,
+  OrderGroupDTO,
+  SellerDTO,
+  SellerModuleOptions,
+  SellerStatisticsInput,
+  SellerStatisticsOutput,
+  SellerStatus,
+} from "@mercurjs/types"
 
 const DEFAULT_INVITE_VALID_DURATION_SECONDS = 60 * 60 * 24 * 7 // 7 days
 
 type InjectedDependencies = {
   orderGroupRepository: OrderGroupRepository
+  sellerStatisticsRepository: SellerStatisticsRepository
   baseRepository: DAL.RepositoryService
 }
 
@@ -41,19 +52,25 @@ class SellerModuleService extends MedusaService({
   SellerMember,
   MemberInvite,
   OrderGroup,
-}) {
+}) implements ISellerModuleService {
   protected readonly orderGroupRepository_: OrderGroupRepository
+  protected readonly sellerStatisticsRepository_: SellerStatisticsRepository
   protected readonly baseRepository_: DAL.RepositoryService
   protected readonly options_: SellerModuleOptions
 
   constructor(
-    { orderGroupRepository, baseRepository }: InjectedDependencies,
+    {
+      orderGroupRepository,
+      sellerStatisticsRepository,
+      baseRepository,
+    }: InjectedDependencies,
     protected readonly moduleDeclaration?: InternalModuleDeclaration,
   ) {
     // @ts-ignore
     // eslint-disable-next-line prefer-rest-params
     super(...arguments)
     this.orderGroupRepository_ = orderGroupRepository
+    this.sellerStatisticsRepository_ = sellerStatisticsRepository
     this.baseRepository_ = baseRepository
 
     const opts = (moduleDeclaration?.options as SellerModuleOptions) ?? {}
@@ -63,6 +80,29 @@ class SellerModuleService extends MedusaService({
         opts.jwt_secret ??
         (configManager.config.projectConfig.http.jwtSecret as string),
       vendor_url: opts.vendor_url ?? process.env.MERCUR_VENDOR_URL ?? "",
+    }
+  }
+
+  @InjectManager()
+  async getStatistics(
+    _input: SellerStatisticsInput = {},
+    @MedusaContext() sharedContext: Context = {},
+  ): Promise<SellerStatisticsOutput> {
+    const rows = await this.sellerStatisticsRepository_.countByStatus(sharedContext)
+
+    const by_status = Object.fromEntries(
+      Object.values(SellerStatus).map((status) => [status, 0]),
+    ) as Record<SellerStatus, number>
+    let premium = 0
+    for (const row of rows) {
+      by_status[row.status as SellerStatus] = Number(row.count)
+      premium += Number(row.premium ?? 0)
+    }
+
+    return {
+      total: Object.values(by_status).reduce((sum, count) => sum + count, 0),
+      premium,
+      by_status,
     }
   }
 
