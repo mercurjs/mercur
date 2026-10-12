@@ -2,7 +2,7 @@ import { Children, ReactNode } from "react";
 import { ChevronRight, Plus, Spinner } from "@medusajs/icons";
 import { Avatar, Heading, StatusBadge, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared";
 
@@ -139,7 +139,7 @@ const StoreSelectFooter = () => {
 const Root = ({ children }: { children?: ReactNode }) => {
   const location = useLocation();
   const email = (location.state as { email?: string })?.email ?? "";
-  const { seller_members, isLoading } = useSellers();
+  const { seller_members, isLoading, isSuccess } = useSellers();
 
   if (isLoading) {
     return (
@@ -149,6 +149,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
         </div>
       </AuthLayout>
     );
+  }
+
+  if (isSuccess && !seller_members?.length) {
+    return <Navigate to="/onboarding" replace state={{ email }} />;
   }
 
   return (

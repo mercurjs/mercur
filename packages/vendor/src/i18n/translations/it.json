@@ -3961,7 +3961,7 @@
   },
   "register": {
     "title": "Unisciti a {{name}}!",
-    "hint": "Inserisci i tuoi dati e crea una password per configurare il tuo account amministratore.",
+    "hint": "Inserisci i tuoi dati e crea una password per configurare l'account del tuo negozio.",
     "companyName": "Nome azienda",
     "confirmPassword": "Conferma password",
     "signUp": "Registrati",

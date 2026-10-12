@@ -3959,7 +3959,7 @@
   },
   "register": {
     "title": "Csatlakozzon ehhez: {{name}}!",
-    "hint": "Adja meg adatait, és hozzon létre jelszót az admin fiók beállításához.",
+    "hint": "Adja meg adatait, és hozzon létre jelszót az áruházfiókja beállításához.",
     "companyName": "Cégnév",
     "confirmPassword": "Jelszó megerősítése",
     "signUp": "Regisztráció",

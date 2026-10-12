@@ -29,6 +29,22 @@ export type NavigationModule = {
 export type CustomFieldsModule = { configs?: CustomFieldsConfig[] }
 
 export type ResolvedFormField = { name: string; field: CustomFormField }
+
+export type OnboardingStep = {
+  id: string
+  label?: string
+  rank: number
+  optional: boolean
+  custom: boolean
+}
+
+export type OnboardingStepDefault = {
+  id: string
+  rank: number
+  optional: boolean
+  /** Built-in steps that carry required data and can't be disabled. */
+  required?: boolean
+}
 export type ResolvedDisplays = {
   fields: CustomDisplayField[]
   actions: SectionAction[]
@@ -161,12 +177,72 @@ export class ExtensionRegistry {
         if (form.zone !== zone) continue
         if (form.tab && tab && form.tab !== tab) continue
         if (form.tab && !tab) continue
-        for (const [name, field] of Object.entries(form.fields)) {
+        for (const [name, field] of Object.entries(form.fields ?? {})) {
           out.push({ name, field })
         }
       }
     }
     return out
+  }
+
+  /**
+   * Resolves the onboarding wizard steps: built-ins merged with every
+   * `zone: "onboarding"` form entry for the model. Later configs win per tab.
+   */
+  getOnboardingSteps(
+    model: string,
+    builtIns: OnboardingStepDefault[]
+  ): OnboardingStep[] {
+    const steps = new Map<string, OnboardingStep & { disabled?: boolean }>()
+    for (const step of builtIns) {
+      steps.set(step.id, {
+        id: step.id,
+        rank: step.rank,
+        optional: step.optional,
+        custom: false,
+      })
+    }
+
+    const maxBuiltInRank = Math.max(0, ...builtIns.map((step) => step.rank))
+    let nextCustomRank = maxBuiltInRank
+
+    for (const config of this.configsFor(model)) {
+      for (const form of config.forms ?? []) {
+        if (form.zone !== "onboarding" || !form.tab) continue
+
+        const existing = steps.get(form.tab)
+        const builtIn = builtIns.find((step) => step.id === form.tab)
+
+        if (form.disabled) {
+          if (builtIn?.required) {
+            if (process.env.NODE_ENV === "development") {
+              console.warn(
+                `[mercur] The "${form.tab}" onboarding step can't be disabled.`
+              )
+            }
+            continue
+          }
+          if (existing) existing.disabled = true
+          continue
+        }
+
+        const step = existing ?? {
+          id: form.tab,
+          rank: (nextCustomRank += 1),
+          optional: false,
+          custom: true,
+        }
+        if (form.label !== undefined) step.label = form.label
+        if (form.rank !== undefined) step.rank = form.rank
+        if (form.optional !== undefined) step.optional = form.optional
+        steps.set(form.tab, step)
+      }
+    }
+
+    return [...steps.values()]
+      .filter((step) => !step.disabled)
+      .map(({ disabled: _disabled, ...step }) => step)
+      .sort((a, b) => a.rank - b.rank)
   }
 
   /** All custom form fields for a model, keyed for schema/default building. */
@@ -175,7 +251,7 @@ export class ExtensionRegistry {
     const seen = new Set<string>()
     for (const config of this.configsFor(model)) {
       for (const form of config.forms ?? []) {
-        for (const [name, field] of Object.entries(form.fields)) {
+        for (const [name, field] of Object.entries(form.fields ?? {})) {
           if (seen.has(name)) continue
           seen.add(name)
           out.push({ name, field })

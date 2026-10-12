@@ -82,4 +82,85 @@ describe("ExtensionRegistry", () => {
       "Dispute resolved",
     ])
   })
+
+  describe("getOnboardingSteps", () => {
+    const builtIns = [
+      { id: "store", rank: 10, optional: false, required: true },
+      { id: "address", rank: 20, optional: true },
+      { id: "company", rank: 30, optional: true },
+      { id: "payment", rank: 40, optional: true },
+    ]
+
+    const ids = (steps: { id: string }[]) => steps.map((step) => step.id)
+
+    test("returns the built-in steps when nothing is configured", () => {
+      const registry = new ExtensionRegistry()
+
+      expect(ids(registry.getOnboardingSteps("seller", builtIns))).toEqual([
+        "store",
+        "address",
+        "company",
+        "payment",
+      ])
+    })
+
+    test("adds, removes, reorders and flags steps from onboarding form entries", () => {
+      const validation = {}
+      const registry = new ExtensionRegistry({
+        customFields: {
+          configs: [
+            {
+              model: "seller",
+              forms: [
+                { zone: "onboarding", tab: "address", fields: { region: { validation } } },
+                {
+                  zone: "onboarding",
+                  tab: "documents",
+                  label: "Documents",
+                  rank: 25,
+                  optional: true,
+                  fields: { vat: { validation } },
+                },
+                { zone: "onboarding", tab: "company", disabled: true },
+                { zone: "onboarding", tab: "payment", optional: false },
+                { zone: "onboarding", tab: "terms", label: "Terms" },
+                { zone: "edit", tab: "ignored", label: "Not onboarding" },
+              ],
+            },
+          ],
+        },
+      })
+
+      const steps = registry.getOnboardingSteps("seller", builtIns)
+
+      expect(ids(steps)).toEqual(["store", "address", "documents", "payment", "terms"])
+      expect(steps.find((step) => step.id === "documents")).toEqual({
+        id: "documents",
+        label: "Documents",
+        rank: 25,
+        optional: true,
+        custom: true,
+      })
+      expect(steps.find((step) => step.id === "payment")?.optional).toBe(false)
+      expect(steps.find((step) => step.id === "terms")).toMatchObject({
+        custom: true,
+        optional: false,
+      })
+      expect(
+        registry.getFormFields("seller", "onboarding", "documents").map((f) => f.name)
+      ).toEqual(["vat"])
+    })
+
+    test("ignores attempts to disable a required step", () => {
+      const registry = new ExtensionRegistry({
+        customFields: {
+          configs: [
+            { model: "seller", forms: [{ zone: "onboarding", tab: "store", disabled: true }] },
+          ],
+        },
+      })
+
+      expect(ids(registry.getOnboardingSteps("seller", builtIns))[0]).toEqual("store")
+    })
+  })
 })

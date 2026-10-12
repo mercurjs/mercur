@@ -68,15 +68,38 @@ export type CustomFormTab<TModel, TZone> =
     ? ModelShape<TModel>["formTabs"][TZone]
     : string
 
+/**
+ * Onboarding wizard step settings, read only for `zone: "onboarding"`. A tab id
+ * the wizard doesn't ship becomes a new step; on a built-in step these override
+ * its defaults. Built-in ranks: store 10, address 20, company 30, payment 40.
+ */
+export type OnboardingStepOptions = {
+  /** Step heading. Required in practice for new steps. */
+  label?: string
+  /** Sort position. New steps without a rank go last. */
+  rank?: number
+  /** Shows a Skip button on the step. */
+  optional?: boolean
+}
+
 export type CustomFormEntry<TModel> =
   CustomFormZone<TModel> extends infer TZone
     ? TZone extends CustomFormZone<TModel>
-      ? {
-          zone: TZone
-          /** TabbedForm tab id, or onboarding wizard step id for `zone: "onboarding"`. */
-          tab?: CustomFormTab<TModel, TZone>
-          fields: Record<string, CustomFormField>
-        }
+      ?
+          | ({
+              zone: TZone
+              /** TabbedForm tab id, or onboarding wizard step id for `zone: "onboarding"`. */
+              tab?: CustomFormTab<TModel, TZone>
+              fields?: Record<string, CustomFormField>
+              disabled?: false
+            } & OnboardingStepOptions)
+          | {
+              zone: TZone
+              tab: CustomFormTab<TModel, TZone>
+              /** Removes a built-in onboarding step. The store step can't be removed. */
+              disabled: true
+              fields?: never
+            }
       : never
     : never
 

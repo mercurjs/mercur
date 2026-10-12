@@ -16,6 +16,13 @@ export const VendorGetSellersParams = createFindParams({
 export type VendorGetSellerParamsType = z.infer<typeof VendorGetSellerParams>
 export const VendorGetSellerParams = createSelectParams()
 
+export type VendorGetSellerHandleAvailabilityParamsType = z.infer<
+  typeof VendorGetSellerHandleAvailabilityParams
+>
+export const VendorGetSellerHandleAvailabilityParams = z.object({
+  handle: z.string().min(1),
+})
+
 export type VendorCreateSellerAccountType = z.infer<typeof CreateSellerAccount> & AdditionalData
 export const CreateSellerAccount = z.object({
   name: z.string(),

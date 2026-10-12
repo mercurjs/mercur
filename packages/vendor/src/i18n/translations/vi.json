@@ -3956,7 +3956,7 @@
   },
   "register": {
     "title": "Tham gia {{name}}!",
-    "hint": "Nhập thông tin của bạn và tạo mật khẩu để thiết lập tài khoản quản trị.",
+    "hint": "Nhập thông tin của bạn và tạo mật khẩu để thiết lập tài khoản cửa hàng.",
     "companyName": "Tên công ty",
     "confirmPassword": "Xác nhận mật khẩu",
     "signUp": "Đăng ký",

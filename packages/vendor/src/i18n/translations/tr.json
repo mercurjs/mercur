@@ -3960,7 +3960,7 @@
   },
   "register": {
     "title": "{{name}}'e katılın!",
-    "hint": "Yönetici hesabınızı oluşturmak için detaylarınızı girin ve bir şifre oluşturun.",
+    "hint": "Mağaza hesabınızı oluşturmak için detaylarınızı girin ve bir şifre oluşturun.",
     "companyName": "Şirket adı",
     "confirmPassword": "Şifreyi onayla",
     "signUp": "Kaydol",

@@ -3959,7 +3959,7 @@
   },
   "register": {
     "title": "Sluit je aan bij {{name}}!",
-    "hint": "Voer je gegevens in en maak een wachtwoord aan om je beheerdersaccount in te stellen.",
+    "hint": "Voer je gegevens in en maak een wachtwoord aan om je winkelaccount in te stellen.",
     "companyName": "Bedrijfsnaam",
     "confirmPassword": "Wachtwoord bevestigen",
     "signUp": "Registreren",

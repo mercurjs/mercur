@@ -67,7 +67,11 @@ const unauthenticatedRoutes = [
 // Marketplace-level routes: authenticated, but reachable before the member
 // belongs to a seller (onboarding). They authenticate through their own
 // matcher with `allowUnregistered: true`, so the catch-all must skip them.
-const sellerlessRoutes = [...unauthenticatedRoutes, /^\/vendor\/stores$/]
+const sellerlessRoutes = [
+  ...unauthenticatedRoutes,
+  /^\/vendor\/stores$/,
+  /^\/vendor\/sellers\/handle-availability$/,
+]
 
 const resolveSellerlessRoutes = async (req: MedusaRequest) => [
   ...sellerlessRoutes,
@@ -86,6 +90,15 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   },
   {
     matcher: "/vendor/stores",
+    method: ["GET"],
+    middlewares: [
+      authenticate("member", ["session", "bearer"], {
+        allowUnregistered: true,
+      }),
+    ],
+  },
+  {
+    matcher: "/vendor/sellers/handle-availability",
     method: ["GET"],
     middlewares: [
       authenticate("member", ["session", "bearer"], {

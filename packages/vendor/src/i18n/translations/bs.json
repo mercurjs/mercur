@@ -3958,7 +3958,7 @@
   },
   "register": {
     "title": "Pridružite se {{name}}!",
-    "hint": "Unesite svoje podatke i kreirajte lozinku da biste podesili svoj administratorski račun.",
+    "hint": "Unesite svoje podatke i kreirajte lozinku da biste podesili račun svoje trgovine.",
     "companyName": "Naziv kompanije",
     "confirmPassword": "Potvrdite lozinku",
     "signUp": "Registruj se",

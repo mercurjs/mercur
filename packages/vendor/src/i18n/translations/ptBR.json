@@ -3961,7 +3961,7 @@
   },
   "register": {
     "title": "Junte-se a {{name}}!",
-    "hint": "Informe seus dados e crie uma senha para configurar sua conta de administrador.",
+    "hint": "Informe seus dados e crie uma senha para configurar a conta da sua loja.",
     "companyName": "Nome da empresa",
     "confirmPassword": "Confirmar senha",
     "signUp": "Cadastre-se",
