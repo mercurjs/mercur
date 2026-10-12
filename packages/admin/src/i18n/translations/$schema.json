@@ -4641,9 +4641,6 @@
             "gotIt": {
               "type": "string"
             },
-            "storeLocationWarning": {
-              "type": "string"
-            },
             "errors": {
               "type": "object",
               "properties": {
@@ -13494,9 +13491,6 @@
         "subtitle": {
           "type": "string"
         },
-        "enabledHint": {
-          "type": "string"
-        },
         "create": {
           "type": "object",
           "properties": {
@@ -13559,11 +13553,15 @@
             "label": {
               "type": "object",
               "properties": {
+                "label": {
+                  "type": "string"
+                },
                 "placeholder": {
                   "type": "string"
                 }
               },
               "required": [
+                "label",
                 "placeholder"
               ],
               "additionalProperties": false
@@ -13571,20 +13569,40 @@
             "code": {
               "type": "object",
               "properties": {
+                "label": {
+                  "type": "string"
+                },
                 "placeholder": {
                   "type": "string"
                 },
-                "hint": {
+                "tooltip": {
                   "type": "string"
                 }
               },
               "required": [
+                "label",
                 "placeholder",
-                "hint"
+                "tooltip"
               ],
               "additionalProperties": false
             },
             "rank": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "tooltip": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "tooltip"
+              ],
+              "additionalProperties": false
+            },
+            "isActive": {
               "type": "object",
               "properties": {
                 "label": {
@@ -13604,7 +13622,8 @@
           "required": [
             "label",
             "code",
-            "rank"
+            "rank",
+            "isActive"
           ],
           "additionalProperties": false
         }
@@ -13612,7 +13631,6 @@
       "required": [
         "domain",
         "subtitle",
-        "enabledHint",
         "create",
         "edit",
         "delete",
