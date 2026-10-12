@@ -41,6 +41,7 @@ export const ROUTE_PERMISSIONS: Record<string, Permission | Permission[]> = {
   "/settings/shipping-option-types": "shipping_options:view",
   "/settings/return-reasons": "return_reasons:view",
   "/settings/refund-reasons": "refund_reasons:view",
+  "/settings/offer-conditions": "offers:view",
   "/settings/tax-regions": "tax_regions:view",
   "/settings/publishable-api-keys": "api_keys:view",
   "/settings/secret-api-keys": "api_keys:view",

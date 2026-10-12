@@ -13485,6 +13485,141 @@
       ],
       "additionalProperties": false
     },
+    "offerConditions": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "enabledHint": {
+          "type": "string"
+        },
+        "create": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "subtitle": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "subtitle",
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "edit": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "subtitle": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "subtitle",
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "delete": {
+          "type": "object",
+          "properties": {
+            "confirmation": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "confirmation",
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "object",
+              "properties": {
+                "placeholder": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "placeholder"
+              ],
+              "additionalProperties": false
+            },
+            "code": {
+              "type": "object",
+              "properties": {
+                "placeholder": {
+                  "type": "string"
+                },
+                "hint": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "placeholder",
+                "hint"
+              ],
+              "additionalProperties": false
+            },
+            "rank": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "hint": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "hint"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "label",
+            "code",
+            "rank"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "domain",
+        "subtitle",
+        "enabledHint",
+        "create",
+        "edit",
+        "delete",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
     "refundReasons": {
       "type": "object",
       "properties": {
@@ -16752,6 +16887,7 @@
     "salesChannels",
     "apiKeyManagement",
     "returnReasons",
+    "offerConditions",
     "refundReasons",
     "login",
     "invite",

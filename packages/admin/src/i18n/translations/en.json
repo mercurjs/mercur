@@ -3568,6 +3568,38 @@
       }
     }
   },
+  "offerConditions": {
+    "domain": "Offer Conditions",
+    "subtitle": "Manage the conditions sellers can list their offers under.",
+    "enabledHint": "Sellers can only list new offers under enabled conditions. Existing offers keep their condition.",
+    "create": {
+      "header": "Create Offer Condition",
+      "subtitle": "Define a condition sellers can list their offers under, e.g. new or refurbished.",
+      "successToast": "Offer condition {{label}} was successfully created."
+    },
+    "edit": {
+      "header": "Edit Offer Condition",
+      "subtitle": "Edit the offer condition details.",
+      "successToast": "Offer condition {{label}} was successfully updated."
+    },
+    "delete": {
+      "confirmation": "You are about to delete the offer condition \"{{label}}\". This action cannot be undone.",
+      "successToast": "Offer condition was successfully deleted."
+    },
+    "fields": {
+      "label": {
+        "placeholder": "Refurbished"
+      },
+      "code": {
+        "placeholder": "refurbished",
+        "hint": "Sellers and integrations reference the condition by this code."
+      },
+      "rank": {
+        "label": "Rank",
+        "hint": "Conditions with a lower rank are listed first."
+      }
+    }
+  },
   "refundReasons": {
     "domain": "Refund Reasons",
     "subtitle": "Manage reasons for issuing refunds.",

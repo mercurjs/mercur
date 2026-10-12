@@ -2380,6 +2380,40 @@ export function getRouteMap({
                   },
                 ],
               },
+              {
+                path: "offer-conditions",
+                element: <Outlet />,
+                handle: {
+                  breadcrumb: () => t("offerConditions.domain"),
+                  permissions: "offers:view",
+                },
+                children: [
+                  {
+                    path: "",
+                    lazy: () =>
+                      import("./pages/offer-conditions/offer-condition-list").then(withLoaderPermission("offers:view")),
+                    children: [
+                      {
+                        path: "create",
+                        handle: { permissions: "offers:manage" },
+                        lazy: () =>
+                          import("./pages/offer-conditions/offer-condition-create"),
+                      },
+                      {
+                        path: ":id",
+                        children: [
+                          {
+                            path: "edit",
+                            handle: { permissions: "offers:manage" },
+                            lazy: () =>
+                              import("./pages/offer-conditions/offer-condition-edit"),
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
             ],
             customSettingsRoutes?.[0]?.children || [],
               ),

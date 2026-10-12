@@ -1252,6 +1252,7 @@
       "sku": "SKU",
       "variant": "Master variant",
       "shippingProfile": "Shipping Profile",
+      "condition": "Condition",
       "ean": "EAN",
       "upc": "UPC",
       "requiredQuantity": "Required quantity",

@@ -58,6 +58,8 @@ declare module "@mercurjs/dashboard-sdk" {
     "locations.list.item.before": true
     "marketplace.detail.main.after": true
     "marketplace.detail.main.before": true
+    "offer-conditions.list.after": true
+    "offer-conditions.list.before": true
     "offer-variants.detail.main.after": true
     "offer-variants.detail.main.before": true
     "offer-variants.detail.side.after": true
@@ -179,6 +181,7 @@ declare module "@mercurjs/dashboard-sdk" {
     "settings/commissions": true
     "settings/locations": true
     "settings/marketplace": true
+    "settings/offer-conditions": true
     "settings/product-tags": true
     "settings/product-types": true
     "settings/profile": true

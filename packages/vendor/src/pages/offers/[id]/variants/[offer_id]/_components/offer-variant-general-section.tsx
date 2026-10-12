@@ -10,6 +10,7 @@ import { SectionRow } from "../../../../../../components/common/section"
 export type OfferVariantData = {
   id: string
   sku?: string | null
+  condition?: { label: string } | null
   product_variant?: {
     title?: string | null
     options?: Array<{
@@ -24,8 +25,8 @@ export type OfferVariantData = {
 /**
  * General section of the Offer Variant detail (Figma `40016491:703365`):
  * variant title heading + "Offer Variant" sub-label + Edit Details kebab
- * (SKU only — no manage-inventory / allow-backorders toggles), then SKU
- * and one row per product option.
+ * (SKU only — no manage-inventory / allow-backorders toggles), then SKU,
+ * condition and one row per product option.
  */
 export const OfferVariantGeneralSection = ({
   offer,
@@ -63,6 +64,10 @@ export const OfferVariantGeneralSection = ({
       </div>
 
       <SectionRow title={t("offers.fields.sku")} value={offer.sku ?? "-"} />
+      <SectionRow
+        title={t("offers.fields.condition")}
+        value={offer.condition?.label ?? "-"}
+      />
 
       {options.map((opt) => (
         <SectionRow

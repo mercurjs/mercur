@@ -5135,6 +5135,9 @@
             "shippingProfile": {
               "type": "string"
             },
+            "condition": {
+              "type": "string"
+            },
             "ean": {
               "type": "string"
             },
@@ -5200,6 +5203,7 @@
             "sku",
             "variant",
             "shippingProfile",
+            "condition",
             "ean",
             "upc",
             "requiredQuantity",

@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 
 import { RouteFocusModal, useRouteModal } from "../../../../components/modals";
 import { TabbedForm } from "../../../../components/tabbed-form/tabbed-form";
+import { useOfferConditions } from "../../../../hooks/api/offer-conditions";
 import { useBulkCreateOffers } from "../../../../hooks/api/offers";
 import { castNumber } from "../../../../lib/cast-number";
 import { useProducts } from "../../../../hooks/api/products";
@@ -77,6 +78,9 @@ export const CreateOfferForm = () => {
     { enabled: canViewLocations }
   );
 
+  const { offer_conditions } = useOfferConditions();
+  const defaultConditionId = offer_conditions?.[0]?.id ?? "";
+
   const locationIds = (stock_locations ?? []).map((l) => l.id);
 
   const selectedProductIds = form.watch("selected_product_ids") ?? [];
@@ -127,6 +131,7 @@ export const CreateOfferForm = () => {
           // didn't know about (e.g. store data arrived after build).
           next.push({
             ...previous,
+            condition_id: previous.condition_id || defaultConditionId,
             prices: { ...emptyPrices, ...(previous.prices ?? {}) },
             inventory: { ...emptyInventory, ...(previous.inventory ?? {}) },
           });
@@ -141,6 +146,7 @@ export const CreateOfferForm = () => {
           variant_sku: variant.sku ?? null,
           sku: variant.sku ?? "",
           shipping_profile_id: "",
+          condition_id: defaultConditionId,
           prices: { ...emptyPrices },
           inventory: { ...emptyInventory },
         });
@@ -156,6 +162,7 @@ export const CreateOfferForm = () => {
     fetchedProducts,
     currency_code,
     locationsKey,
+    defaultConditionId,
     form,
   ]);
 
@@ -246,6 +253,7 @@ export const CreateOfferForm = () => {
         sku,
         variant_id: row.variant_id,
         shipping_profile_id: row.shipping_profile_id,
+        ...(row.condition_id ? { condition_id: row.condition_id } : {}),
         prices,
         inventory_items: [
           {

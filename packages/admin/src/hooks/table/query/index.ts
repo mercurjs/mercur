@@ -2,6 +2,7 @@ export * from "./use-campaign-table-query";
 export * from "./use-collection-table-query";
 export * from "./use-customer-group-table-query";
 export * from "./use-customer-table-query";
+export * from "./use-offer-condition-table-query";
 export * from "./use-order-table-query";
 export * from "./use-product-table-query";
 export * from "./use-product-tag-table-query";
