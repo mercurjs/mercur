@@ -22,6 +22,7 @@ export * from "./price-lists";
 export * from "./product-types";
 export * from "./products";
 export * from "./promotions";
+export * from "./offer-conditions";
 export * from "./refund-reasons";
 export * from "./regions";
 export * from "./reservations";

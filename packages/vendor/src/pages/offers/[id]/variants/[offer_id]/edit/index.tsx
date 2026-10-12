@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, Heading, Input, Switch, toast } from "@medusajs/ui"
+import { Button, Heading, Input, Select, Switch, toast } from "@medusajs/ui"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
@@ -10,12 +10,15 @@ import { useLinkQuery } from "@mercurjs/dashboard-shared"
 import { Form } from "../../../../../../components/common/form"
 import { RouteDrawer, useRouteModal } from "../../../../../../components/modals"
 import { KeyboundForm } from "../../../../../../components/utilities/keybound-form"
+import { useOfferConditions } from "../../../../../../hooks/api/offer-conditions"
 import { useOffer, useUpdateOffer } from "../../../../../../hooks/api/offers"
+import { useDocumentDirection } from "../../../../../../hooks/use-document-direction"
 import { OFFER_VARIANT_DETAIL_FIELDS } from "../../../../common/constants"
 import { OfferDetail } from "../../../../common/types"
 
 const Schema = z.object({
   sku: z.string().max(64).optional(),
+  condition_id: z.string().optional(),
   manage_inventory: z.boolean(),
   allow_backorder: z.boolean(),
 })
@@ -23,10 +26,13 @@ type Values = z.infer<typeof Schema>
 
 const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
   const { t } = useTranslation()
+  const dir = useDocumentDirection()
   const { handleSuccess } = useRouteModal()
+  const { offer_conditions } = useOfferConditions()
   const form = useForm<Values>({
     defaultValues: {
       sku: offer.sku ?? "",
+      condition_id: offer.condition_id ?? "",
       manage_inventory: offer.manage_inventory ?? true,
       allow_backorder: offer.allow_backorder ?? false,
     },
@@ -43,9 +49,14 @@ const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
     // SKU is optional: leave the offer's SKU untouched when the field is blank
     // rather than sending an empty string (the API rejects "" on update).
     const sku = values.sku?.trim()
+    // Only send a changed condition: the current one may since have been
+    // disabled, and the API rejects assigning an inactive condition.
+    const conditionChanged =
+      !!values.condition_id && values.condition_id !== offer.condition_id
     await mutateAsync(
       {
         ...(sku ? { sku } : {}),
+        ...(conditionChanged ? { condition_id: values.condition_id } : {}),
         manage_inventory: values.manage_inventory,
         allow_backorder: values.manage_inventory
           ? values.allow_backorder
@@ -77,6 +88,34 @@ const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
                 <Form.Label optional>{t("offers.fields.sku")}</Form.Label>
                 <Form.Control>
                   <Input maxLength={64} autoComplete="off" {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="condition_id"
+            render={({ field: { ref, onChange, ...field } }) => (
+              <Form.Item>
+                <Form.Label>{t("offers.fields.condition")}</Form.Label>
+                <Form.Control>
+                  <Select {...field} onValueChange={onChange} dir={dir}>
+                    <Select.Trigger
+                      ref={ref}
+                      data-testid="offer-variant-edit-form-condition-select"
+                    >
+                      <Select.Value placeholder={offer.condition?.label} />
+                    </Select.Trigger>
+                    <Select.Content>
+                      {(offer_conditions ?? []).map((condition) => (
+                        <Select.Item key={condition.id} value={condition.id}>
+                          {condition.label}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select>
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
