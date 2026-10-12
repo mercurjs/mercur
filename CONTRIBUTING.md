@@ -4,19 +4,18 @@ We’re excited to collaborate with folks building on top of Mercur. This guide 
 
 ## Branch Model
 
-- `main` – release-ready code. Every commit is tagged and deployable. Keep PRs targeting `main` limited to hotfixes or release prep approved by maintainers.
-- `new` – nightly builds and upcoming release work. Base regular feature work off `new` so it can soak in automation and shared testing.
+- `main` – main branch containing release-ready code. Base regular feature work off `main`.
 - Topic branches – create a dedicated branch per change using the format `feat/<concise-feature-name>` (for example `feat/vendor-product-export`). Use other prefixes when appropriate (`fix/`, `chore/`, `docs/`).
 
 ## Working on Features
 
-- Branch from `new`, keeping it up to date via `git pull --rebase origin new`.
+- Branch from `main`, keeping it up to date via `git pull --rebase origin main`.
 - Keep commits scoped and descriptive. Squash locally if it clarifies the story.
 - Follow module conventions from [`CLAUDE.md`](CLAUDE.md) and prefer the `packages/` workspace for new code.
 
 ## Pull Requests
 
-- Open PRs against `new` unless you are coordinating a release hotfix.
+- Open PRs against `main`.
 - Describe the user impact, architectural notes, and testing performed (lint, unit, integration, CLI).
 - Ensure the branch merges cleanly and CI is green before requesting review.
 - Reference related issues or discussions; add screenshots or recordings for UI tweaks.
