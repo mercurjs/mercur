@@ -83,6 +83,193 @@ describe("ExtensionRegistry", () => {
     ])
   })
 
+  describe("layered custom-fields configs", () => {
+    const Plugin = () => null
+    const Host = () => null
+
+    test("a later column with the same id replaces an added one in place", () => {
+      const registry = new ExtensionRegistry({
+        customFields: {
+          configs: [
+            {
+              model: "product",
+              list: {
+                columns: [
+                  { id: "brand", header: "Brand", component: Plugin },
+                  { id: "erp", header: "ERP" },
+                ],
+              },
+            },
+            {
+              model: "product",
+              list: { columns: [{ id: "brand", header: "Maker", component: Host }] },
+            },
+          ],
+        },
+      })
+
+      const { columns } = registry.getListExtension("product")
+      expect(columns).toEqual([
+        { id: "brand", header: "Maker", component: Host },
+        { id: "erp", header: "ERP" },
+      ])
+    })
+
+    test("view defaults from later configs take precedence", () => {
+      const registry = new ExtensionRegistry({
+        customFields: {
+          configs: [
+            {
+              model: "product",
+              list: {
+                viewDefaults: {
+                  columnVisibility: { brand: true, sku: false },
+                  columnOrder: ["brand", "title"],
+                },
+              },
+            },
+            {
+              model: "product",
+              list: {
+                viewDefaults: {
+                  columnVisibility: { brand: false },
+                  columnOrder: ["title", "brand"],
+                },
+              },
+            },
+          ],
+        },
+      })
+
+      const { viewDefaults } = registry.getListExtension("product")
+      expect(viewDefaults).toEqual({
+        columnVisibility: { brand: false, sku: false },
+        columnOrder: ["title", "brand"],
+      })
+    })
+
+    test("a later filter replaces or removes an added filter by key", () => {
+      const registry = new ExtensionRegistry({
+        customFields: {
+          configs: [
+            {
+              model: "product",
+              list: {
+                filters: [
+                  { key: "brand", label: "Brand", type: "string" },
+                  { key: "erp_id", label: "ERP", type: "string" },
+                ],
+              },
+            },
+            {
+              model: "product",
+              list: {
+                filters: [
+                  { key: "brand", label: "Maker", type: "string" },
+                  { key: "erp_id", remove: true },
+                ],
+              },
+            },
+          ],
+        },
+      })
+
+      expect(registry.getListExtension("product").filters).toEqual([
+        { key: "brand", label: "Maker", type: "string" },
+        { key: "erp_id", remove: true },
+      ])
+    })
+
+    test("a later display field replaces or removes an added field by id", () => {
+      const registry = new ExtensionRegistry({
+        customFields: {
+          configs: [
+            {
+              model: "product",
+              displays: [
+                {
+                  zone: "general",
+                  fields: [
+                    { id: "title", component: Plugin },
+                    { id: "brand", component: Plugin },
+                    { id: "erp", component: Plugin },
+                  ],
+                },
+              ],
+            },
+            {
+              model: "product",
+              displays: [
+                {
+                  zone: "general",
+                  fields: [
+                    { id: "title", component: Host },
+                    { id: "brand", component: Host },
+                    { id: "erp", component: null },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      })
+
+      expect(registry.getDisplays("product", "general").fields).toEqual([
+        { id: "title", component: Host },
+        { id: "brand", component: Host },
+        { id: "erp", component: null },
+      ])
+    })
+
+    test("a later form field with the same name replaces an added one", () => {
+      const validation = {}
+      const registry = new ExtensionRegistry({
+        customFields: {
+          configs: [
+            {
+              model: "product",
+              forms: [
+                {
+                  zone: "create",
+                  tab: "general",
+                  fields: {
+                    brand: { validation, label: "Brand" },
+                    erp: { validation, label: "ERP" },
+                  },
+                },
+              ],
+            },
+            {
+              model: "product",
+              forms: [
+                {
+                  zone: "create",
+                  tab: "general",
+                  fields: { brand: { validation, label: "Maker" } },
+                },
+                { zone: "edit", fields: { erp: { validation, label: "ERP id" } } },
+              ],
+            },
+          ],
+        },
+      })
+
+      const labels = (fields: { name: string; field: { label?: string } }[]) =>
+        fields.map(({ name, field }) => [name, field.label])
+
+      expect(labels(registry.getFormFields("product", "create", "general"))).toEqual([
+        ["brand", "Maker"],
+      ])
+      expect(labels(registry.getFormFields("product", "edit"))).toEqual([
+        ["erp", "ERP id"],
+      ])
+      expect(labels(registry.getAllFormFields("product"))).toEqual([
+        ["brand", "Maker"],
+        ["erp", "ERP id"],
+      ])
+    })
+  })
+
   describe("getOnboardingSteps", () => {
     const builtIns = [
       { id: "store", rank: 10, optional: false, required: true },

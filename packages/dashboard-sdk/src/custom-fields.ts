@@ -7,7 +7,8 @@ import type { BuiltMercurConfig } from "./types"
  * components, default-value resolvers), so — unlike widgets — the emitted
  * module re-exports the actual default-exported config objects rather than a
  * build-time-extracted literal. The runtime `ExtensionRegistry` reads
- * `model` / `link` / `forms` / `displays` / `list` off each object.
+ * `model` / `link` / `forms` / `displays` / `list` off each object, applying
+ * them in array order.
  */
 export function generateCustomFields({
     srcDir,
@@ -29,9 +30,10 @@ export function generateCustomFields({
         (_, i) => `    ...(__plugin${i}.customFieldsModule?.configs ?? [])`
     )
 
+    // Host configs go last so they layer over (and win against) plugin configs.
     const configs = [
-        ...localRefs.map((ref) => `    ${ref}`),
         ...pluginSpreads,
+        ...localRefs.map((ref) => `    ${ref}`),
     ]
 
     if (configs.length === 0 && pluginDeclarations.length === 0) {

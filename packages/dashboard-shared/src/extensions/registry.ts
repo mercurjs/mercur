@@ -1,10 +1,12 @@
 import type { ComponentType } from "react"
 import type {
   ActivityEntry,
+  CustomColumn,
   CustomDisplayField,
   CustomFieldsConfig,
   CustomFormField,
   CustomListExtension,
+  CustomListFilter,
   NavGroupConfig,
   NavItemOverride,
   Permission,
@@ -29,6 +31,7 @@ export type NavigationModule = {
 export type CustomFieldsModule = { configs?: CustomFieldsConfig[] }
 
 export type ResolvedFormField = { name: string; field: CustomFormField }
+type ResolvedFormEntry = ResolvedFormField & { zone: string; tab?: string }
 
 export type OnboardingStep = {
   id: string
@@ -169,20 +172,30 @@ export class ExtensionRegistry {
     return this.configsFor(model).flatMap((c) => c.activity?.(entity) ?? [])
   }
 
-  /** Custom form fields for a model's form zone (and optional tab). */
-  getFormFields(model: string, zone: string, tab?: string): ResolvedFormField[] {
-    const out: ResolvedFormField[] = []
+  // Configs are ordered plugins first, host app last. Entries are keyed so a
+  // later config replaces an earlier one in place — including entries another
+  // config added — instead of stacking a duplicate.
+  private resolveFormFields(model: string): ResolvedFormEntry[] {
+    const byName = new Map<string, ResolvedFormEntry>()
     for (const config of this.configsFor(model)) {
       for (const form of config.forms ?? []) {
-        if (form.zone !== zone) continue
-        if (form.tab && tab && form.tab !== tab) continue
-        if (form.tab && !tab) continue
         for (const [name, field] of Object.entries(form.fields ?? {})) {
-          out.push({ name, field })
+          byName.set(name, { name, field, zone: form.zone, tab: form.tab })
         }
       }
     }
-    return out
+    return [...byName.values()]
+  }
+
+  /** Custom form fields for a model's form zone (and optional tab). */
+  getFormFields(model: string, zone: string, tab?: string): ResolvedFormField[] {
+    return this.resolveFormFields(model)
+      .filter((entry) => {
+        if (entry.zone !== zone) return false
+        if (!entry.tab) return true
+        return !!tab && entry.tab === tab
+      })
+      .map(({ name, field }) => ({ name, field }))
   }
 
   /**
@@ -247,60 +260,50 @@ export class ExtensionRegistry {
 
   /** All custom form fields for a model, keyed for schema/default building. */
   getAllFormFields(model: string): ResolvedFormField[] {
-    const out: ResolvedFormField[] = []
-    const seen = new Set<string>()
-    for (const config of this.configsFor(model)) {
-      for (const form of config.forms ?? []) {
-        for (const [name, field] of Object.entries(form.fields ?? {})) {
-          if (seen.has(name)) continue
-          seen.add(name)
-          out.push({ name, field })
-        }
-      }
-    }
-    return out
+    return this.resolveFormFields(model).map(({ name, field }) => ({ name, field }))
   }
 
   /** Section display contributions (field add/replace/remove + actions). */
   getDisplays(model: string, zone: string): ResolvedDisplays {
-    const fields: CustomDisplayField[] = []
+    const fields = new Map<string, CustomDisplayField>()
     const actions: SectionAction[] = []
     for (const config of this.configsFor(model)) {
       for (const display of config.displays ?? []) {
         if (display.zone !== zone) continue
-        if (display.fields) fields.push(...display.fields)
+        for (const field of display.fields ?? []) fields.set(field.id, field)
         if (display.actions) actions.push(...display.actions)
       }
     }
     actions.sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
-    return { fields, actions }
+    return { fields: [...fields.values()], actions }
   }
 
   /** Merged list-table extension for a model. */
   getListExtension(model: string): CustomListExtension {
-    const merged: Required<CustomListExtension> = {
-      columns: [],
-      bulkActions: [],
-      filters: [],
-      viewDefaults: { columnVisibility: {}, columnOrder: [] },
-    }
+    const columns = new Map<string, CustomColumn>()
+    const filters = new Map<string, CustomListFilter>()
+    const bulkActions: SectionAction[] = []
+    const columnVisibility: Record<string, boolean> = {}
+    let columnOrder: string[] = []
+
     for (const config of this.configsFor(model)) {
       const list = config.list
       if (!list) continue
-      if (list.columns) merged.columns.push(...list.columns)
-      if (list.bulkActions) merged.bulkActions.push(...list.bulkActions)
-      if (list.filters) merged.filters.push(...list.filters)
-      if (list.viewDefaults?.columnVisibility) {
-        Object.assign(
-          merged.viewDefaults.columnVisibility!,
-          list.viewDefaults.columnVisibility
-        )
-      }
+      for (const column of list.columns ?? []) columns.set(column.id, column)
+      for (const filter of list.filters ?? []) filters.set(filter.key, filter)
+      if (list.bulkActions) bulkActions.push(...list.bulkActions)
+      Object.assign(columnVisibility, list.viewDefaults?.columnVisibility)
       if (list.viewDefaults?.columnOrder) {
-        merged.viewDefaults.columnOrder = list.viewDefaults.columnOrder
+        columnOrder = list.viewDefaults.columnOrder
       }
     }
-    merged.bulkActions.sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
-    return merged
+    bulkActions.sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+
+    return {
+      columns: [...columns.values()],
+      bulkActions,
+      filters: [...filters.values()],
+      viewDefaults: { columnVisibility, columnOrder },
+    }
   }
 }
