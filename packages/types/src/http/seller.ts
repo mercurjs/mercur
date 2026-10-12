@@ -9,6 +9,21 @@ export interface VendorSellerResponse {
   seller: SellerDTO
 }
 
+export interface VendorSellerHandleAvailabilityResponse {
+  /**
+   * The handle that was checked.
+   */
+  handle: string
+  /**
+   * Whether a new seller can use the handle.
+   */
+  available: boolean
+  /**
+   * Why the handle can't be used.
+   */
+  reason?: "invalid" | "taken"
+}
+
 export type VendorSellerListResponse = PaginatedResponse<{
   /**
    * The list of sellers.

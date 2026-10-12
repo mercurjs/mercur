@@ -16,6 +16,7 @@ import { MiddlewareRoute } from "@medusajs/medusa"
 import * as QueryConfig from "./query-config"
 import {
   VendorCreateSellerAccount,
+  VendorGetSellerHandleAvailabilityParams,
   VendorGetSellerParams,
   VendorGetSellersParams,
   VendorInviteMember,
@@ -33,6 +34,13 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/sellers/select",
     middlewares: [
       validateAndTransformBody(VendorSelectSeller),
+    ],
+  },
+  {
+    method: ["GET"],
+    matcher: "/vendor/sellers/handle-availability",
+    middlewares: [
+      validateAndTransformQuery(VendorGetSellerHandleAvailabilityParams, {}),
     ],
   },
   {

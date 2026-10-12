@@ -3956,7 +3956,7 @@
   },
   "register": {
     "title": "加入 {{name}}！",
-    "hint": "请输入您的信息并创建密码，以设置您的管理员账户。",
+    "hint": "请输入您的信息并创建密码，以设置您的店铺账户。",
     "companyName": "公司名称",
     "confirmPassword": "确认密码",
     "signUp": "注册",

@@ -911,6 +911,7 @@ export type Routes = {
             };
             me: typeof import("../src/api/vendor/sellers/me/route");
             select: typeof import("../src/api/vendor/sellers/select/route");
+            handleAvailability: typeof import("../src/api/vendor/sellers/handle-availability/route");
         };
         shippingOptionTypes: typeof import("../src/api/vendor/shipping-option-types/route") & {
             $id: typeof import("../src/api/vendor/shipping-option-types/[id]/route");

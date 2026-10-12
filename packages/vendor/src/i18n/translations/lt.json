@@ -3960,7 +3960,7 @@
   },
   "register": {
     "title": "Prisijunkite prie „{{name}}“!",
-    "hint": "Įveskite savo duomenis ir sukurkite slaptažodį, kad nustatytumėte savo administratoriaus paskyrą.",
+    "hint": "Įveskite savo duomenis ir sukurkite slaptažodį, kad nustatytumėte savo parduotuvės paskyrą.",
     "companyName": "Įmonės pavadinimas",
     "confirmPassword": "Patvirtinkite slaptažodį",
     "signUp": "Registruotis",

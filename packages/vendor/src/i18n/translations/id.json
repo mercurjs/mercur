@@ -3956,7 +3956,7 @@
   },
   "register": {
     "title": "Bergabung dengan {{name}}!",
-    "hint": "Masukkan detail Anda dan buat kata sandi untuk mengatur akun admin Anda.",
+    "hint": "Masukkan detail Anda dan buat kata sandi untuk mengatur akun toko Anda.",
     "companyName": "Nama perusahaan",
     "confirmPassword": "Konfirmasi kata sandi",
     "signUp": "Daftar",

@@ -5,6 +5,8 @@ export {
   type NavigationModule,
   type CustomFieldsModule,
   type ResolvedFormField,
+  type OnboardingStep,
+  type OnboardingStepDefault,
   type ResolvedDisplays,
   type ZoneWidgets,
   type WidgetPlacement,

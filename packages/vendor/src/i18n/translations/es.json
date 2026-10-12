@@ -3980,7 +3980,7 @@
   },
   "register": {
     "title": "¡Únete a {{name}}!",
-    "hint": "Introduce tus datos y crea una contraseña para configurar tu cuenta de administrador.",
+    "hint": "Introduce tus datos y crea una contraseña para configurar la cuenta de tu tienda.",
     "companyName": "Nombre de la empresa",
     "confirmPassword": "Confirmar contraseña",
     "signUp": "Regístrate",

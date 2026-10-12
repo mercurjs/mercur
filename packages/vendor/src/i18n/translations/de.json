@@ -3961,7 +3961,7 @@
   },
   "register": {
     "title": "Treten Sie {{name}} bei!",
-    "hint": "Geben Sie Ihre Daten ein und erstellen Sie ein Passwort, um Ihr Admin-Konto einzurichten.",
+    "hint": "Geben Sie Ihre Daten ein und erstellen Sie ein Passwort, um Ihr Shop-Konto einzurichten.",
     "companyName": "Firmenname",
     "confirmPassword": "Passwort bestätigen",
     "signUp": "Registrieren",

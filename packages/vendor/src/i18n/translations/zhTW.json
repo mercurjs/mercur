@@ -4012,7 +4012,7 @@
   },
   "register": {
     "title": "加入 {{name}}！",
-    "hint": "輸入您的詳細資料並建立密碼以設定您的管理帳戶。",
+    "hint": "輸入您的詳細資料並建立密碼以設定您的商店帳戶。",
     "companyName": "公司名稱",
     "confirmPassword": "確認密碼",
     "signUp": "註冊",

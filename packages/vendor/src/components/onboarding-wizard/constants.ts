@@ -1,26 +1,10 @@
+import type { OnboardingStepDefault } from "@mercurjs/dashboard-shared";
+
 export const WIZARD_STEPS = [
-  {
-    id: "store",
-    number: 1,
-    labelKey: "onboarding.wizard.steps.store",
-  },
-  {
-    id: "address",
-    number: 2,
-    labelKey: "onboarding.wizard.steps.address",
-  },
-  {
-    id: "company",
-    number: 3,
-    labelKey: "onboarding.wizard.steps.company",
-  },
-  {
-    id: "payment",
-    number: 4,
-    labelKey: "onboarding.wizard.steps.payment",
-  },
-] as const;
+  { id: "store", rank: 10, optional: false, required: true },
+  { id: "address", rank: 20, optional: true },
+  { id: "company", rank: 30, optional: true },
+  { id: "payment", rank: 40, optional: true },
+] as const satisfies readonly OnboardingStepDefault[];
 
 export type WizardStepId = (typeof WIZARD_STEPS)[number]["id"];
-
-export const TOTAL_STEPS = WIZARD_STEPS.length;

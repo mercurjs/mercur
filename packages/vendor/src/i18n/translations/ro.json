@@ -3960,7 +3960,7 @@
   },
   "register": {
     "title": "Alăturați-vă {{name}}!",
-    "hint": "Introduceți detaliile și creați o parolă pentru a vă configura contul de administrator.",
+    "hint": "Introduceți detaliile și creați o parolă pentru a configura contul magazinului dvs.",
     "companyName": "Nume companie",
     "confirmPassword": "Confirmă parola",
     "signUp": "Înregistrare",

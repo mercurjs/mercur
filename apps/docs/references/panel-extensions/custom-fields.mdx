@@ -134,6 +134,60 @@ Each field is a `CustomFormField`.
   onto the product's `metadata`.
 </Warning>
 
+## Customize the onboarding wizard
+
+The vendor onboarding wizard is the `onboarding` form zone of the `seller` model. Each step is a `tab`. Use the same `forms` entries to add fields to a step, add a step, remove a step, or reorder the steps.
+
+```tsx apps/vendor/src/custom-fields/seller.tsx
+import { defineCustomFieldsConfig } from "@mercurjs/dashboard-sdk"
+import { createFormHelper } from "@mercurjs/dashboard-shared"
+
+const form = createFormHelper()
+
+export default defineCustomFieldsConfig({
+  model: "seller",
+  forms: [
+    // Add fields to a built-in step
+    { zone: "onboarding", tab: "address", fields: { region_note: form.define({ validation: form.string().optional() }) } },
+    // An unknown tab becomes a new step
+    {
+      zone: "onboarding",
+      tab: "documents",
+      label: "Documents",
+      rank: 25,
+      optional: true,
+      fields: {
+        vat_document_url: form.define({ validation: form.string().url(), label: "VAT document URL" }),
+      },
+    },
+    // Remove a built-in step
+    { zone: "onboarding", tab: "company", disabled: true },
+  ],
+})
+```
+
+| Option     | Type      | Description                                                                                       |
+| ---------- | --------- | ------------------------------------------------------------------------------------------------- |
+| `label`    | `string`  | Step heading. Set it on every new step.                                                           |
+| `rank`     | `number`  | Sort position. New steps without a rank go last. Also reorders a built-in step.                   |
+| `optional` | `boolean` | Shows a **Skip** button. Set `false` on a built-in step to hide its Skip button.                  |
+| `disabled` | `true`    | Removes a built-in step. Takes no `fields`. The `store` step can't be removed.                    |
+
+The built-in steps and their defaults:
+
+| Step      | `rank` | `optional` |
+| --------- | ------ | ---------- |
+| `store`   | 10     | `false`    |
+| `address` | 20     | `true`     |
+| `company` | 30     | `true`     |
+| `payment` | 40     | `true`     |
+
+The last step's button reads **Finish** and creates the seller. Values from every step's custom fields are merged into one `additional_data` object on `POST /vendor/sellers`, which reaches the `sellerAccountCreated` hook of `createSellerAccountWorkflow`. A skipped step contributes nothing, even if its fields are required.
+
+<Note>
+  Always set `tab` on an onboarding entry. An entry without a `tab` renders its fields on every step.
+</Note>
+
 ## Extend detail sections
 
 Add, replace, or remove fields on a detail section, and add actions to its
@@ -237,6 +291,36 @@ built-in ones.
   convention, never bare fields, or the list returns a 500. You never hand-write
   the field list. The `link` declaration drives it.
 </Warning>
+
+## Combine configs from plugins and your app
+
+Every config for a model applies in order: installed plugins first, then your
+app's `src/custom-fields/` files. A later config sees everything earlier configs
+added, not only the built-ins, so your app can change what a plugin contributed.
+
+| Contribution          | Matched by | A later config with the same id/key                                        |
+| --------------------- | ---------- | -------------------------------------------------------------------------- |
+| `list.columns`        | `id`       | Replaces the column in place. Hide it with `columnVisibility: { id: false }`. |
+| `list.filters`        | `key`      | Replaces the filter in place, or drops it with `remove: true`.              |
+| `displays[].fields`   | `id`       | Replaces the field in place, or drops it with `component: null`.            |
+| `forms[].fields`      | field name | Replaces the field, including its `zone` and `tab`.                         |
+| `columnVisibility`    | column id  | Overrides the earlier value for that column.                                |
+| `columnOrder`         | n/a        | Replaces the earlier order.                                                 |
+
+`link`, `bulkActions`, display `actions`, `activity`, and `actionLocks` add up
+across configs.
+
+```tsx
+// src/custom-fields/product-brand.tsx: rework the plugin's "brand" column
+export default defineCustomFieldsConfig({
+  model: "product",
+  link: "brand",
+  list: {
+    columns: [{ id: "brand", header: "Maker", component: ({ row }) => row.brand?.name }],
+    filters: [{ key: "brand_id", remove: true }],
+  },
+})
+```
 
 ## Fetch linked module data
 

@@ -4012,7 +4012,7 @@
   },
   "register": {
     "title": "Junte-se a {{name}}!",
-    "hint": "Introduza os seus dados e crie uma palavra-passe para configurar a sua conta de administrador.",
+    "hint": "Introduza os seus dados e crie uma palavra-passe para configurar a conta da sua loja.",
     "companyName": "Nome da empresa",
     "confirmPassword": "Confirmar palavra-passe",
     "signUp": "Registar",

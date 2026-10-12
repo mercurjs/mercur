@@ -12,6 +12,10 @@ The vendor store-setup and onboarding surface is a widget zone, `seller.setup`, 
   **Three layers, one flow.** The panel, a `seller.setup` widget, renders and collects. The vendor seller route carries the value through `additional_data` with no core schema change. A `sellersUpdated` workflow hook persists it. Each layer is additive: nothing built-in is replaced.
 </Info>
 
+<Tip>
+  To change the onboarding wizard itself (fields on any step, new steps, removed or reordered steps), use `forms` entries with `zone: "onboarding"`. See [Customize the onboarding wizard](/references/panel-extensions/custom-fields#customize-the-onboarding-wizard).
+</Tip>
+
 ## What you build
 
 A "Tax ID" prompt on the vendor store-setup surface. The vendor types a VAT number. It rides `additional_data` to `POST /vendor/sellers/:id`, and a workflow hook stores it durably through the [Custom Fields module](/rc/resources/customization/custom-fields).

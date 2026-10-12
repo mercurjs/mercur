@@ -1,10 +1,12 @@
 import type { ComponentType } from "react"
 import type {
   ActivityEntry,
+  CustomColumn,
   CustomDisplayField,
   CustomFieldsConfig,
   CustomFormField,
   CustomListExtension,
+  CustomListFilter,
   NavGroupConfig,
   NavItemOverride,
   Permission,
@@ -29,6 +31,23 @@ export type NavigationModule = {
 export type CustomFieldsModule = { configs?: CustomFieldsConfig[] }
 
 export type ResolvedFormField = { name: string; field: CustomFormField }
+type ResolvedFormEntry = ResolvedFormField & { zone: string; tab?: string }
+
+export type OnboardingStep = {
+  id: string
+  label?: string
+  rank: number
+  optional: boolean
+  custom: boolean
+}
+
+export type OnboardingStepDefault = {
+  id: string
+  rank: number
+  optional: boolean
+  /** Built-in steps that carry required data and can't be disabled. */
+  required?: boolean
+}
 export type ResolvedDisplays = {
   fields: CustomDisplayField[]
   actions: SectionAction[]
@@ -153,78 +172,138 @@ export class ExtensionRegistry {
     return this.configsFor(model).flatMap((c) => c.activity?.(entity) ?? [])
   }
 
-  /** Custom form fields for a model's form zone (and optional tab). */
-  getFormFields(model: string, zone: string, tab?: string): ResolvedFormField[] {
-    const out: ResolvedFormField[] = []
+  // Configs are ordered plugins first, host app last. Entries are keyed so a
+  // later config replaces an earlier one in place — including entries another
+  // config added — instead of stacking a duplicate.
+  private resolveFormFields(model: string): ResolvedFormEntry[] {
+    const byName = new Map<string, ResolvedFormEntry>()
     for (const config of this.configsFor(model)) {
       for (const form of config.forms ?? []) {
-        if (form.zone !== zone) continue
-        if (form.tab && tab && form.tab !== tab) continue
-        if (form.tab && !tab) continue
-        for (const [name, field] of Object.entries(form.fields)) {
-          out.push({ name, field })
+        for (const [name, field] of Object.entries(form.fields ?? {})) {
+          byName.set(name, { name, field, zone: form.zone, tab: form.tab })
         }
       }
     }
-    return out
+    return [...byName.values()]
+  }
+
+  /** Custom form fields for a model's form zone (and optional tab). */
+  getFormFields(model: string, zone: string, tab?: string): ResolvedFormField[] {
+    return this.resolveFormFields(model)
+      .filter((entry) => {
+        if (entry.zone !== zone) return false
+        if (!entry.tab) return true
+        return !!tab && entry.tab === tab
+      })
+      .map(({ name, field }) => ({ name, field }))
+  }
+
+  /**
+   * Resolves the onboarding wizard steps: built-ins merged with every
+   * `zone: "onboarding"` form entry for the model. Later configs win per tab.
+   */
+  getOnboardingSteps(
+    model: string,
+    builtIns: OnboardingStepDefault[]
+  ): OnboardingStep[] {
+    const steps = new Map<string, OnboardingStep & { disabled?: boolean }>()
+    for (const step of builtIns) {
+      steps.set(step.id, {
+        id: step.id,
+        rank: step.rank,
+        optional: step.optional,
+        custom: false,
+      })
+    }
+
+    const maxBuiltInRank = Math.max(0, ...builtIns.map((step) => step.rank))
+    let nextCustomRank = maxBuiltInRank
+
+    for (const config of this.configsFor(model)) {
+      for (const form of config.forms ?? []) {
+        if (form.zone !== "onboarding" || !form.tab) continue
+
+        const existing = steps.get(form.tab)
+        const builtIn = builtIns.find((step) => step.id === form.tab)
+
+        if (form.disabled) {
+          if (builtIn?.required) {
+            if (process.env.NODE_ENV === "development") {
+              console.warn(
+                `[mercur] The "${form.tab}" onboarding step can't be disabled.`
+              )
+            }
+            continue
+          }
+          if (existing) existing.disabled = true
+          continue
+        }
+
+        const step = existing ?? {
+          id: form.tab,
+          rank: (nextCustomRank += 1),
+          optional: false,
+          custom: true,
+        }
+        if (form.label !== undefined) step.label = form.label
+        if (form.rank !== undefined) step.rank = form.rank
+        if (form.optional !== undefined) step.optional = form.optional
+        steps.set(form.tab, step)
+      }
+    }
+
+    return [...steps.values()]
+      .filter((step) => !step.disabled)
+      .map(({ disabled: _disabled, ...step }) => step)
+      .sort((a, b) => a.rank - b.rank)
   }
 
   /** All custom form fields for a model, keyed for schema/default building. */
   getAllFormFields(model: string): ResolvedFormField[] {
-    const out: ResolvedFormField[] = []
-    const seen = new Set<string>()
-    for (const config of this.configsFor(model)) {
-      for (const form of config.forms ?? []) {
-        for (const [name, field] of Object.entries(form.fields)) {
-          if (seen.has(name)) continue
-          seen.add(name)
-          out.push({ name, field })
-        }
-      }
-    }
-    return out
+    return this.resolveFormFields(model).map(({ name, field }) => ({ name, field }))
   }
 
   /** Section display contributions (field add/replace/remove + actions). */
   getDisplays(model: string, zone: string): ResolvedDisplays {
-    const fields: CustomDisplayField[] = []
+    const fields = new Map<string, CustomDisplayField>()
     const actions: SectionAction[] = []
     for (const config of this.configsFor(model)) {
       for (const display of config.displays ?? []) {
         if (display.zone !== zone) continue
-        if (display.fields) fields.push(...display.fields)
+        for (const field of display.fields ?? []) fields.set(field.id, field)
         if (display.actions) actions.push(...display.actions)
       }
     }
     actions.sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
-    return { fields, actions }
+    return { fields: [...fields.values()], actions }
   }
 
   /** Merged list-table extension for a model. */
   getListExtension(model: string): CustomListExtension {
-    const merged: Required<CustomListExtension> = {
-      columns: [],
-      bulkActions: [],
-      filters: [],
-      viewDefaults: { columnVisibility: {}, columnOrder: [] },
-    }
+    const columns = new Map<string, CustomColumn>()
+    const filters = new Map<string, CustomListFilter>()
+    const bulkActions: SectionAction[] = []
+    const columnVisibility: Record<string, boolean> = {}
+    let columnOrder: string[] = []
+
     for (const config of this.configsFor(model)) {
       const list = config.list
       if (!list) continue
-      if (list.columns) merged.columns.push(...list.columns)
-      if (list.bulkActions) merged.bulkActions.push(...list.bulkActions)
-      if (list.filters) merged.filters.push(...list.filters)
-      if (list.viewDefaults?.columnVisibility) {
-        Object.assign(
-          merged.viewDefaults.columnVisibility!,
-          list.viewDefaults.columnVisibility
-        )
-      }
+      for (const column of list.columns ?? []) columns.set(column.id, column)
+      for (const filter of list.filters ?? []) filters.set(filter.key, filter)
+      if (list.bulkActions) bulkActions.push(...list.bulkActions)
+      Object.assign(columnVisibility, list.viewDefaults?.columnVisibility)
       if (list.viewDefaults?.columnOrder) {
-        merged.viewDefaults.columnOrder = list.viewDefaults.columnOrder
+        columnOrder = list.viewDefaults.columnOrder
       }
     }
-    merged.bulkActions.sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
-    return merged
+    bulkActions.sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+
+    return {
+      columns: [...columns.values()],
+      bulkActions,
+      filters: [...filters.values()],
+      viewDefaults: { columnVisibility, columnOrder },
+    }
   }
 }

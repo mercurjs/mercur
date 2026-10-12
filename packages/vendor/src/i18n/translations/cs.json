@@ -3956,7 +3956,7 @@
   },
   "register": {
     "title": "Připojte se k {{name}}!",
-    "hint": "Zadejte své údaje a vytvořte heslo pro nastavení svého administrátorského účtu.",
+    "hint": "Zadejte své údaje a vytvořte heslo pro nastavení účtu svého obchodu.",
     "companyName": "Název firmy",
     "confirmPassword": "Potvrďte heslo",
     "signUp": "Zaregistrovat se",

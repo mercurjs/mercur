@@ -545,6 +545,7 @@
   "/vendor/sellers/:id/members/me": "typeof import(\"@mercurjs/core/api/vendor/sellers/[id]/members/me/route\")",
   "/vendor/sellers/:id/payment-details": "typeof import(\"@mercurjs/core/api/vendor/sellers/[id]/payment-details/route\")",
   "/vendor/sellers/:id/professional-details": "typeof import(\"@mercurjs/core/api/vendor/sellers/[id]/professional-details/route\")",
+  "/vendor/sellers/handle-availability": "typeof import(\"@mercurjs/core/api/vendor/sellers/handle-availability/route\")",
   "/vendor/sellers/me": "typeof import(\"@mercurjs/core/api/vendor/sellers/me/route\")",
   "/vendor/sellers/select": "typeof import(\"@mercurjs/core/api/vendor/sellers/select/route\")",
   "/vendor/shipping-option-types": "typeof import(\"@mercurjs/core/api/vendor/shipping-option-types/route\")",

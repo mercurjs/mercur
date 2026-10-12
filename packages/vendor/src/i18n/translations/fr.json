@@ -3961,7 +3961,7 @@
   },
   "register": {
     "title": "Rejoignez {{name}} !",
-    "hint": "Saisissez vos informations et créez un mot de passe pour configurer votre compte administrateur.",
+    "hint": "Saisissez vos informations et créez un mot de passe pour configurer le compte de votre boutique.",
     "companyName": "Nom de l'entreprise",
     "confirmPassword": "Confirmer le mot de passe",
     "signUp": "S'inscrire",
