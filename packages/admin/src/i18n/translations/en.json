@@ -3570,16 +3570,15 @@
   },
   "offerConditions": {
     "domain": "Offer Conditions",
-    "subtitle": "Manage the conditions sellers can list their offers under.",
-    "enabledHint": "Sellers can only list new offers under enabled conditions. Existing offers keep their condition.",
+    "subtitle": "Manage the conditions sellers can list offers under.",
     "create": {
       "header": "Create Offer Condition",
-      "subtitle": "Define a condition sellers can list their offers under, e.g. new or refurbished.",
+      "subtitle": "Specify the conditions sellers can list their offers under.",
       "successToast": "Offer condition {{label}} was successfully created."
     },
     "edit": {
       "header": "Edit Offer Condition",
-      "subtitle": "Edit the offer condition details.",
+      "subtitle": "Edit the details of the offer condition.",
       "successToast": "Offer condition {{label}} was successfully updated."
     },
     "delete": {
@@ -3588,15 +3587,21 @@
     },
     "fields": {
       "label": {
+        "label": "Label",
         "placeholder": "Refurbished"
       },
       "code": {
+        "label": "Code",
         "placeholder": "refurbished",
-        "hint": "Sellers and integrations reference the condition by this code."
+        "tooltip": "The code should be a unique identifier for the offer condition."
       },
       "rank": {
         "label": "Rank",
-        "hint": "Conditions with a lower rank are listed first."
+        "tooltip": "Conditions with a lower rank are listed first."
+      },
+      "isActive": {
+        "label": "Enabled",
+        "hint": "When disabled, sellers can't list new offers under this condition."
       }
     }
   },

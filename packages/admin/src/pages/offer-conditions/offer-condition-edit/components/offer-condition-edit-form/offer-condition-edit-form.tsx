@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, Input, Switch, toast } from "@medusajs/ui"
+import { Button, Input, toast } from "@medusajs/ui"
 import {
   Form,
   KeyboundForm,
@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { SwitchBox } from "../../../../../components/common/switch-box"
 import { useUpdateOfferCondition } from "../../../../../hooks/api"
 
 type OfferConditionEditFormProps = {
@@ -68,87 +69,87 @@ export const OfferConditionEditForm = ({
           <Form.Field
             control={form.control}
             name="label"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t("fields.label")}</Form.Label>
-                <Form.Control>
-                  <Input
-                    {...field}
-                    placeholder={t("offerConditions.fields.label.placeholder")}
-                    data-testid="offer-condition-edit-form-label-input"
-                  />
-                </Form.Control>
-                <Form.ErrorMessage />
-              </Form.Item>
-            )}
+            render={({ field }) => {
+              return (
+                <Form.Item>
+                  <Form.Label>
+                    {t("offerConditions.fields.label.label")}
+                  </Form.Label>
+                  <Form.Control>
+                    <Input
+                      {...field}
+                      placeholder={t(
+                        "offerConditions.fields.label.placeholder"
+                      )}
+                      data-testid="offer-condition-edit-form-label-input"
+                    />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )
+            }}
           />
           <Form.Field
             control={form.control}
             name="code"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t("fields.code")}</Form.Label>
-                <Form.Control>
-                  <Input
-                    {...field}
-                    placeholder={t("offerConditions.fields.code.placeholder")}
-                    data-testid="offer-condition-edit-form-code-input"
-                  />
-                </Form.Control>
-                <Form.Hint>{t("offerConditions.fields.code.hint")}</Form.Hint>
-                <Form.ErrorMessage />
-              </Form.Item>
-            )}
+            render={({ field }) => {
+              return (
+                <Form.Item>
+                  <Form.Label
+                    tooltip={t("offerConditions.fields.code.tooltip")}
+                  >
+                    {t("offerConditions.fields.code.label")}
+                  </Form.Label>
+                  <Form.Control>
+                    <Input
+                      {...field}
+                      placeholder={t("offerConditions.fields.code.placeholder")}
+                      data-testid="offer-condition-edit-form-code-input"
+                    />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )
+            }}
           />
           <Form.Field
             control={form.control}
             name="rank"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label optional>
-                  {t("offerConditions.fields.rank.label")}
-                </Form.Label>
-                <Form.Control>
-                  <Input
-                    {...field}
-                    type="number"
-                    min={0}
-                    value={field.value ?? ""}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === "" ? undefined : Number(e.target.value)
-                      )
-                    }
-                    data-testid="offer-condition-edit-form-rank-input"
-                  />
-                </Form.Control>
-                <Form.Hint>{t("offerConditions.fields.rank.hint")}</Form.Hint>
-                <Form.ErrorMessage />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            control={form.control}
-            name="is_active"
-            render={({ field: { onChange, value, ...field } }) => (
-              <Form.Item>
-                <div className="flex items-center justify-between">
-                  <Form.Label>{t("general.enabled")}</Form.Label>
+            render={({ field }) => {
+              return (
+                <Form.Item>
+                  <Form.Label
+                    optional
+                    tooltip={t("offerConditions.fields.rank.tooltip")}
+                  >
+                    {t("offerConditions.fields.rank.label")}
+                  </Form.Label>
                   <Form.Control>
-                    <Switch
-                      dir="ltr"
-                      className="rtl:rotate-180"
-                      onCheckedChange={onChange}
-                      checked={value}
+                    <Input
                       {...field}
-                      data-testid="offer-condition-edit-form-enabled-switch"
+                      type="number"
+                      min={0}
+                      value={field.value ?? ""}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value === ""
+                            ? undefined
+                            : Number(e.target.value)
+                        )
+                      }
+                      data-testid="offer-condition-edit-form-rank-input"
                     />
                   </Form.Control>
-                </div>
-                <Form.Hint>{t("offerConditions.enabledHint")}</Form.Hint>
-                <Form.ErrorMessage />
-              </Form.Item>
-            )}
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )
+            }}
+          />
+          <SwitchBox
+            control={form.control}
+            name="is_active"
+            label={t("offerConditions.fields.isActive.label")}
+            description={t("offerConditions.fields.isActive.hint")}
           />
         </RouteDrawer.Body>
         <RouteDrawer.Footer data-testid="offer-condition-edit-form-footer">
