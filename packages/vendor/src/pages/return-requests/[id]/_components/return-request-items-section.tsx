@@ -1,9 +1,10 @@
-import { useTranslation } from "react-i18next";
+import { HttpTypes } from "@medusajs/types";
 import { Container, Heading, Text } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
 
 import { Thumbnail } from "@components/common/thumbnail";
-import { useOrderPreview } from "@hooks/api/orders";
 import type { VendorReturnRequest } from "@hooks/api/return-requests";
+import { useReturnReasons } from "@hooks/api/return-reasons";
 
 type ItemRow = {
   id: string;
@@ -15,64 +16,32 @@ type ItemRow = {
   note?: string | null;
 };
 
-// Return items only exist once the request is accepted. While it is pending they
-// live as RETURN_ITEM actions on the order change, which the preview exposes.
-const usePendingItems = (returnRequest: VendorReturnRequest): ItemRow[] => {
-  const { order: preview } = useOrderPreview(returnRequest.order_id, undefined, {
-    enabled: returnRequest.status === "pending",
-  });
-
-  if (!preview?.order_change?.actions) {
-    return [];
-  }
-
-  return preview.order_change.actions
-    .filter(
-      (action) =>
-        action.action === "RETURN_ITEM" &&
-        action.return_id === returnRequest.return_id,
-    )
-    .map((action) => {
-      const details = (action.details ?? {}) as {
-        reference_id?: string;
-        quantity?: number;
-        reason_id?: string;
-      };
-      const item = preview.items.find((i) => i.id === details.reference_id);
-
-      return {
-        id: action.id,
-        title: item?.title ?? details.reference_id ?? "-",
-        variant_title: item?.variant_title,
-        thumbnail: item?.thumbnail,
-        quantity: details.quantity ?? 0,
-        reason: null,
-        note: action.internal_note,
-      };
-    });
-};
-
 export const ReturnRequestItemsSection = ({
   returnRequest,
+  order,
 }: {
   returnRequest: VendorReturnRequest;
+  order?: HttpTypes.AdminOrder;
 }) => {
   const { t } = useTranslation();
-  const pendingItems = usePendingItems(returnRequest);
+  const { return_reasons: returnReasons = [] } = useReturnReasons({
+    limit: 100,
+  });
 
-  const confirmedItems: ItemRow[] = (returnRequest.return?.items ?? []).map(
-    (returnItem) => ({
-      id: returnItem.id,
-      title: returnItem.item?.title ?? "-",
-      variant_title: returnItem.item?.variant_title,
-      thumbnail: returnItem.item?.thumbnail,
-      quantity: Number(returnItem.quantity),
-      reason: returnItem.reason?.label,
-      note: returnItem.note,
-    }),
-  );
+  const orderItems = order?.items ?? [];
 
-  const items = confirmedItems.length ? confirmedItems : pendingItems;
+  const items: ItemRow[] = returnRequest.items.map((requested) => {
+    const orderItem = orderItems.find((i) => i.id === requested.id);
+    return {
+      id: requested.id,
+      title: orderItem?.title ?? requested.id,
+      variant_title: orderItem?.variant_title,
+      thumbnail: orderItem?.thumbnail,
+      quantity: requested.quantity,
+      reason: returnReasons.find((r) => r.id === requested.reason_id)?.label,
+      note: requested.note,
+    };
+  });
 
   return (
     <Container className="divide-y p-0">

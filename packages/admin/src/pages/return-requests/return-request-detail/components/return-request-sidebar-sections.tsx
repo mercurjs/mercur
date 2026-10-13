@@ -1,4 +1,5 @@
 import { BuildingStorefront, ShoppingCart, User } from "@medusajs/icons"
+import { HttpTypes } from "@medusajs/types"
 import { Container, Heading } from "@medusajs/ui"
 import { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
@@ -48,12 +49,11 @@ export const ReturnRequestCustomerSection = ({
 }
 
 export const ReturnRequestOrderSection = ({
-  returnRequest,
+  order,
 }: {
-  returnRequest: AdminReturnRequest
+  order?: HttpTypes.AdminOrder
 }) => {
   const { t } = useTranslation()
-  const order = returnRequest.order
 
   if (!order) {
     return null

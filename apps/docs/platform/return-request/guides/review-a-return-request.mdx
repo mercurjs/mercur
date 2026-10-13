@@ -1,0 +1,65 @@
+---
+title: "Review a return request"
+description: "Accept a request with or without a physical return, receive the item, or decline."
+---
+
+Sellers review requests under **Orders → Return requests** in the vendor panel,
+or through `/vendor/return-requests`. The operator can take the same actions on
+`/admin/return-requests`.
+
+## Accept and require the item back
+
+```bash
+curl -X POST {backend_url}/vendor/return-requests/{id}/accept \
+  -H 'Authorization: Bearer {token}' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "return_required": true,
+    "location_id": "sloc_123",
+    "shipping_option_id": "so_return_123"
+  }'
+```
+
+`location_id` is required when the item has to come back. `shipping_option_id`
+must be a return shipping option, that is one with the `is_return` rule. Medusa
+confirms the return, creates the return fulfillment and the request moves to
+`awaiting_return`.
+
+## Accept without a return
+
+```bash
+curl -X POST {backend_url}/vendor/return-requests/{id}/accept \
+  -H 'Authorization: Bearer {token}' \
+  -H 'Content-Type: application/json' \
+  -d '{ "return_required": false }'
+```
+
+The request moves to `accepted`. Nothing is shipped back and the operator can
+refund straight away.
+
+## Receive the item
+
+Receiving uses the existing vendor returns endpoints on the Medusa return the
+request points to (`return_id`):
+
+1. `POST /vendor/returns/:return_id/receive`
+2. `POST /vendor/returns/:return_id/receive-items` with the received quantities
+3. `POST /vendor/returns/:return_id/receive/confirm`
+
+Confirming emits `order.return_received`; once the return is fully received the
+request moves to `returned`. Damaged items go through `dismiss-items` and are not
+restocked.
+
+## Decline
+
+```bash
+curl -X POST {backend_url}/vendor/return-requests/{id}/decline \
+  -H 'Authorization: Bearer {token}' \
+  -H 'Content-Type: application/json' \
+  -d '{ "decline_reason": "Outside the 14 day window", "decline_code": "policy" }'
+```
+
+Declining a pending request declines the order change and cancels the open
+return. Declining after acceptance cancels the return fulfillment and the return.
+Declining after the item was received leaves the Medusa return untouched, because
+the goods are already back in stock; only the refund is withheld.

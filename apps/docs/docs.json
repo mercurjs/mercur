@@ -232,6 +232,36 @@
             ]
           },
           {
+            "group": "Return Requests",
+            "icon": "rotate-left",
+            "pages": [
+              "platform/return-request/overview",
+              {
+                "group": "Concepts",
+                "pages": [
+                  "platform/return-request/concepts/lifecycle"
+                ]
+              },
+              {
+                "group": "Guides",
+                "pages": [
+                  "platform/return-request/guides/request-a-return",
+                  "platform/return-request/guides/review-a-return-request",
+                  "platform/return-request/guides/approve-a-refund"
+                ]
+              },
+              {
+                "group": "Reference",
+                "pages": [
+                  "platform/return-request/reference/data-models",
+                  "platform/return-request/reference/links",
+                  "platform/return-request/reference/workflows",
+                  "platform/return-request/reference/events"
+                ]
+              }
+            ]
+          },
+          {
             "group": "Order Group",
             "icon": "layer-group",
             "pages": [

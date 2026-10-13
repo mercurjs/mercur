@@ -163,6 +163,12 @@ export const createReturnRequestWorkflow: ReturnWorkflow<
         requested_by: input.requested_by ?? null,
         requested_by_type: input.requested_by_type,
         note: input.description ?? null,
+        items: input.items.map((item) => ({
+          id: item.id,
+          quantity: item.quantity,
+          reason_id: item.reason_id ?? null,
+          note: item.note ?? null,
+        })),
         attachments: input.attachments ?? [],
       })
     )

@@ -13,6 +13,7 @@ import {
   AdminReturnRequest,
   useApproveReturnRequest,
 } from "../../../../hooks/api/return-requests"
+import { useOrder } from "../../../../hooks/api/orders"
 import { currencies } from "../../../../lib/data/currencies"
 import { getLocaleAmount } from "../../../../lib/money-amount-helpers"
 
@@ -51,7 +52,10 @@ export const ApproveReturnRequestForm = ({
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
-  const currencyCode = returnRequest.order?.currency_code ?? "usd"
+  const { order } = useOrder(returnRequest.order_id, {
+    fields: "id,currency_code",
+  })
+  const currencyCode = order?.currency_code ?? "usd"
   const currency = useMemo(
     () => currencies[currencyCode.toUpperCase()],
     [currencyCode]

@@ -55,11 +55,12 @@ const useColumns = () => {
 
   return useMemo(
     () => [
-      columnHelper.accessor("order", {
-        header: t("returnRequests.fields.order"),
+      columnHelper.accessor((row) => row.return?.display_id, {
+        id: "return_display_id",
+        header: t("returnRequests.fields.return"),
         cell: ({ getValue }) => (
           <Text size="small" leading="compact" className="truncate">
-            #{getValue()?.display_id ?? "-"}
+            #{getValue() ?? "-"}
           </Text>
         ),
       }),

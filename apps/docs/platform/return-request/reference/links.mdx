@@ -1,0 +1,25 @@
+---
+title: "Links"
+description: "Read-only links that connect a return request to Medusa records."
+---
+
+All links are read-only and resolve through the FK columns on `return_request`.
+No pivot tables are created.
+
+| From | To | Alias | Field |
+| --- | --- | --- | --- |
+| `return_request` | `return` | `return_request.return` | `return_id` |
+| `return_request` | `seller` | `return_request.seller` | `seller_id` |
+| `return_request` | `customer` | `return_request.customer` | `customer_id` |
+
+There is deliberately no `return_request.order` link: a second read-only link
+from the request into the Order module is dropped by the joiner in favour of the
+`return` one. Load the order by `order_id` with the order APIs instead.
+
+```ts
+const { data } = await query.graph({
+  entity: "return_request",
+  fields: ["id", "status", "items", "return.items.*", "seller.name"],
+  filters: { order_id: "order_123" },
+})
+```

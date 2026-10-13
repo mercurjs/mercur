@@ -3499,7 +3499,7 @@
       "admin": "Operator"
     },
     "fields": {
-      "order": "Order",
+      "return": "Return",
       "store": "Store",
       "customer": "Customer",
       "requestedBy": "Requested by",

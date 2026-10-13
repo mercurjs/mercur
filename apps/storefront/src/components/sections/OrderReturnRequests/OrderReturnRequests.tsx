@@ -2,17 +2,20 @@ import { OrdersPagination } from "@/components/organisms/OrdersPagination/Orders
 import { SingleOrderReturn } from "@/components/organisms/SingleOrderReturn/SingleOrderReturn"
 import { Heading } from "@medusajs/ui"
 import { isEmpty } from "lodash"
+import type { StoreReturnRequest } from "@/lib/data/orders"
 
 const LIMIT = 10
 
 export const OrderReturnRequests = ({
   returns = [],
+  orders = {},
   user,
   page,
   currentReturn,
   returnReasons,
 }: {
-  returns: any[]
+  returns: StoreReturnRequest[]
+  orders?: Record<string, any>
   user: any
   page: string
   currentReturn: string
@@ -45,6 +48,7 @@ export const OrderReturnRequests = ({
         <SingleOrderReturn
           key={item.id}
           item={item}
+          order={orders[item.order_id]}
           user={user}
           defaultOpen={currentReturn === item.id}
           returnReason={returnReasons}

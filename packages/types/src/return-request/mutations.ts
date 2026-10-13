@@ -1,4 +1,8 @@
-import { ReturnRequestActorType, ReturnRequestStatus } from "./common"
+import {
+  ReturnRequestActorType,
+  ReturnRequestItemDTO,
+  ReturnRequestStatus,
+} from "./common"
 
 export interface CreateReturnRequestDTO {
   return_id: string
@@ -8,6 +12,7 @@ export interface CreateReturnRequestDTO {
   requested_by?: string | null
   requested_by_type: ReturnRequestActorType
   note?: string | null
+  items: ReturnRequestItemDTO[]
   attachments?: string[]
   metadata?: Record<string, unknown> | null
 }

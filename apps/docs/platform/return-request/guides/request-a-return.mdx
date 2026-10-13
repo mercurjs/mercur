@@ -1,0 +1,63 @@
+---
+title: "Request a return"
+description: "Raise a return request as a customer, a seller or the operator."
+---
+
+Only items that were fulfilled can be requested, and the quantity cannot exceed
+what was fulfilled minus what is already in another request. Medusa enforces both
+rules when the `RETURN_ITEM` action is added.
+
+## As a customer
+
+Customers must be authenticated. The `return_request` feature flag has to be on.
+
+```bash
+curl -X POST {backend_url}/store/return-requests \
+  -H 'Authorization: Bearer {token}' \
+  -H 'x-publishable-api-key: {key}' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "order_id": "order_123",
+    "items": [{ "id": "ordli_123", "quantity": 1, "reason_id": "rr_damaged" }],
+    "description": "Arrived with a cracked lid",
+    "attachments": ["https://files.example.com/lid.jpg"]
+  }'
+```
+
+The response is `{ return_request }` with status `pending`. Customers list their
+own requests with `GET /store/return-requests` and withdraw a pending one with
+`POST /store/return-requests/:id/withdraw`.
+
+<Note>
+  While the flag is on, Medusa's stock `POST /store/returns` responds with a
+  `not_allowed` error that points to `/store/return-requests`, so customers cannot
+  bypass the review.
+</Note>
+
+## As a seller
+
+Sellers can open a request on an order they fulfilled when the
+`seller_initiated_return_requests` flag is on. The request is attributed to the
+seller and the order's customer is attached automatically.
+
+```bash
+curl -X POST {backend_url}/vendor/return-requests \
+  -H 'Authorization: Bearer {token}' \
+  -H 'Content-Type: application/json' \
+  -d '{ "order_id": "order_123", "items": [{ "id": "ordli_123", "quantity": 1 }] }'
+```
+
+## As the operator
+
+The admin route takes the same body plus `requested_by_type`, which records whether
+the request is raised on behalf of the customer or the seller.
+
+```bash
+curl -X POST {backend_url}/admin/return-requests \
+  -H 'Authorization: Bearer {token}' \
+  -H 'Content-Type: application/json' \
+  -d '{ "order_id": "order_123", "items": [{ "id": "ordli_123", "quantity": 1 }], "requested_by_type": "customer" }'
+```
+
+Vendor and admin responses include `order_preview`, the Medusa order preview with
+the pending return applied.

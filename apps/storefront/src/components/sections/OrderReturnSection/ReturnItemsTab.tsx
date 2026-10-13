@@ -39,7 +39,7 @@ export const ReturnItemsTab = ({
               <div className="flex items-center gap-2 md:w-2/3 mb-4 md:mb-0">
                 <Checkbox
                   checked={selectedItems.some(
-                    (i) => i.line_item_id === item.id
+                    (i) => i.id === item.id
                   )}
                   onChange={() => handleSelectItem(item, "")}
                 />
@@ -80,7 +80,7 @@ export const ReturnItemsTab = ({
               <div className="md:w-1/3">
                 <Listbox
                   value={
-                    selectedItems.find((i) => i.line_item_id === item.id)
+                    selectedItems.find((i) => i.id === item.id)
                       ?.reason_id
                   }
                   onChange={(value) => handleSelectItem(item, value || "")}
@@ -90,7 +90,7 @@ export const ReturnItemsTab = ({
                       className={cn(
                         "relative w-full flex justify-between items-center px-4 h-12 bg-component-secondary text-left  cursor-default focus:outline-none border rounded-lg focus-visible:ring-2 focus-visible:ring-opacity-75 focus-visible:ring-white focus-visible:ring-offset-gray-300 focus-visible:ring-offset-2 focus-visible:border-gray-300 text-base-regular",
                         error &&
-                          !selectedItems.find((i) => i.line_item_id === item.id)
+                          !selectedItems.find((i) => i.id === item.id)
                             ?.reason_id &&
                           "border-red-700"
                       )}
@@ -102,7 +102,7 @@ export const ReturnItemsTab = ({
                               (r) =>
                                 r.id ===
                                 selectedItems.find(
-                                  (i) => i.line_item_id === item.id
+                                  (i) => i.id === item.id
                                 )?.reason_id
                             )?.label || "Select Reason"}
                           </span>
@@ -126,7 +126,7 @@ export const ReturnItemsTab = ({
                       ))}
                     </ListboxOptions>
                     {error &&
-                      !selectedItems.find((i) => i.line_item_id === item.id)
+                      !selectedItems.find((i) => i.id === item.id)
                         ?.reason_id && (
                         <p className="absolute -bottom-6 text-red-700 label-md">
                           Please select reason

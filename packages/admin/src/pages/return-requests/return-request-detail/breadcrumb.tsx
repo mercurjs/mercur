@@ -13,5 +13,5 @@ export const ReturnRequestDetailBreadcrumb = (props: UIMatch) => {
     return null
   }
 
-  return <span>#{returnRequest.order?.display_id ?? returnRequest.id}</span>
+  return <span>#{returnRequest.return?.display_id ?? returnRequest.id}</span>
 }

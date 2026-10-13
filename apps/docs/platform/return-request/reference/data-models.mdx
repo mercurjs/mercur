@@ -1,0 +1,36 @@
+---
+title: "Data models"
+description: "The ReturnRequest record and the Medusa models it points to."
+---
+
+## ReturnRequest
+
+Table `return_request`, id prefix `retreq`.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `status` | enum | `pending`, `accepted`, `awaiting_return`, `returned`, `refunded`, `declined`, `withdrawn` |
+| `return_id` | text, unique | the Medusa return created when the request was raised |
+| `order_id` | text | the seller order |
+| `seller_id` | text | resolved from the order's seller link |
+| `customer_id` | text, nullable | the order's customer |
+| `requested_by` | text, nullable | actor id |
+| `requested_by_type` | enum | `customer`, `seller`, `admin` |
+| `note` | text, nullable | requester note, also written to the order change |
+| `items` | json | requested `{ id, quantity, reason_id, note }` per line item, as asked by the requester |
+| `attachments` | text[] | file URLs |
+| `return_required` | boolean, nullable | set on acceptance |
+| `accepted_by`, `accepted_by_type`, `accepted_at` | | |
+| `declined_by`, `declined_by_type`, `declined_at`, `decline_code`, `decline_reason` | | |
+| `refunded_by`, `refunded_at`, `refund_amount`, `refund_note` | | `refund_amount` is a big number |
+| `withdrawn_at` | timestamp, nullable | |
+| `metadata` | json, nullable | |
+
+Indexes: `return_id` (unique), `order_id`, `(seller_id, status)`, `customer_id`.
+
+## Related Medusa models
+
+- **Return** (`return.*`): status, `location_id`, `refund_amount`, `items.*`
+  with `received_quantity` and `damaged_quantity`, `shipping_methods.*`.
+- **OrderChange**: the `return_request` change opened for the return. Its
+  `RETURN_ITEM` actions mirror the request's `items`.

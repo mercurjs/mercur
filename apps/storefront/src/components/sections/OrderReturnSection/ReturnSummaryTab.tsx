@@ -6,29 +6,27 @@ export const ReturnSummaryTab = ({
   selectedItems,
   items,
   currency_code,
-  handleTabChange,
-  tab,
-  returnMethod,
+  note,
+  onNoteChange,
+  submitting,
   handleSubmit,
 }: {
-  selectedItems: any[]
+  selectedItems: Array<{ id: string }>
   items: any[]
   currency_code: string
-  handleTabChange: (tab: number) => void
-  tab: number
-  returnMethod: any
+  note: string
+  onNoteChange: (value: string) => void
+  submitting: boolean
   handleSubmit: () => void
 }) => {
   const selected = items.filter((item) =>
-    selectedItems.some((i) => i.line_item_id === item.id)
+    selectedItems.some((i) => i.id === item.id)
   )
 
-  const subtotal = selected.reduce((acc, item) => {
-    return acc + item.subtotal
-  }, 0)
+  const subtotal = selected.reduce((acc, item) => acc + item.subtotal, 0)
 
   return (
-    <div className="sm:mt-20">
+    <div>
       {selected.length ? (
         <Card className="p-4">
           <ul>
@@ -69,29 +67,37 @@ export const ReturnSummaryTab = ({
       ) : null}
 
       <Card className="p-4">
+        <label className="label-md block mb-2" htmlFor="return-request-note">
+          Note for the seller (optional)
+        </label>
+        <textarea
+          id="return-request-note"
+          value={note}
+          onChange={(event) => onNoteChange(event.target.value)}
+          maxLength={1000}
+          rows={3}
+          className="w-full rounded-lg border bg-component-secondary px-4 py-3 text-base-regular focus:outline-none"
+          placeholder="Tell the seller what happened"
+        />
+      </Card>
+
+      <Card className="p-4">
         <p className="label-md flex justify-between mb-4">
           Subtotal refund:
           <span className="label-md !font-bold text-primary">
-            {convertToLocale({
-              amount: subtotal,
-              currency_code,
-            })}
+            {convertToLocale({ amount: subtotal, currency_code })}
           </span>
+        </p>
+        <p className="label-sm text-secondary mb-4">
+          The seller reviews your request first. The refund is issued once the
+          marketplace approves it.
         </p>
         <Button
           className="label-md w-full uppercase"
-          disabled={
-            (tab === 0 && !selected.length) || (tab === 1 && !returnMethod)
-          }
-          onClick={tab === 0 ? () => handleTabChange(1) : () => handleSubmit()}
+          disabled={!selected.length || submitting}
+          onClick={handleSubmit}
         >
-          {tab === 0
-            ? selected.length
-              ? "Continue"
-              : "Select Items"
-            : !returnMethod
-            ? "Select return method"
-            : "Request return"}
+          {selected.length ? "Request return" : "Select items"}
         </Button>
       </Card>
     </div>

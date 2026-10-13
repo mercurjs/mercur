@@ -1,0 +1,25 @@
+---
+title: "Workflows"
+description: "The workflows that move a return request, and the Medusa workflows they run as steps."
+---
+
+All workflows live in `@mercurjs/core` under `workflows/return-request`.
+
+| Workflow | Input | Runs | Hook |
+| --- | --- | --- | --- |
+| `createReturnRequestWorkflow` | `order_id`, `items`, `description?`, `attachments?`, `requested_by?`, `requested_by_type`, `seller_id?`, `customer_id?` | `beginReturnOrderWorkflow`, `requestItemReturnWorkflow` | `returnRequestCreated` |
+| `acceptReturnRequestWorkflow` | `id`, `accepted_by?`, `accepted_by_type`, `return_required`, `location_id?`, `shipping_option_id?`, `custom_amount?` | `updateReturnWorkflow`, `createReturnShippingMethodWorkflow`, `confirmReturnRequestWorkflow` | `returnRequestAccepted` |
+| `declineReturnRequestWorkflow` | `id`, `declined_by?`, `declined_by_type`, `decline_reason`, `decline_code?` | `declineOrderChangeWorkflow`, `cancelFulfillmentWorkflow`, `cancelReturnWorkflow` | `returnRequestDeclined` |
+| `markReturnRequestReturnedWorkflow` | `id` | — | — |
+| `approveReturnRequestWorkflow` | `id`, `approved_by?`, `refund_amount?`, `refund_note?`, `refund_shipping?` | `refundPaymentWorkflow`, `updateReturnsStep` | `returnRequestRefunded` |
+| `withdrawReturnRequestWorkflow` | `id`, `customer_id?` | `cancelReturnRequestWorkflow` | — |
+
+`seller_id` and `customer_id` on create are ownership guards: when given, the
+order must belong to that seller or customer.
+
+## Subscribers
+
+- `return-request-return-received` listens to `order.return_received` and moves
+  an `awaiting_return` request to `returned` once the return is fully received.
+- `return-request-refunded` listens to `return-request.refunded` and refreshes
+  the order's commission lines for requests accepted without a return.

@@ -1,17 +1,16 @@
 import { ShoppingCart } from "@medusajs/icons";
+import { HttpTypes } from "@medusajs/types";
 import { Container, Heading } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { SidebarLink } from "@components/common/sidebar-link/sidebar-link";
-import type { VendorReturnRequest } from "@hooks/api/return-requests";
 
 export const ReturnRequestOrderSection = ({
-  returnRequest,
+  order,
 }: {
-  returnRequest: VendorReturnRequest;
+  order?: HttpTypes.AdminOrder;
 }) => {
   const { t } = useTranslation();
-  const order = returnRequest.order;
 
   if (!order) {
     return null;

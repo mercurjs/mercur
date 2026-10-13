@@ -122,6 +122,10 @@ medusaIntegrationTestRunner({
                             seller: expect.objectContaining({ id: seller.sellerId }),
                         })
                     )
+
+                    expect(response.data.return_request.items).toEqual([
+                        { id: order.items[0].id, quantity: 1, reason_id: null, note: null },
+                    ])
                 })
 
                 it("rejects quantities above what was fulfilled", async () => {

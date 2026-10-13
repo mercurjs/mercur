@@ -15,11 +15,12 @@ export const useReturnRequestTableColumns = () => {
 
   return useMemo(
     () => [
-      columnHelper.accessor("order", {
-        header: () => <span>{t("returnRequests.list.columns.order")}</span>,
+      columnHelper.accessor((row) => row.return?.display_id, {
+        id: "return_display_id",
+        header: () => <span>{t("returnRequests.list.columns.return")}</span>,
         cell: ({ getValue }) => (
           <Text size="small" leading="compact" className="truncate">
-            #{getValue()?.display_id ?? "-"}
+            #{getValue() ?? "-"}
           </Text>
         ),
       }),

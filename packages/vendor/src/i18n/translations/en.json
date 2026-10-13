@@ -3098,7 +3098,7 @@
     },
     "list": {
       "columns": {
-        "order": "Order",
+        "return": "Return",
         "customer": "Customer",
         "requestedBy": "Requested by",
         "note": "Note",

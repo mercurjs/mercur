@@ -1,0 +1,50 @@
+---
+title: "Lifecycle"
+description: "The statuses a return request moves through and the Medusa state each one is backed by."
+---
+
+A return request has a stored `status`. Each transition is driven by a Medusa
+workflow, so the request never disagrees with the return it wraps.
+
+| Status | Medusa state | How it gets there |
+| --- | --- | --- |
+| `pending` | `Return.status = open`, order change `return_request` in `pending` with `RETURN_ITEM` actions | `beginReturnOrderWorkflow` then `requestItemReturnWorkflow` |
+| `awaiting_return` | `Return.status = requested`, return fulfillment created | seller accepts with `return_required: true`; `updateReturnWorkflow`, `createReturnShippingMethodWorkflow`, `confirmReturnRequestWorkflow` |
+| `accepted` | `Return.status = requested`, no shipping method | seller accepts with `return_required: false`; `confirmReturnRequestWorkflow` |
+| `returned` | `Return.status = received` | the vendor receive flow emits `order.return_received`; a subscriber syncs the request |
+| `refunded` | negative order transaction, `Return.refund_amount` set | operator approves; `refundPaymentWorkflow` |
+| `declined` | pending: order change `declined` and return `canceled`; confirmed: `cancelReturnWorkflow` | seller or operator declines |
+| `withdrawn` | return and order change deleted | customer withdraws; `cancelReturnRequestWorkflow` |
+
+## Who can do what
+
+| Transition | Customer | Seller | Operator |
+| --- | --- | --- | --- |
+| Create | yes, own delivered orders | yes, own orders (`seller_initiated_return_requests`) | yes, any order |
+| Accept | no | from `pending` | from `pending` |
+| Decline | no | from `pending`, `awaiting_return`, `returned` | any non-terminal status |
+| Receive | no | existing `/vendor/returns/:id/receive*` | stock `/admin/returns/:id/receive*` |
+| Approve (refund) | no | no | from `accepted` or `returned` |
+| Withdraw | from `pending` | no | no |
+
+A seller cannot decline a request it already accepted without a return. At that
+point the goods stay with the customer and only the operator decides whether the
+refund goes out.
+
+## One active change per order
+
+Medusa allows a single active order change per order. A pending request therefore
+blocks a second request, an order edit, a claim or an exchange on the same order
+until it is accepted, declined or withdrawn. The API surfaces Medusa's error
+verbatim.
+
+## Where the data lives
+
+- **Requested items** are snapshotted on the request as `items` (line item id,
+  quantity, reason, note), the same way Marketplacer keeps refund-request line
+  items. Medusa holds the matching `RETURN_ITEM` actions on the order change.
+- **Return items**, shipping methods, received and damaged quantities live on
+  the Medusa return, exposed as `return.*`.
+- **The requester's note** is stored on the request (`note`) and mirrored into the
+  order change description.
+- **The refund amount** is stored on both the request and `Return.refund_amount`.

@@ -1,0 +1,19 @@
+---
+title: "Events"
+description: "Events emitted while a return request moves through its lifecycle."
+---
+
+Exported as `ReturnRequestWorkflowEvents` from `@mercurjs/core`.
+
+| Event | Payload | Emitted by |
+| --- | --- | --- |
+| `return-request.created` | `{ id }` | `createReturnRequestWorkflow` |
+| `return-request.accepted` | `{ id, return_id, return_required }` | `acceptReturnRequestWorkflow` |
+| `return-request.declined` | `{ id, return_id }` | `declineReturnRequestWorkflow` |
+| `return-request.returned` | `{ id, return_id, order_id }` | `markReturnRequestReturnedWorkflow` |
+| `return-request.refunded` | `{ id, return_id, order_id, amount }` | `approveReturnRequestWorkflow` |
+| `return-request.withdrawn` | `{ id, return_id }` | `withdrawReturnRequestWorkflow` |
+
+Medusa's own `order.return_requested` and `order.return_received` fire as usual
+when the underlying return is confirmed and received. Use these events to notify
+customers and sellers; the open-source core emits them but sends no e-mail.

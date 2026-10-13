@@ -1,0 +1,49 @@
+---
+title: "Return Requests"
+sidebarTitle: "Overview"
+description: "Let customers ask for a return, let sellers review it, and let the operator settle the refund."
+---
+
+Use return requests to run marketplace returns the way a multi-vendor business
+needs them: the customer asks, the seller who shipped the goods decides, and the
+marketplace operator issues the refund.
+
+Medusa already models the physical return. A `Return` tracks requested and
+received items, return shipping, inventory and the order's balance. What a
+marketplace adds on top is the approval layer: who may raise a request, who has to
+accept it, and who finalises the money. The Return Request domain is that layer.
+Every request wraps a Medusa return, and every transition runs a Medusa workflow,
+so inventory, order summaries and payment collections stay stock.
+
+<Note>
+  **Return request ≠ return.** The `ReturnRequest` row holds the marketplace
+  decision trail. The Medusa `Return` it points to holds the items, shipping and
+  received quantities. Read items and shipping from the return, read who decided
+  what from the request.
+</Note>
+
+## Key features
+
+- **Three initiators:** customers from their order history, sellers on behalf of a customer, and operators on behalf of either.
+- **Seller review:** a seller accepts with or without requiring the item back, or declines with a reason.
+- **Receive through the standard flow:** items come back through the existing vendor returns endpoints and restock per offer.
+- **Operator refund:** the operator approves the request, which refunds the order's captured payment and closes it.
+- **Withdrawal:** customers can withdraw while the request is still pending.
+- **Feature flags:** `return_request` gates the customer flow and the stock `/store/returns` endpoint, `seller_initiated_return_requests` gates seller-raised requests.
+
+## Get started
+
+<CardGroup cols={2}>
+  <Card title="Lifecycle" icon="arrows-spin" href="/platform/return-request/concepts/lifecycle">
+    The seven statuses and the Medusa state behind each one.
+  </Card>
+  <Card title="Request a return" icon="rotate-left" href="/platform/return-request/guides/request-a-return">
+    Raise a request from the storefront, the vendor panel or the admin.
+  </Card>
+  <Card title="Review a request" icon="clipboard-check" href="/platform/return-request/guides/review-a-return-request">
+    Accept, require the item back, receive it, or decline.
+  </Card>
+  <Card title="Approve a refund" icon="money-bill-transfer" href="/platform/return-request/guides/approve-a-refund">
+    Settle the request and refund the customer as the operator.
+  </Card>
+</CardGroup>

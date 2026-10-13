@@ -1,0 +1,42 @@
+---
+title: "Approve a refund"
+description: "Settle a return request as the operator and refund the customer."
+---
+
+Only the operator refunds. A request can be approved once the seller accepted it
+without a return (`accepted`) or the item came back (`returned`). The route
+requires the `orders.refunds:edit` permission.
+
+```bash
+curl -X POST {backend_url}/admin/return-requests/{id}/approve \
+  -H 'Authorization: Bearer {token}' \
+  -H 'Content-Type: application/json' \
+  -d '{ "refund_note": "Approved after inspection" }'
+```
+
+## How the amount is computed
+
+Without `refund_amount` the workflow refunds the unit price times quantity of
+every return item, and adds the return shipping method when `refund_shipping` is
+`true`. Pass `refund_amount` to override it, for a partial refund for example.
+
+The refund goes against the order's own captured payment. Mercur splits the shared
+cart payment per seller order on capture, so each order carries a payment with a
+refundable balance. If no payment has enough balance the request stays open and
+the route responds with `not_allowed`.
+
+## What changes
+
+- `refundPaymentWorkflow` records the refund on the payment and adds a negative
+  order transaction.
+- `Return.refund_amount` and the request's `refund_amount` are set.
+- The request moves to `refunded` and emits `return-request.refunded`.
+- For requests accepted without a return, the order's commission lines are
+  refreshed. Requests with a physical return were already refreshed when the
+  return was received.
+
+<Note>
+  Payout clawback is not part of the open-source flow. Hook into
+  `approveReturnRequestWorkflow.hooks.returnRequestRefunded` to reclaim a
+  seller's remittance in your own settlement.
+</Note>

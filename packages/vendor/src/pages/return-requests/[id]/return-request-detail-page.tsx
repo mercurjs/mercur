@@ -4,6 +4,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
 
+import { useOrder } from "@hooks/api/orders";
 import { useReturnRequest } from "@hooks/api/return-requests";
 
 import { ReturnRequestCustomerSection } from "./_components/return-request-customer-section";
@@ -25,6 +26,12 @@ const Root = ({ children }: { children?: ReactNode }) => {
     placeholderData: initialData,
   });
 
+  const { order } = useOrder(
+    returnRequest?.order_id ?? "",
+    { fields: "id,display_id,currency_code,email,*items" },
+    { enabled: Boolean(returnRequest?.order_id) },
+  );
+
   if (isLoading || !returnRequest) {
     return <TwoColumnPageSkeleton mainSections={2} sidebarSections={2} />;
   }
@@ -41,11 +48,11 @@ const Root = ({ children }: { children?: ReactNode }) => {
         <TwoColumnPage hasOutlet data={returnRequest}>
           <TwoColumnPage.Main>
             <ReturnRequestGeneralSection returnRequest={returnRequest} />
-            <ReturnRequestItemsSection returnRequest={returnRequest} />
+            <ReturnRequestItemsSection returnRequest={returnRequest} order={order} />
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
             <ReturnRequestCustomerSection returnRequest={returnRequest} />
-            <ReturnRequestOrderSection returnRequest={returnRequest} />
+            <ReturnRequestOrderSection order={order} />
           </TwoColumnPage.Sidebar>
         </TwoColumnPage>
       )}

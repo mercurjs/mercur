@@ -12,7 +12,10 @@ export const createReturnRequestStep = createStep(
       MercurModules.RETURN_REQUEST
     )
 
-    const [request] = await service.createReturnRequests([input])
+    // The DML types a json column as a record; this one stores the requested items array.
+    const [request] = await service.createReturnRequests([
+      { ...input, items: input.items as unknown as Record<string, unknown> },
+    ])
 
     return new StepResponse(request, request.id)
   },

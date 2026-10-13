@@ -23,8 +23,10 @@ const Row = ({ label, children }: { label: string; children: ReactNode }) => (
 
 export const ReturnRequestGeneralSection = ({
   returnRequest,
+  currencyCode,
 }: {
   returnRequest: AdminReturnRequest
+  currencyCode?: string
 }) => {
   const { t } = useTranslation()
 
@@ -39,7 +41,6 @@ export const ReturnRequestGeneralSection = ({
     }
   )
 
-  const currencyCode = returnRequest.order?.currency_code
   const isPending = returnRequest.status === "pending"
 
   return (

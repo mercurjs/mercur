@@ -1,15 +1,22 @@
 import { UserNavigation } from '@/components/molecules/UserNavigation/UserNavigation';
 import { OrderReturnRequests } from '@/components/sections/OrderReturnRequests/OrderReturnRequests';
 import { retrieveCustomer } from '@/lib/data/customer';
-import { getReturns, retrieveReturnReasons } from '@/lib/data/orders';
+import { getReturns, retrieveOrder, retrieveReturnReasons } from '@/lib/data/orders';
 
 export default async function ReturnsPage({
   searchParams
 }: {
   searchParams: Promise<{ page: string; return: string }>;
 }) {
-  const { order_return_requests } = await getReturns();
+  const { return_requests } = await getReturns();
   const returnReasons = await retrieveReturnReasons();
+
+  const orderIds = Array.from(new Set(return_requests.map(request => request.order_id)));
+  const orders = Object.fromEntries(
+    await Promise.all(
+      orderIds.map(async id => [id, await retrieveOrder(id).catch(() => null)] as const)
+    )
+  );
 
   const user = await retrieveCustomer();
 
@@ -22,11 +29,8 @@ export default async function ReturnsPage({
         <div className="md:col-span-3">
           <h1 className="heading-md uppercase" data-testid="returns-heading">Returns</h1>
           <OrderReturnRequests
-            returns={order_return_requests.sort(
-              (a, b) =>
-                new Date(b.line_items[0].created_at).getTime() -
-                new Date(a.line_items[0].created_at).getTime()
-            )}
+            returns={return_requests}
+            orders={orders}
             user={user}
             page={page}
             currentReturn={returnId || ''}

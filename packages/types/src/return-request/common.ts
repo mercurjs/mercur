@@ -1,7 +1,6 @@
 import type {
   BigNumberValue,
   CustomerDTO,
-  OrderDTO,
   ReturnDTO,
 } from "@medusajs/types"
 import type { SellerDTO } from "../seller"
@@ -22,6 +21,13 @@ export enum ReturnRequestActorType {
   ADMIN = "admin",
 }
 
+export interface ReturnRequestItemDTO {
+  id: string
+  quantity: number
+  reason_id: string | null
+  note: string | null
+}
+
 export interface ReturnRequestDTO {
   id: string
   status: ReturnRequestStatus
@@ -32,6 +38,7 @@ export interface ReturnRequestDTO {
   requested_by: string | null
   requested_by_type: ReturnRequestActorType
   note: string | null
+  items: ReturnRequestItemDTO[]
   attachments: string[]
   return_required: boolean | null
   accepted_by: string | null
@@ -49,7 +56,6 @@ export interface ReturnRequestDTO {
   withdrawn_at: Date | string | null
   metadata: Record<string, unknown> | null
   return?: ReturnDTO
-  order?: OrderDTO
   seller?: SellerDTO
   customer?: CustomerDTO
   created_at: Date | string

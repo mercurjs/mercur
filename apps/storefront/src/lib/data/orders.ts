@@ -8,7 +8,8 @@ import { sdk } from '../client';
 import medusaError from '../helpers/medusa-error';
 import { getAuthHeaders, getCacheOptions } from './cookies';
 
-// TODO: legacy returns endpoints — migrate when the returns module lands
+// The storefront client is untyped (Routes is Record<string, unknown>), so the
+// return-request routes are addressed through this loose shape.
 type LooseRoute = {
   query: <T = unknown>(i?: never) => Promise<T>;
   mutate: <T = unknown>(i?: never) => Promise<T>;
@@ -53,48 +54,67 @@ export const retrieveOrder = async (id: string) => {
     .catch(err => medusaError(err));
 };
 
-export const createReturnRequest = async (data: Record<string, unknown>) => {
-  const response = await storeLoose.returnRequest
-    .mutate<{ order_return_request: { id: string } }>({
+type StoreReturnRequest = {
+  id: string;
+  status: string;
+  note: string | null;
+  created_at: string;
+  return_id: string;
+  order_id: string;
+  items: Array<{
+    id: string;
+    quantity: number;
+    reason_id: string | null;
+    note: string | null;
+  }>;
+  seller?: { id: string; name: string; handle: string };
+  return?: {
+    display_id?: number;
+    status: string;
+    items?: Array<{
+      id: string;
+      item_id: string;
+      quantity: number;
+      reason?: { label: string } | null;
+    }>;
+  };
+};
+
+export type { StoreReturnRequest };
+
+export const createReturnRequest = async (data: {
+  order_id: string;
+  items: Array<{ id: string; quantity: number; reason_id?: string }>;
+  description?: string;
+}) => {
+  return storeLoose.returnRequests
+    .mutate<{ return_request: StoreReturnRequest }>({
       ...data,
       fetchOptions: { headers: { ...(await getAuthHeaders()) } }
     } as never)
     .catch(err => medusaError(err));
-
-  return response;
 };
 
 export const getReturns = async () => {
-  return storeLoose.returnRequest
-    .query<{
-      order_return_requests: Array<
-        { line_items: Array<{ created_at: string; reason_id?: string }> } & Record<
-          string,
-          unknown
-        >
-      >;
-    }>({
-      fields: '*line_items.reason_id',
-      fetchOptions: {
-        headers: { ...(await getAuthHeaders()) },
-        cache: 'force-cache'
-      }
-    } as never)
-    .then(res => res)
-    .catch(err => medusaError(err));
-};
-
-export const retriveReturnMethods = async (order_id: string) => {
-  return storeLoose.shippingOptions.return
-    .query<{ shipping_options: Array<Record<string, unknown>> }>({
-      order_id,
+  return storeLoose.returnRequests
+    .query<{ return_requests: StoreReturnRequest[] }>({
+      limit: 100,
+      order: '-created_at',
       fetchOptions: {
         headers: { ...(await getAuthHeaders()) },
         cache: 'no-cache'
       }
     } as never)
-    .then(({ shipping_options }) => shipping_options)
-    .catch(() => []);
+    .catch(err => medusaError(err));
+};
+
+export const withdrawReturnRequest = async (id: string) => {
+  return storeLoose.returnRequests.$id.withdraw
+    .mutate<{ return_request: StoreReturnRequest }>({
+      $id: id,
+      fetchOptions: { headers: { ...(await getAuthHeaders()) } }
+    } as never)
+    .catch(err => medusaError(err));
 };
 
 export const listOrders = async (

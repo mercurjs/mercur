@@ -3,7 +3,14 @@
 import { Button } from "@/components/atoms"
 import Link from "next/link"
 
+const RETURN_REQUESTS_ENABLED =
+  process.env.NEXT_PUBLIC_RETURN_REQUESTS !== "false"
+
 export const OrderReturn = ({ order }: { order: any }) => {
+  if (!RETURN_REQUESTS_ENABLED) {
+    return null
+  }
+
   return (
     <div className="md:flex justify-between items-center">
       <div className="mb-4 md:mb-0">
