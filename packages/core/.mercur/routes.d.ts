@@ -514,6 +514,13 @@ export type Routes = {
         offerConditions: typeof import("../src/api/admin/offer-conditions/route") & {
             $id: typeof import("../src/api/admin/offer-conditions/[id]/route");
         };
+        returnRequests: typeof import("../src/api/admin/return-requests/route") & {
+            $id: typeof import("../src/api/admin/return-requests/[id]/route") & {
+                accept: typeof import("../src/api/admin/return-requests/[id]/accept/route");
+                approve: typeof import("../src/api/admin/return-requests/[id]/approve/route");
+                decline: typeof import("../src/api/admin/return-requests/[id]/decline/route");
+            };
+        };
         reviews: typeof import("../src/api/admin/reviews/route") & {
             $id: typeof import("../src/api/admin/reviews/[id]/route") & {
                 respond: typeof import("../src/api/admin/reviews/[id]/respond/route");
@@ -638,13 +645,18 @@ export type Routes = {
         returnReasons: typeof import("@medusajs/medusa/api/store/return-reasons/route") & {
             $id: typeof import("@medusajs/medusa/api/store/return-reasons/[id]/route");
         };
-        returns: typeof import("@medusajs/medusa/api/store/returns/route");
+        returns: typeof import("../src/api/store/returns/route");
         sellers: typeof import("../src/api/store/sellers/route") & {
             $id: typeof import("../src/api/store/sellers/[id]/route");
         };
         shippingOptions: typeof import("../src/api/store/shipping-options/route") & {
             $id: {
                 calculate: typeof import("@medusajs/medusa/api/store/shipping-options/[id]/calculate/route");
+            };
+        };
+        returnRequests: typeof import("../src/api/store/return-requests/route") & {
+            $id: typeof import("../src/api/store/return-requests/[id]/route") & {
+                withdraw: typeof import("../src/api/store/return-requests/[id]/withdraw/route");
             };
         };
         reviews: typeof import("../src/api/store/reviews/route") & {
@@ -939,6 +951,12 @@ export type Routes = {
         uploads: typeof import("../src/api/vendor/uploads/route");
         offerConditions: typeof import("../src/api/vendor/offer-conditions/route") & {
             $id: typeof import("../src/api/vendor/offer-conditions/[id]/route");
+        };
+        returnRequests: typeof import("../src/api/vendor/return-requests/route") & {
+            $id: typeof import("../src/api/vendor/return-requests/[id]/route") & {
+                accept: typeof import("../src/api/vendor/return-requests/[id]/accept/route");
+                decline: typeof import("../src/api/vendor/return-requests/[id]/decline/route");
+            };
         };
         reviews: typeof import("../src/api/vendor/reviews/route") & {
             $id: typeof import("../src/api/vendor/reviews/[id]/route");

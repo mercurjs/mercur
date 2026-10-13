@@ -33,6 +33,7 @@ import { vendorRegionsMiddlewares } from "./regions/middlewares"
 import { vendorRefundReasonsMiddlewares } from "./refund-reasons/middlewares"
 import { vendorReservationsMiddlewares } from "./reservations/middlewares"
 import { vendorReturnReasonsMiddlewares } from "./return-reasons/middlewares"
+import { vendorReturnRequestsMiddlewares } from "./return-requests/middlewares"
 import { vendorReturnsMiddlewares } from "./returns/middlewares"
 import { vendorReviewsMiddlewares } from "./reviews/middlewares"
 import { vendorSalesChannelsMiddlewares } from "./sales-channels/middlewares"
@@ -166,6 +167,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorRefundReasonsMiddlewares,
   ...vendorReservationsMiddlewares,
   ...vendorReturnReasonsMiddlewares,
+  ...vendorReturnRequestsMiddlewares,
   ...vendorReturnsMiddlewares,
   ...vendorReviewsMiddlewares,
   ...vendorSalesChannelsMiddlewares,
