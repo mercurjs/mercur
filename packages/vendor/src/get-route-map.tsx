@@ -1175,6 +1175,67 @@ export function getRouteMap({
                 ],
               },
 
+              // RETURN REQUESTS
+              {
+                path: "/return-requests",
+                errorElement: <ErrorBoundary />,
+                handle: { breadcrumb: () => t("returnRequests.domain"), permissions: "orders.returns:view" },
+                children: [
+                  {
+                    path: "",
+                    lazy: async () => {
+                      const { ReturnRequestListPage } = await import("./pages/return-requests");
+                      return {
+                        Component: ReturnRequestListPage,
+                      };
+                    },
+                  },
+                  {
+                    path: ":id",
+                    lazy: async () => {
+                      const { loader } = await import("./pages/return-requests/[id]");
+                      const { Breadcrumb } = await import(
+                        "./pages/return-requests/[id]/breadcrumb"
+                      );
+                      return {
+                        Component: Outlet,
+                        loader: withPermission(loader, "orders.returns:view"),
+                        handle: {
+                          breadcrumb: (match: UIMatch<any>) => (
+                            <Breadcrumb {...match} />
+                          ),
+                        },
+                      };
+                    },
+                    children: [
+                      {
+                        path: "",
+                        lazy: async () => {
+                          const { ReturnRequestDetailPage } = await import(
+                            "./pages/return-requests/[id]"
+                          );
+                          return {
+                            Component: ReturnRequestDetailPage,
+                          };
+                        },
+                        children: [
+                          {
+                            path: "accept",
+                            handle: { permissions: "orders.returns:edit" },
+                            lazy: () => import("./pages/return-requests/[id]/accept"),
+                          },
+                          {
+                            path: "decline",
+                            handle: { permissions: "orders.returns:edit" },
+                            lazy: () => import("./pages/return-requests/[id]/decline"),
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+
               // RESERVATIONS
               {
                 path: "/reservations",

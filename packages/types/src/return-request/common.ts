@@ -31,6 +31,7 @@ export interface ReturnRequestDTO {
   customer_id: string | null
   requested_by: string | null
   requested_by_type: ReturnRequestActorType
+  note: string | null
   attachments: string[]
   return_required: boolean | null
   accepted_by: string | null

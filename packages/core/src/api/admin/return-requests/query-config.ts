@@ -7,6 +7,7 @@ export const adminReturnRequestFields = [
   "customer_id",
   "requested_by",
   "requested_by_type",
+  "note",
   "attachments",
   "return_required",
   "accepted_by",
@@ -48,6 +49,10 @@ export const adminReturnRequestDetailsFields = [
   ...adminReturnRequestFields,
   "return.items.*",
   "return.items.reason.*",
+  "return.items.item.title",
+  "return.items.item.variant_title",
+  "return.items.item.thumbnail",
+  "return.items.item.unit_price",
   "return.shipping_methods.*",
 ]
 

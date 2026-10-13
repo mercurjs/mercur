@@ -3071,6 +3071,72 @@
       "canceled": "Canceled"
     }
   },
+  "returnRequests": {
+    "domain": "Return requests",
+    "subtitle": "Review customer return and refund requests before the operator settles them.",
+    "status": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "awaiting_return": "Awaiting return",
+      "returned": "Returned",
+      "refunded": "Refunded",
+      "declined": "Declined",
+      "withdrawn": "Withdrawn"
+    },
+    "actor": {
+      "customer": "Customer",
+      "seller": "Seller",
+      "admin": "Operator"
+    },
+    "fields": {
+      "requestedBy": "Requested by",
+      "note": "Note",
+      "attachments": "Attachments",
+      "returnRequired": "Item has to be returned",
+      "declineReason": "Decline reason",
+      "refundNote": "Refund note"
+    },
+    "list": {
+      "columns": {
+        "order": "Order",
+        "customer": "Customer",
+        "requestedBy": "Requested by",
+        "note": "Note",
+        "date": "Date",
+        "status": "Status"
+      },
+      "noRecordsTitle": "No return requests yet",
+      "noRecordsMessage": "When customers ask to return an item, the request will appear here.",
+      "noResultsTitle": "No results",
+      "noResultsMessage": "Try changing the filters."
+    },
+    "detail": {
+      "title": "Return request",
+      "items": "Requested items",
+      "noItems": "No items were requested.",
+      "customer": "Customer",
+      "order": "Order"
+    },
+    "accept": {
+      "action": "Accept",
+      "header": "Accept return request",
+      "description": "Choose whether the customer has to send the item back. The operator issues the refund once the request is settled.",
+      "returnRequired": "Require the item to be returned",
+      "returnRequiredHint": "Turn off to refund without the customer sending the item back.",
+      "successToast": "Return request accepted."
+    },
+    "decline": {
+      "action": "Decline",
+      "header": "Decline return request",
+      "description": "Tell the customer and the operator why the request cannot be accepted.",
+      "reason": "Reason",
+      "code": "Reason code",
+      "successToast": "Return request declined."
+    },
+    "receive": {
+      "action": "Receive items"
+    }
+  },
   "reviews": {
     "domain": "Reviews",
     "status": {

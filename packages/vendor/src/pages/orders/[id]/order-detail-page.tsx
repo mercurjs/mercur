@@ -15,6 +15,7 @@ import { OrderCustomerSection } from "./_components/order-customer-section";
 import { OrderFulfillmentSection } from "./_components/order-fulfillment-section";
 import { OrderGeneralSection } from "./_components/order-general-section";
 import { OrderPaymentSection } from "./_components/order-payment-section";
+import { OrderReturnRequestsSection } from "./_components/order-return-requests-section";
 import { OrderSummarySection } from "./_components/order-summary-section";
 import { DEFAULT_FIELDS } from "./constants";
 
@@ -79,6 +80,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
                 </>
               )}
               <OrderGeneralSection order={order} />
+              <OrderReturnRequestsSection order={order} />
               <OrderSummarySection order={order} />
               <OrderPaymentSection order={order} />
               <OrderFulfillmentSection order={order} />
@@ -104,6 +106,7 @@ export const OrderDetailPage = Object.assign(Root, {
   MainActiveExchangeSection: ActiveOrderExchangeSection,
   MainActiveReturnSection: ActiveOrderReturnSection,
   MainGeneralSection: OrderGeneralSection,
+  MainReturnRequestsSection: OrderReturnRequestsSection,
   MainSummarySection: OrderSummarySection,
   MainPaymentSection: OrderPaymentSection,
   MainFulfillmentSection: OrderFulfillmentSection,

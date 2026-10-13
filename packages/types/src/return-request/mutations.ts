@@ -7,6 +7,7 @@ export interface CreateReturnRequestDTO {
   customer_id?: string | null
   requested_by?: string | null
   requested_by_type: ReturnRequestActorType
+  note?: string | null
   attachments?: string[]
   metadata?: Record<string, unknown> | null
 }

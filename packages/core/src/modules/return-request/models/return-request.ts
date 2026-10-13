@@ -13,6 +13,7 @@ const ReturnRequest = model
     customer_id: model.text().nullable(),
     requested_by: model.text().nullable(),
     requested_by_type: model.enum(ReturnRequestActorType),
+    note: model.text().nullable(),
     attachments: model.array().default([]),
     return_required: model.boolean().nullable(),
     accepted_by: model.text().nullable(),

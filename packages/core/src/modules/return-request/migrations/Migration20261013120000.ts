@@ -12,6 +12,7 @@ export class Migration20261013120000 extends Migration {
         "customer_id" text NULL,
         "requested_by" text NULL,
         "requested_by_type" text NOT NULL,
+        "note" text NULL,
         "attachments" text[] NOT NULL DEFAULT '{}',
         "return_required" boolean NULL,
         "accepted_by" text NULL,

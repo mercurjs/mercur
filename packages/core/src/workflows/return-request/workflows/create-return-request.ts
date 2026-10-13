@@ -162,6 +162,7 @@ export const createReturnRequestWorkflow: ReturnWorkflow<
         customer_id: order.customer_id,
         requested_by: input.requested_by ?? null,
         requested_by_type: input.requested_by_type,
+        note: input.description ?? null,
         attachments: input.attachments ?? [],
       })
     )
