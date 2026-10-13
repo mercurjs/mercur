@@ -574,6 +574,66 @@ export function getRouteMap({
                 ],
               },
               {
+                path: "/return-requests",
+                errorElement: <ErrorBoundary />,
+                handle: {
+                  breadcrumb: () => t("returnRequests.domain"),
+                  permissions: "orders.returns:view",
+                },
+                children: [
+                  {
+                    path: "",
+                    lazy: () => import("./pages/return-requests/return-request-list"),
+                    children: [],
+                  },
+                  {
+                    path: ":id",
+                    lazy: async () => {
+                      const { Breadcrumb, loader } = await import(
+                        "./pages/return-requests/return-request-detail"
+                      )
+
+                      return {
+                        Component: Outlet,
+                        loader: withPermission(loader, "orders.returns:view"),
+                        handle: {
+                          breadcrumb: (match: UIMatch) => <Breadcrumb {...match} />,
+                        },
+                      }
+                    },
+                    children: [
+                      {
+                        path: "",
+                        lazy: () =>
+                          import("./pages/return-requests/return-request-detail").then(
+                            withLoaderPermission("orders.returns:view"),
+                          ),
+                        children: [
+                          {
+                            path: "accept",
+                            handle: { permissions: "orders.returns:edit" },
+                            lazy: () =>
+                              import("./pages/return-requests/return-request-accept"),
+                          },
+                          {
+                            path: "decline",
+                            handle: { permissions: "orders.returns:edit" },
+                            lazy: () =>
+                              import("./pages/return-requests/return-request-decline"),
+                          },
+                          {
+                            path: "approve",
+                            handle: { permissions: "orders.refunds:edit" },
+                            lazy: () =>
+                              import("./pages/return-requests/return-request-approve"),
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
                 path: "/reviews",
                 errorElement: <ErrorBoundary />,
                 handle: {

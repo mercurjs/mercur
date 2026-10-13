@@ -8,6 +8,7 @@ import { useOrder, useOrderPreview } from "../../../hooks/api/orders";
 import { ActiveOrderClaimSection } from "./components/active-order-claim-section";
 import { ActiveOrderExchangeSection } from "./components/active-order-exchange-section";
 import { ActiveOrderReturnSection } from "./components/active-order-return-section";
+import { OrderReturnRequestsSection } from "./components/order-return-requests-section";
 import { OrderActiveEditSection } from "./components/order-active-edit-section";
 import { OrderActivitySection } from "./components/order-activity-section";
 import { OrderCustomerSection } from "./components/order-customer-section";
@@ -91,6 +92,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
           <ActiveOrderExchangeSection orderPreview={orderPreview!} />
           <ActiveOrderReturnSection orderPreview={orderPreview!} />
           <OrderGeneralSection order={order} />
+          <OrderReturnRequestsSection order={order} />
           <OrderSummarySection order={order} />
           <OrderPaymentSection order={order} />
           <OrderFulfillmentSection order={order} />

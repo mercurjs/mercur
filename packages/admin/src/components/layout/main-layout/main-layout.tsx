@@ -421,6 +421,10 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       label: t("orders.domain"),
       to: "/orders",
       items: [
+        {
+          label: t("returnRequests.domain"),
+          to: "/return-requests",
+        },
         // TODO: Enable when domin is introduced
         // {
         //   label: t("draftOrders.domain"),

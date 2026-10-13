@@ -3481,6 +3481,77 @@
       "categoryInheritance": "Child categories will inherit this attribute."
     }
   },
+  "returnRequests": {
+    "domain": "Return requests",
+    "subtitle": "Settle customer return and refund requests after the seller has reviewed them.",
+    "status": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "awaiting_return": "Awaiting return",
+      "returned": "Returned",
+      "refunded": "Refunded",
+      "declined": "Declined",
+      "withdrawn": "Withdrawn"
+    },
+    "actor": {
+      "customer": "Customer",
+      "seller": "Seller",
+      "admin": "Operator"
+    },
+    "fields": {
+      "order": "Order",
+      "store": "Store",
+      "customer": "Customer",
+      "requestedBy": "Requested by",
+      "date": "Date",
+      "status": "Status",
+      "note": "Note",
+      "attachments": "Attachments",
+      "returnRequired": "Item has to be returned",
+      "declineReason": "Decline reason",
+      "refundAmount": "Refunded amount",
+      "refundNote": "Refund note"
+    },
+    "list": {
+      "noRecordsTitle": "No return requests yet",
+      "noRecordsMessage": "When customers ask to return an item, the request will appear here."
+    },
+    "detail": {
+      "title": "Return request",
+      "items": "Requested items",
+      "noItems": "No items were requested.",
+      "customer": "Customer",
+      "order": "Order",
+      "store": "Store"
+    },
+    "accept": {
+      "action": "Accept",
+      "header": "Accept return request",
+      "description": "Accept on the seller's behalf. Choose whether the customer has to send the item back.",
+      "returnRequired": "Require the item to be returned",
+      "returnRequiredHint": "Turn off to refund without the customer sending the item back.",
+      "location": "Return location",
+      "shippingOption": "Return shipping option",
+      "successToast": "Return request accepted."
+    },
+    "decline": {
+      "action": "Decline",
+      "header": "Decline return request",
+      "description": "The customer will not be refunded. Record why the request was declined.",
+      "reason": "Reason",
+      "code": "Reason code",
+      "successToast": "Return request declined."
+    },
+    "approve": {
+      "action": "Refund",
+      "header": "Refund the customer",
+      "description": "Refunds the captured payment of the order and closes the request.",
+      "refundShipping": "Refund return shipping",
+      "refundShippingHint": "Add the return shipping cost to the refund.",
+      "amountHint": "Leave empty to refund the suggested {{amount}}.",
+      "successToast": "Refund issued and request closed."
+    }
+  },
   "reviews": {
     "domain": "Reviews",
     "subtitle": "Manage customer reviews of your stores.",
