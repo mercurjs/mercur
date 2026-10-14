@@ -38,6 +38,31 @@ module.exports = withMercur({
         disable: true
       }
     },
+    // The Spraay provider refuses to boot without a treasury address, so only
+    // override the core payout module when the operator has configured one.
+    ...(process.env.SPRAAY_TREASURY_ADDRESS
+      ? [
+          {
+            resolve: '@mercurjs/core/modules/payout',
+            options: {
+              providers: [
+                {
+                  resolve: '@mercurjs/payout-spraay',
+                  id: 'spraay',
+                  options: {
+                    rpcUrl: process.env.SPRAAY_RPC_URL,
+                    treasuryAddress: process.env.SPRAAY_TREASURY_ADDRESS,
+                    gatewayBaseUrl: process.env.SPRAAY_GATEWAY_URL,
+                  },
+                },
+              ],
+            },
+          },
+        ]
+      : []),
+    {
+      resolve: './src/modules/spraay-batch',
+    },
     {
       resolve: '@medusajs/medusa/cache-redis',
       options: { redisUrl: REDIS_URL },
