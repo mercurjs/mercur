@@ -8,7 +8,7 @@ Returns a paginated list of the reviews left on a product. Only reviews with sta
 
 The reference and the status are applied server-side and cannot be widened from the query string. Unknown query parameters, `status` among them, are rejected with a `400`.
 
-A product that does not exist, or that is not published, returns a `404` rather than an empty list.
+A product that does not exist or is not published returns a `404`, as [Retrieve Product](/references/api/store/products/retrieve-product) does, rather than an empty list.
 
 ## Path parameters
 
@@ -31,7 +31,7 @@ A product that does not exist, or that is not published, returns a `404` rather 
 </ParamField>
 
 <ParamField query="fields" type="string">
-  Comma-separated fields and relations to include; prefix with `+`/`-` to add to or remove from the defaults.
+  Comma-separated fields to include; prefix with `+`/`-` to add to or remove from the defaults. Limited to the fields in the response below; anything else, such as `*customer` or `customer.email`, is dropped.
 </ParamField>
 
 <ParamField query="rating" type="number | number[]">
