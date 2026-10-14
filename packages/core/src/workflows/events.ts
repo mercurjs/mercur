@@ -49,6 +49,14 @@ export const OfferConditionWorkflowEvents = {
   UPDATED: "offer_condition.updated",
   DELETED: "offer_condition.deleted",
 }
+
+export const ReviewWorkflowEvents = {
+  CREATED: "review.created",
+  UPDATED: "review.updated",
+  RESPONDED: "review.responded",
+  DELETED: "review.deleted",
+}
+
 export const PaymentWebhookEvents = {
   /**
    * Emitted when a payment provider webhook reaches `/hooks/payment/:provider`.

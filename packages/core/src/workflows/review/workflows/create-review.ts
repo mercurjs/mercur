@@ -4,10 +4,12 @@ import {
   createWorkflow,
   transform,
 } from "@medusajs/framework/workflows-sdk"
-import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+import { createRemoteLinkStep, emitEventStep } from "@medusajs/medusa/core-flows"
 import { CreateReviewDTO, MercurModules } from "@mercurjs/types"
 
 import { createReviewStep, validateReviewStep } from "../steps"
+import { ReviewEventData } from "../utils"
+import { ReviewWorkflowEvents } from "../../events"
 
 export const createReviewWorkflow = createWorkflow(
   {
@@ -42,6 +44,20 @@ export const createReviewWorkflow = createWorkflow(
     })
 
     createRemoteLinkStep(link)
+
+    const eventData = transform(
+      { input, review },
+      ({ input, review }): ReviewEventData => ({
+        id: review.id,
+        reference: input.reference,
+        reference_id: input.reference_id,
+      })
+    )
+
+    emitEventStep({
+      eventName: ReviewWorkflowEvents.CREATED,
+      data: eventData,
+    })
 
     return new WorkflowResponse(review)
   }
