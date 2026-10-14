@@ -1,8 +1,13 @@
-const { loadEnv } = require("@medusajs/utils");
+const { loadEnv } = require("@medusajs/framework/utils");
 loadEnv("test", process.cwd());
 
 module.exports = {
   transform: {
+    // Same as integration-tests/jest.config.js: Mercur patches core-flows through
+    // Node module hooks, which Jest never consults, so the app refuses to boot
+    // under Jest unless the patches go through this transformer.
+    "node_modules[\\\\/].*core-flows[\\\\/]dist[\\\\/](cart|order|payment)[\\\\/].*\\.js$":
+      "@mercurjs/core/patches/jest-transformer",
     "^.+\\.[jt]s$": [
       "@swc/jest",
       {
@@ -12,6 +17,7 @@ module.exports = {
       },
     ],
   },
+  transformIgnorePatterns: ["/node_modules/(?!.*core-flows[\\\\/]dist[\\\\/](cart|order|payment)[\\\\/])"],
   testEnvironment: "node",
   moduleFileExtensions: ["js", "ts", "json"],
   modulePathIgnorePatterns: ["dist/", "<rootDir>/.medusa/"],

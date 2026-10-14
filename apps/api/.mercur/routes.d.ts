@@ -510,6 +510,17 @@ export type Routes = {
             };
         };
         custom: typeof import("../src/api/admin/custom/route");
+        spraay: {
+            batches: typeof import("../src/api/admin/spraay/batches/route") & {
+                $batchId: typeof import("../src/api/admin/spraay/batches/[batchId]/route") & {
+                    cancel: typeof import("../src/api/admin/spraay/batches/[batchId]/cancel/route");
+                    prepare: typeof import("../src/api/admin/spraay/batches/[batchId]/prepare/route");
+                    sign: typeof import("../src/api/admin/spraay/batches/[batchId]/sign/route");
+                };
+            };
+            preflight: typeof import("../src/api/admin/spraay/preflight/route");
+            trigger: typeof import("../src/api/admin/spraay/trigger/route");
+        };
     };
     auth: {
         $actorType: {
