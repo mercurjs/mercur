@@ -7,7 +7,7 @@ import { emitEventStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
 import { RespondReviewDTO } from "@mercurjs/types"
 
 import { respondReviewStep } from "../steps"
-import { buildReviewEventData, LinkedReview } from "../utils"
+import { buildReviewEventData, linkedReviewFields } from "../utils"
 import { ReviewWorkflowEvents } from "../../events"
 
 export const respondReviewWorkflow = createWorkflow(
@@ -19,12 +19,12 @@ export const respondReviewWorkflow = createWorkflow(
 
     const { data: linked } = useQueryGraphStep({
       entity: "review",
-      fields: ["id", "reference", "product.id", "seller.id"],
+      fields: linkedReviewFields,
       filters: { id: input.id },
     })
 
     const eventData = transform({ linked }, ({ linked }) =>
-      buildReviewEventData(linked[0] as LinkedReview)
+      buildReviewEventData(linked)
     )
 
     emitEventStep({

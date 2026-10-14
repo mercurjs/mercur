@@ -1,5 +1,7 @@
 import { ReviewReference } from "@mercurjs/types"
 
+export const linkedReviewFields = ["id", "reference", "product.id", "seller.id"]
+
 export type LinkedReview = {
   id: string
   reference: ReviewReference
@@ -10,20 +12,17 @@ export type LinkedReview = {
 export type ReviewEventData = {
   id: string
   reference: ReviewReference
-  reference_id?: string
+  reference_id: string
 }
 
-/**
- * The reviewed product/seller sits on a link rather than on the review row, so
- * event consumers get it resolved here from a graph read of both relations.
- */
-export const buildReviewEventData = (review: LinkedReview): ReviewEventData => {
-  const target =
-    review.reference === "product" ? review.product : review.seller
+export const buildReviewEventData = (
+  reviews: LinkedReview[]
+): ReviewEventData[] =>
+  reviews.flatMap((review) => {
+    const target =
+      review.reference === "product" ? review.product : review.seller
 
-  return {
-    id: review.id,
-    reference: review.reference,
-    reference_id: target?.id,
-  }
-}
+    return target
+      ? [{ id: review.id, reference: review.reference, reference_id: target.id }]
+      : []
+  })
