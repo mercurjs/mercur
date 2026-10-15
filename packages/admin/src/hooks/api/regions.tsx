@@ -14,6 +14,7 @@ import { sdk } from "../../lib/client"
 import { queryClient } from "../../lib/query-client"
 import { queryKeysFactory } from "../../lib/query-key-factory"
 import { pricePreferencesQueryKeys } from "./price-preferences"
+import { sellersQueryKeys } from "./sellers"
 
 const REGIONS_QUERY_KEY = "regions" as const
 export const regionsQueryKeys = queryKeysFactory(REGIONS_QUERY_KEY)
@@ -133,6 +134,28 @@ export const useDeleteRegion = (
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: regionsQueryKeys.lists() })
       queryClient.invalidateQueries({ queryKey: regionsQueryKeys.detail(id) })
+
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
+
+export const useBatchRegionSellers = (
+  id: string,
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.regions.$id.sellers.mutate>,
+    ClientError,
+    Omit<InferClientInput<typeof sdk.admin.regions.$id.sellers.mutate>, "$id">
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.admin.regions.$id.sellers.mutate({ $id: id, ...payload }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: regionsQueryKeys.detail(id) })
+      queryClient.invalidateQueries({ queryKey: sellersQueryKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: sellersQueryKeys.details() })
 
       options?.onSuccess?.(data, variables, context)
     },

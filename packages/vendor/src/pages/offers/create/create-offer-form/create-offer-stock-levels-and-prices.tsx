@@ -15,6 +15,7 @@ import { useRouteModal } from "../../../../components/modals";
 import { defineTabMeta } from "../../../../components/tabbed-form/types";
 import { usePricePreferences } from "../../../../hooks/api/price-preferences";
 import { useOfferConditions } from "../../../../hooks/api/offer-conditions";
+import { useRegions } from "../../../../hooks/api/regions";
 import { useCurrentSeller } from "../../../../hooks/api/sellers";
 import { useShippingProfiles } from "../../../../hooks/api/shipping-profiles";
 import { useStockLocations } from "../../../../hooks/api/stock-locations";
@@ -65,6 +66,15 @@ const Root = () => {
     {},
     { enabled: can("price_preferences") }
   );
+  const canViewRegions = can("regions");
+  const { regions: fetchedRegions } = useRegions(
+    { fields: "id,name,currency_code", limit: 999 },
+    { enabled: canViewRegions }
+  );
+  const regions = useMemo(
+    () => (canViewRegions ? (fetchedRegions ?? []) : []),
+    [canViewRegions, fetchedRegions]
+  );
 
   const variants = useWatch({
     control: form.control,
@@ -96,6 +106,7 @@ const Root = () => {
     shippingProfiles: shipping_profiles ?? [],
     offerConditions: offer_conditions ?? [],
     pricePreferences,
+    regions,
   });
 
   return (
@@ -119,6 +130,7 @@ type ColumnArgs = {
   shippingProfiles?: ShippingProfileLite[];
   offerConditions?: OfferConditionLite[];
   pricePreferences?: HttpTypes.AdminPricePreference[];
+  regions?: HttpTypes.AdminRegion[];
 };
 
 const columnHelper = createDataGridHelper<GridRow, CreateOfferFormValues>();
@@ -129,6 +141,7 @@ const useColumns = ({
   shippingProfiles = [],
   offerConditions = [],
   pricePreferences = [],
+  regions = [],
 }: ColumnArgs) => {
   const { t } = useTranslation();
 
@@ -142,6 +155,9 @@ const useColumns = ({
       label: c.label,
     }));
     const currencies = currencyCode ? [currencyCode] : [];
+    const cellCurrencies = Array.from(
+      new Set([...currencies, ...regions.map((r) => r.currency_code)])
+    );
 
     return [
       columnHelper.column({
@@ -252,13 +268,22 @@ const useColumns = ({
         getFieldName: (context, value) => {
           const row = context.row.original;
           if (isGroup(row)) return null;
-          if (context.column.id?.startsWith("currency_prices")) {
-            return `variants.${row.__formIndex}.prices.${value}`;
-          }
-          return null;
+          return `variants.${row.__formIndex}.prices.${value}`;
         },
         t,
       }),
+      ...createDataGridPriceColumns<GridRow, CreateOfferFormValues>({
+        currencies: cellCurrencies,
+        regions,
+        pricePreferences,
+        isReadyOnly: (context) => isGroup(context.row.original),
+        getFieldName: (context, value) => {
+          const row = context.row.original;
+          if (isGroup(row)) return null;
+          return `variants.${row.__formIndex}.region_prices.${value}`;
+        },
+        t,
+      }).filter((column) => column.id?.startsWith("region_prices")),
     ];
   }, [
     t,
@@ -267,6 +292,7 @@ const useColumns = ({
     shippingProfiles,
     offerConditions,
     pricePreferences,
+    regions,
   ]);
 };
 

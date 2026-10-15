@@ -3170,6 +3170,20 @@
         "label": "Requirements",
         "hint": "Specify the requirements for the shipping option."
       }
+    },
+    "sellers": {
+      "header": "Sellers",
+      "add": "Add sellers",
+      "hint": "Sellers assigned to this region can see it and price their offers and shipping options in it.",
+      "empty": "No sellers are assigned to this region.",
+      "noSellersToAdd": "There are no sellers to add.",
+      "alreadyAssigned": "This seller is already assigned to the region.",
+      "removeWarning_one": "You are about to remove {{count}} seller from this region. The seller will no longer be able to price offers or shipping in it.",
+      "removeWarning_other": "You are about to remove {{count}} sellers from this region. They will no longer be able to price offers or shipping in it.",
+      "toast": {
+        "added": "Sellers added to region successfully",
+        "removed": "Sellers removed from region successfully"
+      }
     }
   },
   "taxes": {
@@ -4196,7 +4210,9 @@
         "emailRequired": "Please enter an email",
         "emailInvalid": "Please enter a valid email",
         "currencyRequired": "Please select a currency"
-      }
+      },
+      "regions": "Regions",
+      "regionsHint": "The regions this seller can sell in. The store's default region is preselected."
     },
     "request": {
       "title": "Store request",
@@ -4243,6 +4259,21 @@
       "successToast": "{{count}} store(s) updated",
       "emptyHeading": "No stores selected",
       "emptyDescription": "Select stores from the list to edit them here."
+    },
+    "regions": {
+      "header": "Regions",
+      "add": "Add regions",
+      "empty": {
+        "title": "No regions assigned",
+        "message": "Assign regions so the seller can price offers and shipping in them."
+      },
+      "noRegionsToAdd": "There are no regions to add.",
+      "alreadyAssigned": "This region is already assigned to the seller.",
+      "removeWarning": "You are about to remove the region {{name}} from this seller. The seller will no longer be able to price offers or shipping in it.",
+      "toast": {
+        "added": "Regions added successfully",
+        "removed": "Region removed successfully"
+      }
     }
   },
   "messages": {
@@ -4477,7 +4508,8 @@
       "in_stock": "In stock",
       "low_stock": "Low stock",
       "out_of_stock": "Out of stock"
-    }
+    },
+    "regionPrices": "Region prices"
   },
   "permissions": {
     "noAccess": "You don't have permission to view this.",

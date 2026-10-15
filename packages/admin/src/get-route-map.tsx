@@ -1011,6 +1011,12 @@ export function getRouteMap({
                             lazy: () =>
                               import("./pages/stores/store-member-invite"),
                           },
+                          {
+                            path: "regions/add",
+                            handle: { permissions: "sellers:edit" },
+                            lazy: () =>
+                              import("./pages/stores/store-add-regions"),
+                          },
                         ],
                       },
                     ],
@@ -1371,6 +1377,12 @@ export function getRouteMap({
                             handle: { permissions: "regions:edit" },
                             lazy: () =>
                               import("./pages/regions/region-add-countries"),
+                          },
+                          {
+                            path: "sellers/add",
+                            handle: { permissions: "regions:edit" },
+                            lazy: () =>
+                              import("./pages/regions/region-add-sellers"),
                           },
                           {
                             path: "metadata/edit",

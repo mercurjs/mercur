@@ -15,14 +15,22 @@ import {
 } from "@mercurjs/types"
 import { AdditionalData } from "@medusajs/framework/types"
 
-import { createSellersStep } from "../steps"
+import {
+  associateSellersWithRegionsStep,
+  createSellersStep,
+  resolveSellerRegionIdsStep,
+  validateSellerRegionLinksStep,
+} from "../steps"
 import { SellerWorkflowEvents } from "../../events"
 import { createMemberInvitesWorkflow } from "./create-member-invites"
 
 export const createSellersWorkflowId = "create-sellers"
 
 export type CreateSellersWorkflowInput = {
-  sellers: (CreateSellerDTO & { member: { email: string } })[]
+  sellers: (CreateSellerDTO & {
+    member: { email: string }
+    region_ids?: string[]
+  })[]
 } & AdditionalData
 
 export type CreateSellersWorkflowHooks = [
@@ -50,12 +58,24 @@ export const createSellersWorkflow: ReturnWorkflow<
 
     const sellers = createSellersStep(
       transform(input, ({ sellers }) =>
-        sellers.map(({ member: _member, ...seller }) => ({
+        sellers.map(({ member: _member, region_ids: _regionIds, ...seller }) => ({
           ...seller,
           status: seller.status ?? SellerStatus.PENDING_APPROVAL,
         }))
       )
     )
+
+    const regionLinks = resolveSellerRegionIdsStep({
+      requests: transform({ sellers, input }, ({ sellers, input }) =>
+        sellers.map((seller, i) => ({
+          seller_id: seller.id,
+          region_ids: input.sellers[i].region_ids,
+        }))
+      ),
+    })
+
+    validateSellerRegionLinksStep({ links: regionLinks })
+    associateSellersWithRegionsStep({ links: regionLinks })
 
     createMemberInvitesWorkflow.runAsStep({
       input: transform(

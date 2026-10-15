@@ -5350,6 +5350,9 @@
             "duplicateBatchEntry"
           ],
           "additionalProperties": false
+        },
+        "regionPrices": {
+          "type": "string"
         }
       },
       "required": [
@@ -5369,7 +5372,8 @@
         "stockStatus",
         "empty",
         "filtered",
-        "validation"
+        "validation",
+        "regionPrices"
       ],
       "additionalProperties": false
     },

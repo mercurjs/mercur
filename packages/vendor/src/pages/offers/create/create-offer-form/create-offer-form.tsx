@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { RouteFocusModal, useRouteModal } from "../../../../components/modals";
 import { TabbedForm } from "../../../../components/tabbed-form/tabbed-form";
 import { useOfferConditions } from "../../../../hooks/api/offer-conditions";
+import { useRegions } from "../../../../hooks/api/regions";
 import { useBulkCreateOffers } from "../../../../hooks/api/offers";
 import { castNumber } from "../../../../lib/cast-number";
 import { useProducts } from "../../../../hooks/api/products";
@@ -80,6 +81,15 @@ export const CreateOfferForm = () => {
 
   const { offer_conditions } = useOfferConditions();
   const defaultConditionId = offer_conditions?.[0]?.id ?? "";
+  const canViewRegions = useCan("regions");
+  const { regions: fetchedRegions } = useRegions(
+    { fields: "id,name,currency_code", limit: 999 },
+    { enabled: canViewRegions }
+  );
+  const regions = useMemo(
+    () => (canViewRegions ? (fetchedRegions ?? []) : []),
+    [canViewRegions, fetchedRegions]
+  );
 
   const locationIds = (stock_locations ?? []).map((l) => l.id);
 
@@ -148,6 +158,7 @@ export const CreateOfferForm = () => {
           shipping_profile_id: "",
           condition_id: defaultConditionId,
           prices: { ...emptyPrices },
+          region_prices: {},
           inventory: { ...emptyInventory },
         });
       }
@@ -233,12 +244,25 @@ export const CreateOfferForm = () => {
     setIsSubmitting(true);
 
     const payloadOffers = rows.map(({ row, sku }) => {
-      const prices = [
+      const prices: {
+        amount: number;
+        currency_code: string;
+        rules?: Record<string, string>;
+      }[] = [
         {
           amount: numericOrZero(row.prices?.[currency_code]),
           currency_code,
         },
       ];
+      for (const region of regions) {
+        const value = row.region_prices?.[region.id];
+        if (value === "" || value === null || value === undefined) continue;
+        prices.push({
+          amount: numericOrZero(value),
+          currency_code: region.currency_code,
+          rules: { region_id: region.id },
+        });
+      }
 
       const stock_levels: { location_id: string; stocked_quantity: number }[] = [];
       for (const [locationId, level] of Object.entries(row.inventory ?? {})) {

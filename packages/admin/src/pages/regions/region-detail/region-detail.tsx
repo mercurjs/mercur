@@ -4,6 +4,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 import { useRegion } from "../../../hooks/api/regions";
 import { RegionCountrySection } from "./components/region-country-section";
 import { RegionGeneralSection } from "./components/region-general-section";
+import { RegionSellerSection } from "./components/region-seller-section";
 import { regionLoader } from "./loader";
 
 import { WidgetZone, isForbidden, useCan } from "@mercurjs/dashboard-shared";
@@ -53,7 +54,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     (!preferencesForbidden && isLoadingPreferences) ||
     !region
   ) {
-    return <SingleColumnPageSkeleton sections={2} showJSON showMetadata />
+    return <SingleColumnPageSkeleton sections={3} showJSON showMetadata />
   }
 
   if (isRegionError) {
@@ -78,6 +79,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
           }
         />
         <RegionCountrySection region={region} />
+        <RegionSellerSection region={region} />
       </WidgetZone>
     </SingleColumnPage>
   );
@@ -86,4 +88,5 @@ const Root = ({ children }: { children?: ReactNode }) => {
 export const RegionDetailPage = Object.assign(Root, {
   GeneralSection: RegionGeneralSection,
   CountrySection: RegionCountrySection,
+  SellerSection: RegionSellerSection,
 });

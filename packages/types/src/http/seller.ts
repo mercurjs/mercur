@@ -84,3 +84,13 @@ export type AdminSellerListResponse = PaginatedResponse<{
 export interface AdminSellerStatisticsResponse {
   statistics: SellerStatisticsOutput
 }
+
+export interface AdminSellerRegionsBatchResponse {
+  id: string
+  object: "seller"
+}
+
+export interface AdminRegionSellersBatchResponse {
+  id: string
+  object: "region"
+}

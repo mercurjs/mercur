@@ -12451,6 +12451,63 @@
             "requirements"
           ],
           "additionalProperties": false
+        },
+        "sellers": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "add": {
+              "type": "string"
+            },
+            "hint": {
+              "type": "string"
+            },
+            "empty": {
+              "type": "string"
+            },
+            "noSellersToAdd": {
+              "type": "string"
+            },
+            "alreadyAssigned": {
+              "type": "string"
+            },
+            "removeWarning_one": {
+              "type": "string"
+            },
+            "removeWarning_other": {
+              "type": "string"
+            },
+            "toast": {
+              "type": "object",
+              "properties": {
+                "added": {
+                  "type": "string"
+                },
+                "removed": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "added",
+                "removed"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "header",
+            "add",
+            "hint",
+            "empty",
+            "noSellersToAdd",
+            "alreadyAssigned",
+            "removeWarning_one",
+            "removeWarning_other",
+            "toast"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -12477,7 +12534,8 @@
         "calculated",
         "list",
         "toast",
-        "shippingOption"
+        "shippingOption",
+        "sellers"
       ],
       "additionalProperties": false
     },
@@ -16554,6 +16612,9 @@
             "out_of_stock"
           ],
           "additionalProperties": false
+        },
+        "regionPrices": {
+          "type": "string"
         }
       },
       "required": [
@@ -16566,7 +16627,8 @@
         "bulkDelete",
         "bulkDeleteAll",
         "sellerSection",
-        "stockStatus"
+        "stockStatus",
+        "regionPrices"
       ],
       "additionalProperties": false
     },
@@ -16861,6 +16923,94 @@
         "redo"
       ],
       "additionalProperties": false
+    },
+    "stores": {
+      "type": "object",
+      "properties": {
+        "regions": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "add": {
+              "type": "string"
+            },
+            "empty": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "message"
+              ],
+              "additionalProperties": false
+            },
+            "noRegionsToAdd": {
+              "type": "string"
+            },
+            "alreadyAssigned": {
+              "type": "string"
+            },
+            "removeWarning": {
+              "type": "string"
+            },
+            "toast": {
+              "type": "object",
+              "properties": {
+                "added": {
+                  "type": "string"
+                },
+                "removed": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "added",
+                "removed"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "header",
+            "add",
+            "empty",
+            "noRegionsToAdd",
+            "alreadyAssigned",
+            "removeWarning",
+            "toast"
+          ],
+          "additionalProperties": false
+        },
+        "create": {
+          "type": "object",
+          "properties": {
+            "regions": {
+              "type": "string"
+            },
+            "regionsHint": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "regions",
+            "regionsHint"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "regions",
+        "create"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -16933,7 +17083,8 @@
     "offers",
     "roles",
     "permissions",
-    "richTextEditor"
+    "richTextEditor",
+    "stores"
   ],
   "additionalProperties": false
 }

@@ -5,28 +5,37 @@ import { useTranslation } from "react-i18next"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
 import { NoRecords } from "../../../../components/common/empty-table-content"
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import { DisplayExtensionZone, useCan } from "@mercurjs/dashboard-shared"
 
+import { useRegions } from "../../../../hooks/api/regions"
 import { getLocaleAmount } from "../../../../lib/money-amount-helpers"
+import { getPriceRegionId, isBasePrice } from "../../common/region-prices"
 import { OfferDetail, OfferPrice } from "../../common/types"
 
 type Props = { offer: OfferDetail }
 
 const PAGE_STEP = 3
 
-const isBaseRow = (price: OfferPrice) => {
-  if (!price) return false
-  const rules = price.price_rules ?? []
-  const extraRules = rules.filter((r) => r.attribute !== "offer_id")
-  return extraRules.length === 0
-}
-
 export const OfferPricingSection = ({ offer }: Props) => {
   const { t } = useTranslation()
+  const canViewRegions = useCan("regions")
+  const { regions } = useRegions(
+    { fields: "id,name", limit: 999 },
+    { enabled: canViewRegions },
+  )
+
+  const regionName = (regionId: string) =>
+    regions?.find((r) => r.id === regionId)?.name ?? regionId
 
   const prices = (offer.prices ?? [])
-    .filter((p): p is OfferPrice => Boolean(p) && isBaseRow(p))
+    .filter((p): p is OfferPrice => isBasePrice(p))
     .sort((a, b) => (a.currency_code ?? "").localeCompare(b.currency_code ?? ""))
+
+  const regionPrices = (offer.prices ?? [])
+    .filter((p): p is OfferPrice => Boolean(p) && getPriceRegionId(p) !== null)
+    .sort((a, b) =>
+      regionName(getPriceRegionId(a)!).localeCompare(regionName(getPriceRegionId(b)!)),
+    )
 
   const hasPrices = prices.length > 0
   const [pageSize, setPageSize] = useState(PAGE_STEP)
@@ -64,6 +73,21 @@ export const OfferPricingSection = ({ offer }: Props) => {
           <span className="font-medium">
             {price.currency_code.toUpperCase()}
           </span>
+          <span>{getLocaleAmount(price.amount, price.currency_code)}</span>
+        </div>
+      ))}
+      {regionPrices.length > 0 && (
+        <div className="txt-small text-ui-fg-muted px-6 py-2">
+          {t("offers.regionPrices")}
+        </div>
+      )}
+      {regionPrices.map((price) => (
+        <div
+          key={price.id ?? `${getPriceRegionId(price)}-${price.amount}`}
+          className="txt-small text-ui-fg-subtle flex justify-between px-6 py-4"
+          data-testid={`offer-detail-region-price-${getPriceRegionId(price)}`}
+        >
+          <span className="font-medium">{regionName(getPriceRegionId(price)!)}</span>
           <span>{getLocaleAmount(price.amount, price.currency_code)}</span>
         </div>
       ))}
