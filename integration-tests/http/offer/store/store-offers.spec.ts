@@ -367,6 +367,59 @@ medusaIntegrationTestRunner({
                     expect(response.data.offers[0].in_stock).toEqual(true)
                 })
 
+                it("subtracts reserved stock from inventory_quantity", async () => {
+                    const seed = await seedSellerOffer({
+                        email: "reserved@test.com",
+                        name: "Reserved",
+                        stocked: 100,
+                        offerPrice: 12000,
+                        required_quantity: 12,
+                    })
+
+                    const inventoryService = appContainer.resolve(Modules.INVENTORY)
+                    const inventoryItemId = seed.offer.inventory_items[0].id
+                    const [level] = await inventoryService.listInventoryLevels({
+                        inventory_item_id: inventoryItemId,
+                    })
+                    await inventoryService.createReservationItems([
+                        {
+                            inventory_item_id: inventoryItemId,
+                            location_id: level.location_id,
+                            quantity: 24,
+                        },
+                    ])
+
+                    const list = await api.get(
+                        `/store/offers?product_id=${seed.productId}&fields=+inventory_quantity`,
+                        storeHeaders
+                    )
+                    expect(list.data.offers[0].inventory_quantity).toEqual(6)
+
+                    const single = await api.get(
+                        `/store/offers/${seed.offer.id}?fields=+inventory_quantity`,
+                        storeHeaders
+                    )
+                    expect(single.data.offer.inventory_quantity).toEqual(6)
+                })
+
+                it("computes inventory_quantity when the requested fields omit the inventory link", async () => {
+                    const seed = await seedSellerOffer({
+                        email: "narrowfields@test.com",
+                        name: "Narrow",
+                        stocked: 100,
+                        offerPrice: 12000,
+                        required_quantity: 12,
+                    })
+
+                    const response = await api.get(
+                        `/store/offers/${seed.offer.id}?fields=id,inventory_quantity`,
+                        storeHeaders
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.offer.inventory_quantity).toEqual(8)
+                })
+
                 it("reports zero stock for an offer whose location is not linked to the sales channel", async () => {
                     const seed = await seedSellerOffer({
                         email: "wronglocation@test.com",
