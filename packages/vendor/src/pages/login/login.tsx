@@ -1,8 +1,7 @@
 import { Children, ReactNode } from "react";
-import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import i18n from "i18next";
-import { Alert, Button, Heading, Input, Text } from "@medusajs/ui";
+import { Alert, Button, Heading, Input, Text, clx } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -27,54 +26,33 @@ const LoginSchema = z.object({
     .min(1, { message: i18n.t("login.validation.passwordRequired") }),
 });
 
-const EASE_OUT = [0.23, 1, 0.32, 1] as const;
-
-const revealVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    transform: "translateY(8px)",
-    filter: "blur(4px)",
-  },
-  show: {
-    opacity: 1,
-    transform: "translateY(0px)",
-    filter: "blur(0px)",
-    transition: { duration: 0.45, ease: EASE_OUT },
-  },
-};
-
-const staggerVariants: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.05, delayChildren: 0.05 } },
-};
-
-const reducedRevealVariants: Variants = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { duration: 0.3, ease: "easeOut" } },
-};
+const STAGGER_MS = 50;
 
 const LoginReveal = ({
   children,
   className,
+  order,
 }: {
   children: ReactNode;
   className?: string;
+  order: number;
 }) => {
-  const reduceMotion = useReducedMotion();
-
   return (
-    <motion.div
-      className={className}
-      variants={reduceMotion ? reducedRevealVariants : revealVariants}
+    <div
+      className={clx(
+        "group-data-[reveal=true]/login:animate-login-reveal motion-reduce:group-data-[reveal=true]/login:animate-login-fade",
+        className,
+      )}
+      style={{ animationDelay: `${(order + 1) * STAGGER_MS}ms` }}
     >
       {children}
-    </motion.div>
+    </div>
   );
 };
 
 const LoginLogo = () => {
   return (
-    <LoginReveal>
+    <LoginReveal order={0}>
       <WidgetZone id="login.logo">
         <AvatarBox />
       </WidgetZone>
@@ -86,7 +64,7 @@ const LoginHeader = () => {
   const { t } = useTranslation();
 
   return (
-    <LoginReveal className="mb-6 flex flex-col">
+    <LoginReveal order={1} className="mb-6 flex flex-col">
       <Heading>{t("login.title", { name: config.name ?? "Mercur" })}</Heading>
       <Text size="small" className="text-ui-fg-subtle">
         {t("login.hint")}
@@ -158,7 +136,6 @@ const LoginForm = () => {
 
   const serverError =
     form.formState.errors?.root?.serverError?.message || reasonMessage;
-  const reduceMotion = useReducedMotion();
 
   return (
     <Form {...form}>
@@ -168,7 +145,7 @@ const LoginForm = () => {
             control={form.control}
             name="email"
             render={({ field }) => (
-              <LoginReveal>
+              <LoginReveal order={2}>
                 <Form.Item>
                   <Form.Label>{t("fields.email")}</Form.Label>
                   <Form.Control>
@@ -183,7 +160,7 @@ const LoginForm = () => {
             control={form.control}
             name="password"
             render={({ field }) => (
-              <LoginReveal>
+              <LoginReveal order={3}>
                 <Form.Item>
                   <Form.Label>{t("fields.password")}</Form.Label>
                   <Form.Control>
@@ -198,39 +175,19 @@ const LoginForm = () => {
               </LoginReveal>
             )}
           />
-          <AnimatePresence initial={false}>
-            {serverError && (
-              <motion.div
-                key="server-error"
-                initial={
-                  reduceMotion
-                    ? { opacity: 0 }
-                    : {
-                        opacity: 0,
-                        transform: "translateY(-4px) scale(0.98)",
-                        filter: "blur(2px)",
-                      }
-                }
-                animate={{
-                  opacity: 1,
-                  transform: "translateY(0px) scale(1)",
-                  filter: "blur(0px)",
-                }}
-                exit={{ opacity: 0, transition: { duration: 0.15 } }}
-                transition={{ duration: 0.25, ease: EASE_OUT }}
+          {serverError && (
+            <div className="animate-login-alert motion-reduce:animate-login-fade">
+              <Alert
+                className="bg-ui-bg-base items-center p-2"
+                dismissible
+                variant="error"
               >
-                <Alert
-                  className="bg-ui-bg-base items-center p-2"
-                  dismissible
-                  variant="error"
-                >
-                  {serverError}
-                </Alert>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                {serverError}
+              </Alert>
+            </div>
+          )}
         </div>
-        <LoginReveal>
+        <LoginReveal order={4}>
           <div className="transition-transform duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100">
             <Button className="w-full" type="submit" isLoading={isPending}>
               {t("login.submit")}
@@ -247,7 +204,7 @@ const LoginFooter = () => {
   const { feature_flags } = useFeatureFlags();
 
   return (
-    <LoginReveal className="mt-auto flex flex-col gap-y-2">
+    <LoginReveal order={5} className="mt-auto flex flex-col gap-y-2">
       <span className="text-ui-fg-muted txt-small">
         <Trans
           t={t}
@@ -286,12 +243,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <motion.div
-          className="flex flex-1 flex-col"
-          initial="hidden"
-          animate="show"
-          variants={staggerVariants}
-        >
+        <div className="group/login flex flex-1 flex-col" data-reveal="true">
           <LoginLogo />
           <WidgetZone id="login.before" />
           <div className="mt-6">
@@ -300,7 +252,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
           </div>
           <WidgetZone id="login.after" />
           <LoginFooter />
-        </motion.div>
+        </div>
       )}
     </AuthLayout>
   );
