@@ -9,6 +9,7 @@ import {
   detachSellersFromRegionsStep,
   SellerRegionLink,
   validateSellerRegionLinksStep,
+  validateSellersKeepRegionsStep,
 } from "../steps"
 
 export type LinkSellerRegionsWorkflowInput = {
@@ -25,6 +26,7 @@ export const linkSellerRegionsWorkflow = createWorkflow(
     const toRemove = transform({ input }, ({ input }) => input.remove ?? [])
 
     validateSellerRegionLinksStep({ links: toAdd })
+    validateSellersKeepRegionsStep({ add: toAdd, remove: toRemove })
     associateSellersWithRegionsStep({ links: toAdd })
     detachSellersFromRegionsStep({ links: toRemove })
   }

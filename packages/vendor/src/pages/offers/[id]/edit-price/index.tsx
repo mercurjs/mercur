@@ -16,15 +16,14 @@ import {
 import { RouteFocusModal, useRouteModal } from "../../../../components/modals"
 import { KeyboundForm } from "../../../../components/utilities/keybound-form"
 import { usePricePreferences } from "../../../../hooks/api/price-preferences"
-import { useRegions } from "../../../../hooks/api/regions"
 import { useProduct, productsQueryKeys } from "../../../../hooks/api/products"
 import { offerQueryKeys } from "../../../../hooks/api/offers"
-import { useCurrentSeller } from "../../../../hooks/api/sellers"
 import { castNumber } from "../../../../lib/cast-number"
 import { sdk } from "../../../../lib/client"
 import { queryClient } from "../../../../lib/query-client"
 import { OFFER_PRODUCT_DETAIL_FIELDS } from "../../common/constants"
 import { isBasePrice, isRegionPrice } from "../../common/region-prices"
+import { useSellerCurrencies } from "../../common/use-seller-currencies"
 import { OfferPrice } from "../../common/types"
 
 type EditPriceRow = {
@@ -143,27 +142,11 @@ const EditPriceGrid = ({
 }) => {
   const { t } = useTranslation()
   const { handleSuccess, setCloseOnEscape } = useRouteModal()
-  const { currency_code } = useCurrentSeller()
+  const { currencies, regions } = useSellerCurrencies()
   const canViewPricePreferences = useCan("price_preferences")
   const { price_preferences: pricePreferences } = usePricePreferences(
     {},
     { enabled: canViewPricePreferences }
-  )
-
-  const canViewRegions = useCan("regions")
-  const { regions: fetchedRegions } = useRegions(
-    { fields: "id,name,currency_code", limit: 999 },
-    { enabled: canViewRegions },
-  )
-
-  const currencies = useMemo(
-    () => (currency_code ? [currency_code] : []),
-    [currency_code],
-  )
-
-  const regions = useMemo(
-    () => (canViewRegions ? (fetchedRegions ?? []) : []),
-    [canViewRegions, fetchedRegions],
   )
 
   const rows = useMemo(
@@ -182,10 +165,12 @@ const EditPriceGrid = ({
             amount: number
             currency_code: string
             rules?: Record<string, string>
-          }[] = currencies.map((code) => ({
-            amount: numericOrZero(row.prices?.[code]),
-            currency_code: code,
-          }))
+          }[] = []
+          for (const code of currencies) {
+            const value = row.prices?.[code]
+            if (value === "" || value === null || value === undefined) continue
+            prices.push({ amount: numericOrZero(value), currency_code: code })
+          }
           for (const region of regions) {
             const value = row.region_prices?.[region.id]
             if (value === "" || value === null || value === undefined) continue

@@ -45,8 +45,10 @@ const numericOrZero = (v: number | string | undefined | null): number => {
 
 export const variantRowHasPrice = (
   row: OfferVariantRow,
-  currencyCode: string,
-): boolean => numericOrZero(row.prices?.[currencyCode]) > 0
+  currencyCodes: string[],
+): boolean =>
+  currencyCodes.some((code) => numericOrZero(row.prices?.[code]) > 0) ||
+  Object.values(row.region_prices ?? {}).some((v) => numericOrZero(v) > 0)
 
 // SKU is prefilled from the master variant, so it can't signal intent.
 export const variantRowHasPartialInput = (row: OfferVariantRow): boolean =>

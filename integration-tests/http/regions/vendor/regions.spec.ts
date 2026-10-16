@@ -1,7 +1,10 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { IRegionModuleService, MedusaContainer } from "@medusajs/framework/types"
 import { Modules } from "@medusajs/framework/utils"
-import { createSellerUser } from "../../../helpers/create-seller-user"
+import {
+    createSellerUser,
+    ensureDefaultRegion,
+} from "../../../helpers/create-seller-user"
 import { linkSellerRegions } from "../../../helpers/link-seller-regions"
 
 jest.setTimeout(50000)
@@ -12,6 +15,7 @@ medusaIntegrationTestRunner({
             let appContainer: MedusaContainer
             let sellerHeaders: any
             let sellerId: string
+            let defaultRegionId: string
             let regionModuleService: IRegionModuleService
 
             const createAssignedRegions = async (
@@ -32,6 +36,7 @@ medusaIntegrationTestRunner({
             })
 
             beforeEach(async () => {
+                defaultRegionId = await ensureDefaultRegion(appContainer)
                 const result = await createSellerUser(appContainer, {
                     email: "seller@test.com",
                     name: "Test Seller",
@@ -123,13 +128,13 @@ medusaIntegrationTestRunner({
                     const response = await api.get(`/vendor/regions`, sellerHeaders)
 
                     expect(response.status).toEqual(200)
-                    expect(response.data.regions.map((r: any) => r.id)).toEqual([
-                        assigned.id,
-                    ])
-                    expect(response.data.count).toEqual(1)
+                    expect(response.data.regions.map((r: any) => r.id).sort()).toEqual(
+                        [defaultRegionId, assigned.id].sort()
+                    )
+                    expect(response.data.count).toEqual(2)
                 })
 
-                it("should return an empty list when the seller has no regions", async () => {
+                it("should list only the store default region for a freshly registered seller", async () => {
                     await regionModuleService.createRegions([
                         { name: "Unassigned Region", currency_code: "eur", countries: ["de"] },
                     ])
@@ -137,8 +142,10 @@ medusaIntegrationTestRunner({
                     const response = await api.get(`/vendor/regions`, sellerHeaders)
 
                     expect(response.status).toEqual(200)
-                    expect(response.data.regions).toEqual([])
-                    expect(response.data.count).toEqual(0)
+                    expect(response.data.regions.map((r: any) => r.id)).toEqual([
+                        defaultRegionId,
+                    ])
+                    expect(response.data.count).toEqual(1)
                 })
 
                 it("should support pagination", async () => {

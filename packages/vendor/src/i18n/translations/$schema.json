@@ -5335,6 +5335,9 @@
             },
             "duplicateBatchEntry": {
               "type": "string"
+            },
+            "noCurrencies": {
+              "type": "string"
             }
           },
           "required": [
@@ -5347,7 +5350,8 @@
             "noPublishableRows",
             "priceRequired",
             "noPricedRows",
-            "duplicateBatchEntry"
+            "duplicateBatchEntry",
+            "noCurrencies"
           ],
           "additionalProperties": false
         },

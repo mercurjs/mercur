@@ -147,11 +147,9 @@ medusaIntegrationTestRunner({
           )
 
           expect(response.status).toEqual(200)
-          expect(
-            response.data.seller.regions
-              .map((r: any) => r.id)
-              .sort()
-          ).toEqual([usRegion.id, euRegion.id].sort())
+          expect(response.data.seller.regions.map((r: any) => r.id)).toEqual(
+            expect.arrayContaining([usRegion.id, euRegion.id])
+          )
           expect(response.data.seller.regions[0]).toEqual(
             expect.objectContaining({
               name: expect.any(String),

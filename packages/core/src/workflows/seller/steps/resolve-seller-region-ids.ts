@@ -15,30 +15,23 @@ export const resolveSellerRegionIdsStepId = "resolve-seller-region-ids"
 export const resolveSellerRegionIdsStep = createStep(
   resolveSellerRegionIdsStepId,
   async (input: ResolveSellerRegionIdsStepInput, { container }) => {
-    const needsDefault = input.requests.some((r) => !r.region_ids?.length)
+    const query = container.resolve(ContainerRegistrationKeys.QUERY)
+    const {
+      data: [store],
+    } = await query.graph({
+      entity: "store",
+      fields: ["default_region_id"],
+    })
 
-    let defaultRegionId: string | null = null
-
-    if (needsDefault) {
-      const query = container.resolve(ContainerRegistrationKeys.QUERY)
-      const {
-        data: [store],
-      } = await query.graph({
-        entity: "store",
-        fields: ["default_region_id"],
-      })
-
-      defaultRegionId =
-        (store as { default_region_id?: string | null } | undefined)
-          ?.default_region_id ?? null
-    }
+    const defaultRegionId =
+      (store as { default_region_id?: string | null } | undefined)
+        ?.default_region_id ?? null
 
     const links: SellerRegionLink[] = input.requests.flatMap((request) => {
-      const regionIds = request.region_ids?.length
-        ? request.region_ids
-        : defaultRegionId
-          ? [defaultRegionId]
-          : []
+      const regionIds = [
+        ...(defaultRegionId ? [defaultRegionId] : []),
+        ...(request.region_ids ?? []),
+      ]
 
       return Array.from(new Set(regionIds)).map((region_id) => ({
         seller_id: request.seller_id,

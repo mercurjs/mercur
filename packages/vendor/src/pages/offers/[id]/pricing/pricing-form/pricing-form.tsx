@@ -18,10 +18,9 @@ import {
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useUpdateOffer } from "../../../../../hooks/api/offers"
 import { usePricePreferences } from "../../../../../hooks/api/price-preferences"
-import { useRegions } from "../../../../../hooks/api/regions"
-import { useCurrentSeller } from "../../../../../hooks/api/sellers"
 import { castNumber } from "../../../../../lib/cast-number"
 import { isBasePrice, isRegionPrice } from "../../../common/region-prices"
+import { useSellerCurrencies } from "../../../common/use-seller-currencies"
 import { OfferDetail } from "../../../common/types"
 import {
   PricingFormSchema,
@@ -66,32 +65,12 @@ const buildDefaults = (
 }
 
 export const PricingForm = ({ offer }: Props) => {
-  const { currency_code, isPending: isSellerPending } = useCurrentSeller()
-  const canViewRegions = useCan("regions")
-  const { regions, isPending: isRegionsPending } = useRegions(
-    { fields: "id,name,currency_code", limit: 999 },
-    { enabled: canViewRegions },
-  )
+  const { currencies, regions, isPending } = useSellerCurrencies()
 
-  const sellerCurrencies = useMemo(
-    () => (currency_code ? [currency_code] : []),
-    [currency_code],
-  )
-
-  const resolvedRegions = useMemo(
-    () => (canViewRegions ? (regions ?? []) : []),
-    [canViewRegions, regions],
-  )
-
-  if (isSellerPending || !sellerCurrencies.length) return null
-  if (canViewRegions && isRegionsPending) return null
+  if (isPending) return null
 
   return (
-    <PricingFormInner
-      offer={offer}
-      currencies={sellerCurrencies}
-      regions={resolvedRegions}
-    />
+    <PricingFormInner offer={offer} currencies={currencies} regions={regions} />
   )
 }
 

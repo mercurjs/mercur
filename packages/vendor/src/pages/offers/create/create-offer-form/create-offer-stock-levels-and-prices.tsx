@@ -15,10 +15,9 @@ import { useRouteModal } from "../../../../components/modals";
 import { defineTabMeta } from "../../../../components/tabbed-form/types";
 import { usePricePreferences } from "../../../../hooks/api/price-preferences";
 import { useOfferConditions } from "../../../../hooks/api/offer-conditions";
-import { useRegions } from "../../../../hooks/api/regions";
-import { useCurrentSeller } from "../../../../hooks/api/sellers";
 import { useShippingProfiles } from "../../../../hooks/api/shipping-profiles";
 import { useStockLocations } from "../../../../hooks/api/stock-locations";
+import { useSellerCurrencies } from "../../common/use-seller-currencies";
 import { CreateOfferFormValues, OfferVariantRow } from "./schema";
 
 type ShippingProfileLite = { id: string; name?: string | null };
@@ -49,7 +48,7 @@ const Root = () => {
   const form = useFormContext<CreateOfferFormValues>();
   const { setCloseOnEscape } = useRouteModal();
 
-  const { currency_code } = useCurrentSeller();
+  const { currencies, regions } = useSellerCurrencies();
   const { can } = usePermissions();
   const { stock_locations } = useStockLocations(
     { limit: 100 },
@@ -66,16 +65,6 @@ const Root = () => {
     {},
     { enabled: can("price_preferences") }
   );
-  const canViewRegions = can("regions");
-  const { regions: fetchedRegions } = useRegions(
-    { fields: "id,name,currency_code", limit: 999 },
-    { enabled: canViewRegions }
-  );
-  const regions = useMemo(
-    () => (canViewRegions ? (fetchedRegions ?? []) : []),
-    [canViewRegions, fetchedRegions]
-  );
-
   const variants = useWatch({
     control: form.control,
     name: "variants",
@@ -99,7 +88,7 @@ const Root = () => {
   }, [variants]);
 
   const columns = useColumns({
-    currencyCode: currency_code,
+    currencies,
     stockLocations: stock_locations as
       | HttpTypes.AdminStockLocation[]
       | undefined,
@@ -125,7 +114,7 @@ const Root = () => {
 };
 
 type ColumnArgs = {
-  currencyCode?: string;
+  currencies?: string[];
   stockLocations?: HttpTypes.AdminStockLocation[];
   shippingProfiles?: ShippingProfileLite[];
   offerConditions?: OfferConditionLite[];
@@ -136,7 +125,7 @@ type ColumnArgs = {
 const columnHelper = createDataGridHelper<GridRow, CreateOfferFormValues>();
 
 const useColumns = ({
-  currencyCode,
+  currencies = [],
   stockLocations = [],
   shippingProfiles = [],
   offerConditions = [],
@@ -154,7 +143,6 @@ const useColumns = ({
       value: c.id,
       label: c.label,
     }));
-    const currencies = currencyCode ? [currencyCode] : [];
     const cellCurrencies = Array.from(
       new Set([...currencies, ...regions.map((r) => r.currency_code)])
     );
@@ -287,7 +275,7 @@ const useColumns = ({
     ];
   }, [
     t,
-    currencyCode,
+    currencies,
     stockLocations,
     shippingProfiles,
     offerConditions,

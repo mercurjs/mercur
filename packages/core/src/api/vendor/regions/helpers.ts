@@ -19,6 +19,27 @@ export const listSellerRegionIds = async (
   return links.map((link) => (link as { region_id: string }).region_id)
 }
 
+export const listSellerCurrencyCodes = async (
+  scope: MedusaContainer,
+  sellerId: string
+): Promise<string[]> => {
+  const regionIds = await listSellerRegionIds(scope, sellerId)
+  if (!regionIds.length) {
+    return []
+  }
+
+  const query = scope.resolve(ContainerRegistrationKeys.QUERY)
+  const { data: regions } = await query.graph({
+    entity: "region",
+    filters: { id: regionIds },
+    fields: ["currency_code"],
+  })
+
+  return Array.from(
+    new Set(regions.map((r) => (r.currency_code as string).toLowerCase()))
+  )
+}
+
 export const validateSellerRegions = async (
   scope: MedusaContainer,
   sellerId: string,
@@ -78,10 +99,24 @@ export const validateSellerRegionPrices = async (
   prices: RegionScopedPrice[]
 ) => {
   const regionPrices: RegionPrice[] = []
+  const currencyCodes = new Set<string>()
   for (const price of prices) {
     const regionId = price.region_id ?? regionIdFromRules(price.rules)
     if (regionId) {
       regionPrices.push({ region_id: regionId, currency_code: price.currency_code })
+    } else if (price.currency_code) {
+      currencyCodes.add(price.currency_code.toLowerCase())
+    }
+  }
+
+  if (currencyCodes.size) {
+    const unlocked = new Set(await listSellerCurrencyCodes(scope, sellerId))
+    const locked = Array.from(currencyCodes).find((code) => !unlocked.has(code))
+    if (locked) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        `Currency ${locked} is not available to this seller. Assign a region using it first`
+      )
     }
   }
 

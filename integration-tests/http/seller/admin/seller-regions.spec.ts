@@ -51,10 +51,27 @@ medusaIntegrationTestRunner({
       })
 
       describe("POST /admin/sellers", () => {
-        it("links the given region_ids on creation", async () => {
+        it("links the given region_ids together with the store default region", async () => {
+          await setDefaultRegion(usRegion.id)
+
           const response = await api.post(
             `/admin/sellers`,
             { ...sellerPayload("explicit"), region_ids: [euRegion.id] },
+            adminHeaders
+          )
+
+          expect(response.status).toEqual(201)
+          expect(response.data.seller.regions.map((r: any) => r.id).sort()).toEqual(
+            [usRegion.id, euRegion.id].sort()
+          )
+        })
+
+        it("links the given region_ids when the store has no default region", async () => {
+          await setDefaultRegion(null)
+
+          const response = await api.post(
+            `/admin/sellers`,
+            { ...sellerPayload("explicit-only"), region_ids: [euRegion.id] },
             adminHeaders
           )
 
@@ -77,19 +94,6 @@ medusaIntegrationTestRunner({
           expect(response.data.seller.regions.map((r: any) => r.id)).toEqual([
             usRegion.id,
           ])
-        })
-
-        it("links no region when the store has no default region", async () => {
-          await setDefaultRegion(null)
-
-          const response = await api.post(
-            `/admin/sellers`,
-            sellerPayload("none"),
-            adminHeaders
-          )
-
-          expect(response.status).toEqual(201)
-          expect(response.data.seller.regions).toEqual([])
         })
 
         it("returns 404 for an unknown region id", async () => {
@@ -127,6 +131,7 @@ medusaIntegrationTestRunner({
 
       describe("POST /admin/sellers/:id/regions", () => {
         it("adds and removes regions on a seller", async () => {
+          await setDefaultRegion(usRegion.id)
           const { seller } = await createSellerUser(appContainer, {
             email: "linked@test.com",
             name: "Linked Seller",
@@ -134,7 +139,7 @@ medusaIntegrationTestRunner({
 
           const addResponse = await api.post(
             `/admin/sellers/${seller.id}/regions`,
-            { add: [usRegion.id, euRegion.id] },
+            { add: [euRegion.id] },
             adminHeaders
           )
 
@@ -158,6 +163,32 @@ medusaIntegrationTestRunner({
           expect(detail.data.seller.regions.map((r: any) => r.id)).toEqual([
             euRegion.id,
           ])
+        })
+
+        it("refuses to remove the last region of a seller", async () => {
+          await setDefaultRegion(usRegion.id)
+          const { seller } = await createSellerUser(appContainer, {
+            email: "last-region@test.com",
+            name: "Last Region Seller",
+          })
+
+          const response = await api
+            .post(
+              `/admin/sellers/${seller.id}/regions`,
+              { remove: [usRegion.id] },
+              adminHeaders
+            )
+            .catch((e) => e.response)
+
+          expect(response.status).toEqual(400)
+
+          const swap = await api.post(
+            `/admin/sellers/${seller.id}/regions`,
+            { add: [euRegion.id], remove: [usRegion.id] },
+            adminHeaders
+          )
+
+          expect(swap.status).toEqual(200)
         })
 
         it("returns 404 for an unknown region", async () => {

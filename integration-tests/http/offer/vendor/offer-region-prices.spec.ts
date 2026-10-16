@@ -113,6 +113,36 @@ medusaIntegrationTestRunner({
           expect(response.data.message).toContain(euRegion.id)
         })
 
+        it("rejects a base price in a currency no assigned region uses", async () => {
+          const response = await api
+            .post(
+              `/vendor/offers/${offer.id}`,
+              { prices: [{ amount: 900, currency_code: "eur" }] },
+              headers
+            )
+            .catch((e) => e.response)
+
+          expect(response.status).toEqual(400)
+          expect(response.data.message).toContain("eur")
+        })
+
+        it("unlocks a currency once a region using it is assigned", async () => {
+          await linkSellerRegions(appContainer, sellerId, [euRegion.id])
+
+          const response = await api.post(
+            `/vendor/offers/${offer.id}`,
+            { prices: [{ amount: 900, currency_code: "eur" }] },
+            headers
+          )
+
+          expect(response.status).toEqual(200)
+          expect(response.data.offer.prices).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({ amount: 900, currency_code: "eur" }),
+            ])
+          )
+        })
+
         it("rejects a region price whose currency does not match the region", async () => {
           const response = await api
             .post(
@@ -212,6 +242,22 @@ medusaIntegrationTestRunner({
 
           expect(response.status).toEqual(400)
           expect(response.data.message).toContain(euRegion.id)
+        })
+
+        it("rejects a shipping option currency price no assigned region uses", async () => {
+          const listed = await api.get(`/vendor/shipping-options`, headers)
+          const existing = listed.data.shipping_options[0]
+
+          const response = await api
+            .post(
+              `/vendor/shipping-options/${existing.id}`,
+              { prices: [{ currency_code: "eur", amount: 700 }] },
+              headers
+            )
+            .catch((e) => e.response)
+
+          expect(response.status).toEqual(400)
+          expect(response.data.message).toContain("eur")
         })
 
         it("accepts a shipping option price for an assigned region", async () => {

@@ -16976,6 +16976,12 @@
                 "removed"
               ],
               "additionalProperties": false
+            },
+            "hint": {
+              "type": "string"
+            },
+            "lastRegion": {
+              "type": "string"
             }
           },
           "required": [
@@ -16985,7 +16991,9 @@
             "noRegionsToAdd",
             "alreadyAssigned",
             "removeWarning",
-            "toast"
+            "toast",
+            "hint",
+            "lastRegion"
           ],
           "additionalProperties": false
         },

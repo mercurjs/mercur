@@ -3174,7 +3174,7 @@
     "sellers": {
       "header": "Stores",
       "add": "Add stores",
-      "hint": "Stores assigned to this region can see it and price their offers and shipping options in it.",
+      "hint": "Stores assigned to this region can see it and price offers and shipping in its currency.",
       "empty": "No stores are assigned to this region.",
       "noSellersToAdd": "There are no stores to add.",
       "alreadyAssigned": "This store is already assigned to the region.",
@@ -4212,7 +4212,7 @@
         "currencyRequired": "Please select a currency"
       },
       "regions": "Regions",
-      "regionsHint": "The regions this seller can sell in. The store's default region is preselected."
+      "regionsHint": "The store default region is always assigned. Each assigned region unlocks its currency for pricing."
     },
     "request": {
       "title": "Store request",
@@ -4273,7 +4273,9 @@
       "toast": {
         "added": "Regions added successfully",
         "removed": "Region removed successfully"
-      }
+      },
+      "hint": "Assigned regions decide which currencies this store can price in. The default region is assigned on creation.",
+      "lastRegion": "A store must stay assigned to at least one region."
     }
   },
   "messages": {
