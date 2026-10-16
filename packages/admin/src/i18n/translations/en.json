@@ -3584,10 +3584,10 @@
   },
   "offerConditions": {
     "domain": "Offer Conditions",
-    "subtitle": "Manage the conditions sellers can list offers under.",
+    "subtitle": "Manage the conditions stores can list offers under.",
     "create": {
       "header": "Create Offer Condition",
-      "subtitle": "Specify the conditions sellers can list their offers under.",
+      "subtitle": "Specify the conditions stores can list their offers under.",
       "successToast": "Offer condition {{label}} was successfully created."
     },
     "edit": {
@@ -3615,7 +3615,7 @@
       },
       "isActive": {
         "label": "Enabled",
-        "hint": "When disabled, sellers can't list new offers under this condition."
+        "hint": "When disabled, stores can't list new offers under this condition."
       }
     }
   },
