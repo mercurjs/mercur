@@ -3172,17 +3172,17 @@
       }
     },
     "sellers": {
-      "header": "Sellers",
-      "add": "Add sellers",
-      "hint": "Sellers assigned to this region can see it and price their offers and shipping options in it.",
-      "empty": "No sellers are assigned to this region.",
-      "noSellersToAdd": "There are no sellers to add.",
-      "alreadyAssigned": "This seller is already assigned to the region.",
-      "removeWarning_one": "You are about to remove {{count}} seller from this region. The seller will no longer be able to price offers or shipping in it.",
-      "removeWarning_other": "You are about to remove {{count}} sellers from this region. They will no longer be able to price offers or shipping in it.",
+      "header": "Stores",
+      "add": "Add stores",
+      "hint": "Stores assigned to this region can see it and price their offers and shipping options in it.",
+      "empty": "No stores are assigned to this region.",
+      "noSellersToAdd": "There are no stores to add.",
+      "alreadyAssigned": "This store is already assigned to the region.",
+      "removeWarning_one": "You are about to remove {{count}} store from this region. The store will no longer be able to price offers or shipping in it.",
+      "removeWarning_other": "You are about to remove {{count}} stores from this region. They will no longer be able to price offers or shipping in it.",
       "toast": {
-        "added": "Sellers added to region successfully",
-        "removed": "Sellers removed from region successfully"
+        "added": "Stores added to region successfully",
+        "removed": "Stores removed from region successfully"
       }
     }
   },
