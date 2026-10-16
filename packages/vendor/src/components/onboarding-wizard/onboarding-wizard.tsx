@@ -1,4 +1,4 @@
-import { ComponentType, useMemo } from "react";
+import { ComponentType, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useExtension, useLinkQuery } from "@mercurjs/dashboard-shared";
@@ -7,7 +7,7 @@ import { queryClient } from "@lib/query-client";
 import { WIZARD_STEPS, WizardStepId } from "./constants";
 import { WizardSidebar } from "./wizard-sidebar";
 import { WizardPreview } from "./wizard-preview";
-import { WizardStep } from "./wizard-step";
+import { WizardDirection, WizardStep } from "./wizard-step";
 import { useOnboarding } from "./hooks/use-onboarding";
 import { StoreStep } from "./steps/store-step";
 import { AddressStep } from "./steps/address-step";
@@ -42,19 +42,21 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
   const { currentStep, furthestStep, isPending, goBack, submitStep, skipStep } =
     useOnboarding(memberEmail, steps);
 
-  const handleBack = async () => {
-    if (currentStep === 0) {
-      if (hasStores) {
-        navigate("/store-select", { replace: true });
-      } else {
-        await logoutMutation(undefined, {
-          onSuccess: () => queryClient.clear(),
-          onSettled: () => navigate("/login"),
-        });
-      }
-    } else {
-      goBack();
+  const lastStepRef = useRef(currentStep);
+  const direction: WizardDirection =
+    currentStep >= lastStepRef.current ? 1 : -1;
+  lastStepRef.current = currentStep;
+
+  const handleSignOut = async () => {
+    if (hasStores) {
+      navigate("/store-select", { replace: true });
+      return;
     }
+
+    await logoutMutation(undefined, {
+      onSuccess: () => queryClient.clear(),
+      onSettled: () => navigate("/login"),
+    });
   };
 
   const renderStep = (index: number) => {
@@ -72,7 +74,11 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
       : BUILT_IN_STEPS[step.id as WizardStepId];
 
     return (
-      <WizardStep key={step.id} active={index === currentStep}>
+      <WizardStep
+        key={step.id}
+        active={index === currentStep}
+        direction={direction}
+      >
         <div data-testid={`onboarding-step-${step.id}`}>
           {BuiltIn ? (
             <BuiltIn {...props} />
@@ -89,12 +95,17 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
       <WizardSidebar
         currentStep={currentStep}
         totalSteps={steps.length}
-        onBack={handleBack}
-        showBack
+        memberEmail={memberEmail}
+        onSignOut={handleSignOut}
+        onBack={currentStep > 0 ? goBack : undefined}
       >
         {/* Visited steps stay mounted (just hidden) so going back, or retrying
             after a failed Finish, keeps everything the user typed. */}
-        {steps.slice(0, furthestStep + 1).map((_, index) => renderStep(index))}
+        <div className="grid">
+          {steps
+            .slice(0, furthestStep + 1)
+            .map((_, index) => renderStep(index))}
+        </div>
       </WizardSidebar>
       <WizardPreview />
     </div>

@@ -1,7 +1,7 @@
 import { Children, ReactNode } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import i18n from "i18next";
-import { Alert, Button, Heading, Input, Text, clx } from "@medusajs/ui";
+import { Alert, Button, Heading, Input } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -11,7 +11,7 @@ import { MercurFeatureFlags } from "@mercurjs/types";
 import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { Form } from "@components/common/form";
 import AvatarBox from "@components/common/logo-box/avatar-box";
-import { AuthLayout } from "@components/layout/auth-layout";
+import { AuthLayout, AuthReveal } from "@components/layout/auth-layout";
 import { useFeatureFlags, useSignInWithEmailPass } from "@hooks/api";
 import { isFetchError } from "@lib/is-fetch-error";
 import config from "virtual:mercur/config";
@@ -26,37 +26,13 @@ const LoginSchema = z.object({
     .min(1, { message: i18n.t("login.validation.passwordRequired") }),
 });
 
-const STAGGER_MS = 50;
-
-const LoginReveal = ({
-  children,
-  className,
-  order,
-}: {
-  children: ReactNode;
-  className?: string;
-  order: number;
-}) => {
-  return (
-    <div
-      className={clx(
-        "group-data-[reveal=true]/login:animate-login-reveal motion-reduce:group-data-[reveal=true]/login:animate-login-fade",
-        className,
-      )}
-      style={{ animationDelay: `${(order + 1) * STAGGER_MS}ms` }}
-    >
-      {children}
-    </div>
-  );
-};
-
 const LoginLogo = () => {
   return (
-    <LoginReveal order={0}>
+    <AuthReveal order={0} className="mb-4">
       <WidgetZone id="login.logo">
         <AvatarBox />
       </WidgetZone>
-    </LoginReveal>
+    </AuthReveal>
   );
 };
 
@@ -64,12 +40,11 @@ const LoginHeader = () => {
   const { t } = useTranslation();
 
   return (
-    <LoginReveal order={1} className="mb-6 flex flex-col">
-      <Heading>{t("login.title", { name: config.name ?? "Mercur" })}</Heading>
-      <Text size="small" className="text-ui-fg-subtle">
-        {t("login.hint")}
-      </Text>
-    </LoginReveal>
+    <AuthReveal order={1} className="mb-8 flex flex-col">
+      <Heading level="h1" className="text-xl">
+        {t("login.title", { name: config.name ?? "Mercur" })}
+      </Heading>
+    </AuthReveal>
   );
 };
 
@@ -145,7 +120,7 @@ const LoginForm = () => {
             control={form.control}
             name="email"
             render={({ field }) => (
-              <LoginReveal order={2}>
+              <AuthReveal order={2}>
                 <Form.Item>
                   <Form.Label>{t("fields.email")}</Form.Label>
                   <Form.Control>
@@ -153,16 +128,26 @@ const LoginForm = () => {
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
-              </LoginReveal>
+              </AuthReveal>
             )}
           />
           <Form.Field
             control={form.control}
             name="password"
             render={({ field }) => (
-              <LoginReveal order={3}>
+              <AuthReveal order={3}>
                 <Form.Item>
-                  <Form.Label>{t("fields.password")}</Form.Label>
+                  <div className="flex items-center justify-between">
+                    <Form.Label>{t("fields.password")}</Form.Label>
+                    <Link
+                      to="/reset-password"
+                      tabIndex={-1}
+                      className="text-ui-fg-interactive transition-fg hover:text-ui-fg-interactive-hover focus-visible:text-ui-fg-interactive-hover txt-compact-small-plus outline-none"
+                      data-testid="login-forgot-password-link"
+                    >
+                      {t("login.forgotPasswordLink")}
+                    </Link>
+                  </div>
                   <Form.Control>
                     <Input
                       type="password"
@@ -172,7 +157,7 @@ const LoginForm = () => {
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
-              </LoginReveal>
+              </AuthReveal>
             )}
           />
           {serverError && (
@@ -187,13 +172,13 @@ const LoginForm = () => {
             </div>
           )}
         </div>
-        <LoginReveal order={4}>
+        <AuthReveal order={4}>
           <div className="transition-transform duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100">
             <Button className="w-full" type="submit" isLoading={isPending}>
               {t("login.submit")}
             </Button>
           </div>
-        </LoginReveal>
+        </AuthReveal>
       </form>
     </Form>
   );
@@ -203,50 +188,39 @@ const LoginFooter = () => {
   const { t } = useTranslation();
   const { feature_flags } = useFeatureFlags();
 
+  if (!feature_flags?.[MercurFeatureFlags.SELLER_REGISTRATION]) {
+    return null;
+  }
+
   return (
-    <LoginReveal order={5} className="mt-auto flex flex-col gap-y-2">
+    <AuthReveal order={5} className="mt-6">
       <span className="text-ui-fg-muted txt-small">
         <Trans
           t={t}
-          i18nKey="login.forgotPassword"
+          i18nKey="login.notSellerYet"
           components={[
             <Link
-              key="reset-password-link"
-              to="/reset-password"
+              key="register-link"
+              to="/register"
               className="text-ui-fg-interactive transition-fg hover:text-ui-fg-interactive-hover focus-visible:text-ui-fg-interactive-hover font-medium outline-none"
             />,
           ]}
         />
       </span>
-      {feature_flags?.[MercurFeatureFlags.SELLER_REGISTRATION] && (
-        <span className="text-ui-fg-muted txt-small">
-          <Trans
-            t={t}
-            i18nKey="login.notSellerYet"
-            components={[
-              <Link
-                key="register-link"
-                to="/register"
-                className="text-ui-fg-interactive transition-fg hover:text-ui-fg-interactive-hover focus-visible:text-ui-fg-interactive-hover font-medium outline-none"
-              />,
-            ]}
-          />
-        </span>
-      )}
-    </LoginReveal>
+    </AuthReveal>
   );
 };
 
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
-    <AuthLayout>
+    <AuthLayout align="center">
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <div className="group/login flex flex-1 flex-col" data-reveal="true">
+        <div className="group/auth flex w-full flex-col" data-reveal="true">
           <LoginLogo />
           <WidgetZone id="login.before" />
-          <div className="mt-6">
+          <div className="flex w-full flex-col">
             <LoginHeader />
             <LoginForm />
           </div>

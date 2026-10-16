@@ -14914,6 +14914,9 @@
         "forgotPassword": {
           "type": "string"
         },
+        "forgotPasswordLink": {
+          "type": "string"
+        },
         "title": {
           "type": "string"
         },
@@ -14952,6 +14955,7 @@
       },
       "required": [
         "forgotPassword",
+        "forgotPasswordLink",
         "title",
         "hint",
         "submit",
@@ -15222,6 +15226,9 @@
             "stepOf": {
               "type": "string"
             },
+            "signOut": {
+              "type": "string"
+            },
             "steps": {
               "type": "object",
               "properties": {
@@ -15475,6 +15482,7 @@
           },
           "required": [
             "stepOf",
+            "signOut",
             "steps",
             "store",
             "skip",

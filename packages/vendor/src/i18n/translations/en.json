@@ -3747,7 +3747,8 @@
   },
   "login": {
     "forgotPassword": "Forgot password? <0>Reset</0>",
-    "title": "Welcome back!",
+    "forgotPasswordLink": "Forgot password?",
+    "title": "Log in to your account",
     "hint": "Log in to your vendor account.",
     "submit": "Log in",
     "sessionExpired": "Session expired",
@@ -3759,7 +3760,7 @@
     }
   },
   "register": {
-    "title": "Join {{name}}!",
+    "title": "Sign up",
     "hint": "Enter your details and create a password to set up your store account.",
     "companyName": "Company name",
     "confirmPassword": "Confirm password",
@@ -3824,6 +3825,7 @@
     },
     "wizard": {
       "stepOf": "Step {{current}} of {{total}}",
+      "signOut": "Sign out",
       "steps": {
         "store": "Store Details",
         "address": "Address",
