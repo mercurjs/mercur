@@ -5335,6 +5335,9 @@
             },
             "duplicateBatchEntry": {
               "type": "string"
+            },
+            "noCurrencies": {
+              "type": "string"
             }
           },
           "required": [
@@ -5347,9 +5350,13 @@
             "noPublishableRows",
             "priceRequired",
             "noPricedRows",
-            "duplicateBatchEntry"
+            "duplicateBatchEntry",
+            "noCurrencies"
           ],
           "additionalProperties": false
+        },
+        "regionPrices": {
+          "type": "string"
         }
       },
       "required": [
@@ -5369,7 +5376,8 @@
         "stockStatus",
         "empty",
         "filtered",
-        "validation"
+        "validation",
+        "regionPrices"
       ],
       "additionalProperties": false
     },

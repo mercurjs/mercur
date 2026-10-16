@@ -18,18 +18,23 @@ import { KeyboundForm } from "../../../../components/utilities/keybound-form"
 import { usePricePreferences } from "../../../../hooks/api/price-preferences"
 import { useProduct, productsQueryKeys } from "../../../../hooks/api/products"
 import { offerQueryKeys } from "../../../../hooks/api/offers"
-import { useCurrentSeller } from "../../../../hooks/api/sellers"
 import { castNumber } from "../../../../lib/cast-number"
 import { sdk } from "../../../../lib/client"
 import { queryClient } from "../../../../lib/query-client"
 import { OFFER_PRODUCT_DETAIL_FIELDS } from "../../common/constants"
+import { isBasePrice, isRegionPrice } from "../../common/region-prices"
+import { useSellerCurrencies } from "../../common/use-seller-currencies"
+import { OfferPrice } from "../../common/types"
 
 type EditPriceRow = {
   offer_id: string
   variant_title: string
   product_thumbnail?: string | null
   prices: Record<string, number | string>
+  region_prices: Record<string, number | string>
 }
+
+type Region = HttpTypes.AdminRegion
 
 type FormValues = { rows: EditPriceRow[] }
 
@@ -42,21 +47,32 @@ type PriceProduct = HttpTypes.AdminProduct & {
 const numericOrZero = (v: number | string | undefined | null): number =>
   v === "" || v === null || v === undefined ? 0 : castNumber(v) || 0
 
-const buildRows = (product: PriceProduct, currencies: string[]): EditPriceRow[] =>
+const buildRows = (
+  product: PriceProduct,
+  currencies: string[],
+  regions: Region[],
+): EditPriceRow[] =>
   (product.variants ?? []).flatMap((variant) =>
     (variant.offers ?? []).map((offer) => {
+      const offerPrices = (offer.prices ?? []) as OfferPrice[]
       const prices: Record<string, number | ""> = {}
       for (const code of currencies) {
-        const match = (offer.prices ?? []).find(
-          (p) => p.currency_code === code,
+        const match = offerPrices.find(
+          (p) => isBasePrice(p) && p.currency_code === code,
         )
         prices[code] = match?.amount ?? ""
+      }
+      const region_prices: Record<string, number | ""> = {}
+      for (const region of regions) {
+        const match = offerPrices.find((p) => isRegionPrice(p, region.id))
+        region_prices[region.id] = match?.amount ?? ""
       }
       return {
         offer_id: offer.id,
         variant_title: variant.title ?? "",
         product_thumbnail: product.thumbnail ?? null,
         prices,
+        region_prices,
       }
     }),
   )
@@ -65,15 +81,21 @@ const columnHelper = createDataGridHelper<EditPriceRow, FormValues>()
 
 const useColumns = ({
   currencies,
+  regions,
   pricePreferences,
 }: {
   currencies: string[]
+  regions: Region[]
   pricePreferences?: HttpTypes.AdminPricePreference[]
 }) => {
   const { t } = useTranslation()
 
-  return useMemo(
-    () => [
+  return useMemo(() => {
+    const cellCurrencies = Array.from(
+      new Set([...currencies, ...regions.map((r) => r.currency_code)]),
+    )
+
+    return [
       columnHelper.column({
         id: "title",
         header: t("fields.title"),
@@ -95,17 +117,20 @@ const useColumns = ({
       ...createDataGridPriceColumns<EditPriceRow, FormValues>({
         currencies,
         pricePreferences: pricePreferences ?? [],
-        getFieldName: (context, value) => {
-          if (context.column.id?.startsWith("currency_prices")) {
-            return `rows.${context.row.index}.prices.${value}`
-          }
-          return null
-        },
+        getFieldName: (context, value) =>
+          `rows.${context.row.index}.prices.${value}`,
         t,
       }),
-    ],
-    [t, currencies, pricePreferences],
-  )
+      ...createDataGridPriceColumns<EditPriceRow, FormValues>({
+        currencies: cellCurrencies,
+        regions,
+        pricePreferences: pricePreferences ?? [],
+        getFieldName: (context, value) =>
+          `rows.${context.row.index}.region_prices.${value}`,
+        t,
+      }).filter((column) => column.id?.startsWith("region_prices")),
+    ]
+  }, [t, currencies, regions, pricePreferences])
 }
 
 const EditPriceGrid = ({
@@ -117,34 +142,44 @@ const EditPriceGrid = ({
 }) => {
   const { t } = useTranslation()
   const { handleSuccess, setCloseOnEscape } = useRouteModal()
-  const { currency_code } = useCurrentSeller()
+  const { currencies, regions } = useSellerCurrencies()
   const canViewPricePreferences = useCan("price_preferences")
   const { price_preferences: pricePreferences } = usePricePreferences(
     {},
     { enabled: canViewPricePreferences }
   )
 
-  const currencies = useMemo(
-    () => (currency_code ? [currency_code] : []),
-    [currency_code],
-  )
-
   const rows = useMemo(
-    () => buildRows(product, currencies),
-    [product, currencies],
+    () => buildRows(product, currencies, regions),
+    [product, currencies, regions],
   )
 
   const form = useForm<FormValues>({ defaultValues: { rows } })
-  const columns = useColumns({ currencies, pricePreferences })
+  const columns = useColumns({ currencies, regions, pricePreferences })
 
   const handleSubmit = form.handleSubmit(async (values) => {
     try {
       await Promise.all(
         values.rows.map((row) => {
-          const prices = currencies.map((code) => ({
-            amount: numericOrZero(row.prices?.[code]),
-            currency_code: code,
-          }))
+          const prices: {
+            amount: number
+            currency_code: string
+            rules?: Record<string, string>
+          }[] = []
+          for (const code of currencies) {
+            const value = row.prices?.[code]
+            if (value === "" || value === null || value === undefined) continue
+            prices.push({ amount: numericOrZero(value), currency_code: code })
+          }
+          for (const region of regions) {
+            const value = row.region_prices?.[region.id]
+            if (value === "" || value === null || value === undefined) continue
+            prices.push({
+              amount: numericOrZero(value),
+              currency_code: region.currency_code,
+              rules: { region_id: region.id },
+            })
+          }
           return sdk.vendor.offers.$id.mutate({ $id: row.offer_id, prices })
         }),
       )

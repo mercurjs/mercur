@@ -14,6 +14,7 @@ export const CreateStoreSchema = z.object({
     .string()
     .min(1, { message: i18n.t("stores.create.validation.currencyRequired") }),
   handle: z.string().optional().or(z.literal("")),
+  region_ids: z.array(z.string()),
   member_email: z
     .string()
     .min(1, { message: i18n.t("stores.create.validation.emailRequired") })

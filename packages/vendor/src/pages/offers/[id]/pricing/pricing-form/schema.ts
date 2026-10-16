@@ -7,6 +7,7 @@ const PriceCellSchema = optionalFloat
 const PriceRowSchema = z.object({
   id: z.string(),
   currency_prices: z.record(z.string(), PriceCellSchema).default({}),
+  region_prices: z.record(z.string(), PriceCellSchema).default({}),
 })
 
 export const PricingFormSchema = z.object({

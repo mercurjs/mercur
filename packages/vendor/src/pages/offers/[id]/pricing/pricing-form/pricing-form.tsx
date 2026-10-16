@@ -18,9 +18,10 @@ import {
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useUpdateOffer } from "../../../../../hooks/api/offers"
 import { usePricePreferences } from "../../../../../hooks/api/price-preferences"
-import { useCurrentSeller } from "../../../../../hooks/api/sellers"
 import { castNumber } from "../../../../../lib/cast-number"
-import { OfferDetail, OfferPrice } from "../../../common/types"
+import { isBasePrice, isRegionPrice } from "../../../common/region-prices"
+import { useSellerCurrencies } from "../../../common/use-seller-currencies"
+import { OfferDetail } from "../../../common/types"
 import {
   PricingFormSchema,
   PricingFormValues,
@@ -31,25 +32,29 @@ type Props = {
   offer: OfferDetail
 }
 
-const isBaseRow = (price: OfferPrice) => {
-  if (!price) return false
-  const rules = price.price_rules ?? []
-  const extraRules = rules.filter((r) => r.attribute !== "offer_id")
-  return extraRules.length === 0
-}
+type Region = HttpTypes.AdminRegion
 
 const buildDefaults = (
   offer: OfferDetail,
   currencies: string[],
+  regions: Region[],
 ): PricingFormValues => {
   const basePrice: PricingRow = {
     id: offer.id,
     currency_prices: currencies.reduce<Record<string, number | "">>(
       (acc, code) => {
         const existing = offer.prices?.find(
-          (p) => Boolean(p) && isBaseRow(p) && p.currency_code === code,
+          (p) => isBasePrice(p) && p.currency_code === code,
         )
         acc[code] = existing?.amount ?? ""
+        return acc
+      },
+      {},
+    ),
+    region_prices: regions.reduce<Record<string, number | "">>(
+      (acc, region) => {
+        const existing = offer.prices?.find((p) => isRegionPrice(p, region.id))
+        acc[region.id] = existing?.amount ?? ""
         return acc
       },
       {},
@@ -60,24 +65,23 @@ const buildDefaults = (
 }
 
 export const PricingForm = ({ offer }: Props) => {
-  const { currency_code, isPending: isSellerPending } = useCurrentSeller()
+  const { currencies, regions, isPending } = useSellerCurrencies()
 
-  const currencies = useMemo(
-    () => (currency_code ? [currency_code] : []),
-    [currency_code],
+  if (isPending) return null
+
+  return (
+    <PricingFormInner offer={offer} currencies={currencies} regions={regions} />
   )
-
-  if (isSellerPending || !currencies.length) return null
-
-  return <PricingFormInner offer={offer} currencies={currencies} />
 }
 
 const PricingFormInner = ({
   offer,
   currencies,
+  regions,
 }: {
   offer: OfferDetail
   currencies: string[]
+  regions: Region[]
 }) => {
   const { t } = useTranslation()
   const { handleSuccess, setCloseOnEscape } = useRouteModal()
@@ -88,8 +92,8 @@ const PricingFormInner = ({
   )
 
   const defaults = useMemo(
-    () => buildDefaults(offer, currencies),
-    [offer, currencies],
+    () => buildDefaults(offer, currencies, regions),
+    [offer, currencies, regions],
   )
 
   const form = useForm<PricingFormValues>({
@@ -99,6 +103,7 @@ const PricingFormInner = ({
 
   const columns = usePriceGridColumns({
     currencies,
+    regions,
     pricePreferences,
   })
 
@@ -112,7 +117,12 @@ const PricingFormInner = ({
 
   const handleSubmit = form.handleSubmit(async (values) => {
     const row = values.prices[0]
-    const submitted: { id?: string; amount: number; currency_code: string }[] = []
+    const submitted: {
+      id?: string
+      amount: number
+      currency_code: string
+      rules?: Record<string, string>
+    }[] = []
     for (const [currency_code, amount] of Object.entries(
       row.currency_prices ?? {},
     )) {
@@ -120,12 +130,26 @@ const PricingFormInner = ({
       const num = castNumber(amount)
       if (!Number.isFinite(num)) continue
       const existing = offer.prices?.find(
-        (p) => Boolean(p) && isBaseRow(p) && p.currency_code === currency_code,
+        (p) => isBasePrice(p) && p.currency_code === currency_code,
       )
       submitted.push({
         ...(existing?.id ? { id: existing.id } : {}),
         amount: num,
         currency_code,
+      })
+    }
+    for (const [regionId, amount] of Object.entries(row.region_prices ?? {})) {
+      if (amount === "" || amount === undefined || amount === null) continue
+      const region = regions.find((r) => r.id === regionId)
+      if (!region) continue
+      const num = castNumber(amount)
+      if (!Number.isFinite(num)) continue
+      const existing = offer.prices?.find((p) => isRegionPrice(p, regionId))
+      submitted.push({
+        ...(existing?.id ? { id: existing.id } : {}),
+        amount: num,
+        currency_code: region.currency_code,
+        rules: { region_id: regionId },
       })
     }
 
@@ -174,14 +198,20 @@ const columnHelper = createDataGridHelper<PricingRow, PricingFormValues>()
 
 const usePriceGridColumns = ({
   currencies = [],
+  regions = [],
   pricePreferences = [],
 }: {
   currencies?: string[]
+  regions?: Region[]
   pricePreferences?: HttpTypes.AdminPricePreference[]
 }) => {
   const { t } = useTranslation()
 
   return useMemo(() => {
+    const cellCurrencies = Array.from(
+      new Set([...currencies, ...regions.map((r) => r.currency_code)]),
+    )
+
     return [
       columnHelper.column({
         id: "title",
@@ -199,14 +229,18 @@ const usePriceGridColumns = ({
       ...createDataGridPriceColumns<PricingRow, PricingFormValues>({
         currencies,
         pricePreferences,
-        getFieldName: (context, value) => {
-          if (context.column.id?.startsWith("currency_prices")) {
-            return `prices.${context.row.index}.currency_prices.${value}`
-          }
-          return null
-        },
+        getFieldName: (context, value) =>
+          `prices.${context.row.index}.currency_prices.${value}`,
         t,
       }),
+      ...createDataGridPriceColumns<PricingRow, PricingFormValues>({
+        currencies: cellCurrencies,
+        regions,
+        pricePreferences,
+        getFieldName: (context, value) =>
+          `prices.${context.row.index}.region_prices.${value}`,
+        t,
+      }).filter((column) => column.id?.startsWith("region_prices")),
     ]
-  }, [t, currencies, pricePreferences])
+  }, [t, currencies, regions, pricePreferences])
 }

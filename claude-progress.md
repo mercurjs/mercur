@@ -14,6 +14,20 @@ session detail aggressively. The per-spec source of truth lives in
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
 
+## Session — Seller ↔ Region assignment (SPEC-001), branch `feat/seller-regions`
+
+Spec: `docs/specs/SPEC-001-seller-regions.md`. New `region_seller` link; `linkSellerRegionsWorkflow`;
+seller creation (admin + vendor registration) links `region_ids` or the store default region.
+Admin: `POST /admin/sellers/:id/regions`, `POST /admin/regions/:id/sellers`, `GET /admin/sellers?region_id=`,
+`seller.regions` on retrieve. Vendor: `/vendor/regions` scoped to assigned regions; offer + shipping-option
+prices validated against assigned regions (400). Admin UI: region detail *Sellers* section + add modal,
+store detail *Regions* sidebar + add modal, Create Seller regions picker. Vendor UI: offer price grids gain
+a column per assigned region (`rules.region_id`); offer pricing sections list region prices.
+Verified: `test:integration:http -- "regions|offer-region-prices|shipping-options/vendor|seller/(admin|vendor)/seller"`
+(10 suites, 238 tests). `bun run build` see spec Evidence. Not verified in a browser. Uncommitted.
+Known pre-existing: admin `validate-translations.spec.ts` fails on `sellers.*` schema keys missing from
+`en.json` (unrelated); `bun run lint` tsc noise in untouched files.
+
 ## Session — Panel auth collision, branch `fix/panel-auth-session-collision`
 
 Admin and vendor panels shared one API session cookie, so logging in to one logged the other out.
