@@ -85,6 +85,7 @@ export const ProductDetailsHeader = ({
   // variant's base price.
   const variantOffers = getVariantOffers(offers, variantId)
   const winnerOffer = getBuyboxWinner(variantOffers)
+  const winningSeller = winnerOffer?.seller || seller
   const otherOffersCount = Math.max(variantOffers.length - 1, 0)
 
   const offerAmount = winnerOffer ? getOfferAmount(winnerOffer) : null
@@ -203,10 +204,10 @@ export const ProductDetailsHeader = ({
           onClose={() => setIsCompareOpen(false)}
         />
       )}
-      {user && seller && (
+      {user && winningSeller && (
         <Chat
           user={user}
-          seller={seller}
+          seller={winningSeller}
           buttonClassNames="w-full uppercase"
           product={product}
         />
