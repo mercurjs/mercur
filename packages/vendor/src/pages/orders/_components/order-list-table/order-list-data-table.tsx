@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { keepPreviousData } from "@tanstack/react-query";
 import { type ColumnDef } from "@tanstack/react-table";
 import { HttpTypes } from "@medusajs/types";
 import { useExtendableTable, useLinkQuery, mergeListFilters } from "@mercurjs/dashboard-shared";
@@ -55,11 +56,13 @@ export const OrderListDataTable = () => {
     ].join(","),
   );
 
-  const { orders, count, isError, error, isLoading } = useOrders({
-    ...linkQuery,
-    ...searchParams,
-  });
-
+  const { orders, count, isError, error, isLoading } = useOrders(
+    {
+      ...linkQuery,
+      ...searchParams,
+    },
+    { placeholderData: keepPreviousData },
+  );
 
   const { table } = useDataTable({
     data: orders ?? [],

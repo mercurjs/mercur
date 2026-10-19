@@ -1,6 +1,7 @@
 import { PencilSquare, ReceiptPercent, Trash } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
 import { toast, usePrompt } from "@medusajs/ui";
+import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { useExtendableTable, useLinkQuery, mergeListFilters } from "@mercurjs/dashboard-shared";
 import { useMemo } from "react";
@@ -33,10 +34,13 @@ export const PromotionListDataTable = () => {
     isLoading,
     isError,
     error,
-  } = usePromotions({
-    ...linkQuery,
-    ...searchParams,
-  });
+  } = usePromotions(
+    {
+      ...linkQuery,
+      ...searchParams,
+    },
+    { placeholderData: keepPreviousData },
+  );
 
   const promotions = data?.filter((item) => item !== null);
 
