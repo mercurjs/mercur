@@ -12,6 +12,7 @@ import { adminOffersMiddlewares } from "./offers/middlewares"
 import { adminOfferConditionsMiddlewares } from "./offer-conditions/middlewares"
 import { adminPayoutsMiddlewares } from "./payouts/middlewares"
 import { adminSellersMiddlewares } from "./sellers/middlewares"
+import { adminRegionsMiddlewares } from "./regions/middlewares"
 import { adminMembersMiddlewares } from "./members/middlewares"
 import { adminCommissionRatesMiddlewares } from "./commission-rates/middlewares"
 
@@ -56,6 +57,7 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminOfferConditionsMiddlewares,
   ...adminPayoutsMiddlewares,
   ...adminSellersMiddlewares,
+  ...adminRegionsMiddlewares,
   ...adminMembersMiddlewares,
   ...adminCommissionRatesMiddlewares,
   ...adminProductsMiddlewares,

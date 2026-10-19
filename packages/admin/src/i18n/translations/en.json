@@ -3170,6 +3170,20 @@
         "label": "Requirements",
         "hint": "Specify the requirements for the shipping option."
       }
+    },
+    "sellers": {
+      "header": "Stores",
+      "add": "Add stores",
+      "hint": "Stores assigned to this region can see it and price offers and shipping in its currency.",
+      "empty": "No stores are assigned to this region.",
+      "noSellersToAdd": "There are no stores to add.",
+      "alreadyAssigned": "This store is already assigned to the region.",
+      "removeWarning_one": "You are about to remove {{count}} store from this region. The store will no longer be able to price offers or shipping in it.",
+      "removeWarning_other": "You are about to remove {{count}} stores from this region. They will no longer be able to price offers or shipping in it.",
+      "toast": {
+        "added": "Stores added to region successfully",
+        "removed": "Stores removed from region successfully"
+      }
     }
   },
   "taxes": {
@@ -3570,10 +3584,10 @@
   },
   "offerConditions": {
     "domain": "Offer Conditions",
-    "subtitle": "Manage the conditions sellers can list offers under.",
+    "subtitle": "Manage the conditions stores can list offers under.",
     "create": {
       "header": "Create Offer Condition",
-      "subtitle": "Specify the conditions sellers can list their offers under.",
+      "subtitle": "Specify the conditions stores can list their offers under.",
       "successToast": "Offer condition {{label}} was successfully created."
     },
     "edit": {
@@ -3601,7 +3615,7 @@
       },
       "isActive": {
         "label": "Enabled",
-        "hint": "When disabled, sellers can't list new offers under this condition."
+        "hint": "When disabled, stores can't list new offers under this condition."
       }
     }
   },
@@ -4196,7 +4210,9 @@
         "emailRequired": "Please enter an email",
         "emailInvalid": "Please enter a valid email",
         "currencyRequired": "Please select a currency"
-      }
+      },
+      "regions": "Regions",
+      "regionsHint": "The store default region is always assigned. Each assigned region unlocks its currency for pricing."
     },
     "request": {
       "title": "Store request",
@@ -4243,6 +4259,23 @@
       "successToast": "{{count}} store(s) updated",
       "emptyHeading": "No stores selected",
       "emptyDescription": "Select stores from the list to edit them here."
+    },
+    "regions": {
+      "header": "Regions",
+      "add": "Add regions",
+      "empty": {
+        "title": "No regions assigned",
+        "message": "Assign regions so the seller can price offers and shipping in them."
+      },
+      "noRegionsToAdd": "There are no regions to add.",
+      "alreadyAssigned": "This region is already assigned to the seller.",
+      "removeWarning": "You are about to remove the region {{name}} from this seller. The seller will no longer be able to price offers or shipping in it.",
+      "toast": {
+        "added": "Regions added successfully",
+        "removed": "Region removed successfully"
+      },
+      "hint": "Assigned regions decide which currencies this store can price in. The default region is assigned on creation.",
+      "lastRegion": "A store must stay assigned to at least one region."
     }
   },
   "messages": {
@@ -4477,7 +4510,8 @@
       "in_stock": "In stock",
       "low_stock": "Low stock",
       "out_of_stock": "Out of stock"
-    }
+    },
+    "regionPrices": "Region prices"
   },
   "permissions": {
     "noAccess": "You don't have permission to view this.",

@@ -11,8 +11,8 @@ import { useOfferConditions } from "../../../../hooks/api/offer-conditions";
 import { useBulkCreateOffers } from "../../../../hooks/api/offers";
 import { castNumber } from "../../../../lib/cast-number";
 import { useProducts } from "../../../../hooks/api/products";
-import { useCurrentSeller } from "../../../../hooks/api/sellers";
 import { useStockLocations } from "../../../../hooks/api/stock-locations";
+import { useSellerCurrencies } from "../../common/use-seller-currencies";
 import { CreateOfferCatalogueTab } from "./create-offer-catalogue";
 import { CreateOfferStockLevelsAndPricesTab } from "./create-offer-stock-levels-and-prices";
 import {
@@ -71,7 +71,7 @@ export const CreateOfferForm = () => {
   });
 
   const { mutateAsync: bulkCreateOffers } = useBulkCreateOffers();
-  const { currency_code } = useCurrentSeller();
+  const { currencies, regions } = useSellerCurrencies();
   const canViewLocations = useCan("stock_locations");
   const { stock_locations } = useStockLocations(
     { limit: 100 },
@@ -86,6 +86,7 @@ export const CreateOfferForm = () => {
   const selectedProductIds = form.watch("selected_product_ids") ?? [];
   const selectedProductIdsKey = selectedProductIds.join(",");
   const locationsKey = locationIds.join(",");
+  const currenciesKey = currencies.join(",");
 
   // Fetch the selected products with their variants — the stock & prices
   // tab fans each product out to one row per variant (SPEC-009).
@@ -104,9 +105,9 @@ export const CreateOfferForm = () => {
   useEffect(() => {
     const locIds = locationsKey ? locationsKey.split(",") : [];
 
-    const emptyPrices: Record<string, number | ""> = currency_code
-      ? { [currency_code]: "" }
-      : {};
+    const emptyPrices: Record<string, number | ""> = Object.fromEntries(
+      (currenciesKey ? currenciesKey.split(",") : []).map((code) => [code, ""]),
+    );
     const emptyInventory = locIds.reduce<
       Record<
         string,
@@ -148,6 +149,7 @@ export const CreateOfferForm = () => {
           shipping_profile_id: "",
           condition_id: defaultConditionId,
           prices: { ...emptyPrices },
+          region_prices: {},
           inventory: { ...emptyInventory },
         });
       }
@@ -160,7 +162,7 @@ export const CreateOfferForm = () => {
   }, [
     selectedProductIdsKey,
     fetchedProducts,
-    currency_code,
+    currenciesKey,
     locationsKey,
     defaultConditionId,
     form,
@@ -173,7 +175,8 @@ export const CreateOfferForm = () => {
       return;
     }
 
-    if (!currency_code) {
+    if (!currencies.length) {
+      toast.error(t("offers.validation.noCurrencies"));
       return;
     }
 
@@ -184,9 +187,9 @@ export const CreateOfferForm = () => {
     for (let i = 0; i < variants.length; i++) {
       const row = variants[i];
 
-      if (!variantRowHasPrice(row, currency_code)) {
+      if (!variantRowHasPrice(row, currencies)) {
         if (variantRowHasPartialInput(row)) {
-          form.setError(`variants.${i}.prices.${currency_code}`, {
+          form.setError(`variants.${i}.prices.${currencies[0]}`, {
             type: "manual",
             message: t("offers.validation.priceRequired"),
           });
@@ -233,12 +236,25 @@ export const CreateOfferForm = () => {
     setIsSubmitting(true);
 
     const payloadOffers = rows.map(({ row, sku }) => {
-      const prices = [
-        {
-          amount: numericOrZero(row.prices?.[currency_code]),
-          currency_code,
-        },
-      ];
+      const prices: {
+        amount: number;
+        currency_code: string;
+        rules?: Record<string, string>;
+      }[] = [];
+      for (const code of currencies) {
+        const value = row.prices?.[code];
+        if (value === "" || value === null || value === undefined) continue;
+        prices.push({ amount: numericOrZero(value), currency_code: code });
+      }
+      for (const region of regions) {
+        const value = row.region_prices?.[region.id];
+        if (value === "" || value === null || value === undefined) continue;
+        prices.push({
+          amount: numericOrZero(value),
+          currency_code: region.currency_code,
+          rules: { region_id: region.id },
+        });
+      }
 
       const stock_levels: { location_id: string; stocked_quantity: number }[] = [];
       for (const [locationId, level] of Object.entries(row.inventory ?? {})) {

@@ -11,6 +11,7 @@ import { OfferDTO, OfferPriceDTO } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { createVendorProduct } from "../../../helpers/create-product"
+import { linkSellerCurrencyRegions } from "../../../helpers/link-seller-regions"
 
 jest.setTimeout(120000)
 
@@ -87,6 +88,9 @@ medusaIntegrationTestRunner({
                 })
                 headers = seller.headers
                 memberId = seller.member.id
+                await linkSellerCurrencyRegions(appContainer, seller.seller.id, [
+                    "eur",
+                ])
 
                 const product = await createVendorProduct(api, headers, {
                     title: "Hooked Product",

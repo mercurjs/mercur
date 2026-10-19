@@ -21,6 +21,7 @@ import { StorePaymentDetailsSection } from "./store-payment-details-section";
 import { StoreCompanyDetailsSection } from "./store-company-details-section";
 import { StoreConfigurationSection } from "./store-configuration-section";
 import { StoreAddressSection } from "./store-address-section";
+import { StoreRegionsSection } from "./store-regions-section";
 import { StoreMembersSection } from "./store-members-section";
 import { StoreRequestSection } from "./store-request-section";
 import { StoreOrdersSection } from "./store-orders-section";
@@ -94,7 +95,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const { seller, isLoading, isError, error } = useSeller(id!, query);
 
   if (isLoading || !seller) {
-    return <TwoColumnPageSkeleton mainSections={3} sidebarSections={3} />;
+    return <TwoColumnPageSkeleton mainSections={3} sidebarSections={4} />;
   }
 
   if (isError) {
@@ -177,6 +178,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
       <TwoColumnPage.Sidebar>
         <WidgetZone id="stores.detail.side" data={seller}>
           <StoreAddressSection seller={seller} />
+          <StoreRegionsSection seller={seller} />
           <StoreCompanyDetailsSection seller={seller} />
           <StorePaymentDetailsSection seller={seller} />
         </WidgetZone>
@@ -193,6 +195,7 @@ export const StoreDetailPage = Object.assign(Root, {
   MainPaymentDetailsSection: StorePaymentDetailsSection,
   MainCompanyDetailsSection: StoreCompanyDetailsSection,
   SidebarAddressSection: StoreAddressSection,
+  SidebarRegionsSection: StoreRegionsSection,
   SidebarMembersSection: StoreMembersSection,
   Header: StoreDetailHeader,
   HeaderTitle: StoreDetailTitle,

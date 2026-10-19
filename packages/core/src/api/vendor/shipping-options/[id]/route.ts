@@ -11,6 +11,7 @@ import { MedusaError } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
 import { refetchShippingOption, validateSellerShippingOption } from "../helpers"
+import { validateSellerRegionPrices } from "../../regions/helpers"
 import { VendorUpdateShippingOptionType } from "../validators"
 
 export const GET = async (
@@ -46,6 +47,12 @@ export const POST = async (
   await validateSellerShippingOption(req.scope, sellerId, req.params.id)
 
   const shippingOptionPayload = req.validatedBody
+
+  await validateSellerRegionPrices(
+    req.scope,
+    sellerId,
+    shippingOptionPayload.prices ?? []
+  )
 
   const workflow = updateShippingOptionsWorkflow(req.scope)
 

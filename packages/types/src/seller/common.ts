@@ -181,6 +181,12 @@ export interface CreateMemberInviteDTO {
   metadata?: Record<string, unknown> | null
 }
 
+export interface SellerRegionDTO {
+  id: string
+  name: string
+  currency_code: string
+}
+
 export interface SellerDTO {
   id: string
   name: string
@@ -206,6 +212,7 @@ export interface SellerDTO {
   address: SellerAddressDTO | null
   payment_details: PaymentDetailsDTO | null
   members: MemberDTO[]
+  regions?: SellerRegionDTO[]
   metadata: Record<string, unknown> | null
   created_at: Date
   updated_at: Date

@@ -3,6 +3,7 @@ import { IFulfillmentModuleService, MedusaContainer } from "@medusajs/framework/
 import { Modules } from "@medusajs/framework/utils"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createShippingProfile } from "../../../helpers/create-shipping-profile"
+import { linkSellerCurrencyRegions } from "../../../helpers/link-seller-regions"
 
 jest.setTimeout(60000)
 
@@ -28,6 +29,9 @@ medusaIntegrationTestRunner({
                 })
                 _seller1 = result1.seller
                 seller1Headers = result1.headers
+                await linkSellerCurrencyRegions(appContainer, result1.seller.id, [
+                    "eur",
+                ])
 
                 const result2 = await createSellerUser(appContainer, {
                     email: "seller2@test.com",

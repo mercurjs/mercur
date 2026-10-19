@@ -8,11 +8,20 @@ import {
 } from "@medusajs/framework/utils"
 import { HttpTypes } from "@medusajs/framework/types"
 
+import { validateSellerRegions } from "../helpers"
+
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminRegionResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  await validateSellerRegions(
+    req.scope,
+    req.seller_context!.seller_id,
+    [req.params.id],
+    MedusaError.Types.NOT_FOUND
+  )
 
   const {
     data: [region],

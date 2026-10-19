@@ -24,6 +24,7 @@ export const AdminGetSellersParams = createFindParams({
     email: z.string().optional(),
     status: z.union([z.string(), z.array(z.string())]).optional(),
     is_premium: booleanString().optional(),
+    region_id: z.union([z.string(), z.array(z.string())]).optional(),
     created_at: createOperatorMap().optional(),
     updated_at: createOperatorMap().optional(),
   })
@@ -72,6 +73,7 @@ export const CreateSeller = z.object({
   member: z.object({
     email: z.string().email(),
   }),
+  region_ids: z.array(z.string()).optional(),
 })
 export const AdminCreateSeller = WithAdditionalData(CreateSeller)
 

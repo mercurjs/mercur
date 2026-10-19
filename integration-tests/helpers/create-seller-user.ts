@@ -1,5 +1,7 @@
 import {
     IAuthModuleService,
+    IRegionModuleService,
+    IStoreModuleService,
     MedusaContainer,
 } from "@medusajs/framework/types"
 import {
@@ -13,6 +15,32 @@ export const vendorHeaders = {
     headers: { "x-medusa-access-token": "test_token" },
 }
 
+export const ensureDefaultRegion = async (container: MedusaContainer) => {
+    const storeModule: IStoreModuleService = container.resolve(Modules.STORE)
+    const regionModule: IRegionModuleService = container.resolve(Modules.REGION)
+
+    const [store] = await storeModule.listStores()
+    if (store.default_region_id) {
+        return store.default_region_id
+    }
+
+    let [region] = await regionModule.listRegions(
+        { currency_code: "usd" },
+        { take: 1 }
+    )
+    if (!region) {
+        region = await regionModule.createRegions({
+            name: "Default",
+            currency_code: "usd",
+            countries: [],
+        })
+    }
+
+    await storeModule.updateStores(store.id, { default_region_id: region.id })
+
+    return region.id
+}
+
 export const createSellerUser = async (
     container: MedusaContainer,
     options?: { email?: string; name?: string }
@@ -21,6 +49,8 @@ export const createSellerUser = async (
     const name = options?.name ?? "Test Seller"
 
     const authModule: IAuthModuleService = container.resolve(Modules.AUTH)
+
+    await ensureDefaultRegion(container)
 
     // Low scrypt work factor: this is throwaway test data, and the helper runs
     // on every seller-creating spec. scrypt-kdf embeds the params in the hash,
