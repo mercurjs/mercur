@@ -4,6 +4,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { createVendorProduct } from "../../../helpers/create-product"
+import { linkSellerCurrencyRegions } from "../../../helpers/link-seller-regions"
 
 jest.setTimeout(50000)
 
@@ -51,6 +52,10 @@ medusaIntegrationTestRunner({
                     name: "Seller One",
                 })
                 seller1Headers = result1.headers
+                await linkSellerCurrencyRegions(appContainer, result1.seller.id, [
+                    "eur",
+                    "gbp",
+                ])
 
                 const result2 = await createSellerUser(appContainer, {
                     email: "seller2@test.com",
