@@ -8,5 +8,4 @@ export {
     defineRouteConfig,
     defineLayoutConfig,
     defineLayoutPreferences,
-    defineGateConfig,
 } from "./utils"

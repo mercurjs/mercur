@@ -2,7 +2,6 @@ import { createContext, useContext, useMemo, type ReactNode } from "react"
 import {
   ExtensionRegistry,
   type CustomFieldsModule,
-  type GateModule,
   type LayoutModule,
   type NavigationModule,
   type PreferenceModule,
@@ -16,7 +15,6 @@ export type ExtensionProviderProps = {
   widgets?: WidgetModule
   navigation?: NavigationModule
   customFields?: CustomFieldsModule
-  gates?: GateModule
   layouts?: LayoutModule
   preferences?: PreferenceModule
   children: ReactNode
@@ -36,7 +34,6 @@ export const ExtensionProvider = ({
   widgets,
   navigation,
   customFields,
-  gates,
   layouts,
   preferences,
   children,
@@ -46,14 +43,13 @@ export const ExtensionProvider = ({
       widgets,
       navigation,
       customFields,
-      gates,
       layouts,
       preferences,
     })
     next.registerLayouts(CORE_LAYOUTS)
     activeRegistry = next
     return next
-  }, [widgets, navigation, customFields, gates, layouts, preferences])
+  }, [widgets, navigation, customFields, layouts, preferences])
 
   return (
     <ExtensionContext.Provider value={registry}>

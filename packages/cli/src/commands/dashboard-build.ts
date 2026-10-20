@@ -14,7 +14,7 @@ const APPS: DashboardApp[] = ["admin", "vendor"];
 export const dashboardBuild = new Command()
   .name("dashboard:build")
   .description(
-    "build a dashboard extensions entry (routes, widgets, custom fields, gates, layouts, i18n) from a source directory"
+    "build a dashboard extensions entry (routes, widgets, custom fields, layouts, i18n) from a source directory"
   )
   .option(
     "-c, --cwd <cwd>",

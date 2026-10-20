@@ -3,7 +3,7 @@ import type {
     WidgetConfig,
 } from "./types"
 import type { CustomFieldModel, CustomFieldsConfig } from "./custom-fields"
-import type { GateConfig, LayoutConfig, LayoutPreferences } from "./layouts"
+import type { LayoutConfig, LayoutPreferences } from "./layouts"
 import type { RouteConfig } from "../types"
 
 /**
@@ -47,8 +47,4 @@ export function defineLayoutPreferences(
     config: LayoutPreferences
 ): LayoutPreferences {
     return config
-}
-
-export function defineGateConfig(config: GateConfig): GateConfig {
-    return createConfigHelper(config)
 }

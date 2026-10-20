@@ -13,7 +13,7 @@ Every panel extension comes from an ordered list of **layers**:
 
 A later layer wins. A route at a path an earlier layer declared replaces it, a widget with the same `id`
 replaces it, a translation key overrides it, and a layout preference overrides it field by field. Every
-layer uses the same folders: `routes/`, `widgets/`, `custom-fields/`, `gates/`, `layouts/`, `i18n/` and a
+layer uses the same folders: `routes/`, `widgets/`, `custom-fields/`, `layouts/`, `i18n/` and a
 `_layouts.ts` file.
 
 ## Pages expose named entries
@@ -131,22 +131,13 @@ export default function ProductDetail({ renderDefault }) {
 }
 ```
 
-## Wrap the panel: gates
+## Block the panel behind a flow
 
-A file under `gates/` wraps the whole panel inside the data providers and outside the router, so it can
-fetch and block everything behind it. Lower `order` renders outermost.
-
-```tsx apps/vendor/src/gates/terms.tsx
-import { defineGateConfig } from "@mercurjs/dashboard-sdk"
-
-export const config = defineGateConfig({ id: "terms", order: -10 })
-
-export default function TermsGate({ children }) {
-  const { data } = useTermsStatus()
-  if (data && !data.accepted) return <AcceptTerms />
-  return children
-}
-```
+There is no app-wrapper seam, as in Medusa. A flow every member must complete before using the panel
+(terms acceptance, a verification step) is a page plus a redirect: a `routes/<flow>/page.tsx` with
+`config.public = true` so it renders in the bare public layout, and a widget on the `topbar` zone that
+checks the status with `useQuery` and `navigate`s to the page while the flow is outstanding. The API keeps
+enforcing the rule with a 403 for everything else.
 
 ## Register a layout
 

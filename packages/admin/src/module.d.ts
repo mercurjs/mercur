@@ -41,12 +41,6 @@ declare module "virtual:mercur/custom-fields" {
     export default customFields
 }
 
-declare module "virtual:mercur/gates" {
-    import { GateModule } from '@mercurjs/dashboard-shared'
-    const gates: GateModule
-    export default gates
-}
-
 declare module "virtual:mercur/layouts" {
     import { LayoutModule } from '@mercurjs/dashboard-shared'
     const layouts: LayoutModule

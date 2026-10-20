@@ -11,7 +11,6 @@ import {
     RESOLVED_WIDGETS_MODULE,
     RESOLVED_NAVIGATION_MODULE,
     RESOLVED_CUSTOM_FIELDS_MODULE,
-    RESOLVED_GATES_MODULE,
     RESOLVED_LAYOUTS_MODULE,
     RESOLVED_PREFERENCES_MODULE,
     RESOLVED_I18N_MODULE,
@@ -47,10 +46,6 @@ function isCustomFieldFile(file: string): boolean {
     return normalizeSep(file).includes("/src/custom-fields/");
 }
 
-function isGateFile(file: string): boolean {
-    return normalizeSep(file).includes("/gates/");
-}
-
 function isLayoutFile(file: string): boolean {
     return normalizeSep(file).includes("/layouts/");
 }
@@ -67,7 +62,6 @@ const LAYERED_MODULES = [
     RESOLVED_WIDGETS_MODULE,
     RESOLVED_NAVIGATION_MODULE,
     RESOLVED_CUSTOM_FIELDS_MODULE,
-    RESOLVED_GATES_MODULE,
     RESOLVED_LAYOUTS_MODULE,
     RESOLVED_PREFERENCES_MODULE,
     RESOLVED_I18N_MODULE,
@@ -80,7 +74,6 @@ function isExtensionFile(file: string): boolean {
         isNavigationFile(file) ||
         isPreferencesFile(file) ||
         isCustomFieldFile(file) ||
-        isGateFile(file) ||
         isLayoutFile(file) ||
         isI18nFile(file)
     );

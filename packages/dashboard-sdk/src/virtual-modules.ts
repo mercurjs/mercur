@@ -6,7 +6,6 @@ import {
     RESOLVED_WIDGETS_MODULE,
     RESOLVED_NAVIGATION_MODULE,
     RESOLVED_CUSTOM_FIELDS_MODULE,
-    RESOLVED_GATES_MODULE,
     RESOLVED_LAYOUTS_MODULE,
     RESOLVED_PREFERENCES_MODULE,
     VIRTUAL_MODULES,
@@ -17,7 +16,6 @@ import { generateI18n } from "./i18n"
 import { generateWidgets } from "./widgets"
 import { generateNavigation } from "./navigation"
 import { generateCustomFields } from "./custom-fields"
-import { generateGates } from "./gates-module"
 import { generateLayouts } from "./layouts-module"
 import { generatePreferences } from "./preferences-module"
 import type { BuiltMercurConfig } from "./types"
@@ -65,10 +63,6 @@ export function loadVirtualModule({
 
     if (id === RESOLVED_CUSTOM_FIELDS_MODULE) {
         return generateCustomFields(mercurConfig)
-    }
-
-    if (id === RESOLVED_GATES_MODULE) {
-        return generateGates(mercurConfig)
     }
 
     if (id === RESOLVED_LAYOUTS_MODULE) {

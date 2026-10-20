@@ -144,12 +144,4 @@ describe("layout composer entries", () => {
       { id: "products", label: "Catalog", icon: Icon, nested: null, rank: -1 },
     ])
   })
-
-  test("gates sort by order, lowest outermost", () => {
-    const Gate = ({ children }: { children?: unknown }) => children as null
-    const registry = new ExtensionRegistry({
-      gates: { gates: [{ Component: Gate, id: "b", order: 5 }, { Component: Gate, id: "a", order: -1 }] },
-    })
-    expect(registry.getGates().map((g) => g.id)).toEqual(["a", "b"])
-  })
 })

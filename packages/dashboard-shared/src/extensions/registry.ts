@@ -31,19 +31,12 @@ export type Widget = {
   replace?: string
 }
 
-export type Gate = {
-  Component: ComponentType<{ children?: ReactNode }>
-  id: string
-  order?: number
-}
-
 export type WidgetModule = { widgets?: Widget[] }
 export type NavigationModule = {
   groups?: NavGroupConfig[]
   items?: NavItemOverride<string>[]
 }
 export type CustomFieldsModule = { configs?: CustomFieldsConfig[] }
-export type GateModule = { gates?: Gate[] }
 export type LayoutModule = { layouts?: LayoutConfig[] }
 export type PreferenceModule = { layers?: LayoutPreferences[] }
 
@@ -118,7 +111,6 @@ export class ExtensionRegistry {
   private navOverrides: NavItemOverride<string>[] = []
   private navGroups: NavGroupConfig[] = []
   private customFields: CustomFieldsConfig[] = []
-  private gates: Gate[] = []
   private layouts = new Map<string, LayoutConfig>()
   private preferences: LayoutPreferences = {}
 
@@ -127,7 +119,6 @@ export class ExtensionRegistry {
       widgets?: WidgetModule
       navigation?: NavigationModule
       customFields?: CustomFieldsModule
-      gates?: GateModule
       layouts?: LayoutModule
       preferences?: PreferenceModule
     } = {}
@@ -135,9 +126,6 @@ export class ExtensionRegistry {
     this.rawWidgets = input.widgets?.widgets ?? []
     this.populateWidgets(this.rawWidgets)
     this.customFields = input.customFields?.configs ?? []
-    this.gates = [...(input.gates?.gates ?? [])].sort(
-      (a, b) => (a.order ?? 0) - (b.order ?? 0)
-    )
     for (const layout of input.layouts?.layouts ?? []) {
       this.layouts.set(layout.id, layout)
     }
@@ -151,10 +139,6 @@ export class ExtensionRegistry {
     )
     this.navOverrides = nav.items
     this.navGroups = nav.groups
-  }
-
-  getGates(): Gate[] {
-    return this.gates
   }
 
   getLayout(id: string): LayoutConfig | undefined {

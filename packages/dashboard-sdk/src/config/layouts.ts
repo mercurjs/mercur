@@ -93,9 +93,3 @@ export const NAV_ZONES = {
     MAIN: "nav.main",
     SETTINGS: "nav.settings",
 } as const
-
-export type GateConfig = {
-    id: string
-    /** Lower renders outermost. */
-    order?: number
-}

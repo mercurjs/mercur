@@ -3,7 +3,6 @@ import path from "path"
 import { crawlRoutes, parseFile, buildRouteTree, formatRoute } from "./routes"
 import { parseMenuItemFile, formatMenuItem } from "./menu-items"
 import { collectWidgets } from "./widgets"
-import { collectGates } from "./gates"
 import { normalizePath, crawlModuleFiles } from "./utils"
 import { LAYOUT_PREFERENCES_FILE, NAVIGATION_FILE, VALID_FILE_EXTENSIONS } from "./constants"
 import type { BuiltMercurConfig } from "./types"
@@ -76,9 +75,6 @@ export function collectLayer(srcDir: string, layer: number, startIndex = 0): Col
     const widgets = collectWidgets(srcDir, index)
     index += widgets.entries.length
 
-    const gates = collectGates(srcDir, index)
-    index += gates.entries.length
-
     const cfFiles = crawlModuleFiles(path.join(srcDir, "custom-fields"))
     const cfImports = cfFiles.map(
         (file, i) => `import __cf${layer}_${i} from "${normalizePath(file)}"`
@@ -102,7 +98,6 @@ export function collectLayer(srcDir: string, layer: number, startIndex = 0): Col
         ...routeImports,
         ...menuItemImports,
         ...widgets.imports,
-        ...gates.imports,
         ...cfImports,
         ...layoutImports,
         ...(i18nFile ? [`import ${i18nName} from "${normalizePath(i18nFile)}"`] : []),
@@ -123,9 +118,6 @@ ${menuItems.join(",\n")}
     ] },
     widgetModule: { widgets: [
 ${widgets.entries.join(",\n")}
-    ] },
-    gateModule: { gates: [
-${gates.entries.join(",\n")}
     ] },
     customFieldsModule: { configs: [
 ${cfRefs.join(",\n")}

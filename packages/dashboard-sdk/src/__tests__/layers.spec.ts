@@ -5,7 +5,6 @@ import { afterEach, describe, expect, test } from "vitest"
 import { generateRoutes } from "../routes"
 import { generateWidgets } from "../widgets"
 import { generateNavigation } from "../navigation"
-import { generateGates } from "../gates-module"
 import { generatePreferences } from "../preferences-module"
 import { generatePluginEntryModule } from "../generate-plugin-entry"
 import type { BuiltMercurConfig } from "../types"
@@ -120,25 +119,6 @@ export default function HostWidget() { return null }`
     expect(layers).toEqual([
       { "product.detail": { entries: { "core:ProductMediaSection": { hidden: true } } } },
       { "nav.main": { entries: { "nav:/orders": { order: 0 } } } },
-    ])
-  })
-
-  test("gates carry their id and order", async () => {
-    const root = makeDir()
-    const srcDir = path.join(root, "host", "src")
-    write(
-      path.join(srcDir, "gates", "terms.tsx"),
-      `export const config = { id: "terms", order: -10 }
-export default function Terms({ children }) { return children }`
-    )
-    write(path.join(srcDir, "gates", "licence.tsx"), `export default function Licence({ children }) { return children }`)
-
-    const config = { srcDir, pluginExtensions: [] } as unknown as BuiltMercurConfig
-    const { gates } = (await evaluate(generateGates(config), root, "gates")).default
-
-    expect(gates.map((g: { id: string; order?: number }) => [g.id, g.order])).toEqual([
-      ["licence", undefined],
-      ["terms", -10],
     ])
   })
 })
