@@ -445,6 +445,7 @@
               "references/panel-extensions/overview",
               "references/panel-extensions/custom-fields",
               "references/panel-extensions/widgets",
+              "references/panel-extensions/layouts",
               "references/panel-extensions/create-page"
             ]
           },

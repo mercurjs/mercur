@@ -1,44 +1,12 @@
-import fs from "fs"
-import path from "path"
-import { VALID_FILE_EXTENSIONS } from "./constants"
-import { normalizePath } from "./utils"
+import { emitLayers } from "./layers"
 import type { BuiltMercurConfig } from "./types"
 
-function findI18nIndex(srcDir: string): string | null {
-    const i18nDir = path.join(srcDir, "i18n")
-
-    if (!fs.existsSync(i18nDir)) {
-        return null
-    }
-
-    for (const ext of VALID_FILE_EXTENSIONS) {
-        const filePath = path.join(i18nDir, `index${ext}`)
-        if (fs.existsSync(filePath)) {
-            return filePath
-        }
-    }
-
-    return null
-}
-
-export function generateI18n({ srcDir, pluginExtensions }: BuiltMercurConfig): string {
-    const indexFile = findI18nIndex(srcDir)
-
-    const imports = [
-        ...(indexFile ? [`import appI18n from "${normalizePath(indexFile)}"`] : []),
-        ...pluginExtensions.map(
-            (ext, i) => `import __plugin${i} from "${normalizePath(ext)}"`
-        ),
-    ]
-
-    // Plugins first, app last, so the host can override a plugin's copy.
-    const sources = [
-        ...pluginExtensions.map((_, i) => `(__plugin${i}.i18nModule ?? {})`),
-        ...(indexFile ? ["appI18n"] : []),
-    ]
+/** Deep-merged in layer order, so a later layer overrides a plugin's copy. */
+export function generateI18n(config: BuiltMercurConfig): string {
+    const { header, names } = emitLayers(config)
 
     // deepMerge is inlined because the virtual module has no runtime dependency on @mercurjs/admin.
-    return `${imports.join("\n")}
+    return `${header}
 
 function deepMerge(target, source) {
   const result = { ...target }
@@ -64,6 +32,6 @@ function mergeResources(target, source) {
   return result
 }
 
-export default [${sources.join(", ")}].reduce(mergeResources, {})
+export default [${names.map((name) => `(${name}.i18nModule ?? {})`).join(", ")}].reduce(mergeResources, {})
 `
 }

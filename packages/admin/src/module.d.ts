@@ -40,3 +40,21 @@ declare module "virtual:mercur/custom-fields" {
     const customFields: CustomFieldsModule
     export default customFields
 }
+
+declare module "virtual:mercur/gates" {
+    import { GateModule } from '@mercurjs/dashboard-shared'
+    const gates: GateModule
+    export default gates
+}
+
+declare module "virtual:mercur/layouts" {
+    import { LayoutModule } from '@mercurjs/dashboard-shared'
+    const layouts: LayoutModule
+    export default layouts
+}
+
+declare module "virtual:mercur/preferences" {
+    import { PreferenceModule } from '@mercurjs/dashboard-shared'
+    const preferences: PreferenceModule
+    export default preferences
+}

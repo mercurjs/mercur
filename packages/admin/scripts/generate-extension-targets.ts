@@ -5,6 +5,8 @@
  *
  *   - `<WidgetZone id="…">` usages,           → WidgetZoneRegistry (+ placement suffixes)
  *     `useWidgetTabs("…")` calls
+ *   - `<LayoutComposer widgetsZonePrefix>`    → WidgetZoneRegistry (prefix + its layout sections)
+ *     `<LayoutComposer.Entry id>`             → LayoutEntryRegistry (`core:<id>`)
  *   - `useCoreRoutes()` `to:` literals        → NavItemRegistry / NavParentRegistry
  *   - settings sidebar `to:` / group `id:`    → NavItemRegistry / NavGroupRegistry
  *   - `<FormExtensionZone model zone>` /       → CustomFieldsRegistry (form/display zones)
@@ -31,6 +33,39 @@ function walk(dir: string, out: string[] = []): string[] {
       out.push(full)
   }
   return out
+}
+
+const LAYOUT_SECTIONS: Record<string, string[]> = {
+  "CORE_LAYOUT_IDS.SINGLE_COLUMN": ["main"],
+  "CORE_LAYOUT_IDS.TWO_COLUMN": ["main", "side"],
+}
+
+/**
+ * Composer pages: the zone prefix itself, one zone per section of the layout
+ * the page picked, and the `core:<id>` entry ids a widget may `replace`.
+ */
+function collectComposers(files: string[]): { zones: Set<string>; entries: Set<string> } {
+  const zones = new Set<string>()
+  const entries = new Set<string>()
+  const composerRe = /<LayoutComposer\b[^>]*?widgetsZonePrefix=["'`]([^"'`]+)["'`][^>]*?preferredLayoutId=\{([^}]+)\}/gs
+  const entryRe = /<LayoutComposer\.Entry\b[^>]*?\bid=["'`]([^"'`]+)["'`]/g
+  const defaultsRe = /detailPageDefaultEntries\(/
+  for (const file of files) {
+    const code = fs.readFileSync(file, "utf-8")
+    let m: RegExpExecArray | null
+    while ((m = composerRe.exec(code))) {
+      zones.add(m[1])
+      for (const section of LAYOUT_SECTIONS[m[2].trim()] ?? ["main"]) {
+        zones.add(`${m[1]}.${section}`)
+      }
+    }
+    while ((m = entryRe.exec(code))) entries.add(`core:${m[1]}`)
+    if (defaultsRe.test(code)) {
+      entries.add("core:MetadataSection")
+      entries.add("core:JsonViewSection")
+    }
+  }
+  return { zones, entries }
 }
 
 function collectWidgetSlots(files: string[]): Set<string> {
@@ -273,9 +308,16 @@ function keys(values: Iterable<string>): string {
 function main() {
   const files = walk(SRC)
   const slots = collectWidgetSlots(files)
+  const composers = collectComposers(files)
   const zoneIds = new Set<string>()
   for (const slot of slots) {
     for (const p of PLACEMENTS) zoneIds.add(`${slot}.${p}`)
+  }
+  for (const zone of composers.zones) {
+    zoneIds.add(zone)
+    if (zone.includes(".main") || zone.includes(".side")) {
+      for (const p of PLACEMENTS) zoneIds.add(`${zone}.${p}`)
+    }
   }
 
   const mainLayout = path.join(
@@ -310,6 +352,10 @@ import "@mercurjs/dashboard-sdk"
 declare module "@mercurjs/dashboard-sdk" {
   interface WidgetZoneRegistry {
 ${keys(zoneIds)}
+  }
+
+  interface LayoutEntryRegistry {
+${keys(composers.entries)}
   }
 
   interface NavItemRegistry {

@@ -7,6 +7,9 @@ export const I18N_VIRTUAL_MODULE = "virtual:mercur/i18n"
 export const WIDGETS_VIRTUAL_MODULE = "virtual:mercur/widgets"
 export const NAVIGATION_VIRTUAL_MODULE = "virtual:mercur/navigation"
 export const CUSTOM_FIELDS_VIRTUAL_MODULE = "virtual:mercur/custom-fields"
+export const GATES_VIRTUAL_MODULE = "virtual:mercur/gates"
+export const LAYOUTS_VIRTUAL_MODULE = "virtual:mercur/layouts"
+export const PREFERENCES_VIRTUAL_MODULE = "virtual:mercur/preferences"
 
 export const RESOLVED_CONFIG_MODULE = "\0" + CONFIG_VIRTUAL_MODULE
 export const RESOLVED_ROUTES_MODULE = "\0" + ROUTES_VIRTUAL_MODULE
@@ -15,6 +18,9 @@ export const RESOLVED_I18N_MODULE = "\0" + I18N_VIRTUAL_MODULE
 export const RESOLVED_WIDGETS_MODULE = "\0" + WIDGETS_VIRTUAL_MODULE
 export const RESOLVED_NAVIGATION_MODULE = "\0" + NAVIGATION_VIRTUAL_MODULE
 export const RESOLVED_CUSTOM_FIELDS_MODULE = "\0" + CUSTOM_FIELDS_VIRTUAL_MODULE
+export const RESOLVED_GATES_MODULE = "\0" + GATES_VIRTUAL_MODULE
+export const RESOLVED_LAYOUTS_MODULE = "\0" + LAYOUTS_VIRTUAL_MODULE
+export const RESOLVED_PREFERENCES_MODULE = "\0" + PREFERENCES_VIRTUAL_MODULE
 
 export const VIRTUAL_MODULES = [
     CONFIG_VIRTUAL_MODULE,
@@ -24,4 +30,12 @@ export const VIRTUAL_MODULES = [
     WIDGETS_VIRTUAL_MODULE,
     NAVIGATION_VIRTUAL_MODULE,
     CUSTOM_FIELDS_VIRTUAL_MODULE,
+    GATES_VIRTUAL_MODULE,
+    LAYOUTS_VIRTUAL_MODULE,
+    PREFERENCES_VIRTUAL_MODULE,
 ]
+
+/** The file-name stem of a layer's code-level layout preferences. */
+export const LAYOUT_PREFERENCES_FILE = "_layouts"
+/** The file-name stem of the legacy host-only navigation overrides. */
+export const NAVIGATION_FILE = "_navigation"

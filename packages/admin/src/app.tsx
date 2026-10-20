@@ -2,9 +2,12 @@ import { customRoutes } from "virtual:mercur/routes";
 import widgets from "virtual:mercur/widgets";
 import navigation from "virtual:mercur/navigation";
 import customFields from "virtual:mercur/custom-fields";
+import gates from "virtual:mercur/gates";
+import layouts from "virtual:mercur/layouts";
+import preferences from "virtual:mercur/preferences";
 import { HelmetProvider } from "react-helmet-async";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { ExtensionProvider } from "@mercurjs/dashboard-shared";
+import { ExtensionProvider, Gates, resolveRouteOverrides } from "@mercurjs/dashboard-shared";
 import { FeatureFlagProvider, ThemeProvider } from "./providers";
 import { I18nProvider, Toaster, TooltipProvider } from "@medusajs/ui";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -16,10 +19,11 @@ import { queryClient } from "./lib/query-client";
 
 export default function App() {
   const routes = useMemo(() => {
+    const resolved = resolveRouteOverrides(customRoutes);
     return {
-      settingsRoutes: createRouteMap(getRoutesByType(customRoutes, "settings")),
-      mainRoutes: createRouteMap(getRoutesByType(customRoutes, "main")),
-      publicRoutes: createRouteMap(getRoutesByType(customRoutes, "public")),
+      settingsRoutes: createRouteMap(getRoutesByType(resolved, "settings")),
+      mainRoutes: createRouteMap(getRoutesByType(resolved, "main")),
+      publicRoutes: createRouteMap(getRoutesByType(resolved, "public")),
     };
   }, []);
 
@@ -33,14 +37,19 @@ export default function App() {
                 widgets={widgets}
                 navigation={navigation}
                 customFields={customFields}
+                gates={gates}
+                layouts={layouts}
+                preferences={preferences}
               >
                 <I18n />
                 <I18nProvider>
-                  <RouterProvider
-                    router={createBrowserRouter(getRouteMap(routes), {
-                      basename: __BASE__,
-                    })}
-                  />
+                  <Gates>
+                    <RouterProvider
+                      router={createBrowserRouter(getRouteMap(routes), {
+                        basename: __BASE__,
+                      })}
+                    />
+                  </Gates>
                 </I18nProvider>
                 <Toaster />
               </ExtensionProvider>

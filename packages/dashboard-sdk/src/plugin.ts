@@ -4,10 +4,18 @@ import fs from "fs";
 import { createRequire } from "module";
 import { getFileExports } from "./utils";
 import {
+    LAYOUT_PREFERENCES_FILE,
+    NAVIGATION_FILE,
     RESOLVED_ROUTES_MODULE,
+    RESOLVED_MENU_ITEMS_MODULE,
     RESOLVED_WIDGETS_MODULE,
     RESOLVED_NAVIGATION_MODULE,
     RESOLVED_CUSTOM_FIELDS_MODULE,
+    RESOLVED_GATES_MODULE,
+    RESOLVED_LAYOUTS_MODULE,
+    RESOLVED_PREFERENCES_MODULE,
+    RESOLVED_I18N_MODULE,
+    VIRTUAL_MODULES,
 } from "./constants";
 import {
     isVirtualModule,
@@ -27,11 +35,55 @@ function isWidgetFile(file: string): boolean {
 
 function isNavigationFile(file: string): boolean {
     const basename = path.basename(file, path.extname(file));
-    return basename === "_navigation";
+    return basename === NAVIGATION_FILE;
+}
+
+function isPreferencesFile(file: string): boolean {
+    const basename = path.basename(file, path.extname(file));
+    return basename === LAYOUT_PREFERENCES_FILE;
 }
 
 function isCustomFieldFile(file: string): boolean {
     return normalizeSep(file).includes("/src/custom-fields/");
+}
+
+function isGateFile(file: string): boolean {
+    return normalizeSep(file).includes("/gates/");
+}
+
+function isLayoutFile(file: string): boolean {
+    return normalizeSep(file).includes("/layouts/");
+}
+
+function isI18nFile(file: string): boolean {
+    return normalizeSep(file).includes("/i18n/");
+}
+
+// Every virtual module reads every layer, so a change in one kind of file
+// invalidates them all; the cost is one re-crawl per edit.
+const LAYERED_MODULES = [
+    RESOLVED_ROUTES_MODULE,
+    RESOLVED_MENU_ITEMS_MODULE,
+    RESOLVED_WIDGETS_MODULE,
+    RESOLVED_NAVIGATION_MODULE,
+    RESOLVED_CUSTOM_FIELDS_MODULE,
+    RESOLVED_GATES_MODULE,
+    RESOLVED_LAYOUTS_MODULE,
+    RESOLVED_PREFERENCES_MODULE,
+    RESOLVED_I18N_MODULE,
+];
+
+function isExtensionFile(file: string): boolean {
+    return (
+        isRouteFile(file) ||
+        isWidgetFile(file) ||
+        isNavigationFile(file) ||
+        isPreferencesFile(file) ||
+        isCustomFieldFile(file) ||
+        isGateFile(file) ||
+        isLayoutFile(file) ||
+        isI18nFile(file)
+    );
 }
 
 function normalizeSep(file: string): string {
@@ -202,6 +254,7 @@ async function loadMedusaConfig(
 ): Promise<{
     base?: string;
     pluginExtensions: string[];
+    projectDir?: string;
     vendorAppUrl?: string;
 }> {
     const configDir = path.dirname(medusaConfigPath);
@@ -264,7 +317,15 @@ async function loadMedusaConfig(
             ) ?? [];
         const pluginExtensions = resolvePluginExtensions(plugins, configDir, appType);
 
-        return { base, pluginExtensions, vendorAppUrl };
+        // The Medusa project's own panel extensions live beside its backend code,
+        // as `src/admin` does for Medusa's admin.
+        const projectCandidate = path.join(configDir, "src", appType);
+        const projectDir =
+            fs.existsSync(projectCandidate) && fs.realpathSync(projectCandidate) !== root
+                ? projectCandidate
+                : undefined;
+
+        return { base, pluginExtensions, projectDir, vendorAppUrl };
     } catch (error) {
         // Don't fail the build — but never fail silently either: without the Medusa config
         // the panel is built with base "/" and no plugin extensions, and a panel served
@@ -295,7 +356,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                 root,
                 pluginConfig.medusaConfigPath,
             );
-            const { base, pluginExtensions, vendorAppUrl } = await loadMedusaConfig(
+            const { base, pluginExtensions, projectDir, vendorAppUrl } = await loadMedusaConfig(
                 medusaConfigPath,
                 root,
                 {
@@ -314,6 +375,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                 base,
                 root,
                 srcDir,
+                projectDir,
                 pluginExtensions,
                 imageLimit,
             };
@@ -329,16 +391,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                     dedupe: ["i18next", "react-i18next", "react", "react-dom"],
                 },
                 optimizeDeps: {
-                    exclude: [
-                        "virtual:mercur/config",
-                        "virtual:mercur/routes",
-                        "virtual:mercur/menu-items",
-                        "virtual:mercur/i18n",
-                        "virtual:mercur/widgets",
-                        "virtual:mercur/navigation",
-                        "virtual:mercur/custom-fields",
-                        ...MEDUSA_VIRTUAL_MODULES,
-                    ],
+                    exclude: [...VIRTUAL_MODULES, ...MEDUSA_VIRTUAL_MODULES],
                     include: filterResolvableDeps(
                         [
                             "react",
@@ -385,10 +438,9 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
             };
 
             const handleChange = (file: string) => {
-                if (isRouteFile(file)) invalidate(RESOLVED_ROUTES_MODULE, true);
-                if (isWidgetFile(file)) invalidate(RESOLVED_WIDGETS_MODULE, true);
-                if (isNavigationFile(file)) invalidate(RESOLVED_NAVIGATION_MODULE, true);
-                if (isCustomFieldFile(file)) invalidate(RESOLVED_CUSTOM_FIELDS_MODULE, true);
+                if (!isExtensionFile(file)) return;
+                for (const moduleId of LAYERED_MODULES) invalidate(moduleId, false);
+                server.ws.send({ type: "full-reload" });
             };
 
             server.watcher.on("add", handleChange);
@@ -400,10 +452,8 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                 if (mod) server.moduleGraph.invalidateModule(mod);
             };
 
-            if (isRouteFile(file)) invalidate(RESOLVED_ROUTES_MODULE);
-            if (isWidgetFile(file)) invalidate(RESOLVED_WIDGETS_MODULE);
-            if (isNavigationFile(file)) invalidate(RESOLVED_NAVIGATION_MODULE);
-            if (isCustomFieldFile(file)) invalidate(RESOLVED_CUSTOM_FIELDS_MODULE);
+            if (!isExtensionFile(file)) return;
+            for (const moduleId of LAYERED_MODULES) invalidate(moduleId);
         },
     };
 }

@@ -54,8 +54,11 @@ declare module "@mercurjs/dashboard-sdk" {
     "offer-variants.detail.main.before": true
     "offer-variants.detail.side.after": true
     "offer-variants.detail.side.before": true
+    "offers.detail": true
+    "offers.detail.main": true
     "offers.detail.main.after": true
     "offers.detail.main.before": true
+    "offers.detail.side": true
     "offers.detail.side.after": true
     "offers.detail.side.before": true
     "offers.list.after": true
@@ -132,6 +135,13 @@ declare module "@mercurjs/dashboard-sdk" {
     "team.list.before": true
     "topbar.after": true
     "topbar.before": true
+  }
+
+  interface LayoutEntryRegistry {
+    "core:OfferAssociatedProductSection": true
+    "core:OfferDetailGeneralSection": true
+    "core:OfferVariantsSection": true
+    "core:ProductMediaSection": true
   }
 
   interface NavItemRegistry {

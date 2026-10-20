@@ -1,3 +1,4 @@
+import fs from "fs";
 import path from "path";
 import { handleError } from "@/src/utils/handle-error";
 import {
@@ -13,7 +14,7 @@ const APPS: DashboardApp[] = ["admin", "vendor"];
 export const dashboardBuild = new Command()
   .name("dashboard:build")
   .description(
-    "build a dashboard extensions entry (routes, widgets, custom fields, i18n) from a source directory"
+    "build a dashboard extensions entry (routes, widgets, custom fields, gates, layouts, i18n) from a source directory"
   )
   .option(
     "-c, --cwd <cwd>",
@@ -21,8 +22,11 @@ export const dashboardBuild = new Command()
     process.cwd()
   )
   .option("-a, --app <app>", "which panel the entry targets (admin|vendor)", "admin")
-  .option("-s, --src <src>", "source directory to crawl", "src")
-  .option("-o, --out <out>", "output file", "dist/admin-extensions.mjs")
+  .option(
+    "-s, --src <src>",
+    "source directory to crawl. defaults to src/<app> when it exists, else src."
+  )
+  .option("-o, --out <out>", "output file. defaults to dist/<app>-extensions.mjs.")
   .option("-w, --watch", "rebuild on change", false)
   .action(async (opts) => {
     try {
@@ -33,12 +37,17 @@ export const dashboardBuild = new Command()
         process.exit(1);
       }
 
+      const srcDir =
+        opts.src ??
+        (fs.existsSync(path.join(cwd, "src", opts.app)) ? path.join("src", opts.app) : "src");
+      const outFile = opts.out ?? `dist/${opts.app}-extensions.mjs`;
+
       const buildSpinner = spinner(`Building ${opts.app} extensions...`);
 
       const ok = await buildDashboardExtensions({
         root: cwd,
-        srcDir: opts.src,
-        outFile: opts.out,
+        srcDir,
+        outFile,
         watch: opts.watch,
       });
 
