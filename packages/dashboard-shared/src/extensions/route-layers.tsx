@@ -8,7 +8,13 @@ type LayeredRoute = {
   children?: LayeredRoute[]
 }
 
-const normalize = (path: string) => path.replace(/^\/+/, "").replace(/\/+$/, "")
+const normalize = (path: string) => {
+  let start = 0
+  let end = path.length
+  while (start < end && path.charCodeAt(start) === 47) start++
+  while (end > start && path.charCodeAt(end - 1) === 47) end--
+  return path.slice(start, end)
+}
 
 function override<T extends LayeredRoute>(previous: T, next: T): T {
   const Previous = previous.Component
