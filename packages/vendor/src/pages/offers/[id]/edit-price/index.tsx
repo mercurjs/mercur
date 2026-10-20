@@ -1,5 +1,4 @@
 import { HttpTypes } from "@medusajs/types"
-import { OfferDTO } from "@mercurjs/types"
 import { Button, toast } from "@medusajs/ui"
 import { useMemo } from "react"
 import { useForm } from "react-hook-form"
@@ -18,64 +17,19 @@ import { KeyboundForm } from "../../../../components/utilities/keybound-form"
 import { usePricePreferences } from "../../../../hooks/api/price-preferences"
 import { useProduct, productsQueryKeys } from "../../../../hooks/api/products"
 import { offerQueryKeys } from "../../../../hooks/api/offers"
-import { castNumber } from "../../../../lib/cast-number"
 import { sdk } from "../../../../lib/client"
 import { queryClient } from "../../../../lib/query-client"
 import { OFFER_PRODUCT_DETAIL_FIELDS } from "../../common/constants"
-import { isBasePrice, isRegionPrice } from "../../common/region-prices"
 import { useSellerCurrencies } from "../../common/use-seller-currencies"
-import { OfferPrice } from "../../common/types"
-
-type EditPriceRow = {
-  offer_id: string
-  variant_title: string
-  product_thumbnail?: string | null
-  prices: Record<string, number | string>
-  region_prices: Record<string, number | string>
-}
-
-type Region = HttpTypes.AdminRegion
+import {
+  buildPricePayload,
+  buildRows,
+  EditPriceRow,
+  PriceProduct,
+  Region,
+} from "./utils"
 
 type FormValues = { rows: EditPriceRow[] }
-
-type PriceProduct = HttpTypes.AdminProduct & {
-  variants?: Array<
-    HttpTypes.AdminProductVariant & { offers?: OfferDTO[] | null }
-  > | null
-}
-
-const numericOrZero = (v: number | string | undefined | null): number =>
-  v === "" || v === null || v === undefined ? 0 : castNumber(v) || 0
-
-const buildRows = (
-  product: PriceProduct,
-  currencies: string[],
-  regions: Region[],
-): EditPriceRow[] =>
-  (product.variants ?? []).flatMap((variant) =>
-    (variant.offers ?? []).map((offer) => {
-      const offerPrices = (offer.prices ?? []) as OfferPrice[]
-      const prices: Record<string, number | ""> = {}
-      for (const code of currencies) {
-        const match = offerPrices.find(
-          (p) => isBasePrice(p) && p.currency_code === code,
-        )
-        prices[code] = match?.amount ?? ""
-      }
-      const region_prices: Record<string, number | ""> = {}
-      for (const region of regions) {
-        const match = offerPrices.find((p) => isRegionPrice(p, region.id))
-        region_prices[region.id] = match?.amount ?? ""
-      }
-      return {
-        offer_id: offer.id,
-        variant_title: variant.title ?? "",
-        product_thumbnail: product.thumbnail ?? null,
-        prices,
-        region_prices,
-      }
-    }),
-  )
 
 const columnHelper = createDataGridHelper<EditPriceRow, FormValues>()
 
@@ -136,13 +90,16 @@ const useColumns = ({
 const EditPriceGrid = ({
   product,
   productId,
+  currencies,
+  regions,
 }: {
   product: PriceProduct
   productId: string
+  currencies: string[]
+  regions: Region[]
 }) => {
   const { t } = useTranslation()
   const { handleSuccess, setCloseOnEscape } = useRouteModal()
-  const { currencies, regions } = useSellerCurrencies()
   const canViewPricePreferences = useCan("price_preferences")
   const { price_preferences: pricePreferences } = usePricePreferences(
     {},
@@ -160,28 +117,12 @@ const EditPriceGrid = ({
   const handleSubmit = form.handleSubmit(async (values) => {
     try {
       await Promise.all(
-        values.rows.map((row) => {
-          const prices: {
-            amount: number
-            currency_code: string
-            rules?: Record<string, string>
-          }[] = []
-          for (const code of currencies) {
-            const value = row.prices?.[code]
-            if (value === "" || value === null || value === undefined) continue
-            prices.push({ amount: numericOrZero(value), currency_code: code })
-          }
-          for (const region of regions) {
-            const value = row.region_prices?.[region.id]
-            if (value === "" || value === null || value === undefined) continue
-            prices.push({
-              amount: numericOrZero(value),
-              currency_code: region.currency_code,
-              rules: { region_id: region.id },
-            })
-          }
-          return sdk.vendor.offers.$id.mutate({ $id: row.offer_id, prices })
-        }),
+        values.rows.map((row) =>
+          sdk.vendor.offers.$id.mutate({
+            $id: row.offer_id,
+            prices: buildPricePayload(row, currencies, regions),
+          }),
+        ),
       )
       await queryClient.invalidateQueries({ queryKey: offerQueryKeys.lists() })
       await queryClient.invalidateQueries({
@@ -237,10 +178,20 @@ export const OfferEditPricePage = () => {
   const { product, isPending, isError, error } = useProduct(id!, {
     fields: OFFER_PRODUCT_DETAIL_FIELDS,
   })
+  const {
+    currencies,
+    regions,
+    isPending: isRegionsPending,
+    isError: isRegionsError,
+    error: regionsError,
+  } = useSellerCurrencies()
 
   const forbidden = isError && isForbidden(error)
 
   if (isError && !forbidden) throw error
+  if (isRegionsError) throw regionsError
+
+  const ready = !isPending && !!product && !isRegionsPending
 
   return (
     <RouteFocusModal>
@@ -258,9 +209,13 @@ export const OfferEditPricePage = () => {
           </RouteFocusModal.Body>
         </>
       ) : (
-        !isPending &&
-        product && (
-          <EditPriceGrid product={product as PriceProduct} productId={id!} />
+        ready && (
+          <EditPriceGrid
+            product={product as PriceProduct}
+            productId={id!}
+            currencies={currencies}
+            regions={regions}
+          />
         )
       )}
     </RouteFocusModal>
