@@ -100,8 +100,11 @@ declare module "@mercurjs/dashboard-sdk" {
     "product-variants.detail.main.before": true
     "product-variants.detail.side.after": true
     "product-variants.detail.side.before": true
+    "product.detail": true
+    "product.detail.main": true
     "product.detail.main.after": true
     "product.detail.main.before": true
+    "product.detail.side": true
     "product.detail.side.after": true
     "product.detail.side.before": true
     "products.list.after": true
@@ -160,6 +163,18 @@ declare module "@mercurjs/dashboard-sdk" {
     "users.detail.main.before": true
     "users.list.after": true
     "users.list.before": true
+  }
+
+  interface LayoutEntryRegistry {
+    "core:JsonViewSection": true
+    "core:MetadataSection": true
+    "core:ProductActiveEditSection": true
+    "core:ProductActiveRequestSection": true
+    "core:ProductAttributeSection": true
+    "core:ProductGeneralSection": true
+    "core:ProductMediaSection": true
+    "core:ProductOrganizationSection": true
+    "core:ProductVariantSection": true
   }
 
   interface NavItemRegistry {

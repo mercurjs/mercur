@@ -14,6 +14,18 @@ session detail aggressively. The per-spec source of truth lives in
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
 
+## Session — Dashboard extensions, OS deltas D-001…D-005 (2026-10-20), branch `feat/dashboard-layout-composer`
+
+Spec: `docs/specs/spec-dashboard-extensions/` (local; `docs/specs` is gitignored), `in_progress`. PR #1674.
+- `LayoutComposer` (Medusa port, no edit mode) in `@mercurjs/dashboard-shared`; registry gained layouts,
+  gates, layered preferences, `getWidgetsForSections`; `resolveRouteOverrides` gives overriding routes
+  `renderDefault`. SDK: every virtual module merges ordered layers (`layers.ts`), new `layouts`/`preferences` modules, `defineRouteConfig`/`defineLayoutConfig`/`defineLayoutPreferences`.
+- Pilots on the composer: admin product detail, vendor offer detail (existing zone ids kept).
+- Verified: SDK vitest 16/16, shared vitest 33/33, panel tsc no new errors vs baseline, admin/vendor/cli
+  packages build, both host apps `vite build`. Docs page `references/panel-extensions/layouts.mdx`.
+- Next: D-006 (rewrite the remaining 116 compound pages, public `/hooks` + `/components`, peer deps),
+  D-007 (CLI emits extension-targets for plugins, typed plugin routes), sidebars as composers.
+
 ## Session — Seller ↔ Region assignment (SPEC-001), branch `feat/seller-regions`
 
 Spec: `docs/specs/SPEC-001-seller-regions.md`. New `region_seller` link; `linkSellerRegionsWorkflow`;

@@ -3,6 +3,8 @@ import type {
     WidgetConfig,
 } from "./types"
 import type { CustomFieldModel, CustomFieldsConfig } from "./custom-fields"
+import type { LayoutConfig, LayoutPreferences } from "./layouts"
+import type { RouteConfig } from "../types"
 
 /**
  * Wraps a declarative config so Vite's Fast Refresh treats the module as a
@@ -31,4 +33,18 @@ export function defineCustomFieldsConfig<TModel extends CustomFieldModel>(
     config: CustomFieldsConfig<TModel>
 ): CustomFieldsConfig<TModel> {
     return createConfigHelper(config)
+}
+
+export function defineRouteConfig(config: RouteConfig): RouteConfig {
+    return createConfigHelper(config)
+}
+
+export function defineLayoutConfig(config: LayoutConfig): LayoutConfig {
+    return createConfigHelper(config)
+}
+
+export function defineLayoutPreferences(
+    config: LayoutPreferences
+): LayoutPreferences {
+    return config
 }

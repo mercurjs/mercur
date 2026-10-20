@@ -1,0 +1,169 @@
+---
+title: "Layouts and layers"
+sidebarTitle: "Layouts and layers"
+description: "How extensions from plugins and your project stack, how a page exposes its sections, and how to hide, reorder, replace or wrap what a page renders."
+---
+
+Every panel extension comes from an ordered list of **layers**:
+
+1. `@mercurjs/admin` or `@mercurjs/vendor` itself,
+2. each plugin in `medusa-config` `plugins` order, from its built `.medusa/server/src/<admin|vendor>/index.mjs`,
+3. your Medusa project's `src/admin` or `src/vendor` folder (next to `medusa-config.ts`),
+4. the panel app's own `src` folder.
+
+A later layer wins. A route at a path an earlier layer declared replaces it, a widget with the same `id`
+replaces it, a translation key overrides it, and a layout preference overrides it field by field. Every
+layer uses the same folders: `routes/`, `widgets/`, `custom-fields/`, `layouts/`, `i18n/` and a
+`_layouts.ts` file.
+
+## Pages expose named entries
+
+A detail or list page renders a `LayoutComposer`. It names the zone widgets target, the layout it uses,
+and gives each section a stable entry id:
+
+```tsx
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import { LayoutComposer, detailPageDefaultEntries } from "@mercurjs/dashboard-shared"
+
+<LayoutComposer
+  widgetsZonePrefix="product.detail"
+  preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
+  data={product}
+  sections={{
+    main: (
+      <>
+        <LayoutComposer.Entry id="ProductGeneralSection">
+          <ProductGeneralSection product={product} />
+        </LayoutComposer.Entry>
+        {detailPageDefaultEntries(product)}
+      </>
+    ),
+    side: (
+      <LayoutComposer.Entry id="ProductOrganizationSection">
+        <ProductOrganizationSection product={product} />
+      </LayoutComposer.Entry>
+    ),
+  }}
+/>
+```
+
+The page's own sections become entries `core:ProductGeneralSection`, `core:MetadataSection` and so on;
+widgets become `widget:<id>`. Use the same component on your own pages and the build emits their zones and
+entry ids into `extension-targets.d.ts`, so the next layer gets autocompletion for them.
+
+## Place a widget
+
+`zone` is the page prefix or one of its sections. `section` and `order` place the widget among the page's
+entries; core entries sit at order `0`, so a negative order renders before them and no order renders after.
+
+```tsx
+export const config = defineWidgetConfig({
+  zone: "product.detail",
+  id: "seller-offers",
+  section: "side",
+  order: -1,
+})
+```
+
+`replace` takes the slot of a page entry. The widget receives `renderDefault` to render what it replaced:
+
+```tsx
+export const config = defineWidgetConfig({
+  zone: "product.detail",
+  id: "general-with-seller",
+  replace: "core:ProductGeneralSection",
+})
+
+export default function GeneralWithSeller({ data, renderDefault }) {
+  return (
+    <>
+      {renderDefault?.()}
+      <SellerBadge product={data} />
+    </>
+  )
+}
+```
+
+The legacy `product.detail.side.before` and `.after` zones still work and map to the first and last
+position of that section.
+
+## Hide, reorder and move entries: `_layouts.ts`
+
+A layer's `_layouts.ts` holds per-zone preferences that apply to everyone. The sidebars are zones too
+(`nav.main`, `nav.settings`) with `nav:<path>` entries, which replaces `_navigation.ts`.
+
+```ts
+import { defineLayoutPreferences } from "@mercurjs/dashboard-sdk"
+import { Tag } from "@medusajs/icons"
+
+export default defineLayoutPreferences({
+  "product.detail": {
+    entries: {
+      "core:ProductMediaSection": { hidden: true },
+      "widget:seller-offers": { section: "main", order: 1 },
+    },
+  },
+  "nav.main": {
+    groups: [{ id: "finance", label: "Finance", rank: 5 }],
+    entries: {
+      "nav:/products": { label: "Catalog", icon: Tag, order: -1 },
+      "nav:/payouts": { section: "finance" },
+      "nav:/price-lists": { parent: null },
+      "nav:/settings/commissions": { hidden: true },
+    },
+  },
+})
+```
+
+## Override a page
+
+A `page.tsx` at a path an earlier layer already serves replaces it. The component receives `renderDefault`,
+which renders the page it replaced:
+
+```tsx
+export default function ProductDetail({ renderDefault }) {
+  return (
+    <>
+      <ApprovalBanner />
+      {renderDefault?.()}
+    </>
+  )
+}
+```
+
+## Block the panel behind a flow
+
+There is no app-wrapper seam, as in Medusa. A flow every member must complete before using the panel
+(terms acceptance, a verification step) is a page plus a redirect: a `routes/<flow>/page.tsx` with
+`config.public = true` so it renders in the bare public layout, and a widget on the `topbar` zone that
+checks the status with `useQuery` and `navigate`s to the page while the flow is outstanding. The API keeps
+enforcing the rule with a 403 for everything else.
+
+## Register a layout
+
+A file under `layouts/` registers a layout other pages can pick. Augment `LayoutSectionRegistry` so the
+`sections` prop is typed.
+
+```tsx
+import { defineLayoutConfig } from "@mercurjs/dashboard-sdk"
+
+export default defineLayoutConfig({
+  id: "erp:three-column",
+  sections: [{ id: "main" }, { id: "left" }, { id: "right" }],
+  Component: ({ sections }) => (
+    <div className="grid grid-cols-3 gap-3">
+      {sections.left}
+      {sections.main}
+      {sections.right}
+    </div>
+  ),
+})
+```
+
+```ts
+declare module "@mercurjs/dashboard-sdk" {
+  interface LayoutSectionRegistry {
+    "erp:three-column": "main" | "left" | "right"
+  }
+}
+```

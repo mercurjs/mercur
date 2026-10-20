@@ -10,7 +10,13 @@ export {
   type ResolvedDisplays,
   type ZoneWidgets,
   type WidgetPlacement,
+  type LayoutModule,
+  type PreferenceModule,
+  type SectionWidget,
+  type SectionWidgetMap,
 } from "./registry"
+export { resolveRouteOverrides, type RenderDefaultProps } from "./route-layers"
+export { mergeLayoutPreferences, navOverridesFromPreferences } from "./preferences"
 export {
   ExtensionProvider,
   useExtension,

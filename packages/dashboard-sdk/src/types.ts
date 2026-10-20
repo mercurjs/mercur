@@ -61,7 +61,14 @@ export interface BuiltMercurConfig extends MercurConfig {
     backendUrl: string;
     base?: string;
     root: string
+    /** The host app's own `src`, crawled as the last layer. */
     srcDir: string
+    /**
+     * The Medusa project's `src/<admin|vendor>`, crawled as the layer between
+     * the plugins and the host app. Unset when the folder does not exist.
+     */
+    projectDir?: string
+    /** Prebuilt plugin entries, in `medusa-config` plugin order. */
     pluginExtensions: string[]
     imageLimit: number
 }

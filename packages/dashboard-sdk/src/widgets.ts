@@ -14,10 +14,13 @@ import {
     isIdentifier,
     isObjectExpression,
     isObjectProperty,
+    isNumericLiteral,
     isStringLiteral,
+    isUnaryExpression,
     isVariableDeclaration,
     isVariableDeclarator,
 } from "./babel"
+import { emitLayers, spreadLayers } from "./layers"
 import type { BuiltMercurConfig } from "./types"
 
 type WidgetInfo = {
@@ -25,6 +28,17 @@ type WidgetInfo = {
     id?: string
     label?: string
     permissions: string[]
+    section?: string
+    order?: number
+    replace?: string
+}
+
+function readNumber(value: any): number | undefined {
+    if (isNumericLiteral(value)) return value.value
+    if (isUnaryExpression(value) && value.operator === "-" && isNumericLiteral(value.argument)) {
+        return -value.argument.value
+    }
+    return undefined
 }
 
 type WidgetResult = {
@@ -47,6 +61,9 @@ function readWidgetConfig(properties: any[]): WidgetInfo | null {
     const permissions: string[] = []
     let id: string | undefined
     let label: string | undefined
+    let section: string | undefined
+    let order: number | undefined
+    let replace: string | undefined
 
     for (const prop of properties) {
         if (!isObjectProperty(prop)) continue
@@ -62,10 +79,19 @@ function readWidgetConfig(properties: any[]): WidgetInfo | null {
         if (isIdentifier(prop.key, { name: "label" }) && isStringLiteral(prop.value)) {
             label = prop.value.value
         }
+        if (isIdentifier(prop.key, { name: "section" }) && isStringLiteral(prop.value)) {
+            section = prop.value.value
+        }
+        if (isIdentifier(prop.key, { name: "order" })) {
+            order = readNumber(prop.value)
+        }
+        if (isIdentifier(prop.key, { name: "replace" }) && isStringLiteral(prop.value)) {
+            replace = prop.value.value
+        }
     }
 
     if (zones.length === 0) return null
-    return { zones, id, label, permissions }
+    return { zones, id, label, permissions, section, order, replace }
 }
 
 function getConfigProperties(node: any): any[] | null {
@@ -153,7 +179,9 @@ function parseWidgetFile(
             info.permissions.length
                 ? `, permission: ${JSON.stringify(info.permissions)}`
                 : ""
-        } }`,
+        }${info.section ? `, section: ${JSON.stringify(info.section)}` : ""}${
+            info.order !== undefined ? `, order: ${info.order}` : ""
+        }${info.replace ? `, replace: ${JSON.stringify(info.replace)}` : ""} }`,
     }
 }
 
@@ -183,33 +211,21 @@ export function collectWidgets(
     }
 }
 
-export function generateWidgets({
-    srcDir,
-    pluginExtensions,
-}: BuiltMercurConfig): string {
-    const { imports, entries: widgetEntries } = collectWidgets(srcDir)
+/**
+ * Widgets stack across layers; a later layer's widget with the same id replaces
+ * the earlier one so a project can swap a plugin's widget without a new id.
+ */
+export function generateWidgets(config: BuiltMercurConfig): string {
+    const { header, names } = emitLayers(config)
 
-    const pluginDeclarations = pluginExtensions.map(
-        (ext, i) =>
-            `import __plugin${i} from "${normalizePath(ext)}"`
-    )
-    const pluginSpreads = pluginExtensions.map(
-        (_, i) => `    ...(__plugin${i}.widgetModule?.widgets ?? [])`
-    )
+    return `${header}
 
-    const entries = [...widgetEntries, ...pluginSpreads]
+const byId = new Map()
+for (const widget of [
+${spreadLayers(names, "widgetModule", "widgets")}
+]) {
+    byId.set(widget.widgetId, widget)
+}
 
-    if (imports.length === 0 && pluginDeclarations.length === 0 && entries.length === 0) {
-        return `export default { widgets: [] }`
-    }
-
-    return `${imports.join("\n")}
-
-${pluginDeclarations.join("\n")}
-
-export default {
-    widgets: [
-${entries.join(",\n")}
-    ]
-}`
+export default { widgets: [...byId.values()] }`
 }

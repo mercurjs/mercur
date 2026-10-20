@@ -1,10 +1,11 @@
 import { ComponentType } from "react"
 import { LoaderFunction, RouteObject } from "react-router-dom"
 import type { Permission, RouteHandle } from "@mercurjs/dashboard-sdk"
+import type { RenderDefaultProps } from "@mercurjs/dashboard-shared"
 import { ErrorBoundary } from "../components/utilities/error-boundary"
 
 export type Route = {
-    Component: ComponentType
+    Component: ComponentType<RenderDefaultProps>
     path: string
     loader?: LoaderFunction
     handle?: RouteHandle
