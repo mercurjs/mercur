@@ -1,39 +1,98 @@
 ---
-title: "Workflows"
+title: "Order group workflows"
 sidebarTitle: "Workflows"
-description: "Order group workflows, service methods, and events."
+description: "Input, output, hooks, steps, and events of the checkout split and the order group read workflows."
 ---
 
-This reference lists the workflows, service methods, and events for the Order
-Group domain. Import workflows from `@mercurjs/core/workflows` and run them
-against the Medusa container.
+Three workflows and one step make up the order group surface: the checkout split that creates groups, and two read workflows that return groups with derived child order statuses. Import them from `@mercurjs/core/workflows` and run them with the Medusa container.
 
-## Checkout workflow
+```ts
+import {
+  completeCartWithSplitOrdersWorkflow,
+  createOrderGroupStep,
+  getOrderGroupDetailWorkflow,
+  getOrderGroupsListWorkflow,
+} from "@mercurjs/core/workflows"
+```
 
-| Workflow | Input | Purpose |
+## completeCartWithSplitOrdersWorkflow
+
+Completes a cart by creating one order per seller under a new order group. Workflow id `complete-cart-with-split-orders`. Mercur’s cart completion route and `processPaymentWorkflow` both run it.
+
+| Input | Type | Description |
 | --- | --- | --- |
-| `completeCartWithSplitOrdersWorkflow` | `{ cart_id }` | Split a multi-seller cart into per-seller orders and create the parent `OrderGroup`. Returns `{ order_group_id }`. Idempotent per cart. |
+| `cart_id` | `string` | The cart to complete |
 
-## Read workflows
+It returns `{ order_group_id: string }`. If a group with the same `cart_id` already exists, the workflow skips the split and returns that group’s id.
 
-| Workflow | Input | Purpose |
+The workflow stores its execution (`store: true`) and keeps it for 3 days. It holds a lock on the cart id with a 30-second wait timeout and a 2-minute time to live, so concurrent completions of one cart run one at a time.
+
+### Hooks
+
+| Hook | Receives | Use it to |
 | --- | --- | --- |
-| `getOrderGroupDetailWorkflow` | `{ order_group_id, fields }` | Load one group with its child orders and derived per-order payment/fulfillment status |
-| `getOrderGroupsListWorkflow` | `{ fields, variables?, sellerId? }` | List groups with a count; `sellerId` scopes each group's child orders to a seller |
+| `validate` | `{ input, cart }` | Throw to stop the checkout before anything is created |
+| `setOrderStatus` | `{ cart }` | Return `{ status?, status_by_seller_id? }` to set each child order’s initial status; the default is `pending` |
 
-<Note>
-  The read workflows always expand the group's child `orders`. Heavy relations
-  (`payment_collections`, `fulfillments`) are only kept in the response when you
-  request a matching field, and are used to derive each order's `payment_status`
-  and `fulfillment_status`.
-</Note>
+`SetOrderStatusHookResult` is exported with the workflow. `status_by_seller_id` is keyed by seller id and takes precedence over `status`.
 
-## Step
+### Steps
 
-| Step | Input | Purpose |
+The workflow runs these steps in order. Steps 3 to 6 run only when no group exists for the cart:
+
+1. `acquireLockStep` on the cart id, then a query for an existing group and the cart.
+2. `validateCartPaymentsStep`, then the `validate` and `setOrderStatus` hooks.
+3. `validateSellerCartItemsStep` and `validateSellerCartShippingStep`.
+4. `createOrderGroupStep` and `createOrdersStep`, in parallel.
+5. `createRemoteLinkStep`, `mirrorLineItemOfferLinksToOrderStep`, `updateCartsStep` to set `completed_at`, `reserveInventoryStep`, `registerUsageStep`, and two `emitEventStep` calls.
+6. `authorizePaymentSessionStep`, then `splitCapturedCartPaymentWorkflow` and `refreshOrderCommissionLinesWorkflow` as steps.
+7. `releaseLockStep` on the cart id.
+
+### Events
+
+| Event | Payload |
+| --- | --- |
+| `order.placed` | `{ id }`, once per child order |
+| `order_group.created` | `{ id }` of the new group |
+
+## getOrderGroupDetailWorkflow
+
+Retrieves one order group with its child orders and sets `payment_status` and `fulfillment_status` on each order. Workflow id `get-order-group-detail`. Its input type is `GetOrderGroupDetailWorkflowInput`.
+
+| Input | Type | Description |
 | --- | --- | --- |
-| `createOrderGroupStep` | `{ customer_id?, cart_id }` | Create the `OrderGroup` record (used inside the checkout workflow, with a compensating delete) |
+| `order_group_id` | `string` | The group to retrieve |
+| `fields` | `string[]` | Fields to return, in `query.graph` syntax |
 
-To work with records directly instead of through a workflow, see the
-[Service reference](/platform/order-group/reference/service). To run side effects
-when a group is created, see the [Event reference](/platform/order-group/reference/events).
+It returns the group. The workflow always adds `id`, `orders.id`, `orders.status`, `orders.version`, `orders.currency_code`, and `orders.items.*` to your fields, plus the payment collection and fulfillment fields it needs for the statuses. It throws `NOT_FOUND` when no group has the id.
+
+The workflow removes some data it loaded for itself before it returns:
+
+- **`orders.payment_collections`**: kept only when a requested field contains `payment_collections`
+- **`orders.fulfillments`**: kept only when a requested field contains `fulfillments`
+- **`orders.cart`**: kept only when a requested field starts with `orders.cart`
+
+## getOrderGroupsListWorkflow
+
+Lists order groups with their child orders and derived statuses. Workflow id `get-order-groups-list`. Its input type is `GetOrderGroupsListWorkflowInput`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `fields` | `string[]` | Fields to return, in `query.graph` syntax |
+| `variables` | `object`, optional | Filters plus `skip`, `take`, and `order` |
+| `sellerId` | `string \| string[]`, optional | Removes other sellers’ orders from each returned group |
+
+It returns `{ rows, metadata }`, where `metadata` holds `count`, `skip`, and `take`. It adds the same child order fields as the detail workflow and removes the same data, and adds `orders.seller.id` when you pass `sellerId`.
+
+`sellerId` trims orders but doesn’t filter groups. Pass `variables.seller_id` as well to return only groups where the seller has an order. The filter keys are listed in [Filters and sorting](/platform/order-group/reference/service#filters-and-sorting).
+
+## createOrderGroupStep
+
+Creates one `OrderGroup` record. Step id `create-order-group`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `cart_id` | `string` | The completed cart |
+| `customer_id` | `string \| null`, optional | The customer on the cart |
+
+It returns the created group. On rollback, it deletes the group with `deleteOrderGroups`. Use it in your own workflow only when you also create and link the child orders yourself.

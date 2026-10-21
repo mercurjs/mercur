@@ -1,56 +1,63 @@
 ---
-title: "The review model"
+title: "What a review stores"
 sidebarTitle: "The review model"
-description: "The single review entity, its rating, notes, and moderation status."
+description: "The fields of a review: its target type, rating, the customer's note, the store's answer, and its status."
 ---
 
-This page covers the review record and the fields that make up a rating.
+A review is one customer’s rating of one product or one store, earned by an order. Mercur stores it as a single `Review` record (table `review`, id prefix `rev`) in the Review module. Knowing its fields tells you what a review can hold, what a store can add to it, and what an operator changes when moderating it.
 
-## Review
+## One record per rating
 
-A review is a customer's rating of a single target, either a product or a seller.
-It's represented by the `Review` data model (table `review`, id prefix `rev`). It
-holds the numeric rating, an optional customer note, an optional store response,
-and the moderation status.
+Every review has the same shape, whatever it rates. The record holds the score and the text around it, while the product, store, order, and customer it belongs to live in module links rather than columns.
+
+| Field | Holds |
+| --- | --- |
+| `id` | The review id, such as `rev_01JD8Q1234567` |
+| `display_id` | An auto-incrementing number for people to read |
+| `reference` | The target type: `product` or `seller` |
+| `rating` | The score as an integer |
+| `customer_note` | The customer’s text, or `null` |
+| `seller_note` | The store’s answer, or `null` |
+| `status` | `pending`, `published`, or `rejected` |
+
+A review has no `product_id` or `seller_id` column. The `reference` value tells you which link to follow, as covered in [Product vs seller reviews](/platform/review/concepts/product-vs-seller-reviews).
+
+## Ratings are integers from 1 to 5 at the API
+
+The `rating` column is an integer with no range check in the model itself. The Store and Admin API validators accept whole numbers from 1 to 5, so every review created over HTTP falls in that range:
+
+- **Store API**: `rating` is required on create and update, and must be an integer from 1 to 5
+- **Admin API**: `rating` is optional on update, with the same 1 to 5 range
+- **Workflows**: `createReviewWorkflow` and `updateReviewWorkflow` store whatever number you pass
+
+<Warning>
+  When you run the workflows from your own code, validate `rating` yourself. A value outside 1 to 5 is stored as is and skews every average that includes it.
+</Warning>
+
+## Two notes, two authors
+
+A review keeps the two sides of the conversation in separate fields. The customer writes `customer_note` when they submit or edit the review, and the store writes `seller_note` once, through `respondReviewWorkflow`. Both are nullable text fields marked searchable, so a `q` search in the Admin and Vendor APIs matches their content.
 
 ```ts
-const { result } = await createReviewWorkflow(container).run({
-  input: {
-    order_id: "order_123",
-    reference: "product",
-    reference_id: "prod_123",
-    rating: 5,
-    customer_note: "Exactly as described, fast shipping.",
-    customer_id: "cus_123",
-  },
-})
+const review = {
+  id: "rev_01JD8Q1234567",
+  display_id: 1042,
+  reference: "product",
+  rating: 4,
+  customer_note: "Fits well, the colour is darker than shown.",
+  seller_note: "Thanks, we've updated the product photos.",
+  status: "published",
+}
 ```
 
-Every review carries the same shape regardless of what it targets:
+This is the shape `query.graph` returns for a review’s own fields. The Store API caps `customer_note` at 300 characters, the Admin API at 1000, and both APIs cap `seller_note` at 300.
 
-| Field | Purpose |
-| --- | --- |
-| `rating` | The numeric score the customer gave |
-| `reference` | Whether the review is about a `product` or a `seller` |
-| `customer_note` | The customer's optional free-text note |
-| `seller_note` | The store's optional public response |
-| `status` | The moderation state: `pending`, `published`, or `rejected` |
-| `display_id` | A human-readable auto-incrementing number |
+## Status starts at pending
 
-<Note>
-  There is no separate table for product reviews and seller reviews. A single
-  `Review` row is discriminated by its `reference` field. See
-  [Product vs seller reviews](/platform/review/concepts/product-vs-seller-reviews).
-</Note>
+Every new review gets `status: "pending"`, the model default. An operator then sets it to `published` or `rejected` with `updateReviewWorkflow`. Nothing in core hides a pending review from a storefront for you, since core has no public review listing: your own route decides which statuses to show. See [Ratings and moderation](/platform/review/concepts/ratings-and-moderation) for the full set of changes.
 
-## Notes
+## Related
 
-A review separates the two sides of the conversation into two nullable text
-fields. `customer_note` is written by the customer when they submit the review;
-`seller_note` is the store's single response, added later through the respond
-flow. Both are searchable so operators can find reviews by their content.
-
-<Tip>
-  A store can respond **once**. The respond flow refuses to overwrite an existing
-  `seller_note`. To change a response, clear it first.
-</Tip>
+- [How reviews pick their target](/platform/review/concepts/product-vs-seller-reviews)
+- [Every field and index of the Review model](/platform/review/reference/data-models)
+- [Create a review from a custom route](/platform/review/guides/create-a-review)

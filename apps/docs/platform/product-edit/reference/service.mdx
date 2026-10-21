@@ -1,43 +1,62 @@
 ---
-title: "Service reference"
+title: "Product Edit module service"
 sidebarTitle: "Service"
-description: "The Product Edit module service methods for working with records directly."
+description: "Resolve the Product Edit module service and call its generated methods for changes and actions."
 ---
 
-The Product Edit module exposes a service you can resolve from the Medusa
-container to read and write records directly, without going through a workflow.
-Use it inside custom services, subscribers, or scheduled jobs.
+The Product Edit module service, `ProductChangeModuleService`, reads and writes `ProductChange` and `ProductChangeAction` records directly. It’s a plain `MedusaService` with generated methods only, and no custom methods. Use it in subscribers, scheduled jobs, and workflow steps.
+
+## Resolve the service
+
+Resolve the service from the Medusa container with `MercurModules.PRODUCT_EDIT`:
 
 ```ts
 import { MercurModules } from "@mercurjs/types"
 
-const productChangeModuleService = container.resolve(MercurModules.PRODUCT_EDIT)
+const productEdit = container.resolve(MercurModules.PRODUCT_EDIT)
 
-const [changes, count] = await productChangeModuleService.listAndCountProductChanges({
-  status: "pending",
-})
+const [changes, count] = await productEdit.listAndCountProductChanges(
+  { product_id: "prod_01JD8Q1234567", status: "pending" },
+  { relations: ["actions"], take: 20 }
+)
 ```
 
-## Generated methods
+This returns the first 20 pending changes on a product, with their actions, and the total count. For a typed handle, import the class with `import type { ProductChangeModuleService } from "@mercurjs/core/modules/product-edit"` and pass it as the `resolve` generic.
 
-Each data model gets a standard set of auto-generated methods. For
-`ProductChange`:
+## ProductChange methods
 
-| Method | Description |
-| --- | --- |
-| `createProductChanges(data)` | Create one or more changes |
-| `retrieveProductChange(id, config?)` | Retrieve a change by id |
-| `listProductChanges(filters?, config?)` | List changes matching filters |
-| `listAndCountProductChanges(filters?, config?)` | List changes with a total count |
-| `updateProductChanges(data)` | Update one or more changes |
-| `deleteProductChanges(ids)` | Delete one or more changes |
+Medusa generates these methods for the `ProductChange` model:
 
-The same set exists for `ProductChangeAction`: `createProductChangeActions`,
-`listProductChangeActions`, `updateProductChangeActions`, and so on.
+| Method | Signature | Description |
+| --- | --- | --- |
+| `retrieveProductChange` | `(id, config?)` | Retrieve one change. Throws if it doesn’t exist |
+| `listProductChanges` | `(filters?, config?)` | List changes matching the filters |
+| `listAndCountProductChanges` | `(filters?, config?)` | List changes and return `[changes, count]` |
+| `createProductChanges` | `(data)` | Create one change or an array of them |
+| `updateProductChanges` | `(data)` | Update by `id`, or pass `{ selector, data }` |
+| `deleteProductChanges` | `(ids)` | Delete changes. The model cascades deletes to their actions |
+| `softDeleteProductChanges` | `(ids, config?)` | Soft-delete changes |
+| `restoreProductChanges` | `(ids, config?)` | Restore soft-deleted changes |
+
+## ProductChangeAction methods
+
+The same set exists for `ProductChangeAction`:
+
+| Method | Signature | Description |
+| --- | --- | --- |
+| `retrieveProductChangeAction` | `(id, config?)` | Retrieve one action |
+| `listProductChangeActions` | `(filters?, config?)` | List actions matching the filters |
+| `listAndCountProductChangeActions` | `(filters?, config?)` | List actions and return `[actions, count]` |
+| `createProductChangeActions` | `(data)` | Create one action or an array of them |
+| `updateProductChangeActions` | `(data)` | Update by `id`, or pass `{ selector, data }` |
+| `deleteProductChangeActions` | `(ids)` | Delete actions |
+| `softDeleteProductChangeActions` | `(ids, config?)` | Soft-delete actions |
+| `restoreProductChangeActions` | `(ids, config?)` | Restore soft-deleted actions |
+
+## When to use a workflow instead
+
+The service writes rows and nothing else. Setting `status` to `confirmed` through `updateProductChanges` doesn’t apply the actions, stamp `confirmed_at`, emit `product-change.confirmed`, or run the hooks.
 
 <Warning>
-  Prefer [workflows](/platform/product-edit/reference/workflows) for anything with
-  side effects (confirming, declining, applying actions). The service writes
-  records directly and does **not** apply actions to the product, emit events, or
-  run compensation.
+  Use the [workflows](/platform/product-edit/reference/workflows) for any status change. Keep the service for reads and for fields with no side effects, such as `metadata`.
 </Warning>

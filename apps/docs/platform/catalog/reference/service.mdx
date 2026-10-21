@@ -1,52 +1,74 @@
 ---
-title: "Service reference"
+title: "Product module service"
 sidebarTitle: "Service"
-description: "Medusa's Product module service: methods for working with records directly."
+description: "Resolve Medusa's Product module service with Modules.PRODUCT and call its methods for catalog records."
 ---
 
-The catalog is backed by **Medusa's Product module**, not a Mercur-specific one.
-Resolve its service from the container with the `Modules.PRODUCT` key to read and
-write products, variants, categories, and collections directly, without going
-through a workflow. Use it inside custom services, subscribers, or scheduled jobs.
+The catalog uses Medusa's Product module service. Mercur adds no catalog service of its own. Resolve it with `Modules.PRODUCT` to read and write products, variants, options, categories, collections, tags, and types from a subscriber, a scheduled job, or a custom step.
+
+## Resolve the service
+
+The service key comes from `@medusajs/framework/utils`, not `MercurModules`:
 
 ```ts
 import { Modules } from "@medusajs/framework/utils"
 
-const productModuleService = container.resolve(Modules.PRODUCT)
+const productService = container.resolve(Modules.PRODUCT)
 
-const [products, count] = await productModuleService.listAndCountProducts({
-  status: "published",
-})
+const [products, count] = await productService.listAndCountProducts(
+  { status: "published" },
+  { take: 20, select: ["id", "title"] }
+)
 ```
 
-<Note>
-  Because this is Medusa's own module, the service key is `Modules.PRODUCT` from
-  `@medusajs/framework/utils`, **not** a `MercurModules` key. Mercur adds its
-  marketplace behavior (allowlist, review lifecycle, audit trail) as
-  [workflows](/platform/catalog/reference/workflows) layered on top of this
-  service.
-</Note>
-
-## Generated methods
-
-Each data model gets a standard set of auto-generated methods. For `Product`:
-
-| Method | Description |
-| --- | --- |
-| `createProducts(data)` | Create one or more products |
-| `retrieveProduct(id, config?)` | Retrieve a product by id |
-| `listProducts(filters?, config?)` | List products matching filters |
-| `listAndCountProducts(filters?, config?)` | List products with a total count |
-| `updateProducts(data)` | Update one or more products |
-| `deleteProducts(ids)` | Delete one or more products |
-
-The same set exists for every model in the module, such as `ProductVariant`,
-`ProductCategory`, `ProductCollection`, `ProductTag`, and `ProductType` (e.g.
-`createProductVariants`, `listProductCategories`, `updateProductCollections`).
+`listAndCountProducts` returns a page of products and the total count.
 
 <Warning>
-  Prefer [workflows](/platform/catalog/reference/workflows) for anything with
-  side effects, such as submissions, review transitions, and allowlist changes. The
-  service writes records directly and does **not** run the marketplace layer,
-  emit Mercur's product events, or record the audit trail.
+  The service writes rows directly. It doesn't link stores, record `ProductChange` entries, or emit Mercur's `product.*` events. Use the [catalog workflows](/platform/catalog/reference/workflows) for creates and reviews, and `query.graph` to read linked data such as `sellers`.
 </Warning>
+
+## Product methods
+
+These methods act on `Product`:
+
+| Method | Signature |
+| --- | --- |
+| `retrieveProduct` | `(productId: string, config?) => Promise<ProductDTO>` |
+| `listProducts` | `(filters?, config?) => Promise<ProductDTO[]>` |
+| `listAndCountProducts` | `(filters?, config?) => Promise<[ProductDTO[], number]>` |
+| `createProducts` | `(data: CreateProductDTO \| CreateProductDTO[]) => Promise<ProductDTO \| ProductDTO[]>` |
+| `upsertProducts` | `(data: UpsertProductDTO \| UpsertProductDTO[]) => Promise<ProductDTO \| ProductDTO[]>` |
+| `updateProducts` | `(id: string, data) => Promise<ProductDTO>` or `(selector, data) => Promise<ProductDTO[]>` |
+| `deleteProducts` | `(productIds: string[]) => Promise<void>` |
+| `softDeleteProducts` | `(productIds: string[], config?) => Promise<Record<string, string[]> \| void>` |
+| `restoreProducts` | `(productIds: string[], config?) => Promise<Record<string, string[]> \| void>` |
+
+`filters` takes `FilterableProductProps`, such as `id`, `status`, `handle`, or `q`. `config` takes `select`, `relations`, `skip`, `take`, and `order`.
+
+## Methods for the other models
+
+The same method set exists for each model in the module, named after it:
+
+| Model | Example methods |
+| --- | --- |
+| `ProductVariant` | `retrieveProductVariant`, `listProductVariants`, `createProductVariants`, `updateProductVariants` |
+| `ProductOption` | `listProductOptions`, `createProductOptions`, `upsertProductOptions`, `deleteProductOptions` |
+| `ProductOptionValue` | `listProductOptionValues`, `createProductOptionValues`, `updateProductOptionValues` |
+| `ProductCategory` | `retrieveProductCategory`, `listProductCategories`, `createProductCategories` |
+| `ProductCollection` | `retrieveProductCollection`, `listProductCollections`, `updateProductCollections` |
+| `ProductTag` | `listProductTags`, `createProductTags`, `upsertProductTags`, `deleteProductTags` |
+| `ProductType` | `listProductTypes`, `createProductTypes`, `upsertProductTypes`, `deleteProductTypes` |
+
+## Option and image methods
+
+The service also has methods that manage shared options and variant images:
+
+| Method | Does |
+| --- | --- |
+| `addProductOptionToProduct` | Attaches an existing option to a product, from `{ product_id, product_option_id }` or an array |
+| `removeProductOptionFromProduct` | Detaches an option from a product |
+| `updateProductOptionValuesOnProduct` | Changes which values of an option a product uses |
+| `addImageToVariant` | Links a product image to a variant |
+| `removeImageFromVariant` | Unlinks a product image from a variant |
+
+Mercur's attribute workflows create and attach the options behind variant-axis attributes. Prefer those workflows over the option methods, so each attribute stays in sync with the option it mirrors.

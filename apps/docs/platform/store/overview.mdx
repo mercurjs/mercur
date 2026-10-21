@@ -1,46 +1,53 @@
 ---
-title: "Store"
+title: "Stores"
 sidebarTitle: "Overview"
-description: "Manage sellers, their teams, and their lifecycle on the marketplace."
+description: "Control who sells on your marketplace, who works on each store, and when a store can trade."
 ---
 
-Use Mercur to control who is allowed to sell on your marketplace and what each
-person on a store's team can do.
+Use Mercur to decide who can sell on your marketplace and what each person on a store’s team can do.
 
-Governing your sellers starts here. The Store domain decides who may sell,
-enforces role-based access so every member acts only within their store, and
-keeps each store's data isolated from the rest. On top of that control layer, a
-store carries its own team, a governed account lifecycle, and the business
-details used to settle payouts. Every offer, order, payout, and storefront page
-belongs to a store, and all of it is exposed directly through the Admin and
-Vendor APIs.
+A store is the account a seller trades under. Offers, orders, payouts, and storefront pages all link back to it, and its team works only inside it. The Seller module holds the store record, its business details, its members and invites, and its status. Other marketplace modules attach to a store through module links, never through direct references.
+
+<img className="block dark:hidden" src="/images/figures/store-overview-light.svg" alt="A Stores list from the Seller module showing four stores, each with its status, currency, member count, and premium flag, in front of the Team panel for acme-supplies with three members and their seller roles." />
+<img className="hidden dark:block" src="/images/figures/store-overview-dark.svg" alt="A Stores list from the Seller module showing four stores, each with its status, currency, member count, and premium flag, in front of the Team panel for acme-supplies with three members and their seller roles." />
 
 <Note>
-  A store is the `Seller` entity. The Admin and Vendor panels call it a "Store".
-  The API and core modules call the same record a `Seller` (id prefix `sel`). You
-  never need to know Medusa to work with stores.
+  The Admin and Vendor panels call it a store. The code calls the same record a `Seller` (id prefix `sel`), and you resolve its module with `MercurModules.SELLER` from `@mercurjs/types`.
 </Note>
 
 ## Key features
 
-- **Role-based access control:** many-to-many members, roles resolved per store, and a store switcher for users who belong to several stores.
-- **Store isolation:** each store sees and acts on only its own data.
-- **Governed lifecycle:** a four-state account model with operator-only transitions.
-- **Self-service onboarding:** create stores yourself, or let sellers register publicly.
-- **Scheduled closures:** temporary offline windows that don't change account status.
-- **Premium placement:** an operator-only flag the storefront uses for featured curation.
-- **Single-currency accounts:** each store settles in exactly one currency.
+The Seller module covers the full life of a store account:
+
+- **Many-to-many teams**: a member can belong to several stores and picks the active one per request
+- **Owner protection**: the store’s owner membership can’t be removed or have its role changed
+- **Seller roles**: each membership stores one of five `SellerRole` values, from administration to support
+- **Token-based invites**: signed invite tokens that expire after 7 days by default
+- **Governed lifecycle**: four statuses, each transition run by its own workflow with a hook and an event
+- **Scheduled closures**: a `closed_from` and `closed_to` window that hides a store from the Store API without changing its status
+- **Premium flag**: an `is_premium` boolean the operator sets for featured placement
+- **Region assignment**: every store links to one or more regions, starting with the default region
+
+## How it works
+
+A store moves from creation to trading in a fixed order:
+
+1. A seller registers, or your code runs `createSellersWorkflow`, and the store starts in `pending_approval`
+2. The workflow links the store to the default region and to any `region_ids` you pass
+3. The first member joins as owner, either at registration or by accepting the invite the workflow sends
+4. The operator runs `approveSellerWorkflow`, and the store becomes `open`
+5. The Store API lists the store and its offers while it’s `open` and outside a closure window
 
 ## Get started
 
-Learn how the domain fits together.
+Learn how stores, teams, and statuses fit together.
 
 <CardGroup cols={2}>
   <Card title="The store" icon="store" href="/platform/store/concepts/store-entity">
-    The seller entity, its profile, currency, and business identity.
+    The seller record, its currency, regions, and business details.
   </Card>
   <Card title="Team & members" icon="users" href="/platform/store/concepts/team">
-    Multi-user stores, roles, invites, and the store switcher.
+    Members, owners, roles, invites, and the active store.
   </Card>
   <Card title="Lifecycle" icon="arrows-rotate" href="/platform/store/concepts/lifecycle">
     Statuses, transitions, scheduled closures, and premium.
@@ -49,38 +56,38 @@ Learn how the domain fits together.
 
 ## Examples
 
-Build against the Store domain in your own code.
+Build against stores in your own server code.
 
 <CardGroup cols={2}>
   <Card title="Create a store" icon="plus" href="/platform/store/guides/create-a-store">
-    Run `createSellersWorkflow` from a route or seed script.
+    Run `createSellersWorkflow` from a route or a seed script.
   </Card>
   <Card title="Moderate stores" icon="gavel" href="/platform/store/guides/moderate-a-store">
-    Approve, suspend, and terminate stores in code.
+    Approve, suspend, terminate, and reinstate stores in code.
   </Card>
   <Card title="Manage the team" icon="user-plus" href="/platform/store/guides/manage-the-team">
-    Invite and add members programmatically.
+    Invite, add, re-role, and remove members.
   </Card>
 </CardGroup>
 
 ## Resources
 
-Data models, workflows, service methods, and events for the Store domain.
+The data models, links, workflows, service methods, and events behind stores.
 
 <CardGroup cols={2}>
   <Card title="Data models" icon="table" href="/platform/store/reference/data-models">
-    The `Seller`, `Member`, and related entities.
+    `Seller`, `Member`, `SellerMember`, `MemberInvite`, and the satellite records.
   </Card>
   <Card title="Links" icon="link" href="/platform/store/reference/links">
-    How the Store domain links to other modules.
+    How a store connects to orders, offers, payouts, regions, and more.
   </Card>
   <Card title="Workflows" icon="diagram-project" href="/platform/store/reference/workflows">
-    Seller and member lifecycle workflows.
+    Store, lifecycle, and team workflows with their hooks.
   </Card>
   <Card title="Service" icon="gear" href="/platform/store/reference/service">
-    Module service methods for working with records directly.
+    Seller module service methods for direct reads and writes.
   </Card>
   <Card title="Events" icon="bell" href="/platform/store/reference/events">
-    Events emitted as stores and members change.
+    Events emitted as stores, members, and invites change.
   </Card>
 </CardGroup>

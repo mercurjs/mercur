@@ -1,22 +1,23 @@
 ---
-title: "Event reference"
+title: "Seller module events"
 sidebarTitle: "Events"
-description: "Events emitted by the Store domain, for subscribers and side effects."
+description: "Every event the store and team workflows emit, when each fires, and its payload."
 ---
 
-The Store domain emits events as stores and members change. Subscribe to them to
-run side effects such as sending notifications, syncing external systems, or
-kicking off follow-up workflows, instead of polling.
+The Seller module workflows emit events after they write. Subscribe to them to send notifications, sync an outside system, or start follow-up work without polling. The event names are exported from `@mercurjs/core/workflows` as `SellerWorkflowEvents`, `SellerMemberWorkflowEvents`, and `MemberInviteWorkflowEvents`.
 
 ```ts title="src/subscribers/store-approved.ts"
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import { MercurModules } from "@mercurjs/types"
 
-export default async function storeApprovedHandler({
+export default async function storeApproved({
   event,
   container,
 }: SubscriberArgs<{ id: string }>) {
-  const sellerId = event.data.id
-  // ...send a welcome email, provision resources, etc.
+  const sellerService = container.resolve(MercurModules.SELLER)
+  const seller = await sellerService.retrieveSeller(event.data.id)
+
+  container.resolve("logger").info(`${seller.name} is open`)
 }
 
 export const config: SubscriberConfig = {
@@ -24,20 +25,44 @@ export const config: SubscriberConfig = {
 }
 ```
 
+This subscriber loads the store when it’s approved. Store events carry only the id, so retrieve the record when you need more.
+
 ## Store events
 
-| Event | Emitted when | Payload |
-| --- | --- | --- |
-| `seller.created` | A store is created | `{ id }` |
-| `seller.updated` | A store's profile changes | `{ id }` |
-| `seller.approved` | A store is approved (`→ open`) | `{ id }` |
-| `seller.suspended` | A store is suspended | `{ id }` |
-| `seller.terminated` | A store is terminated | `{ id }` |
-
-## Member events
+`SellerWorkflowEvents` covers creation, updates, and every status transition.
 
 | Event | Emitted when | Payload |
 | --- | --- | --- |
-| `member_invite.created` | A team invite is sent | `{ id }` |
-| `member_invite.accepted` | An invite is accepted | `{ id }` |
-| `seller_member.created` | A member is added to a store | `{ id }` |
+| `seller.created` | `createSellersWorkflow` or `createSellerAccountWorkflow` creates a store, once per store | `{ id }` |
+| `seller.updated` | `updateSellersWorkflow` updates a store, once per store | `{ id }` |
+| `seller.deleted` | `deleteSellersWorkflow` soft deletes a store, once per store | `{ id }` |
+| `seller.approved` | `approveSellerWorkflow` opens a pending store | `{ id }` |
+| `seller.suspended` | `suspendSellerWorkflow` suspends a store | `{ id }` |
+| `seller.unsuspended` | `unsuspendSellerWorkflow` reopens a suspended store | `{ id }` |
+| `seller.terminated` | `terminateSellerWorkflow` terminates a store | `{ id }` |
+| `seller.unterminated` | `unterminateSellerWorkflow` returns a terminated store to `suspended` | `{ id }` |
+
+The address, professional details, payment details, and region workflows don’t emit events.
+
+## Membership events
+
+`SellerMemberWorkflowEvents` covers memberships changed directly. Accepting an invite emits `member_invite.accepted` instead of `seller_member.created`.
+
+| Event | Emitted when | Payload |
+| --- | --- | --- |
+| `seller_member.created` | `addSellerMemberWorkflow` adds a member to a store | `{ seller_id, member_id }` |
+| `seller_member.updated` | `updateMemberRoleWorkflow` changes a membership’s role | `{ seller_member_id }` |
+| `seller_member.deleted` | `removeSellerMemberWorkflow` removes a membership | `{ seller_id, seller_member_id }` |
+
+## Invite events
+
+`MemberInviteWorkflowEvents` covers team invites. The created payload includes the signed token, so a subscriber can build the invite link.
+
+| Event | Emitted when | Payload |
+| --- | --- | --- |
+| `member_invite.created` | `createMemberInvitesWorkflow`, `resendMemberInviteWorkflow`, or `createSellersWorkflow` creates an invite, once per invite | `{ id, token, expires_at }` |
+| `member_invite.accepted` | `acceptMemberInviteWorkflow` turns an invite into a membership | `{ seller_id, member_id }` |
+
+<Warning>
+  The `member_invite.created` payload carries a working invite token. Don’t log it or forward it to systems that shouldn’t grant store access.
+</Warning>

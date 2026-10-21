@@ -1,19 +1,27 @@
 ---
-title: "The store entity"
+title: "What a store is made of"
 sidebarTitle: "The store"
-description: "The seller record, its business identity, and its satellite data."
+description: "The seller record, its currency and regions, and the satellite records that hold its business details."
 ---
 
-This page covers the store record and the data models that make up its business
-identity.
+A store is the `Seller` record: the account a seller trades under on your marketplace. It holds the public profile customers see, the single currency the store settles in, and its status. Three satellite records carry its business details: an address, professional details, and bank payment details.
 
-## Store
+## The seller record
 
-A store is the marketplace vendor. It owns offers, orders, and payouts, and it
-holds the profile shown to customers on the storefront. A store is represented by
-the `Seller` data model (table `seller`, id prefix `sel`).
+The `Seller` data model (table `seller`, id prefix `sel`) is the root of everything a store owns. Offers, orders, payouts, and price lists link to it from their own modules.
+
+A seller has four unique fields besides its id:
+
+- **`name`**: unique among stores that aren’t deleted
+- **`handle`**: unique, URL safe, and generated from `name` when you omit it
+- **`email`**: unique, the store’s contact address
+- **`external_id`**: optional, unique when set, for mapping to an outside system
+
+The service validates `handle` on create and update. A handle with characters that aren’t URL safe fails with an `INVALID_DATA` error.
 
 ```ts
+import { createSellersWorkflow } from "@mercurjs/core/workflows"
+
 const { result } = await createSellersWorkflow(container).run({
   input: {
     sellers: [
@@ -21,33 +29,43 @@ const { result } = await createSellersWorkflow(container).run({
         name: "Acme Supplies",
         email: "team@acme.com",
         currency_code: "usd",
+        member: { email: "owner@acme.com" },
       },
     ],
   },
 })
 ```
 
-<Tip>
-  A store settles in exactly one currency, set by `currency_code`. A seller who
-  needs to trade in several currencies creates a separate store for each one, and
-  each store operates independently.
-</Tip>
+This creates a store with the handle `acme-supplies` and the status `pending_approval`. It also invites `owner@acme.com` to join the team as an administrator.
 
-## Professional details
+## Currency and regions
 
-A store can carry professional details: a corporate name, a registration number,
-and a tax id. These are represented by the `ProfessionalDetails` data model. When
-this record is present, the store is a registered business. When it is absent,
-the store is an individual seller.
+A store settles in one currency, set by `currency_code` when you create it. `UpdateSellerDTO` has no `currency_code` field, so the currency stays fixed for the life of the store. The vendor request context carries it as `seller_context.currency_code`.
 
-## Addresses and payment details
+A store also links to one or more regions through the `region_seller` link:
 
-A store keeps its addresses as `SellerAddress` records, one each for a warehouse,
-return, or business address. The bank details used to settle payouts live on a
-`PaymentDetails` record. Both are satellite records of the store, and fulfillment
-and payout settlement read from them.
+- **On create**: the store links to the default region of your Medusa store, plus any `region_ids` you pass
+- **On change**: `linkSellerRegionsWorkflow` adds and removes region links in one call
+- **Rule**: a store must keep at least one region, so removing the last one fails
 
-<Note>
-  `ProfessionalDetails`, `SellerAddress`, and `PaymentDetails` are one-to-one with
-  the store and are deleted along with it.
-</Note>
+## Business details
+
+Three one-to-one records hang off the seller. Each workflow that writes them creates the record when it’s missing and updates it otherwise.
+
+| Model | Holds | Written by |
+| --- | --- | --- |
+| `SellerAddress` | The store’s postal address and contact name | `updateSellerAddressWorkflow` |
+| `ProfessionalDetails` | Corporate name, registration number, tax id | `updateSellerProfessionalDetailsWorkflow` |
+| `PaymentDetails` | Bank account holder, IBAN, BIC, routing and account numbers | `updateSellerPaymentDetailsWorkflow` |
+
+You remove professional details with `deleteSellerProfessionalDetailsWorkflow`. Deleting a seller cascades to all three records and to its pending invites, and detaches its members without deleting them.
+
+## Fulfillment defaults
+
+`default_leadtime_to_ship` holds the number of days a store needs before it ships, and defaults to `2`. Vendors can change it on their own store.
+
+## Related
+
+- [Team & members](/platform/store/concepts/team)
+- [Lifecycle](/platform/store/concepts/lifecycle)
+- [Data models reference](/platform/store/reference/data-models)

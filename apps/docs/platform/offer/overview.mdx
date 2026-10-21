@@ -1,60 +1,67 @@
 ---
-title: "Offer"
+title: "Offers"
 sidebarTitle: "Overview"
-description: "How a store sells against the shared master catalog, with its own SKU, price, inventory, and shipping."
+description: "Let every store sell a shared catalog product with its own SKU, price, stock, condition, and shipping profile."
 ---
 
-Use offers to let each store sell against Mercur's shared master catalog on its
-own terms.
+Use offers to let several stores sell the same catalog product, each on its own terms.
 
-The offer is the central concept of the marketplace. Products live in a single
-**master catalog** that no store owns; an offer is the record that connects a
-store to a master product variant. It carries everything that makes that listing
-the store's own: its SKU, its price, its inventory, and its shipping profile.
-Cart and order line items link back to the exact offer that was purchased, so the
-whole order lifecycle knows which store fulfills and gets paid.
+Products in Mercur live in one shared master catalog that no store owns. An offer is the record that connects a store to one master variant. It carries everything that makes the listing the store’s own: its SKU, price, inventory, condition, and shipping profile. The Offer module holds the offer and its conditions, and links reach out to the store, the catalog, pricing, inventory, fulfillment, and the cart and order line items that buy it.
+
+<img className="block dark:hidden" src="/images/figures/offer-overview-light.svg" alt="The Linen shirt master product sits behind an Offers list for its M variant: ACME, GLOBEX, and INITECH each list the same variant with their own SKU, condition, price, and stock." />
+<img className="hidden dark:block" src="/images/figures/offer-overview-dark.svg" alt="The Linen shirt master product sits behind an Offers list for its M variant: ACME, GLOBEX, and INITECH each list the same variant with their own SKU, condition, price, and stock." />
 
 <Note>
-  **Products are shared; offers are owned.** A store never owns a product. It
-  publishes an offer against a master product variant. Two stores selling the
-  same product each have their own offer, with their own SKU, price, and stock.
+  The data model is `Offer` (id prefix `offer`), resolved with `MercurModules.OFFER` from `@mercurjs/types`. A store never owns a product. Two stores selling the same variant each hold their own offer.
 </Note>
 
 ## Key features
 
-- **Per-store listings:** one offer per store per variant, each with its own SKU (unique within a store).
-- **Offer-scoped pricing:** prices live on the master variant's shared price set, scoped by an `offer_id` rule so every store prices independently.
-- **Offer-scoped inventory:** inventory items link to the **offer**, not the variant, so stock never leaks between stores.
-- **Per-offer shipping:** each offer points at the store's own shipping profile.
-- **Order attribution:** cart and order line items link to the purchased offer, driving fulfillment, commission, and payouts.
-- **Bulk operations:** create and update many offers, and batch an offer's inventory links, in a single workflow run.
+The Offer module covers everything a store needs to sell a catalog variant:
+
+- **Per-store listings**: an offer points at one master variant, with a SKU that’s unique within its store
+- **Offer-scoped pricing**: price rows sit on the variant’s shared price set, each tagged with an `offer_id` price rule
+- **Offer-scoped inventory**: inventory items link to the offer, not the variant, so stock never mixes between stores
+- **Conditions**: operators define conditions such as `new` or `refurbished`, and stores list offers under the active ones
+- **Per-offer shipping**: each offer names the store’s own shipping profile
+- **Order attribution**: cart and order line items link to the offer that was bought
+- **Hooks and events**: every workflow exposes hooks and emits `offer.*` events for your own side effects
+
+## How it works
+
+An offer moves through the marketplace in four steps:
+
+1. A store runs `createOffersWorkflow` against a master variant, with a SKU, prices, inventory items, and a shipping profile.
+2. The workflow writes the prices onto the variant’s price set with an `offer_id` rule and creates inventory items linked to the offer.
+3. When a shopper adds the offer to a cart, the line item links to the offer and pricing resolves the offer’s own rows.
+4. At checkout the order line item keeps the offer link, so the right store fulfills the item and gets paid.
 
 ## Get started
 
-Learn how the domain fits together:
+Learn how offers, prices, stock, and shipping fit together.
 
 <CardGroup cols={2}>
   <Card title="What is an offer" icon="tag" href="/platform/offer/concepts/what-is-an-offer">
-    The offer record, how it points at a master variant, and its SKU.
+    The offer record, its SKU rules, and offer conditions.
   </Card>
   <Card title="Pricing & inventory" icon="coins" href="/platform/offer/concepts/pricing-and-inventory">
-    Offer-scoped prices on the shared price set and offer-linked inventory.
+    Prices on the shared price set and stock linked to the offer.
   </Card>
   <Card title="Shipping" icon="truck" href="/platform/offer/concepts/shipping">
-    How an offer carries its own shipping profile.
+    How an offer ships with its store’s shipping profile.
   </Card>
 </CardGroup>
 
 ## Examples
 
-Build against the Offer domain in your own code:
+Build against offers in your own server code.
 
 <CardGroup cols={2}>
   <Card title="Create an offer" icon="plus" href="/platform/offer/guides/create-an-offer">
-    Run `createOffersWorkflow` with a price and inventory.
+    Run `createOffersWorkflow` from an API route.
   </Card>
   <Card title="Bulk-create offers" icon="layer-group" href="/platform/offer/guides/bulk-create-offers">
-    List many offers against the catalog in one run.
+    List a store’s catalog in a single run.
   </Card>
   <Card title="Manage offer inventory" icon="boxes-stacked" href="/platform/offer/guides/manage-offer-inventory">
     Attach, update, and detach inventory items on an offer.
@@ -63,22 +70,22 @@ Build against the Offer domain in your own code:
 
 ## Resources
 
-Data models, workflows, service methods, and events for the Offer domain:
+The data models, links, workflows, service methods, and events behind offers.
 
 <CardGroup cols={2}>
   <Card title="Data models" icon="table" href="/platform/offer/reference/data-models">
-    The `Offer` entity and its fields.
+    `Offer` and `OfferCondition`, field by field.
   </Card>
   <Card title="Links" icon="link" href="/platform/offer/reference/links">
-    How the Offer domain links to other modules.
+    How offers link to stores, catalog, pricing, inventory, and orders.
   </Card>
   <Card title="Workflows" icon="diagram-project" href="/platform/offer/reference/workflows">
-    Create, update, delete, and inventory-batch workflows.
+    Offer, price, inventory, and condition workflows with their hooks.
   </Card>
   <Card title="Service" icon="gear" href="/platform/offer/reference/service">
-    Module service methods for working with records directly.
+    Module service methods for reading and writing records directly.
   </Card>
   <Card title="Events" icon="bell" href="/platform/offer/reference/events">
-    Events emitted as offers change.
+    Events emitted as offers and conditions change.
   </Card>
 </CardGroup>

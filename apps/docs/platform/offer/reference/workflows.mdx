@@ -1,66 +1,175 @@
 ---
-title: "Workflows"
+title: "Offer workflows"
 sidebarTitle: "Workflows"
-description: "Offer workflows for creating, updating, deleting, and batching inventory."
+description: "Every offer and offer condition workflow, with its input, hooks, and events."
 ---
 
-This reference lists the workflows for the Offer domain. Import them from
-`@mercurjs/core/workflows` and run them against the Medusa container.
+The Offer module ships eight workflows: five for offers and their prices and stock, and three for offer conditions. Import them from `@mercurjs/core/workflows` and run them with the Medusa container.
 
-## Offer workflows
-
-| Workflow | Input | Purpose |
+| Workflow | Id | Emits |
 | --- | --- | --- |
-| `createOffersWorkflow` | `{ offers[], additional_data? }` | Create offers with prices, inventory, and links |
-| `updateOffersWorkflow` | `{ offers[], updated_by?, additional_data? }` | Update offer rows and rewrite their price ladders |
-| `deleteOffersWorkflow` | `{ ids[], additional_data? }` | Delete offers |
-| `batchOfferInventoryItemsWorkflow` | `{ offer_id, create?, update?, delete?, additional_data? }` | Add, update, and detach an offer's inventory-item links |
+| `createOffersWorkflow` | `create-offers` | `offer.created` |
+| `updateOffersWorkflow` | `update-offers` | `offer.updated` |
+| `upsertOfferPricesWorkflow` | `upsert-offer-prices` | None |
+| `deleteOffersWorkflow` | `delete-offers` | `offer.deleted` |
+| `batchOfferInventoryItemsWorkflow` | `batch-offer-inventory-items` | `offer.updated` |
+| `createOfferConditionsWorkflow` | `create-offer-conditions` | `offer_condition.created` |
+| `updateOfferConditionsWorkflow` | `update-offer-conditions` | `offer_condition.updated` |
+| `deleteOfferConditionsWorkflow` | `delete-offer-conditions` | `offer_condition.deleted` |
 
-## Hooks
+## createOffersWorkflow
 
-Each workflow exposes hooks so you can extend it without forking:
+Creates offers with their inventory items, prices, and links. Returns the created `OfferDTO[]`.
 
-| Workflow | Hooks |
-| --- | --- |
-| `createOffersWorkflow` | `validate`, `offersCreated` |
-| `updateOffersWorkflow` | `validate`, `offersUpdated` |
-| `upsertOfferPricesWorkflow` | `offerPricesUpserted` |
-| `deleteOffersWorkflow` | `offersDeleted` |
-| `batchOfferInventoryItemsWorkflow` | `validate`, `offerInventoryItemsBatched` |
+| Input | Type | Description |
+| --- | --- | --- |
+| `offers` | `CreateOfferDTO[]` | One entry per offer |
+| `additional_data` | `Record<string, unknown>` | Optional. Passed to `offersCreated` |
 
-### Hook payloads
+Each `CreateOfferDTO` requires `seller_id`, `created_by`, `sku`, `variant_id`, `shipping_profile_id`, `prices`, and at least one `inventory_items` entry. Optional fields are `ean`, `upc`, `manage_inventory`, `allow_backorder`, `leadtime_to_ship`, `condition_id`, and `metadata`.
+
+An `inventory_items` entry takes `required_quantity` (default `1`), `sku`, `title`, and `stock_levels` (`location_id`, `stocked_quantity`). A price takes `amount`, `currency_code`, and optional `min_quantity`, `max_quantity`, and `rules`.
+
+The run creates the inventory items and links them to the offer and to the store of the first entry. It adds prices to each variant’s price set with an `offer_id` rule, creating the price set first if the variant has none. It also links each master product to its first offer’s shipping profile when the product has no profile.
 
 | Hook | Payload |
 | --- | --- |
-| `offersCreated` | `{ offers: OfferDTO[], additional_data? }` — each offer carries `created_by` and its `prices` |
-| `offersUpdated` | `{ offers: OfferDTO[], previous_offers: OfferDTO[], updated_by?, additional_data? }` — `previous_offers` is the row state before the write |
-| `offerPricesUpserted` | `{ offers: Array<{ offer_id, previous_prices: OfferPriceDTO[], prices: OfferPriceDTO[], created: string[], updated: string[], deleted: string[] }>, updated_by: string \| null }` |
-| `offersDeleted` | `{ ids: string[], offers: OfferDTO[], additional_data? }` — `offers` is a snapshot taken before deletion, including `prices` |
+| `validate` | `{ input }` |
+| `offersCreated` | `{ offers: OfferDTO[], additional_data }`, each offer with `prices` |
 
-`updated_by` is the authenticated actor id. Vendor routes fill it from the session; pass it yourself when running `updateOffersWorkflow` or `upsertOfferPricesWorkflow` directly.
+## updateOffersWorkflow
 
-In `offerPricesUpserted`, `previous_prices` and `prices` are the offer's ladder before and after the write (`amount`, `currency_code`, `min_quantity`, `max_quantity`, `price_rules`). `created` and `deleted` hold the price ids added and removed; `updated` holds the ids rewritten in place whose amount, quantity bounds, or rules actually changed — an unchanged row resent with its id is not listed. The hook also fires when `updateOffersWorkflow` runs the price upsert for you, so a single handler on `upsertOfferPricesWorkflow` covers both entry points. Prices are hard-deleted and Medusa's pricing events carry ids only, so these payloads (and the `offersDeleted` snapshot) are the only place the previous values can be read.
+Updates offer rows and, for entries with a `prices` array, replaces that offer’s prices through `upsertOfferPricesWorkflow`. Returns the updated `OfferDTO[]`.
 
-```ts
+| Input | Type | Description |
+| --- | --- | --- |
+| `offers` | `UpdateOfferDTO[]` | Keyed by `id`. Every other field is optional |
+| `updated_by` | `string` | Optional. The actor id, passed to both hooks |
+| `additional_data` | `Record<string, unknown>` | Optional. Passed to `offersUpdated` |
+
+`UpdateOfferDTO` accepts `sku`, `shipping_profile_id`, `manage_inventory`, `allow_backorder`, `leadtime_to_ship`, `condition_id`, `metadata`, and `prices`. Leave out `prices` to keep the current rows. A `condition_id` must point at an active condition.
+
+| Hook | Payload |
+| --- | --- |
+| `validate` | `{ input }` |
+| `offersUpdated` | `{ offers, previous_offers, updated_by, additional_data }` |
+
+`previous_offers` holds the offer rows as they were before the write.
+
+## upsertOfferPricesWorkflow
+
+Replaces each listed offer’s prices without touching other offers on the same variant. Returns `{ offer_id, price_ids }[]` for the prices it created.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `offers` | `{ id, prices: UpsertOfferPriceDTO[] }[]` | The full new price list per offer |
+| `updated_by` | `string` | Optional. Passed to the hook |
+
+A price with an `id` updates that row, a price without one is added, and owned prices left out are deleted with their links. An `id` that belongs to another offer fails the run with `Price … does not belong to offer …`.
+
+| Hook | Payload |
+| --- | --- |
+| `offerPricesUpserted` | `{ offers, updated_by }`, where `updated_by` is `string \| null` |
+
+Each entry in `offers` has these fields:
+
+- **`offer_id`**: the offer
+- **`previous_prices`**: the offer’s prices before the write
+- **`prices`**: the offer’s prices after the write
+- **`created`**: ids of new prices
+- **`updated`**: ids whose amount, currency, quantity bounds, or rules changed; an unchanged row resent with its `id` isn’t listed
+- **`deleted`**: ids of removed prices
+
+The hook also fires when `updateOffersWorkflow` runs the upsert, so one handler covers both entry points:
+
+```ts title="src/workflows/hooks/offer-prices-upserted.ts"
 import { upsertOfferPricesWorkflow } from "@mercurjs/core/workflows"
-import { StepResponse } from "@medusajs/framework/workflows-sdk"
 
 upsertOfferPricesWorkflow.hooks.offerPricesUpserted(
   async ({ offers, updated_by }, { container }) => {
-    for (const { offer_id, previous_prices, prices, updated } of offers) {
-      // record a price-history entry for every id in `updated`
+    const logger = container.resolve("logger")
+    for (const { offer_id, updated, deleted } of offers) {
+      logger.info(`${offer_id} by ${updated_by}: ${updated.length} changed`)
+      logger.info(`${offer_id}: ${deleted.length} removed`)
     }
-    return new StepResponse(undefined)
   }
 )
 ```
 
-## Behavior notes
+Deleted prices are gone for good, so this payload is the only place to read their old values.
 
-- **Prices** are written on the master variant's shared price set, each row scoped by an `offer_id` `PriceRule`. On update, supplying `prices` replaces the ladder with the given rows; omitting it leaves prices untouched.
-- **Inventory** items passed to `createOffersWorkflow` are created and linked to the offer (and the store) in the same run. Every offer needs at least one.
-- Workflows run with compensation, so a failed create rolls back the inventory items, prices, and links it had already created.
+## deleteOffersWorkflow
 
-To work with records directly instead of through a workflow, see the
-[Service reference](/platform/offer/reference/service). To run side effects when
-an offer changes, see the [Event reference](/platform/offer/reference/events).
+Soft-deletes offers. It has no step that removes their prices or inventory items.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `ids` | `string[]` | The offers to delete |
+| `additional_data` | `Record<string, unknown>` | Optional. Passed to `offersDeleted` |
+
+| Hook | Payload |
+| --- | --- |
+| `offersDeleted` | `{ ids, offers, additional_data }` |
+
+`offers` is a snapshot taken before the delete, with each offer’s `prices`.
+
+## batchOfferInventoryItemsWorkflow
+
+Creates, updates, and removes `offer ↔ inventory_item` links on one offer. Returns `{ created, updated, deleted }`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `offer_id` | `string` | The offer to change |
+| `create` | `{ inventory_item_id, required_quantity? }[]` | Optional. Items to link, `required_quantity` defaults to `1` |
+| `update` | `{ inventory_item_id, required_quantity }[]` | Optional. New quantities for linked items |
+| `delete` | `string[]` | Optional. Inventory item ids to unlink |
+| `additional_data` | `Record<string, unknown>` | Optional. Passed to `offerInventoryItemsBatched` |
+
+The run fails when the offer doesn’t exist, an item in `create` doesn’t exist, an item in `delete` isn’t linked, or an id repeats within or across the lists.
+
+| Hook | Payload |
+| --- | --- |
+| `validate` | `{ input }` |
+| `offerInventoryItemsBatched` | `{ offer_id, result, additional_data }` |
+
+## createOfferConditionsWorkflow
+
+Creates offer conditions. Returns `OfferConditionDTO[]`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `offer_conditions` | `CreateOfferConditionDTO[]` | `code` and `label`, plus optional `is_active`, `rank`, and `metadata` |
+
+| Hook | Payload |
+| --- | --- |
+| `offerConditionsCreated` | `{ offer_conditions }` |
+
+## updateOfferConditionsWorkflow
+
+Updates offer conditions by `id`. Returns `OfferConditionDTO[]`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `offer_conditions` | `UpdateOfferConditionDTO[]` | `id`, plus any of `code`, `label`, `is_active`, `rank`, and `metadata` |
+
+| Hook | Payload |
+| --- | --- |
+| `offerConditionsUpdated` | `{ offer_conditions }` |
+
+## deleteOfferConditionsWorkflow
+
+Soft-deletes offer conditions. The run fails when an id doesn’t exist or when any offer still uses one of the conditions.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `ids` | `string[]` | The conditions to delete |
+
+| Hook | Payload |
+| --- | --- |
+| `offerConditionsDeleted` | `{ ids }` |
+
+## Related
+
+- [Offer events](/platform/offer/reference/events)
+- [Offer service methods](/platform/offer/reference/service)
+- [Create an offer](/platform/offer/guides/create-an-offer)

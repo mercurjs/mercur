@@ -1,31 +1,87 @@
 ---
-title: "Workflows"
+title: "Review workflows"
 sidebarTitle: "Workflows"
-description: "Review workflows for creating, moderating, responding, and deleting."
+description: "The four review workflows, their inputs, steps, compensation, and errors."
 ---
 
-This reference lists the workflows for the Review domain. Import them from
-`@mercurjs/core/workflows` and run them against the Medusa container.
+Core ships four review workflows in `packages/core/src/workflows/review/`. Import them from `@mercurjs/core/workflows` and run them with the Medusa container. None of them exposes a workflow hook, and none emits an event of its own: the events come from the module service, as listed in the [Events reference](/platform/review/reference/events).
 
-## Review workflows
+```ts
+import { createReviewWorkflow } from "@mercurjs/core/workflows"
 
-| Workflow | Input | Purpose |
+const { result: review } = await createReviewWorkflow(container).run({
+  input: {
+    order_id: "order_01JD8Q1234567",
+    reference: "seller",
+    reference_id: "sel_01JD8Q1234567",
+    rating: 5,
+    customer_id: "cus_01JD8Q1234567",
+  },
+})
+```
+
+## createReviewWorkflow
+
+Validates a submission, creates a `pending` review, and writes its customer, order, and target links. Workflow id `create-review`. Input type `CreateReviewDTO`, returns the created review.
+
+| Field | Type | Description |
 | --- | --- | --- |
-| `createReviewWorkflow` | `{ order_id, reference, reference_id, rating, customer_note?, customer_id }` | Validate and create a review, linking it to its target, order, and customer |
-| `updateReviewWorkflow` | `{ id, rating?, customer_note?, seller_note?, status? }` | Update a review, including moderating its `status` |
-| `respondReviewWorkflow` | `{ id, seller_note }` | Attach a store's single response to a review |
-| `deleteReviewWorkflow` | `id` | Soft-delete a review (restorable on rollback) |
+| `order_id` | `string` | The order that earned the review. Must belong to `customer_id` |
+| `reference` | `"product" \| "seller"` | The target type |
+| `reference_id` | `string` | The product id or seller id |
+| `rating` | `number` | The score. Not range checked |
+| `customer_note` | `string \| null` | Optional. Defaults to `null` |
+| `customer_id` | `string` | The customer writing the review |
 
-Each workflow supports compensation: `createReviewWorkflow` deletes the review it
-created on failure, `updateReviewWorkflow` and `respondReviewWorkflow` restore the
-previous values, and `deleteReviewWorkflow` restores the soft-deleted row.
+The workflow runs three steps:
 
-<Note>
-  `createReviewWorkflow` validates that the order belongs to the customer and
-  that the target hasn't already been reviewed on that order. `respondReviewWorkflow`
-  refuses to overwrite an existing response.
-</Note>
+1. **`validate-review`**: fails with `INVALID_DATA` “Order not found!” when no order matches `order_id` and `customer_id`, and with “Review already exists” when the order has a review with the same `reference` and target id
+2. **`create-review`**: creates the review and links it to the customer and the order; on rollback, deletes the review
+3. **`create-remote-links`**: Medusa’s `createRemoteLinkStep`, which links the review to the product or the seller
 
-To work with records directly instead of through a workflow, see the
-[Service reference](/platform/review/reference/service). To run side effects when
-a review changes, see the [Event reference](/platform/review/reference/events).
+## updateReviewWorkflow
+
+Updates any of a review’s editable fields, including `status`. Workflow id `update-review`. Input type `UpdateReviewDTO`, returns the updated review.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `string` | The review id |
+| `rating` | `number` | Optional |
+| `customer_note` | `string \| null` | Optional |
+| `seller_note` | `string \| null` | Optional. Pass `null` to clear an answer |
+| `status` | `"pending" \| "published" \| "rejected"` | Optional. Any value from any status |
+
+Its single step, `update-review`, reads the review before writing. On rollback it restores the previous `rating`, `customer_note`, `seller_note`, and `status`.
+
+## respondReviewWorkflow
+
+Writes a store’s answer to `seller_note`, once. Workflow id `respond-review`. Input type `RespondReviewDTO`, returns the updated review.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `string` | The review id |
+| `seller_note` | `string` | The answer |
+
+Its single step, `respond-review`, fails with `NOT_FOUND` “Review not found” for an unknown id and with `NOT_ALLOWED` “This review already has a response” when `seller_note` is set. On rollback it sets `seller_note` back to `null`. The workflow doesn’t check which store owns the review: the Vendor API checks the seller link before running it.
+
+## deleteReviewWorkflow
+
+Soft deletes a review. Workflow id `delete-review`. The input is the review id as a plain string, and the workflow returns that id.
+
+```ts
+await deleteReviewWorkflow(container).run({ input: "rev_01JD8Q1234567" })
+```
+
+Its single step, `delete-review`, calls `softDeleteReviews` and leaves the review’s links in place. On rollback it calls `restoreReviews`.
+
+## Steps
+
+`@mercurjs/core/workflows` also exports each step, so you can compose them into your own workflows:
+
+| Step | Id | Input |
+| --- | --- | --- |
+| `validateReviewStep` | `validate-review` | `CreateReviewDTO` |
+| `createReviewStep` | `create-review` | `CreateReviewDTO` |
+| `updateReviewStep` | `update-review` | `UpdateReviewDTO` |
+| `respondReviewStep` | `respond-review` | `RespondReviewDTO` |
+| `deleteReviewStep` | `delete-review` | `string` |

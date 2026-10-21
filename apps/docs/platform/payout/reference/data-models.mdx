@@ -1,61 +1,88 @@
 ---
-title: "Data models"
+title: "Payout data models"
 sidebarTitle: "Data models"
-description: "The data models owned by the Payout domain."
+description: "Every field of PayoutAccount, Onboarding, and Payout, plus the PayoutAccountStatus and PayoutStatus enums."
 ---
 
-The Payout domain is owned by the **Payout module**. This reference lists its
-data models and their fields. For the full module overview, see the
-[Payout overview](/platform/payout/overview).
+The Payout module owns 3 data models: `PayoutAccount`, `Onboarding`, and `Payout`. They’re defined in `packages/core/src/modules/payout/models`, and the module service is registered as `MercurModules.PAYOUT`. Every model also gets Medusa’s `created_at`, `updated_at`, and `deleted_at` columns.
 
 ## PayoutAccount
 
-Table `payout_account`, id prefix `pacc`. A seller's connection to the payment
-provider. This is the record funds are transferred to.
+A seller’s connection to the payout provider. Table `payout_account`, id prefix `pacc`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
-| `id` | text | Primary key |
-| `status` | enum | `PayoutAccountStatus`, default `pending` |
-| `data` | json | Provider-specific account data |
-| `context` | json | Nullable; per-request provider hints |
+| `id` | `text` | Primary key, such as `pacc_01JD8Q1234567` |
+| `status` | `enum` | `PayoutAccountStatus`, default `pending` |
+| `data` | `json` | Provider account data, default `{}` |
+| `context` | `json`, nullable | Provider context passed at creation |
 
-Relations: `onboarding` (one-to-one, nullable), `payouts` (one-to-many).
+Relations:
+
+- **`onboarding`**: `hasOne` `Onboarding`, nullable, mapped by `account`
+- **`payouts`**: `hasMany` `Payout`, mapped by `account`
+
+The seller is reached through the `seller_payout_account` link, not a column. See [Links](/platform/payout/reference/links).
 
 ## Onboarding
 
-Table `onboarding`, id prefix `onb`. Provider setup state for a payout account
-(for Stripe Connect, the onboarding link).
+The provider’s onboarding state for one payout account. Table `onboarding`, id prefix `onb`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
-| `id` | text | Primary key |
-| `data` | json | Nullable; provider onboarding data |
-| `context` | json | Nullable; per-request provider hints |
-| `account_id` | text | Belongs to a `PayoutAccount` |
+| `id` | `text` | Primary key, such as `onb_01JD8Q1234567` |
+| `data` | `json`, nullable | Provider onboarding data, such as a Stripe account link |
+| `context` | `json`, nullable | Provider context from the last onboarding call |
+| `account_id` | `text` | Foreign key to `PayoutAccount` |
 
-<Note>
-  `Onboarding` is one-to-one with `PayoutAccount`. Re-running the onboarding
-  workflow updates the existing record rather than creating a second one.
-</Note>
+Relations:
+
+- **`account`**: `belongsTo` `PayoutAccount`, mapped by `onboarding`
 
 ## Payout
 
-Table `payout`, id prefix `pout`. A single transfer of a seller's earnings for
-one order.
+One transfer to a seller’s payout account. Table `payout`, id prefix `pout`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
-| `id` | text | Primary key |
-| `display_id` | number | Auto-incrementing, human-readable |
-| `currency_code` | text | The payout's currency |
-| `amount` | bigNumber | Order total minus commission |
-| `data` | json | Nullable; provider transfer data |
-| `status` | enum | `PayoutStatus`, default `pending` |
-| `account_id` | text | Belongs to a `PayoutAccount` |
+| `id` | `text` | Primary key, such as `pout_01JD8Q1234567` |
+| `display_id` | `autoincrement` | Human-readable sequence number |
+| `currency_code` | `text` | Currency of the transfer |
+| `amount` | `bigNumber` | Amount sent to the seller |
+| `data` | `json`, nullable | Provider transfer data, such as a Stripe transfer |
+| `status` | `enum` | `PayoutStatus`, default `pending` |
+| `account_id` | `text` | Foreign key to `PayoutAccount` |
+
+Relations:
+
+- **`account`**: `belongsTo` `PayoutAccount`, mapped by `payouts`
+
+Indexes, both limited to rows where `deleted_at IS NULL`:
+
+- **`IDX_payout_account_id_created_at`**: on `account_id`, `created_at`
+- **`IDX_payout_status_created_at`**: on `status`, `created_at`
+
+`createPayoutWorkflow` sets `amount` to the order total minus the order’s commission lines. The model itself doesn’t store an order id. The order travels to the provider as the idempotency key, and Stripe Connect stores it as the transfer’s `transfer_group` in `data`.
 
 ## Enums
 
-**`PayoutAccountStatus`:** `pending`, `active`, `restricted`, `rejected`.
+Both enums are exported from `@mercurjs/types`.
 
-**`PayoutStatus`:** `pending`, `processing`, `paid`, `failed`, `canceled`.
+`PayoutAccountStatus`:
+
+| Member | Value |
+| --- | --- |
+| `PENDING` | `pending` |
+| `ACTIVE` | `active` |
+| `RESTRICTED` | `restricted` |
+| `REJECTED` | `rejected` |
+
+`PayoutStatus`:
+
+| Member | Value |
+| --- | --- |
+| `PENDING` | `pending` |
+| `PROCESSING` | `processing` |
+| `PAID` | `paid` |
+| `FAILED` | `failed` |
+| `CANCELED` | `canceled` |

@@ -1,48 +1,69 @@
 ---
-title: "The store allowlist"
+title: "Restrict a product to chosen stores"
 sidebarTitle: "The allowlist"
-description: "The product_seller link that controls which stores may sell a master product."
+description: "How the product_seller link opens a product to every store or restricts it to the stores on its list."
 ---
 
-In this document, you'll learn how Mercur controls which stores are allowed to
-sell a shared master product.
+The store allowlist decides which stores can see and sell a published master product. It's a many-to-many link between Medusa's `Product` and Mercur's `Seller`, stored in the `product_seller` table. Use it for exclusive ranges, brand-authorized resellers, or products only certain stores may carry.
 
-## Product seller
+## Open by default, restricted by rows
 
-Since the catalog is shared, Mercur needs a way to say *which* stores may sell a
-given master product. That's the **product–seller allowlist**: a many-to-many
-link between Medusa's `Product` and Mercur's `Seller`, stored in the
-`product_seller` table.
+A product's allowlist has two states, and the number of `product_seller` rows decides which one applies. An empty allowlist doesn't block anyone: it means every store can sell the product.
+
+| `product_seller` rows | Who can see and sell the published product |
+| --- | --- |
+| None | Every store |
+| One or more | Only the stores on the list |
+
+Adding the first store to a product's allowlist closes it to every other store. Removing the last store opens it to all stores again.
+
+## Read a product's allowlist
+
+The link exposes the stores under the `sellers` alias on a product. Read it with `query.graph`:
 
 ```ts
-const { data: products } = await query.graph({
+const { data: [product] } = await query.graph({
   entity: "product",
   fields: ["id", "title", "sellers.id", "sellers.name"],
-  filters: { id: "prod_123" },
+  filters: { id: "prod_01JD8Q1234567" },
 })
+
+const isOpen = (product.sellers ?? []).length === 0
 ```
 
-A store appears in a product's `sellers` list only if it has been allowlisted.
-Being on the allowlist is what lets a store create an
-[offer](/platform/offer/overview) against the master product. Without it, the
-store cannot list that product for sale.
+An empty `sellers` array means the product is open to every store. You can also query the link table directly as the `product_seller` entity, with `product_id` and `seller_id` fields.
 
-<Note>
-  The allowlist link is created automatically for the submitting store when a
-  product is created with `seller_ids`, and managed afterwards with
-  `linkSellersToProductWorkflow`. See
-  [Allowlist stores](/platform/catalog/guides/allowlist-stores).
-</Note>
+## Where Mercur enforces it
 
-## Category allowlist
+Mercur applies the allowlist when it scopes a store's view of the catalog. These vendor reads hide a published product restricted to other stores:
 
-Product categories carry the same pattern through the `category_seller` link. It
-is a many-to-many association between `ProductCategory` and `Seller` that scopes
-which categories a store is associated with. Manage it with
-`linkSellersToProductCategoryWorkflow`.
+- **Product list and detail**: the product returns `404` for a store not on its list
+- **Variant list**: variants of restricted products are filtered out
+- **Product variants under a product**: blocked with the product itself
 
-<Tip>
-  The allowlist governs the **right to sell**, not the sale itself. A store on
-  the allowlist still has to create an offer to actually list the product.
-  Allowlisting alone doesn't put anything on the storefront.
-</Tip>
+A store always sees its own `draft` and `proposed` submissions, whatever their allowlist. The admin API and the Store API don't filter by allowlist.
+
+<Warning>
+  `createOffersWorkflow` doesn't check the allowlist. If you create offers from your own server code, check the product's `sellers` first, or a store can sell a product it isn't allowed to.
+</Warning>
+
+## How stores get on the list
+
+Mercur writes `product_seller` rows in two places:
+
+- **On create**: `createProductsWorkflow` links every id in a product's `seller_ids` input
+- **Afterwards**: `linkSellersToProductWorkflow` adds and removes stores in one run
+
+The vendor API never passes `seller_ids`, so a store's own submission starts open to every store. An operator restricts it with `linkSellersToProductWorkflow`. Removing a store from the list doesn't touch the offers it already created.
+
+## The category_seller link
+
+Categories have a second link to stores, `category_seller`, between `ProductCategory` and `Seller` with the `sellers` alias on a category. `linkSellersToProductCategoryWorkflow` writes it.
+
+No shipped route or workflow reads the link to filter products. Mercur exports `validateSellerProductPermissionsStep`, which throws `Seller is restricted from categories` when the seller is linked to any of the category ids you pass. Add that step to your own workflow if you treat the link as a category block list.
+
+## Related
+
+- [Allowlist stores](/platform/catalog/guides/allowlist-stores) to manage the list from your code
+- [Master products](/platform/catalog/concepts/master-products) for what a store sees by default
+- [Links reference](/platform/catalog/reference/links) for every link on products and categories

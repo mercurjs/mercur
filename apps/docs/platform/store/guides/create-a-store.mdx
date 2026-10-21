@@ -1,55 +1,122 @@
 ---
-title: "Create a store"
+title: "Create a store from server code"
 sidebarTitle: "Create a store"
-description: "Create a seller programmatically with createSellersWorkflow."
+description: "Create stores with createSellersWorkflow from a route, a seed script, or an import job, and extend creation with hooks."
 ---
 
-In this guide, you'll learn how to create a store from your own server code. This
-is useful in a seed script, a custom API route, or an onboarding flow.
+Create a store from your own server code when you seed a marketplace, import sellers from another system, or build a custom onboarding flow. `createSellersWorkflow` creates the `Seller`, links its regions, and invites its first team member.
 
-Mercur exposes a `createSellersWorkflow` that creates the `Seller` record along
-with its defaults. Run it from any place that has access to the Medusa container.
+## Before you begin
 
-## Run the workflow
+You need the following in place:
 
-```ts title="src/api/custom/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+- A Mercur server with `@mercurjs/core` installed through `withMercur()`
+- A default region set on your Medusa store, since every new store links to it
+
+## Create the store
+
+<Steps>
+  <Step title="Add a route that runs the workflow">
+    Create an API route and run the workflow against the request’s container. Each entry in `sellers` needs a `member.email`: the workflow sends that address an invite with the `role_seller_administration` role.
+
+    ```ts title="src/api/admin/import-sellers/route.ts"
+    import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+    import { createSellersWorkflow } from "@mercurjs/core/workflows"
+
+    export async function POST(req: MedusaRequest, res: MedusaResponse) {
+      const { result: sellers } = await createSellersWorkflow(req.scope).run({
+        input: {
+          sellers: [
+            {
+              name: "Acme Supplies",
+              email: "team@acme.com",
+              currency_code: "usd",
+              member: { email: "owner@acme.com" },
+              region_ids: ["reg_01JD8Q1234567"],
+            },
+          ],
+        },
+      })
+
+      res.status(201).json({ sellers })
+    }
+    ```
+
+    The store gets the handle `acme-supplies` and links to the default region plus `reg_01JD8Q1234567`.
+  </Step>
+  <Step title="Open the store">
+    New stores start in `pending_approval`. Run `approveSellerWorkflow` to open one, or pass `status: "open"` in the seller input when you import stores you’ve already vetted.
+
+    ```ts
+    import { approveSellerWorkflow } from "@mercurjs/core/workflows"
+
+    await approveSellerWorkflow(req.scope).run({
+      input: { seller_id: sellers[0].id },
+    })
+    ```
+
+    Approval stamps `approved_at` and emits `seller.approved`.
+  </Step>
+  <Step title="Let the owner accept the invite">
+    The workflow emits `member_invite.created` with the invite’s `id`, `token`, and `expires_at`. Send the token to the invitee from a subscriber. When they accept it through `acceptMemberInviteWorkflow`, they join as the store’s owner. [Manage the team](/platform/store/guides/manage-the-team) shows both the subscriber and the accept call.
+  </Step>
+</Steps>
+
+## Attach custom data with additional_data
+
+The workflow passes `additional_data` to its `sellersCreated` hook. Use the hook to save data that belongs to your extension, such as a referral code, without changing the workflow.
+
+```ts title="src/workflows/hooks/sellers-created.ts"
 import { createSellersWorkflow } from "@mercurjs/core/workflows"
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  const { result } = await createSellersWorkflow(req.scope).run({
-    input: {
-      sellers: [
-        {
-          name: "Acme Supplies",
-          email: "team@acme.com",
-          currency_code: "usd",
-        },
-      ],
-    },
-  })
-
-  res.status(201).json({ seller: result[0] })
-}
+createSellersWorkflow.hooks.sellersCreated(
+  async ({ sellers, additional_data }, { container }) => {
+    const referralCode = additional_data?.referral_code
+    if (!referralCode) {
+      return
+    }
+    const logger = container.resolve("logger")
+    logger.info(`${sellers.length} sellers joined via ${referralCode}`)
+  }
+)
 ```
 
-<Note>
-  An operator can set a new store to `open` right away. A store created through
-  the public self-registration flow starts in `pending_approval` and waits for
-  operator review. See [Moderate stores](/platform/store/guides/moderate-a-store).
-</Note>
+Pass `additional_data: { referral_code: "SPRING25" }` next to `sellers` in the workflow input to reach this hook. The workflow also has a `validate` hook that runs before anything is written, so you can throw there to reject the input.
 
-## Attach custom data
+## Create the owner membership directly
 
-The workflow accepts an `additional_data` payload. It is passed to the workflow's
-hooks, so you can persist marketplace-specific data alongside the store without
-forking the workflow.
+`createSellersWorkflow` invites the owner. When the person already signed in, for example in a custom registration route, run `createSellerAccountWorkflow` instead. It creates the store in `pending_approval` and adds the member as owner in one call.
 
 ```ts
-await createSellersWorkflow(req.scope).run({
+import { createSellerAccountWorkflow } from "@mercurjs/core/workflows"
+
+const { result: seller } = await createSellerAccountWorkflow(
+  req.scope
+).run({
   input: {
-    sellers: [{ name: "Acme Supplies", email: "team@acme.com", currency_code: "usd" }],
-    additional_data: { referral_code: "SPRING25" },
+    auth_identity_id: req.auth_context.auth_identity_id,
+    member_email: "owner@acme.com",
+    seller: {
+      name: "Acme Supplies",
+      email: "team@acme.com",
+      currency_code: "usd",
+    },
   },
 })
 ```
+
+The workflow upserts the member by email and stores its id on the auth identity under the `member` actor type. It also accepts `address`, `professional_details`, and `payment_details`, and writes each one when present.
+
+## Handle a failed creation
+
+The workflow rolls back every step when one fails. These inputs fail:
+
+- **Duplicate `name`, `email`, `handle`, or `external_id`**: the unique indexes reject the insert
+- **Invalid `handle`**: a handle with characters that aren’t URL safe fails with `INVALID_DATA`
+- **Unknown region**: a `region_ids` entry that doesn’t exist fails with `NOT_FOUND`
+
+## Next steps
+
+- [Moderate stores](/platform/store/guides/moderate-a-store)
+- [Manage the team](/platform/store/guides/manage-the-team)
+- [Workflows reference](/platform/store/reference/workflows)

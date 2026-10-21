@@ -1,61 +1,79 @@
 ---
-title: "Event reference"
+title: "Review events"
 sidebarTitle: "Events"
-description: "Running side effects as reviews are created, moderated, and answered."
+description: "The mutation events the Review module service emits, and how to subscribe to them."
 ---
 
-The Review workflows handle validation, links, moderation, and compensation. They
-do **not** currently emit their own domain events. There is no `review.created`
-or `review.published` event to subscribe to today.
+Mercur defines no review events of its own, and the review workflows don’t call `emitEventStep`. The Review module service emits Medusa’s standard mutation events instead, because every method `MedusaService` generates publishes an event when it changes a `Review` row. Subscribe to these to notify a store, refresh a search index, or recompute a cached rating.
 
-To run side effects when a review changes, wrap the review workflows in your own
-route or workflow and run the follow-up logic there, or emit your own event and
-subscribe to it.
+## Event list
 
-## Emit your own event
+Event names follow Medusa’s `<module>.<model>.<action>` pattern, with the module and the model both named `review`:
 
-Emit an event alongside the workflow, then handle it in a subscriber:
+| Event | Emitted when | Payload |
+| --- | --- | --- |
+| `review.review.created` | `createReviewWorkflow` or `createReviews` creates a review | `{ id }` |
+| `review.review.updated` | `updateReviewWorkflow`, `respondReviewWorkflow`, or `updateReviews` changes a review | `{ id }` |
+| `review.review.deleted` | `deleteReviewWorkflow` or `softDeleteReviews` soft deletes a review, or `deleteReviews` removes one | `{ id }` |
+| `review.review.restored` | `restoreReviews` restores a soft deleted review, including a delete rollback | `{ id }` |
 
-```ts title="src/api/custom/route.ts"
-import { Modules } from "@medusajs/framework/utils"
-import { createReviewWorkflow } from "@mercurjs/core/workflows"
+The payload holds only the review id. Load the review in the subscriber when you need its fields or links.
 
-export async function POST(req, res) {
-  const { result } = await createReviewWorkflow(req.scope).run({
-    input: req.body,
-  })
+<Note>
+  `review.review.updated` doesn’t say which field changed. A moderation, a customer edit, and a store answer all emit the same event, so compare against your own state when you need to tell them apart.
+</Note>
 
-  const eventBus = req.scope.resolve(Modules.EVENT_BUS)
-  await eventBus.emit({ name: "review.created", data: { id: result.id } })
+## Subscribe to an event
 
-  res.status(201).json({ review: result })
-}
-```
+Create a subscriber that loads the review and its links:
 
 ```ts title="src/subscribers/review-created.ts"
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
-export default async function reviewCreatedHandler({
+export default async function reviewCreated({
   event,
   container,
 }: SubscriberArgs<{ id: string }>) {
-  const reviewId = event.data.id
-  // ...notify the store, update a search index, etc.
+  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+  const { data: [review] } = await query.graph({
+    entity: "review",
+    fields: ["rating", "reference", "seller.email", "product.title"],
+    filters: { id: event.data.id },
+  })
+
+  const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
+  logger.info(`Review ${event.data.id} rated ${review.rating}`)
 }
 
-export const config: SubscriberConfig = {
-  event: "review.created",
-}
+export const config: SubscriberConfig = { event: "review.review.created" }
 ```
 
-<Note>
-  Because the module ships no events of its own, the event name in the example
-  above is one **you** define. Keep it consistent across the emit site and the
-  subscriber.
-</Note>
+This logs each new review. Replace the log with your side effect, such as a notification to `review.seller.email` for a store review.
 
-## React without an event
+## Emit a named event
 
-For side effects that must run transactionally with the review change, add a step
-to your own workflow that wraps the review workflow, rather than relying on an
-event. Events are handled asynchronously and outside the workflow's compensation.
+To give a moderation step its own event, wrap `updateReviewWorkflow` in your own workflow and add Medusa’s `emitEventStep`:
+
+```ts title="src/workflows/publish-review.ts"
+import {
+  createWorkflow,
+  WorkflowResponse,
+} from "@medusajs/framework/workflows-sdk"
+import { emitEventStep } from "@medusajs/medusa/core-flows"
+import { updateReviewWorkflow } from "@mercurjs/core/workflows"
+
+export const publishReviewWorkflow = createWorkflow(
+  "publish-review",
+  (input: { id: string }) => {
+    const review = updateReviewWorkflow.runAsStep({
+      input: { id: input.id, status: "published" },
+    })
+    emitEventStep({ eventName: "review.published", data: { id: input.id } })
+
+    return new WorkflowResponse(review)
+  }
+)
+```
+
+`review.published` is a name you define, so subscribe to the same string.

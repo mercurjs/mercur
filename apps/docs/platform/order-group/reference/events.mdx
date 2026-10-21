@@ -1,22 +1,40 @@
 ---
-title: "Event reference"
+title: "Order group events"
 sidebarTitle: "Events"
-description: "Events emitted by the Order Group domain, for subscribers and side effects."
+description: "The events emitted when checkout splits a cart into an order group, with their payloads and a subscriber example."
 ---
 
-The Order Group domain emits an event when a group is created during checkout.
-Subscribe to it to run side effects such as sending an order confirmation,
-syncing external systems, or kicking off follow-up workflows, instead of polling.
+Order groups emit one event of their own, `order_group.created`, when checkout splits a cart. The same run emits Medusa’s `order.placed` for every child order. Subscribe to these events to send confirmations, sync external systems, or start follow-up workflows.
+
+## Events
+
+Both events come from `completeCartWithSplitOrdersWorkflow`. Neither is emitted when the workflow returns an existing group for a cart that was already split.
+
+| Event | Emitted when | Payload |
+| --- | --- | --- |
+| `order_group.created` | Checkout creates a group for a completed cart | `{ id }`, the group id |
+| `order.placed` | Checkout creates a child order, once per seller | `{ id }`, the order id |
+
+The event name is available as `OrderGroupWorkflowEvents.CREATED` from `@mercurjs/core/workflows`. `order.placed` is Medusa’s `OrderWorkflowEvents.PLACED` from `@medusajs/framework/utils`.
+
+## Subscribe to a new group
+
+Use `order_group.created` for work that concerns the whole purchase, such as one confirmation email for a checkout that spans three sellers:
 
 ```ts title="src/subscribers/order-group-created.ts"
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import { getOrderGroupDetailWorkflow } from "@mercurjs/core/workflows"
 
 export default async function orderGroupCreatedHandler({
   event,
   container,
 }: SubscriberArgs<{ id: string }>) {
-  const orderGroupId = event.data.id
-  // ...send a confirmation, notify sellers, etc.
+  const { result: group } = await getOrderGroupDetailWorkflow(container).run({
+    input: {
+      order_group_id: event.data.id,
+      fields: ["id", "display_id", "total", "orders.seller.name"],
+    },
+  })
 }
 
 export const config: SubscriberConfig = {
@@ -24,14 +42,8 @@ export const config: SubscriberConfig = {
 }
 ```
 
-## Order group events
+The subscriber loads the new group with its child orders and sellers, ready to pass to your notification provider.
 
-| Event | Emitted when | Payload |
-| --- | --- | --- |
-| `order_group.created` | A cart is split and its parent group is created | `{ id }` |
-
-<Note>
-  The same checkout split also emits `order.placed` for each child order created.
-  Subscribe to `order.placed` when you need to react per seller order, and to
-  `order_group.created` when you need the purchase as a whole.
-</Note>
+<Tip>
+  Subscribe to `order.placed` instead when the work belongs to one seller, such as notifying that seller of a new order. Each child order fires its own event.
+</Tip>

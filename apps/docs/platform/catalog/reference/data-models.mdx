@@ -1,66 +1,177 @@
 ---
-title: "Data models"
+title: "Catalog data models"
 sidebarTitle: "Data models"
-description: "The Medusa Product models the catalog is built on, plus Mercur's marketplace layer."
+description: "Every field on the Medusa Product module models the shared catalog is built on, and the relations Mercur adds."
 ---
 
-The Catalog domain is owned by **Medusa's Product module**, with a marketplace
-layer added by Mercur. This reference lists the models at the Mercur-relevant
-level. It doesn't restate every Medusa product field. For the full module, see
-the [Medusa Product module](https://docs.medusajs.com/resources/commerce-modules/product).
+The catalog's data models belong to Medusa's Product module, version 2.21. Mercur adds no columns to them. It adds relations through [module links](/platform/catalog/reference/links), listed under each model. Every model also has `created_at`, `updated_at`, and `deleted_at` timestamps that Medusa manages.
 
 ## Product
 
-Table `product`, id prefix `prod`. The shared master product, not owned by any
-store. The marketplace-relevant fields:
+The shared master product. Table `product`, id prefix `prod`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
-| `id` | text | Primary key |
-| `title` | text | Searchable |
-| `handle` | text | Unique |
-| `subtitle` / `description` | text | Nullable |
-| `status` | enum | `ProductStatus`: `draft` / `proposed` / `published` / `rejected`, default `draft` |
-| `thumbnail` | text | Nullable |
-| `metadata` | json | Nullable |
+| `id` | `text` | Primary key |
+| `title` | `text` | Display title, searchable and translatable |
+| `handle` | `text` | URL handle, unique among non-deleted products |
+| `subtitle` | `text`, nullable | Subtitle, searchable and translatable |
+| `description` | `text`, nullable | Description, searchable and translatable |
+| `is_giftcard` | `boolean` | Whether the product is a gift card. Default `false` |
+| `status` | `enum` | `draft`, `proposed`, `published`, or `rejected`. Default `draft` |
+| `thumbnail` | `text`, nullable | Thumbnail image URL |
+| `weight` | `float`, nullable | Weight |
+| `length` | `float`, nullable | Length |
+| `height` | `float`, nullable | Height |
+| `width` | `float`, nullable | Width |
+| `origin_country` | `text`, nullable | Country of origin |
+| `hs_code` | `text`, nullable | Harmonized System code |
+| `mid_code` | `text`, nullable | Manufacturer identification code |
+| `material` | `text`, nullable | Material, translatable |
+| `discountable` | `boolean` | Whether promotions can apply. Default `true` |
+| `external_id` | `text`, nullable | Id in an external system |
+| `metadata` | `json`, nullable | Custom key-value data |
 
-Relations used by the marketplace: `variants`, `options`, `categories`,
-`collection`, `tags`, `type`, `images` (native Medusa), plus Mercur's `sellers`
-(the allowlist), `offers`, `scoped_attributes`, and `changes` (audit history).
+Native relations:
 
-## product_seller
+- **`variants`**: `ProductVariant[]`, deleted with the product
+- **`options`**: `ProductOption[]` through the `ProductProductOption` pivot
+- **`images`**: `ProductImage[]`, deleted with the product
+- **`categories`**: `ProductCategory[]` through `product_category_product`
+- **`collection`**: `ProductCollection`, nullable
+- **`type`**: `ProductType`, nullable
+- **`tags`**: `ProductTag[]` through `product_tags`
 
-The **allowlist**: a many-to-many link table between `Product` and `Seller`
-controlling which stores may sell a master product.
+Mercur relations:
 
-| Column | References |
-| --- | --- |
-| `product_id` | `product.id` |
-| `seller_id` | `seller.id` |
-
-A store on this table can create an [offer](/platform/offer/overview) against the
-product; a store not on it cannot.
+- **`sellers`**: `Seller[]`, the store allowlist in `product_seller`
+- **`product_attribute_values`**: attribute values attached to the product
+- **`scoped_attributes`**: product-scoped attributes, read-only
+- **`changes`**: `ProductChange[]`, the audit and edit history, read-only
+- **`reviews`**: `Review[]`
 
 ## ProductVariant
 
-Table `product_variant`, id prefix `variant`. A purchasable configuration of a
-master product, generated from its options and variant-axis attributes. Holds the
-SKU-level catalog structure. Offer-scoped price and inventory live on the offer,
-not here.
+One purchasable configuration of a product. Table `product_variant`, id prefix `variant`.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `text` | Primary key |
+| `title` | `text` | Display title, searchable and translatable |
+| `sku` | `text`, nullable | Catalog SKU, unique among non-deleted variants |
+| `barcode` | `text`, nullable | Barcode, unique |
+| `ean` | `text`, nullable | EAN, unique |
+| `upc` | `text`, nullable | UPC, unique |
+| `allow_backorder` | `boolean` | Default `false` |
+| `manage_inventory` | `boolean` | Model default `true`; Mercur's create workflow sends `false` |
+| `hs_code` | `text`, nullable | Harmonized System code |
+| `origin_country` | `text`, nullable | Country of origin |
+| `mid_code` | `text`, nullable | Manufacturer identification code |
+| `material` | `text`, nullable | Material, translatable |
+| `weight` | `float`, nullable | Weight |
+| `length` | `float`, nullable | Length |
+| `height` | `float`, nullable | Height |
+| `width` | `float`, nullable | Width |
+| `thumbnail` | `text`, nullable | Variant thumbnail URL |
+| `variant_rank` | `number`, nullable | Sort order. Default `0` |
+| `metadata` | `json`, nullable | Custom key-value data |
+
+Relations: `product` (nullable), `options` (`ProductOptionValue[]` through `product_variant_option`), and `images` (`ProductImage[]`). Mercur links offers to variants through `offer.variant_id`. Each store's price and stock live on the [offer](/platform/offer/reference/data-models), not here.
+
+## ProductOption
+
+An axis that variants vary on. Table `product_option`, id prefix `opt`.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `text` | Primary key |
+| `title` | `text` | Option name, such as `Size` |
+| `is_exclusive` | `boolean` | `true` when the option belongs to one product. Default `false` |
+| `metadata` | `json`, nullable | Custom key-value data |
+
+Relations: `products` and `values` (`ProductOptionValue[]`). A variant-axis attribute mirrors one option through `product_attribute.product_option_id`.
+
+## ProductOptionValue
+
+One value of an option. Table `product_option_value`, id prefix `optval`.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `text` | Primary key |
+| `value` | `text` | The value, such as `M` |
+| `rank` | `number`, nullable | Sort order |
+| `metadata` | `json`, nullable | Custom key-value data |
+
+Relations: `option` (nullable), `variants`, and `product_options`.
+
+## ProductImage
+
+A product image. Table `image`, id prefix `img`.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `text` | Primary key |
+| `url` | `text` | Image URL |
+| `rank` | `number` | Sort order. Default `0` |
+| `metadata` | `json`, nullable | Custom key-value data |
+
+Relations: `product` and `variants`.
 
 ## ProductCategory
 
-Table `product_category`, id prefix `pcat`. Hierarchical, nestable
-classification. Participates in the marketplace layer through the
-`category_seller` allowlist and the `media_images` link.
+A node in the category tree. Table `product_category`, id prefix `pcat`.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `text` | Primary key |
+| `name` | `text` | Display name, searchable and translatable |
+| `description` | `text` | Description. Default `""` |
+| `handle` | `text` | URL handle, unique |
+| `mpath` | `text` | Materialized path of ancestor ids |
+| `is_active` | `boolean` | Whether the category is live. Default `false` |
+| `is_internal` | `boolean` | Hidden from the storefront. Default `false` |
+| `rank` | `number` | Sort order among siblings. Default `0` |
+| `external_id` | `text`, nullable | Id in an external system |
+| `metadata` | `json`, nullable | Custom key-value data |
+
+Relations: `parent_category` (nullable), `category_children` (deleted with the parent), and `products`. Mercur adds `sellers`, `media_images`, and the product attribute link.
 
 ## ProductCollection
 
-Table `product_collection`, id prefix `pcol`. Flat, curated grouping of products,
-with a `media_images` link for collection artwork.
+A flat group of products. Table `product_collection`, id prefix `pcol`.
 
-<Note>
-  `ProductTag` and `ProductType` round out the native grouping models: free-form
-  labels and a single type classification per product, respectively. They carry
-  no Mercur-specific columns.
-</Note>
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `text` | Primary key |
+| `title` | `text` | Display title, searchable and translatable |
+| `handle` | `text` | URL handle, unique |
+| `external_id` | `text`, nullable | Id in an external system |
+| `metadata` | `json`, nullable | Custom key-value data |
+
+Relations: `products`. Mercur adds `media_images`.
+
+## ProductTag
+
+A free-form label. Table `product_tag`, id prefix `ptag`.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `text` | Primary key |
+| `value` | `text` | The label, unique |
+| `external_id` | `text`, nullable | Id in an external system |
+| `metadata` | `json`, nullable | Custom key-value data |
+
+Relations: `products`.
+
+## ProductType
+
+A single classification per product. Table `product_type`, id prefix `ptyp`.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `text` | Primary key |
+| `value` | `text` | The type name, unique |
+| `external_id` | `text`, nullable | Id in an external system |
+| `metadata` | `json`, nullable | Custom key-value data |
+
+Relations: `products`.

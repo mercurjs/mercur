@@ -1,51 +1,126 @@
 ---
-title: "Service reference"
+title: "Commission module service"
 sidebarTitle: "Service"
-description: "The Commission module service and its methods for working with records directly."
+description: "Resolve the Commission module service, its generated and custom methods, and the commission provider interface."
 ---
 
-The Commission module exposes a service you can resolve from the Medusa
-container to read and write records directly, without going through a workflow.
-Use it inside custom services, subscribers, or scheduled jobs.
+The Commission module service reads and writes commission records without a workflow. Use it in steps, subscribers, and scheduled jobs, and use the [workflows](/platform/commission/reference/workflows) when you need rollback or the global-rate delete guard.
+
+## Resolve the service
+
+Resolve the service from the container with `MercurModules.COMMISSION`.
 
 ```ts
 import { MercurModules } from "@mercurjs/types"
 
-const commissionModuleService = container.resolve(MercurModules.COMMISSION)
+const commission = container.resolve(MercurModules.COMMISSION)
 
-const [rates, count] = await commissionModuleService.listAndCountCommissionRates(
-  { is_enabled: true }
+const [rates, count] = await commission.listAndCountCommissionRates(
+  { is_enabled: true },
+  { relations: ["rules", "values"] }
 )
 ```
 
+The call returns enabled rates with their rules and per-currency values, plus the total count.
+
 ## Generated methods
 
-Each data model gets a standard set of auto-generated methods. For
-`CommissionRate`:
+The service extends `MedusaService`, so every model gets the standard methods. For `CommissionRate` they are:
 
 | Method | Description |
 | --- | --- |
-| `createCommissionRates(data)` | Create one or more rates (auto-generates `code`) |
-| `retrieveCommissionRate(id, config?)` | Retrieve a rate by id |
-| `listCommissionRates(filters?, config?)` | List rates matching filters |
-| `listAndCountCommissionRates(filters?, config?)` | List rates with a total count |
-| `updateCommissionRates(data)` | Update one or more rates |
-| `deleteCommissionRates(ids)` | Delete one or more rates |
+| `retrieveCommissionRate(id, config?)` | Retrieve one rate |
+| `listCommissionRates(filters?, config?)` | List rates |
+| `listAndCountCommissionRates(filters?, config?)` | List rates with a count |
+| `createCommissionRates(data)` | Create one rate or an array of rates |
+| `updateCommissionRates(data)` | Update rates |
+| `deleteCommissionRates(ids)` | Hard-delete rates |
+| `softDeleteCommissionRates(ids)` | Soft-delete rates |
+| `restoreCommissionRates(ids)` | Restore soft-deleted rates |
 
-The same set exists for every model in the module: `CommissionRule`,
-`CommissionRateValue`, and `CommissionLine` (e.g. `createCommissionRules`,
-`listCommissionRateValues`, `deleteCommissionLines`).
-
-## Calculation & line methods
-
-| Method | Description |
-| --- | --- |
-| `getCommissionLines(context)` | Resolve the commission lines for a calculation context (items + shipping in a currency), most-specific-wins, without persisting |
-| `upsertCommissionLines(lines)` | Replace lines by anchor (`item_id` / `shipping_method_id`), making refreshes idempotent |
+The same set exists for `CommissionRule`, `CommissionRateValue`, and `CommissionLine`, for example `listCommissionRules`, `createCommissionRateValues`, and `retrieveCommissionLine`.
 
 <Warning>
-  Prefer [workflows](/platform/commission/reference/workflows) for order-line
-  refreshes and rate deletion. `refreshOrderCommissionLinesWorkflow` builds the
-  calculation context from the order and calls these methods for you;
-  `deleteCommissionRatesWorkflow` validates that a rate is safe to delete first.
+  `deleteCommissionRates` doesn’t check for the global rate. Use `deleteCommissionRatesWorkflow` to keep the `is_default` rate safe.
 </Warning>
+
+## Custom methods
+
+The service overrides or adds these methods:
+
+| Method | Description |
+| --- | --- |
+| `createCommissionRates(data)` | Fills a missing `code` from `name` plus a random suffix, then creates. Returns one rate for one input, an array for an array |
+| `listCommissionRates(filters?, config?)` | Accepts a virtual `scope_type` filter |
+| `listAndCountCommissionRates(filters?, config?)` | Accepts the same `scope_type` filter |
+| `getCommissionLines(context)` | Computes lines for one context with the default provider. Doesn’t persist |
+| `getCommissionLinesBatch(contexts)` | Computes lines for several contexts, one array per context in order. Doesn’t persist |
+| `upsertCommissionLines(lines)` | Deletes existing lines with the same `item_id` or `shipping_method_id`, then inserts `lines` |
+
+`getCommissionLines` and `getCommissionLinesBatch` stamp the default provider’s id on any line without a `provider_id`. `getCommissionLinesBatch` falls back to one `getCommissionLines` call per context when the provider has no batch method.
+
+## Filter rates by scope type
+
+`scope_type` filters rates by the dimensions their rules use, computed in the database. Pass one value, an array, or a comma-separated string. Several values are combined with OR, and an unknown value matches nothing.
+
+| `scope_type` | Rates whose rules use |
+| --- | --- |
+| `store` | `seller` only, without `product_type` or `product_category` |
+| `product_type` | `product_type`, without `seller` or `product_category` |
+| `category` | `product_category`, without `seller` or `product_type` |
+| `store_product_type` | `seller` and `product_type` |
+| `store_category` | `seller` and `product_category`, without `product_type` |
+
+## Commission providers
+
+A provider computes the lines from a calculation context. The module always registers the built-in `system` provider, which implements the [rule matching](/platform/commission/concepts/rule-matching) algorithm, and uses it unless you configure another one.
+
+```ts title="src/modules/tiered-commission/service.ts"
+import { MathBN } from "@medusajs/framework/utils"
+import type {
+  CommissionCalculationContext,
+  CreateCommissionLineDTO,
+  ICommissionProvider,
+} from "@mercurjs/types"
+
+export default class TieredCommissionProvider
+  implements ICommissionProvider
+{
+  static identifier = "tiered"
+
+  async getCommissionLines(
+    context: CommissionCalculationContext
+  ): Promise<CreateCommissionLineDTO[]> {
+    const percent = context.additional_context?.tier === "gold" ? 8 : 12
+    return (context.items ?? []).map((item) => ({
+      item_id: item.id,
+      code: "tiered",
+      rate: percent,
+      amount: MathBN.div(MathBN.mult(item.subtotal, percent), 100).toNumber(),
+    }))
+  }
+}
+```
+
+A provider class needs a static `identifier` and `getCommissionLines`. It can add `getCommissionLinesBatch(contexts)` to load its data once per batch. The module doesn’t cap `amount`, so keep it within the item’s `total` yourself.
+
+Export the class as a module provider so the commission module can register it.
+
+```ts title="src/modules/tiered-commission/index.ts"
+import { ModuleProvider } from "@medusajs/framework/utils"
+import { MercurModules } from "@mercurjs/types"
+import TieredCommissionProvider from "./service"
+
+export default ModuleProvider(MercurModules.COMMISSION, {
+  services: [TieredCommissionProvider],
+})
+```
+
+The module takes these options, typed as `CommissionModuleOptions`:
+
+| Option | Description |
+| --- | --- |
+| `providers` | Array of `{ resolve, id, options?, is_default? }` registered next to `system` |
+| `default_provider` | Provider id used for every calculation. Overrides `is_default` |
+
+A single configured provider becomes the default without `is_default`.

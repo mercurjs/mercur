@@ -1,53 +1,93 @@
 ---
-title: "Manage offer inventory"
+title: "Change the inventory items behind an offer"
 sidebarTitle: "Manage offer inventory"
-description: "Attach, update, and detach inventory items on an existing offer."
+description: "Use batchOfferInventoryItemsWorkflow to link, relink, and unlink existing inventory items on an offer."
 ---
 
-In this guide, you'll learn how to change the inventory items linked to an
-existing offer from your own server code.
+Run `batchOfferInventoryItemsWorkflow` when an existing offer needs different stock behind it, for example to turn it into a kit or to swap a component. The workflow changes the `offer ↔ inventory_item` links and their `required_quantity` in one run.
 
-Because inventory links to the **offer** (not the variant), the set of inventory
-items backing an offer is managed through the `offer ↔ inventory_item` link.
-`batchOfferInventoryItemsWorkflow` applies creates, updates, and deletes to that
-link in a single run.
+## Before you begin
 
-## Run the batch workflow
+You need these records in place:
 
-```ts title="src/api/custom/offer-inventory/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { batchOfferInventoryItemsWorkflow } from "@mercurjs/core/workflows"
+- **An offer**: the `offer_id` whose stock you change
+- **Existing inventory items**: the workflow links items that already exist and doesn’t create new ones
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  const { result } = await batchOfferInventoryItemsWorkflow(req.scope).run({
-    input: {
-      offer_id: "offer_123",
-      create: [{ inventory_item_id: "iitem_new", required_quantity: 2 }],
-      update: [{ inventory_item_id: "iitem_existing", required_quantity: 5 }],
-      delete: ["iitem_stale"],
-    },
-  })
+## Change the links
 
-  res.json(result)
-}
-```
+<Steps>
+  <Step title="Add a route that runs the batch">
+    Pass the offer and the three optional lists: `create`, `update`, and `delete`.
 
-The result reports the links that were `created`, `updated`, and `deleted`.
+    ```ts title="src/api/admin/custom/offers/[id]/inventory/route.ts"
+    import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+    import { batchOfferInventoryItemsWorkflow } from "@mercurjs/core/workflows"
 
-## Rules the workflow enforces
+    export async function POST(req: MedusaRequest, res: MedusaResponse) {
+      const { result } = await batchOfferInventoryItemsWorkflow(req.scope).run({
+        input: {
+          offer_id: req.params.id,
+          create: [
+            { inventory_item_id: "iitem_01JD8Q1234567", required_quantity: 2 },
+          ],
+          update: [
+            { inventory_item_id: "iitem_01JD8Q1234568", required_quantity: 1 },
+          ],
+          delete: ["iitem_01JD8Q1234569"],
+        },
+      })
 
-- Items in `create` must **not** already be linked to the offer; items in `update` and `delete` **must** already be linked.
-- An `inventory_item_id` can't appear in more than one section, and can't be duplicated within a section.
-- `create` items must reference existing `InventoryItem` records; `required_quantity` defaults to `1`.
-- Deleting an item that isn't linked to the offer surfaces a 404 rather than silently no-op'ing.
+      res.json(result)
+    }
+    ```
+
+    `create` links a new item, `update` changes the `required_quantity` of a linked item, and `delete` unlinks an item. The inventory item itself stays in place after an unlink.
+  </Step>
+  <Step title="Read the result">
+    The workflow returns what changed:
+
+    - **`created`**: the link definitions it added
+    - **`updated`**: the link definitions it rewrote
+    - **`deleted`**: the inventory item ids it unlinked
+
+    It also emits `offer.updated` with `{ id }` for the offer.
+  </Step>
+</Steps>
+
+## Rules the batch enforces
+
+The workflow checks the whole payload before it writes anything. Any broken rule fails the run:
+
+- **Unknown offer**: `Offer with id: … was not found`
+- **Unknown item in `create`**: the inventory item must exist
+- **Item not linked, in `delete`**: fails with not found instead of a silent no-op
+- **Same id twice**: an id can appear once per list and in only one of the three lists
+
+`required_quantity` defaults to `1` in `create` and is required in `update`.
 
 <Note>
-  This workflow manages the **links** between an offer and existing inventory
-  items and their `required_quantity`. To create brand-new inventory items with
-  starting stock as part of listing an offer, pass `inventory_items` to
-  [`createOffersWorkflow`](/platform/offer/guides/create-an-offer) instead.
+  The workflow doesn’t check that an item in `create` is already linked or that an item in `update` is linked, and it doesn’t check which store owns an item. Read the offer’s `inventory_item_link` and the item’s store first when your input comes from a seller.
 </Note>
 
-The workflow emits `offer.updated` and exposes an `offerInventoryItemsBatched`
-hook carrying the `offer_id`, the batch result, and any `additional_data` you
-passed in.
+## Run code after the batch
+
+The workflow exposes an `offerInventoryItemsBatched` hook. It receives the `offer_id`, the `result`, and any `additional_data` you passed.
+
+```ts title="src/workflows/hooks/offer-inventory-batched.ts"
+import { batchOfferInventoryItemsWorkflow } from "@mercurjs/core/workflows"
+
+batchOfferInventoryItemsWorkflow.hooks.offerInventoryItemsBatched(
+  async ({ offer_id, result }, { container }) => {
+    const logger = container.resolve("logger")
+    logger.info(`${offer_id}: ${result.deleted.length} items unlinked`)
+  }
+)
+```
+
+A `validate` hook runs first with the raw `input`, so you can reject a batch with your own rules before any link changes.
+
+## Next steps
+
+- [How offer stock works](/platform/offer/concepts/pricing-and-inventory)
+- [The offer to inventory item link](/platform/offer/reference/links)
+- [batchOfferInventoryItemsWorkflow reference](/platform/offer/reference/workflows)

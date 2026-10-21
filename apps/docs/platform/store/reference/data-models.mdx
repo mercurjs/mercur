@@ -1,89 +1,164 @@
 ---
-title: "Data models"
+title: "Seller module data models"
 sidebarTitle: "Data models"
-description: "The data models owned by the Store (Seller) domain."
+description: "Every data model in the Seller module, with fields, types, defaults, indexes, and relations."
 ---
 
-The Store domain is owned by the **Seller module**. This reference lists its data
-models and their fields. For the full module overview, see the
-[Store overview](/platform/store/overview).
+The Seller module (`MercurModules.SELLER`) owns the store, its business details, and its team. Every model also has the standard `created_at`, `updated_at`, and `deleted_at` columns, which the tables below leave out.
 
 ## Seller
 
-Table `seller`, id prefix `sel`. The store account and profile.
+The store account and its public profile. Table `seller`, id prefix `sel`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
-| `id` | text | Primary key |
-| `name` | text | Unique, searchable |
-| `handle` | text | Unique; auto-generated from `name` when omitted |
-| `email` | text | Unique, searchable |
-| `phone` | text | Nullable |
-| `description` | text | Nullable |
-| `logo` / `banner` | text | Nullable |
-| `website_url` | text | Nullable |
-| `external_id` | text | Nullable; unique when set |
-| `currency_code` | text | The store's single operating currency |
-| `status` | enum | `SellerStatus`, default `pending_approval` |
-| `status_reason` | text | Nullable |
-| `approved_at` / `rejected_at` | dateTime | Nullable |
-| `is_premium` | boolean | Default `false`; operator-set only |
-| `closed_from` / `closed_to` | dateTime | Nullable; scheduled closure window |
-| `closure_note` | text | Nullable |
-| `metadata` | json | Nullable |
+| `id` | `text` | Primary key |
+| `name` | `text` | Searchable, unique |
+| `handle` | `text` | Searchable, unique, generated from `name` when omitted |
+| `email` | `text` | Searchable, unique |
+| `phone` | `text` | Nullable |
+| `description` | `text` | Nullable |
+| `logo` | `text` | Nullable, image URL |
+| `banner` | `text` | Nullable, image URL |
+| `website_url` | `text` | Searchable, nullable |
+| `external_id` | `text` | Searchable, nullable, unique when set |
+| `currency_code` | `text` | The store’s settlement currency |
+| `status` | `enum` | `SellerStatus`, default `pending_approval` |
+| `status_reason` | `text` | Nullable, set by suspend and terminate |
+| `approved_at` | `dateTime` | Nullable, set on first approval |
+| `rejected_at` | `dateTime` | Nullable, set on first suspension |
+| `is_premium` | `boolean` | Default `false` |
+| `default_leadtime_to_ship` | `number` | Default `2`, in days |
+| `closed_from` | `dateTime` | Nullable, start of a scheduled closure |
+| `closed_to` | `dateTime` | Nullable, end of a scheduled closure |
+| `closure_note` | `text` | Nullable |
+| `metadata` | `json` | Nullable |
 
-Relations: `professional_details`, `address`, `payment_details` (one-to-one,
-deleted with the seller), `members` (many-to-many through `SellerMember`),
-`member_invites` (one-to-many, deleted with the seller).
+Unique indexes on `name`, `handle`, `email`, and `external_id` apply only to rows that aren’t deleted. An extra index on `(status, closed_from, closed_to)` serves the Store API visibility filter.
+
+Relations:
+
+- **`professional_details`**: has one `ProfessionalDetails`, deleted with the seller
+- **`address`**: has one `SellerAddress`, deleted with the seller
+- **`payment_details`**: has one `PaymentDetails`, deleted with the seller
+- **`members`**: many-to-many with `Member` through `SellerMember`, detached when the seller is deleted
+- **`member_invites`**: has many `MemberInvite`, deleted with the seller
+
+## SellerStatus
+
+The enum in `@mercurjs/types` that types `Seller.status`.
+
+| Key | Value |
+| --- | --- |
+| `OPEN` | `open` |
+| `PENDING_APPROVAL` | `pending_approval` |
+| `SUSPENDED` | `suspended` |
+| `TERMINATED` | `terminated` |
 
 ## ProfessionalDetails
 
-Table `professional_details`, id prefix `selprodet`. Presence marks the store as
-a registered business.
+A store’s registered business identity. Table `professional_details`, id prefix `selprodet`.
 
-| Field | Type |
-| --- | --- |
-| `corporate_name` | text, nullable |
-| `registration_number` | text, nullable |
-| `tax_id` | text, nullable |
+| Field | Type | Description |
+| --- | --- | --- |
+| `corporate_name` | `text` | Nullable |
+| `registration_number` | `text` | Nullable |
+| `tax_id` | `text` | Nullable |
+| `seller_id` | `text` | Belongs to `Seller` |
 
 ## SellerAddress
 
-Table `seller_address`, id prefix `seladdr`. Fields: `name`, `company`,
-`first_name`, `last_name`, `address_1`, `address_2`, `city`, `country_code`,
-`province`, `postal_code`, `phone`, and `metadata`. All are nullable.
+A store’s postal address. Table `seller_address`, id prefix `seladdr`.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name` | `text` | Searchable, nullable |
+| `company` | `text` | Searchable, nullable |
+| `first_name` | `text` | Searchable, nullable |
+| `last_name` | `text` | Searchable, nullable |
+| `address_1` | `text` | Searchable, nullable |
+| `address_2` | `text` | Searchable, nullable |
+| `city` | `text` | Searchable, nullable |
+| `country_code` | `text` | Nullable |
+| `province` | `text` | Searchable, nullable |
+| `postal_code` | `text` | Searchable, nullable |
+| `phone` | `text` | Nullable |
+| `metadata` | `json` | Nullable |
+| `seller_id` | `text` | Belongs to `Seller` |
 
 ## PaymentDetails
 
-Table `payment_details`, id prefix `selpaydet`. Fields: `country_code`,
-`holder_name`, `bank_name`, `iban`, `bic`, `routing_number`, and
-`account_number`. All are nullable.
+A store’s bank account details. Table `payment_details`, id prefix `selpaydet`.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `country_code` | `text` | Nullable |
+| `holder_name` | `text` | Nullable |
+| `bank_name` | `text` | Nullable |
+| `iban` | `text` | Nullable |
+| `bic` | `text` | Nullable |
+| `routing_number` | `text` | Nullable |
+| `account_number` | `text` | Nullable |
+| `seller_id` | `text` | Belongs to `Seller` |
 
 ## Member
 
-Table `member`, id prefix `mem`. A dashboard user that can belong to one or more
-stores.
+A person who can work for one or more stores. Table `member`, id prefix `mem`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
-| `email` | text | Unique, searchable |
-| `first_name` / `last_name` | text | Nullable |
-| `locale` | text | Nullable |
-| `is_active` | boolean | Default `true` |
-| `metadata` | json | Nullable |
+| `id` | `text` | Primary key |
+| `email` | `text` | Searchable, unique across the marketplace |
+| `first_name` | `text` | Searchable, nullable |
+| `last_name` | `text` | Searchable, nullable |
+| `locale` | `text` | Nullable |
+| `is_active` | `boolean` | Default `true` |
+| `metadata` | `json` | Nullable |
+
+Relations: `sellers`, many-to-many with `Seller` through `SellerMember`.
 
 ## SellerMember
 
-Table `seller_member`, id prefix `selmem`. Pivot between `Seller` and `Member`,
-unique on `(seller_id, member_id)`.
+One member’s membership in one store. Table `seller_member`, id prefix `selmem`, unique on `(seller_id, member_id)`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
-| `role_id` | text | Nullable; resolved against the RBAC roles module |
-| `is_owner` | boolean | Default `false` |
-| `metadata` | json | Nullable |
+| `id` | `text` | Primary key |
+| `seller_id` | `text` | Belongs to `Seller` |
+| `member_id` | `text` | Belongs to `Member` |
+| `role_id` | `text` | Nullable, a `SellerRole` value |
+| `is_owner` | `boolean` | Default `false` |
+| `metadata` | `json` | Nullable |
+
+## SellerRole
+
+The enum in `@mercurjs/types` whose values go in `role_id`.
+
+| Key | Value |
+| --- | --- |
+| `SELLER_ADMINISTRATION` | `role_seller_administration` |
+| `INVENTORY_MANAGEMENT` | `role_seller_inventory_management` |
+| `ORDER_MANAGEMENT` | `role_seller_order_management` |
+| `ACCOUNTING` | `role_seller_accounting` |
+| `SUPPORT` | `role_seller_support` |
 
 ## MemberInvite
 
-Table `member_invite`, id prefix `meminv`. A pending team invitation, carrying
-the invited `email`, target `seller_id`, `role_id`, and an expiry.
+A pending invitation to join a store. Table `member_invite`, id prefix `meminv`.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `text` | Primary key |
+| `email` | `text` | Searchable, the invited address |
+| `token` | `text` | Signed JWT, indexed |
+| `accepted` | `boolean` | Default `false` |
+| `expires_at` | `dateTime` | Set by the service, 7 days out by default |
+| `role_id` | `text` | The `SellerRole` the member gets on accept |
+| `seller_id` | `text` | Belongs to `Seller` |
+| `metadata` | `json` | Nullable |
+
+A unique index on `(email, seller_id)` covers invites that aren’t accepted or deleted, so a store has one open invite per email.
+
+## OrderGroup
+
+The Seller module also holds the `OrderGroup` model, which groups the per-store orders split from one cart. See the [order group data models](/platform/order-group/reference/data-models) for its fields.

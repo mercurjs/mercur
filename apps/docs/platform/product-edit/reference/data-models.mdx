@@ -1,65 +1,91 @@
 ---
-title: "Data models"
+title: "Product Edit data models"
 sidebarTitle: "Data models"
-description: "The data models owned by the Product Edit domain."
+description: "Fields, enums, indexes, and relations of the ProductChange and ProductChangeAction models."
 ---
 
-The Product Edit domain is owned by the **Product Edit module**
-(`MercurModules.PRODUCT_EDIT`). This reference lists its data models and their
-fields.
+The Product Edit module, resolved with `MercurModules.PRODUCT_EDIT` (`"product_edit"`), owns two data models: `ProductChange` and `ProductChangeAction`. Both are defined in `packages/core/src/modules/product-edit/models`. Every model also gets `created_at`, `updated_at`, and `deleted_at` from Medusa.
 
 ## ProductChange
 
-Table `product_change`, id prefix `prodch`. A single reviewable edit to one
-product.
+A single reviewable edit to one product. Table `product_change`, id prefix `prodch`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
-| `id` | text | Primary key |
-| `product_id` | text | The product this change targets (indexed) |
-| `status` | enum | `ProductChangeStatus`, default `pending` (indexed) |
-| `internal_note` | text | Nullable; operator-only note |
-| `external_note` | text | Nullable; vendor-facing note |
-| `created_by` | text | Nullable; actor who staged the change |
-| `confirmed_by` / `confirmed_at` | text / dateTime | Nullable; set on confirm |
-| `declined_by` / `declined_at` | text / dateTime | Nullable; set on decline |
-| `declined_reason` | text | Nullable |
-| `canceled_by` / `canceled_at` | text / dateTime | Nullable; set on cancel |
-| `requires_action_by` / `requires_action_at` | text / dateTime | Nullable |
-| `requires_action_reason` | text | Nullable |
-| `metadata` | json | Nullable |
+| `id` | `text` | Primary key, prefixed `prodch` |
+| `product_id` | `text` | The product the change targets |
+| `status` | `enum` | A `ProductChangeStatus` value. Default `pending` |
+| `internal_note` | `text`, nullable | Note for operators |
+| `external_note` | `text`, nullable | Note shown to the seller. Holds the message of a revision request |
+| `created_by` | `text`, nullable | Actor who staged the change: a seller id from vendor routes, a user id from admin routes |
+| `confirmed_by` | `text`, nullable | Actor who confirmed the change |
+| `confirmed_at` | `dateTime`, nullable | When the change was confirmed |
+| `declined_by` | `text`, nullable | Actor who declined the change |
+| `declined_at` | `dateTime`, nullable | When the change was declined |
+| `declined_reason` | `text`, nullable | Reason given on decline |
+| `canceled_by` | `text`, nullable | Actor who canceled the change |
+| `canceled_at` | `dateTime`, nullable | When the change was canceled |
+| `requires_action_by` | `text`, nullable | Reserved. No workflow writes it |
+| `requires_action_at` | `dateTime`, nullable | Reserved. No workflow writes it |
+| `requires_action_reason` | `text`, nullable | Reserved. No workflow writes it |
+| `metadata` | `json`, nullable | Custom key-value data |
 
-Relations: `actions` (one-to-many `ProductChangeAction`, cascade-deleted with the
-change).
+Relations:
 
-<Note>
-  The `status` enum has four values: `pending`, `confirmed`, `declined`, and
-  `canceled`. A revision request is recorded as a `CHANGE_REQUESTED` audit action
-  rather than a distinct status.
-</Note>
+- **`actions`**: has many `ProductChangeAction`. The model cascades deletes to its actions
+
+Indexes on `status`, on `product_id`, and on `(product_id, status)`, all excluding soft-deleted rows.
 
 ## ProductChangeAction
 
-Table `product_change_action`, id prefix `prodchact`. A single typed operation
-inside a change.
+A single typed operation inside a change. Table `product_change_action`, id prefix `prodchact`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
-| `id` | text | Primary key |
-| `product_id` | text | The product the action targets (indexed) |
-| `product_change_id` | text | Nullable FK to the parent change (`ON DELETE SET NULL`, indexed) |
-| `ordering` | autoincrement | Deterministic apply order (indexed) |
-| `action` | text | A `ProductChangeActionType` value |
-| `details` | json | Default `{}`; the operation payload |
-| `internal_note` | text | Nullable |
-| `applied` | boolean | Default `false`; set `true` once written to the product |
+| `id` | `text` | Primary key, prefixed `prodchact` |
+| `product_id` | `text` | The product the action targets |
+| `product_change_id` | `text`, nullable | The parent change. The foreign key is `ON DELETE SET NULL` |
+| `ordering` | `autoincrement` | Insertion order across all actions |
+| `action` | `text` | A `ProductChangeActionType` value |
+| `details` | `json` | The operation payload. Default `{}` |
+| `reference` | `text`, nullable | Free-form type of a related record. Not set by Mercur |
+| `reference_id` | `text`, nullable | Free-form id of a related record. Not set by Mercur |
+| `internal_note` | `text`, nullable | Note for operators |
+| `applied` | `boolean` | `true` once the action is written to the product. Default `false` |
 
-## Enums
+Relations:
 
-`ProductChangeStatus`: `pending`, `confirmed`, `declined`, `canceled`.
+- **`product_change`**: belongs to `ProductChange`, nullable
 
-`ProductChangeActionType`: `UPDATE`, `STATUS_CHANGE`, `VARIANT_ADD`,
-`VARIANT_UPDATE`, `VARIANT_REMOVE`, `ATTRIBUTE_ADD`, `ATTRIBUTE_UPDATE`,
-`ATTRIBUTE_REMOVE`, `PRODUCT_ADD`, `PRODUCT_DELETE`, `CHANGE_REQUESTED`.
+Indexes on `product_change_id`, `product_id`, `(reference, reference_id)`, and `ordering`, all excluding soft-deleted rows.
 
-Both enums are exported from `@mercurjs/types`.
+## ProductChangeStatus
+
+The values of `ProductChange.status`, exported from `@mercurjs/types`:
+
+| Value | Meaning |
+| --- | --- |
+| `pending` | Waiting for review |
+| `confirmed` | Approved and applied, or recorded as an audit change |
+| `declined` | Rejected by an operator |
+| `canceled` | Withdrawn before review |
+
+## ProductChangeActionType
+
+The values of `ProductChangeAction.action`, exported from `@mercurjs/types`:
+
+| Value | Applied on confirm |
+| --- | --- |
+| `UPDATE` | Yes |
+| `STATUS_CHANGE` | Yes |
+| `VARIANT_ADD` | Yes |
+| `VARIANT_UPDATE` | Yes |
+| `VARIANT_REMOVE` | Yes |
+| `ATTRIBUTE_ADD` | Yes |
+| `ATTRIBUTE_UPDATE` | Yes |
+| `ATTRIBUTE_REMOVE` | Yes |
+| `PRODUCT_DELETE` | Yes |
+| `PRODUCT_ADD` | No, audit only |
+| `CHANGE_REQUESTED` | No, audit only |
+
+The `details` shape for each type is listed in [Change actions](/platform/product-edit/concepts/change-actions#action-types). The matching DTOs are `ProductChangeDTO` and `ProductChangeActionDTO`, and the create inputs are `CreateProductChangeDTO` and `CreateProductChangeActionDTO`, all from `@mercurjs/types`.

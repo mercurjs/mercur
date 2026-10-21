@@ -1,49 +1,191 @@
 ---
-title: "Workflows"
+title: "Product Edit workflows"
 sidebarTitle: "Workflows"
-description: "Product change workflows, service methods, and events."
+description: "Inputs, hooks, and events of every product change workflow, from staging to audit records."
 ---
 
-This reference lists the workflows for the Product Edit domain. Import them from
-`@mercurjs/core/workflows` and run them against the Medusa container.
+This page lists the workflows that stage, resolve, apply, and record product changes. Import them from `@mercurjs/core/workflows` and run them with the Medusa container, for example `confirmProductChangeWorkflow(container).run({ input })`. Each section gives the workflow id, the input, the hooks, and the events.
 
-## Lifecycle workflows
+## Edit workflows
 
-| Workflow | Input | Purpose |
+These workflows load the current product, diff your input against it, check that the author has no pending change on the product, and stage the result through `stageProductChangeWorkflow`. They return the staged `ProductChangeDTO`.
+
+### productEditUpdateProductWorkflow
+
+Id `product-edit-update-product`. Stages an `UPDATE` action per changed product field, and a `STATUS_CHANGE` action when `status` differs.
+
+| Input | Type | Description |
 | --- | --- | --- |
-| `createProductChangeWorkflow` | `{ changes[], additional_data? }` | Create pending changes (rejects if one is already pending) |
-| `stageProductChangeWorkflow` | `{ product_id, actions[], created_by?, internal_note?, external_note?, auto_confirm? }` | Create a change with actions, then run auto-confirm |
-| `confirmProductChangeWorkflow` | `{ ids[], confirmed_by?, internal_note?, external_note? }` | Mark `confirmed` and apply pending actions |
-| `rejectProductChangeWorkflow` | `{ id, declined_by?, declined_reason? }` | Move a `pending` change to `declined` |
-| `cancelProductChangeWorkflow` | `{ id, canceled_by? }` | Move a `pending` change to `canceled` |
-| `autoConfirmProductChangeWorkflow` | `{ change_id, confirmed_by?, force? }` | Confirm when review is off, or when `force` is set |
+| `product_id` | `string` | The product to edit |
+| `created_by` | `string`, optional | The author. Scopes the pending check |
+| `update` | `Record<string, unknown>` | Proposed values. Keys outside the diffed field list are ignored |
+| `additional_data` | `Record<string, unknown>`, optional | Passed to the `productChangeCreated` hook |
+
+Hooks: `validate` with `{ input }`, and `productChangeCreated` with `{ product_change, additional_data }`.
+
+### productEditUpdateVariantsWorkflow
+
+Id `product-edit-update-variants`. Stages `VARIANT_ADD`, `VARIANT_UPDATE`, and `VARIANT_REMOVE` actions.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `product_id` | `string` | The product to edit |
+| `created_by` | `string`, optional | The author. Scopes the pending check |
+| `operations` | `ProductEditVariantOperation[]` | `{ type: "add", variant }`, `{ type: "update", variant_id, fields }`, or `{ type: "remove", variant_id }` |
+
+An update stages only the fields that differ, and `manage_inventory` is never staged. No hooks.
+
+### productEditUpdateAttributesWorkflow
+
+Id `product-edit-update-attributes`. Stages `ATTRIBUTE_ADD`, `ATTRIBUTE_UPDATE`, and `ATTRIBUTE_REMOVE` actions, skipping entries that wouldn’t change the product.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `product_id` | `string` | The product to edit |
+| `created_by` | `string`, optional | The author. Scopes the pending check |
+| `add` | `ProductAttributeBatchAdd[]`, optional | Attributes to attach |
+| `remove` | `string[]`, optional | Attribute ids to detach |
+| `update` | `ProductAttributeBatchUpdate[]`, optional | Changes to attached attributes |
+| `additional_data` | `Record<string, unknown>`, optional | Passed to the `productChangeCreated` hook |
+
+Hooks: `validate` with `{ input }`, and `productChangeCreated` with `{ product_change, additional_data }`.
+
+### productEditDeleteProductWorkflow
+
+Id `product-edit-delete-product`. Stages a single `PRODUCT_DELETE` action.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `product_id` | `string` | The product to delete |
+| `created_by` | `string`, optional | The author. Scopes the pending check |
+| `auto_confirm` | `boolean`, optional | Defaults to `true` when the product is a `draft`, else `false` |
+
+No hooks. On confirm, the product and its offers are deleted.
+
+## Staging and resolution workflows
+
+These workflows create a change and move it through its statuses.
+
+### stageProductChangeWorkflow
+
+Id `stage-product-change`. Creates one `pending` change with the given actions, emits `product-change.created`, then runs `autoConfirmProductChangeWorkflow`. It doesn’t check for an open change.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `product_id` | `string` | The product the change targets |
+| `actions` | `Omit<CreateProductChangeActionDTO, "product_change_id">[]` | The actions to stage |
+| `created_by` | `string`, optional | The author. Also used as `confirmed_by` on auto-confirm |
+| `internal_note` | `string`, optional | Note for operators |
+| `external_note` | `string`, optional | Note for the seller |
+| `auto_confirm` | `boolean`, optional | Confirm and apply in the same run |
+
+No hooks. Returns the created `ProductChangeDTO`, without its actions.
+
+### createProductChangeWorkflow
+
+Id `create-product-change`. Creates `pending` changes without actions, after checking that none of the products has a pending change from the same author. When the batch spans several authors, the check covers every pending change on those products.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `changes` | `CreateProductChangeDTO[]` | `product_id`, plus optional notes, `created_by`, and `metadata` |
+| `additional_data` | `Record<string, unknown>`, optional | Passed to the `productChangeCreated` hook |
+
+Hooks: `validate` with `{ input }`, and `productChangeCreated` with `{ changes, additional_data }`. Emits `product-change.created` per change.
+
+### autoConfirmProductChangeWorkflow
+
+Id `auto-confirm-product-change`. Runs `confirmProductChangeWorkflow` when `force` is `true` or the `product_request` feature flag is off. Otherwise it does nothing.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `change_id` | `string` | The change to confirm |
+| `confirmed_by` | `string`, optional | Stamped on the change |
+| `force` | `boolean`, optional | Confirm regardless of the flag |
+
+### confirmProductChangeWorkflow
+
+Id `confirm-product-change`. Sets every change in `ids` to `confirmed`, runs `applyProductChangeActionsWorkflow`, and emits `product-change.confirmed` per change. Fails if any change is missing or not `pending`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `ids` | `string[]` | The changes to confirm |
+| `confirmed_by` | `string`, optional | Stamped on each change |
+| `internal_note` | `string`, optional | Overwrites the operator note |
+| `external_note` | `string`, optional | Overwrites the seller note |
+| `additional_data` | `Record<string, unknown>`, optional | Passed to the `productChangeConfirmed` hook |
+
+Hooks: `validate` with `{ input }`, and `productChangeConfirmed` with `{ ids, additional_data }`.
+
+### rejectProductChangeWorkflow
+
+Id `reject-product-change`. Sets one `pending` change to `declined` and emits `product-change.declined`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `id` | `string` | The change to decline |
+| `declined_by` | `string`, optional | Stamped on the change |
+| `declined_reason` | `string`, optional | Reason for the seller |
+| `additional_data` | `Record<string, unknown>`, optional | Passed to the `productChangeRejected` hook |
+
+Hooks: `validate` with `{ input }`, and `productChangeRejected` with `{ id, additional_data }`.
+
+### cancelProductChangeWorkflow
+
+Id `cancel-product-change`. Sets one `pending` change to `canceled` and emits `product-change.canceled`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `id` | `string` | The change to cancel |
+| `canceled_by` | `string`, optional | Stamped on the change |
+| `additional_data` | `Record<string, unknown>`, optional | Passed to the `productChangeCanceled` hook |
+
+Hooks: `validate` with `{ input }`, and `productChangeCanceled` with `{ id, additional_data }`.
 
 ## Apply workflows
 
-| Workflow | Input | Purpose |
+`confirmProductChangeWorkflow` runs these for you, so you rarely call them yourself.
+
+### applyProductChangeActionsWorkflow
+
+Id `apply-product-change-actions`. Input `{ change_ids: string[] }`. Loads the unapplied actions of the given changes, groups them by type, runs Medusa’s product and variant workflows, deletes the offers of deleted products, and marks the handled actions `applied`. No hooks, no events of its own.
+
+### applyProductAttributeChangeActionsWorkflow
+
+Id `apply-product-attribute-change-actions`. Input `{ product_id, add, remove, update }`. Runs `createAndLinkProductAttributesToProductWorkflow` when any array is non-empty. No hooks.
+
+## Audit workflows
+
+These workflows record history that doesn’t need review.
+
+### recordProductAuditChangeWorkflow
+
+Id `record-product-audit-change`. Creates changes that start `confirmed`, with `actor_id` as both `created_by` and `confirmed_by`, and stores every action with `applied: true`. It doesn’t touch the product and emits no event.
+
+| Input | Type | Description |
 | --- | --- | --- |
-| `applyProductChangeActionsWorkflow` | `{ change_ids[] }` | Bucket not-yet-applied actions and dispatch them to product/variant workflows |
-| `applyProductAttributeChangeActionsWorkflow` | `{ product_id, add[], remove[], update[] }` | Apply the attribute batch for a change |
+| `actor_id` | `string`, optional | The actor to stamp |
+| `changes` | `array` | Each entry has `product_id`, `actions`, and optional `internal_note` and `external_note` |
 
-## Edit helpers
+### requestProductChangeWorkflow
 
-High-level workflows that diff your input and stage the right actions for you.
+Id `mercur-request-product-change`. Checks that the product is `proposed`, records a `CHANGE_REQUESTED` audit change with the message as `external_note`, and emits `product.change-requested`.
 
-| Workflow | Input | Purpose |
+| Input | Type | Description |
 | --- | --- | --- |
-| `productEditUpdateProductWorkflow` | `{ product_id, update, created_by? }` | Diff and stage `UPDATE` actions per changed field |
-| `productEditUpdateVariantsWorkflow` | `{ product_id, ... }` | Stage `VARIANT_*` actions |
-| `productEditUpdateAttributesWorkflow` | `{ product_id, ... }` | Stage `ATTRIBUTE_*` actions |
-| `productEditDeleteProductWorkflow` | `{ product_id, ... }` | Stage a `PRODUCT_DELETE` action |
+| `product_id` | `string` | The proposed product |
+| `message` | `string`, optional | What the seller should change |
+| `actor_id` | `string`, optional | The operator making the request |
+| `additional_data` | `Record<string, unknown>`, optional | Passed to the hook |
 
-## Audit-trail workflows
+Hooks: `productChangeRequested` with `{ product_id, message, additional_data }`.
 
-| Workflow | Input | Purpose |
-| --- | --- | --- |
-| `recordProductAuditChangeWorkflow` | `{ actor_id?, changes[] }` | Record already-`confirmed` audit changes (actions stored `applied`) |
-| `requestProductChangeWorkflow` | `{ product_id, message?, actor_id? }` | Record a `CHANGE_REQUESTED` revision request on a `proposed` product |
+## Steps
 
-To work with records directly instead of through a workflow, see the
-[Service reference](/platform/product-edit/reference/service). To run side effects
-when a change resolves, see the
-[Event reference](/platform/product-edit/reference/events).
+The module’s steps are exported from `@mercurjs/core/workflows` for your own workflows:
+
+- **Create**: `createProductChangesStep`, `createProductChangeActionsStep`, `addProductChangeActionStep`
+- **Resolve**: `confirmProductChangesStep`, `declineProductChangeStep`, `cancelProductChangeStep`
+- **Update**: `updateProductChangeActionsStep`, `applyVariantImageLinksStep`
+- **Validate**: `validateNoPendingProductChangeStep`, `validateProductChangeIsPendingStep`, `confirmProductChangeValidationStep`
+
+The create, resolve, and `updateProductChangeActionsStep` steps compensate by deleting or restoring what they wrote. `applyVariantImageLinksStep` has no compensation, and the validation steps write nothing.

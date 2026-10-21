@@ -1,50 +1,71 @@
 ---
-title: "Team & members"
+title: "How store teams work"
 sidebarTitle: "Team & members"
-description: "Members, roles, invites, and the many-to-many store relationship."
+description: "Members, memberships, owners, roles, invites, and how a member picks the store they act for."
 ---
 
-This page covers how a store's team is modeled and how access is structured.
+A store’s team is the set of people who can sign in to the Vendor panel and act for that store. Mercur models the person and the membership separately, so one person can work for several stores with a different role in each. This matters as soon as an agency, a franchise, or a holding company runs more than one store on your marketplace.
 
-## Member
+## Members and memberships
 
-A member is a dashboard user who can manage one or more stores. A member is
-represented by the `Member` data model (table `member`, id prefix `mem`). Their
-identity is tied to their `email`, which is unique across the system.
+A `Member` (id prefix `mem`) is a person. Their `email` is unique across the whole marketplace, so the same person never has two member records. A member can be deactivated with `is_active` without touching their memberships.
 
-## Seller member
+A `SellerMember` (id prefix `selmem`) is one person’s membership in one store. It’s the pivot between `Seller` and `Member`, and it’s unique on `(seller_id, member_id)`. Each membership carries:
 
-The relationship between stores and members is many-to-many. A store can have
-several members, and a member can belong to several stores. Each membership is a
-`SellerMember` record, the pivot between `Seller` and `Member`, unique on
-`(seller_id, member_id)`.
+- **`role_id`**: the member’s role in this store, one of the `SellerRole` values
+- **`is_owner`**: `true` for the store’s owner membership, `false` for everyone else
+- **`metadata`**: free-form data for your own extensions
+
+## Roles
+
+`SellerRole` from `@mercurjs/types` lists the five roles a membership can hold. The membership stores the role as a plain string.
+
+| `SellerRole` key | Stored value |
+| --- | --- |
+| `SELLER_ADMINISTRATION` | `role_seller_administration` |
+| `INVENTORY_MANAGEMENT` | `role_seller_inventory_management` |
+| `ORDER_MANAGEMENT` | `role_seller_order_management` |
+| `ACCOUNTING` | `role_seller_accounting` |
+| `SUPPORT` | `role_seller_support` |
+
+The vendor membership check confirms that a member belongs to the store they’re acting for. It doesn’t restrict routes by role, so enforce role rules in your own middleware when you need them.
+
+## The owner
+
+Every store has at most one owner membership, flagged with `is_owner`. Mercur sets it in two places:
+
+- **Self-registration**: `createSellerAccountWorkflow` adds the registering member as owner with `role_seller_administration`
+- **First accepted invite**: `acceptMemberInviteWorkflow` makes the new member owner when the store has none yet
+
+`updateMemberRoleWorkflow` and `removeSellerMemberWorkflow` both reject the owner membership with a `NOT_ALLOWED` error. That keeps every store with someone who can administer it.
+
+## Invites
+
+A `MemberInvite` (id prefix `meminv`) is a pending offer to join one store with one role. The service signs a JWT for each invite, stores it in `token`, and sets `expires_at` 7 days out unless you change the module’s `invite_valid_duration` option.
+
+Invites follow these rules:
+
+- **One open invite per email and store**: a unique index covers `(email, seller_id)` while `accepted` is `false`
+- **No invites for existing members**: inviting an email that already belongs to the store fails
+- **Existing accounts are reused**: accepting an invite for a known email links the existing member instead of creating one
+- **Single use**: accepting deletes the invite, and an expired or accepted token fails validation
+
+## The active store
+
+A member who belongs to several stores picks the active one per request. The vendor middleware reads the store id from the `x-seller-id` header, or from the session, and checks for a matching `SellerMember`. It then exposes the store on `req.seller_context`, typed by the `SellerContext` interface:
 
 ```ts
-await addSellerMemberWorkflow(container).run({
-  input: {
-    seller_id: "sel_123",
-    member: { email: "ops@acme.com" },
-  },
-})
+interface SellerContext {
+  seller_id: string
+  currency_code: string
+  seller_member: SellerMemberDTO
+}
 ```
 
-Every membership carries a `role_id`, resolved against the RBAC roles module, and
-an `is_owner` flag.
+Every vendor route scopes its reads and writes to `seller_context.seller_id`, so switching stores in the Vendor panel never shows another store’s data. The store list a member sees leaves out terminated stores.
 
-<Tip>
-  A store must always keep at least one member with admin access. The last admin
-  cannot be removed or demoted.
-</Tip>
+## Related
 
-## Member invite
-
-Pending invitations are represented by the `MemberInvite` data model. If an
-invited email already belongs to a user, accepting the invite links the new store
-association to their existing account instead of creating a new one.
-
-## Store switcher
-
-A user who belongs to several stores uses the store switcher in the Vendor panel
-to change the active store. Each store context is fully isolated. Switching stores
-shows only that store's offers, orders, and payouts, and it never leaks data
-across stores.
+- [Manage the team](/platform/store/guides/manage-the-team)
+- [Workflows reference](/platform/store/reference/workflows)
+- [What a store is made of](/platform/store/concepts/store-entity)

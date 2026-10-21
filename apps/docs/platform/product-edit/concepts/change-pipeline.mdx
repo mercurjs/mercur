@@ -1,69 +1,77 @@
 ---
-title: "The change pipeline"
+title: "How product changes are staged and recorded"
 sidebarTitle: "The change pipeline"
-description: "The ProductChange record, its immutability, and the audit trail."
+description: "How an edit becomes a ProductChange, who can have one open, and how the audit trail builds up."
 ---
 
-In this document, you'll learn how a product edit is captured and why the
-pipeline is built on immutable records.
+A product change is one reviewable edit to one product. Because every seller sells against the same shared product, a seller’s edit can’t take effect the moment it’s made. Mercur stores the edit as a `ProductChange` with its actions, holds it for review, and applies it only on confirmation. The same records double as the product’s history.
 
-## Product change
+## The product change record
 
-A product change is a single reviewable edit to one product, represented by the
-`ProductChange` data model (table `product_change`, id prefix `prodch`). It
-references the target product through `product_id`, carries the `status` of the
-review, and records who created and resolved it (`created_by`, `confirmed_by`,
-`declined_by`, `canceled_by`) with matching timestamps.
+A `ProductChange` (id prefix `prodch`) points at its product through `product_id` and carries a `status` from the `ProductChangeStatus` enum. It owns one or more `ProductChangeAction` rows in `actions`, one per operation it will apply. The change is the unit you review. The actions are what gets written.
+
+Each resolution stamps an actor and a time on the record:
+
+- **Staging**: `created_by`
+- **Confirm**: `confirmed_by`, `confirmed_at`
+- **Decline**: `declined_by`, `declined_at`, `declined_reason`
+- **Cancel**: `canceled_by`, `canceled_at`
+
+The actor fields are plain text. Vendor routes write the seller id (`sel_…`) into `created_by`, and admin routes write the operator’s user id. Two notes travel with the change: `internal_note` for operators and `external_note` for the seller.
 
 ```ts
-const productChangeModuleService = container.resolve(MercurModules.PRODUCT_EDIT)
+import { MercurModules } from "@mercurjs/types"
 
-const change = await productChangeModuleService.retrieveProductChange(id, {
-  relations: ["actions"],
-})
+const productEdit = container.resolve(MercurModules.PRODUCT_EDIT)
+
+const change = await productEdit.retrieveProductChange(
+  "prodch_01JD8Q1234567",
+  { relations: ["actions"] }
+)
 ```
 
-A change owns one or more `ProductChangeAction` records (`actions`). The change
-is the reviewable unit; the actions are the individual operations it will apply.
-See [Change actions](/platform/product-edit/concepts/change-actions).
+The service call loads one change with its actions. To read a product’s full history, use the `product.changes` link instead, covered in [Links](/platform/product-edit/reference/links).
+
+## How an edit is staged
+
+Seller edits reach the pipeline through four edit workflows. Each one loads the current product, compares your input against it, and passes only the differences to `stageProductChangeWorkflow`:
+
+- **`productEditUpdateProductWorkflow`**: product fields and status, as `UPDATE` and `STATUS_CHANGE` actions
+- **`productEditUpdateVariantsWorkflow`**: variant add, update, and remove operations, as `VARIANT_*` actions
+- **`productEditUpdateAttributesWorkflow`**: attribute add, update, and remove, as `ATTRIBUTE_*` actions
+- **`productEditDeleteProductWorkflow`**: a single `PRODUCT_DELETE` action
+
+`stageProductChangeWorkflow` creates the `pending` change, creates its actions, emits `product-change.created`, and then runs `autoConfirmProductChangeWorkflow`. Whether the change confirms in that same run is covered in [Status & auto-confirm](/platform/product-edit/concepts/status-and-auto-confirm).
+
+## One open change per author
+
+The edit workflows and `createProductChangeWorkflow` refuse to stage a change when the same author already has a `pending` change on that product. The check is scoped by `created_by`, so two different sellers can each have one open change on the same shared product. When `created_by` is missing, the check covers every pending change on the product.
+
+<Warning>
+  `stageProductChangeWorkflow` doesn’t run this check. Call it directly only when you’ve handled conflicts yourself, or prefer an edit workflow.
+</Warning>
+
+The conflict surfaces as a `NOT_ALLOWED` error: “There is already an active update request for this product. Only one request can be active at a time.” The author resolves it by canceling the open change or waiting for an operator to resolve it.
+
+## Audit changes
+
+Some events change a product without a review, yet still belong in its history. `recordProductAuditChangeWorkflow` stores them as changes created already `confirmed`, with every action marked `applied`, so confirming never replays them. Mercur’s product workflows call it in four places:
+
+| Workflow | Action recorded | `details` |
+| --- | --- | --- |
+| `createProductsWorkflow` | `PRODUCT_ADD` | `{ status, attribute_ids }` |
+| `confirmProductsWorkflow` | `STATUS_CHANGE` | `{ status: "published" }` |
+| `rejectProductWorkflow` | `STATUS_CHANGE` | `{ status: "rejected" }` |
+| `requestProductChangeWorkflow` | `CHANGE_REQUESTED` | `{ message }` |
+
+The `PRODUCT_ADD` record does real work: its `created_by` is the seller who submitted the product, and the vendor API reads it to tell which products a seller created.
 
 <Note>
-  A product can have **only one active (pending) change at a time**. Staging a
-  new change while one is still pending is rejected. The vendor resolves or
-  cancels the open change first.
+  Operator edits through the admin product update route run Medusa’s `updateProductsWorkflow` directly and don’t create a change. The pipeline governs seller edits.
 </Note>
 
-## Immutability & the audit trail
+## Related
 
-A change is never rewritten in place. It is created, its actions are appended,
-and it is resolved by moving `status` forward and stamping the actor and time.
-Because nothing is overwritten, the set of `ProductChange` rows on a product is a
-durable history of who changed what and who approved it.
-
-Some events aren't vendor edits at all, such as a publish approval or a revision
-request. They still belong in the history. Those are recorded as changes created
-already `confirmed`, so the audit trail captures them without waiting on review.
-
-```ts
-await recordProductAuditChangeWorkflow(container).run({
-  input: {
-    actor_id: "user_123",
-    changes: [
-      {
-        product_id: "prod_123",
-        external_note: "Approved for publish",
-        actions: [
-          { product_id: "prod_123", action: "STATUS_CHANGE", details: { status: "published" } },
-        ],
-      },
-    ],
-  },
-})
-```
-
-<Tip>
-  Read a product's full history through the read-only `product.changes` link
-  (see the [Links reference](/platform/product-edit/reference/links)) rather than
-  querying the module directly. The link keeps the audit trail attached to the
-  product.
-</Tip>
+- [The action types and their `details`](/platform/product-edit/concepts/change-actions)
+- [Statuses, revision requests, and auto-confirm](/platform/product-edit/concepts/status-and-auto-confirm)
+- [Stage an edit from your own route](/platform/product-edit/guides/edit-a-product)

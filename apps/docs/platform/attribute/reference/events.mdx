@@ -1,22 +1,59 @@
 ---
-title: "Event reference"
+title: "Attribute events"
 sidebarTitle: "Events"
-description: "Events emitted by the Attribute domain, for subscribers and side effects."
+description: "Events the Product Attribute workflows emit, when they fire, and their payloads."
 ---
 
-The Attribute domain emits events as attributes and their values change.
-Subscribe to them to run side effects, such as reindexing storefront filters,
-syncing an external PIM, or kicking off follow-up workflows, instead of polling.
+The catalog workflows emit 6 events as attributes and values change. Subscribe to them to reindex storefront facets, sync an external product information system, or start your own workflows. The event names are exported as `ProductAttributeWorkflowEvents` and `ProductAttributeValueWorkflowEvents` from `@mercurjs/core/workflows`.
 
-```ts title="src/subscribers/attribute-created.ts"
+## Attribute events
+
+Each event fires once per attribute, with that attribute’s id as the payload.
+
+| Event | Emitted when | Payload |
+| --- | --- | --- |
+| `product-attribute.created` | `createProductAttributesWorkflow` creates attributes | `{ id }` |
+| `product-attribute.updated` | `updateProductAttributesWorkflow` updates attributes, including an inline rename from the batch workflow | `{ id }` |
+| `product-attribute.deleted` | `deleteProductAttributesWorkflow` deletes attributes, including inline attributes removed from their product | `{ id }` |
+
+## Value events
+
+Each event fires once per value, with that value’s id as the payload.
+
+| Event | Emitted when | Payload |
+| --- | --- | --- |
+| `product-attribute-value.created` | `createProductAttributeValuesWorkflow` creates values, including new values added to an inline axis | `{ id }` |
+| `product-attribute-value.updated` | `updateProductAttributeValuesWorkflow` updates values | `{ id }` |
+| `product-attribute-value.deleted` | `deleteProductAttributeValuesWorkflow` deletes values, including values removed from an inline axis | `{ id }` |
+
+## What doesn’t emit
+
+Some writes create or change records without a matching event:
+
+- **Values created with an attribute**: `createProductAttributesWorkflow` emits only `product-attribute.created`, not a value event per value
+- **Upserts**: `upsertProductAttributeValuesWorkflow` emits nothing
+- **Attaching and detaching**: linking values to a product, `text` and `unit` values created on attach, and option changes on a product emit no attribute events
+
+## Subscribe to an event
+
+A subscriber receives one event per attribute. Resolve `query` to load the record by id.
+
+```ts title="src/subscribers/product-attribute-created.ts"
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
-export default async function attributeCreatedHandler({
+export default async function productAttributeCreated({
   event,
   container,
 }: SubscriberArgs<{ id: string }>) {
-  const attributeId = event.data.id
-  // ...reindex filters, sync to an external system, etc.
+  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+  const { data: [attribute] } = await query.graph({
+    entity: "product_attribute",
+    fields: ["id", "name", "type", "is_filterable", "values.name"],
+    filters: { id: event.data.id },
+  })
+
+  container.resolve("logger").info(`Index facet ${attribute.name}`)
 }
 
 export const config: SubscriberConfig = {
@@ -24,18 +61,4 @@ export const config: SubscriberConfig = {
 }
 ```
 
-## Attribute events
-
-| Event | Emitted when | Payload |
-| --- | --- | --- |
-| `product-attribute.created` | An attribute is created | `{ id }` |
-| `product-attribute.updated` | An attribute changes | `{ id }` |
-| `product-attribute.deleted` | An attribute is deleted | `{ id }` |
-
-## Value events
-
-| Event | Emitted when | Payload |
-| --- | --- | --- |
-| `product-attribute-value.created` | A value is created | `{ id }` |
-| `product-attribute-value.updated` | A value changes | `{ id }` |
-| `product-attribute-value.deleted` | A value is deleted | `{ id }` |
+The subscriber loads the new attribute with its values. Swap the log line for a call to your search index.
