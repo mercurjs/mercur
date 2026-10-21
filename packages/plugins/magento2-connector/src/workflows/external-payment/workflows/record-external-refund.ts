@@ -4,14 +4,14 @@ import {
   createWorkflow,
   transform,
 } from "@medusajs/framework/workflows-sdk"
-import { MedusaError } from "@medusajs/framework/utils"
 import {
   emitEventStep,
   refundPaymentWorkflow,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 
-import { EXTERNAL_PAYMENT_PROVIDER_ID, MagentoWebhookEvents } from "../types"
+import { MagentoWebhookEvents } from "../../../types"
+import { validateExternalPaymentStep } from "../steps"
 
 export type RecordExternalRefundWorkflowInput = {
   order_id: string
@@ -22,11 +22,10 @@ export type RecordExternalRefundWorkflowInput = {
 }
 
 export const recordExternalRefundWorkflowId = "record-external-refund"
-
 /**
- * The refund already happened in the external storefront. This only mirrors
- * it onto the order's external-provider payment so the order totals,
- * commission lines, and payout balance follow.
+ * Mirrors a refund that already happened in the external storefront onto the
+ * order's external-provider payment, so totals, commission lines and the
+ * payout balance follow.
  */
 export const recordExternalRefundWorkflow = createWorkflow(
   recordExternalRefundWorkflowId,
@@ -43,35 +42,23 @@ export const recordExternalRefundWorkflow = createWorkflow(
       options: { throwIfKeyNotFound: true },
     })
 
-    const paymentId = transform({ orders }, ({ orders }) => {
-      const payments = (orders.data[0]?.payment_collections ?? [])
-        .flatMap((pc) => pc?.payments ?? [])
-        .filter(
-          (p) =>
-            p?.provider_id === EXTERNAL_PAYMENT_PROVIDER_ID && !!p?.captured_at
-        )
+    const validationInput = transform({ input, orders }, ({ input, orders }) => ({
+      order_id: input.order_id,
+      payments: (orders.data[0]?.payment_collections ?? []).flatMap(
+        (pc) => pc?.payments ?? []
+      ),
+    }))
 
-      if (!payments.length) {
-        throw new MedusaError(
-          MedusaError.Types.INVALID_DATA,
-          "Order has no captured payment on the external provider"
-        )
-      }
+    const paymentId = validateExternalPaymentStep(validationInput)
 
-      return payments[0]!.id
-    })
-
-    const refundInput = transform(
-      { input, paymentId },
-      ({ input, paymentId }) => ({
-        payment_id: paymentId,
-        amount: input.amount,
-        note: input.reference
-          ? `${input.note ?? "External refund"} (${input.reference})`
-          : input.note,
-        created_by: input.created_by,
-      })
-    )
+    const refundInput = transform({ input, paymentId }, ({ input, paymentId }) => ({
+      payment_id: paymentId,
+      amount: input.amount,
+      note: input.reference
+        ? `${input.note ?? "External refund"} (${input.reference})`
+        : input.note,
+      created_by: input.created_by,
+    }))
 
     const payment = refundPaymentWorkflow.runAsStep({ input: refundInput })
 

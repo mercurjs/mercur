@@ -6,17 +6,15 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
 
-import { MagentoWebhookEvents } from "../types"
-import { createMagentoWebhookDeliveriesStep } from "./steps"
+import { MagentoWebhookEvents } from "../../../types"
+import { createMagentoWebhookDeliveriesStep } from "../steps"
 
 export type EnqueueMagentoWebhookDeliveriesWorkflowInput = {
   event: string
   payload: Record<string, unknown>
 }
 
-export const enqueueMagentoWebhookDeliveriesWorkflowId =
-  "enqueue-magento-webhook-deliveries"
-
+export const enqueueMagentoWebhookDeliveriesWorkflowId = "enqueue-magento-webhook-deliveries"
 export const enqueueMagentoWebhookDeliveriesWorkflow = createWorkflow(
   enqueueMagentoWebhookDeliveriesWorkflowId,
   (input: WorkflowData<EnqueueMagentoWebhookDeliveriesWorkflowInput>) => {

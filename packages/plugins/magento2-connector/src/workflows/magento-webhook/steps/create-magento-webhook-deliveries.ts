@@ -1,26 +1,20 @@
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
 
-import MagentoWebhookModuleService from "../../modules/magento-webhook/service"
-import { MAGENTO_WEBHOOK_MODULE } from "../../types"
+import { IMagentoWebhookModuleService, MAGENTO_WEBHOOK_MODULE } from "../../../types"
 
 export type CreateMagentoWebhookDeliveriesStepInput = {
   event: string
   payload: Record<string, unknown>
 }
 
+export const createMagentoWebhookDeliveriesStepId = "create-magento-webhook-deliveries"
 export const createMagentoWebhookDeliveriesStep = createStep(
-  "create-magento-webhook-deliveries",
+  createMagentoWebhookDeliveriesStepId,
   async (input: CreateMagentoWebhookDeliveriesStepInput, { container }) => {
-    const service = container.resolve<MagentoWebhookModuleService>(
-      MAGENTO_WEBHOOK_MODULE
-    )
+    const service = container.resolve<IMagentoWebhookModuleService>(MAGENTO_WEBHOOK_MODULE)
 
-    const endpoints = await service.listMagentoWebhookEndpoints({
-      is_active: true,
-    })
-    const subscribed = endpoints.filter((endpoint) =>
-      endpoint.events.includes(input.event)
-    )
+    const endpoints = await service.listMagentoWebhookEndpoints({ is_active: true })
+    const subscribed = endpoints.filter((endpoint) => endpoint.events.includes(input.event))
 
     if (!subscribed.length) {
       return new StepResponse([], [])
@@ -47,9 +41,7 @@ export const createMagentoWebhookDeliveriesStep = createStep(
       return
     }
 
-    const service = container.resolve<MagentoWebhookModuleService>(
-      MAGENTO_WEBHOOK_MODULE
-    )
+    const service = container.resolve<IMagentoWebhookModuleService>(MAGENTO_WEBHOOK_MODULE)
     await service.deleteMagentoWebhookDeliveries(ids)
   }
 )
