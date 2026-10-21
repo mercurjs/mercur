@@ -11,6 +11,7 @@ import {
   GetPaymentStatusOutput,
   InitiatePaymentInput,
   InitiatePaymentOutput,
+  Logger,
   ProviderWebhookPayload,
   RefundPaymentInput,
   RefundPaymentOutput,
@@ -32,16 +33,19 @@ import { ExternalPaymentSessionData } from "../../types"
 const toNumber = (value: unknown): number =>
   new BigNumber(value as never).numeric
 
+type InjectedDependencies = {
+  logger: Logger
+}
+
+type ExternalPaymentOptions = Record<string, never>
+
 /**
- * Records a payment that an external storefront already captured. Nothing is
- * charged here: the storefront passes the reference and amount of its own
- * capture in the session data, and every provider action succeeds so that
- * Mercur's split-order, commission, and payout pipeline runs on that amount.
+ * Records a payment the external storefront already captured; no provider is charged.
  */
-class ExternalPaymentProviderService extends AbstractPaymentProvider {
+class ExternalPaymentProviderService extends AbstractPaymentProvider<ExternalPaymentOptions> {
   static identifier = "external"
 
-  constructor(container: Record<string, unknown>, options: Record<string, unknown> = {}) {
+  constructor(container: InjectedDependencies, options: ExternalPaymentOptions = {}) {
     super(container, options)
   }
 
