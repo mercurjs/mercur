@@ -1,4 +1,4 @@
 export * from "./types"
 export * from "./workflows"
-export { default as MagentoWebhookModuleService } from "./modules/magento-webhook/service"
+export { MagentoWebhookModuleService } from "./modules/magento-webhook/services/magento-webhook-module-service"
 export { ExternalPaymentProviderService } from "./providers/payment-external"

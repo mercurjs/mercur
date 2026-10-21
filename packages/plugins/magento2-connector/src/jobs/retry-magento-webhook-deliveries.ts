@@ -1,21 +1,19 @@
 import { MedusaContainer } from "@medusajs/framework/types"
 
-import MagentoWebhookModuleService from "../modules/magento-webhook/service"
-import { MAGENTO_WEBHOOK_MODULE } from "../types"
+import { IMagentoWebhookModuleService, MAGENTO_WEBHOOK_MODULE } from "../types"
 import { deliverMagentoWebhookWorkflow } from "../workflows"
 
-export default async function retryMagentoWebhookDeliveries(
-  container: MedusaContainer
-) {
-  const service = container.resolve<MagentoWebhookModuleService>(
-    MAGENTO_WEBHOOK_MODULE
+export default async function retryMagentoWebhookDeliveries(container: MedusaContainer) {
+  const service = container.resolve<IMagentoWebhookModuleService>(MAGENTO_WEBHOOK_MODULE)
+
+  const due = await service.listMagentoWebhookDeliveries(
+    { status: ["pending", "failed"], next_attempt_at: { $lte: new Date() } },
+    { select: ["id"], take: 200 }
   )
 
-  const ids = await service.listDueDeliveryIds()
-
-  for (const id of ids) {
+  for (const delivery of due) {
     await deliverMagentoWebhookWorkflow(container).run({
-      input: { delivery_id: id },
+      input: { delivery_id: delivery.id },
     })
   }
 }
