@@ -36,6 +36,7 @@ export const AdminGetOffersParams = createFindParams({
     tag_id: z.union([z.string(), z.array(z.string())]).optional(),
     created_at: createOperatorMap().optional(),
     updated_at: createOperatorMap().optional(),
+    deleted_at: createOperatorMap().optional(),
   })
 )
 

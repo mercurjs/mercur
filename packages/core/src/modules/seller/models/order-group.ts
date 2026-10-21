@@ -8,6 +8,7 @@ const OrderGroup = model
     customer_id: model.text().nullable(),
     total: model.bigNumber().computed(),
     cart_id: model.text(),
+    metadata: model.json().nullable(),
   })
   .indexes([
     {

@@ -1,6 +1,7 @@
 export const adminOrderGroupFields = [
   "id",
   "customer_id",
+  "metadata",
   "seller_count",
   "total",
   "created_at",

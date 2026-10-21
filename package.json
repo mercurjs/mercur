@@ -30,6 +30,7 @@
     "apps/*",
     "packages/*",
     "packages/providers/*",
+    "packages/plugins/*",
     "integration-tests",
     "e2e-tests",
     "e2e-tests/hosts/*"

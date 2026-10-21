@@ -7,12 +7,30 @@ session detail aggressively. The per-spec source of truth lives in
 ## Current Verified State
 
 - **Repository root**: `/Users/viktorholik/Desktop/mercur`
-- **Current branch**: `main`
+- **Current branch**: `feat/magento2-connector`
 - **Current version**: `2.2.0-rc.1`
 - **Standard startup path**: `bun install && bun run dev`
 - **Standard verification path**: `bun run build`, `bun run lint` (oxlint),
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
+
+## Session — Magento 2 connector, Part A (2026-10-21), branch `feat/magento2-connector`
+
+Spec: `docs/specs/SPEC-003-magento2-connector.md` (local, `in_progress`). Design: Magento keeps
+storefront, checkout, payment capture and 1P products; Mercur owns sellers, 3P offers, split orders,
+commissions, payouts. Checkout drives a shadow Mercur cart (line items by `offer_id`, per-seller
+shipping, `pp_external_external` session, complete).
+- New plugin `packages/plugins/magento2-connector` (`@mercurjs/magento2-connector-plugin`):
+  `magento_webhook` module (endpoints + signed, retried deliveries), `external` payment provider,
+  `/admin/magento/*` routes (webhooks CRUD, deliveries, redeliver, status, external refund), fan-out
+  subscriber, retry/prune jobs, admin UI at `/settings/magento` built with `mercurjs dashboard:build`.
+- Core: `deleted_at` filter + `with_deleted` forwarding on admin offers/sellers lists; `order_group.metadata`
+  (+ migration) copied from `cart.metadata`; `integrations` permission key (core catalog + SDK).
+- Verified: turbo build 7/7, plugin admin tsc clean, oxlint clean, integration specs
+  `magento2-connector/*` 9/9 and `offer/admin/offer-soft-delete` 1/1. `test:unit` cannot resolve
+  `@swc/jest` locally; registry spec left to CI.
+- Next: Part B (Composer package in `mercurjs/magento2-connector`), dashboard Channel column/filter,
+  roles preset once a roles module exists.
 
 ## Session — Core hot-path performance (2026-10-21), branch `perf/core-hot-path-optimizations`, PR #1677
 

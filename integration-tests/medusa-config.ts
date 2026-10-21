@@ -18,7 +18,21 @@ module.exports = withMercur({
   featureFlags: {
     seller_registration: true,
   },
+  plugins: [
+    { resolve: '@mercurjs/magento2-connector-plugin', options: {} },
+  ],
   modules: [
+    {
+      resolve: '@medusajs/medusa/payment',
+      options: {
+        providers: [
+          {
+            resolve: '@mercurjs/magento2-connector-plugin/providers/payment-external',
+            id: 'external',
+          },
+        ],
+      },
+    },
     {
       resolve: '@mercurjs/core/modules/admin-ui',
       options: {
