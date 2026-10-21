@@ -107,6 +107,31 @@ medusaIntegrationTestRunner({
                     expect(response.data.price_lists.length).toBeGreaterThanOrEqual(2)
                 })
 
+                it("should not list another seller's price lists", async () => {
+                    const own = (
+                        await api.post(
+                            `/vendor/price-lists`,
+                            { title: "Seller One List", description: "Mine" },
+                            seller1Headers
+                        )
+                    ).data.price_list
+                    const foreign = (
+                        await api.post(
+                            `/vendor/price-lists`,
+                            { title: "Seller Two List", description: "Theirs" },
+                            seller2Headers
+                        )
+                    ).data.price_list
+
+                    const response = await api.get(`/vendor/price-lists`, seller1Headers)
+
+                    expect(response.status).toEqual(200)
+                    const ids = response.data.price_lists.map((pl: any) => pl.id)
+                    expect(ids).toContain(own.id)
+                    expect(ids).not.toContain(foreign.id)
+                    expect(response.data.count).toEqual(1)
+                })
+
                 it("should search price lists with q parameter", async () => {
                     await api.post(
                         `/vendor/price-lists`,

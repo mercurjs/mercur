@@ -1,9 +1,5 @@
-import { requirePermission } from "../../utils"
+import { applySellerLinkFilter, requirePermission } from "../../utils"
 import {
-  AuthenticatedMedusaRequest,
-  maybeApplyLinkFilter,
-  MedusaNextFunction,
-  MedusaResponse,
   MiddlewareRoute,
 } from "@medusajs/framework/http"
 import {
@@ -23,19 +19,7 @@ import {
   VendorUpdatePriceListPrice,
 } from "./validators"
 
-const applySellerPriceListLinkFilter = (
-  req: AuthenticatedMedusaRequest,
-  res: MedusaResponse,
-  next: MedusaNextFunction
-) => {
-  req.filterableFields.seller_id = req.seller_context!.seller_id
-
-  return maybeApplyLinkFilter({
-    entryPoint: "price_list_seller",
-    resourceId: "price_list_id",
-    filterableField: "seller_id",
-  })(req, res, next)
-}
+const applySellerPriceListLinkFilter = applySellerLinkFilter()
 
 export const vendorPriceListsMiddlewares: MiddlewareRoute[] = [
   {

@@ -59,4 +59,16 @@ export const PATCHES: PatchEntry[] = [
       "payable, and that release must run in the delivery's own transaction, with " +
       "compensation, so it needs fulfillmentDelivered.",
   },
+  {
+    file: "@medusajs+order@2.21.2-cross-module-count.patch",
+    package: "@medusajs/order",
+    compatible: { from: "2.21.0", to: "2.22.0" },
+    reason:
+      "The order module's findAndCount runs find and count as two queries over " +
+      "the same where clause. A cross-module filter (filters.seller.id on orders, " +
+      "returns, claims, exchanges) is a MikroORM raw EXISTS fragment that the " +
+      "registry drops after its first use, so the count query renders the dead " +
+      "key as a column and every paginated vendor list 500s. The patch gives the " +
+      "count its own copy of each fragment.",
+  },
 ]

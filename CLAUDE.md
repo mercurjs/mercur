@@ -46,6 +46,7 @@ bun run test:integration:tests       # Run integration tests
 
 - ALWAYS use `bun` (never npm, yarn, or pnpm)
 - NEVER run `bun run test:integration:http` (runs all packages). Use `bun run test:integration:http -- <pattern>`
+- Run locally only the integration specs for the endpoints you touched. For a repo-wide check, open the PR and read the integration-test jobs there instead of running broad patterns locally: the full suite takes far too long on a laptop, and CI is the source of truth
 
 ## Testing a Worktree
 
