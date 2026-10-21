@@ -1,350 +1,253 @@
 ---
 title: "Architecture"
-description: "How Mercur is put together: the runtime layers, the boundary between the marketplace platform and your own code, and the zones you extend."
+description: "What runs where in a Mercur project, which package does what, and where your own code goes."
 ---
 
-Mercur is an open-source marketplace platform. It gives you a multi-vendor
-commerce backend, an admin panel, and a vendor portal that you deploy on your own
-infrastructure and change at the source level.
+Mercur is a [Medusa](https://medusajs.com) application with a marketplace layer on top. One Node process serves three HTTP APIs, two React panels and your storefront call it through a typed client, and PostgreSQL stores all data. This page lists each piece, the package it ships in, and where your own code fits.
 
-It is not a hosted service you integrate with, and it is not a starter kit you
-finish yourself. Mercur is a running system on day one, with defined seams for
-the parts every marketplace does differently: onboarding rules, commission logic,
-approval policy, back-office integrations, and the screens your teams work in.
+<img className="block dark:hidden" src="/images/figures/architecture-layers-light.svg" alt="Mercur's architecture: the admin and vendor panels, a storefront, and your services call the backend through @mercurjs/client. The backend exposes /admin, /vendor, and /store and runs marketplace modules from @mercurjs/core beside Medusa's commerce modules and your own code, over PostgreSQL, Redis, and providers." />
+<img className="hidden dark:block" src="/images/figures/architecture-layers-dark.svg" alt="Mercur's architecture: the admin and vendor panels, a storefront, and your services call the backend through @mercurjs/client. The backend exposes /admin, /vendor, and /store and runs marketplace modules from @mercurjs/core beside Medusa's commerce modules and your own code, over PostgreSQL, Redis, and providers." />
 
-This page describes those layers and those seams. If you are evaluating Mercur,
-the two questions it answers are **what runs where** and **where does my code go**.
+## How a request runs
 
-## Design principles
+Mercur keeps Medusa’s layers as they are, so [Medusa’s architecture guide](https://docs.medusajs.com/learn/introduction/architecture) applies to every Mercur project. A request passes through four layers:
 
-Everything below follows from four decisions.
+1. **API route**: an HTTP handler under `/admin`, `/vendor`, or `/store`. Middleware authenticates the caller first; on `/vendor` it also resolves the caller’s seller before any handler runs, including handlers you add.
+2. **Workflow**: the handler runs a workflow for every write. Each step has a compensation function, so when a step fails, the steps before it roll back.
+3. **Module**: workflow steps call module services. A module owns its tables and never imports another module.
+4. **Data**: every module stores its tables in the same PostgreSQL database. Links record relationships between modules without foreign keys between their tables.
 
-- **You run it.** MIT-licensed, PostgreSQL, Node. No vendor in the request path, no GMV fee, no proprietary runtime. Self-host, or deploy to any cloud that runs a Node process and a database.
-- **Extension over configuration.** Instead of hundreds of settings, the platform exposes typed extension zones: workflow hooks, API routes, modules, custom fields, pages, and widgets. When a zone isn't enough, the source is yours to change.
-- **Marketplace on top of commerce, not instead of it.** Products, carts, orders, payments, and fulfillment are handled by [Medusa](https://medusajs.com), a mature commerce engine. Mercur adds only what multi-vendor requires: sellers, offers, order splitting, commissions, payouts, and governance.
-- **Governance is structural.** Role scoping, the product change pipeline, and exact-precision money arithmetic are properties of the architecture, not features you enable.
+Reads skip the workflow layer. Handlers call Medusa’s [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query), which follows links across modules in one call.
 
-## The layers
+Checkout uses all four layers in a single request. `completeCartWithSplitOrdersWorkflow` groups the cart’s items by seller, creates one order per seller under an order group, and refreshes each order’s commission lines. If a step fails, the workflow rolls back and the cart stays open.
 
-Mercur is a single deployable backend with three API surfaces, plus two panel
-applications that are ordinary clients of those APIs.
+<img className="block dark:hidden" src="/images/figures/order-split-light.svg" alt="A cart with items from two sellers becomes order group #G98, split into order #100 for ACME and order #99 for GLOBEX, each with its own status, commission, and payout." />
+<img className="hidden dark:block" src="/images/figures/order-split-dark.svg" alt="A cart with items from two sellers becomes order group #G98, split into order #100 for ACME and order #99 for GLOBEX, each with its own status, commission, and payout." />
 
-```mermaid
-graph TD
-    subgraph Clients
-        A[Admin Panel<br/>React]
-        B[Vendor Portal<br/>React]
-        C[Storefront<br/>any framework]
-        D[Your services<br/>ERP · PIM · agents]
-    end
+## Backend packages
 
-    subgraph "Backend — one Node process"
-        E["/admin/*"]
-        F["/vendor/*"]
-        G["/store/*"]
-        H[Marketplace domain<br/>sellers · offers · commissions · payouts · governance]
-        I[Commerce domain<br/>products · carts · orders · payments · fulfillment]
-    end
+The backend is one Medusa server. Mercur adds a plugin and providers to it; it doesn’t replace or fork the framework.
 
-    J[(PostgreSQL)]
-    K[Redis · event bus, workflow engine, cache]
-    L[Providers<br/>payment · payout · fulfillment · notification · search]
+### Medusa
 
-    A --> E
-    B --> F
-    C --> G
-    D --> E
-    E --> H
-    F --> H
-    G --> H
-    H --> I
-    I --> J
-    H --> J
-    H --> K
-    H --> L
+Medusa is the commerce engine: products, pricing, carts, orders, payments, fulfillment, promotions, and the module, workflow, and event system the rest of Mercur is built on. Anything in [Medusa’s documentation](https://docs.medusajs.com/learn) works in a Mercur project.
+
+### `@mercurjs/core`
+
+The marketplace plugin. It contains the marketplace modules (sellers and members, offers, commissions, payouts, product attributes, the product change pipeline, reviews, and custom fields), the workflows that connect them to commerce, the `/vendor` API, and the marketplace routes on `/admin` and `/store`. You register it by wrapping your Medusa config with `withMercur()`:
+
+```ts medusa-config.ts
+import { withMercur } from "@mercurjs/core"
+
+module.exports = withMercur({
+  projectConfig: {
+    databaseUrl: process.env.DATABASE_URL,
+    redisUrl: process.env.REDIS_URL,
+  },
+})
 ```
 
-### Data
+Everything else in this file is standard Medusa configuration.
 
-One PostgreSQL database. Every domain owns its own tables and never reaches into
-another's; relationships across domains are declared explicitly as links (see
-[Links](#links)). That isolation is what makes a domain replaceable, and what
-keeps a schema change local instead of platform-wide.
+[Source](https://github.com/mercurjs/mercur/tree/main/packages/core) · [Platform modules](/platform/store/overview)
 
-Redis backs the event bus, the workflow engine, and caching in production. In
-development both fall back to in-memory implementations, so a laptop needs
-nothing but Postgres.
+### `@mercurjs/payout-stripe-connect`
 
-### Domain
+A payout provider built on Stripe Connect. It creates a connected account per seller, returns onboarding links, transfers each seller’s share, and maps Stripe webhooks to payout account statuses.
 
-The domain layer is where marketplace behaviour lives: seller accounts and
-members, offers against a shared product catalog, commission rules and their
-resolution, payout accounts and transfers, order groups, the product change
-pipeline. It calls into the commerce domain for anything commerce already does.
+[Source](https://github.com/mercurjs/mercur/tree/main/packages/providers/payout-stripe-connect) · [Stripe Connect guide](/resources/integrations/stripe-connect)
 
-Two things about this layer matter to an architect:
+### PostgreSQL and Redis
 
-- **It is not a wrapper.** Mercur does not proxy or re-implement commerce endpoints. Marketplace concepts are first-class records with their own lifecycle, joined to commerce records through links.
-- **Your own domains sit beside it.** A module you write, a module Mercur ships, and a module Medusa ships are the same kind of object, registered the same way, with the same access to the container, the event bus, and the workflow engine. There is no privileged inner ring.
+PostgreSQL is the only supported database. The starter `medusa-config.ts` uses Redis for the event bus, the workflow engine, locking, and the cache; Medusa also ships in-memory versions of these modules for development.
 
-### API
+## Providers
 
-Three HTTP surfaces, one per audience, separated because their authorization
-models differ, not because their data does.
+Mercur doesn’t choose your payment gateway, carrier, email service, or search engine. Each integration sits behind a provider interface, and you pick the implementation in `medusa-config.ts`:
 
-| Surface    | Path        | Audience              | Scoping                                                            |
-| ---------- | ----------- | --------------------- | ------------------------------------------------------------------ |
-| **Admin**  | `/admin/*`  | Marketplace operators | Platform-wide, gated by role                                       |
-| **Vendor** | `/vendor/*` | Sellers               | Every request is narrowed to the caller's seller before the handler |
-| **Store**  | `/store/*`  | Customers, storefront | Public catalog and the caller's own cart, orders, and account       |
+| Concern | Provider interface | Available implementations |
+| --- | --- | --- |
+| Payments | Medusa payment module | Stripe, or your own provider |
+| Seller payouts | Mercur payout module | `@mercurjs/payout-stripe-connect`, a `system` provider for development |
+| Fulfillment | Medusa fulfillment module | Manual, or a carrier provider |
+| Notifications | Medusa notification module | Local, SendGrid |
+| Files | Medusa file module | Local, S3 |
+| Authentication | Medusa auth module | Email and password, Google, GitHub |
+| Search | Blocks | `algolia`, `meilisearch` |
+| Events, workflows, locking, cache | Medusa infrastructure modules | In-memory, Redis |
 
-A route is a thin adapter: middleware authenticates and scopes, a Zod validator
-checks the payload, and the handler runs a workflow for writes or the query
-engine for reads. Business logic does not live in routes, which is why adding
-one is cheap and overriding one is safe. See the
-[API conventions](/references/api/conventions).
-
-### Clients
-
-The admin panel and the vendor portal are separate React applications, not a
-templated back office. They talk to the backend through `@mercurjs/client`, a
-typed fetch wrapper generated from the real route definitions — including routes
-you add — so a backend change that breaks a caller fails at `tsc`, not in
-production.
-
-The storefront is deliberately not shipped as a fixed application. Anything that
-speaks HTTP consumes the Store API; a reference Next.js storefront is available
-to start from.
-
-## The building blocks
-
-Four primitives compose the domain layer. You use the same four to extend it.
-
-### Modules
-
-A module owns one domain: its data models, its service, its migrations. Modules
-never import each other. That constraint is what lets you swap Mercur's
-commission logic for your own, or drop a module you don't use, without a
-refactor rippling outward. [Modules →](/resources/best-practices/modules)
-
-### Links
-
-A link declares a relationship between records in two modules without either
-module knowing about the other. The product–seller link, for example, is what
-allowlists which sellers may sell a given product — expressed as a link rather
-than a foreign key, so neither the product model nor the seller model is
-modified. Your modules link to built-in entities exactly the same way.
-[Links →](/resources/best-practices/module-links)
-
-### Workflows
-
-A workflow is a multi-step operation with automatic compensation: if step five
-fails, steps one through four roll back. Anything that crosses domains or must
-not half-happen is a workflow — seller approval, payout transfer, and above all
-cart completion, which validates the cart, splits it by seller, creates an order
-each, allocates payment, and computes commission lines as one atomic unit.
-
-Workflows also expose **hooks**, which is the primary backend extension zone.
-[Workflows →](/resources/best-practices/workflows)
-
-### Events and subscribers
-
-Workflows emit events; subscribers react asynchronously. Notifications, webhooks
-to your systems, search indexing, and payout side effects all hang off this,
-which keeps the transactional path short and lets you add behaviour without
-touching the workflow that triggered it.
-[Subscribers and jobs →](/resources/best-practices/subscribers-and-jobs)
-
-## Extension zones
-
-This is the part that determines what a build actually costs. Mercur exposes six
-zones. Each one is typed, each one is additive, and none of them require forking
-or patching platform code.
-
-```mermaid
-graph LR
-    subgraph Backend
-        A[Workflow hooks<br/>inject steps into existing flows]
-        B[API routes<br/>add or override endpoints]
-        C[Modules and links<br/>add domains]
-        D[Custom fields<br/>extra data on built-in entities]
-    end
-    subgraph Panels
-        E[Pages<br/>new routes]
-        F[Widgets<br/>components in named zones]
-        G[Custom field UI<br/>forms · rows · columns]
-        H[Navigation<br/>reorder · relabel · hide]
-    end
-```
-
-### 1. Workflow hooks — change what happens
-
-The default way to change platform behaviour. A hook is a declared point inside
-an existing workflow where you register your own step. Your step runs inside the
-original transaction and participates in its rollback, so you are not
-reimplementing the flow to add one rule.
-
-```ts src/workflows/hooks/seller-approved.ts
-import { approveSellerWorkflow } from "@mercurjs/core/workflows"
-
-approveSellerWorkflow.hooks.sellerApproved(
-  async ({ seller_id }, { container }) => {
-    await container.resolve("erp").createVendorAccount(seller_id)
-  }
-)
-```
-
-Reach for a hook when the answer is "the standard flow, plus something."
-[Extend a workflow →](/resources/customization/extend-a-workflow)
-
-### 2. API routes — add endpoints
-
-Drop a `route.ts` under `src/api/**` and the endpoint exists. Routes nest under
-the built-in ones, so a new resource can hang off an existing entity rather than
-living off to the side.
-
-```
-src/api/vendor/sellers/documents/route.ts       →  GET/POST /vendor/sellers/documents
-src/api/vendor/sellers/documents/[id]/route.ts  →  GET/DELETE /vendor/sellers/documents/:id
-```
-
-Your routes get the same treatment as the built-in ones: vendor requests are
-already scoped to the caller's seller by the surrounding middleware, and codegen
-picks the route up so it appears on the typed client with real request and
-response types.
-
-[Create an API route →](/resources/best-practices/api-routes)
-
-### 3. Modules and links — add domains
-
-When the data has its own lifecycle — subscriptions, RMAs, contracts, quotas —
-it is a module, not a field. You define the models and service, link the module
-to the built-in entities it relates to, and it becomes queryable in the same
-graph as everything else. This is how substantial vertical features get built,
-and it is the same mechanism Mercur's own domains use.
-
-### 4. Custom fields — add data to built-in entities
-
-For one plain property on an existing record — `is_featured` on a product,
-`tier` on a customer — you declare the field in configuration and the storage,
-link, and migration are generated for you.
+Swapping a provider doesn’t touch marketplace code. A payout provider implements `IPayoutProvider` from `@mercurjs/types`, which has four methods: `createPayoutAccount`, `createOnboarding`, `createPayout`, and `getWebhookActionAndData`. You register it on the payout module:
 
 ```ts medusa-config.ts
 {
-  resolve: "@mercurjs/core/modules/custom-fields",
+  resolve: "@mercurjs/core/modules/payout",
   options: {
-    customFields: {
-      Product: { is_featured: { type: "boolean", nullable: true } },
-    },
+    providers: [
+      {
+        resolve: "./src/providers/my-payout",
+        id: "my-payout",
+        options: { apiKey: process.env.PAYOUT_API_KEY },
+      },
+    ],
   },
 }
 ```
 
-One row per parent, no lifecycle of its own; anything more is a module.
-[Custom fields →](/resources/best-practices/custom-fields)
+For the Medusa provider types, see [Medusa’s integrations](https://docs.medusajs.com/resources/integrations).
 
-### 5. Panel pages and widgets — change what teams see
+## Panel packages
 
-The panels are extended by file convention. A file's folder decides what it does,
-and there is no manifest to maintain.
+The admin panel and the vendor panel are React 18 apps built with Vite and [Medusa UI](https://docs.medusajs.com/ui). They ship as packages that your host apps render, so you upgrade them by bumping a version.
 
-| Path                     | Adds                                  |
-| ------------------------ | ------------------------------------- |
-| `src/routes/**/page.tsx` | A new page and its route              |
-| `src/widgets/**`         | A component in a named zone on a built-in page |
-| `src/custom-fields/**`   | Form fields, detail rows, and list columns on a built-in model |
-| `src/_navigation.ts`     | Sidebar order, labels, and visibility  |
+### `@mercurjs/admin` and `@mercurjs/vendor`
 
-A widget targets a slot on an existing page, which is how you put a payout
-summary on the order detail screen without owning that screen:
+`@mercurjs/admin` is the operator panel and `@mercurjs/vendor` is the seller panel. A host app renders the panel and adds its stylesheet:
 
-```tsx apps/vendor/src/widgets/payout-summary.tsx
-export const config = defineWidgetConfig({ zone: "orders.detail.side.after" })
+```tsx apps/admin/src/main.tsx
+import { createRoot } from "react-dom/client"
+import App from "@mercurjs/admin"
+import "@mercurjs/admin/index.css"
+
+createRoot(document.getElementById("root")!).render(<App />)
 ```
 
-Zone ids, model names, and field ids are generated per panel into
-`extension-targets.d.ts`, so a mistargeted extension fails type-checking instead
-of silently not rendering.
-[Panel extensions →](/references/panel-extensions/overview)
+In development, the host apps run on ports 7000 and 7001. In production you can deploy them as static sites, or serve them from the backend with the `admin-ui` and `vendor-ui` modules of `@mercurjs/core`.
 
-### 6. Blocks — install features as source
+[Admin source](https://github.com/mercurjs/mercur/tree/main/packages/admin) · [Vendor source](https://github.com/mercurjs/mercur/tree/main/packages/vendor)
 
-Larger features ship as blocks. The CLI copies the source into your project
-rather than adding a dependency, so a block is yours from the moment it lands:
-readable, debuggable, and modifiable without waiting on an upstream release.
-Updates are explicit — `diff` against the registry and take what you want.
+### `@mercurjs/dashboard-sdk`
+
+A Vite plugin that turns files in a host app into panel extensions. Pages come from `src/routes/**/page.tsx`, widgets from `src/widgets/`, custom-field UI from `src/custom-fields/`, and sidebar changes from `src/_navigation.ts`:
+
+```ts vite.config.ts
+import react from "@vitejs/plugin-react"
+import { defineConfig } from "vite"
+import { mercurDashboardPlugin } from "@mercurjs/dashboard-sdk/vite"
+
+export default defineConfig({
+  plugins: [
+    react(),
+    mercurDashboardPlugin({ medusaConfigPath: "../api/medusa-config.ts" }),
+  ],
+})
+```
+
+The plugin also writes `extension-targets.d.ts` with every zone id and model name, so a widget that targets a missing zone fails type-checking.
+
+[Source](https://github.com/mercurjs/mercur/tree/main/packages/dashboard-sdk) · [Panel extensions](/references/panel-extensions/overview)
+
+### `@mercurjs/dashboard-shared`
+
+The UI primitives both panels are built from: forms, tabbed create flows, data tables, route modals and drawers, and query-key helpers. Use them in your own pages so they match the built-in screens.
+
+[Source](https://github.com/mercurjs/mercur/tree/main/packages/dashboard-shared)
+
+## Client packages
+
+Every Mercur client, the panels included, talks to the backend over HTTP through the same typed client.
+
+### `@mercurjs/client`
+
+A typed fetch wrapper. `mercurjs codegen` reads your backend’s API routes, including the ones you add, and writes a `Routes` type. The client turns property access on that type into requests:
+
+```ts src/lib/client.ts
+import { createClient, type InferClient } from "@mercurjs/client"
+import type { Routes } from "@acme/api/_generated"
+
+export const client: InferClient<Routes> = createClient({
+  baseUrl: "http://localhost:9000",
+})
+
+const { sellers } = await client.admin.sellers.query({ limit: 20 })
+```
+
+`.query()` sends a `GET`, `.mutate()` sends a `POST`, and `.delete()` sends a `DELETE`. Because the panels use this client too, a backend change that breaks a caller fails at `tsc` instead of at runtime.
+
+[Source](https://github.com/mercurjs/mercur/tree/main/packages/client) · [Add a typed API route](/resources/tutorials/custom-api-route)
+
+### `@mercurjs/types`
+
+Mercur’s entity and HTTP types (sellers, offers, commissions, payouts, order groups), plus re-exports of Medusa’s types. A storefront can type its responses with this package without importing the backend.
+
+[Source](https://github.com/mercurjs/mercur/tree/main/packages/types)
+
+## Tooling packages
+
+These packages run on your machine or in CI. None of them run in production.
+
+### `@mercurjs/cli`
+
+The `mercurjs` command. It installs and updates blocks (`add`, `diff`, `search`, `view`), generates route types (`codegen`), and builds plugins and registries:
 
 ```bash
-bunx @mercurjs/cli@latest add reviews
+bunx @mercurjs/cli@latest add wishlist
 ```
 
-[Blocks →](/learn/blocks)
+[Source](https://github.com/mercurjs/mercur/tree/main/packages/cli)
 
-### Choosing a zone
+### `create-mercur-app`
 
-| You want to…                                        | Use                     |
-| --------------------------------------------------- | ----------------------- |
-| Add a rule or side effect to an existing operation   | Workflow hook           |
-| Expose new data or a new operation over HTTP         | API route               |
-| Model something with its own lifecycle               | Module and link         |
-| Store one extra property on a built-in entity        | Custom field            |
-| Show or capture something in the panels              | Page, widget, or custom-field UI |
-| Adopt a whole feature and own it                     | Block                   |
+Creates a new project: the API, the admin host app, and the vendor host app in one Turborepo workspace.
 
-## Governance
+```bash
+bunx create-mercur-app@latest
+```
 
-Multi-vendor means untrusted writers, so the guarantees operators need are built
-into the layers rather than layered on.
+[Source](https://github.com/mercurjs/mercur/tree/main/packages/create-mercur-app)
 
-- **Scoping before handling.** Vendor requests are narrowed to the caller's seller in middleware, ahead of any handler. A route cannot accidentally leak across sellers, including a route you add.
-- **An immutable change pipeline.** Product edits are recorded as `ProductChange` entries — who changed what, who approved it, when. Low-risk edits auto-confirm; the rest queue for review. The audit trail is the mechanism, not a log written beside it.
-- **Exact money.** Commission and payout arithmetic uses arbitrary-precision numbers throughout, so splitting a payment across sellers stays exact.
-- **Agents inside the same guardrails.** The typed client, exposed workflows, `llms.txt`, and the MCP server give AI agents structured contracts — subject to the same roles and the same review pipeline as human users.
+### Blocks
 
-## How a multi-vendor order flows
+Blocks are features that the CLI copies into your project as source code: modules, workflows, API routes, and panel extensions. Once installed, a block is your code. `mercurjs diff` shows what changed upstream, and you decide what to take. The official registry includes `wishlist`, `algolia`, `meilisearch`, `vendor-chat`, and `requests`, and you can host your own registry.
 
-One cart, several sellers. This is the path that touches every layer.
+[Blocks](/learn/blocks) · [Registry](/learn/registry)
 
-1. The customer adds items from multiple sellers to a single cart (Store API).
-2. Cart completion starts the split-order workflow.
-3. Items are grouped by seller and an order is created per seller, all under one order group.
-4. Commission lines are computed per order from the matching rules.
-5. Payment is allocated proportionally across the seller orders.
-6. Each seller's share is credited to its payout account, net of commission.
-7. Events fire: notifications, webhooks, indexing, and any hook you registered.
-8. Sellers fulfill their own orders in the vendor portal; the operator sees all of it in the admin panel.
+### `@mercurjs/docs`
 
-Steps 2 through 6 are a single workflow. If any of it fails, none of it happened.
+These docs, bundled into `node_modules` with an `llms.txt` index. Coding agents read them to get the contracts for the Mercur version you installed.
 
-## Stack
+[Build with AI](/resources/ai/overview)
 
-| Concern            | Technology                                   |
-| ------------------ | -------------------------------------------- |
-| Runtime            | Node.js 20+, TypeScript                      |
-| Commerce engine    | Medusa v2                                    |
-| Database           | PostgreSQL                                   |
-| Events, cache      | Redis (in-memory fallback in development)    |
-| Panels             | React 18, Vite, Medusa UI, TanStack Query    |
-| Validation, forms  | Zod, React Hook Form                         |
-| Build              | Turborepo, Bun, tsup                         |
+## Where your code goes
 
-Mercur's own code is distributed as `@mercurjs/core`, a Medusa plugin registered
-by `withMercur()` in your `medusa-config.ts`. That packaging matters when you
-upgrade; it does not change any of the above.
+Your code lives next to Mercur’s in the same project, and nothing requires a fork. Each kind of change has one place to go:
+
+<img className="block dark:hidden" src="/images/figures/extension-zones-light.svg" alt="Stacked panels for Blocks, Panels, and Backend, with an Extensions table in front listing one file per zone: a workflow hook, an API route, a module, a custom field, a page, and a widget, each with its typed target." />
+<img className="hidden dark:block" src="/images/figures/extension-zones-dark.svg" alt="Stacked panels for Blocks, Panels, and Backend, with an Extensions table in front listing one file per zone: a workflow hook, an API route, a module, a custom field, a page, and a widget, each with its typed target." />
+
+| You want to | Use | Location |
+| --- | --- | --- |
+| Add a rule or side effect to an existing flow | [Workflow hook](/resources/customization/extend-a-workflow) | `src/workflows/hooks/` |
+| Expose data or an operation over HTTP | [API route](/resources/best-practices/api-routes) | `src/api/**/route.ts` |
+| Model something with its own lifecycle | [Module](/resources/best-practices/modules) and [link](/resources/best-practices/module-links) | `src/modules/`, `src/links/` |
+| Store one extra property on a built-in entity | [Custom field](/resources/best-practices/custom-fields) | `medusa-config.ts` |
+| React to something that happened | [Subscriber](/resources/best-practices/subscribers-and-jobs) | `src/subscribers/` |
+| Show something in a panel | [Page or widget](/references/panel-extensions/overview) | `src/routes/`, `src/widgets/` |
+| Adopt a whole feature | [Block](/learn/blocks) | `bunx @mercurjs/cli@latest add` |
+
+## Design decisions
+
+These decisions explain the shape of the packages above:
+
+- **A Mercur project is a Medusa project**: Mercur adds modules, routes, and workflows to Medusa and changes none of its layers
+- **Modules don’t import each other**: links connect them, so you can replace Mercur’s commission module or remove a module you don’t use
+- **Integrations are providers**: payments, payouts, fulfillment, notifications, files, and search each sit behind an interface you implement or swap
+- **Seller scoping runs before handlers**: `/vendor` middleware resolves the seller before your code runs
+- **Types come from the backend**: codegen reads your routes, the client reads the generated types, and the panels use the client
+- **Panels are packages, features are source**: you upgrade the panels by bumping a version, and you own every block you install
 
 ## Next steps
 
 <CardGroup cols={2}>
   <Card title="Platform modules" href="/platform/store/overview">
-    Data models, workflows, and events for each marketplace domain.
-  </Card>
-  <Card title="Panel extensions" href="/references/panel-extensions/overview">
-    Pages, widgets, custom fields, and navigation.
+    Data models, workflows, and events for each marketplace module.
   </Card>
   <Card title="Extend a workflow" href="/resources/customization/extend-a-workflow">
-    Inject a step into an existing flow through a hook.
+    Run your own step inside an existing flow through a hook.
   </Card>
-  <Card title="API reference" href="/references/api/conventions">
+  <Card title="Panel extensions" href="/references/panel-extensions/overview">
+    Add pages, widgets, custom fields, and navigation to the panels.
+  </Card>
+  <Card title="API conventions" href="/references/api/conventions">
     Authentication, seller scoping, and the three API surfaces.
   </Card>
 </CardGroup>
