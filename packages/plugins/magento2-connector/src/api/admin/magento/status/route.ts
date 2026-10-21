@@ -5,9 +5,10 @@ import {
 import { IPaymentModuleService } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 
-import MagentoWebhookModuleService from "../../../../modules/magento-webhook/service"
 import {
+  AdminMagentoStatusResponse,
   EXTERNAL_PAYMENT_PROVIDER_ID,
+  IMagentoWebhookModuleService,
   MAGENTO_WEBHOOK_EVENTS,
   MAGENTO_WEBHOOK_MODULE,
 } from "../../../../types"
@@ -16,11 +17,9 @@ const WINDOW_HOURS = 24
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<AdminMagentoStatusResponse>
 ) => {
-  const webhooks = req.scope.resolve<MagentoWebhookModuleService>(
-    MAGENTO_WEBHOOK_MODULE
-  )
+  const webhooks = req.scope.resolve<IMagentoWebhookModuleService>(MAGENTO_WEBHOOK_MODULE)
   const payment = req.scope.resolve<IPaymentModuleService>(Modules.PAYMENT)
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -46,7 +45,7 @@ export const GET = async (
 
   const counts = { delivered: 0, failed: 0, dead: 0, pending: 0 }
   for (const delivery of recent) {
-    counts[delivery.status as keyof typeof counts] += 1
+    counts[delivery.status] += 1
   }
 
   res.json({

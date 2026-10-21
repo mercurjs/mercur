@@ -1,13 +1,15 @@
-import { randomBytes } from "node:crypto"
-
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
+  refetchEntity,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
-import MagentoWebhookModuleService from "../../../../modules/magento-webhook/service"
-import { MAGENTO_WEBHOOK_MODULE } from "../../../../types"
+import {
+  AdminMagentoWebhookCreateResponse,
+  AdminMagentoWebhookListResponse,
+} from "../../../../types"
+import { createMagentoWebhookEndpointsWorkflow } from "../../../../workflows"
 import {
   AdminCreateMagentoWebhookType,
   AdminGetMagentoWebhooksParamsType,
@@ -15,7 +17,7 @@ import {
 
 export const GET = async (
   req: AuthenticatedMedusaRequest<AdminGetMagentoWebhooksParamsType>,
-  res: MedusaResponse
+  res: MedusaResponse<AdminMagentoWebhookListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -36,20 +38,19 @@ export const GET = async (
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminCreateMagentoWebhookType>,
-  res: MedusaResponse
+  res: MedusaResponse<AdminMagentoWebhookCreateResponse>
 ) => {
-  const service = req.scope.resolve<MagentoWebhookModuleService>(
-    MAGENTO_WEBHOOK_MODULE
-  )
-
-  const { secret, ...rest } = req.validatedBody
-  const generatedSecret = secret ?? randomBytes(32).toString("hex")
-
-  const webhook = await service.createMagentoWebhookEndpoints({
-    ...rest,
-    secret: generatedSecret,
+  const { result } = await createMagentoWebhookEndpointsWorkflow(req.scope).run({
+    input: { endpoints: [req.validatedBody] },
   })
 
-  // The secret is only ever returned on creation.
-  res.status(200).json({ webhook: { ...webhook, secret: generatedSecret } })
+  const webhook = await refetchEntity({
+    entity: "magento_webhook_endpoint",
+    idOrFilter: result[0].id,
+    scope: req.scope,
+    fields: req.queryConfig.fields,
+  })
+
+  // The secret is returned once, on creation; list and retrieve never expose it.
+  res.status(200).json({ webhook: { ...webhook, secret: result[0].secret } })
 }

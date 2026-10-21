@@ -4,11 +4,12 @@ import {
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
+import { AdminMagentoWebhookDeliveryListResponse } from "../../../../../../types"
 import { AdminGetMagentoWebhookDeliveriesParamsType } from "../../validators"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest<AdminGetMagentoWebhookDeliveriesParamsType>,
-  res: MedusaResponse
+  res: MedusaResponse<AdminMagentoWebhookDeliveryListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 

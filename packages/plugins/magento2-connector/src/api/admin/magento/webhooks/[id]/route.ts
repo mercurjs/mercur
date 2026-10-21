@@ -1,59 +1,69 @@
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
+  refetchEntity,
 } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { MedusaError } from "@medusajs/framework/utils"
 
-import MagentoWebhookModuleService from "../../../../../modules/magento-webhook/service"
-import { MAGENTO_WEBHOOK_MODULE } from "../../../../../types"
+import {
+  AdminMagentoWebhookDeleteResponse,
+  AdminMagentoWebhookResponse,
+} from "../../../../../types"
+import {
+  deleteMagentoWebhookEndpointsWorkflow,
+  updateMagentoWebhookEndpointsWorkflow,
+} from "../../../../../workflows"
 import {
   AdminGetMagentoWebhookParamsType,
   AdminUpdateMagentoWebhookType,
 } from "../validators"
 
-const refetch = async (req: AuthenticatedMedusaRequest, id: string) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const { data } = await query.graph({
-    entity: "magento_webhook_endpoint",
-    fields: req.queryConfig.fields,
-    filters: { id },
-  }, { throwIfKeyNotFound: true })
-
-  return data[0]
-}
-
 export const GET = async (
   req: AuthenticatedMedusaRequest<AdminGetMagentoWebhookParamsType>,
-  res: MedusaResponse
+  res: MedusaResponse<AdminMagentoWebhookResponse>
 ) => {
-  res.json({ webhook: await refetch(req, req.params.id) })
+  const webhook = await refetchEntity({
+    entity: "magento_webhook_endpoint",
+    idOrFilter: req.params.id,
+    scope: req.scope,
+    fields: req.queryConfig.fields,
+  })
+
+  if (!webhook) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `Magento webhook with id "${req.params.id}" not found`
+    )
+  }
+
+  res.json({ webhook })
 }
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminUpdateMagentoWebhookType>,
-  res: MedusaResponse
+  res: MedusaResponse<AdminMagentoWebhookResponse>
 ) => {
-  const service = req.scope.resolve<MagentoWebhookModuleService>(
-    MAGENTO_WEBHOOK_MODULE
-  )
-
-  await service.updateMagentoWebhookEndpoints({
-    id: req.params.id,
-    ...req.validatedBody,
+  await updateMagentoWebhookEndpointsWorkflow(req.scope).run({
+    input: { endpoints: [{ id: req.params.id, ...req.validatedBody }] },
   })
 
-  res.json({ webhook: await refetch(req, req.params.id) })
+  const webhook = await refetchEntity({
+    entity: "magento_webhook_endpoint",
+    idOrFilter: req.params.id,
+    scope: req.scope,
+    fields: req.queryConfig.fields,
+  })
+
+  res.status(200).json({ webhook })
 }
 
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<AdminMagentoWebhookDeleteResponse>
 ) => {
-  const service = req.scope.resolve<MagentoWebhookModuleService>(
-    MAGENTO_WEBHOOK_MODULE
-  )
+  await deleteMagentoWebhookEndpointsWorkflow(req.scope).run({
+    input: { ids: [req.params.id] },
+  })
 
-  await service.deleteMagentoWebhookEndpoints(req.params.id)
-
-  res.json({ id: req.params.id, object: "magento_webhook", deleted: true })
+  res.status(200).json({ id: req.params.id, object: "magento_webhook", deleted: true })
 }

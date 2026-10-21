@@ -1,15 +1,28 @@
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
+  refetchEntity,
 } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
+import { AdminExternalRefundResponse } from "../../../../../../../types"
 import { recordExternalRefundWorkflow } from "../../../../../../../workflows"
 import { AdminRecordExternalRefundType } from "../../../validators"
 
+const PAYMENT_FIELDS = [
+  "id",
+  "amount",
+  "currency_code",
+  "provider_id",
+  "captured_at",
+  "refunds.id",
+  "refunds.amount",
+  "refunds.note",
+  "refunds.created_at",
+]
+
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminRecordExternalRefundType>,
-  res: MedusaResponse
+  res: MedusaResponse<AdminExternalRefundResponse>
 ) => {
   const { result } = await recordExternalRefundWorkflow(req.scope).run({
     input: {
@@ -19,24 +32,12 @@ export const POST = async (
     },
   })
 
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const {
-    data: [payment],
-  } = await query.graph({
+  const payment = await refetchEntity({
     entity: "payment",
-    fields: [
-      "id",
-      "amount",
-      "currency_code",
-      "provider_id",
-      "captured_at",
-      "refunds.id",
-      "refunds.amount",
-      "refunds.note",
-      "refunds.created_at",
-    ],
-    filters: { id: result.id },
+    idOrFilter: result.id,
+    scope: req.scope,
+    fields: PAYMENT_FIELDS,
   })
 
-  res.json({ payment })
+  res.status(200).json({ payment })
 }

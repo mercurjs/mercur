@@ -89,7 +89,13 @@ export const adminMagentoMiddlewares: MiddlewareRoute[] = [
   {
     method: ["POST"],
     matcher: "/admin/magento/webhooks/:id/deliveries/:delivery_id/redeliver",
-    middlewares: [requirePermission("integrations", "edit")],
+    middlewares: [
+      requirePermission("integrations", "edit"),
+      validateAndTransformQuery(
+        AdminGetMagentoWebhookParams,
+        adminMagentoWebhookDeliveryQueryConfig.retrieve
+      ),
+    ],
   },
   {
     method: ["POST"],
