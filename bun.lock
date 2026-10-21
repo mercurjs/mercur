@@ -90,7 +90,7 @@
     },
     "apps/storefront": {
       "name": "@mercurjs/storefront",
-      "version": "2.3.8-canary.3",
+      "version": "2.3.8-canary.4",
       "dependencies": {
         "@headlessui/react": "^2.2.1",
         "@hookform/resolvers": "^3.10.0",
@@ -281,7 +281,7 @@
     },
     "packages/admin": {
       "name": "@mercurjs/admin",
-      "version": "2.3.8-canary.3",
+      "version": "2.3.8-canary.4",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^8.0.0",
@@ -345,7 +345,7 @@
     },
     "packages/cli": {
       "name": "@mercurjs/cli",
-      "version": "2.3.8-canary.3",
+      "version": "2.3.8-canary.4",
       "bin": {
         "mercurjs": "./dist/index.js",
       },
@@ -353,7 +353,7 @@
         "@antfu/ni": "^30.3.0",
         "@medusajs/admin-bundler": "2.21.2",
         "@medusajs/framework": "2.21.2",
-        "@mercurjs/dashboard-sdk": "2.3.8-canary.3",
+        "@mercurjs/dashboard-sdk": "2.3.8-canary.4",
         "@vitejs/plugin-react": "^6.0.3",
         "commander": "^15.0.0",
         "cosmiconfig": "^9.0.0",
@@ -381,7 +381,7 @@
     },
     "packages/client": {
       "name": "@mercurjs/client",
-      "version": "2.3.8-canary.3",
+      "version": "2.3.8-canary.4",
       "dependencies": {
         "@tanstack/react-query": "^5.64.2",
         "qs": "^6.12.1",
@@ -398,7 +398,7 @@
     },
     "packages/core": {
       "name": "@mercurjs/core",
-      "version": "2.3.8-canary.3",
+      "version": "2.3.8-canary.4",
       "dependencies": {
         "@orama/orama": "^3.1.18",
         "pkg-dir": "4",
@@ -416,8 +416,8 @@
         "@medusajs/test-utils": "2.21.2",
         "@medusajs/types": "2.21.2",
         "@medusajs/ui": "4.2.3",
-        "@mercurjs/cli": "2.3.8-canary.3",
-        "@mercurjs/types": "2.3.8-canary.3",
+        "@mercurjs/cli": "2.3.8-canary.4",
+        "@mercurjs/types": "2.3.8-canary.4",
         "@swc/core": "^1.7.28",
         "@types/cors": "^2.8.17",
         "@types/express": "^4.17.21",
@@ -450,7 +450,7 @@
     },
     "packages/create-mercur-app": {
       "name": "create-mercur-app",
-      "version": "2.3.8-canary.3",
+      "version": "2.3.8-canary.4",
       "bin": {
         "create-mercur-app": "./dist/index.js",
       },
@@ -482,7 +482,7 @@
     },
     "packages/dashboard-sdk": {
       "name": "@mercurjs/dashboard-sdk",
-      "version": "2.3.8-canary.3",
+      "version": "2.3.8-canary.4",
       "dependencies": {
         "@babel/parser": "8.0.5",
         "@babel/traverse": "8.0.6",
@@ -499,7 +499,7 @@
     },
     "packages/dashboard-shared": {
       "name": "@mercurjs/dashboard-shared",
-      "version": "2.3.8-canary.3",
+      "version": "2.3.8-canary.4",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^8.0.0",
@@ -566,7 +566,7 @@
     },
     "packages/docs": {
       "name": "@mercurjs/docs",
-      "version": "2.3.8-canary.3",
+      "version": "2.3.8-canary.4",
     },
     "packages/plugins/magento2-connector": {
       "name": "@mercurjs/magento2-connector-plugin",
@@ -621,7 +621,7 @@
     },
     "packages/providers/payout-stripe-connect": {
       "name": "@mercurjs/payout-stripe-connect",
-      "version": "2.3.8-canary.3",
+      "version": "2.3.8-canary.4",
       "dependencies": {
         "stripe": "^15.5.0",
       },
@@ -636,7 +636,7 @@
     },
     "packages/registry": {
       "name": "@mercurjs/registry",
-      "version": "2.3.8-canary.3",
+      "version": "2.3.8-canary.4",
       "dependencies": {
         "@hookform/resolvers": "5.4.0",
         "@medusajs/core-flows": "2.21.2",
@@ -679,7 +679,7 @@
     },
     "packages/types": {
       "name": "@mercurjs/types",
-      "version": "2.3.8-canary.3",
+      "version": "2.3.8-canary.4",
       "dependencies": {
         "@medusajs/types": "2.21.2",
       },
@@ -689,7 +689,7 @@
     },
     "packages/vendor": {
       "name": "@mercurjs/vendor",
-      "version": "2.3.8-canary.3",
+      "version": "2.3.8-canary.4",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^8.0.0",
