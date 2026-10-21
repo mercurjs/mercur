@@ -19,6 +19,10 @@ export const upsertCommissionLinesStep = createStep(
     input: UpsertCommissionLinesStepInput,
     { container }
   ): Promise<StepResponse<CommissionLineDTO[]>> => {
+    if (!input.commission_lines.length) {
+      return new StepResponse([])
+    }
+
     const service = container.resolve<CommissionModuleService>(
       MercurModules.COMMISSION
     )

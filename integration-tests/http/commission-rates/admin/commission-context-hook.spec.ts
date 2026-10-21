@@ -55,14 +55,16 @@ medusaIntegrationTestRunner({
           shipping_methods: [{ name: "Standard", amount: 50 }],
         })
 
-        const spy = jest.spyOn(commissionService, "getCommissionLines")
+        const spy = jest.spyOn(commissionService, "getCommissionLinesBatch")
 
         await refreshOrderCommissionLinesWorkflow(appContainer).run({
           input: { order_ids: [order.id] },
         })
 
         expect(spy).toHaveBeenCalledTimes(1)
-        const [context] = spy.mock.calls[0] as [CommissionCalculationContext]
+        const [contexts] = spy.mock.calls[0] as [CommissionCalculationContext[]]
+        expect(contexts).toHaveLength(1)
+        const [context] = contexts
 
         expect(context.order_id).toEqual(order.id)
         expect(context.additional_context).toEqual({

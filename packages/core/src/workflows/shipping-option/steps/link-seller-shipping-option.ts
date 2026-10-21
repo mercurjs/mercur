@@ -11,6 +11,10 @@ type LinkSellerShippingOptionStepInput = {
 export const linkSellerShippingOptionStep = createStep(
   "link-seller-shipping-option",
   async (input: LinkSellerShippingOptionStepInput, { container }) => {
+    if (!input.shipping_option_ids.length) {
+      return new StepResponse(undefined, undefined)
+    }
+
     const remoteLink: Link = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = input.shipping_option_ids.map((shippingOptionId) => ({

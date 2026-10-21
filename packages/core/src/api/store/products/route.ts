@@ -30,12 +30,15 @@ export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
     ...productFilters
   } = (req.filterableFields ?? {}) as Record<string, unknown>
 
-  const { data: products, metadata } = await query.graph({
-    entity: "product",
-    fields: req.queryConfig.fields,
-    filters: productFilters,
-    pagination: req.queryConfig.pagination,
-  })
+  const { data: products, metadata } = await query.graph(
+    {
+      entity: "product",
+      fields: req.queryConfig.fields,
+      filters: productFilters,
+      pagination: req.queryConfig.pagination,
+    },
+    { cache: { enable: true }, locale: req.locale }
+  )
 
   await enrichProductAttributes(req.scope, products as any[])
 

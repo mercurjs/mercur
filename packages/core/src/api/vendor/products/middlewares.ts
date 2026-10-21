@@ -81,8 +81,8 @@ const ensureProductVisibleToSeller = async (
   const productId = req.params.id
 
   const [ownProductIds, restrictedFromSellerIds, product] = await promiseAll([
-    getSellerOwnedProductIds(req.scope, sellerId),
-    getProductIdsRestrictedFromSeller(req.scope, sellerId),
+    getSellerOwnedProductIds(req.scope, sellerId, [productId]),
+    getProductIdsRestrictedFromSeller(req.scope, sellerId, [productId]),
     getProductStatus(req.scope, productId),
   ])
 

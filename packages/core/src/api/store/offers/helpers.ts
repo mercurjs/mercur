@@ -236,11 +236,14 @@ export const wrapOffersWithInventoryQuantityForSalesChannel = async (
   }
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const { data: channels } = await query.graph({
-    entity: "sales_channel",
-    fields: ["stock_locations.id"],
-    filters: { id: channelToUse },
-  })
+  const { data: channels } = await query.graph(
+    {
+      entity: "sales_channel",
+      fields: ["stock_locations.id"],
+      filters: { id: channelToUse },
+    },
+    { cache: { enable: true } }
+  )
 
   const channelLocationIds = new Set<string>(
     (channels[0]?.stock_locations ?? [])
