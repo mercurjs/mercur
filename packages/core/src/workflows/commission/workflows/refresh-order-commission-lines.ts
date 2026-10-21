@@ -15,24 +15,18 @@ import {
 
 import { getCommissionLinesStep, upsertCommissionLinesStep } from "../steps"
 
+// The order module only decorates totals when a top-level total field such
+// as `subtotal` is selected, and derives line totals from the raw columns in
+// `items.*` / `shipping_methods.*`, so those stay in the list.
 const orderFields = [
   "id",
-  "status",
-  "version",
   "currency_code",
-  "email",
-  "canceled_at",
-  "sales_channel_id",
-  "region_id",
-  "customer_id",
-  "customer.*",
-  "customer.groups.*",
-  "promotions.*",
   "subtotal",
   "items.*",
   "items.subtotal",
   "items.tax_total",
   "items.total",
+  "items.adjustments.*",
   "items.product.id",
   "items.product.collection_id",
   "items.product.categories.id",
@@ -40,14 +34,10 @@ const orderFields = [
   "items.product.type_id",
   "items.product.attribute_values.id",
   "items.offer.seller_id",
-  "items.adjustments.*",
   "shipping_methods.*",
-  "shipping_methods.total",
   "shipping_methods.subtotal",
   "shipping_methods.tax_total",
   "shipping_methods.adjustments.*",
-  "shipping_methods.shipping_option_id",
-  "shipping_address.*",
 ]
 
 export type RefreshOrderCommissionLinesWorkflowInput = {

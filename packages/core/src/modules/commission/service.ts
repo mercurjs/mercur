@@ -10,6 +10,7 @@ import {
   InjectManager,
   MedusaContext,
   MedusaService,
+  promiseAll,
 } from "@medusajs/framework/utils"
 import { raw } from "@medusajs/framework/mikro-orm/postgresql"
 
@@ -82,6 +83,30 @@ class CommissionModuleService extends MedusaService({
       ...line,
       provider_id: line.provider_id ?? this.defaultProviderId_,
     }))
+  }
+
+  async getCommissionLinesBatch(
+    contexts: CommissionCalculationContext[]
+  ): Promise<CreateCommissionLineDTO[][]> {
+    if (!contexts.length) {
+      return []
+    }
+
+    const provider = this.commissionProviderService_.retrieveProvider(
+      this.defaultProviderId_
+    )
+    const batches = provider.getCommissionLinesBatch
+      ? await provider.getCommissionLinesBatch(contexts)
+      : await promiseAll(
+          contexts.map((context) => provider.getCommissionLines(context))
+        )
+
+    return batches.map((lines) =>
+      lines.map((line) => ({
+        ...line,
+        provider_id: line.provider_id ?? this.defaultProviderId_,
+      }))
+    )
   }
 
   /**

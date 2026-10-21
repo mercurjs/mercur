@@ -133,18 +133,42 @@ export class SystemCommissionProvider implements ICommissionProvider {
     }
   }
 
-  async getCommissionLines(
-    context: CommissionCalculationContext
-  ): Promise<CreateCommissionLineDTO[]> {
-    const commissionLines: CreateCommissionLineDTO[] = []
-    const { items = [], shipping_methods = [], currency_code } = context
-
-    // Load all enabled rates with their rules + per-currency values,
-    // oldest first (created_at ASC) so it is the deterministic tie-break.
-    const commissionRates = (await this.commissionRateService_.list(
+  /**
+   * Enabled rates with their rules and per-currency values, oldest first so
+   * created_at is the deterministic tie-break.
+   */
+  private async loadEnabledRates(): Promise<CommissionRateEntity[]> {
+    return (await this.commissionRateService_.list(
       { is_enabled: true },
       { relations: ["rules", "values"], order: { created_at: "ASC" } }
     )) as CommissionRateEntity[]
+  }
+
+  async getCommissionLines(
+    context: CommissionCalculationContext
+  ): Promise<CreateCommissionLineDTO[]> {
+    const commissionRates = await this.loadEnabledRates()
+    return this.resolveCommissionLines(context, commissionRates)
+  }
+
+  async getCommissionLinesBatch(
+    contexts: CommissionCalculationContext[]
+  ): Promise<CreateCommissionLineDTO[][]> {
+    if (!contexts.length) {
+      return []
+    }
+    const commissionRates = await this.loadEnabledRates()
+    return contexts.map((context) =>
+      this.resolveCommissionLines(context, commissionRates)
+    )
+  }
+
+  private resolveCommissionLines(
+    context: CommissionCalculationContext,
+    commissionRates: CommissionRateEntity[]
+  ): CreateCommissionLineDTO[] {
+    const commissionLines: CreateCommissionLineDTO[] = []
+    const { items = [], shipping_methods = [], currency_code } = context
 
     // Legacy single-currency rates only apply to their currency; rates
     // without a currency_code apply to any currency.

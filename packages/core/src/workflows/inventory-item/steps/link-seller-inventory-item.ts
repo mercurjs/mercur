@@ -11,6 +11,10 @@ type LinkSellerInventoryItemStepInput = {
 export const linkSellerInventoryItemStep = createStep(
   "link-seller-inventory-item",
   async (input: LinkSellerInventoryItemStepInput, { container }) => {
+    if (!input.inventory_item_ids.length) {
+      return new StepResponse(undefined, undefined)
+    }
+
     const remoteLink: Link = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = input.inventory_item_ids.map((inventoryItemId) => ({

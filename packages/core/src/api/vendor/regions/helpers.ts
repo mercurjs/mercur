@@ -10,11 +10,14 @@ export const listSellerRegionIds = async (
 ): Promise<string[]> => {
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: links } = await query.graph({
-    entity: "region_seller",
-    filters: { seller_id: sellerId },
-    fields: ["region_id"],
-  })
+  const { data: links } = await query.graph(
+    {
+      entity: "region_seller",
+      filters: { seller_id: sellerId },
+      fields: ["region_id"],
+    },
+    { cache: { enable: true } }
+  )
 
   return links.map((link) => (link as { region_id: string }).region_id)
 }
@@ -29,11 +32,14 @@ export const listSellerCurrencyCodes = async (
   }
 
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
-  const { data: regions } = await query.graph({
-    entity: "region",
-    filters: { id: regionIds },
-    fields: ["currency_code"],
-  })
+  const { data: regions } = await query.graph(
+    {
+      entity: "region",
+      filters: { id: regionIds },
+      fields: ["currency_code"],
+    },
+    { cache: { enable: true } }
+  )
 
   return Array.from(
     new Set(regions.map((r) => (r.currency_code as string).toLowerCase()))

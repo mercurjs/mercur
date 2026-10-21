@@ -39,6 +39,40 @@ class OtherCommissionProvider implements ICommissionProvider {
   }
 }
 
+class BatchCommissionProvider implements ICommissionProvider {
+  static identifier = "batch"
+  static singleCalls = 0
+  static batchCalls = 0
+
+  async getCommissionLines(
+    context: CommissionCalculationContext
+  ): Promise<CreateCommissionLineDTO[]> {
+    BatchCommissionProvider.singleCalls += 1
+    return (context.items ?? []).map((item) => ({
+      item_id: item.id,
+      shipping_method_id: null,
+      code: "SINGLE",
+      rate: 1,
+      amount: 1,
+    }))
+  }
+
+  async getCommissionLinesBatch(
+    contexts: CommissionCalculationContext[]
+  ): Promise<CreateCommissionLineDTO[][]> {
+    BatchCommissionProvider.batchCalls += 1
+    return contexts.map((context) =>
+      (context.items ?? []).map((item) => ({
+        item_id: item.id,
+        shipping_method_id: null,
+        code: "BATCH",
+        rate: 2,
+        amount: 2,
+      }))
+    )
+  }
+}
+
 const context: CommissionCalculationContext = {
   currency_code: "usd",
   items: [{ id: "item_1", subtotal: 100 }],
@@ -90,6 +124,72 @@ moduleIntegrationTestRunner({
             data: { marker: null },
           })
         )
+      })
+
+      it("falls back to per-context calls when the provider has no batch method", async () => {
+        const batches = await service.getCommissionLinesBatch([
+          context,
+          { ...context, items: [{ id: "item_2", subtotal: 50 }] },
+        ])
+
+        expect(batches).toEqual([
+          [expect.objectContaining({ item_id: "item_1", provider_id: "fixed" })],
+          [expect.objectContaining({ item_id: "item_2", provider_id: "fixed" })],
+        ])
+      })
+    })
+  },
+})
+
+moduleIntegrationTestRunner({
+  moduleName: MercurModules.COMMISSION,
+  dbName: "medusa-commission-providers-batch",
+  resolve,
+  moduleOptions: {
+    providers: [
+      {
+        resolve: { services: [BatchCommissionProvider] },
+        id: "batch",
+        is_default: true,
+      },
+    ],
+  },
+  testSuite: ({ service }) => {
+    describe("Commission providers - batch-capable provider", () => {
+      beforeEach(() => {
+        BatchCommissionProvider.singleCalls = 0
+        BatchCommissionProvider.batchCalls = 0
+      })
+
+      it("resolves a batch through getCommissionLinesBatch once", async () => {
+        const batches = await service.getCommissionLinesBatch([
+          context,
+          { ...context, items: [{ id: "item_2", subtotal: 50 }] },
+        ])
+
+        expect(BatchCommissionProvider.batchCalls).toBe(1)
+        expect(BatchCommissionProvider.singleCalls).toBe(0)
+        expect(batches).toEqual([
+          [
+            expect.objectContaining({
+              item_id: "item_1",
+              code: "BATCH",
+              provider_id: "batch",
+            }),
+          ],
+          [
+            expect.objectContaining({
+              item_id: "item_2",
+              code: "BATCH",
+              provider_id: "batch",
+            }),
+          ],
+        ])
+      })
+
+      it("skips the provider for an empty batch", async () => {
+        await expect(service.getCommissionLinesBatch([])).resolves.toEqual([])
+        expect(BatchCommissionProvider.batchCalls).toBe(0)
       })
     })
   },

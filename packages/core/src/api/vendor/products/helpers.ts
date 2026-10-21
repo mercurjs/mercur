@@ -7,8 +7,13 @@ import { ProductChangeActionType } from "@mercurjs/types"
 
 export const getSellerOwnedProductIds = async (
   scope: MedusaContainer,
-  sellerId: string
+  sellerId: string,
+  productIds?: string[]
 ): Promise<string[]> => {
+  if (productIds && !productIds.length) {
+    return []
+  }
+
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data: actions } = await query.graph({
@@ -17,6 +22,7 @@ export const getSellerOwnedProductIds = async (
     filters: {
       action: ProductChangeActionType.PRODUCT_ADD,
       product_change: { created_by: sellerId },
+      ...(productIds ? { product_id: productIds } : {}),
     },
   })
 
@@ -27,17 +33,24 @@ export const getSellerOwnedProductIds = async (
 /**
  * Product ids that are restricted (have at least one `product_seller` row) but
  * NOT assigned to this seller — i.e. restricted to other sellers, so they must
- * be hidden from this seller's product list.
+ * be hidden from this seller's product list. Pass `productIds` to scope the
+ * check to a known set instead of scanning every link.
  */
 export const getProductIdsRestrictedFromSeller = async (
   scope: MedusaContainer,
-  sellerId: string
+  sellerId: string,
+  productIds?: string[]
 ): Promise<string[]> => {
+  if (productIds && !productIds.length) {
+    return []
+  }
+
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data: links } = await query.graph({
     entity: "product_seller",
     fields: ["product_id", "seller_id"],
+    ...(productIds ? { filters: { product_id: productIds } } : {}),
   })
 
   const assigned = new Set<string>()
@@ -100,7 +113,7 @@ export const ensureSellerOwnsProduct = async (
   const ownedProductIds = new Set<string | null>(
     data.map(({ product_id }) => product_id)
   )
-  for (const id of await getSellerOwnedProductIds(scope, sellerId)) {
+  for (const id of await getSellerOwnedProductIds(scope, sellerId, productIds)) {
     ownedProductIds.add(id)
   }
   const missingProductId = productIds.find((id) => !ownedProductIds.has(id))

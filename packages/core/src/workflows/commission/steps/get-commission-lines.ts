@@ -6,7 +6,6 @@ import {
 } from "@mercurjs/types"
 
 import CommissionModuleService from "../../../modules/commission/service"
-import { promiseAll } from "@medusajs/framework/utils"
 
 export const getCommissionLinesStepId = "get-commission-lines"
 
@@ -16,15 +15,14 @@ export const getCommissionLinesStep = createStep(
     input: CommissionCalculationContext[],
     { container }
   ): Promise<StepResponse<CreateCommissionLineDTO[]>> => {
+    if (!input.length) {
+      return new StepResponse([])
+    }
+
     const service =
       container.resolve(MercurModules.COMMISSION) as CommissionModuleService
 
-
-    const commissionLines = await promiseAll(
-      input.map(async (context) => {
-        return await service.getCommissionLines(context)
-      })
-    )
+    const commissionLines = await service.getCommissionLinesBatch(input)
 
     return new StepResponse(commissionLines.flat())
   }
