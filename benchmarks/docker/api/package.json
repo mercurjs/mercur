@@ -1,0 +1,41 @@
+{
+  "name": "mercur-bench-api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "medusa build",
+    "start": "medusa start",
+    "migrate": "medusa db:migrate --execute-safe-links --execute-safe-search"
+  },
+  "dependencies": {
+    "@medusajs/admin-sdk": "MEDUSA_VERSION",
+    "@medusajs/cli": "MEDUSA_VERSION",
+    "@medusajs/framework": "MEDUSA_VERSION",
+    "@medusajs/medusa": "MEDUSA_VERSION",
+    "@medusajs/draft-order": "MEDUSA_VERSION",
+    "@mercurjs/core": "MERCUR_VERSION",
+    "@mercurjs/types": "MERCUR_VERSION"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "5.9.3"
+  },
+  "resolutions": {
+    "@medusajs/admin-sdk": "MEDUSA_VERSION",
+    "@medusajs/admin-shared": "MEDUSA_VERSION",
+    "@medusajs/cli": "MEDUSA_VERSION",
+    "@medusajs/core-flows": "MEDUSA_VERSION",
+    "@medusajs/dashboard": "MEDUSA_VERSION",
+    "@medusajs/draft-order": "MEDUSA_VERSION",
+    "@medusajs/framework": "MEDUSA_VERSION",
+    "@medusajs/medusa": "MEDUSA_VERSION",
+    "@medusajs/types": "MEDUSA_VERSION",
+    "zod": "4.4.3"
+  },
+  "overrides": {
+    "zod": "4.4.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

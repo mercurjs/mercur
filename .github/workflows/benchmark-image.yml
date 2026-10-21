@@ -1,0 +1,65 @@
+name: Benchmark image
+
+# Builds the benchmark API image (benchmarks/docker) for a published
+# @mercurjs/core version and pushes it to the ECR repository created by the
+# benchmarks/infra Pulumi stack. Lets the stack deploy without a local Docker
+# daemon: set the printed URI as `imageUri` in the stack config.
+
+on:
+  workflow_dispatch:
+    inputs:
+      mercur_version:
+        description: "@mercurjs/core version to benchmark"
+        required: true
+        default: "2.3.8-canary.4"
+      medusa_version:
+        description: "@medusajs/* version"
+        required: true
+        default: "2.21.2"
+      ecr_repository:
+        description: "ECR repository URL (pulumi stack output repositoryUrl)"
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ vars.BENCH_AWS_REGION || 'eu-central-1' }}
+          role-to-assume: ${{ secrets.BENCH_AWS_ROLE_ARN }}
+          aws-access-key-id: ${{ secrets.BENCH_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.BENCH_AWS_SECRET_ACCESS_KEY }}
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: benchmarks/docker/Dockerfile
+          platforms: linux/arm64
+          push: true
+          build-args: |
+            MERCUR_VERSION=${{ inputs.mercur_version }}
+            MEDUSA_VERSION=${{ inputs.medusa_version }}
+          tags: ${{ inputs.ecr_repository }}:${{ inputs.mercur_version }}-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Print image URI
+        run: |
+          echo "imageUri=${{ inputs.ecr_repository }}:${{ inputs.mercur_version }}-${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Set it with: pulumi config set imageUri ${{ inputs.ecr_repository }}:${{ inputs.mercur_version }}-${{ github.sha }}"

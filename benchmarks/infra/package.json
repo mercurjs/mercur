@@ -1,0 +1,20 @@
+{
+  "name": "mercur-bench-infra",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "task": "bun run scripts/run-task.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ecs": "^3.700.0",
+    "@pulumi/aws": "^6.60.0",
+    "@pulumi/awsx": "^2.19.0",
+    "@pulumi/pulumi": "^3.140.0",
+    "@pulumi/random": "^4.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "5.9.3"
+  }
+}

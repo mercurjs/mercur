@@ -1,0 +1,7 @@
+name: mercur-bench
+runtime:
+  name: nodejs
+  options:
+    typescript: true
+    packagemanager: bun
+description: Benchmark environment for Mercur (ECS Fargate + RDS + ElastiCache + k6 generator)

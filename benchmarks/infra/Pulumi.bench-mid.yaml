@@ -1,0 +1,12 @@
+config:
+  aws:region: eu-central-1
+  mercur-bench:tier: mid
+  mercur-bench:mercurVersion: 2.3.8-canary.4
+  mercur-bench:medusaVersion: 2.21.2
+  mercur-bench:apiCount: "2"
+  mercur-bench:apiCpu: "1024"
+  mercur-bench:apiMemory: "2048"
+  mercur-bench:dbInstanceClass: db.m6g.xlarge
+  mercur-bench:redisNodeType: cache.m6g.large
+  mercur-bench:k6Generator: "true"
+  mercur-bench:k6InstanceType: c7g.xlarge
