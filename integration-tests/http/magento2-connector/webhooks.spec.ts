@@ -47,7 +47,13 @@ medusaIntegrationTestRunner({
         const id = created.data.webhook.id
 
         const listed = await api.get(`/admin/magento/webhooks`, adminHeaders)
-        expect(listed.data.webhooks.map((w: any) => w.id)).toContain(id)
+        expect(listed.status).toEqual(200)
+        expect(listed.data).toEqual(
+          expect.objectContaining({ count: 1, offset: 0, limit: 50 })
+        )
+        expect(listed.data.webhooks).toEqual([
+          expect.objectContaining({ id, url: receiver.url, events: ["offer.created"] }),
+        ])
         expect(listed.data.webhooks[0].secret).toBeUndefined()
 
         const updated = await api.post(
@@ -113,6 +119,7 @@ medusaIntegrationTestRunner({
           `/admin/magento/webhooks/${webhook.id}/deliveries?status=delivered`,
           adminHeaders
         )
+        expect(data).toEqual(expect.objectContaining({ count: 1, offset: 0, limit: 50 }))
         expect(data.deliveries[0]).toEqual(
           expect.objectContaining({
             event: "seller.updated",
