@@ -15,11 +15,11 @@ import { PATCHES } from "./manifest"
 // through `transformIgnorePatterns`:
 //
 //   transform: {
-//     "node_modules[\\\\/].*core-flows[\\\\/]dist[\\\\/](cart|order|payment)[\\\\/].*\\.js$":
+//     "node_modules[\\\\/].*(core-flows[\\\\/]dist[\\\\/](cart|order|payment)|order[\\\\/]dist[\\\\/]utils)[\\\\/].*\\.js$":
 //       "@mercurjs/core/patches/jest-transformer",
 //     "^.+\\.[jt]s$": ["@swc/jest", { ... }],
 //   },
-//   transformIgnorePatterns: ["/node_modules/(?!.*core-flows[\\\\/]dist[\\\\/](cart|order|payment)[\\\\/])"],
+//   transformIgnorePatterns: ["/node_modules/(?!.*(core-flows[\\\\/]dist[\\\\/](cart|order|payment)|order[\\\\/]dist[\\\\/]utils)[\\\\/])"],
 
 type TransformOutput = { code: string }
 
