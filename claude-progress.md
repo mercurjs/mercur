@@ -29,6 +29,10 @@ shipping, `pp_external_external` session, complete).
 - Verified: turbo build 7/7, plugin admin tsc clean, oxlint clean, integration specs
   `magento2-connector/*` 9/9 and `offer/admin/offer-soft-delete` 1/1. `test:unit` cannot resolve
   `@swc/jest` locally; registry spec left to CI.
+- Reviewed with the enterprise `medusa-review` skill (Medusa eslint preset + exemplar diff) and fixed all
+  findings: writes go through workflows with compensation and refetch, validation step instead of throw in
+  transform, service under `services/` with `IMagentoWebhookModuleService`, generated migration, typed
+  responses, strict validators. Gate clean on plugin files; specs 10/10 after the refactor.
 - Next: Part B (Composer package in `mercurjs/magento2-connector`), dashboard Channel column/filter,
   roles preset once a roles module exists.
 
