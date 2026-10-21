@@ -1,5 +1,9 @@
-import { applySellerLinkFilter, requirePermission } from "../../utils"
+import { requirePermission } from "../../utils"
 import {
+  AuthenticatedMedusaRequest,
+  maybeApplyLinkFilter,
+  MedusaNextFunction,
+  MedusaResponse,
   MiddlewareRoute,
 } from "@medusajs/framework/http"
 import {
@@ -20,7 +24,19 @@ import {
   VendorGetOrdersParams,
 } from "./validators"
 
-const applySellerOrderLinkFilter = applySellerLinkFilter()
+const applySellerLinkFilter = (
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  req.filterableFields.seller_id = req.seller_context!.seller_id
+
+  return maybeApplyLinkFilter({
+    entryPoint: "order_seller",
+    resourceId: "order_id",
+    filterableField: "seller_id",
+  })(req, res, next)
+}
 
 export const vendorOrdersMiddlewares: MiddlewareRoute[] = [
   {
@@ -37,7 +53,7 @@ export const vendorOrdersMiddlewares: MiddlewareRoute[] = [
         VendorGetOrdersParams,
         vendorOrderQueryConfig.list
       ),
-      applySellerOrderLinkFilter,
+      applySellerLinkFilter,
     ],
   },
   {

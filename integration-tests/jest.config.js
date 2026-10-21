@@ -5,11 +5,10 @@ loadEnv("test", process.cwd())
 
 module.exports = {
   transform: {
-    // Mercur patches shipped core-flows cart, order and payment files and the
-    // order module's repository utils. Jest never
+    // Mercur patches shipped core-flows cart, order and payment files. Jest never
     // consults Node's module hooks, so without this the patches are inert under
     // test and the suite silently exercises unpatched code.
-    "node_modules[\\\\/].*(core-flows[\\\\/]dist[\\\\/](cart|order|payment)|order[\\\\/]dist[\\\\/]utils)[\\\\/].*\\.js$":
+    "node_modules[\\\\/].*core-flows[\\\\/]dist[\\\\/](cart|order|payment)[\\\\/].*\\.js$":
       "@mercurjs/core/patches/jest-transformer",
     "^.+\\.[jt]s$": [
       "@swc/jest",
@@ -26,7 +25,7 @@ module.exports = {
   // order and payment files the patches target, and the ESM-only htmlparser2
   // chain that sanitize-html require()s (Jest can't load ESM through require).
   transformIgnorePatterns: [
-    "/node_modules/(?!.*(core-flows[\\\\/]dist[\\\\/](cart|order|payment)|order[\\\\/]dist[\\\\/]utils)[\\\\/]|(?:.*[\\\\/])?(htmlparser2|domhandler|domutils|domelementtype|dom-serializer|entities)[\\\\/]dist[\\\\/])",
+    "/node_modules/(?!.*core-flows[\\\\/]dist[\\\\/](cart|order|payment)[\\\\/]|(?:.*[\\\\/])?(htmlparser2|domhandler|domutils|domelementtype|dom-serializer|entities)[\\\\/]dist[\\\\/])",
   ],
   moduleFileExtensions: ["js", "ts", "json"],
   modulePathIgnorePatterns: ["dist/"],
