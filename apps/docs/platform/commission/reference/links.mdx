@@ -1,45 +1,54 @@
 ---
-title: "Links to other modules"
+title: "Commission links to other modules"
 sidebarTitle: "Links"
-description: "How the Commission domain connects to the catalog, sellers, and orders."
+description: "Commission defines no module links. Rules and lines reference the catalog, sellers, and orders by plain id."
 ---
 
-Most Mercur modules connect to each other through **module links** (`defineLink`)
-resolved with `query.graph`. The Commission module is deliberately different: it
-defines **no** module links. Instead it connects to the rest of the marketplace
-through **soft references**. These are plain id fields resolved at calculation
-time. This keeps commission configuration independent of the catalog and order
-modules it scopes against.
+The Commission module defines no module links. None of the files in `packages/core/src/links` has a commission side. Rules and lines point at records in other modules through plain id fields, which Mercur resolves at calculation time or which you filter on directly.
 
-## Rules → catalog & sellers
+## Rules point at the catalog and sellers
 
-A `CommissionRule` points at a record in another domain through its
-`reference` / `reference_id` pair, resolved against the order line's product when
-commission is calculated:
+A `CommissionRule` names its target with `reference` and `reference_id`. The `refreshOrderCommissionLinesWorkflow` reads the target’s fields from the order with `query.graph`, so the commission records never need a link.
 
-| `reference` | Points at | Resolved from |
+| `reference` | Points at | Read from the order line |
 | --- | --- | --- |
-| `product` | A master product | `item.product.id` |
-| `product_type` | A product type | `item.product.type_id` |
-| `product_collection` | A collection | `item.product.collection_id` |
-| `product_category` | A category | `item.product.categories[].id` |
-| `seller` | A store | `item.offer.seller_id` |
+| `product` | A master product | `items.product.id` |
+| `product_type` | A product type | `items.product.type_id` |
+| `product_collection` | A product collection | `items.product.collection_id` |
+| `product_category` | A product category | `items.product.categories.id` |
+| `seller` | A seller | `items.offer.seller_id` |
+
+The `seller` row goes through the `order-line-item-offer-link` from the Offer module. Products belong to the shared catalog, so the seller of a line is the seller of the offer the customer bought.
+
+## Lines point at order items and shipping methods
+
+A `CommissionLine` stores `item_id` or `shipping_method_id` as plain text. To get an order’s lines, collect the ids from the order, then filter `commission_line` by them.
+
+```ts
+const { data: [order] } = await query.graph({
+  entity: "order",
+  fields: ["items.id", "shipping_methods.id"],
+  filters: { id: "order_01JD8Q1234567" },
+})
+
+const { data: lines } = await query.graph({
+  entity: "commission_line",
+  fields: ["item_id", "shipping_method_id", "code", "amount"],
+  filters: {
+    $or: [
+      { item_id: order.items.map((item) => item.id) },
+      { shipping_method_id: order.shipping_methods.map((m) => m.id) },
+    ],
+  },
+})
+```
+
+`createPayoutWorkflow` and the order commission-lines routes read lines the same way.
+
+## Lines point at their rate
+
+`commission_rate_id` on a line is also plain text, not a relation. Query the rate separately if you need more than the `code` the line already stores.
 
 <Note>
-  Products are the shared master catalog, not seller-owned. The `seller`
-  dimension resolves through the **offer** on the order line, which carries the
-  selling store.
+  Plain ids don’t cascade. Deleting a product, category, or seller leaves its rules in place, where they stop matching. Deleting a rate soft-deletes it and leaves existing lines untouched.
 </Note>
-
-## Lines → orders
-
-A `CommissionLine` records which order line it commissions through its
-`item_id` (an order line item) or `shipping_method_id` (a shipping method).
-These are stored as plain ids, so the payout pipeline reads an order's lines by
-querying the commission module directly rather than traversing a link.
-
-<Tip>
-  Because these are soft references, deleting a product, category, or order does
-  not cascade to commission records. Rules and lines simply stop matching or are
-  refreshed on the next order change.
-</Tip>

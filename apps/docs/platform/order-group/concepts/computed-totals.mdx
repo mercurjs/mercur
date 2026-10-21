@@ -1,59 +1,62 @@
 ---
-title: "Computed totals"
+title: "How order group totals are computed"
 sidebarTitle: "Computed totals"
-description: "Why an order group's seller count and total are derived at query time, not stored."
+description: "Why seller_count and total are summed from the child orders at read time, and how child order statuses are derived."
 ---
 
-This page covers how an order group's `seller_count` and `total` are calculated
-and why they aren't persisted.
+An order group never stores its own total. The `seller_count` and `total` fields are computed from the child orders each time you read the group, and the read workflows derive each child order’s payment and fulfillment status the same way. This keeps the group in step with its orders after edits, returns, and refunds, with no denormalized column to keep in sync.
 
-## Computed, not stored
+## Computed fields hold no value
 
-Two fields on the `OrderGroup` model are marked `computed()`. They never hold a
-value in the `order_group` row.
+Both fields are declared with `.computed()` on the model, so the `order_group` table has no column for them:
 
 ```ts
-const OrderGroup = model.define("order_group", {
-  // ...
-  seller_count: model.number().computed(),
-  total: model.bigNumber().computed(),
-})
+seller_count: model.number().computed(),
+total: model.bigNumber().computed(),
 ```
 
-`seller_count` is the number of distinct sellers with a child order in the group.
-`total` is the sum of those child orders' current totals. Both are resolved
-by aggregating across the group's linked orders each time the group is read,
-rather than being written once at creation.
+You can’t write them through `createOrderGroups` or `updateOrderGroups`. They only exist on the records the Seller module reads back.
 
-<Note>
-  Storing these values would immediately go stale: child orders can be refunded,
-  returned, or canceled after the group is created, changing both the total and,
-  effectively, the active seller set.
-</Note>
+## How the Seller module fills them
 
-## How they're aggregated
+The Seller module reads groups through a custom `OrderGroupRepository`. Its query joins each group to its child orders and sums them:
 
-When you read a group, the Seller module's order-group repository joins the group
-to its child orders (and each order to its seller and order summary) and folds
-them up:
+- **`seller_count`**: the number of distinct sellers linked to the group’s orders through `order_order_seller_seller`
+- **`total`**: the sum of `current_order_total` from each order’s summary at its current version, or `0` for a group with no orders
 
-- `seller_count`: a distinct count of the linked sellers
-- `total`: the sum of each child order's current order total
+Every list, count, and retrieve call on order groups runs through this repository, including `query.graph` on the `order_group` entity. Deleted orders and deleted links are left out.
 
 ```ts
-const orderGroup = await sellerModuleService.retrieveOrderGroup("og_123")
-// orderGroup.seller_count -> e.g. 3
-// orderGroup.total        -> e.g. 24900 (sum across child orders)
+const sellerModuleService = container.resolve(MercurModules.SELLER)
+
+const group = await sellerModuleService.retrieveOrderGroup(
+  "og_01JD8Q1234567"
+)
 ```
+
+For a group with a 47.00 order from ACME and a 40.00 order from GLOBEX, `group.seller_count` is `2` and `group.total` is `87`. The repository converts `total` to a JavaScript `number`, which matches the `OrderGroupDTO` type.
+
+## Filters pick groups, not orders
+
+Order-level filters such as `seller_id`, `status`, `payment_status`, and `sales_channel_id` decide which groups match. They don’t trim the sums. A group that matches `seller_id: "sel_01JD8Q1234567"` still reports the `seller_count` and `total` of every order in it.
 
 <Tip>
-  Because `total` is a `bigNumber`, group totals stay precise no matter how many
-  child orders and currencies contribute to the aggregate.
+  To show one seller’s share of a group, read the group’s `orders` and sum the ones that belong to that seller. The list workflow’s `sellerId` input trims `orders` for you.
 </Tip>
 
-## Aggregated child statuses
+## Child order statuses
 
-The retrieve and list workflows layer the same idea onto child orders. They
-derive each order's `payment_status` and `fulfillment_status` from its payment
-collections and fulfillments at read time, so the group reflects the live state
-of every seller's slice without any denormalized status column.
+`getOrderGroupDetailWorkflow` and `getOrderGroupsListWorkflow` set `payment_status` and `fulfillment_status` on every child order they return. Medusa’s `Order` model doesn’t store these, so the workflows compute them from the order’s data:
+
+| Status | Derived from | Possible values |
+| --- | --- | --- |
+| `payment_status` | The order’s payment collections: its own once the payment is split, the cart’s shared one before | `not_paid`, `awaiting`, `authorized`, `partially_authorized`, `captured`, `partially_captured`, `refunded`, `partially_refunded`, `canceled`, `requires_action` |
+| `fulfillment_status` | The `packed_at`, `shipped_at`, `delivered_at`, and `canceled_at` timestamps of its fulfillments, plus unfulfilled item quantities | `not_fulfilled`, `fulfilled`, `partially_fulfilled`, `shipped`, `partially_shipped`, `delivered`, `partially_delivered`, `canceled` |
+
+The group has no status of its own. Read the child statuses to show where each seller’s part of the purchase stands.
+
+## Related
+
+- [Retrieve a group with its child order statuses](/platform/order-group/guides/retrieve-an-order-group)
+- [Filters the repository understands](/platform/order-group/reference/service#filters-and-sorting)
+- [The `OrderGroup` fields](/platform/order-group/reference/data-models)

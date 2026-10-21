@@ -1,38 +1,70 @@
 ---
-title: "Process a provider webhook"
+title: "Process payout provider webhooks"
 sidebarTitle: "Process a webhook"
-description: "Turn a provider webhook into account and payout status updates."
+description: "Route provider webhooks to Mercur so payout accounts and payouts pick up the provider's status changes."
 ---
 
-In this guide, you'll learn how a provider webhook becomes account and payout
-status changes. Mercur already wires this up. A subscriber listens for
-`payout.webhook_received` and drives the update workflow. Understanding the path
-lets you emit the event yourself or extend the flow.
+Connect your payout provider’s webhooks to Mercur so account and payout statuses follow the provider. You need this before any Stripe Connect account can become `active`.
 
-## The built-in path
+## Before you begin
 
-The `payout-webhook` subscriber resolves the raw payload to an action through the
-provider, then runs `processPayoutForWebhookWorkflow`:
+You need:
 
-```ts title="src/subscribers/payout-webhook.ts (shipped)"
-const processedEvent = await payoutService.getWebhookActionAndData(input)
+- A payout provider registered on the payout module, such as Stripe Connect
+- For Stripe Connect, a webhook signing secret set as the provider’s `webhookSecret` option
+- The [Stripe CLI](https://docs.stripe.com/stripe-cli) for local testing
 
-if (!processedEvent.data) {
-  return
-}
+## Receive webhooks
 
-const wfEngine = container.resolve(Modules.WORKFLOW_ENGINE)
-await wfEngine.run(processPayoutForWebhookWorkflowId, { input: processedEvent })
-```
+Mercur ships the route, the subscriber, and the workflow. You point the provider at the route and check the result.
 
-`getWebhookActionAndData` delegates to the provider, which parses its own payload
-and returns a `PayoutWebhookResult`. The result is an `action` plus the affected
-`id`.
+<Steps>
+  <Step title="Point the provider at /hooks/payout">
+    In production, add a Stripe webhook endpoint for events on connected accounts, with the URL `https://your_backend_url/hooks/payout` and the `account.updated` event. Locally, forward Connect events with the Stripe CLI:
+
+    ```bash
+    stripe listen --events account.updated \
+      --forward-connect-to localhost:9000/hooks/payout
+    ```
+
+    The CLI prints a signing secret. Use it as the provider’s `webhookSecret`.
+  </Step>
+  <Step title="Let the subscriber run the workflow">
+    The route emits `payout.webhook_received` with the body, raw body, and headers. It delays the event by 5000 ms and retries up to 3 times. The shipped `payout-webhook` subscriber then parses it and runs the workflow:
+
+    ```ts title="src/subscribers/payout-webhook.ts (in @mercurjs/core)"
+    const processedEvent = await payoutService.getWebhookActionAndData(input)
+
+    if (!processedEvent.data) {
+      return
+    }
+
+    const wfEngine = container.resolve(Modules.WORKFLOW_ENGINE)
+    await wfEngine.run(processPayoutForWebhookWorkflowId, {
+      input: processedEvent,
+    })
+    ```
+
+    Stripe Connect verifies the `stripe-signature` header against `webhookSecret`. A bad signature throws, and the event bus retries.
+  </Step>
+  <Step title="Check the account status">
+    Read the account to confirm the update landed:
+
+    ```ts
+    const payoutService = container.resolve(MercurModules.PAYOUT)
+
+    const account = await payoutService.retrievePayoutAccount(
+      "pacc_01JD8Q1234567"
+    )
+    ```
+
+    The `status` is `active`, `restricted`, or `rejected`, depending on what Stripe reported.
+  </Step>
+</Steps>
 
 ## Run the workflow directly
 
-To process an already-parsed result yourself, run the workflow with a
-`PayoutWebhookResult`:
+`processPayoutForWebhookWorkflow` takes a `PayoutWebhookResult`, so you can apply a status change without a webhook, for example in a test or a backfill script:
 
 ```ts
 import { processPayoutForWebhookWorkflow } from "@mercurjs/core/workflows"
@@ -40,35 +72,49 @@ import { processPayoutForWebhookWorkflow } from "@mercurjs/core/workflows"
 await processPayoutForWebhookWorkflow(container).run({
   input: {
     action: "payout.paid",
-    data: { id: "pout_123" },
+    data: { id: "pout_01JD8Q1234567" },
   },
 })
 ```
 
-The workflow branches on `action`, updating the account or the payout:
+The workflow runs at most one step: the one that matches `action`. An `account.*` action needs a `pacc` id, and a `payout.*` action needs a `pout` id. A missing `data.id` or the `not_supported` action changes nothing.
 
-| Action | Effect |
-| --- | --- |
-| `account.activated` / `account.restricted` / `account.rejected` | Set account status to `ACTIVE` / `RESTRICTED` / `REJECTED` |
-| `payout.processing` / `payout.paid` / `payout.failed` / `payout.canceled` | Set payout status accordingly |
+## Map webhooks in your own provider
 
-<Note>
-  Actions the provider can't map return `not_supported` (or a missing `data.id`),
-  and the workflow makes no change. It is safe to hand it every event the provider
-  sends.
-</Note>
+When you write a provider, `getWebhookActionAndData` decides what each webhook means. Return the action and the Mercur id, not the provider’s id:
 
-## Emit the event yourself
+```ts title="src/providers/acme-payouts/service.ts"
+async getWebhookActionAndData(
+  payload: PayoutWebhookActionInput
+): Promise<PayoutWebhookResult> {
+  const body = payload.data as { type: string; reference: string }
 
-To route a custom provider integration through the same path, emit
-`payout.webhook_received` with the raw payload and let the shipped subscriber
-take over.
+  if (body.type === "transfer.settled") {
+    return { action: "payout.paid", data: { id: body.reference } }
+  }
+
+  return { action: "not_supported" }
+}
+```
+
+Verify the provider’s signature here with `payload.rawData` and `payload.headers` before you trust the body. The route keeps the raw body for this purpose.
+
+## Emit the event from another route
+
+If your provider must post to a different URL, emit `payout.webhook_received` yourself with the same shape. The shipped subscriber picks it up:
 
 ```ts
 const eventBus = container.resolve(Modules.EVENT_BUS)
 
 await eventBus.emit({
   name: "payout.webhook_received",
-  data: { rawData, headers, data },
+  data: { data: req.body, rawData: req.rawBody, headers: req.headers },
 })
 ```
+
+Enable `preserveRawBody` on that route’s body parser, or signature checks will fail.
+
+## Next steps
+
+- [Account lifecycle](/platform/payout/concepts/account-lifecycle) for every action and the status it sets
+- [Events reference](/platform/payout/reference/events) for the `payout.webhook_received` payload

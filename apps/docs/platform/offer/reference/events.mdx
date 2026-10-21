@@ -1,22 +1,55 @@
 ---
-title: "Event reference"
+title: "Offer events"
 sidebarTitle: "Events"
-description: "Events emitted by the Offer domain, for subscribers and side effects."
+description: "Events the offer workflows emit, with their payloads, for subscribers and side effects."
 ---
 
-The Offer domain emits events as offers change. Subscribe to them to run side
-effects instead of polling, such as re-indexing search, syncing external
-systems, or kicking off follow-up workflows.
+The offer and offer condition workflows emit events after they write. Subscribe to them to reindex search, sync an external system, or start a follow-up workflow instead of polling.
+
+## Offer events
+
+The offer workflows emit one event per affected offer. The names come from `OfferWorkflowEvents`.
+
+| Event | Emitted when | Payload |
+| --- | --- | --- |
+| `offer.created` | `createOffersWorkflow` creates an offer | `{ id, product_id }` |
+| `offer.updated` | `updateOffersWorkflow` updates an offer | `{ id, product_id }` |
+| `offer.updated` | `batchOfferInventoryItemsWorkflow` changes an offer’s inventory links | `{ id }` |
+| `offer.deleted` | `deleteOffersWorkflow` soft-deletes an offer | `{ id, product_id }` |
+
+<Note>
+  `upsertOfferPricesWorkflow` emits no event of its own. When `updateOffersWorkflow` runs it, `offer.updated` covers the change. When you run it directly, use its `offerPricesUpserted` hook.
+</Note>
+
+## Offer condition events
+
+The condition workflows emit one event per condition. The names come from `OfferConditionWorkflowEvents`.
+
+| Event | Emitted when | Payload |
+| --- | --- | --- |
+| `offer_condition.created` | `createOfferConditionsWorkflow` creates a condition | `{ id }` |
+| `offer_condition.updated` | `updateOfferConditionsWorkflow` updates a condition | `{ id }` |
+| `offer_condition.deleted` | `deleteOfferConditionsWorkflow` deletes a condition | `{ id }` |
+
+## Subscribe to an offer event
+
+A subscriber receives the payload and the container. This one reads the new offer with its store.
 
 ```ts title="src/subscribers/offer-created.ts"
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 export default async function offerCreatedHandler({
   event,
   container,
 }: SubscriberArgs<{ id: string; product_id: string }>) {
-  const offerId = event.data.id
-  // ...re-index the offer, notify the store, etc.
+  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+  const { data: [offer] } = await query.graph({
+    entity: "offer",
+    fields: ["id", "sku", "seller.name"],
+    filters: { id: event.data.id },
+  })
+  container.resolve("logger").info(`${offer.seller.name} listed ${offer.sku}`)
 }
 
 export const config: SubscriberConfig = {
@@ -24,16 +57,9 @@ export const config: SubscriberConfig = {
 }
 ```
 
-## Offer events
+Payloads carry ids only, so query the offer for the fields you need. For an `offer.deleted` subscriber, read values from the `offersDeleted` hook instead, since the row is already soft-deleted.
 
-| Event | Emitted when | Payload |
-| --- | --- | --- |
-| `offer.created` | An offer is created | `{ id, product_id }` |
-| `offer.updated` | An offer's row, prices, or inventory links change | `{ id, product_id }` |
-| `offer.deleted` | An offer is deleted | `{ id, product_id }` |
+## Related
 
-<Note>
-  `createOffersWorkflow` and `updateOffersWorkflow` emit one event per affected
-  offer. `batchOfferInventoryItemsWorkflow` emits `offer.updated` with a single
-  `{ id }` payload for the batched offer.
-</Note>
+- [Offer workflows](/platform/offer/reference/workflows)
+- [Offer module links](/platform/offer/reference/links)

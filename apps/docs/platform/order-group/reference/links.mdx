@@ -1,45 +1,106 @@
 ---
-title: "Links to other modules"
+title: "Order group links"
 sidebarTitle: "Links"
-description: "How the Order Group domain links to carts, orders, sellers, and offers."
+description: "The module links that connect an order group to its cart and child orders, and its orders to sellers and offers."
 ---
 
-Modules in Mercur never reference each other directly. They connect through
-**module links**. The `OrderGroup` entity (owned by the Seller module) sits at
-the center of a completed multi-seller purchase, linking the cart it came from to
-the per-seller orders it produced. Once a link is defined, you retrieve related
-records with `query.graph` using the link alias.
+Mercur modules never reference each other directly, so an order group reaches carts and orders through module links. Two links start at the group. Two more, on the child orders, connect each order to its seller and each order line item to its offer. All four are defined in `packages/core/src/links/`, and checkout creates their rows when it splits a cart.
+
+## Order group to order
+
+Connects a group to its child orders, one per seller.
+
+| | |
+| --- | --- |
+| **Sides** | `OrderGroup` (Seller module) and `Order` (Order module) |
+| **Cardinality** | One group to many orders |
+| **Table** | `order_group_order` |
+| **Defined in** | `order-group-order-link.ts` |
 
 ```ts
-const { data: groups } = await query.graph({
+const { data: [group] } = await query.graph({
   entity: "order_group",
-  fields: ["id", "display_id", "cart.id", "orders.id", "orders.total"],
+  fields: ["id", "display_id", "orders.id", "orders.total"],
+  filters: { id: "og_01JD8Q1234567" },
 })
 ```
 
-## Group links
+To go from an order to its group, query the link entity directly:
 
-| Linked module | Relationship |
+```ts
+const { data: [row] } = await query.graph({
+  entity: "order_group_order",
+  fields: ["order_group_id"],
+  filters: { order_id: "order_01JD8Q1234568" },
+})
+```
+
+## Order group to cart
+
+Exposes the completed cart a group was created from. The link is read-only: it reads the group’s `cart_id` column and has no table of its own.
+
+| | |
 | --- | --- |
-| **Cart** | A group references the one cart it was created from (`order_group.cart_id`, **read-only**). Carts are immutable after checkout. |
-| **Order** | A group has many child orders, one per seller, through the `order_group_order` table. |
+| **Sides** | `OrderGroup.cart_id` (Seller module) and `Cart` (Cart module) |
+| **Cardinality** | One group to one cart |
+| **Table** | None, `readOnly: true` |
+| **Defined in** | `order-group-cart-link.ts` |
 
-## Order links
+```ts
+const { data: [group] } = await query.graph({
+  entity: "order_group",
+  fields: ["id", "cart.id", "cart.email", "cart.completed_at"],
+  filters: { id: "og_01JD8Q1234567" },
+})
+```
 
-The child orders produced by the split carry their own marketplace links:
+You can’t create or dismiss this link with `link.create` or `link.dismiss`. It changes only if `cart_id` changes, and Mercur never updates it.
 
-| Linked module | Relationship |
+## Order to seller
+
+Connects each child order to the seller who fulfills it.
+
+| | |
 | --- | --- |
-| **Seller** | Each order belongs to one seller (`order_order_seller_seller`); a seller has many orders. |
-| **Offer** | Each order line item links to the offer it was purchased from (`order_line_item` → `offer`, list on the line-item side so one offer can back many order lines). |
+| **Sides** | `Order` (Order module) and `Seller` (Seller module) |
+| **Cardinality** | Many orders to one seller |
+| **Link entity** | `order_seller` |
+| **Defined in** | `order-seller-link.ts` |
 
-<Note>
-  The `cart_id` link is resolved from the field on the group and can't be written
-  through the link itself. The split sets it once, at creation.
-</Note>
+```ts
+const { data: [group] } = await query.graph({
+  entity: "order_group",
+  fields: ["id", "orders.id", "orders.seller.id", "orders.seller.name"],
+  filters: { id: "og_01JD8Q1234567" },
+})
+```
 
-<Tip>
-  To scope a group to a single seller, filter its child orders by
-  `orders.seller.id`. The list workflow does exactly this when you pass a
-  `sellerId`. See [List order groups](/platform/order-group/guides/list-order-groups).
-</Tip>
+`getOrderGroupsListWorkflow` reads `orders.seller.id` to trim each group to one seller when you pass `sellerId`.
+
+## Order line item to offer
+
+Records which offer each order line item was bought from. Checkout copies it from the matching cart line item’s offer link.
+
+| | |
+| --- | --- |
+| **Sides** | `OrderLineItem` (Order module) and `Offer` (Offer module) |
+| **Cardinality** | Many order line items to one offer |
+| **Defined in** | `order-line-item-offer-link.ts` |
+
+```ts
+const { data: [group] } = await query.graph({
+  entity: "order_group",
+  fields: ["id", "orders.items.id", "orders.items.offer.id"],
+  filters: { id: "og_01JD8Q1234567" },
+})
+```
+
+The line item side is a list, so one offer can back line items in any number of orders and groups.
+
+## Links checkout creates for each order
+
+Besides the links above, `completeCartWithSplitOrdersWorkflow` creates these rows for every child order:
+
+- **Order to cart**: Medusa’s own link from each child order to the completed cart
+- **Order to promotion**: for each promotion owned by the order’s seller
+- **Seller to customer**: when the customer hasn’t bought from that seller before

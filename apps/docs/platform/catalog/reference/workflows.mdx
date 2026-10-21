@@ -1,40 +1,134 @@
 ---
-title: "Workflows"
+title: "Catalog workflows"
 sidebarTitle: "Workflows"
-description: "Mercur's product create, review, and allowlist workflows."
+description: "Mercur's product create, review, allowlist, and category workflows: inputs, hooks, and events."
 ---
 
-This reference lists the Mercur workflows for the Catalog domain. Import them
-from `@mercurjs/core/workflows` and run them against the Medusa container. They
-wrap Medusa's native product flows to add the marketplace layer: the store
-allowlist, the review lifecycle, and the audit trail.
+Mercur ships 7 catalog workflows in `packages/core/src/workflows/product`. Import them from `@mercurjs/core/workflows` and run them with the Medusa container. For plain updates and deletes of products, variants, and categories, use Medusa's core flows, such as `updateProductsWorkflow`.
 
-## Product workflows
+```ts
+import { confirmProductsWorkflow } from "@mercurjs/core/workflows"
 
-| Workflow | Input | Purpose |
+await confirmProductsWorkflow(container).run({
+  input: { product_ids: ["prod_01JD8Q1234567"] },
+})
+```
+
+## createProductsWorkflow
+
+Creates master products with attributes and variants, links stores to them, and records each submission. Workflow id `mercur-create-products`. Returns the created `ProductDTO[]` in input order.
+
+| Input | Type | Description |
 | --- | --- | --- |
-| `createProductsWorkflow` | `{ products[], created_by, additional_data? }` | Create master products, attach attributes/variants, record the submission, allowlist `seller_ids` |
-| `confirmProductsWorkflow` | `{ product_ids[], actor_id?, internal_note? }` | `proposed` → `published` |
-| `rejectProductWorkflow` | `{ product_id, message?, actor_id? }` | `proposed` → `rejected` |
-| `requestProductChangeWorkflow` | `{ product_id, message?, actor_id? }` | Ask the submitter for a revision (stays `proposed`) |
+| `products` | `(CreateProductDTO & { seller_ids?: string[] })[]` | Products to create. `CreateProductDTO` from `@mercurjs/types` replaces `options` with `attributes` |
+| `products[].seller_ids` | `string[]`, optional | Stores to put on the product's allowlist |
+| `created_by` | `string` | Submitter id, a seller id or a user id, stored on the audit record |
+| `additional_data` | `Record<string, unknown>`, optional | Forwarded to Medusa's product and variant workflows and the `productsCreated` hook |
 
-## Allowlist & organization workflows
+The workflow runs these steps in order:
 
-| Workflow | Input | Purpose |
+1. Runs the `validate` hook with `input` and `products`
+2. Creates the products with Medusa's `createProductsWorkflow`, each with an internal `__default__` option
+3. Attaches `attributes` with `addProductAttributesToProductWorkflow`
+4. Removes the `__default__` option from products that gained a variant axis
+5. Creates `variants` with `createProductVariantsWorkflow`, defaulting `manage_inventory` to `false`
+6. Links `seller_ids` with `associateSellersWithProductStep`
+7. Records a `PRODUCT_ADD` change per product with `recordProductAuditChangeWorkflow`
+8. Runs the `productsCreated` hook with `products` and `additional_data`
+9. Emits `product.created`
+
+It exposes the `validate` and `productsCreated` hooks. It emits `product.created` with `{ id }` for each product.
+
+## confirmProductsWorkflow
+
+Publishes `proposed` products. Workflow id `mercur-confirm-products`.
+
+| Input | Type | Description |
 | --- | --- | --- |
-| `linkSellersToProductWorkflow` | `{ id, add?, remove? }` | Add/remove stores on a product's allowlist |
-| `linkSellersToProductCategoryWorkflow` | `{ id, add?, remove? }` | Add/remove stores on a category's allowlist |
-| `assignProductsToCategoryWorkflow` | `{ id, add?, remove? }` | Assign products to a single category |
+| `product_ids` | `string[]` | Products to publish. All must be `proposed` |
+| `actor_id` | `string`, optional | Reviewer, stored as `created_by` and `confirmed_by` |
+| `internal_note` | `string`, optional | Operator note on each audit record |
+| `additional_data` | `Record<string, unknown>`, optional | Passed to the hook |
 
-<Note>
-  For plain create/update/delete of products, variants, and categories, Mercur
-  reuses Medusa's native core-flows (`createProductsWorkflow`,
-  `updateProductsWorkflow`, `createProductVariantsWorkflow`, and so on) under the
-  hood. The workflows above are the Mercur-specific entry points that add the
-  allowlist, review lifecycle, and audit history.
-</Note>
+Records a `STATUS_CHANGE` action with `{ status: "published" }` per product, then sets the status.
 
-To work with records directly instead of through a workflow, see the
-[Service reference](/platform/catalog/reference/service). To run side effects
-when a product changes, see the
-[Event reference](/platform/catalog/reference/events).
+It exposes the `productsConfirmed` hook with `product_ids`, `internal_note`, and `additional_data`. It emits `product.published` with `{ id, internal_note }` for each product.
+
+## rejectProductWorkflow
+
+Rejects one `proposed` product. Workflow id `mercur-reject-product`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `product_id` | `string` | Product to reject |
+| `message` | `string`, optional | Reason, stored as the change's `external_note` |
+| `actor_id` | `string`, optional | Reviewer |
+| `additional_data` | `Record<string, unknown>`, optional | Passed to the hook |
+
+Records a `STATUS_CHANGE` action with `{ status: "rejected" }`, then sets the status.
+
+It exposes the `productRejected` hook with `product_id`, `message`, and `additional_data`. It emits `product.rejected` with `{ id, message }`.
+
+## requestProductChangeWorkflow
+
+Asks the submitter to revise a `proposed` product without changing its status. Workflow id `mercur-request-product-change`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `product_id` | `string` | Product to send back |
+| `message` | `string`, optional | Requested changes, stored as `external_note` |
+| `actor_id` | `string`, optional | Reviewer |
+| `additional_data` | `Record<string, unknown>`, optional | Passed to the hook |
+
+Records a `CHANGE_REQUESTED` action with `{ message }`.
+
+It exposes the `productChangeRequested` hook with `product_id`, `message`, and `additional_data`. It emits `product.change-requested` with `{ id, message, actor_id }`.
+
+## linkSellersToProductWorkflow
+
+Adds stores to and removes stores from a product's allowlist. Workflow id `mercur-link-sellers-to-product`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `id` | `string` | Product id |
+| `add` | `string[]`, optional | Seller ids to link |
+| `remove` | `string[]`, optional | Seller ids to unlink |
+
+Runs `associateSellersWithProductStep` and `detachSellersFromProductStep`, which undo their changes if the run fails. No hooks or events.
+
+## linkSellersToProductCategoryWorkflow
+
+Adds and removes `category_seller` rows for a category. Workflow id `mercur-link-sellers-to-product-category`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `id` | `string` | Category id |
+| `add` | `string[]`, optional | Seller ids to link |
+| `remove` | `string[]`, optional | Seller ids to unlink |
+
+Runs `associateSellersWithProductCategoryStep` and `detachSellersFromProductCategoryStep`. No hooks or events.
+
+## assignProductsToCategoryWorkflow
+
+Moves products into one category. Workflow id `mercur-assign-products-to-category`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `id` | `string` | Category id |
+| `add` | `string[]`, optional | Product ids. Each product's categories become `[id]` |
+| `remove` | `string[]`, optional | Product ids. Each product's categories become empty |
+
+Runs Medusa's `updateProductsWorkflow` with `category_ids`, so Medusa's product update events fire. No hooks of its own.
+
+## Exported steps
+
+These steps are exported for use in your own workflows:
+
+| Step | Does |
+| --- | --- |
+| `associateSellersWithProductStep` | Creates `product_seller` rows from `{ links: { product_id, seller_id }[] }` |
+| `detachSellersFromProductStep` | Dismisses `product_seller` rows with the same input |
+| `associateSellersWithProductCategoryStep` | Creates `category_seller` rows from `{ links: { category_id, seller_id }[] }` |
+| `detachSellersFromProductCategoryStep` | Dismisses `category_seller` rows with the same input |
+| `validateProductsStatusStep` | Throws `NOT_ALLOWED` unless every product in `products` has the `expected_status` |
+| `validateSellerProductPermissionsStep` | Throws `NOT_ALLOWED` when `seller_id` is linked to any of `category_ids` |

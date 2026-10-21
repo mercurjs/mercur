@@ -1,65 +1,68 @@
 ---
 title: "What is an offer"
 sidebarTitle: "What is an offer"
-description: "The offer record, how it points at a master product variant, and its SKU."
+description: "The offer record, how it points at a master variant, its SKU rules, and the conditions a store can list under."
 ---
 
-In this document, you'll learn what an offer is and how it relates to the shared
-master catalog.
+An offer is a store’s listing of one master product variant. The catalog product belongs to the marketplace, and the offer holds the store’s commercial terms on top of it: SKU, barcodes, condition, shipping profile, prices, and stock. You need this split in mind before you build anything that sells, because carts, orders, commissions, and payouts all follow the offer, not the product.
 
-## Offer
+## The offer record
 
-An offer is a store's listing against a master product variant, represented by
-the `Offer` data model (table `offer`, id prefix `offer`). It's a thin
-marketplace-side record: it holds the store (`seller_id`), the master variant it
-points at (`variant_id`), the master product (`product_id`), the store's own
-`sku`, optional `ean` / `upc` barcodes, and the shipping profile it ships with.
-Price and inventory are attached through links rather than stored on the row.
+The `Offer` data model (table `offer`, id prefix `offer`) is a thin row that points at catalog records by id. Prices and inventory aren’t columns on it: they attach through module links.
+
+The row carries these groups of fields:
+
+- **Ownership**: `seller_id` is the store, and `created_by` is the member who created the offer
+- **Catalog pointers**: `variant_id` and `product_id`, where `product_id` is read from the variant when the offer is created
+- **Identity**: `sku`, plus optional `ean` and `upc` barcodes copied from the variant when you leave them out
+- **Selling terms**: `shipping_profile_id`, `manage_inventory` (default `true`), `allow_backorder` (default `false`), and `leadtime_to_ship`
+- **Condition**: an optional `condition_id` that points at an `OfferCondition`
 
 ```ts
-const { result } = await createOffersWorkflow(container).run({
-  input: {
-    offers: [
-      {
-        seller_id: "sel_123",
-        created_by: "mem_123",
-        variant_id: "variant_123",
-        shipping_profile_id: "sp_123",
-        sku: "ACME-WIDGET-01",
-        prices: [{ amount: 2500, currency_code: "usd" }],
-        inventory_items: [{ stock_levels: [{ location_id: "sloc_1", stocked_quantity: 50 }] }],
-      },
-    ],
-  },
+const { data: [offer] } = await query.graph({
+  entity: "offer",
+  fields: ["id", "sku", "seller.name", "product_variant.title"],
+  filters: { id: "offer_01JD8Q1234567" },
 })
 ```
 
-<Note>
-  **Products are not seller-owned.** The master product and its variants live in
-  the shared catalog. An offer never modifies the product. It points at a
-  variant and layers the store's own commercial terms on top.
-</Note>
+This query reads one offer with its store and master variant. `seller` and `product_variant` resolve through read-only links on `seller_id` and `variant_id`.
 
-## Offer vs. master product
+## Offers and master products
 
-A single master variant can back many offers, one per store that sells it. The
-`Offer` carries the identity of that particular listing:
+A master variant can back any number of offers. Each store that sells the variant holds its own offer, and the variant itself never changes when a store lists, prices, or stocks it.
 
-- `product_id` / `variant_id`: the master records the offer points at (joined through read-only links).
-- `seller_id`: the store that owns the offer (read-only link to the store).
-- `sku`: the store's own stock-keeping unit for this listing.
-- `ean` / `upc`: barcodes, snapshotted off the linked variant when not supplied.
+The same store can also list a variant more than once, for example a new and a refurbished copy. The module doesn’t limit offers per variant. The only uniqueness rule is the SKU.
 
 <Tip>
-  A store's `sku` is **unique within that store** (`(seller_id, sku)`, enforced
-  while `deleted_at IS NULL`). Two different stores may reuse the same SKU string
-  for their own offers.
+  A SKU is unique within a store: the index on `(seller_id, sku)` applies while `deleted_at` is null. Two stores can use the same SKU string, and a soft-deleted offer frees its SKU.
 </Tip>
 
-## One offer per variant
+## Offer conditions
 
-Each offer points at exactly one variant, so a store's offers on a product mirror
-that product's variants. When offers are grouped by store
-(`group_by_seller`), the service computes a `variant_count` and an `offer_ids`
-list for the grouped `(product, seller)` row. The dashboards use it to act on
-all of a store's offers on a product at once.
+An offer condition describes the physical state an offer is sold in. Operators manage conditions, and stores pick one when they create or update an offer.
+
+The `OfferCondition` model (id prefix `ofcond`) has a unique `code`, a display `label`, an `is_active` flag, and a `rank` that orders the list. The create and update workflows check every `condition_id` they receive:
+
+- **Unknown id**: the run fails with a not found error
+- **Inactive condition**: the run fails, so a deactivated condition can’t be assigned to new or edited offers
+- **Condition in use**: `deleteOfferConditionsWorkflow` refuses to delete a condition while any offer still uses it
+
+Deactivating a condition leaves the offers already listed under it unchanged.
+
+## Grouping offers by store
+
+A store’s offers on one product usually mirror that product’s variants. The service can collapse them into one row per product and store.
+
+When you pass `group_by_seller: true` to `listOffers` or `listAndCountOffers`, the service returns the newest offer of each `(product_id, seller_id)` group and sets two computed fields on it:
+
+- **`variant_count`**: how many offers the store has on that product
+- **`offer_ids`**: the ids of all offers in the group
+
+Only `product_id` and `seller_id` filters apply in grouped mode.
+
+## Related
+
+- [How offer prices and stock work](/platform/offer/concepts/pricing-and-inventory)
+- [How an offer ships](/platform/offer/concepts/shipping)
+- [Offer and OfferCondition fields](/platform/offer/reference/data-models)

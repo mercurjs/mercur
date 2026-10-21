@@ -1,60 +1,112 @@
 ---
-title: "Links to other modules"
+title: "Offer module links"
 sidebarTitle: "Links"
-description: "How the Offer domain links to other modules across the marketplace."
+description: "Every module link that connects offers to stores, the catalog, pricing, inventory, fulfillment, carts, and orders."
 ---
 
-Modules in Mercur never reference each other directly. They connect through
-**module links**. The offer sits at the center of the marketplace, so it links
-out to the store, the master catalog, pricing, inventory, fulfillment, and the
-cart and order line items that reference it. Once a link is defined, you retrieve
-related records with `query.graph` using the link alias.
+The Offer module never references another module directly. Eight module links in `packages/core/src/links/` connect the offer to the rest of the marketplace, and `query.graph` follows them by alias.
+
+| Link | Other side | Kind | File |
+| --- | --- | --- | --- |
+| Offer to store | `Seller` | Read-only, on `seller_id` | `offer-seller-link.ts` |
+| Offer to product | `Product` | Read-only, on `product_id` | `offer-product-link.ts` |
+| Offer to variant | `ProductVariant` | Read-only, on `variant_id` | `offer-variant-link.ts` |
+| Offer to shipping profile | `ShippingProfile` | Read-only, on `shipping_profile_id` | `offer-shipping-profile-link.ts` |
+| Offer to price | `Price` | Writable, one offer to many prices | `offer-price-link.ts` |
+| Offer to inventory item | `InventoryItem` | Writable, many to many | `offer-inventory-item-link.ts` |
+| Cart line item to offer | Cart `LineItem` | Writable, many items to one offer | `cart-line-item-offer-link.ts` |
+| Order line item to offer | `OrderLineItem` | Writable, many items to one offer | `order-line-item-offer-link.ts` |
+
+## Offer to store
+
+Each offer belongs to one store. The link reads `offer.seller_id`, so you write the store by setting that field, not through the link.
 
 ```ts
 const { data: offers } = await query.graph({
   entity: "offer",
-  fields: ["id", "sku", "prices.*", "inventory_items.*", "seller.name"],
+  fields: ["id", "sku", "seller.name"],
+  filters: { seller_id: "sel_01JD8Q1234567" },
 })
 ```
 
-## Catalog & store
+## Offer to product and variant
 
-| Linked module | Relationship |
-| --- | --- |
-| **Product** | An offer points at one master product (`offer.product_id`, read-only). |
-| **Product variant** | An offer points at one master variant (`offer.variant_id`, read-only). |
-| **Seller** | An offer belongs to one store (`offer.seller_id`, read-only). |
+Each offer points at one master product and one master variant. Both links are read-only and read `offer.product_id` and `offer.variant_id`.
 
-## Pricing & inventory
+```ts
+const { data: offers } = await query.graph({
+  entity: "offer",
+  fields: ["id", "product.title", "product_variant.title"],
+  filters: { product_id: "prod_01JD8Q1234567" },
+})
+```
 
-| Linked module | Relationship |
-| --- | --- |
-| **Price** | An offer has many prices: a writable list-link to the offer-owned rows on the master variant's shared price set. |
-| **Inventory item** | An offer has many inventory items: a writable list-link (`offer_inventory_item`) whose pivot carries a `required_quantity` column. |
+The variant alias is `product_variant`. Use `product_variant.price_set.id` to reach the shared price set that holds the offer’s prices.
 
-## Fulfillment
+## Offer to shipping profile
 
-| Linked module | Relationship |
-| --- | --- |
-| **Shipping profile** | An offer ships with one shipping profile (`offer.shipping_profile_id`, read-only). |
+Each offer ships with one profile, read from `offer.shipping_profile_id`.
 
-## Cart & order
+```ts
+const { data: offers } = await query.graph({
+  entity: "offer",
+  fields: ["id", "shipping_profile.id", "shipping_profile.name"],
+})
+```
 
-| Linked module | Relationship |
-| --- | --- |
-| **Cart line item** | A cart line item links to the offer it added; one offer can back many cart line items (list-link on the line-item side). |
-| **Order line item** | An order line item links to the purchased offer; one offer can back many order line items across child orders (list-link on the line-item side). |
+## Offer to price
 
-<Note>
-  Read-only links (Product, Variant, Seller, Shipping profile) resolve from a
-  field on the `offer` row and can't be written through the link itself. The
-  Price and Inventory-item links are writable and are managed by the offer
-  workflows.
-</Note>
+One offer has many prices. The link records which rows on the variant’s shared price set belong to the offer. The offer workflows create and dismiss these links, so don’t write them yourself.
 
-<Tip>
-  The cart- and order-line-item links are list-links **on the line-item side** so
-  the same offer can be added to many carts and placed on many orders. Without
-  that, Medusa would enforce a 1:1 line-item ↔ offer relationship and block
-  re-use.
-</Tip>
+```ts
+const { data: offers } = await query.graph({
+  entity: "offer",
+  fields: [
+    "prices.amount",
+    "prices.currency_code",
+    "prices.min_quantity",
+    "prices.price_rules.attribute",
+    "prices.price_rules.value",
+  ],
+})
+```
+
+Every row returned also carries an `offer_id` price rule with the offer’s id.
+
+## Offer to inventory item
+
+Offers and inventory items link many to many. The link table is `offer_inventory_item`, with an extra `required_quantity` integer column that defaults to `1`.
+
+The link has three aliases:
+
+- **`offer.inventory_items`**: the linked `InventoryItem` rows, without pivot columns
+- **`offer.inventory_item_link`**: the pivot rows, with `required_quantity` and a nested `inventory_item`
+- **`inventory_item.offers`**: the offers that draw on an inventory item
+
+```ts
+const { data: offers } = await query.graph({
+  entity: "offer",
+  fields: [
+    "inventory_item_link.required_quantity",
+    "inventory_item_link.inventory_item.sku",
+  ],
+})
+```
+
+## Cart and order line items to offer
+
+Line items link to the offer that was bought. Both links set `isList: true` on the line item side, so one offer can back line items in any number of carts and orders.
+
+```ts
+const { data: [cart] } = await query.graph({
+  entity: "cart",
+  fields: ["items.id", "items.offer.id", "items.offer.seller_id"],
+  filters: { id: "cart_01JD8Q1234567" },
+})
+```
+
+The alias is `offer` on both cart and order line items. At checkout, `mirrorLineItemOfferLinksToOrderStep` copies each cart line item’s link to the new order line item. A subscriber does the same for line items added later by order edits, exchanges, and claims.
+
+## Product to shipping profile
+
+`createOffersWorkflow` also writes Medusa’s own product to shipping profile link when the product has none. That link is Medusa’s, not Mercur’s. See [How an offer ships](/platform/offer/concepts/shipping).

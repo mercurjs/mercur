@@ -1,36 +1,50 @@
 ---
-title: "Data models"
+title: "Review data model"
 sidebarTitle: "Data models"
-description: "The data models owned by the Review domain."
+description: "Every field and index of the Review model in the Review module."
 ---
 
-The Review domain is owned by the **Review module**. This reference lists its
-data model and fields.
+The Review module owns one data model, `Review`. It’s defined in `packages/core/src/modules/review/models/review.ts` and stored in the `review` table. Resolve the module with `MercurModules.REVIEW`.
 
 ## Review
 
-Table `review`, id prefix `rev`. A customer's rating of a single product or
-seller.
+A customer’s rating of one product or one seller. Table `review`, id prefix `rev`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
-| `id` | text | Primary key |
-| `display_id` | serial | Human-readable auto-incrementing number |
-| `reference` | enum | `product` or `seller`, the review's target type |
-| `rating` | integer | The numeric score |
-| `customer_note` | text | Nullable, searchable. The customer's note |
-| `seller_note` | text | Nullable, searchable. The store's single response |
-| `status` | enum | `pending`, `published`, or `rejected`; default `pending` |
-| `created_at` | dateTime | Set on creation |
-| `updated_at` | dateTime | Updated on change |
-| `deleted_at` | dateTime | Nullable; set by soft delete |
+| `id` | `text` | Primary key with the prefix `rev`, such as `rev_01JD8Q1234567` |
+| `display_id` | `autoincrement` | Serial number for display, stored as a Postgres `serial` |
+| `reference` | `enum` | The target type: `product` or `seller`. Required |
+| `rating` | `number` | The score, stored as an `integer`. Required, no range constraint in the model |
+| `customer_note` | `text` | The customer’s text. Nullable, searchable |
+| `seller_note` | `text` | The store’s answer. Nullable, searchable |
+| `status` | `enum` | `pending`, `published`, or `rejected`. Default `pending` |
+| `created_at` | `timestamptz` | Set on creation |
+| `updated_at` | `timestamptz` | Set on every change |
+| `deleted_at` | `timestamptz` | Nullable. Set by a soft delete |
 
-The target record itself is not a column on this model. It's resolved through a
-module link chosen by the `reference` value. See the
-[Links reference](/platform/review/reference/links).
+The model has no column for its target, order, or customer. Those live in [module links](/platform/review/reference/links), and `reference` tells you whether to follow `product` or `seller`.
 
-<Note>
-  The `review` table is indexed on `deleted_at` for soft-delete filtering.
-  Deleting a review through the workflow is a soft delete. The row is retained
-  and can be restored.
-</Note>
+### Indexes
+
+Two indexes speed up the lists the APIs run:
+
+| Index | Columns | Condition |
+| --- | --- | --- |
+| `IDX_review_deleted_at` | `deleted_at` | `deleted_at IS NULL` |
+| `IDX_review_reference_status_created_at` | `reference`, `status`, `created_at` | `deleted_at IS NULL` |
+
+### Relations
+
+The model defines no relations of its own. Through links, a review exposes these `query.graph` fields:
+
+| Field | Target | Set when |
+| --- | --- | --- |
+| `product` | Product | `reference` is `product` |
+| `seller` | Seller | `reference` is `seller` |
+| `order` | Order | Always |
+| `customer` | Customer | Always |
+
+### Types
+
+`@mercurjs/types` exports `ReviewDTO`, `ReviewReference` (`"product" | "seller"`), and `ReviewStatus` (`"pending" | "published" | "rejected"`) for this model.

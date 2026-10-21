@@ -1,65 +1,67 @@
 ---
-title: "Order commission lines"
+title: "Commission lines on orders"
 sidebarTitle: "Order commission lines"
-description: "Per-order commission lines, how they're computed, and BigNumber precision."
+description: "What a commission line records, when Mercur writes and rewrites it, and how payouts read it."
 ---
 
-This page covers how commission is recorded on an order and kept in sync as the
-order changes.
+A commission line is the resolved commission for one line item or one shipping method of an order. It’s derived data: Mercur computes it from the current rates and the order’s contents, writes it at checkout, and rewrites it whenever the order changes. Payouts read these lines to work out what the seller receives.
 
-## Commission line
+## What a line records
 
-A commission line is the resolved commission for a single order line. It's
-represented by the `CommissionLine` data model (table `commission_line`, id
-prefix `comline`). Each line anchors to either an item (`item_id`) or a shipping
-method (`shipping_method_id`). It records the rate that matched
-(`commission_rate_id`, `code`), the applied `rate`, and the computed `amount`.
+A line is a `CommissionLine` record (id prefix `comline`). It points at exactly one of `item_id` or `shipping_method_id`, and it stores the rate it came from and the amount.
 
 ```ts
-// A commission line, as written by the refresh workflow
-{
-  item_id: "ordli_123",
+const line = {
+  id: "comline_01JD8Q1234567",
+  item_id: "ordli_01JD8Q1234567",
   shipping_method_id: null,
-  commission_rate_id: "comrate_123",
-  code: "standard-a1b2c3",
-  rate: 10,
-  amount: 250, // 10% of a 2500 subtotal
+  commission_rate_id: "comrate_01JD8Q1234567",
+  provider_id: "system",
+  code: "acme-apparel-k3x9qa",
+  rate: 12,
+  amount: 5.64,
   description: null,
+  data: null,
 }
 ```
 
-Lines are generated automatically during checkout. When the cart is split into
-per-seller orders, `refreshOrderCommissionLinesWorkflow` runs against each new
-order. Shipping lines carry a `"Shipping Commission"` description. Item lines
-carry none.
+The fields carry these values from the `system` provider:
 
-## Recomputed on change
+- **`code`**: the code of the winning rate, kept so the line stays readable if the rate is renamed or deleted
+- **`rate`**: the percent for a percentage rate, or the fixed amount for a fixed rate
+- **`amount`**: the commission for the line, computed with `MathBN`
+- **`description`**: `Shipping Commission` on shipping lines, empty on item lines
+- **`provider_id`**: the provider that computed the line, `system` by default
+- **`data`**: free JSON a custom provider can fill
 
-Commission lines are **derived** data, not a one-time snapshot. The lines are
-recomputed whenever an order's composition changes, such as when an order edit
-is confirmed, a return is received, or a claim or exchange is created. That
-keeps the seller's commission tracking what the customer actually kept.
+## When lines are written
 
-The refresh is **idempotent**: it deletes any existing lines for the affected
-items and shipping methods, then inserts the freshly computed set. Re-running it
-never duplicates lines.
+Mercur writes lines at checkout and rewrites them when the order’s contents change. Both paths run `refreshOrderCommissionLinesWorkflow`:
 
-<Note>
-  Computed lines carry no `id`. The module's `upsertCommissionLines` deletes by
-  anchor (`item_id` / `shipping_method_id`) before inserting, which is what
-  makes repeated refreshes safe.
-</Note>
+| Trigger | Where it runs |
+| --- | --- |
+| Cart completed | A nested step of `completeCartWithSplitOrdersWorkflow`, for every seller order in the group |
+| `order-edit.confirmed` | The `order-commission-refresh-handler` subscriber |
+| `order.return_received` | The same subscriber |
+| `order.claim_created` | The same subscriber |
+| `order.exchange_created` | The same subscriber |
 
-## BigNumber precision
+A refresh resolves against the rates that exist when it runs. Changing a rate doesn’t touch existing lines until the order is refreshed again.
 
-All commission arithmetic uses Medusa's `MathBN` (BigNumber). It's arbitrary
-precision, so percentages and per-currency amounts never accumulate
-floating-point error. A percentage amount is `subtotal × value ÷ 100`. A fixed
-amount is the per-currency value (or the fallback `value`). Each is computed in
-BigNumber before being stored.
+## A refresh replaces, it doesn’t append
 
-<Tip>
-  Commission lines feed the payout pipeline: when a seller's payout is
-  calculated, the order's commission lines are read straight from the commission
-  module and deducted from the amount transferred to the seller.
-</Tip>
+Computed lines carry no `id`. The module’s `upsertCommissionLines` first deletes every existing line whose `item_id` or `shipping_method_id` is in the new set, then inserts the new lines in the same transaction. Running a refresh twice leaves one line per item and shipping method.
+
+<Warning>
+  Deletion is keyed on the anchors in the new set. If an item no longer gets a line, for example because you disabled the only rate that matched it, its old line stays in place.
+</Warning>
+
+## How payouts use the lines
+
+`createPayoutWorkflow` reads every commission line whose `item_id` or `shipping_method_id` belongs to the order. It sums their `amount` and transfers the order `total` minus that sum to the seller’s payout account. With the lines from the [overview figure](/platform/commission/overview), an order total of € 92.00 and commission of € 10.14 pays the seller € 81.86.
+
+## Related
+
+- [Refresh an order’s lines from your own code](/platform/commission/guides/refresh-order-commission-lines)
+- [The order events that trigger a refresh](/platform/commission/reference/events)
+- [All `CommissionLine` fields](/platform/commission/reference/data-models)

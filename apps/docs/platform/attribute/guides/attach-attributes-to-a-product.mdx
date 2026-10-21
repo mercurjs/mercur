@@ -1,69 +1,112 @@
 ---
 title: "Attach attributes to a product"
 sidebarTitle: "Attach to a product"
-description: "Attach, detach, and update a product's attributes in one batch call."
+description: "Attach, detach, and update a product's attributes in one run of the batch workflow."
 ---
 
-In this guide, you'll learn how to manage all of a product's attributes from
-server code through a single batch workflow.
+Manage every attribute on a product from server code with one workflow, `createAndLinkProductAttributesToProductWorkflow`, the same engine behind the admin attribute batch route.
 
-Mercur exposes `createAndLinkProductAttributesToProductWorkflow`, the engine
-behind the product attribute batch endpoint. One call can attach new attributes,
-detach existing ones, and update selections, applied in the order
-**remove → add → update** so a same-call remove and re-add of one attribute
-resolves correctly.
+## Before you begin
+
+You need the following:
+
+- **A product**: the id of a product in the shared catalog, such as `prod_01JD8Q1234567`
+- **Global attributes**: the ids of the catalog attributes and values you want to attach, created as in [Create a catalog attribute](/platform/attribute/guides/create-an-attribute)
 
 ## Run the batch workflow
 
-```ts title="src/api/custom/products/[id]/attributes/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { createAndLinkProductAttributesToProductWorkflow } from "@mercurjs/core/workflows"
+<Steps>
+  <Step title="Send add, remove, and update in one input">
+    The workflow applies `remove`, then `add`, then `update`, so removing and re-adding the same attribute in one run works.
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  await createAndLinkProductAttributesToProductWorkflow(req.scope).run({
-    input: {
-      product_id: req.params.id,
-      add: [
-        // Existing select attribute: link chosen values
-        { id: "pattr_material", value_ids: ["pattrval_cotton"] },
-        // Existing text / unit / toggle attribute: set a scalar
-        { id: "pattr_thread_count", value: 400 },
-        // Inline attribute created and attached in one step
-        { title: "Gift wrap", type: "toggle", value: true },
+    ```ts title="src/api/admin/catalog-import/products/[id]/route.ts"
+    import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+    import {
+      createAndLinkProductAttributesToProductWorkflow,
+    } from "@mercurjs/core/workflows"
+
+    export async function POST(req: MedusaRequest, res: MedusaResponse) {
+      await createAndLinkProductAttributesToProductWorkflow(req.scope).run({
+        input: {
+          product_id: req.params.id,
+          add: [
+            { id: "pattr_01JD8Q1234561", value_ids: ["pattrval_01JD8Q1234561"] },
+            { id: "pattr_01JD8Q1234562", value: 400 },
+            { title: "Gift wrap", value: true },
+          ],
+          remove: ["pattr_01JD8Q1234563"],
+        },
+      })
+
+      res.sendStatus(200)
+    }
+    ```
+
+    The first entry picks a value of a select attribute, the second sets a `unit` attribute to `400`, and the third creates an inline `toggle` attribute on this product.
+  </Step>
+  <Step title="Read the attributes back">
+    A product holds its selections as linked values. Read them through the `product_attribute_values` link, and read inline attributes through `scoped_attributes`.
+
+    ```ts
+    const query = req.scope.resolve("query")
+
+    const { data: [product] } = await query.graph({
+      entity: "product",
+      fields: [
+        "product_attribute_values.name",
+        "product_attribute_values.attribute.name",
+        "scoped_attributes.name",
       ],
-      remove: ["pattr_legacy_field"],
-      update: [{ id: "pattr_color", add: ["pattrval_blue"], remove: ["pattrval_red"] }],
-    },
-  })
+      filters: { id: req.params.id },
+    })
+    ```
 
-  res.sendStatus(200)
-}
-```
+    Inline attributes also show up under `product_attribute_values`, because their values link to the product the same way.
+  </Step>
+</Steps>
 
-## The three operations
+## Choose the add form
 
-Each entry in `add` is one of the `ProductAttributeBatchAdd` forms:
+Each `add` entry is a `ProductAttributeBatchAdd`. The keys you pass decide what the workflow does:
 
 | Form | Shape | Effect |
 | --- | --- | --- |
-| Existing select / axis | `{ id, value_ids }` | Links the referenced values to the product |
-| Existing text / unit / toggle | `{ id, value }` | `text`/`unit` create and link a value; `toggle` links the seeded `true`/`false` value |
-| Inline axis | `{ title, values, is_variant_axis: true }` | Creates an exclusive option, a scoped attribute, and the value mirror |
-| Inline non-axis | `{ title, type, value \| values }` | Creates a scoped attribute plus its value(s) and links them |
+| Existing select | `{ id, value_ids }` | Links the chosen values to the product |
+| Existing axis | `{ id, value_ids }` | Attaches the global option with only those values, and links the values |
+| Existing text or unit | `{ id, value }` | Creates a value named `String(value)` and links it |
+| Existing toggle | `{ id, value }` | Links the seeded `"true"` or `"false"` value |
+| Inline attribute | `{ title, type?, value }` or `{ title, type?, values }` | Creates a product-scoped attribute and its values, and links them |
+| Inline axis | `{ title, values, is_variant_axis: true }` | Creates an exclusive option, a scoped `multi_select` attribute, and the mirrored values |
 
-`remove` takes attribute ids to detach; `update` carries
-`ProductAttributeBatchUpdate` entries adjusting an existing selection.
+## Change a selection with update
 
-<Note>
-  For a variant-axis attribute, `value_ids` is the per-product **subset** of the
-  mirror option's values. The product's variants are generated from exactly that
-  subset. See [Variant axes](/platform/attribute/concepts/variant-axes).
-</Note>
+An `update` entry targets one attribute by `id`. What `add` and `remove` mean depends on the attribute:
 
-<Tip>
-  The batch workflow composes the lower-level
-  `addProductAttributesToProductWorkflow`,
-  `removeProductAttributesFromProductWorkflow`, and
-  `updateProductAttributesOnProductWorkflow`. Reach for those directly when you
-  only need one of the three operations.
-</Tip>
+- **Global select or axis**: `add` and `remove` hold attribute value ids, and an axis also moves the option values
+- **Global select or axis, full set**: `value_ids` is the complete set the product should hold, and the workflow works out the difference
+- **Inline axis**: `add` holds new values such as `{ value: "XL" }`, and `remove` holds attribute value ids to delete
+- **Text, unit, or toggle**: `value` replaces the current value
+- **Inline rename**: `title` renames an inline attribute, and it’s ignored for global ones
+
+```ts
+update: [
+  { id: "pattr_01JD8Q1234561", value_ids: ["pattrval_01JD8Q1234562"] },
+  { id: "pattr_01JD8Q1234564", title: "Fit", add: [{ value: "Relaxed" }] },
+]
+```
+
+The first entry swaps the product to a different value. The second renames an inline axis and adds a value to its exclusive option.
+
+## Handle a required attribute
+
+Removing an attribute with `is_required: true` fails with a `NOT_ALLOWED` error, and nothing in the run is applied. The check skips attributes you remove and re-add in the same run, so you can replace a required attribute’s selection in one call.
+
+## Route vendor edits through review
+
+Running the batch workflow writes to the product immediately. For changes a store makes, run `productEditUpdateAttributesWorkflow` with the same `add`, `remove`, and `update` plus `created_by`. It stages a product change for review, and the change runs the batch workflow when it’s confirmed. See [Product edits](/platform/product-edit/overview).
+
+## Next steps
+
+- [Create a variant axis and build variants on it](/platform/attribute/guides/create-a-variant-axis)
+- [Every attachment workflow and its input](/platform/attribute/reference/workflows)
+- [The links behind product attributes](/platform/attribute/reference/links)

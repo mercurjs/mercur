@@ -1,45 +1,116 @@
 ---
-title: "Links to other modules"
+title: "Attribute links"
 sidebarTitle: "Links"
-description: "How the Attribute (Product Attribute) domain links to products, categories, and options."
+description: "The five module links between the Product Attribute module and Medusa's Product module."
 ---
 
-Modules in Mercur never reference each other directly. They're connected through
-**module links**. The Product Attribute module links into Medusa's product module
-in several ways: to products, to categories, and, for variant axes, to product
-options through mirror links. Once a link is defined, you retrieve related records
-with `query.graph` using the link alias.
+The Product Attribute module never references Medusa’s Product module directly. Five module links in `packages/core/src/links` connect them: two that store data in pivot tables and three read-only links resolved from a foreign key on one side. Resolve `query` from the container to read across them.
 
 ```ts
-const { data: products } = await query.graph({
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+
+const query = container.resolve(ContainerRegistrationKeys.QUERY)
+```
+
+## Product to attribute value
+
+The values a product holds, for every attribute type. This is the link the attachment workflows write.
+
+| Property | Value |
+| --- | --- |
+| Sides | `Product` ↔ `ProductAttributeValue` |
+| Cardinality | Many-to-many |
+| Storage | Pivot table `product_attribute_value_link` |
+| Aliases | `product_attribute_values` on product, `products` on value |
+| Defined in | `product-attribute-value-pivot-link.ts` |
+
+```ts
+const { data: [product] } = await query.graph({
   entity: "product",
-  fields: ["id", "title", "scoped_attributes.*"],
+  fields: [
+    "product_attribute_values.name",
+    "product_attribute_values.attribute.name",
+  ],
+  filters: { id: "prod_01JD8Q1234567" },
 })
 ```
 
-## Products
+The query returns each linked value with its parent attribute, which is how you read a product’s full attribute selection.
 
-| Link | Table | Relationship |
-| --- | --- | --- |
-| **Product → attribute** (`scoped_attributes`) | None | Read-only; a product's inline (product-scoped) attributes, resolved from `ProductAttribute.product_id` |
-| **Product ↔ attribute value** | `product_attribute_value_link` | Many-to-many pivot; the values selected on a product |
+## Product to scoped attributes
 
-## Categories
+The inline attributes created on a product. The link is read-only and resolves `ProductAttribute.product_id` against `product.id`.
 
-| Link | Table | Relationship |
-| --- | --- | --- |
-| **Attribute ↔ category** (`categories`) | `product_category_attribute` | Many-to-many; the product categories an attribute is associated with |
+| Property | Value |
+| --- | --- |
+| Sides | `Product` → `ProductAttribute` |
+| Cardinality | One-to-many |
+| Storage | None, read-only |
+| Alias | `scoped_attributes` on product |
+| Defined in | `product-attribute-product-link.ts` |
 
-## Product options (mirror links)
+```ts
+const { data: [product] } = await query.graph({
+  entity: "product",
+  fields: ["scoped_attributes.name", "scoped_attributes.values.name"],
+  filters: { id: "prod_01JD8Q1234567" },
+})
+```
 
-| Link | FK | Relationship |
-| --- | --- | --- |
-| **Attribute → option** | `ProductAttribute.product_option_id` | Read-only 1:1; the mirror `ProductOption` for a variant-axis attribute |
-| **Value → option value** | `ProductAttributeValue.product_option_value_id` | Read-only 1:1; the mirror `ProductOptionValue` for an axis value |
+## Attribute to category
+
+The product categories a global attribute is offered for. An attribute with no category links is offered for every product.
+
+| Property | Value |
+| --- | --- |
+| Sides | `ProductAttribute` ↔ `ProductCategory` |
+| Cardinality | Many-to-many |
+| Storage | Pivot table `product_category_attribute` |
+| Aliases | `categories` on attribute, `product_attributes` on category |
+| Defined in | `product-attribute-category-link.ts` |
+
+```ts
+const { data: attributes } = await query.graph({
+  entity: "product_attribute",
+  fields: ["id", "name", "categories.id", "categories.name"],
+  filters: { product_id: null },
+})
+```
+
+`createProductAttributesWorkflow` writes these links from `category_ids`. Write more yourself with the link service, using the keys `product_attribute_id` and `product_category_id`.
+
+## Attribute to product option
+
+The Medusa `ProductOption` that backs a variant axis. The link is read-only and keyed on `ProductAttribute.product_option_id`.
+
+| Property | Value |
+| --- | --- |
+| Sides | `ProductAttribute` → `ProductOption` |
+| Cardinality | One-to-one |
+| Storage | None, read-only |
+| Defined in | `product-attribute-option-mirror-link.ts` |
+
+## Attribute value to option value
+
+The Medusa `ProductOptionValue` that backs one value of a variant axis. The link is read-only and keyed on `ProductAttributeValue.product_option_value_id`.
+
+| Property | Value |
+| --- | --- |
+| Sides | `ProductAttributeValue` → `ProductOptionValue` |
+| Cardinality | One-to-one |
+| Storage | None, read-only |
+| Defined in | `product-attribute-value-option-value-mirror-link.ts` |
+
+Core code reads the mirror through the foreign keys, not through these links. Do the same: read the ids from the attribute, then query the option.
+
+```ts
+const { data: [option] } = await query.graph({
+  entity: "product_option",
+  fields: ["id", "title", "is_exclusive", "values.id", "values.value"],
+  filters: { id: attribute.product_option_id },
+})
+```
 
 <Note>
-  The mirror links (Attribute → option, Value → option value) and the product
-  scope link (`scoped_attributes`) are **read-only**. They're resolved from the
-  FK on the owning record and can't be written through the link itself. The
-  workflows keep the mirror in sync when axis attributes and values change.
+  The workflows keep the mirror in step. Never write `product_option_id` or `product_option_value_id` yourself, or the attribute and its option will drift apart.
 </Note>

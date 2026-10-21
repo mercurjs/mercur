@@ -1,48 +1,74 @@
 ---
-title: "Event reference"
+title: "Payout events"
 sidebarTitle: "Events"
-description: "Events that drive the payout pipeline, for subscribers and side effects."
+description: "The payout webhook event, the data-model events the Payout module emits, and the reserved PayoutEvents names that nothing emits yet."
 ---
 
-The Payout domain is event-driven. Scheduled jobs emit events, and subscribers
-react to them to capture payments and transfer funds. Subscribe to these events
-to run your own side effects, such as notifications, ledger syncing, or follow-up
-workflows, instead of polling.
+The Payout module has one event of its own, `payout.webhook_received`, which carries provider webhooks to the shipped subscriber. Medusa also emits a created, updated, or deleted event whenever a payout record changes. Subscribe to those for side effects such as seller notifications or ledger syncs.
 
-```ts title="src/subscribers/payout-requested.ts"
+## Webhook event
+
+The `POST /hooks/payout` route emits this event with a 5000 ms delay and 3 attempts.
+
+| Event | Emitted when | Payload |
+| --- | --- | --- |
+| `payout.webhook_received` | The provider posts to `/hooks/payout` | `{ data, rawData, headers }` |
+
+`data` is the parsed body, `rawData` is the raw body, and `headers` are the request headers. The `payout-webhook` subscriber, with subscriber id `payout-webhook-handler`, handles it and runs `processPayoutForWebhookWorkflow`. The event bus serializes `rawData` as a buffer object, and the subscriber turns it back into a `Buffer` before signature checks.
+
+## Data-model events
+
+`PayoutModuleService` extends `MedusaService`, so Medusa emits an event for each row it creates, updates, or deletes. The name is the module name, the kebab-case model name, and the action. The payload is `{ id }`.
+
+| Event | Emitted when |
+| --- | --- |
+| `payout.payout-account.created` | `createPayoutAccount` inserts an account |
+| `payout.payout-account.updated` | The provider response is stored, or a webhook changes the status |
+| `payout.payout-account.deleted` | The provider call fails and the new account is removed |
+| `payout.onboarding.created` | `createOnboarding` runs for the first time on an account |
+| `payout.onboarding.updated` | `createOnboarding` runs again on the same account |
+| `payout.payout.created` | `createPayouts` inserts a `pending` payout |
+| `payout.payout.updated` | The provider response is stored, or a webhook changes the status |
+| `payout.payout.deleted` | The provider call fails and the new payout is removed |
+
+An `updated` event doesn’t say which field changed. Retrieve the record in your subscriber and read its `status`.
+
+```ts title="src/subscribers/payout-account-updated.ts"
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import { MercurModules, PayoutAccountStatus } from "@mercurjs/types"
 
-export default async function payoutRequestedHandler({
+export default async function payoutAccountUpdated({
   event,
   container,
-}: SubscriberArgs<{ order_id: string }>) {
-  const orderId = event.data.order_id
-  // ...notify the seller, write to an external ledger, etc.
+}: SubscriberArgs<{ id: string }>) {
+  const payoutService = container.resolve(MercurModules.PAYOUT)
+  const account = await payoutService.retrievePayoutAccount(event.data.id)
+
+  if (account.status === PayoutAccountStatus.RESTRICTED) {
+    const logger = container.resolve("logger")
+    logger.warn(`Payout account ${account.id} is restricted`)
+  }
 }
 
 export const config: SubscriberConfig = {
-  event: "payout.requested",
+  event: "payout.payout-account.updated",
 }
 ```
 
-## Pipeline events
+This subscriber logs a warning each time an account lands in `restricted`, which is where you’d send the seller a reminder to finish onboarding.
 
-| Event | Emitted when | Handled by |
-| --- | --- | --- |
-| `order.capture_requested` | Capture check finds an order ready to capture | The payment-capture subscriber runs `capturePaymentWorkflow` |
-| `order.authorization_expired` | Capture check finds an authorization that already expired | Order is flagged so it isn't retried |
-| `payout.requested` | Daily job finds a captured order not yet paid out | The transfer subscriber runs `createPayoutWorkflow` |
+## Reserved event names
 
-## Webhook events
+`@mercurjs/types` exports a `PayoutEvents` enum. Nothing in `@mercurjs/core` emits these events or subscribes to them, and the enum carries a TODO to move them to order events.
 
-| Event | Emitted when | Handled by |
-| --- | --- | --- |
-| `payout.webhook_received` | A provider webhook arrives | The `payout-webhook` subscriber runs `processPayoutForWebhookWorkflow` |
+| Member | Name |
+| --- | --- |
+| `OrderCaptureRequested` | `order.capture_requested` |
+| `OrderAuthorizationExpired` | `order.authorization_expired` |
+| `PayoutRequested` | `payout.requested` |
 
-<Note>
-  `order.capture_requested`, `order.authorization_expired`, and
-  `payout.requested` are defined on the `PayoutEvents` enum in `@mercurjs/types`.
-  The webhook subscriber resolves `payout.webhook_received` to a provider action
-  before updating status. See
-  [Account lifecycle](/platform/payout/concepts/account-lifecycle).
-</Note>
+You can emit them from your own payout trigger and subscribe to them in your project. See [The payout pipeline](/platform/payout/concepts/payout-pipeline).
+
+## Workflow hook
+
+`createPayoutWorkflow` exposes a `payoutCreated` hook with `{ order_id, payout_id }`. Use it instead of `payout.payout.created` when you need the order id, because the data-model event carries only the payout id.

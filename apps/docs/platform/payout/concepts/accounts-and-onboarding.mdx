@@ -1,70 +1,80 @@
 ---
-title: "Accounts & onboarding"
+title: "Payout accounts and onboarding"
 sidebarTitle: "Accounts & onboarding"
-description: "The payout account, its onboarding record, and provider-specific data."
+description: "How a seller connects to the payout provider, and where provider data such as account ids and onboarding links lives."
 ---
 
-In this document, you'll learn how a seller connects to a payment provider and
-where provider-specific data lives.
+A payout account is a seller’s connection to the payout provider, and onboarding is the provider-side setup the seller completes before money can reach them. You need both before you can pay a seller. Mercur stores the provider’s own data on each record without reading it, so the same records work for any provider.
 
-## Payout account
+## The payout account
 
-A payout account is the seller's connection to the payment provider. It is the
-record funds are transferred to. A payout account is represented by the
-`PayoutAccount` data model (table `payout_account`, id prefix `pacc`). It is
-created for a seller through `createPayoutAccountWorkflow`, which also links the
-account to the store.
+A payout account is the record a payout is sent to. It’s the `PayoutAccount` data model (table `payout_account`, id prefix `pacc`), and the `seller_payout_account` link ties it to exactly one seller.
+
+You create one with `createPayoutAccountWorkflow`. The workflow checks the seller has no account yet, asks the module to create the account, and links it to the seller:
 
 ```ts
+import { createPayoutAccountWorkflow } from "@mercurjs/core/workflows"
+
 const { result } = await createPayoutAccountWorkflow(container).run({
   input: {
-    seller_id: "sel_123",
-    context: { /* forwarded to the provider */ },
-    data: { /* forwarded to the provider */ },
+    seller_id: "sel_01JD8Q1234567",
+    data: { country: "US" },
   },
 })
 ```
 
-Creating an account is a two-step operation. The module first persists the
-`PayoutAccount`. It then calls the provider to create the connected account and
-stores what the provider returns in the account's `data` field. A seller has
-**exactly one** payout account.
+Inside the module, `createPayoutAccount` runs 3 writes in order:
+
+1. Create the `PayoutAccount` row with your `data` and `context`
+2. Call the provider’s `createPayoutAccount` with `data.account_id` set to the new `pacc` id and `context.idempotency_key` defaulting to the same id
+3. Overwrite the row’s `data` and `status` with what the provider returns
+
+If the provider call throws, the module deletes the new row and rethrows. The Stripe Connect provider returns `pending` and the full Stripe account object. The built-in `system` provider returns `active` and an empty object.
 
 <Note>
-  A store can only have **one** payout account. `createPayoutAccountWorkflow`
-  validates that the seller doesn't already have one before creating it.
+  A seller can have only one payout account. `validateSellerPayoutAccountStep` queries `seller_payout_account` and fails with `Seller already has a payout account` when a row exists.
 </Note>
 
 ## Onboarding
 
-Before an account can receive funds, the seller usually has to complete
-provider-side setup, such as identity verification, bank details, or KYC. That
-state is held in the `Onboarding` data model (table `onboarding`, id prefix
-`onb`). The record is a one-to-one satellite of the payout account.
+Onboarding is the provider’s setup flow: identity checks, bank details, and anything else the provider needs. Its state lives in the `Onboarding` data model (table `onboarding`, id prefix `onb`), a one-to-one child of the payout account.
+
+`createOnboardingWorkflow` takes an `account_id` and calls the provider’s `createOnboarding`. The module merges the account’s stored `data` with the `data` you pass, so the provider sees both. With Stripe Connect, the account’s `data.id` is the Stripe account id, and you pass `refresh_url` and `return_url`:
 
 ```ts
-await createOnboardingWorkflow(container).run({
+import { createOnboardingWorkflow } from "@mercurjs/core/workflows"
+
+const { result } = await createOnboardingWorkflow(container).run({
   input: {
-    account_id: "pacc_123",
-    context: { return_url: "https://store.example.com/settings/payouts" },
+    account_id: "pacc_01JD8Q1234567",
+    data: {
+      refresh_url: "https://vendor.example.com/payouts/refresh",
+      return_url: "https://vendor.example.com/payouts",
+    },
   },
 })
 ```
 
-The workflow asks the provider to produce onboarding data (for Stripe Connect,
-an onboarding link) and stores it on the record. Running it again on an account
-that already has an onboarding record **updates** it rather than creating a
-second one.
+The result’s `data` holds what the provider returned. For Stripe Connect, that’s an account link object, and `data.url` is the hosted onboarding page. The workflow is safe to re-run:
 
-## Provider data
+- **First run**: creates the `Onboarding` record
+- **Later runs**: update the same record with new provider data, which you need when a Stripe link expires
 
-The `data` JSON field on `PayoutAccount`, `Onboarding`, and `Payout` is where
-provider-specific values live, such as the Stripe account id, onboarding URLs, or
-transfer references. The module never interprets these fields. It forwards them
-to and from the provider.
+## Provider data and context
 
-<Tip>
-  `context` carries per-request hints such as an `idempotency_key` or a
-  `return_url`, while `data` carries the durable provider payload. Both are
-  passed straight through the `IPayoutProvider` interface.
-</Tip>
+Every payout record has a `data` JSON field, and accounts and onboarding records also have `context`. They play different roles:
+
+- **`data`**: the provider’s durable payload, such as the Stripe account, the account link, or the transfer
+- **`context`**: per-call hints for the provider, today only `idempotency_key`
+
+The module never interprets `data`. It passes it to the provider and stores what comes back. When you switch providers, the records keep the same shape.
+
+<Warning>
+  A payout account’s `data` holds the raw provider object. For Stripe Connect, that’s the full `Stripe.Account`, so select only the fields you need before you return it from a public route.
+</Warning>
+
+## Related
+
+- [Account lifecycle](/platform/payout/concepts/account-lifecycle) for the statuses an account moves through after onboarding
+- [Create a payout account](/platform/payout/guides/create-a-payout-account) for a full route example
+- [Start provider onboarding](/platform/payout/guides/start-provider-onboarding) for the onboarding route

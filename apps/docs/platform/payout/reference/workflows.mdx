@@ -1,32 +1,93 @@
 ---
-title: "Workflows"
+title: "Payout workflows"
 sidebarTitle: "Workflows"
-description: "Payout account, onboarding, payout, and webhook workflows."
+description: "The 4 payout workflows and 6 payout steps exported from @mercurjs/core/workflows, with their inputs, steps, and hooks."
 ---
 
-This reference lists the workflows for the Payout domain. Import them from
-`@mercurjs/core/workflows` and run them against the Medusa container.
+The Payout module ships 4 workflows in `packages/core/src/workflows/payout`. Import them, and their steps, from `@mercurjs/core/workflows`. None of them emits a custom event. Medusa’s data-model events still fire for the records they write, as listed in [Events](/platform/payout/reference/events).
 
-## Account & onboarding workflows
+## createPayoutAccountWorkflow
 
-| Workflow | Input | Purpose |
+Creates a payout account for a seller through the provider and links it to the seller. Workflow id `create-payout-account-for-seller`.
+
+| Input | Type | Description |
 | --- | --- | --- |
-| `createPayoutAccountWorkflow` | `{ seller_id, data?, context? }` | Create a payout account, call the provider, link it to the store |
-| `createOnboardingWorkflow` | `{ account_id, data?, context? }` | Create or update the account's onboarding record via the provider |
+| `seller_id` | `string` | Seller to create the account for |
+| `data` | `Record<string, unknown>`, optional | Passed to the provider; Stripe Connect needs `country` |
+| `context` | `PayoutProviderContext`, optional | Provider context, such as `idempotency_key` |
 
-## Payout workflows
+Steps, in order:
 
-| Workflow | Input | Purpose |
+1. `validate-seller-payout-account`: fails with `Seller already has a payout account` when a `seller_payout_account` row exists
+2. `create-payout-account`: calls the service’s `createPayoutAccount`
+3. `create-remote-links`: links the seller and the account
+
+Returns the `PayoutAccountDTO`. Exposes no hooks.
+
+## createOnboardingWorkflow
+
+Creates or updates the onboarding record for a payout account through the provider. Workflow id `create-onboarding`.
+
+| Input | Type | Description |
 | --- | --- | --- |
-| `createPayoutWorkflow` | `{ order_id }` | Compute the seller's share (total − commission) and initiate a transfer |
-| `processPayoutForWebhookWorkflow` | `PayoutWebhookResult` | Apply a provider webhook to account or payout status |
+| `account_id` | `string` | The `pacc` id |
+| `data` | `Record<string, unknown>`, optional | Merged over the account’s `data`; Stripe Connect needs `refresh_url` and `return_url` |
+| `context` | `PayoutProviderContext`, optional | Provider context, stored on the record |
+
+It runs one step, `create-onboarding`, and returns the `OnboardingDTO`. Exposes no hooks.
+
+## createPayoutWorkflow
+
+Pays the seller’s share of one order through the provider. Workflow id `create-payout`, exported as `createPayoutWorkflowId`.
+
+```ts
+const { result } = await createPayoutWorkflow(container).run({
+  input: { order_id: "order_01JD8Q1234567" },
+})
+```
+
+Steps, in order:
+
+1. `fetch-order`: loads `total`, `currency_code`, `seller.payout_account`, items, and shipping methods
+2. `fetch-commission-lines`: loads the `commission_line` rows for those items and shipping methods
+3. `create-payout-step`: creates the payout for `total` minus the commission sum, with the order id as `context.idempotency_key`
+4. `create-remote-links`: links the payout to the seller
+
+It throws `Seller does not have a payout account` when the seller has none. Returns the `PayoutDTO`.
+
+| Hook | Payload | Use it to |
+| --- | --- | --- |
+| `payoutCreated` | `{ order_id, payout_id }` | Link the payout to the order, notify the seller, or sync a ledger |
+
+## processPayoutForWebhookWorkflow
+
+Applies a parsed provider webhook to an account or a payout. Workflow id `process-payout-for-webhook`, exported as `processPayoutForWebhookWorkflowId`. Its input is a `PayoutWebhookResult`: an `action` and an optional `data.id`.
+
+| Action | Step name | Effect |
+| --- | --- | --- |
+| `account.activated` | `activate-payout-account` | Account `status` to `active` |
+| `account.restricted` | `restrict-payout-account` | Account `status` to `restricted` |
+| `account.rejected` | `reject-payout-account` | Account `status` to `rejected` |
+| `payout.processing` | `processing-payout` | Payout `status` to `processing` |
+| `payout.paid` | `paid-payout` | Payout `status` to `paid` |
+| `payout.failed` | `failed-payout` | Payout `status` to `failed` |
+| `payout.canceled` | `canceled-payout` | Payout `status` to `canceled` |
+
+Each branch runs only when `data.id` is set. `not_supported` runs no step. Returns nothing and exposes no hooks.
+
+## Steps
+
+You can compose these steps into your own workflows:
+
+| Step | Id | Compensation |
+| --- | --- | --- |
+| `validateSellerPayoutAccountStep` | `validate-seller-payout-account` | None |
+| `createPayoutAccountStep` | `create-payout-account` | None |
+| `createOnboardingStep` | `create-onboarding` | None |
+| `createPayoutStep` | `create-payout-step` | None |
+| `updatePayoutAccountStep` | `update-payout-account-step` | Restores the previous status |
+| `updatePayoutStep` | `update-payout-step` | Restores the previous status |
 
 <Note>
-  `createPayoutWorkflow` reads the order with its seller, payout account, and
-  commission lines, then uses the order id as the transfer's idempotency key so
-  a re-run never double-pays.
+  The create steps have no compensation. If a later step fails, the account, onboarding record, or payout stays, and the provider-side object stays too. The service only deletes a new row when the provider call itself throws.
 </Note>
-
-To work with records directly instead of through a workflow, see the
-[Service reference](/platform/payout/reference/service). For the events that
-drive these workflows, see the [Event reference](/platform/payout/reference/events).

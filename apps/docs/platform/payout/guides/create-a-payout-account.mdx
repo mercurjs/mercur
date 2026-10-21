@@ -1,59 +1,83 @@
 ---
-title: "Create a payout account"
+title: "Create a payout account for a seller"
 sidebarTitle: "Create a payout account"
-description: "Create a seller's payout account with createPayoutAccountWorkflow."
+description: "Run createPayoutAccountWorkflow from your own route to connect a seller to the payout provider."
 ---
 
-In this guide, you'll learn how to create a payout account for a seller from your
-own server code. This is useful in an onboarding flow or a custom API route.
+Create a seller’s payout account from server code, for example in an operator route or a custom signup flow. The Vendor API already does this for sellers at `POST /vendor/payout-accounts`.
 
-Mercur exposes a `createPayoutAccountWorkflow` that persists the `PayoutAccount`,
-calls the configured provider to create the connected account, and links the
-account to the store. Run it from any place that has access to the Medusa
-container.
+## Before you begin
 
-## Run the workflow
+You need:
 
-```ts title="src/api/custom/payout-account/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { createPayoutAccountWorkflow } from "@mercurjs/core/workflows"
+- A seller id, such as `sel_01JD8Q1234567`
+- A payout provider. Without one, the `system` provider creates accounts that are `active` at once
+- For Stripe Connect, `@mercurjs/payout-stripe-connect` registered on the payout module, as in the [Stripe Connect integration](/resources/integrations/stripe-connect)
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  const { result } = await createPayoutAccountWorkflow(req.scope).run({
-    input: {
-      seller_id: req.params.id,
-    },
-  })
+## Create the account
 
-  res.status(201).json({ payout_account: result })
-}
-```
+<Steps>
+  <Step title="Add a route that runs the workflow">
+    Create an admin route that takes the seller id from the path and the provider data from the body:
 
-The new account starts in `PENDING` and can't receive payouts until the provider
-marks it `ACTIVE`. See [Start onboarding](/platform/payout/guides/start-provider-onboarding).
+    ```ts title="src/api/admin/payout-setup/[id]/route.ts"
+    import type {
+      AuthenticatedMedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import { createPayoutAccountWorkflow } from "@mercurjs/core/workflows"
 
-<Note>
-  A seller can have **only one** payout account. The workflow validates this
-  first and fails if the store already has one.
-</Note>
+    type Body = { country: string }
 
-## Forward provider data
+    export async function POST(
+      req: AuthenticatedMedusaRequest<Body>,
+      res: MedusaResponse
+    ) {
+      const { result } = await createPayoutAccountWorkflow(req.scope).run({
+        input: {
+          seller_id: req.params.id,
+          data: { country: req.body.country },
+        },
+      })
 
-The workflow accepts `data` and `context` payloads that are passed straight to
-the provider when it creates the connected account. Use them to hand the
-provider anything it needs up front.
+      res.status(201).json({ payout_account: { id: result.id } })
+    }
+    ```
+
+    The workflow validates the seller has no account, creates it through the provider, and links it to the seller. The response returns only the id, because `result.data` holds the full provider object.
+  </Step>
+  <Step title="Call the route">
+    Send the seller’s country. Stripe Connect requires `country` and throws `"country" is required` without it:
+
+    ```bash
+    curl -X POST http://localhost:9000/admin/payout-setup/sel_01JD8Q1234567 \
+      -H "Authorization: Bearer your_admin_token" \
+      -H "Content-Type: application/json" \
+      -d '{ "country": "US" }'
+    ```
+
+    With Stripe Connect, the new account is `pending` and its `data` holds the Express account Stripe created.
+  </Step>
+</Steps>
+
+## Handle a seller that already has an account
+
+`validateSellerPayoutAccountStep` runs first and throws a `MedusaError` of type `INVALID_DATA` with the message `Seller already has a payout account`. Medusa returns it as a `400`. To reuse the existing account instead, look it up through the seller link:
 
 ```ts
-await createPayoutAccountWorkflow(req.scope).run({
-  input: {
-    seller_id: "sel_123",
-    context: { idempotency_key: "sel_123" },
-    data: { business_type: "company" },
-  },
+const { data: [seller] } = await query.graph({
+  entity: "seller",
+  fields: ["id", "payout_account.id", "payout_account.status"],
+  filters: { id: "sel_01JD8Q1234567" },
 })
 ```
 
-<Warning>
-  If the provider call fails after the record is created, the workflow rolls the
-  account back so you don't leave a dangling `PayoutAccount` behind.
-</Warning>
+## What happens when the provider call fails
+
+The module creates the `PayoutAccount` row before it calls the provider. If the provider throws, the module deletes that row and rethrows, so no orphaned account is left. The provider receives the new `pacc` id as `data.account_id` and as the default `context.idempotency_key`. Stripe Connect stores that id in the Stripe account’s `metadata.account_id`, which is how webhooks find the account later.
+
+## Next steps
+
+- [Start provider onboarding](/platform/payout/guides/start-provider-onboarding) so the seller can finish setup
+- [Account lifecycle](/platform/payout/concepts/account-lifecycle) for how the account becomes `active`
+- [Workflows reference](/platform/payout/reference/workflows) for the steps inside this workflow

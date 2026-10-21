@@ -1,20 +1,24 @@
 ---
-title: "Variant axes"
+title: "Variant axes and product options"
 sidebarTitle: "Variant axes"
-description: "How is_variant_axis mirrors a native ProductOption and generates variants."
+description: "How a multi_select axis attribute mirrors a native Medusa ProductOption, and how products pick a subset of its values."
 ---
 
-In this document, you'll learn how an attribute becomes the axis a product's
-variants are generated from, and the mirror links that keep the two in sync.
+A variant axis is a `multi_select` attribute that a product varies along, such as Size or Color. Mercur doesn’t invent its own variant system: each axis is backed by a native Medusa `ProductOption`, so variants, carts, and orders keep working the way Medusa expects while operators manage sizes and colors as catalog attributes.
 
-## Variant-axis attribute
+<img className="block dark:hidden" src="/images/figures/attribute-variant-axis-light.svg" alt="The Size axis attribute maps each value to a Medusa option value, S to optval_01JD8Q1 and so on, and the Linen shirt selects only S and M, so its variants behind it are S and M." />
+<img className="hidden dark:block" src="/images/figures/attribute-variant-axis-dark.svg" alt="The Size axis attribute maps each value to a Medusa option value, S to optval_01JD8Q1 and so on, and the Linen shirt selects only S and M, so its variants behind it are S and M." />
 
-A `multi_select` attribute marked `is_variant_axis` is more than a descriptor.
-It defines a dimension along which a product varies, such as Size or Color. When
-such an attribute is created, the `ProductAttribute` model records the id of a native
-Medusa `ProductOption` in its `product_option_id` field, and each of its
-`ProductAttributeValue`s records the matching `ProductOptionValue` id in
-`product_option_value_id`.
+## The option mirror
+
+When you create a `multi_select` attribute with `is_variant_axis: true`, `createProductAttributesWorkflow` first creates a Medusa `ProductOption` (id prefix `opt`) titled with the attribute’s name. It then stores the option’s id on the attribute and each option value’s id on the matching attribute value.
+
+| Attribute side | Field | Medusa side |
+| --- | --- | --- |
+| `ProductAttribute` | `product_option_id` | `ProductOption` |
+| `ProductAttributeValue` | `product_option_value_id` | `ProductOptionValue` (id prefix `optval`) |
+
+The workflows keep the two sides in step. Renaming the attribute renames the option, and adding, renaming, or deleting values rewrites the option’s value list. Deleting the attribute deletes the option.
 
 ```ts
 await createProductAttributesWorkflow(container).run({
@@ -22,7 +26,7 @@ await createProductAttributesWorkflow(container).run({
     attributes: [
       {
         name: "Size",
-        type: "multi_select",
+        type: AttributeType.MULTI_SELECT,
         is_variant_axis: true,
         values: [{ name: "S" }, { name: "M" }, { name: "L" }],
       },
@@ -31,31 +35,49 @@ await createProductAttributesWorkflow(container).run({
 })
 ```
 
-Because the attribute mirrors a real `ProductOption`, the values a product
-selects along that axis are exactly what Medusa uses to generate its variants.
+This run creates the `Size` attribute, a global `Size` option with values `S`, `M`, and `L`, and three attribute values pointing at those option values.
 
-## Mirror links
+## Global options and exclusive options
 
-The attribute catalog and Medusa's product options are two separate modules, so
-the relationship is kept as a pair of **read-only mirror links**:
+Since Medusa 2.16, a product option can be shared by several products, and products attach to it. Mercur uses both kinds of option Medusa offers:
 
-| Mirror | FK on the attribute side | Points to |
-| --- | --- | --- |
-| Attribute → option | `ProductAttribute.product_option_id` | `ProductOption` |
-| Value → option value | `ProductAttributeValue.product_option_value_id` | `ProductOptionValue` |
+| Axis | Option created | `is_exclusive` | Shared by |
+| --- | --- | --- | --- |
+| Global axis attribute | When the attribute is created | `false` | Every product that attaches the axis |
+| Inline axis attribute | When it’s added to one product | `true` | Only that product |
 
-Both are 1:1 and have no pivot table. The foreign key lives on the attribute
-record itself.
+Medusa keeps titles of non-exclusive options unique, so two global axis attributes can’t share a name. Inline axes use exclusive options, so two products can each have their own “Cut” axis.
+
+## A product picks a subset of values
+
+A global axis holds every value the marketplace supports, but one product rarely uses all of them. When you attach the axis with `value_ids`, the workflow links the option to the product with only the matching option values, and it also links those attribute values to the product through the pivot link.
+
+```ts
+await createAndLinkProductAttributesToProductWorkflow(container).run({
+  input: {
+    product_id: "prod_01JD8Q1234567",
+    add: [
+      {
+        id: "pattr_01JD8Q1234567",
+        value_ids: ["pattrval_01JD8Q1234567", "pattrval_01JD8Q1234568"],
+      },
+    ],
+  },
+})
+```
+
+The product now has the `Size` option restricted to two values. You change the subset later with an `update` entry. The workflow moves the option values and the pivot links together.
+
+## Variants bind to the option by title
+
+Attaching an axis doesn’t create variants. You create variants yourself, and each one names its option values by option title, for example `options: { Size: "M" }`. Mercur’s `createProductsWorkflow` takes `attributes` and `variants` together, attaches the axes first, and then creates the variants against them.
 
 <Note>
-  The mirror links are **read-only**. They're resolved from the FK on the
-  attribute record; you never write the relationship through the link. The
-  workflows keep the option and the attribute in step whenever an axis attribute
-  or its values change.
+  A product with no axis still needs an option for Medusa to accept variants. `createProductsWorkflow` gives every new product a placeholder `__default__` option and removes it once a real axis is attached.
 </Note>
 
-<Tip>
-  Only `multi_select` attributes can be variant axes. The other four types
-  (`single_select`, `text`, `unit`, `toggle`) describe a product but never
-  generate variants.
-</Tip>
+## Related
+
+- [Create a variant axis and build variants on it](/platform/attribute/guides/create-a-variant-axis)
+- [The read-only mirror links](/platform/attribute/reference/links)
+- [Global and inline attributes](/platform/attribute/concepts/global-vs-inline)
