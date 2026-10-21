@@ -378,6 +378,29 @@ medusaIntegrationTestRunner({
           expect(listed.currency_code).toEqual("usd")
         })
 
+        it("should not expose a payout to another seller", async () => {
+          const order = await placeOrder(1)
+          const payout = (
+            await createPayoutWorkflow(appContainer).run({
+              input: { order_id: order.id },
+            })
+          ).result
+
+          const other = await createSellerUser(appContainer, {
+            email: "other-payout-seller@test.com",
+            name: "Other Payout Seller",
+          })
+
+          const asOther = await api.get(`/vendor/payouts`, other.headers)
+          expect(asOther.status).toEqual(200)
+          expect(asOther.data.payouts.map((p: any) => p.id)).not.toContain(payout.id)
+          expect(asOther.data.count).toEqual(0)
+
+          const asOwner = await api.get(`/vendor/payouts`, sellerHeaders)
+          expect(asOwner.data.payouts.map((p: any) => p.id)).toContain(payout.id)
+          expect(asOwner.data.count).toEqual(1)
+        })
+
         it("should reject creating a payout for a non-existent order", async () => {
           const { errors } = await createPayoutWorkflow(appContainer).run({
             input: { order_id: "order_does_not_exist" },

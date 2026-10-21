@@ -1,6 +1,7 @@
 import {
   ContainerRegistrationKeys,
   MedusaError,
+  promiseAll,
 } from "@medusajs/framework/utils"
 import type { MedusaContainer } from "@medusajs/framework/types"
 import { ProductChangeActionType } from "@mercurjs/types"
@@ -26,15 +27,14 @@ export const getSellerOwnedProductIds = async (
     },
   })
 
-  return actions
-    .map(action => action.product_id)
+  return actions.map((action) => action.product_id)
 }
 
 /**
  * Product ids that are restricted (have at least one `product_seller` row) but
  * NOT assigned to this seller — i.e. restricted to other sellers, so they must
  * be hidden from this seller's product list. Pass `productIds` to scope the
- * check to a known set instead of scanning every link.
+ * check to a known set; without it only the rows of other sellers are read.
  */
 export const getProductIdsRestrictedFromSeller = async (
   scope: MedusaContainer,
@@ -46,29 +46,32 @@ export const getProductIdsRestrictedFromSeller = async (
   }
 
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
+  const productScope = productIds ? { product_id: productIds } : {}
 
-  const { data: links } = await query.graph({
-    entity: "product_seller",
-    fields: ["product_id", "seller_id"],
-    ...(productIds ? { filters: { product_id: productIds } } : {}),
-  })
+  const [{ data: otherSellerLinks }, { data: ownLinks }] = await promiseAll([
+    query.graph({
+      entity: "product_seller",
+      fields: ["product_id"],
+      filters: { seller_id: { $ne: sellerId }, ...productScope },
+    }),
+    query.graph({
+      entity: "product_seller",
+      fields: ["product_id"],
+      filters: { seller_id: sellerId, ...productScope },
+    }),
+  ])
 
-  const assigned = new Set<string>()
+  const assigned = new Set(
+    (ownLinks as { product_id: string | null }[]).map((link) => link.product_id)
+  )
   const restricted = new Set<string>()
-  for (const link of links as {
-    product_id: string | null
-    seller_id: string | null
-  }[]) {
-    if (!link.product_id) {
-      continue
-    }
-    restricted.add(link.product_id)
-    if (link.seller_id === sellerId) {
-      assigned.add(link.product_id)
+  for (const link of otherSellerLinks as { product_id: string | null }[]) {
+    if (link.product_id && !assigned.has(link.product_id)) {
+      restricted.add(link.product_id)
     }
   }
 
-  return Array.from(restricted).filter((id) => !assigned.has(id))
+  return Array.from(restricted)
 }
 
 export const getProductStatus = async (

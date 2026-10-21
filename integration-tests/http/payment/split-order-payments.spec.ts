@@ -223,6 +223,28 @@ medusaIntegrationTestRunner({
                 })
             }
 
+            describe("vendor list", () => {
+                it("lists only the payments of the caller's own orders", async () => {
+                    const { orderA, orderB } = await checkoutBothSellers()
+                    await captureEverything(orderA, orderB)
+
+                    const paymentA = await orderPayment(orderA)
+                    const paymentB = await orderPayment(orderB)
+
+                    const asA = await api.get(`/vendor/payments`, sellerA.headers)
+                    expect(asA.status).toEqual(200)
+                    const idsA = asA.data.payments.map((p: any) => p.id)
+                    expect(idsA).toContain(paymentA.id)
+                    expect(idsA).not.toContain(paymentB.id)
+                    expect(asA.data.count).toEqual(1)
+
+                    const asB = await api.get(`/vendor/payments`, sellerB.headers)
+                    const idsB = asB.data.payments.map((p: any) => p.id)
+                    expect(idsB).toContain(paymentB.id)
+                    expect(idsB).not.toContain(paymentA.id)
+                })
+            })
+
             describe("vendor capture", () => {
                 it("does not let a seller capture the shared payment of a multi-seller cart", async () => {
                     const { orderA, orderB } = await checkoutBothSellers()

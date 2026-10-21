@@ -1,9 +1,5 @@
-import { requirePermission } from "../../utils"
+import { applySellerLinkFilter, requirePermission } from "../../utils"
 import {
-  AuthenticatedMedusaRequest,
-  maybeApplyLinkFilter,
-  MedusaNextFunction,
-  MedusaResponse,
   MiddlewareRoute,
 } from "@medusajs/framework/http"
 import {
@@ -25,19 +21,7 @@ import {
 } from "./validators"
 import { createBatchBody } from "@medusajs/medusa/api/utils/validators"
 
-const applySellerPromotionLinkFilter = (
-  req: AuthenticatedMedusaRequest,
-  res: MedusaResponse,
-  next: MedusaNextFunction
-) => {
-  req.filterableFields.seller_id = req.seller_context!.seller_id
-
-  return maybeApplyLinkFilter({
-    entryPoint: "promotion_seller",
-    resourceId: "promotion_id",
-    filterableField: "seller_id",
-  })(req, res, next)
-}
+const applySellerPromotionLinkFilter = applySellerLinkFilter()
 
 export const vendorPromotionsMiddlewares: MiddlewareRoute[] = [
   {
