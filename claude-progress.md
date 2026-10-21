@@ -14,6 +14,18 @@ session detail aggressively. The per-spec source of truth lives in
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
 
+## Session — Core hot-path performance (2026-10-21), branch `perf/core-hot-path-optimizations`, PR #1677
+
+Technique catalog from the Medusa source in `docs/PERFORMANCE.md` (section 4 lists what this branch
+applied, section 5 the remaining checklist). Fixed: checkout lock timeout/ttl/retention passed in ms
+instead of s; cart lock skipped on the webhook-driven completion path; commission rates loaded once per
+checkout via `getCommissionLinesBatch`; vendor single-product scoping no longer scans `product_seller`;
+cache opt-in on reference reads; order-group SQL soft-delete joins; composite partial indexes on
+order_group/offer/payout/review/commission_rule (+ migrations). Verified locally: core tsc, unit specs
+4/4, `commission-rates/admin/(commission-providers|commission-calculation)` 15/15; other suites on CI.
+Gotcha: the order module decorates totals only when a top-level total field (e.g. `subtotal`) is
+selected, and needs `items.*` to derive line totals. Follow-ups listed in the PR body.
+
 ## Session — Dashboard extensions, OS deltas D-001…D-005 (2026-10-20), branch `feat/dashboard-layout-composer`
 
 Spec: `docs/specs/spec-dashboard-extensions/` (local; `docs/specs` is gitignored), `in_progress`. PR #1674.
