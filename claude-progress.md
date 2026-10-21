@@ -33,8 +33,11 @@ shipping, `pp_external_external` session, complete).
   findings: writes go through workflows with compensation and refetch, validation step instead of throw in
   transform, service under `services/` with `IMagentoWebhookModuleService`, generated migration, typed
   responses, strict validators. Gate clean on plugin files; specs 10/10 after the refactor.
-- Next: Part B (Composer package in `mercurjs/magento2-connector`), dashboard Channel column/filter,
-  roles preset once a roles module exists.
+- Part B pushed: github.com/mercurjs/magento2-connector (`mercurjs/magento2-connector` Composer package,
+  modules Core/Process/Connector/OfferIndexer/Catalog/Settlement/Frontend/GraphQl). Lint + 13 unit tests
+  green locally via a static PHP binary in the scratchpad (Homebrew PHP won't build on this macOS). Not
+  yet run on a Magento install.
+- Next: dashboard Channel column/filter, roles preset once a roles module exists, Magento end-to-end run.
 
 ## Session — Core hot-path performance (2026-10-21), branch `perf/core-hot-path-optimizations`, PR #1677
 
