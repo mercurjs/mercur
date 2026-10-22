@@ -14,6 +14,35 @@ session detail aggressively. The per-spec source of truth lives in
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
 
+## Session — Magento connector hardening sweep (2026-10-22), branches `feat/magento-external-payment-capture` (this repo) + `feat/checkout-orders-indexer-platform` (magento2-connector)
+
+Audited `mercurjs/magento2-connector` v0.2.0 for checkout, order, indexing and platform gaps and
+closed the ones that were in scope (user cut: no import/taxonomy/operator-export work, nothing without a Mercur
+backend). This repo: the external payment provider now authorizes at checkout and captures through
+`POST /admin/magento/order-groups/:id/payments/capture` (plus `/cancel`); core's `payment.captured` subscriber
+does the split. `external-payment.spec.ts` grew to 12 cases; `magento2-connector` suites 17/17, plugin+core
+build green. Connector: shipping-quote failure blocks checkout, cart rules exclude seller lines, seller shipping
+taxed, real billing address + customer metadata, price-change/auto-remove notices, cart configure keeps the
+offer, guest-merge reset, sync hash cache, status-gated post-commit order send, capture on invoice, offer-id line
+matching, seller refusal status, admin Send/Capture/Resync buttons, offer-sync robustness, real `mercur_offer_product`
+indexer with mview + configurable roll-up, stock/search plugins keeping offered SKUs salable, listing price
+plugin, configurable-page mixins, process runner locking/retry/timeout/admin actions, API client retries +
+logging + test button, per-store config scope, 12 extension events, webhook idempotency. Verified statically
+only (static PHP 8.3: lint, PHPStan L1, 84 unit tests, XSD validation); no Magento install, so runtime
+unverified. Unverifiable locally: MSI and swatch plugin targets (modules absent from vendor).
+
+## Session — Stripe connector spec (2026-10-22), branch `feat/magento2-connector`
+
+Wrote `docs/specs/spec-stripe-connector/` (enterprise-style folder: `brief.md`, `research.md`, `blueprint.md`,
+`assert.md`, `removals.md`, `deltas/example.md`; replaces the earlier single-file SPEC-004). Part A makes the core `payout`
+module provider-agnostic in the shape of Medusa's payment module (N providers via a `pop_<id>` registry,
+`IPayoutProvider` with account/onboarding/transfer/reversal/payout/webhook methods, new `transfer`,
+`settlement`, `adjustment`, `payout_checkpoint` models, seven scheduled jobs on the connector's crontab,
+workflows, admin/vendor routes, generic pages). Part B is `packages/plugins/stripe-connector` with two adapters
+only (Medusa payment provider + Mercur payout provider) plus a vendor "Stripe" page. Part C deletes
+`packages/providers`. Connector checkout lives in the session scratchpad. No code written yet; SPEC-003 stays
+the only `in_progress` spec.
+
 ## Session — Medusa 2.22.0 upgrade (2026-10-22), branch `chore/medusa-2-22`
 
 Every `@medusajs/*` pin moved 2.21.2 → 2.22.0 and every peer range `>=2.21.0` → `>=2.22.0` (packages,

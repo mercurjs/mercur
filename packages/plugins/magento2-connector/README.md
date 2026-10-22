@@ -49,8 +49,17 @@ Run `medusa db:migrate` afterwards.
    `POST /store/carts/:id/shipping-methods` per seller.
 5. `POST /store/payment-collections` and
    `POST /store/payment-collections/:id/payment-sessions` with
-   `{ provider_id: "pp_external_external", data: { reference, captured_at, channel } }`.
+   `{ provider_id: "pp_external_external", data: { reference, channel } }`.
+   The session is authorized, not captured. Pass `captured_at` only when the
+   storefront already settled the payment.
 6. `POST /store/carts/:id/complete`.
+7. When the storefront invoices the order,
+   `POST /admin/magento/order-groups/:id/payments/capture` (optional
+   `{ reference }`). Mercur captures the cart payment once, splits it between
+   the child orders, and emits `order.payment_captured`. Calling it again is a
+   no-op. If the storefront cancels before invoicing,
+   `POST /admin/magento/order-groups/:id/payments/cancel` cancels every child
+   order and voids the authorization.
 
 Put `metadata.channel` on the cart in step 1; it is copied onto the order
 group and every child order.
