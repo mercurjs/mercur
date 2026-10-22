@@ -1,0 +1,91 @@
+{
+  "name": "@mercurjs/payout-spraay",
+  "version": "0.1.0",
+  "description": "Spraay noncustodial batch payout provider for Mercur — USDC on Base via the Spraay protocol",
+  "private": true,
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mercurjs/mercur",
+    "directory": "packages/providers/payout-spraay"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "author": "Plagtech",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./amounts": {
+      "import": {
+        "types": "./dist/amounts.d.ts",
+        "default": "./dist/amounts.js"
+      },
+      "require": {
+        "types": "./dist/amounts.d.cts",
+        "default": "./dist/amounts.cjs"
+      }
+    },
+    "./chain/*": {
+      "import": {
+        "types": "./dist/chain/*.d.ts",
+        "default": "./dist/chain/*.js"
+      },
+      "require": {
+        "types": "./dist/chain/*.d.cts",
+        "default": "./dist/chain/*.cjs"
+      }
+    },
+    "./gateway/*": {
+      "import": {
+        "types": "./dist/gateway/*.d.ts",
+        "default": "./dist/gateway/*.js"
+      },
+      "require": {
+        "types": "./dist/gateway/*.d.cts",
+        "default": "./dist/gateway/*.cjs"
+      }
+    }
+  },
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "test": "jest --runInBand",
+    "test:fork": "SPRAAY_FORK_RPC_URL=${SPRAAY_FORK_RPC_URL:-http://127.0.0.1:8545} jest --runInBand --testPathPatterns=fork"
+  },
+  "peerDependencies": {
+    "@medusajs/framework": ">=2.21.0"
+  },
+  "devDependencies": {
+    "@medusajs/framework": "2.21.2",
+    "@mercurjs/types": "2.3.8-canary.1",
+    "@swc/core": "^1.7.28",
+    "@swc/jest": "^0.2.36",
+    "@types/jest": "^30.0.0",
+    "jest": "^30.4.2",
+    "tsup": "^8.5.0"
+  },
+  "dependencies": {
+    "viem": "^2.21.0"
+  },
+  "keywords": [
+    "medusa-plugin",
+    "medusa-plugin-payment",
+    "spraay",
+    "batch-payout",
+    "usdc",
+    "base"
+  ]
+}

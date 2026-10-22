@@ -29,6 +29,7 @@
     "react-jwt": "^2.1.1"
   },
   "devDependencies": {
+    "@acme/api": "*",
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.2.25",
     "@types/jsonwebtoken": "^9.0.9",

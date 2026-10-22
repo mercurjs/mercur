@@ -3,5 +3,114 @@
     "title": "Custom Fields",
     "description": "Manage your custom fields and configurations",
     "noFields": "No custom fields configured yet"
+  },
+  "spraay": {
+    "domain": "Spraay batches",
+    "subtitle": "USDC payouts on Base, batched into one Spraay transaction and signed by the treasury",
+    "status": {
+      "assembling": "Assembling",
+      "awaiting_signature": "Awaiting signature",
+      "broadcasting": "Broadcasting",
+      "confirming": "Confirming",
+      "settled": "Settled",
+      "failed": "Failed",
+      "expired": "Expired",
+      "canceled": "Canceled"
+    },
+    "fields": {
+      "batch": "Batch",
+      "recipients": "Recipients",
+      "total": "Total",
+      "txHash": "Transaction",
+      "treasury": "Treasury",
+      "feeEstimated": "Protocol fee (estimated)",
+      "feeSettled": "Protocol fee (settled)",
+      "block": "Block",
+      "payout": "Payout",
+      "wallet": "Wallet",
+      "amount": "Amount"
+    },
+    "actions": {
+      "trigger": "Run aggregation",
+      "triggering": "Running…",
+      "cancel": "Cancel batch",
+      "prepare": "Prepare transaction",
+      "submitSigned": "Submit signed transaction",
+      "copyRequest": "Copy signing request"
+    },
+    "list": {
+      "emptyHeading": "No batches yet",
+      "emptyDescription": "Pending Spraay payouts are batched every 15 minutes once at least two are waiting."
+    },
+    "detail": {
+      "title": "Batch {{id}}",
+      "heldTitle": "Payouts are held",
+      "heldDescription": "A transaction for this batch was handed out at treasury nonce {{nonce}} and could still execute. Its payouts are released for rebatching automatically once that nonce is used by another transaction."
+    },
+    "transaction": {
+      "title": "Transaction",
+      "subtitle": "Unsigned transaction returned by the Spraay gateway and checked against this batch",
+      "to": "Contract",
+      "chainId": "Chain ID",
+      "nonce": "Nonce",
+      "gas": "Gas limit",
+      "value": "Value (wei)",
+      "calldata": "Calldata",
+      "copyHint": "Sign this exact request with the treasury wallet, then submit the raw signed transaction. Do not broadcast it yourself.",
+      "confirming": "Broadcast. Payouts are marked paid after the transaction is verified on chain with {{count}} confirmations."
+    },
+    "prepare": {
+      "hint": "Request the unsigned transaction from the Spraay gateway. The treasury nonce is pinned when you do.",
+      "successToast": "Transaction prepared and ready to sign",
+      "approvalRequired": "The treasury must approve {{amount}} USDC for {{spender}} before this transaction can succeed."
+    },
+    "sign": {
+      "header": "Submit signed transaction",
+      "description": "Paste the raw transaction signed by the treasury wallet",
+      "hint": "The signature is checked against the approved signer, contract, calldata, chain, nonce and gas before it is broadcast.",
+      "label": "Signed transaction (raw hex)",
+      "submit": "Verify and broadcast",
+      "invalidHex": "Enter the raw signed transaction as 0x-prefixed hex",
+      "successToast": "Broadcast as {{hash}}",
+      "unavailable": "This batch is no longer awaiting a signature.",
+      "notPermitted": "Requires the spraay.sign permission, granted to treasury operators"
+    },
+    "cancel": {
+      "description": "Batch {{id}} will be canceled and its payouts released for the next batch.",
+      "descriptionPrepared": "Batch {{id}} will be canceled. Its transaction was already prepared at nonce {{nonce}}, so its payouts stay held until that nonce is used by another treasury transaction.",
+      "confirm": "Cancel batch",
+      "successReleased": "Batch canceled and payouts released",
+      "successHeld": "Batch canceled. Payouts are held until the pinned nonce is used."
+    },
+    "items": {
+      "title": "Recipients",
+      "subtitle": "Seller payouts included in this batch",
+      "released": "Released",
+      "inBatch": "In batch",
+      "empty": "This batch has no recipients"
+    },
+    "timeline": {
+      "title": "Timeline",
+      "assembled": "Assembled",
+      "signed": "Signed",
+      "broadcast": "Broadcast",
+      "settled": "Settled",
+      "expires": "Signing window closes"
+    },
+    "preflight": {
+      "title": "Treasury preflight",
+      "ready": "Ready",
+      "notReady": "Not ready",
+      "refresh": "Refresh",
+      "usdcBalance": "USDC balance",
+      "usdcAllowance": "USDC allowance",
+      "required": "Needed for open batches",
+      "ethBalance": "ETH for gas",
+      "contract": "Spraay contract",
+      "paused": "Paused",
+      "active": "Active, fee {{bps}} bps",
+      "chain": "Chain",
+      "chainValue": "{{chainId}} at block {{block}}"
+    }
   }
 }
