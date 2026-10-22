@@ -150,7 +150,11 @@ export function createClient(options: ClientOptions) {
                 };
                 if (response.status === 401) {
                     const message = jsonError.message ?? response.statusText;
-                    onUnauthorized ? onUnauthorized({ status: 401, message }) : clearAuthStores(auth);
+                    if (onUnauthorized) {
+                        onUnauthorized({ status: 401, message });
+                    } else {
+                        clearAuthStores(auth);
+                    }
                 }
                 throw new ClientError(
                     jsonError.message ?? response.statusText,
