@@ -43,12 +43,15 @@ The integration has two halves:
     ```
 
     Run `medusa db:migrate` afterwards. The provider is registered as `pp_external_external`; it records a payment Magento already captured instead of charging anyone.
+
+    Then enable it for the region your Magento website sells in: open the region in the Mercur admin and add **pp_external_external** to its payment providers. The shadow cart cannot complete without it.
   </Step>
   <Step title="Install the Magento package">
-    In your Magento root:
+    In your Magento root. The package is installed from its Git repository until it is published to Packagist, so add the repository first:
 
     ```bash
-    composer require mercurjs/magento2-connector
+    composer config repositories.mercur vcs https://github.com/mercurjs/magento2-connector
+    composer require mercurjs/magento2-connector:dev-main
     bin/magento module:enable Mercur_Core Mercur_Process Mercur_Connector \
       Mercur_OfferIndexer Mercur_Catalog Mercur_Settlement Mercur_Frontend Mercur_GraphQl
     bin/magento setup:upgrade
@@ -59,7 +62,7 @@ The integration has two halves:
   <Step title="Get API details">
     You need four values from Mercur:
 
-    - **Admin API key**: create a secret API key under **Settings → API keys** and bind it to a role that holds the `integrations` permission
+    - **Admin API key**: create a secret API key under **Settings → API keys**. If your deployment runs a roles module, bind it to a role that holds only the `integrations` permission; without one the key has full admin access, so treat it like an admin password
     - **Publishable API key**: the publishable key of the sales channel the shadow cart is created in
     - **Sales channel ID** and **Region ID**: the channel and the region whose prices the Magento website shows, one region per website
   </Step>
