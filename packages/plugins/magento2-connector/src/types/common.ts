@@ -20,16 +20,30 @@ export const MAGENTO_WEBHOOK_EVENTS = [
   "order.updated",
   "order.canceled",
   "order.fulfillment_created",
+  "order.fulfillment_canceled",
   "order.shipment_created",
+  "shipment.created",
+  "delivery.created",
+  "order.return_requested",
+  "order.return_received",
   "order.refund_recorded",
+  "order.refund_requested",
 ] as const
+
+/**
+ * Medusa emits these with the fulfillment id as `data.id` and no order id.
+ */
+export const FULFILLMENT_SCOPED_EVENTS: readonly string[] = ["shipment.created", "delivery.created"]
 
 export type MagentoWebhookEvent = (typeof MAGENTO_WEBHOOK_EVENTS)[number]
 
 export const MagentoWebhookEvents = {
   DELIVERY_CREATED: "magento_webhook_delivery.created",
   REFUND_RECORDED: "order.refund_recorded",
+  REFUND_REQUESTED: "order.refund_requested",
 } as const
+
+export const EXTERNAL_REFUND_SOURCE = "external"
 
 export type MagentoWebhookDeliveryStatus = "pending" | "delivered" | "failed" | "dead"
 

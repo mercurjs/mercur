@@ -10,7 +10,7 @@ import {
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 
-import { MagentoWebhookEvents } from "../../../types"
+import { EXTERNAL_REFUND_SOURCE, MagentoWebhookEvents } from "../../../types"
 import { validateExternalPaymentStep } from "../steps"
 
 export type RecordExternalRefundWorkflowInput = {
@@ -58,6 +58,9 @@ export const recordExternalRefundWorkflow = createWorkflow(
         ? `${input.note ?? "External refund"} (${input.reference})`
         : input.note,
       created_by: input.created_by,
+      // Lets the refund-requested subscriber tell this refund apart from one
+      // a seller or operator starts in Mercur, which Magento must execute.
+      metadata: { source: EXTERNAL_REFUND_SOURCE, reference: input.reference ?? null },
     }))
 
     const payment = refundPaymentWorkflow.runAsStep({ input: refundInput })

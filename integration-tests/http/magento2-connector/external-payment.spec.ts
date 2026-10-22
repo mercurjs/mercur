@@ -182,6 +182,115 @@ medusaIntegrationTestRunner({
         }
       })
 
+      it("announces a refund started in Mercur as order.refund_requested, but not one recorded from Magento", async () => {
+        const receiver: WebhookReceiver = await startWebhookReceiver()
+        try {
+          await api.post(
+            `/admin/magento/webhooks`,
+            { url: receiver.url, events: ["order.refund_requested"] },
+            adminHeaders
+          )
+
+          const { orderGroup } = await checkout("MIR$000004")
+          const order = orderGroup.orders[0]
+
+          await waitFor(async () => {
+            const { data } = await api.get(
+              `/admin/orders/${order.id}?fields=id,payment_status`,
+              adminHeaders
+            )
+            return data.order.payment_status === "captured"
+          })
+
+          await api.post(
+            `/admin/magento/orders/${order.id}/refunds/external`,
+            { amount: 300, reference: "CM-2" },
+            adminHeaders
+          )
+
+          const { data } = await api.get(
+            `/admin/orders/${order.id}?fields=id,*payment_collections,*payment_collections.payments`,
+            adminHeaders
+          )
+          const payment = data.order.payment_collections
+            .flatMap((pc: any) => pc.payments)
+            .find((p: any) => p.provider_id === "pp_external_external")
+
+          const sellerHeaders = order.seller?.id === seedB.sellerId ? seedB.headers : seedA.headers
+          const refund = await api.post(
+            `/vendor/payments/${payment.id}/refund`,
+            { amount: 200, note: "Missing part" },
+            sellerHeaders
+          )
+          expect(refund.status).toEqual(200)
+
+          await waitFor(() => receiver.received.length > 0)
+          await new Promise((resolve) => setTimeout(resolve, 1500))
+
+          expect(receiver.received).toHaveLength(1)
+          const body = JSON.parse(receiver.received[0].body)
+          expect(body.event).toEqual("order.refund_requested")
+          expect(body.data).toEqual(
+            expect.objectContaining({
+              order_id: order.id,
+              payment_id: payment.id,
+              amount: 200,
+              note: "Missing part",
+            })
+          )
+          expect(body.data.refund_id).toMatch(/^ref/)
+        } finally {
+          await receiver.close()
+        }
+      })
+
+      it("adds the order id to shipment.created and delivery.created deliveries", async () => {
+        const receiver: WebhookReceiver = await startWebhookReceiver()
+        try {
+          await api.post(
+            `/admin/magento/webhooks`,
+            { url: receiver.url, events: ["shipment.created", "delivery.created"] },
+            adminHeaders
+          )
+
+          const { orderGroup } = await checkout("MIR$000005")
+          const order = orderGroup.orders[0]
+          const seed = order.seller?.id === seedB.sellerId ? seedB : seedA
+
+          const { data } = await api.get(`/vendor/orders/${order.id}?fields=*items`, seed.headers)
+          const items = data.order.items.map((item: any) => ({ id: item.id, quantity: item.quantity }))
+
+          const fulfillment = (
+            await api.post(
+              `/vendor/orders/${order.id}/fulfillments`,
+              { items, requires_shipping: true, location_id: seed.stockLocationId },
+              seed.headers
+            )
+          ).data.fulfillment
+          await api.post(
+            `/vendor/orders/${order.id}/fulfillments/${fulfillment.id}/shipments`,
+            { items },
+            seed.headers
+          )
+          await api.post(
+            `/vendor/orders/${order.id}/fulfillments/${fulfillment.id}/mark-as-delivered`,
+            {},
+            seed.headers
+          )
+
+          await waitFor(() => receiver.received.length >= 2)
+          const bodies = receiver.received.map((r) => JSON.parse(r.body))
+          expect(bodies.map((b) => b.event).sort()).toEqual(["delivery.created", "shipment.created"])
+          for (const body of bodies) {
+            expect(body.data).toEqual(
+              expect.objectContaining({ order_id: order.id, fulfillment_id: fulfillment.id })
+            )
+          }
+        } finally {
+          await receiver.close()
+        }
+      })
+
       it("refuses an external refund on an order without an external payment", async () => {
         const res = await api
           .post(

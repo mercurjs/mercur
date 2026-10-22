@@ -142,7 +142,7 @@ export const completeExternalCheckout = async (opts: {
   const { data: groups } = await query.graph({
     entity: "order_group",
     filters: { id: completed.order_group.id },
-    fields: ["id", "metadata", "orders.id", "orders.metadata"],
+    fields: ["id", "metadata", "orders.id", "orders.metadata", "orders.seller.id"],
   })
 
   return { cart, completed, orderGroup: groups[0] as any }

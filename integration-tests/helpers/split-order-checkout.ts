@@ -138,7 +138,7 @@ export const seedSellerOfferWithShipping = async (opts: {
         )
     ).data.offer
 
-    return { sellerId: result.seller.id, headers, offer }
+    return { sellerId: result.seller.id, headers, offer, stockLocationId: stockLocation.id }
 }
 
 type SplitOrderCheckoutOptions = {
