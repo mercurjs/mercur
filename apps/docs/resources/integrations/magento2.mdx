@@ -1,0 +1,134 @@
+---
+title: "Magento 2"
+sidebarTitle: "Magento 2"
+description: "Sell Mercur marketplace offers from a Magento 2 or Adobe Commerce store, next to the store's own products, with the Magento 2 connector."
+---
+
+The Magento 2 connector lets a store you already run sell marketplace offers next to its own catalog. Magento keeps the storefront, cart, checkout, payment capture and your first-party products. Mercur keeps sellers, their offers, the split of one checkout into one order per seller, commission lines and payouts.
+
+The integration has two halves:
+
+- **`@mercurjs/magento2-connector-plugin`**, a plugin for your Mercur API that adds outbound webhooks, an external payment provider and a few admin routes
+- **`mercurjs/magento2-connector`**, a Composer package of Magento modules that mirrors sellers and offers into Magento and talks to Mercur during checkout
+
+<Tip>
+  This page is the setup guide. The connector's source, module layout and development workflow live in the [magento2-connector repository](https://github.com/mercurjs/magento2-connector).
+</Tip>
+
+## Quick start
+
+<Steps>
+  <Step title="Install the plugin in Mercur">
+    Add the plugin and register its payment provider in `medusa-config.ts`:
+
+    ```ts
+    module.exports = withMercur({
+      plugins: [
+        { resolve: "@mercurjs/magento2-connector-plugin", options: {} },
+      ],
+      modules: [
+        {
+          resolve: "@medusajs/medusa/payment",
+          options: {
+            providers: [
+              {
+                resolve: "@mercurjs/magento2-connector-plugin/providers/payment-external",
+                id: "external",
+              },
+            ],
+          },
+        },
+      ],
+    })
+    ```
+
+    Run `medusa db:migrate` afterwards. The provider is registered as `pp_external_external`; it records a payment Magento already captured instead of charging anyone.
+  </Step>
+  <Step title="Install the Magento package">
+    In your Magento root:
+
+    ```bash
+    composer require mercurjs/magento2-connector
+    bin/magento module:enable Mercur_Core Mercur_Process Mercur_Connector \
+      Mercur_OfferIndexer Mercur_Catalog Mercur_Settlement Mercur_Frontend Mercur_GraphQl
+    bin/magento setup:upgrade
+    bin/magento setup:di:compile
+    bin/magento cache:flush
+    ```
+  </Step>
+  <Step title="Get API details">
+    You need four values from Mercur:
+
+    - **Admin API key**: create a secret API key under **Settings → API keys** and bind it to a role that holds the `integrations` permission
+    - **Publishable API key**: the publishable key of the sales channel the shadow cart is created in
+    - **Sales channel ID** and **Region ID**: the channel and the region whose prices the Magento website shows, one region per website
+  </Step>
+  <Step title="Connect Magento">
+    In Magento open **Stores → Configuration → Mercur → Marketplace** and enter the API URL and the four values above. Choose a best offer rule: lowest price, your own stock first, or premium sellers first.
+  </Step>
+  <Step title="Register the webhook">
+    In the Mercur admin open **Settings → Magento → Add endpoint**, enter `https://your_shop_domain/mercur/webhook`, select the offer, seller, product and order events, and copy the signing secret. It is shown once. Paste it into the Magento configuration under **Webhooks → Signing secret**.
+  </Step>
+  <Step title="Run the first sync">
+    Push your taxonomy, then mirror everything:
+
+    ```bash
+    bin/magento mercur:sync taxonomy
+    bin/magento mercur:sync full
+    ```
+
+    Cron keeps the mirror current afterwards: sellers every 15 minutes, offers every 5 minutes, published products hourly, a full resync every night. Each run is a process under **Mercur → Processes** in the Magento admin.
+  </Step>
+</Steps>
+
+## How a mixed order flows
+
+A shopper buys one of your own products and one seller offer in the same checkout and pays once:
+
+1. The product page lists every active seller offer next to your own stock. Adding an offer marks the cart line as a marketplace line priced by the offer.
+2. At the shipping step Magento copies the marketplace lines into a shadow Mercur cart, asks Mercur for shipping options per seller, applies one option per seller and adds the sum as a "Marketplace shipping" total. Your own carriers keep pricing your own lines.
+3. The shopper pays in Magento.
+4. After the order is placed, Magento records the capture on the external payment provider and completes the Mercur cart. Mercur answers with an order group, one order per seller, and Magento stores those ids on the order and its items.
+5. Sellers fulfill in the vendor panel. Shipments and tracking numbers reach Magento through the webhook and become Magento shipments.
+6. Mercur computes commission lines when the cart completes and pays sellers from the recorded capture.
+
+If Mercur is unreachable at step 4, the Magento order still succeeds and the `order_retry` process completes the Mercur side on its next run. A credit memo on marketplace lines is reported back to Mercur per seller order, so commission lines and payout balances follow the refund.
+
+## Essential practices
+
+### One region per website
+
+Offer prices are read for the region configured on each Magento website. A store with a US and an EU website needs two Mercur regions and two website-scoped values of **Mercur region ID**.
+
+### Keep the operator's stock as a candidate
+
+Your own product is always one of the ways to buy a SKU. The best offer rule decides whether it wins over a cheaper seller; `operator_first` keeps your stock on top whenever it is in stock.
+
+### Let webhooks drive, keep cron as the floor
+
+Offer, seller and product events enqueue the matching delta sync within a minute. The cron schedules exist so the mirror heals after a missed delivery; a full nightly resync removes anything a delta could not see.
+
+## Your products or seller offers
+
+| Situation | What happens |
+| --- | --- |
+| A product only you sell | A normal Magento line: your price, your stock, your carriers |
+| A product only sellers sell | Imported from Mercur as a simple product; every line is a marketplace line |
+| A product both you and sellers sell | Same SKU, one buy box; the best offer rule picks the default and the shopper can choose another |
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Connector repository" icon="github" href="https://github.com/mercurjs/magento2-connector">
+    Modules, development workflow, and the webhook handler registry.
+  </Card>
+  <Card title="Offer module" icon="tag" href="/platform/offer/overview">
+    How offers carry seller SKU, price, inventory and shipping.
+  </Card>
+  <Card title="Order Group module" icon="layer-group" href="/platform/order-group/overview">
+    How one checkout becomes one order per seller.
+  </Card>
+  <Card title="Commission module" icon="percent" href="/platform/commission/overview">
+    How commission lines are computed at completion.
+  </Card>
+</CardGroup>
