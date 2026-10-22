@@ -1,6 +1,5 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import {
-    IRegionModuleService,
     ISalesChannelModuleService,
     MedusaContainer,
 } from "@medusajs/framework/types"
@@ -32,7 +31,6 @@ medusaIntegrationTestRunner({
         describe("Store - Offer lead time", () => {
             let appContainer: MedusaContainer
             let storeHeaders: any
-            let region: any
             let salesChannel: any
 
             let seedCounter = 0
@@ -147,15 +145,6 @@ medusaIntegrationTestRunner({
                     )
                 salesChannel = await salesChannelModule.createSalesChannels({
                     name: "Default Store",
-                })
-
-                const regionModule = appContainer.resolve<IRegionModuleService>(
-                    Modules.REGION
-                )
-                region = await regionModule.createRegions({
-                    name: "Test Region",
-                    currency_code: "usd",
-                    countries: ["us"],
                 })
 
                 const apiKey = await generatePublishableKey(appContainer)
