@@ -37,6 +37,7 @@ export const defaultStoreOfferFields = [
   "inventory_item_link.inventory_item.location_levels.id",
   "inventory_item_link.inventory_item.location_levels.location_id",
   "inventory_item_link.inventory_item.location_levels.stocked_quantity",
+  "inventory_item_link.inventory_item.location_levels.reserved_quantity",
 ]
 
 export const storeOfferQueryConfig = {

@@ -18,6 +18,7 @@ import { transformAndValidateSalesChannelIds } from "@medusajs/medusa/api/utils/
 type OfferLocationLevel = {
   location_id: string
   stocked_quantity: number
+  reserved_quantity?: number | null
 }
 
 type OfferInventoryLink = {
@@ -263,11 +264,19 @@ export const wrapOffersWithInventoryQuantityForSalesChannel = async (
     for (const link of links) {
       const requiredQuantity = link.required_quantity ?? 1
       const levels = link.inventory_item?.location_levels ?? []
-      const stocked = levels
+      const available = levels
         .filter((level) => channelLocationIds.has(level.location_id))
-        .reduce((sum, level) => sum + (level.stocked_quantity ?? 0), 0)
+        .reduce(
+          (sum, level) =>
+            sum +
+            Math.max(
+              0,
+              (level.stocked_quantity ?? 0) - (level.reserved_quantity ?? 0)
+            ),
+          0
+        )
       const itemAvailability =
-        requiredQuantity > 0 ? Math.floor(stocked / requiredQuantity) : 0
+        requiredQuantity > 0 ? Math.floor(available / requiredQuantity) : 0
       offerAvailability = Math.min(offerAvailability, itemAvailability)
     }
 
@@ -276,6 +285,13 @@ export const wrapOffersWithInventoryQuantityForSalesChannel = async (
     offer.in_stock = quantity > 0
   }
 }
+
+const inventoryQuantityFields = [
+  "inventory_item_link.required_quantity",
+  "inventory_item_link.inventory_item.location_levels.location_id",
+  "inventory_item_link.inventory_item.location_levels.stocked_quantity",
+  "inventory_item_link.inventory_item.location_levels.reserved_quantity",
+]
 
 export const splitComputedOfferFields = (fields: string[]) => {
   const withCalculatedPrice = fields.some(
@@ -292,9 +308,16 @@ export const splitComputedOfferFields = (fields: string[]) => {
       f !== "in_stock"
   )
 
+  const needsInventory = withInventoryQuantity || withInStock
+  // Availability is derived from these columns, so they are read whenever it is
+  // requested, even if the client's field list leaves them out.
+  const queryFields = needsInventory
+    ? Array.from(new Set([...filteredFields, ...inventoryQuantityFields]))
+    : filteredFields
+
   return {
-    fields: filteredFields,
+    fields: queryFields,
     withCalculatedPrice,
-    withInventoryQuantity: withInventoryQuantity || withInStock,
+    withInventoryQuantity: needsInventory,
   }
 }
