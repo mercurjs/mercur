@@ -54,6 +54,8 @@ The integration has two halves:
     composer require mercurjs/magento2-connector:dev-main
     bin/magento module:enable Mercur_Core Mercur_Process Mercur_Connector \
       Mercur_OfferIndexer Mercur_Catalog Mercur_Settlement Mercur_Frontend Mercur_GraphQl
+    # Only on stores that run Multi-Source Inventory:
+    bin/magento module:enable Mercur_Inventory
     bin/magento setup:upgrade
     bin/magento setup:di:compile
     bin/magento cache:flush
@@ -70,7 +72,7 @@ The integration has two halves:
     In Magento open **Stores → Configuration → Mercur → Marketplace** and enter the API URL and the four values above. Choose a best offer rule: lowest price, your own stock first, or premium sellers first.
   </Step>
   <Step title="Register the webhook">
-    In the Mercur admin open **Settings → Magento → Add endpoint**, enter `https://your_shop_domain/mercur/webhook`, select the offer, seller, product and order events, and copy the signing secret. It is shown once. Paste it into the Magento configuration under **Webhooks → Signing secret**.
+    In the Mercur admin open **Settings → Magento → Add endpoint**, enter `https://your_shop_domain/mercur/webhook`, keep every event selected, and copy the signing secret. The connector needs the fulfillment, shipment, delivery, return and refund events to keep orders in step. It is shown once. Paste it into the Magento configuration under **Webhooks → Signing secret**.
   </Step>
   <Step title="Run the first sync">
     Push your taxonomy, then mirror everything:
@@ -88,20 +90,34 @@ The integration has two halves:
 
 A shopper buys one of your own products and one seller offer in the same checkout and pays once:
 
-1. The product page lists every active seller offer next to your own stock. Adding an offer marks the cart line as a marketplace line priced by the offer.
-2. At the shipping step Magento copies the marketplace lines into a shadow Mercur cart, asks Mercur for shipping options per seller, applies one option per seller and adds the sum as a "Marketplace shipping" total. Your own carriers keep pricing your own lines.
-3. The shopper pays in Magento.
-4. After the order is placed, Magento records the capture on the external payment provider and completes the Mercur cart. Mercur answers with an order group, one order per seller, and Magento stores those ids on the order and its items.
-5. Sellers fulfill in the vendor panel. Shipments and tracking numbers reach Magento through the webhook and become Magento shipments.
+1. The product page lists every active seller offer next to your own stock, with its price for that website, any price list strike-through, quantity tiers and an estimated delivery date. Adding an offer marks the cart line as a marketplace line priced by the offer and labels it "Sold by" the seller. The same works through REST and GraphQL with `mercur_offer_id`.
+2. The cart and the checkout group the marketplace lines by seller. Magento copies them into a shadow Mercur cart, asks Mercur for each seller's shipping options and lets the shopper pick one per seller; the sum is the "Seller shipping" total. Your own carriers only price your own lines, and a cart of seller lines only gets the "Shipped by the sellers" method.
+3. The shopper pays in Magento. The invoice includes seller shipping.
+4. After the order is placed, Magento records the capture on the external payment provider and completes the Mercur cart. Mercur answers with an order group, one order per seller, and Magento stores those ids on the order and its lines.
+5. Sellers fulfill in the vendor panel. Each shipped fulfillment becomes its own Magento shipment with its tracking numbers, so partial and multi-parcel deliveries show up as they happen. Deliveries, returns and cancellations update the line's marketplace status, shown to the shopper in their account and to you in the admin.
 6. Mercur computes commission lines when the cart completes and pays sellers from the recorded capture.
 
-If Mercur is unreachable at step 4, the Magento order still succeeds and the `order_retry` process completes the Mercur side on its next run. A credit memo on marketplace lines is reported back to Mercur per seller order, so commission lines and payout balances follow the refund.
+If Mercur is unreachable at step 4, the Magento order still succeeds and the `order_retry` process completes the Mercur side on its next run.
+
+## Refunds
+
+| Starts in | What happens |
+| --- | --- |
+| Magento | A credit memo on marketplace lines is reported to Mercur per seller order, with seller shipping split by what each seller charged, so commission lines and payout balances follow |
+| Mercur, a seller or operator refund | Mercur sends `order.refund_requested`; Magento creates an adjustment credit memo and refunds the shopper online when the invoice was captured online |
+| Mercur, a canceled seller order | Magento refunds that seller's lines and shipping |
+
+A `refunds` process every 15 minutes picks up any refund whose webhook did not arrive.
 
 ## Essential practices
 
 ### One region per website
 
-Offer prices are read for the region configured on each Magento website. A store with a US and an EU website needs two Mercur regions and two website-scoped values of **Mercur region ID**.
+Offer prices are read for the region configured on each Magento website, including Mercur price lists. A store with a US and an EU website needs two Mercur regions and two website-scoped values of **Mercur region ID**, and each website's base currency must match its region's currency.
+
+### Set delivery estimates
+
+Under **Mercur → Marketplace → Delivery estimates** set the order cut-off time, business days and transit days for each website. A Mercur shipping option can carry its own `transit_days_min` and `transit_days_max` in its data.
 
 ### Keep the operator's stock as a candidate
 
@@ -116,8 +132,17 @@ Offer, seller and product events enqueue the matching delta sync within a minute
 | Situation | What happens |
 | --- | --- |
 | A product only you sell | A normal Magento line: your price, your stock, your carriers |
-| A product only sellers sell | Imported from Mercur as a simple product; every line is a marketplace line |
-| A product both you and sellers sell | Same SKU, one buy box; the best offer rule picks the default and the shopper can choose another |
+| A product only sellers sell | Imported from Mercur, as a configurable product when its variant axes are Magento attributes; it is in stock while an offer is available and every line is a marketplace line |
+| A product both you and sellers sell | Same SKU, one buy box; the best offer rule picks the default and the shopper can choose another. When you run out, the product stays buyable from sellers |
+
+Each seller has a page at `/seller/{handle}` listing what they sell on your store. In the Magento admin, **Mercur → Sellers** and **Mercur → Offers** show the mirror, orders show each seller order with its status, and the product page lists the offers for that SKU.
+
+## Not supported yet
+
+- Buyer and seller messaging, order incidents and seller ratings
+- Documents sellers attach to orders
+- A third-party tax engine for seller lines; Magento taxes them with the product's tax class
+- Mercur promotions; Magento cart rules still apply to seller lines
 
 ## Next steps
 
