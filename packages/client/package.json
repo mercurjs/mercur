@@ -32,7 +32,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "dev": "tsup --watch",
-    "build": "tsup"
+    "build": "tsup",
+    "test": "vitest run"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.64.2",
@@ -42,7 +43,8 @@
     "@medusajs/framework": "2.22.0",
     "@types/qs": "^6.9.18",
     "tsup": "^8.5.0",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vitest": "^3.2.4"
   },
   "peerDependencies": {
     "typescript": ">=4.8.0"

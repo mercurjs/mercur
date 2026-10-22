@@ -402,6 +402,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                     return {
                         customer_id: cart.customer?.id,
                         cart_id: cart.id,
+                        metadata: cart.metadata ?? null,
                     } satisfies CreateOrderGroupDTO
                 }
             )

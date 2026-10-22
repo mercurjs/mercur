@@ -41,6 +41,7 @@
               "home",
               "learn/introduction",
               "learn/why-mercur",
+        "learn/use-cases",
               {
                 "group": "Build with AI",
                 "pages": [
@@ -417,7 +418,8 @@
             "icon": "plug",
             "pages": [
               "resources/integrations/overview",
-              "resources/integrations/stripe-connect"
+              "resources/integrations/stripe-connect",
+                "resources/integrations/magento2"
             ]
           },
           {

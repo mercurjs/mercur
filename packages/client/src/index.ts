@@ -3,6 +3,8 @@ import { createRecursiveProxy } from "./create-proxy";
 import { ActionType, ClientOptions } from "./types";
 export type { InferClient } from "./types";
 import { kebabCase } from "./utils";
+import { clearAuthStores, resolveAuthHeaders } from "./auth";
+export * from "./auth";
 
 type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never;
 
@@ -72,9 +74,9 @@ const toFormData = (payload: Record<string, any>): FormData => {
 };
 
 export function createClient(options: ClientOptions) {
-    const { baseUrl, fetchOptions: defaultFetchOptions, headers: resolveHeaders } = options;
+    const { baseUrl, fetchOptions: defaultFetchOptions, headers: resolveHeaders, auth, onUnauthorized } = options;
 
-    return createRecursiveProxy((path, args) => {
+    return createRecursiveProxy(async (path, args) => {
         const action = path.pop() as ActionType;
         const input: Record<string, any> = args[0] ?? {};
 
@@ -128,9 +130,10 @@ export function createClient(options: ClientOptions) {
 
         const headers = new Headers({
             ...defaultHeaders,
-            ...defaultFetchOptions?.headers,
-            ...resolveHeaders?.(),
-            ...inputFetchOptions?.headers,
+            ...(defaultFetchOptions?.headers as Record<string, string> | undefined),
+            ...(await resolveAuthHeaders(auth)),
+            ...(await resolveHeaders?.()),
+            ...(inputFetchOptions?.headers as Record<string, string> | undefined),
         });
 
         return fetch(url, {
@@ -145,6 +148,10 @@ export function createClient(options: ClientOptions) {
                     message?: string;
                     code?: string;
                 };
+                if (response.status === 401) {
+                    const message = jsonError.message ?? response.statusText;
+                    onUnauthorized ? onUnauthorized({ status: 401, message }) : clearAuthStores(auth);
+                }
                 throw new ClientError(
                     jsonError.message ?? response.statusText,
                     response.statusText,
