@@ -1,7 +1,7 @@
 # Performance techniques from Medusa core, and how Mercur should apply them
 
 Catalog of the optimization techniques used inside Medusa 2.x (read from the
-`develop` branch, 2.21.0, which matches the pins in this repo). Every item names
+`develop` branch at 2.21.0; the repo now pins 2.22.0). Every item names
 where the technique lives in the Medusa source, what it does, and the rule Mercur
 should follow. Paths are relative to the Medusa monorepo `packages/` directory.
 

@@ -40,10 +40,10 @@ index 404cfaf..e069e4d 100644
  //# sourceMappingURL=capture-payment.js.map
 \ No newline at end of file
 diff --git a/dist/payment/workflows/refund-payment.d.ts b/dist/payment/workflows/refund-payment.d.ts
-index 3848939..7ff118d 100644
+index 0767e6a..7ca010f 100644
 --- a/dist/payment/workflows/refund-payment.d.ts
 +++ b/dist/payment/workflows/refund-payment.d.ts
-@@ -58,5 +58,17 @@ export declare const refundPaymentWorkflowId = "refund-payment-workflow";
+@@ -77,5 +77,18 @@ export declare const refundPaymentWorkflowId = "refund-payment-workflow";
   *
   * Refund a payment.
   */
@@ -59,27 +59,31 @@ index 3848939..7ff118d 100644
 +            label: string;
 +            code: string | null;
 +        } | null;
++        is_replay: boolean;
 +    }, unknown>
 +]>;
  //# sourceMappingURL=refund-payment.d.ts.map
 \ No newline at end of file
 diff --git a/dist/payment/workflows/refund-payment.js b/dist/payment/workflows/refund-payment.js
-index 5d19f53..dcd8b37 100644
+index a1b667a..de51ee2 100644
 --- a/dist/payment/workflows/refund-payment.js
 +++ b/dist/payment/workflows/refund-payment.js
-@@ -145,6 +145,17 @@ exports.refundPaymentWorkflow = (0, workflows_sdk_1.createWorkflow)(exports.refu
-         eventName: utils_1.PaymentEvents.REFUNDED,
-         data: { id: payment.id },
+@@ -190,6 +190,20 @@ exports.refundPaymentWorkflow = (0, workflows_sdk_1.createWorkflow)(exports.refu
+             data: { id: payment.id },
+         });
      });
 -    return new workflows_sdk_1.WorkflowResponse(payment);
 +    // MERCUR: see capture-payment.js. A refund is the correction side of a
-+    // capture and needs the same in-transaction seam.
++    // capture and needs the same in-transaction seam. A replay moved no funds,
++    // so is_replay lets a ledger skip the second record the way the credit
++    // line and the event above are skipped.
 +    const paymentRefunded = (0, workflows_sdk_1.createHook)("paymentRefunded", {
 +        payment: refundPayment,
 +        order_id: (0, workflows_sdk_1.transform)({ order }, ({ order }) => order?.id ?? null),
 +        amount: (0, workflows_sdk_1.transform)({ input }, ({ input }) => input.amount ?? null),
 +        credit_line_amount: creditLineAmount,
 +        refund_reason: (0, workflows_sdk_1.transform)({ refundReason }, ({ refundReason }) => refundReason ?? null),
++        is_replay: isReplay,
 +    });
 +    return new workflows_sdk_1.WorkflowResponse(payment, {
 +        hooks: [paymentRefunded],

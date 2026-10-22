@@ -36,6 +36,7 @@
   "/admin/customers/:id/addresses": "typeof import(\"@medusajs/medusa/api/admin/customers/[id]/addresses/route\")",
   "/admin/customers/:id/addresses/:address_id": "typeof import(\"@medusajs/medusa/api/admin/customers/[id]/addresses/[address_id]/route\")",
   "/admin/customers/:id/customer-groups": "typeof import(\"@medusajs/medusa/api/admin/customers/[id]/customer-groups/route\")",
+  "/admin/customers/export": "typeof import(\"@medusajs/medusa/api/admin/customers/export/route\")",
   "/admin/draft-orders": "typeof import(\"@medusajs/medusa/api/admin/draft-orders/route\")",
   "/admin/draft-orders/:id": "typeof import(\"@medusajs/medusa/api/admin/draft-orders/[id]/route\")",
   "/admin/draft-orders/:id/convert-to-order": "typeof import(\"@medusajs/medusa/api/admin/draft-orders/[id]/convert-to-order/route\")",

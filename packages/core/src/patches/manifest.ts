@@ -16,8 +16,8 @@ export const PATCHES: PatchEntry[] = [
   {
     file: "@medusajs+core-flows@2.18.0.patch",
     package: "@medusajs/core-flows",
-    // Both targeted files are byte-identical from 2.17.2 through 2.21.2.
-    compatible: { from: "2.17.0", to: "2.22.0" },
+    // Both targeted files are byte-identical from 2.17.2 through 2.22.0.
+    compatible: { from: "2.17.0", to: "2.23.0" },
     reason:
       "refreshCartShippingMethodsWorkflow deletes any shipping method whose " +
       "profile is not required by a cart item, deriving that set from each " +
@@ -28,10 +28,11 @@ export const PATCHES: PatchEntry[] = [
       "See mercurjs/mercur#1442.",
   },
   {
-    file: "@medusajs+core-flows@2.21.0-payment-hooks.patch",
+    file: "@medusajs+core-flows@2.22.0-payment-hooks.patch",
     package: "@medusajs/core-flows",
-    // Both targeted workflows are unchanged from 2.18.0 through 2.21.2.
-    compatible: { from: "2.18.0", to: "2.22.0" },
+    // 2.22.0 made refundPaymentWorkflow replay-safe (medusajs/medusa#16964),
+    // which moved the hunk this patch anchors on.
+    compatible: { from: "2.22.0", to: "2.23.0" },
     reason:
       "capturePaymentWorkflow and refundPaymentWorkflow end in an event and expose no " +
       "hook, unlike createOrderWorkflow and cancelOrderWorkflow. A ledger that must " +
@@ -41,7 +42,7 @@ export const PATCHES: PatchEntry[] = [
   {
     file: "@medusajs+core-flows@2.21.2-seller-promotion-scope.patch",
     package: "@medusajs/core-flows",
-    compatible: { from: "2.21.0", to: "2.22.0" },
+    compatible: { from: "2.21.0", to: "2.23.0" },
     reason:
       "prepareAdjustmentsFromPromotionActionsStep hands back every adjustment the " +
       "promotion module computes for the whole cart, and every cart refresh runs it " +
@@ -52,7 +53,7 @@ export const PATCHES: PatchEntry[] = [
   {
     file: "@medusajs+core-flows@2.20.1-delivery-hook.patch",
     package: "@medusajs/core-flows",
-    compatible: { from: "2.18.0", to: "2.22.0" },
+    compatible: { from: "2.18.0", to: "2.23.0" },
     reason:
       "markOrderFulfillmentAsDeliveredWorkflow ends in an event and exposes no hook. " +
       "Delivery is where a marketplace releases the seller's money from pending to " +
@@ -62,7 +63,7 @@ export const PATCHES: PatchEntry[] = [
   {
     file: "@medusajs+order@2.21.2-cross-module-count.patch",
     package: "@medusajs/order",
-    compatible: { from: "2.21.0", to: "2.22.0" },
+    compatible: { from: "2.21.0", to: "2.23.0" },
     reason:
       "The order module's findAndCount runs find and count as two queries over " +
       "the same where clause. A cross-module filter (filters.seller.id on orders, " +

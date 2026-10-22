@@ -14,6 +14,22 @@ session detail aggressively. The per-spec source of truth lives in
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
 
+## Session — Medusa 2.22.0 upgrade (2026-10-22), branch `chore/medusa-2-22`
+
+Every `@medusajs/*` pin moved 2.21.2 → 2.22.0 and every peer range `>=2.21.0` → `>=2.22.0` (packages,
+providers, apps, integration-tests, root, and all three templates — they already tracked the workspace
+line at 2.21.2, so they follow it; `@medusajs/ui` keeps its own 4.2.3 line). `bun.lock` refreshed.
+Medusa 2.22.0 requires Node 22.22+, so the `engines.node` floor on core, the payout provider, the API
+app and the templates is `>=22.22.0`; docs say Node 22.22+. Breaking change absorbed: 2.22.0 made
+`refundPaymentWorkflow` replay-safe (medusajs/medusa#16964), which moved the hunk the payment-hooks patch
+anchored on. Regenerated as `@medusajs+core-flows@2.22.0-payment-hooks.patch` (range 2.22.0–2.23.0);
+the `paymentRefunded` hook now also carries `is_replay` so a ledger can skip a replay the way the credit
+line and event are skipped. The other four patches apply unchanged; their ranges extend to 2.23.0.
+test-utils dropped the `inApp` option, removed from both `health.spec.ts`. `routes-manifest.json` gained
+`/admin/customers/export`. Verified locally: `bun run build`, `bun run lint`, patch unit specs 40/40,
+`payment/split-order-payments` + `order/admin/order-payment-status` 16/16. Gotcha: after changing a patch,
+rebuild core and `jest --clearCache`, or the transformer replays the old manifest from `.medusa/server`.
+
 ## Session — Core hot-path performance (2026-10-21), branch `perf/core-hot-path-optimizations`, PR #1677
 
 Technique catalog from the Medusa source in `docs/PERFORMANCE.md` (section 4 lists what this branch
