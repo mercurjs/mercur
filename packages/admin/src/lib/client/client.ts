@@ -1,4 +1,4 @@
-import { createClient, InferClient } from '@mercurjs/client'
+import { createClient, InferClient, adminAuth } from '@mercurjs/client'
 import { Routes } from '@mercurjs/core/_generated'
 import config from 'virtual:mercur/config'
 
@@ -12,7 +12,7 @@ export const sdk: InferClient<Routes> = createClient({
   fetchOptions: {
     credentials: 'omit',
   },
-  headers: getAuthHeaders,
+  auth: adminAuth(),
 })
 
 export const fetchQuery = async (
@@ -60,7 +60,7 @@ export const fetchQuery = async (
       credentials: 'omit',
       headers: {
         'Content-Type': 'application/json',
-        ...getAuthHeaders(),
+        ...(await getAuthHeaders()),
         ...headers,
       },
       body: body ? JSON.stringify(body) : null,

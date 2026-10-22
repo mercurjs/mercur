@@ -54,14 +54,15 @@ A `GET /vendor/sales-summary` endpoint returns the seller's order count. You cal
     Codegen rewrites the generated `Routes` type that your panel apps already import:
 
     ```typescript apps/vendor/src/lib/client.ts
-    import { createClient, type InferClient } from "@mercurjs/client"
+    import { createClient, vendorAuth, type InferClient } from "@mercurjs/client"
     import type { Routes } from "@acme/api/_generated"
 
     declare const __BACKEND_URL__: string
 
     export const client: InferClient<Routes> = createClient({
       baseUrl: __BACKEND_URL__,
-      fetchOptions: { credentials: "include" },
+      fetchOptions: { credentials: "omit" },
+      auth: vendorAuth(),
     })
     ```
 

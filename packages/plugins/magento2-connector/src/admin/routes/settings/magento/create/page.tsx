@@ -29,7 +29,17 @@ const EVENT_GROUPS: { label: string; events: string[] }[] = [
       "order.updated",
       "order.canceled",
       "order.fulfillment_created",
-      "order.shipment_created",
+      "order.fulfillment_canceled",
+      "shipment.created",
+      "delivery.created",
+    ],
+  },
+  {
+    label: "Returns and refunds",
+    events: [
+      "order.return_requested",
+      "order.return_received",
+      "order.refund_requested",
       "order.refund_recorded",
     ],
   },

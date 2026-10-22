@@ -1,7 +1,6 @@
-import { createClient, type InferClient } from "@mercurjs/client"
+import { adminAuth, createClient, type InferClient } from "@mercurjs/client"
 import type { MedusaResponse } from "@medusajs/framework"
 
-import { getAuthHeaders } from "./auth-headers"
 
 export type MagentoWebhookDeliveryStatus = "pending" | "delivered" | "failed" | "dead"
 
@@ -95,5 +94,5 @@ type Routes = {
 export const client: InferClient<Routes> = createClient({
   baseUrl: import.meta.env.VITE_MERCUR_BACKEND_URL || "http://localhost:9000",
   fetchOptions: { credentials: "omit" },
-  headers: getAuthHeaders,
+  auth: adminAuth(),
 })
