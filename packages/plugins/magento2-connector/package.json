@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/magento2-connector-plugin",
-  "version": "2.3.8-canary.4",
+  "version": "2.3.8",
   "description": "Mercur plugin that lets a Magento 2 storefront sell marketplace offers: outbound webhooks, an external payment provider, and external refund recording.",
   "repository": {
     "type": "git",
@@ -46,22 +46,22 @@
     "prepublishOnly": "tsc --declaration --outDir .medusa/server && bun run build:dashboards"
   },
   "devDependencies": {
-    "@medusajs/cli": "2.21.2",
-    "@medusajs/core-flows": "2.21.2",
-    "@medusajs/framework": "2.21.2",
-    "@medusajs/medusa": "2.21.2",
-    "@medusajs/types": "2.21.2",
-    "@mercurjs/core": "2.3.8-canary.4",
-    "@mercurjs/types": "2.3.8-canary.4",
+    "@medusajs/cli": "2.22.0",
+    "@medusajs/core-flows": "2.22.0",
+    "@medusajs/framework": "2.22.0",
+    "@medusajs/medusa": "2.22.0",
+    "@medusajs/types": "2.22.0",
+    "@mercurjs/core": "2.3.8",
+    "@mercurjs/types": "2.3.8",
     "@types/node": "^26.1.0",
     "typescript": "5.9.3",
     "@hookform/resolvers": "5.4.0",
-    "@medusajs/icons": "2.21.2",
+    "@medusajs/icons": "2.22.0",
     "@medusajs/ui": "4.2.3",
-    "@mercurjs/cli": "2.3.8-canary.4",
-    "@mercurjs/client": "2.3.8-canary.4",
-    "@mercurjs/dashboard-sdk": "2.3.8-canary.4",
-    "@mercurjs/dashboard-shared": "2.3.8-canary.4",
+    "@mercurjs/cli": "2.3.8",
+    "@mercurjs/client": "2.3.8",
+    "@mercurjs/dashboard-sdk": "2.3.8",
+    "@mercurjs/dashboard-shared": "2.3.8",
     "@tanstack/react-query": "5.64.2",
     "@tanstack/react-table": "8.21.3",
     "@types/react": "^18.3.2",
@@ -72,15 +72,15 @@
     "radix-ui": "1.1.2"
   },
   "peerDependencies": {
-    "@medusajs/core-flows": ">=2.21.0",
-    "@medusajs/framework": ">=2.21.0",
-    "@medusajs/medusa": ">=2.21.0",
+    "@medusajs/core-flows": ">=2.22.0",
+    "@medusajs/framework": ">=2.22.0",
+    "@medusajs/medusa": ">=2.22.0",
     "@mercurjs/core": "*",
-    "@medusajs/icons": ">=2.21.0",
+    "@medusajs/icons": ">=2.22.0",
     "@medusajs/ui": ">=4.1.19",
-    "@mercurjs/client": ">=2.3.8-canary.4",
-    "@mercurjs/dashboard-sdk": ">=2.3.8-canary.4",
-    "@mercurjs/dashboard-shared": ">=2.3.8-canary.4",
+    "@mercurjs/client": ">=2.3.8",
+    "@mercurjs/dashboard-sdk": ">=2.3.8",
+    "@mercurjs/dashboard-shared": ">=2.3.8",
     "@tanstack/react-query": "^5.64.2",
     "@tanstack/react-table": "^8.20.5",
     "react": "^18.0.0",
@@ -93,6 +93,6 @@
     "zod": "4.6.5"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.22.0"
   }
 }

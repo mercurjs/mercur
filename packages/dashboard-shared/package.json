@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/dashboard-shared",
-  "version": "2.3.8-canary.4",
+  "version": "2.3.8",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -30,11 +30,11 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/error-message": "^2.0.1",
     "@hookform/resolvers": "5.4.0",
-    "@medusajs/admin-shared": "2.21.2",
-    "@medusajs/dashboard": "2.21.2",
-    "@medusajs/icons": "2.21.2",
+    "@medusajs/admin-shared": "2.22.0",
+    "@medusajs/dashboard": "2.22.0",
+    "@medusajs/icons": "2.22.0",
     "@medusajs/ui": "4.2.3",
-    "@mercurjs/client": "2.3.8-canary.4",
+    "@mercurjs/client": "2.3.8",
     "@radix-ui/react-dialog": "1.1.19",
     "@radix-ui/react-dismissable-layer": "1.1.4",
     "@tanstack/react-query": "5.64.2",
@@ -69,10 +69,10 @@
     "zod": "4.6.5"
   },
   "devDependencies": {
-    "@medusajs/types": "2.21.2",
-    "@mercurjs/core": "2.3.8-canary.4",
-    "@mercurjs/dashboard-sdk": "2.3.8-canary.4",
-    "@mercurjs/types": "2.3.8-canary.4",
+    "@medusajs/types": "2.22.0",
+    "@mercurjs/core": "2.3.8",
+    "@mercurjs/dashboard-sdk": "2.3.8",
+    "@mercurjs/types": "2.3.8",
     "@types/lodash.debounce": "^4.0.8",
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.2.22",

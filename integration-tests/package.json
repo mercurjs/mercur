@@ -8,25 +8,25 @@
     "test:integration:meilisearch": "TEST_TYPE=integration:http MEILISEARCH_HOST=http://localhost:7700 MEILISEARCH_API_KEY=masterKey NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit --testPathPattern=meilisearch"
   },
   "dependencies": {
-    "@medusajs/framework": "2.21.2",
-    "@medusajs/medusa": "2.21.2",
+    "@medusajs/framework": "2.22.0",
+    "@medusajs/medusa": "2.22.0",
     "@mercurjs/core": "*",
     "@mercurjs/magento2-connector-plugin": "*",
     "jsonwebtoken": "^9.0.3",
     "scrypt-kdf": "^2.0.1",
-    "@medusajs/draft-order": "2.21.2",
+    "@medusajs/draft-order": "2.22.0",
     "meilisearch": "^0.59.0"
   },
   "devDependencies": {
     "@mercurjs/types": "*",
     "@jest/test-sequencer": "^30.2.0",
-    "@medusajs/test-utils": "2.21.2",
+    "@medusajs/test-utils": "2.22.0",
     "@swc/core": "^1.7.28",
     "@swc/jest": "^0.2.36",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.1.0",
     "jest": "^30.2.0",
     "typescript": "7.0.2",
-    "@medusajs/types": "2.21.2"
+    "@medusajs/types": "2.22.0"
   }
 }
