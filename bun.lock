@@ -90,7 +90,7 @@
     },
     "apps/storefront": {
       "name": "@mercurjs/storefront",
-      "version": "2.3.8-canary.4",
+      "version": "2.3.8",
       "dependencies": {
         "@headlessui/react": "^2.2.1",
         "@hookform/resolvers": "^3.10.0",
@@ -98,8 +98,8 @@
         "@medusajs/medusa": "2.22.0",
         "@medusajs/types": "2.22.0",
         "@medusajs/ui": "^4.0.33",
-        "@mercurjs/client": "2.3.8-canary.4",
-        "@mercurjs/types": "2.3.8-canary.4",
+        "@mercurjs/client": "2.3.8",
+        "@mercurjs/types": "2.3.8",
         "@stripe/react-stripe-js": "^3.7.0",
         "@stripe/stripe-js": "^7.1.0",
         "@talkjs/react": "^0.1.11",
@@ -280,7 +280,7 @@
     },
     "packages/admin": {
       "name": "@mercurjs/admin",
-      "version": "2.3.8-canary.4",
+      "version": "2.3.8",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^8.0.0",
@@ -293,8 +293,8 @@
         "@medusajs/dashboard": "2.22.0",
         "@medusajs/icons": "2.22.0",
         "@medusajs/ui": "4.2.3",
-        "@mercurjs/client": "2.3.8-canary.4",
-        "@mercurjs/dashboard-shared": "2.3.8-canary.4",
+        "@mercurjs/client": "2.3.8",
+        "@mercurjs/dashboard-shared": "2.3.8",
         "@radix-ui/react-dialog": "1.1.19",
         "@radix-ui/react-dismissable-layer": "1.1.4",
         "@tanstack/react-query": "5.64.2",
@@ -324,9 +324,9 @@
       "devDependencies": {
         "@medusajs/types": "2.22.0",
         "@medusajs/ui-preset": "2.22.0",
-        "@mercurjs/core": "2.3.8-canary.4",
-        "@mercurjs/dashboard-sdk": "2.3.8-canary.4",
-        "@mercurjs/types": "2.3.8-canary.4",
+        "@mercurjs/core": "2.3.8",
+        "@mercurjs/dashboard-sdk": "2.3.8",
+        "@mercurjs/types": "2.3.8",
         "@types/react": "^18.3.2",
         "@types/react-dom": "^18.2.22",
         "autoprefixer": "^10.4.20",
@@ -344,7 +344,7 @@
     },
     "packages/cli": {
       "name": "@mercurjs/cli",
-      "version": "2.3.8-canary.4",
+      "version": "2.3.8",
       "bin": {
         "mercurjs": "./dist/index.js",
       },
@@ -352,7 +352,7 @@
         "@antfu/ni": "^30.3.0",
         "@medusajs/admin-bundler": "2.22.0",
         "@medusajs/framework": "2.22.0",
-        "@mercurjs/dashboard-sdk": "2.3.8-canary.4",
+        "@mercurjs/dashboard-sdk": "2.3.8",
         "@vitejs/plugin-react": "^6.0.3",
         "commander": "^15.0.0",
         "cosmiconfig": "^9.0.0",
@@ -380,7 +380,7 @@
     },
     "packages/client": {
       "name": "@mercurjs/client",
-      "version": "2.3.8-canary.4",
+      "version": "2.3.8",
       "dependencies": {
         "@tanstack/react-query": "^5.64.2",
         "qs": "^6.12.1",
@@ -397,7 +397,7 @@
     },
     "packages/core": {
       "name": "@mercurjs/core",
-      "version": "2.3.8-canary.4",
+      "version": "2.3.8",
       "dependencies": {
         "@orama/orama": "^3.1.18",
         "pkg-dir": "4",
@@ -415,8 +415,8 @@
         "@medusajs/test-utils": "2.22.0",
         "@medusajs/types": "2.22.0",
         "@medusajs/ui": "4.2.3",
-        "@mercurjs/cli": "2.3.8-canary.4",
-        "@mercurjs/types": "2.3.8-canary.4",
+        "@mercurjs/cli": "2.3.8",
+        "@mercurjs/types": "2.3.8",
         "@swc/core": "^1.7.28",
         "@types/cors": "^2.8.17",
         "@types/express": "^4.17.21",
@@ -449,7 +449,7 @@
     },
     "packages/create-mercur-app": {
       "name": "create-mercur-app",
-      "version": "2.3.8-canary.4",
+      "version": "2.3.8",
       "bin": {
         "create-mercur-app": "./dist/index.js",
       },
@@ -481,7 +481,7 @@
     },
     "packages/dashboard-sdk": {
       "name": "@mercurjs/dashboard-sdk",
-      "version": "2.3.8-canary.4",
+      "version": "2.3.8",
       "dependencies": {
         "@babel/parser": "8.0.5",
         "@babel/traverse": "8.0.6",
@@ -498,7 +498,7 @@
     },
     "packages/dashboard-shared": {
       "name": "@mercurjs/dashboard-shared",
-      "version": "2.3.8-canary.4",
+      "version": "2.3.8",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^8.0.0",
@@ -511,7 +511,7 @@
         "@medusajs/dashboard": "2.22.0",
         "@medusajs/icons": "2.22.0",
         "@medusajs/ui": "4.2.3",
-        "@mercurjs/client": "2.3.8-canary.4",
+        "@mercurjs/client": "2.3.8",
         "@radix-ui/react-dialog": "1.1.19",
         "@radix-ui/react-dismissable-layer": "1.1.4",
         "@tanstack/react-query": "5.64.2",
@@ -547,9 +547,9 @@
       },
       "devDependencies": {
         "@medusajs/types": "2.22.0",
-        "@mercurjs/core": "2.3.8-canary.4",
-        "@mercurjs/dashboard-sdk": "2.3.8-canary.4",
-        "@mercurjs/types": "2.3.8-canary.4",
+        "@mercurjs/core": "2.3.8",
+        "@mercurjs/dashboard-sdk": "2.3.8",
+        "@mercurjs/types": "2.3.8",
         "@types/lodash.debounce": "^4.0.8",
         "@types/react": "^18.3.2",
         "@types/react-dom": "^18.2.22",
@@ -565,17 +565,17 @@
     },
     "packages/docs": {
       "name": "@mercurjs/docs",
-      "version": "2.3.8-canary.4",
+      "version": "2.3.8",
     },
     "packages/providers/payout-stripe-connect": {
       "name": "@mercurjs/payout-stripe-connect",
-      "version": "2.3.8-canary.4",
+      "version": "2.3.8",
       "dependencies": {
         "stripe": "^15.5.0",
       },
       "devDependencies": {
         "@medusajs/framework": "2.22.0",
-        "@mercurjs/types": "2.3.8-canary.4",
+        "@mercurjs/types": "2.3.8",
         "tsup": "^8.5.0",
       },
       "peerDependencies": {
@@ -584,7 +584,7 @@
     },
     "packages/registry": {
       "name": "@mercurjs/registry",
-      "version": "2.3.8-canary.4",
+      "version": "2.3.8",
       "dependencies": {
         "@hookform/resolvers": "5.4.0",
         "@medusajs/core-flows": "2.22.0",
@@ -592,11 +592,11 @@
         "@medusajs/icons": "2.22.0",
         "@medusajs/medusa": "2.22.0",
         "@medusajs/ui": "4.2.3",
-        "@mercurjs/client": "2.3.8-canary.4",
-        "@mercurjs/core": "2.3.8-canary.4",
-        "@mercurjs/dashboard-sdk": "2.3.8-canary.4",
-        "@mercurjs/dashboard-shared": "2.3.8-canary.4",
-        "@mercurjs/vendor": "2.3.8-canary.4",
+        "@mercurjs/client": "2.3.8",
+        "@mercurjs/core": "2.3.8",
+        "@mercurjs/dashboard-sdk": "2.3.8",
+        "@mercurjs/dashboard-shared": "2.3.8",
+        "@mercurjs/vendor": "2.3.8",
         "@talkjs/react": "^0.1.11",
         "@tanstack/react-query": "5.64.2",
         "@tanstack/react-table": "8.21.3",
@@ -611,8 +611,8 @@
       },
       "devDependencies": {
         "@medusajs/cli": "2.22.0",
-        "@mercurjs/cli": "2.3.8-canary.4",
-        "@mercurjs/types": "2.3.8-canary.4",
+        "@mercurjs/cli": "2.3.8",
+        "@mercurjs/types": "2.3.8",
         "@swc/core": "^1.7.28",
         "@swc/jest": "^0.2.36",
         "@types/jest": "^30.0.0",
@@ -627,7 +627,7 @@
     },
     "packages/types": {
       "name": "@mercurjs/types",
-      "version": "2.3.8-canary.4",
+      "version": "2.3.8",
       "dependencies": {
         "@medusajs/types": "2.22.0",
       },
@@ -637,7 +637,7 @@
     },
     "packages/vendor": {
       "name": "@mercurjs/vendor",
-      "version": "2.3.8-canary.4",
+      "version": "2.3.8",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^8.0.0",
@@ -650,8 +650,8 @@
         "@medusajs/dashboard": "2.22.0",
         "@medusajs/icons": "2.22.0",
         "@medusajs/ui": "4.2.3",
-        "@mercurjs/client": "2.3.8-canary.4",
-        "@mercurjs/dashboard-shared": "2.3.8-canary.4",
+        "@mercurjs/client": "2.3.8",
+        "@mercurjs/dashboard-shared": "2.3.8",
         "@radix-ui/react-dialog": "1.1.19",
         "@radix-ui/react-dismissable-layer": "1.1.4",
         "@tanstack/react-query": "5.64.2",
@@ -681,9 +681,9 @@
       "devDependencies": {
         "@medusajs/types": "2.22.0",
         "@medusajs/ui-preset": "2.22.0",
-        "@mercurjs/core": "2.3.8-canary.4",
-        "@mercurjs/dashboard-sdk": "2.3.8-canary.4",
-        "@mercurjs/types": "2.3.8-canary.4",
+        "@mercurjs/core": "2.3.8",
+        "@mercurjs/dashboard-sdk": "2.3.8",
+        "@mercurjs/types": "2.3.8",
         "@types/react": "^18.3.2",
         "@types/react-dom": "^18.2.22",
         "autoprefixer": "^10.4.20",
