@@ -2994,7 +2994,12 @@
     "edit": {
       "header": "Edit Marketplace",
       "namePlaceholder": "ACME"
-    }
+    },
+    "defaultLeadtime": "Default lead time",
+    "defaultLeadtimeHint": "Business days a store needs before it ships an order. Used when neither the offer nor the store sets its own.",
+    "leadtimeDays_one": "{{count}} business day",
+    "leadtimeDays_other": "{{count}} business days",
+    "leadtimeInvalid": "Enter a whole number of days"
   },
   "store": {
     "domain": "Store",
@@ -4141,7 +4146,10 @@
       "province": "Province",
       "country_code": "Country Code",
       "seller": "Store",
-      "premium": "Featured"
+      "premium": "Featured",
+      "defaultLeadtime": "Default lead time",
+      "defaultLeadtimeHint": "Business days this store needs before it ships. Leave empty to use the marketplace default.",
+      "marketplaceDefault": "Marketplace default"
     },
     "status": {
       "open": "Active",
@@ -4471,7 +4479,9 @@
       "stockStatus": "Stock status",
       "variants": "Variants",
       "variantsCount_one": "{{count}} variant",
-      "variantsCount_other": "{{count}} variants"
+      "variantsCount_other": "{{count}} variants",
+      "leadtime": "Lead time",
+      "storeDefault": "Store default"
     },
     "detail": {
       "offerLabel": "Offer",

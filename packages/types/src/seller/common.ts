@@ -204,7 +204,7 @@ export interface SellerDTO {
   approved_at: Date | null
   rejected_at: Date | null
   is_premium: boolean
-  default_leadtime_to_ship: number
+  default_leadtime_to_ship: number | null
   closed_from: Date | null
   closed_to: Date | null
   closure_note: string | null

@@ -67,7 +67,7 @@ medusaIntegrationTestRunner({
               name: "New Seller",
               email: "newseller@test.com",
               currency_code: "usd",
-              default_leadtime_to_ship: 2,
+              default_leadtime_to_ship: null,
             })
           )
         })

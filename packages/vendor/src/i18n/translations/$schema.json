@@ -5197,6 +5197,15 @@
             },
             "store": {
               "type": "string"
+            },
+            "leadtime": {
+              "type": "string"
+            },
+            "leadtimeHint": {
+              "type": "string"
+            },
+            "storeDefault": {
+              "type": "string"
             }
           },
           "required": [
@@ -5223,7 +5232,10 @@
             "variantsCount_other",
             "manageInventory",
             "allowBackorders",
-            "store"
+            "store",
+            "leadtime",
+            "leadtimeHint",
+            "storeDefault"
           ],
           "additionalProperties": false
         },
@@ -13457,6 +13469,38 @@
             "updatedTaxInclusivitySuccessfully"
           ],
           "additionalProperties": false
+        },
+        "leadtime": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "hint": {
+              "type": "string"
+            },
+            "marketplaceDefault": {
+              "type": "string"
+            },
+            "days_one": {
+              "type": "string"
+            },
+            "days_other": {
+              "type": "string"
+            },
+            "invalid": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "label",
+            "hint",
+            "marketplaceDefault",
+            "days_one",
+            "days_other",
+            "invalid"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -13497,7 +13541,8 @@
         "paymentDetails",
         "professionalDetails",
         "timeOff",
-        "toast"
+        "toast",
+        "leadtime"
       ],
       "additionalProperties": false
     },

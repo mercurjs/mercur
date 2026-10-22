@@ -3,6 +3,7 @@ import { AdminStore } from "@medusajs/types"
 import { Badge, Container, Heading, Text } from "@medusajs/ui"
 import { usePermissions } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
+import { getMarketplaceDefaultLeadtime } from "@mercurjs/types"
 
 import { Link } from "react-router-dom"
 import { ActionMenu } from "../../../../../components/common/action-menu"
@@ -26,6 +27,7 @@ export const MarketplaceGeneralSection = ({ store }: MarketplaceGeneralSectionPr
   })
 
   const defaultCurrency = store.supported_currencies?.find((c) => c.is_default)
+  const defaultLeadtime = getMarketplaceDefaultLeadtime(store.metadata)
 
   const { sales_channel } = useSalesChannel(store.default_sales_channel_id!, {
     enabled: !!store.default_sales_channel_id && canViewSalesChannels,
@@ -144,6 +146,16 @@ export const MarketplaceGeneralSection = ({ store }: MarketplaceGeneralSectionPr
             </Text>
           )}
         </div>
+      </div>
+      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4" data-testid="store-general-section-leadtime">
+        <Text size="small" leading="compact" weight="plus" data-testid="store-general-section-leadtime-label">
+          {t("marketplace.defaultLeadtime")}
+        </Text>
+        <Text size="small" leading="compact" data-testid="store-general-section-leadtime-value">
+          {defaultLeadtime === null
+            ? "-"
+            : t("marketplace.leadtimeDays", { count: defaultLeadtime })}
+        </Text>
       </div>
     </Container>
   )

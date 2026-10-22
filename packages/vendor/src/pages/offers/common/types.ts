@@ -58,6 +58,7 @@ export type OfferDetail = OfferStockShape & {
   variant_id?: string | null
   seller_id?: string | null
   shipping_profile_id?: string | null
+  leadtime_to_ship?: number | null
   condition_id?: string | null
   manage_inventory?: boolean | null
   allow_backorder?: boolean | null

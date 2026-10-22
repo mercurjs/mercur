@@ -1272,7 +1272,10 @@
       "variantsCount_other": "{{count}} variants",
       "manageInventory": "Manage inventory",
       "allowBackorders": "Allow backorders",
-      "store": "Store"
+      "store": "Store",
+      "leadtime": "Lead time",
+      "leadtimeHint": "Business days you need before you ship this offer. Leave empty to use your store default.",
+      "storeDefault": "Store default"
     },
     "status": {
       "published": "Published",
@@ -3405,6 +3408,14 @@
       "currenciesRemoved": "Removed currencies from the store successfully",
       "localesRemoved": "Removed locales from the store successfully",
       "updatedTaxInclusivitySuccessfully": "Tax inclusive pricing updated successfully"
+    },
+    "leadtime": {
+      "label": "Default lead time",
+      "hint": "Business days you need before you ship an order. Offers without their own lead time use it. Leave empty to use the marketplace default.",
+      "marketplaceDefault": "Marketplace default",
+      "days_one": "{{count}} business day",
+      "days_other": "{{count}} business days",
+      "invalid": "Enter a whole number of days"
     }
   },
   "regions": {

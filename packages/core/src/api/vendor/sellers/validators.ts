@@ -84,7 +84,7 @@ export const UpdateSeller = z.object({
   closed_from: z.coerce.date().nullable().optional(),
   closed_to: z.coerce.date().nullable().optional(),
   closure_note: z.string().nullable().optional(),
-  default_leadtime_to_ship: z.number().int().min(0).optional(),
+  default_leadtime_to_ship: z.number().int().min(0).nullable().optional(),
   metadata: z.record(z.string(), z.unknown()).nullable().optional(),
 })
 export const VendorUpdateSeller = WithAdditionalData(UpdateSeller)

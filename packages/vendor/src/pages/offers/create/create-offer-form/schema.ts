@@ -13,6 +13,9 @@ const VariantRowSchema = z.object({
   sku: z.string().max(64).default(""),
   shipping_profile_id: z.string().default(""),
   condition_id: z.string().default(""),
+  leadtime_to_ship: z
+    .union([z.coerce.number().int().min(0), z.literal("")])
+    .default(""),
   prices: z.record(z.string(), optionalFloat).default({}),
   region_prices: z.record(z.string(), optionalFloat).default({}),
   inventory: z

@@ -32,6 +32,7 @@ export const EditOfferForm = ({ offer }: Props) => {
     defaultValues: {
       sku: offer.sku ?? "",
       shipping_profile_id: offer.shipping_profile_id ?? "",
+      leadtime_to_ship: offer.leadtime_to_ship?.toString() ?? "",
       metadata: offer.metadata ?? null,
     },
   })
@@ -43,6 +44,9 @@ export const EditOfferForm = ({ offer }: Props) => {
       {
         sku: values.sku,
         shipping_profile_id: values.shipping_profile_id,
+        leadtime_to_ship: values.leadtime_to_ship
+          ? Number(values.leadtime_to_ship)
+          : null,
         metadata: values.metadata ?? undefined,
       },
       {
@@ -97,6 +101,29 @@ export const EditOfferForm = ({ offer }: Props) => {
                     </Select.Content>
                   </Select>
                 </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="leadtime_to_ship"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label optional>{t("offers.fields.leadtime")}</Form.Label>
+                <Form.Control>
+                  <Input
+                    type="number"
+                    min={0}
+                    step={1}
+                    inputMode="numeric"
+                    placeholder={t("offers.fields.storeDefault")}
+                    {...field}
+                    data-testid="offer-edit-form-leadtime-input"
+                  />
+                </Form.Control>
+                <Form.Hint>{t("offers.fields.leadtimeHint")}</Form.Hint>
                 <Form.ErrorMessage />
               </Form.Item>
             )}
