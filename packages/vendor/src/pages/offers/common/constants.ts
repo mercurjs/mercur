@@ -4,6 +4,7 @@ export const OFFER_IDS_KEY = "offer_ids"
 export const OFFER_DETAIL_FIELDS = [
   "id",
   "sku",
+  "leadtime_to_ship",
   "ean",
   "upc",
   "variant_id",

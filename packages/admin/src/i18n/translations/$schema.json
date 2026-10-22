@@ -16450,6 +16450,12 @@
             },
             "variantsCount_other": {
               "type": "string"
+            },
+            "leadtime": {
+              "type": "string"
+            },
+            "storeDefault": {
+              "type": "string"
             }
           },
           "required": [
@@ -16460,7 +16466,9 @@
             "upc",
             "shippingProfile",
             "requiredQuantity",
-            "stockStatus"
+            "stockStatus",
+            "leadtime",
+            "storeDefault"
           ],
           "additionalProperties": false
         },
@@ -17012,11 +17020,60 @@
             "regionsHint"
           ],
           "additionalProperties": false
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "defaultLeadtime": {
+              "type": "string"
+            },
+            "defaultLeadtimeHint": {
+              "type": "string"
+            },
+            "marketplaceDefault": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "defaultLeadtime",
+            "defaultLeadtimeHint",
+            "marketplaceDefault"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
         "regions",
-        "create"
+        "create",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "marketplace": {
+      "type": "object",
+      "properties": {
+        "defaultLeadtime": {
+          "type": "string"
+        },
+        "defaultLeadtimeHint": {
+          "type": "string"
+        },
+        "leadtimeDays_one": {
+          "type": "string"
+        },
+        "leadtimeDays_other": {
+          "type": "string"
+        },
+        "leadtimeInvalid": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "defaultLeadtime",
+        "defaultLeadtimeHint",
+        "leadtimeDays_one",
+        "leadtimeDays_other",
+        "leadtimeInvalid"
       ],
       "additionalProperties": false
     }
@@ -17092,7 +17149,8 @@
     "roles",
     "permissions",
     "richTextEditor",
-    "stores"
+    "stores",
+    "marketplace"
   ],
   "additionalProperties": false
 }

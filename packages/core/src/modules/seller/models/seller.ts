@@ -25,7 +25,7 @@ const Seller = model
     approved_at: model.dateTime().nullable(),
     rejected_at: model.dateTime().nullable(),
     is_premium: model.boolean().default(false),
-    default_leadtime_to_ship: model.number().default(2),
+    default_leadtime_to_ship: model.number().nullable(),
     closed_from: model.dateTime().nullable(),
     closed_to: model.dateTime().nullable(),
     closure_note: model.text().nullable(),

@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import i18n from "i18next"
 import { HttpTypes } from "@medusajs/types"
 import { Button, Input, Select, toast } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
@@ -6,6 +7,10 @@ import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { usePermissionGate } from "@mercurjs/dashboard-shared"
+import {
+  getMarketplaceDefaultLeadtime,
+  MARKETPLACE_DEFAULT_LEADTIME_KEY,
+} from "@mercurjs/types"
 
 import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip"
 import { Form } from "../../../../../components/common/form"
@@ -27,6 +32,10 @@ const EditStoreSchema = z.object({
   default_region_id: z.string().optional(),
   default_sales_channel_id: z.string().optional(),
   default_location_id: z.string().optional(),
+  default_leadtime_to_ship: z
+    .string()
+    .regex(/^\d*$/, { message: i18n.t("marketplace.leadtimeInvalid") })
+    .optional(),
 })
 
 export const EditMarketplaceForm = ({ store }: EditMarketplaceFormProps) => {
@@ -42,6 +51,8 @@ export const EditMarketplaceForm = ({ store }: EditMarketplaceFormProps) => {
         undefined,
       default_sales_channel_id: store.default_sales_channel_id || undefined,
       default_location_id: store.default_location_id || undefined,
+      default_leadtime_to_ship:
+        getMarketplaceDefaultLeadtime(store.metadata)?.toString() ?? "",
     },
     resolver: zodResolver(EditStoreSchema),
   })
@@ -83,10 +94,16 @@ export const EditMarketplaceForm = ({ store }: EditMarketplaceFormProps) => {
   })
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    const { default_currency_code, ...rest } = values
+    const { default_currency_code, default_leadtime_to_ship, ...rest } = values
 
     const normalizedMutation: HttpTypes.AdminUpdateStore = {
       ...rest,
+      metadata: {
+        ...(store.metadata ?? {}),
+        [MARKETPLACE_DEFAULT_LEADTIME_KEY]: default_leadtime_to_ship
+          ? Number(default_leadtime_to_ship)
+          : null,
+      },
       supported_currencies: store.supported_currencies?.map((c) => ({
         ...c,
         is_default: c.currency_code === default_currency_code,
@@ -248,6 +265,29 @@ export const EditMarketplaceForm = ({ store }: EditMarketplaceFormProps) => {
                   </Form.Item>
                 )
               }}
+            />
+            <Form.Field
+              control={form.control}
+              name="default_leadtime_to_ship"
+              render={({ field }) => (
+                <Form.Item data-testid="store-edit-form-leadtime-item">
+                  <Form.Label optional data-testid="store-edit-form-leadtime-label">
+                    {t("marketplace.defaultLeadtime")}
+                  </Form.Label>
+                  <Form.Control data-testid="store-edit-form-leadtime-control">
+                    <Input
+                      type="number"
+                      min={0}
+                      step={1}
+                      inputMode="numeric"
+                      {...field}
+                      data-testid="store-edit-form-leadtime-input"
+                    />
+                  </Form.Control>
+                  <Form.Hint>{t("marketplace.defaultLeadtimeHint")}</Form.Hint>
+                  <Form.ErrorMessage data-testid="store-edit-form-leadtime-error" />
+                </Form.Item>
+              )}
             />
           </div>
         </RouteDrawer.Body>

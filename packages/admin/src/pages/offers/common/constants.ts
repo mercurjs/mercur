@@ -60,6 +60,7 @@ export const OFFER_DETAIL_FIELDS = [
 export const OFFER_VARIANT_DETAIL_FIELDS = [
   "id",
   "sku",
+  "leadtime_to_ship",
   "ean",
   "upc",
   "variant_id",

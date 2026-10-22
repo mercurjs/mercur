@@ -237,6 +237,28 @@ const useColumns = ({
             />
           ),
       }),
+      columnHelper.column({
+        id: "leadtime_to_ship",
+        name: t("offers.fields.leadtime"),
+        header: t("offers.fields.leadtime"),
+        field: (context) => {
+          const row = context.row.original;
+          return isGroup(row)
+            ? null
+            : `variants.${row.__formIndex}.leadtime_to_ship`;
+        },
+        type: "number",
+        cell: (context) =>
+          isGroup(context.row.original) ? (
+            <DataGrid.ReadonlyCell context={context} />
+          ) : (
+            <DataGrid.NumberCell
+              context={context}
+              min={0}
+              placeholder={t("offers.fields.storeDefault")}
+            />
+          ),
+      }),
       ...createDataGridLocationStockColumns<GridRow, CreateOfferFormValues>({
         stockLocations,
         isReadyOnly: (context) => isGroup(context.row.original),

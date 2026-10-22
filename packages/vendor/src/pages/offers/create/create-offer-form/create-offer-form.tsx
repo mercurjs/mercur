@@ -148,6 +148,7 @@ export const CreateOfferForm = () => {
           sku: variant.sku ?? "",
           shipping_profile_id: "",
           condition_id: defaultConditionId,
+          leadtime_to_ship: "",
           prices: { ...emptyPrices },
           region_prices: {},
           inventory: { ...emptyInventory },
@@ -270,6 +271,9 @@ export const CreateOfferForm = () => {
         variant_id: row.variant_id,
         shipping_profile_id: row.shipping_profile_id,
         ...(row.condition_id ? { condition_id: row.condition_id } : {}),
+        ...(row.leadtime_to_ship !== "" && row.leadtime_to_ship !== undefined
+          ? { leadtime_to_ship: Number(row.leadtime_to_ship) }
+          : {}),
         prices,
         inventory_items: [
           {
