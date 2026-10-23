@@ -26,6 +26,7 @@ import {
   createOffersStep,
   ensureVariantPriceSetsStep,
   validateOfferConditionsStep,
+  validateOfferProductsStep,
 } from "../steps"
 import { linkSellerInventoryItemStep } from "../../inventory-item/steps"
 import { OfferWorkflowEvents } from "../../events"
@@ -90,10 +91,18 @@ export const createOffersWorkflow: ReturnWorkflow<
         "upc",
         "price_set.id",
         "product.id",
+        "product.status",
         ...VARIANT_INVENTORY_ATTRIBUTES,
       ],
       filters: { id: variantIds },
     }).config({ name: "get-variants" })
+
+    validateOfferProductsStep({
+      offers: transform({ input }, ({ input }) =>
+        input.offers.map((o) => ({ seller_id: o.seller_id, variant_id: o.variant_id })),
+      ),
+      variants,
+    })
 
     const inventoryItemsToCreate = transform(
       { input, variants },

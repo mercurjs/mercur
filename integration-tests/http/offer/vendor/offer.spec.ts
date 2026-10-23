@@ -3,7 +3,11 @@ import { MedusaContainer } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createShippingProfile } from "../../../helpers/create-shipping-profile"
-import { createVendorProduct } from "../../../helpers/create-product"
+import {
+    assignProductsToSeller,
+    createVendorProduct,
+} from "../../../helpers/create-product"
+import { Modules } from "@medusajs/framework/utils"
 import { linkSellerCurrencyRegions } from "../../../helpers/link-seller-regions"
 
 jest.setTimeout(50000)
@@ -14,6 +18,8 @@ medusaIntegrationTestRunner({
             let appContainer: MedusaContainer
             let seller1Headers: any
             let seller2Headers: any
+            let seller1Id: string
+            let seller2Id: string
 
             let seedCounter = 0
             const seedSellerOfferDeps = async (headers: any) => {
@@ -52,6 +58,7 @@ medusaIntegrationTestRunner({
                     name: "Seller One",
                 })
                 seller1Headers = result1.headers
+                seller1Id = result1.seller.id
                 await linkSellerCurrencyRegions(appContainer, result1.seller.id, [
                     "eur",
                     "gbp",
@@ -62,6 +69,7 @@ medusaIntegrationTestRunner({
                     name: "Seller Two",
                 })
                 seller2Headers = result2.headers
+                seller2Id = result2.seller.id
             })
 
             describe("POST /vendor/offers", () => {
@@ -102,6 +110,71 @@ medusaIntegrationTestRunner({
                     expect(
                         response.data.offer.inventory_items[0].id
                     ).toBeDefined()
+                })
+
+                it("should reject an offer on a product restricted to other sellers", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+                    await assignProductsToSeller(appContainer, seller2Id, [deps.product_id])
+
+                    const response = await api
+                        .post(
+                            `/vendor/offers`,
+                            {
+                                sku: "SELLER1-RESTRICTED",
+                                variant_id: deps.variant_id,
+                                shipping_profile_id: deps.shipping_profile_id,
+                                inventory_items: [{ required_quantity: 1 }],
+                                prices: [{ amount: 2000, currency_code: "usd" }],
+                            },
+                            seller1Headers
+                        )
+                        .catch((e: any) => e.response)
+
+                    expect(response.status).toEqual(400)
+                    expect(response.data.message).toContain("restricted to other sellers")
+                })
+
+                it("should allow an offer on a product restricted to the offering seller", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+                    await assignProductsToSeller(appContainer, seller1Id, [deps.product_id])
+
+                    const response = await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "SELLER1-ALLOWED",
+                            variant_id: deps.variant_id,
+                            shipping_profile_id: deps.shipping_profile_id,
+                            inventory_items: [{ required_quantity: 1 }],
+                            prices: [{ amount: 2000, currency_code: "usd" }],
+                        },
+                        seller1Headers
+                    )
+
+                    expect(response.status).toEqual(201)
+                })
+
+                it("should reject an offer on a rejected product", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+                    await appContainer
+                        .resolve(Modules.PRODUCT)
+                        .updateProducts(deps.product_id, { status: "rejected" })
+
+                    const response = await api
+                        .post(
+                            `/vendor/offers`,
+                            {
+                                sku: "SELLER1-REJECTED",
+                                variant_id: deps.variant_id,
+                                shipping_profile_id: deps.shipping_profile_id,
+                                inventory_items: [{ required_quantity: 1 }],
+                                prices: [{ amount: 2000, currency_code: "usd" }],
+                            },
+                            seller1Headers
+                        )
+                        .catch((e: any) => e.response)
+
+                    expect(response.status).toEqual(400)
+                    expect(response.data.message).toContain("rejected")
                 })
 
                 it("should reject create when variant does not exist", async () => {
