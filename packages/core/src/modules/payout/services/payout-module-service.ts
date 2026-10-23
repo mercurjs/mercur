@@ -465,6 +465,9 @@ export default class PayoutModuleService extends MedusaService({
             return await this.baseRepository_.serialize<PayoutDTO>(payout)
         }
 
+        const attempt = Number(payout.data?.attempts ?? 0) + 1
+        await this.updatePayouts({ id: payout.id, data: { ...(payout.data ?? {}), attempts: attempt } }, sharedContext)
+
         let updated: InferEntityType<typeof Payout>
         try {
             const response = await this.payoutProviderService_.createPayout({
@@ -472,7 +475,7 @@ export default class PayoutModuleService extends MedusaService({
                 account: this.accountRef(account),
                 amount: payout.amount,
                 currency_code: payout.currency_code,
-                context: { idempotency_key: payout.id },
+                context: { idempotency_key: attempt === 1 ? payout.id : `${payout.id}:${attempt}` },
                 metadata: {
                     payout_id: payout.id,
                     ...(payout.settlement_id ? { settlement_id: payout.settlement_id } : {}),
@@ -485,7 +488,7 @@ export default class PayoutModuleService extends MedusaService({
                     status: response.status,
                     provider_payout_id: response.id,
                     status_reason: null,
-                    data: response.data,
+                    data: { ...response.data, attempts: attempt },
                 },
                 sharedContext
             )
@@ -540,6 +543,11 @@ export default class PayoutModuleService extends MedusaService({
         }
 
         const account = transfer.account
+        // A provider caches an idempotency key with the request that first
+        // used it, so a retry after a refused attempt needs a fresh key.
+        const attempt = Number(transfer.data?.attempts ?? 0) + 1
+        const idempotencyKey = attempt === 1 ? transfer.id : `${transfer.id}:${attempt}`
+        await this.updateTransfers({ id: transfer.id, data: { ...(transfer.data ?? {}), attempts: attempt } }, sharedContext)
         const metadata: Record<string, string> = {
             transfer_id: transfer.id,
             ...(transfer.order_id ? { order_id: transfer.order_id } : {}),
@@ -566,7 +574,7 @@ export default class PayoutModuleService extends MedusaService({
                         amount: transfer.amount,
                         currency_code: transfer.currency_code,
                         metadata,
-                        context: { idempotency_key: transfer.id },
+                        context: { idempotency_key: idempotencyKey },
                     })
                     break
                 }
@@ -577,7 +585,7 @@ export default class PayoutModuleService extends MedusaService({
                         amount: transfer.amount,
                         currency_code: transfer.currency_code,
                         metadata,
-                        context: { idempotency_key: transfer.id },
+                        context: { idempotency_key: idempotencyKey },
                     })
                     break
                 default: {
@@ -592,7 +600,7 @@ export default class PayoutModuleService extends MedusaService({
                         source_payment: source,
                         transfer_group: (transfer.data?.transfer_group as string | undefined) ?? null,
                         metadata,
-                        context: { idempotency_key: transfer.id },
+                        context: { idempotency_key: idempotencyKey },
                     })
                 }
             }
@@ -603,7 +611,7 @@ export default class PayoutModuleService extends MedusaService({
                     status: response.status,
                     provider_transfer_id: response.id,
                     status_reason: null,
-                    data: { ...(transfer.data ?? {}), provider: response.data },
+                    data: { ...(transfer.data ?? {}), attempts: attempt, provider: response.data },
                 },
                 sharedContext
             )

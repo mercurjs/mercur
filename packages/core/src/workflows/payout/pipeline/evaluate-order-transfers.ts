@@ -14,6 +14,7 @@ import {
   decideOrderTransfer,
 } from "../utils/transfer-factory"
 import { PayoutJobContext } from "../utils/run-payout-job"
+import { ORDER_FULFILLMENT_FIELDS, deriveFulfillmentStatus } from "../utils/fulfillment-status"
 import { processTransferWorkflow } from "../workflows/process-transfer"
 
 export const TRANSFERS_CHECKPOINT = "transfers"
@@ -24,11 +25,12 @@ const ORDER_FIELDS = [
   "id",
   "status",
   "canceled_at",
-  "fulfillment_status",
+  ...ORDER_FULFILLMENT_FIELDS,
   "total",
   "tax_total",
   "currency_code",
   "created_at",
+  "credit_lines.amount",
   "items.id",
   "shipping_methods.id",
   "seller.id",
@@ -46,6 +48,7 @@ const ORDER_FIELDS = [
   "payment_collections.payments.data",
   "payment_collections.payments.captures.amount",
   "payment_collections.payments.captures.raw_amount",
+  "payment_collections.payments.refunds.id",
   "payment_collections.payments.refunds.amount",
   "payment_collections.payments.refunds.raw_amount",
 ]
@@ -59,6 +62,7 @@ type OrderRow = {
   tax_total: BigNumberInput | null
   currency_code: string
   created_at: Date | string
+  credit_lines?: { amount: BigNumberInput }[] | null
   items?: { id: string }[] | null
   shipping_methods?: { id: string }[] | null
   seller?: {
@@ -81,13 +85,31 @@ type OrderRow = {
       canceled_at: Date | string | null
       data: Record<string, unknown> | null
       captures?: { amount: BigNumberInput; raw_amount?: BigNumberInput | null }[] | null
-      refunds?: { amount: BigNumberInput; raw_amount?: BigNumberInput | null }[] | null
+      refunds?: { id: string; amount: BigNumberInput; raw_amount?: BigNumberInput | null }[] | null
     }[] | null
   }[] | null
 }
 
+/**
+ * A refund that lands before the order is transferred cannot be reversed
+ * later (the charge can only source what is left), so the transfer is built
+ * net of it and the reversal job skips it.
+ */
+export function absorbedRefundsOf(order: OrderRow): { ids: string[]; total: BigNumberInput } {
+  const refunds = (order.payment_collections ?? []).flatMap((c) => c.payments ?? []).flatMap((p) => p.refunds ?? [])
+  return {
+    ids: refunds.map((r) => r.id),
+    total: refunds.reduce<BigNumberInput>((acc, r) => MathBN.add(acc, r.raw_amount ?? r.amount), 0),
+  }
+}
+
 const sum = (rows: { amount: BigNumberInput; raw_amount?: BigNumberInput | null }[] | null | undefined) =>
   (rows ?? []).reduce<BigNumberInput>((acc, row) => MathBN.add(acc, row.raw_amount ?? row.amount), 0)
+
+/** Order total before refunds: Medusa books a refund as a credit line that lowers `total`. */
+export function grossTotalOf(order: { total: BigNumberInput; credit_lines?: { amount: BigNumberInput }[] | null }): BigNumberInput {
+  return (order.credit_lines ?? []).reduce<BigNumberInput>((acc, line) => MathBN.add(acc, line.amount), order.total)
+}
 
 export function paymentStateOf(order: OrderRow): TransferPaymentState {
   const payments = (order.payment_collections ?? []).flatMap((c) => c.payments ?? [])
@@ -158,7 +180,10 @@ async function loadOrders(container: MedusaContainer, filters: Record<string, un
     filters,
     pagination: { take, order: { created_at: orderBy } },
   })
-  return data as unknown as OrderRow[]
+  return (data as unknown as OrderRow[]).map((order) => ({
+    ...order,
+    fulfillment_status: deriveFulfillmentStatus(order as never),
+  }))
 }
 
 /**
@@ -185,6 +210,16 @@ export async function upsertOrderTransfers(
       : null
     const payment = paymentStateOf(order)
 
+    const gross = grossTotalOf(order)
+    const absorbed = absorbedRefundsOf(order)
+    const net = MathBN.sub(gross, absorbed.total)
+    const commission = commissions.get(order.id) ?? 0
+    // The seller's share of an absorbed refund carries its share of the commission.
+    const effectiveCommission =
+      MathBN.gt(absorbed.total, 0) && MathBN.gt(gross, 0)
+        ? MathBN.div(MathBN.mult(commission, net), gross)
+        : commission
+
     const decision = decideOrderTransfer({
       order: {
         id: order.id,
@@ -192,14 +227,14 @@ export async function upsertOrderTransfers(
         status: order.status,
         canceled_at: order.canceled_at,
         fulfillment_status: order.fulfillment_status,
-        total: order.total,
+        total: net,
         tax_total: order.tax_total,
         currency_code: order.currency_code,
         created_at: order.created_at,
       },
       account,
       payment,
-      commission_total: commissions.get(order.id) ?? 0,
+      commission_total: effectiveCommission,
       required_fulfillment_status: options.transfers.requiredFulfillmentStatus,
       tax_split: !!options.transfers.taxSplit,
     })
@@ -209,6 +244,7 @@ export async function upsertOrderTransfers(
     const data = {
       source_payment: payment ? { id: payment.id, provider_id: payment.provider_id, data: payment.data } : null,
       transfer_group: order.id,
+      absorbed_refund_ids: absorbed.ids,
     }
 
     const plan: { type: TransferType; amount: BigNumberInput; existing?: TransferDTO }[] = [
@@ -235,7 +271,7 @@ export async function upsertOrderTransfers(
           amount: Number(item.amount),
           account_id: account?.id ?? item.existing.account_id,
           source_payment_id: payment?.id ?? null,
-          data,
+          data: { ...(item.existing.data ?? {}), ...data },
         })
         bump(updated.status)
         if (updated.status === TransferStatus.PENDING) pending.push(updated.id)

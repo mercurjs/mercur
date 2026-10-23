@@ -1,3 +1,4 @@
+import { BigNumberInput } from "@medusajs/framework/types"
 import { MedusaError } from "@medusajs/framework/utils"
 import {
   AccountOutput,
@@ -232,29 +233,83 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
     return typeof charge === "string" ? charge : charge.id
   }
 
+  /**
+   * A platform whose balance currency differs from the order currency settles
+   * the charge in the balance currency, and a transfer sourced on that charge
+   * must use it. The requested amount is converted at the charge's own rate.
+   */
+  protected async settleAmount(
+    sourceTransaction: string | undefined,
+    amount: BigNumberInput,
+    currency: string
+  ): Promise<{ amount: number; currency: string; rate: number | null }> {
+    const requested = getSmallestUnit(amount, currency)
+    if (!sourceTransaction) {
+      return { amount: requested, currency, rate: null }
+    }
+
+    const charge = await this.stripe_.charges.retrieve(sourceTransaction, { expand: ["balance_transaction"] })
+    const balanceTransaction = charge.balance_transaction as Stripe.BalanceTransaction | null
+    if (!balanceTransaction || balanceTransaction.currency === currency.toLowerCase()) {
+      return { amount: requested, currency, rate: null }
+    }
+
+    const rate = balanceTransaction.amount / charge.amount
+    return {
+      amount: Math.round(requested * rate),
+      currency: balanceTransaction.currency,
+      rate,
+    }
+  }
+
   async createTransfer(input: CreateTransferInput): Promise<TransferOutput> {
     const sourceTransaction = await this.resolveSourceTransaction(input.source_payment)
+    const settled = await this.settleAmount(sourceTransaction, input.amount, input.currency_code)
 
     const transfer = await this.stripe_.transfers.create(
       {
-        amount: getSmallestUnit(input.amount, input.currency_code),
-        currency: input.currency_code,
+        amount: settled.amount,
+        currency: settled.currency,
         destination: input.account.id,
         source_transaction: sourceTransaction,
         transfer_group: input.transfer_group ?? undefined,
-        metadata: input.metadata,
+        metadata: {
+          ...input.metadata,
+          requested_amount: String(input.amount),
+          requested_currency: input.currency_code,
+        },
       },
       { idempotencyKey: input.context?.idempotency_key }
     )
 
-    return { id: transfer.id, status: TransferStatus.CREATED, data: asRecord(transfer) }
+    return {
+      id: transfer.id,
+      status: TransferStatus.CREATED,
+      data: {
+        ...asRecord(transfer),
+        requested_amount: String(input.amount),
+        requested_currency: input.currency_code,
+        settled_rate: settled.rate,
+      },
+    }
   }
 
   async reverseTransfer(input: ReverseTransferInput): Promise<TransferOutput> {
+    const provider = (input.transfer.data?.provider ?? input.transfer.data ?? {}) as Record<string, unknown>
+    const requestedAmount = Number(provider.requested_amount ?? NaN)
+    const settledAmount = Number(provider.amount ?? NaN)
+    // Reversals are denominated in the transfer's currency; scale the share
+    // of the original request when the transfer settled in another currency.
+    const amount =
+      Number.isFinite(requestedAmount) && Number.isFinite(settledAmount) && requestedAmount > 0 &&
+      String(provider.currency ?? "").toLowerCase() !== input.currency_code.toLowerCase()
+        ? Math.round((settledAmount * Number(input.amount)) / requestedAmount)
+        : getSmallestUnit(input.amount, input.currency_code)
+
     const reversal = await this.stripe_.transfers.createReversal(
       input.transfer.id,
       {
-        amount: getSmallestUnit(input.amount, input.currency_code),
+        amount,
         metadata: input.metadata,
       },
       { idempotencyKey: input.context?.idempotency_key }
@@ -280,11 +335,36 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
   }
 
   async createPayout(input: CreatePayoutInput): Promise<PayoutOutput> {
+    const requested = getSmallestUnit(input.amount, input.currency_code)
+    const balance = await this.stripe_.balance.retrieve({}, { stripeAccount: input.account.id })
+    const inRequested = balance.available.find((b) => b.currency === input.currency_code.toLowerCase())
+
+    let amount = requested
+    let currency = input.currency_code
+    if (!inRequested || inRequested.amount < requested) {
+      // The connected balance holds what the transfers settled in; when that
+      // is another currency (or short in this one), pay out what is available.
+      const candidate = balance.available
+        .filter((b) => b.amount > 0)
+        .sort((a, b) => b.amount - a.amount)[0]
+      if (!candidate) {
+        throw new PayoutProviderError(
+          `No available balance on ${input.account.id} to pay out ${input.amount} ${input.currency_code}`
+        )
+      }
+      amount = candidate.amount
+      currency = candidate.currency
+    }
+
     const payout = await this.stripe_.payouts.create(
       {
-        amount: getSmallestUnit(input.amount, input.currency_code),
-        currency: input.currency_code,
-        metadata: input.metadata,
+        amount,
+        currency,
+        metadata: {
+          ...input.metadata,
+          requested_amount: String(input.amount),
+          requested_currency: input.currency_code,
+        },
       },
       { idempotencyKey: input.context?.idempotency_key, stripeAccount: input.account.id }
     )

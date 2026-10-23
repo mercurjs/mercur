@@ -25,6 +25,8 @@ const makeStripe = (calls: Call[]) => {
       createReversal: record("transfers.createReversal", { id: "trr_1" }),
     },
     payouts: { create: record("payouts.create", { id: "po_1", status: "pending" }) },
+    charges: { retrieve: record("charges.retrieve", { id: "ch_1", amount: 25800, currency: "eur", balance_transaction: { currency: "eur", amount: 25800 } }) },
+    balance: { retrieve: record("balance.retrieve", { available: [{ currency: "eur", amount: 100000 }] }) },
     paymentIntents: { retrieve: record("paymentIntents.retrieve", { id: "pi_1", status: "succeeded", latest_charge: "ch_from_pi" }) },
     webhooks: { constructEvent: (raw: string) => JSON.parse(raw) },
   }
@@ -87,8 +89,9 @@ describe("StripeConnectPayoutProviderService", () => {
       metadata: { transfer_id: "trf_1" },
       context: { idempotency_key: "trf_1" },
     })
-    expect(calls[0].method).toBe("transfers.create")
-    expect(calls[0].args[0]).toMatchObject({ amount: 16200, currency: "eur", destination: "acct_seller", source_transaction: "ch_1", transfer_group: "order_1" })
+    expect(calls[0].method).toBe("charges.retrieve")
+    expect(calls[1].method).toBe("transfers.create")
+    expect(calls[1].args[0]).toMatchObject({ amount: 16200, currency: "eur", destination: "acct_seller", source_transaction: "ch_1", transfer_group: "order_1" })
 
     calls.length = 0
     await service.createTransfer({
@@ -98,7 +101,7 @@ describe("StripeConnectPayoutProviderService", () => {
       source_payment: { id: "pay_2", provider_id: "pp_x", data: { id: "pi_1" } },
     })
     expect(calls[0].method).toBe("paymentIntents.retrieve")
-    expect(calls[1].args[0]).toMatchObject({ source_transaction: "ch_from_pi" })
+    expect(calls[2].args[0]).toMatchObject({ source_transaction: "ch_from_pi" })
   })
 
   it("reverses, debits and pays out on the connected account", async () => {
@@ -118,9 +121,10 @@ describe("StripeConnectPayoutProviderService", () => {
 
     calls.length = 0
     const payout = await service.createPayout({ account, amount: 79, currency_code: "eur", context: { idempotency_key: "pout_1" } })
-    expect(calls[0].method).toBe("payouts.create")
-    expect(calls[0].args[0]).toMatchObject({ amount: 7900, currency: "eur" })
-    expect(calls[0].args[1]).toMatchObject({ stripeAccount: "acct_seller", idempotencyKey: "pout_1" })
+    expect(calls[0].method).toBe("balance.retrieve")
+    expect(calls[1].method).toBe("payouts.create")
+    expect(calls[1].args[0]).toMatchObject({ amount: 7900, currency: "eur" })
+    expect(calls[1].args[1]).toMatchObject({ stripeAccount: "acct_seller", idempotencyKey: "pout_1" })
     expect(payout.status).toBe(PayoutStatus.PROCESSING)
   })
 

@@ -134,7 +134,9 @@ export async function buildSettlements(
       }
       if (previous && previous.status === SettlementStatus.OPEN) {
         const [openPayout] = await service.listPayouts({ settlement_id: previous.id })
-        if (!openPayout || ![PayoutStatus.PAID, PayoutStatus.ABORTED, PayoutStatus.CANCELED].includes(openPayout.status)) {
+        // A payout the provider already accepted no longer holds the chain; only
+        // one that still has to be sent (or was refused) does.
+        if (!openPayout || ![PayoutStatus.PAID, PayoutStatus.PROCESSING, PayoutStatus.ABORTED, PayoutStatus.CANCELED].includes(openPayout.status)) {
           counts.blocked += 1
           continue
         }

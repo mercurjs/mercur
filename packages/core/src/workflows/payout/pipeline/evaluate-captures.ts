@@ -4,6 +4,7 @@ import { HttpTypes, MercurModules, PayoutStatusReason } from "@mercurjs/types"
 
 import PayoutModuleService from "../../../modules/payout/services/payout-module-service"
 import { decideCapture, CaptureDecision } from "../utils/capture-decision"
+import { ORDER_FULFILLMENT_FIELDS, deriveFulfillmentStatus } from "../utils/fulfillment-status"
 import { PayoutJobContext } from "../utils/run-payout-job"
 import {
   CAPTURE_ERROR_KEY,
@@ -106,21 +107,29 @@ export async function listPendingCaptures(
     return []
   }
 
-  const { data: groups } = await query.graph({
+  const { data: groupRows } = await query.graph({
     entity: "order_group",
-    fields: [
-      "id",
-      "display_id",
-      "cart_id",
-      "orders.id",
-      "orders.status",
-      "orders.canceled_at",
-      "orders.fulfillment_status",
-      "orders.total",
-      "orders.metadata",
-    ],
+    fields: ["id", "display_id", "cart_id", "orders.id"],
     filters: { cart_id: cartIds },
   })
+
+  // fulfillment_status is derived by the order module and only resolves when
+  // orders are the root of the query, so read them in a second pass.
+  const orderIds = groupRows.flatMap((group) => (group.orders ?? []).map((o) => o.id))
+  const { data: orderRows } = orderIds.length
+    ? await query.graph({
+        entity: "order",
+        fields: ["id", "status", "canceled_at", "total", "metadata", ...ORDER_FULFILLMENT_FIELDS],
+        filters: { id: orderIds },
+      })
+    : { data: [] }
+  const orderById = new Map(
+    orderRows.map((order) => [order.id, { ...order, fulfillment_status: deriveFulfillmentStatus(order as never) }])
+  )
+  const groups = groupRows.map((group) => ({
+    ...group,
+    orders: (group.orders ?? []).map((o) => orderById.get(o.id)).filter(Boolean),
+  }))
 
   const groupByCart = new Map(groups.map((group) => [group.cart_id, group]))
   const result: PendingCapture[] = []

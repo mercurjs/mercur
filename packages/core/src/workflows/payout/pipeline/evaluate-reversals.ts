@@ -10,7 +10,7 @@ import {
 import PayoutModuleService from "../../../modules/payout/services/payout-module-service"
 import { decideReversal } from "../utils/transfer-factory"
 import { PayoutJobContext } from "../utils/run-payout-job"
-import { commissionTotalsFor, dispatchPending } from "./evaluate-order-transfers"
+import { commissionTotalsFor, dispatchPending, grossTotalOf } from "./evaluate-order-transfers"
 
 const BACKLOG_CHUNK = 10
 
@@ -25,6 +25,7 @@ type OrderWithRefunds = {
   id: string
   total: BigNumberInput
   currency_code: string
+  credit_lines?: { amount: BigNumberInput }[] | null
   items?: { id: string }[] | null
   shipping_methods?: { id: string }[] | null
   payment_collections?: {
@@ -41,6 +42,7 @@ async function loadOrdersWithRefunds(container: MedusaContainer, orderIds: strin
       "id",
       "total",
       "currency_code",
+      "credit_lines.amount",
       "items.id",
       "shipping_methods.id",
       "payment_collections.payments.refunds.id",
@@ -88,9 +90,20 @@ export async function evaluateReversalsForOrders(
       .flatMap((c) => c.payments ?? [])
       .flatMap((p) => p.refunds ?? [])
 
+    const absorbed = new Set(((original.data?.absorbed_refund_ids ?? []) as string[]))
+
     for (const refund of refunds) {
       const existing = reversalByRefund.get(refund.id)
       if (existing && ![TransferStatus.FAILED, TransferStatus.ON_HOLD].includes(existing.status)) {
+        continue
+      }
+
+      if (absorbed.has(refund.id)) {
+        const reason = `Refund ${refund.id} was deducted from the transfer`
+        if (existing) {
+          await service.updateTransfers({ id: existing.id, status: TransferStatus.ABORTED, status_reason: reason, amount: 0 })
+        }
+        bump("absorbed")
         continue
       }
 
@@ -98,7 +111,7 @@ export async function evaluateReversalsForOrders(
         refund_id: refund.id,
         refund_amount: refund.raw_amount ?? refund.amount,
         refund_canceled: false,
-        order_total: order.total,
+        order_total: grossTotalOf(order),
         commission_total: commissions.get(order.id) ?? 0,
         order_transfer: {
           id: original.id,
