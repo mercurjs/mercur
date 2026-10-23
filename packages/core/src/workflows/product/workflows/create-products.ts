@@ -17,6 +17,7 @@ import {
   removeProductOptionsFromProductStep,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
+import { ProductStatus } from "@medusajs/framework/utils"
 import {
   AttributeType,
   CreateProductDTO,
@@ -283,6 +284,20 @@ export const createProductsWorkflow: ReturnWorkflow<
       data: transform({ createdProducts }, ({ createdProducts }) =>
         createdProducts.map((p) => ({ id: p.id })),
       ),
+    })
+
+    // Only the review flow emitted this, so a product an admin creates as published never reached
+    // the subscribers that mirror published products elsewhere.
+    const publishedIds = transform({ createdProducts }, ({ createdProducts }) =>
+      createdProducts
+        .filter((p) => p.status === ProductStatus.PUBLISHED)
+        .map((p) => ({ id: p.id })),
+    )
+    when(publishedIds, (ids) => ids.length > 0).then(() => {
+      emitEventStep({
+        eventName: ProductWorkflowEvents.PUBLISHED,
+        data: publishedIds,
+      }).config({ name: "emit-created-products-published" })
     })
 
     return new WorkflowResponse(createdProducts, {
