@@ -14,6 +14,19 @@ session detail aggressively. The per-spec source of truth lives in
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
 
+## Session — template dashboard dependencies (2026-10-23), branch `fix/template-dashboard-deps`
+
+A fresh `create-mercur-app@canary` project with `@mercurjs/magento2-connector-plugin` crashed on
+`/dashboard/settings/magento/create` (`control._setDisabledField is not a function`): the template pinned
+`react-hook-form` 7.49.1 at the root while dashboard-shared and the plugin use 7.88.0, so a 7.88 `Controller`
+received a 7.49 `control`. The template also lacked `i18next` (deduped by the SDK, so resolved from the root) and
+pinned an older `react-i18next`. Template now matches dashboard-shared; the SDK dedupe list moved to
+`DEDUPED_DEPENDENCIES` and gained `react-hook-form`, and `@mercurjs/dashboard-shared` is pre-bundled so its
+CommonJS deps (`use-sync-external-store`) don't reach the browser raw from plugin bundles. New
+`template-deps.spec.ts` (dashboard-sdk vitest, 23/23) keeps the template in step. `bun run build` green.
+Verified in the browser on the generated project: the create page renders on :7000 and :9000 with no page
+errors. `dashboard-sdk` oxlint fails on `main` too (`no-shadow` in `routes.ts`/`utils.ts`), unchanged here.
+
 ## Session — Magento connector hardening sweep (2026-10-22), branches `feat/magento-external-payment-capture` (this repo) + `feat/checkout-orders-indexer-platform` (magento2-connector)
 
 Audited `mercurjs/magento2-connector` v0.2.0 for checkout, order, indexing and platform gaps and
