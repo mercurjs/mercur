@@ -83,11 +83,19 @@ export function getProductPrice({
     return product.variants
       .filter((v: any) => !!v.calculated_price)
       .sort((a: any, b: any) => {
-        return a.calculated_price.calculated_amount_with_tax &&
-          b.calculated_price.calculated_amount_with_tax
-          ? a.calculated_price.calculated_amount_with_tax -
-              b.calculated_price.calculated_amount_with_tax
-          : a.calculated_amount - b.calculated_amount
+        const aTax = a.calculated_price.calculated_amount_with_tax
+        const bTax = b.calculated_price.calculated_amount_with_tax
+        if (typeof aTax === "number" && typeof bTax === "number") {
+          return aTax - bTax
+        }
+
+        const aAmount = a.calculated_price.calculated_amount
+        const bAmount = b.calculated_price.calculated_amount
+        if (typeof aAmount === "number" && typeof bAmount === "number") {
+          return aAmount - bAmount
+        }
+
+        return 0
       })[0]
   }
 
