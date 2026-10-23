@@ -20,7 +20,7 @@ A payout is a transfer from the marketplace to one seller, for one order. The Pa
 The Payout module covers a seller’s connection to the provider and each transfer made through it:
 
 - **One provider interface**: `IPayoutProvider` has 4 methods, and the module loads exactly one implementation
-- **Stripe Connect provider**: `@mercurjs/payout-stripe-connect` creates Express accounts, onboarding links, and transfers
+- **Stripe Connect provider**: `@mercurjs/stripe-connector-plugin` creates Express accounts, onboarding and login links, and transfers
 - **One account per store**: `createPayoutAccountWorkflow` refuses a second account for the same seller
 - **Re-runnable onboarding**: `createOnboardingWorkflow` creates the onboarding record once and updates it after that
 - **Webhook-driven statuses**: provider webhooks move accounts and payouts between statuses through `processPayoutForWebhookWorkflow`

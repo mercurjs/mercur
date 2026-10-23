@@ -1,406 +1,227 @@
 ---
 title: "Stripe Connect"
 sidebarTitle: "Stripe Connect"
-description: "Set up Stripe Connect for marketplace payments and seller payouts, from Stripe Dashboard configuration to the full end-to-end payment lifecycle."
+description: "Set up the Stripe connector plugin for marketplace payments and seller payouts, from Stripe Dashboard configuration to the scheduled payout pipeline."
 ---
 
-A Mercur marketplace needs **two** Stripe integrations working together. The first is the standard Medusa payment provider, which charges customers at checkout. The second is the Mercur payout provider, which transfers funds from the platform to sellers after orders are fulfilled.
+A Mercur marketplace talks to Stripe through one plugin, `@mercurjs/stripe-connector-plugin`, that ships **two providers**: a Medusa payment provider that charges customers at checkout on the platform account, and a Mercur payout provider that moves money to sellers' Stripe Connect accounts and pays it out to their banks.
 
-This guide covers both. It walks through setting up Stripe, configuring both providers, wiring up webhooks, and understanding how money flows from customer to seller.
+The pipeline itself (when to capture, what to transfer, when to settle) lives in Mercur's payout module and runs on a fixed schedule. The plugin only talks to Stripe and renders the screens.
 
 <Tip>
-  This page is the configuration reference. For how payout accounts, onboarding, and the transfer pipeline work, see the [Payout](/platform/payout/overview) module.
+  This page is the configuration reference. For the module's models, options and jobs, see the [Payout](/platform/payout/overview) module.
 </Tip>
 
 <Info>
-  Mercur uses Stripe's [Separate Charges and Transfers](https://docs.stripe.com/connect/separate-charges-and-transfers) model. The platform collects the full payment from the customer, then creates transfers to each seller's connected account. This makes the platform the **Merchant of Record**, responsible for VAT, disputes, and chargebacks.
+  Mercur uses the aggregate payment model: the platform account charges the whole cart once, holds the authorization until every seller order in the group is decided, and then transfers each seller's share with `source_transaction` set to that charge. The platform is the **Merchant of Record**.
 </Info>
 
 ## Prerequisites
 
 - A [Stripe account](https://dashboard.stripe.com) with Connect enabled
-- Stripe Secret API key and Publishable API key
+- Stripe secret API key and publishable API key
 - A running Mercur project ([installation guide](/learn/introduction))
 - Node.js 22.22+
 
 ## Architecture overview
 
-The payment lifecycle in a Mercur marketplace flows through two distinct Stripe integrations:
-
 ```mermaid
 flowchart LR
-    C[Customer] -->|PaymentIntent| P[Platform Stripe Account]
-    P -->|Transfer| S1[Seller A Connected Account]
-    P -->|Transfer| S2[Seller B Connected Account]
-    S1 -->|Payout| B1[Seller A Bank]
-    S2 -->|Payout| B2[Seller B Bank]
+    C[Customer] -->|PaymentIntent, manual capture| P[Platform Stripe account]
+    P -->|transfers.create| S1[Seller A connected account]
+    P -->|transfers.create| S2[Seller B connected account]
+    S1 -->|payouts.create| B1[Seller A bank]
+    S2 -->|payouts.create| B2[Seller B bank]
 ```
 
-The two integrations serve different purposes:
-
-| Integration | Package | Purpose | Webhook endpoint |
+| Integration | Provider id | Purpose | Webhook endpoint |
 |---|---|---|---|
-| Customer payments | `@medusajs/medusa/payment-stripe` | Charges customers at checkout | `/hooks/payment/stripe_stripe` |
-| Seller payouts | `@mercurjs/payout-stripe-connect` | Transfers funds to sellers | `/hooks/payout` |
+| Customer payments | `pp_stripe-connector_stripe` | Authorizes and captures the cart on the platform account | `/hooks/payment/pp_stripe-connector_stripe` |
+| Seller payouts | `pop_stripe-connect_stripe` | Express accounts, transfers, reversals, payouts | `/hooks/payout/pop_stripe-connect_stripe` |
 
 ## Stripe Dashboard setup
 
 <Steps>
   <Step title="Enable Connect">
-    In your Stripe Dashboard, go to **Settings → Connect settings** and enable Connect. If you're starting fresh, Stripe will walk you through an onboarding flow to activate your platform account.
+    In your Stripe Dashboard, go to **Settings → Connect settings** and enable Connect.
   </Step>
   <Step title="Find your API keys">
-    Go to **Developers → API keys**. You'll need:
-
-    - **Secret key:** starts with `sk_test_` (test mode) or `sk_live_` (production)
-    - **Publishable key:** starts with `pk_test_` or `pk_live_`
+    Go to **Developers → API keys**. You need the secret key (`sk_test_` or `sk_live_`) and the publishable key.
   </Step>
   <Step title="Set environment variables">
-    Add the following to your `.env` file:
-
     ```bash
-    STRIPE_API_KEY=sk_test_...
-    STRIPE_WEBHOOK_SECRET=whsec_...
-    STRIPE_PAYOUT_WEBHOOK_SECRET=whsec_...
+    STRIPE_SECRET_KEY=sk_test_...
+    STRIPE_OPERATOR_WEBHOOK_SECRET=whsec_...   # platform account webhook
+    STRIPE_SELLERS_WEBHOOK_SECRET=whsec_...    # Connect (connected accounts) webhook
+    BACKEND_URL=https://api.example.com
+    VENDOR_URL=https://vendor.example.com
     ```
   </Step>
 </Steps>
 
-## Configure Medusa payment provider
+## Install the plugin
 
-The Medusa payment provider handles customer-facing charges. Add it to your `medusa-config.ts`:
+```bash
+bun add @mercurjs/stripe-connector-plugin
+```
 
 ```ts
-module.exports = defineConfig({
-  // ...
+// medusa-config.ts
+module.exports = withMercur({
+  plugins: [{ resolve: "@mercurjs/stripe-connector-plugin", options: {} }],
   modules: [
     {
       resolve: "@medusajs/medusa/payment",
       options: {
         providers: [
           {
-            resolve: "@medusajs/medusa/payment-stripe",
+            resolve: "@mercurjs/stripe-connector-plugin/providers/payment-stripe",
             id: "stripe",
             options: {
-              apiKey: process.env.STRIPE_API_KEY,
-              webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
-              capture: false, // Use manual capture for marketplace flow
-              automatic_payment_methods: true,
+              apiKey: process.env.STRIPE_SECRET_KEY,
+              webhookSecret: process.env.STRIPE_OPERATOR_WEBHOOK_SECRET,
             },
           },
         ],
       },
     },
-  ],
-})
-```
-
-### Provider options
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `apiKey` | `string` | Stripe secret API key |
-| `webhookSecret` | `string` | Signing secret for the payment webhook endpoint |
-| `capture` | `boolean` | Set to `false` for manual capture (required for marketplace split flow) |
-| `automatic_payment_methods` | `boolean` | Enable Stripe's automatic payment method detection |
-| `paymentDescription` | `string` | Optional description shown on customer's bank statement |
-
-<Info>
-  After configuring the provider, enable Stripe as a payment method in your Admin Panel: **Settings → Regions → Edit region → Payment providers → Stripe**.
-</Info>
-
-## Configure Mercur payout provider
-
-The payout provider handles transfers from the platform to seller connected accounts. Add it alongside the payment provider in `medusa-config.ts`:
-
-```ts
-module.exports = defineConfig({
-  // ...
-  modules: [
-    // ... payment provider above
     {
       resolve: "@mercurjs/core/modules/payout",
       options: {
         providers: [
           {
-            resolve: "@mercurjs/payout-stripe-connect",
-            id: "stripe-connect",
+            resolve: "@mercurjs/stripe-connector-plugin/providers/payout-stripe-connect",
+            id: "stripe",
             options: {
-              apiKey: process.env.STRIPE_API_KEY,
-              webhookSecret: process.env.STRIPE_PAYOUT_WEBHOOK_SECRET,
-              accountValidation: {
-                detailsSubmitted: true,
-                chargesEnabled: true,
-                payoutsEnabled: true,
-                noOutstandingRequirements: true,
-                requiredCapabilities: [],
-              },
+              apiKey: process.env.STRIPE_SECRET_KEY,
+              webhookSecret: process.env.STRIPE_SELLERS_WEBHOOK_SECRET,
             },
           },
         ],
+        onboarding: {
+          returnUrl: `${process.env.VENDOR_URL}/settings/stripe`,
+          refreshBaseUrl: process.env.BACKEND_URL,
+        },
+        alerting: {
+          technicalEmail: "ops@example.com",
+          from: "noreply@example.com",
+        },
       },
     },
   ],
 })
 ```
+
+Run `medusa db:migrate` afterwards, then enable Stripe as a payment method in the Admin Panel: **Settings → Regions → Edit region → Payment providers**.
+
+### Payment provider options
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `apiKey` | `string` | Stripe secret API key |
+| `webhookSecret` | `string` | Signing secret of the platform-account webhook |
+| `automaticPaymentMethods` | `boolean` | Enable Stripe's automatic payment method detection |
+| `paymentDescription` | `string` | Description shown on the customer's statement |
+| `orderGroupMetadataKey` | `string` | Metadata key carrying the order group id on the PaymentIntent (default `mercur_order_group_id`) |
+
+Capture is always manual; the payout module decides when to capture.
 
 ### Payout provider options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `apiKey` | `string` | - | Stripe secret API key |
-| `webhookSecret` | `string` | - | Signing secret for the payout webhook endpoint |
-| `accountValidation` | `object` | See below | Controls when a connected account is considered `ACTIVE` |
+| `webhookSecret` | `string` | - | Signing secret of the Connect webhook |
+| `accountValidation` | `object` | see below | When a connected account counts as `active` |
 
-### Account validation options
-
-These options determine what conditions a Stripe connected account must meet before Mercur marks it as `ACTIVE` and allows payouts:
-
-| Option | Type | Default | Description |
+| Validation option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `detailsSubmitted` | `boolean` | `true` | Require Stripe to mark onboarding details as submitted |
-| `chargesEnabled` | `boolean` | `true` | Require the account to be enabled for charges |
-| `payoutsEnabled` | `boolean` | `true` | Require the account to be enabled for payouts |
-| `noOutstandingRequirements` | `boolean` | `true` | Treat any pending Stripe requirements as a restricted account |
-| `requiredCapabilities` | `string[]` | `[]` | Require specific Stripe capabilities to be active (e.g. `["card_payments", "transfers"]`) |
+| `detailsSubmitted` | `boolean` | `true` | Require onboarding details to be submitted |
+| `chargesEnabled` | `boolean` | `true` | Require charges to be enabled |
+| `payoutsEnabled` | `boolean` | `true` | Require payouts to be enabled |
+| `noOutstandingRequirements` | `boolean` | `true` | Treat outstanding requirements as restricted |
+| `requiredCapabilities` | `string[]` | `[]` | Capabilities that must be `active` |
 
 ### Payout module options
 
-The payout module itself accepts timing options that control the capture and payout pipeline:
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `disabled` | `boolean` | `false` | Disable automatic capture checks and daily payout jobs |
-| `authorizationWindowMs` | `number` | `604800000` (7 days) | How long a payment authorization remains valid |
-| `sellerActionWindowMs` | `number` | `259200000` (72 hours) | How long sellers have to accept/fulfill before cancellation |
-| `captureSafetyBufferMs` | `number` | `86400000` (24 hours) | Safety margin before authorization expiry. Capture happens before `authorization expiry - buffer` |
-| `requiredFulfillmentStatus` | `string` | `"fulfilled"` | Minimum fulfillment status before an order is eligible for capture |
+| Option | Default | Description |
+|--------|---------|-------------|
+| `onboarding.enabled` | `true` | Create accounts and publish onboarding links automatically |
+| `onboarding.returnUrl` | - | Where Stripe sends the seller after onboarding (the vendor Stripe page) |
+| `onboarding.refreshBaseUrl` | - | Your API origin; the refresh URL is `<base>/payout/onboarding/refresh?token=` |
+| `onboarding.prefill` | `false` | Prefill the Express account's business profile from the seller |
+| `onboarding.defaultCountry` | - | Country used when the seller has no address |
+| `capture.captureBeforeAcceptance` | `false` | Capture as soon as no order is awaiting acceptance instead of waiting for fulfillment |
+| `capture.authorizationWindowMs` | 7 days | How long the authorization stays valid |
+| `capture.safetyBufferMs` | 24 hours | Capture what is decided this long before expiry |
+| `transfers.enabled` | `true` | Run the transfer job |
+| `transfers.requiredFulfillmentStatus` | `"fulfilled"` | Minimum fulfillment status before an order is transferred |
+| `transfers.taxSplit.accountId` | - | Send each order's tax total to this connected account instead |
+| `reversals.enabled` | `true` | Run the reversal job |
+| `settlements.enabled` | `true` | Run the settlement job |
+| `settlements.mode` | `"connector"` | `connector` puts connected accounts on a manual payout schedule and the daily job pays them; `provider` records settlements and lets Stripe's schedule pay |
+| `notifications.url` | - | URL that receives a JSON POST for every failed transfer, reversal or payout and every account update |
+| `notifications.mailOnEndpointDown` | `true` | Email when that URL keeps failing |
+| `notifications.endpointDownCooldownMinutes` | `10` | Minimum time between two such emails |
+| `alerting.technicalEmail` | - | Recipient of the daily failed-operations digest |
+| `alerting.from` | - | Sender of the alert emails |
+| `kycMonitor.enabled` | `false` | Run the KYC monitor job |
 
 ## Set up webhooks
 
-You need **two separate webhook endpoints** in Stripe: one for payment events, one for payout events.
+Create two endpoints under **Developers → Webhooks**:
 
-<Warning>
-  These are two distinct webhook endpoints, each with its own signing secret. Do not combine them into a single endpoint.
-</Warning>
+| Endpoint | Listen to | Events |
+|---|---|---|
+| `https://api.example.com/hooks/payment/pp_stripe-connector_stripe` | Your account | `payment_intent.succeeded`, `payment_intent.amount_capturable_updated`, `payment_intent.payment_failed`, `payment_intent.canceled`, `charge.refunded` |
+| `https://api.example.com/hooks/payout/pop_stripe-connect_stripe` | Connected accounts | `account.updated`, `transfer.created`, `transfer.reversed`, `payout.paid`, `payout.failed`, `payout.canceled` |
 
-<Steps>
-  <Step title="Add the payment webhook (Medusa)">
-    In the Stripe Dashboard, go to **Developers → Webhooks → Add endpoint**.
+The admin page **Settings → Stripe** prints both URLs for your deployment. The legacy `/hooks/payout` URL still routes to the single registered non-system provider.
 
-    - **Endpoint URL**: `https://{your-backend-url}/hooks/payment/stripe_stripe`
-    - **Events to subscribe to**:
-      - `payment_intent.succeeded`
-      - `payment_intent.amount_capturable_updated`
-      - `payment_intent.payment_failed`
-      - `payment_intent.partially_funded` (optional, only if you support that recovery flow)
+## The schedule
 
-    Copy the signing secret and set it as `STRIPE_WEBHOOK_SECRET` in your `.env`.
+| Job | Schedule (UTC) | What it does |
+|---|---|---|
+| `payout-sync-onboarding` | every minute | Sellers created or updated since the checkpoint get an Express account, and an onboarding link until they finish onboarding |
+| `payout-validate-captures` | every 5 minutes | Captures the cart payment once every seller order in the group is canceled or fulfilled, for the authorized amount minus canceled orders; cancels it when nothing is left |
+| `payout-process-transfers` | every 5 minutes, minute 1 | Re-evaluates the backlog of failed and held transfers, then creates a transfer of total minus commission for each newly fulfilled and paid order |
+| `payout-process-reversals` | every 5 minutes, minute 2 | Reverses the seller's share of every refund, net of commission |
+| `payout-process-settlements` | daily at 01:03 | Retries failed payouts, turns adjustments into transfers, builds one settlement per seller and currency over the window since the last one, and pays it out |
+| `payout-alert-failed-operations` | daily at 08:04 | Emails the technical contact everything still failed |
+| `payout-monitor-kyc` | every 6 hours, opt-in | Re-reads every account's requirements and KYC status |
 
-    <Note>
-      With `capture: false`, Stripe sends `payment_intent.amount_capturable_updated` as soon as the payment is authorized, which can be before the storefront calls `POST /store/carts/:id/complete`. A webhook-driven completion runs `completeCartWithSplitOrdersWorkflow` under the same cart lock as the store route, so it still produces an order group with per-seller orders. It also completes carts whose customer left right after authenticating, so keep it enabled.
-    </Note>
+Every job writes a run record you can read under **Finance → Stripe** in the admin, where each tab has a "Run now" button and a run history.
 
-    <Warning>
-      Don't rely on `charge.refunded` for seller reconciliation. The Medusa Stripe provider doesn't act on it, and it never reverses Stripe Connect Transfers. See [Refunds and reversals](#refunds-and-reversals).
-    </Warning>
-  </Step>
-  <Step title="Add the payout webhook (Mercur)">
-    Add a second webhook endpoint in the Stripe Dashboard.
+## How money moves
 
-    - **Endpoint URL**: `https://{your-backend-url}/hooks/payout`
-    - **Events to subscribe to**:
-      - `account.updated`
+1. **Checkout.** The platform account creates a PaymentIntent for the whole cart with manual capture. Mercur splits the cart into seller orders and writes commission lines.
+2. **Capture.** When every seller order is decided, the capture job captures the authorized amount minus canceled orders. Medusa's split then gives each order its own captured payment on the same charge.
+3. **Transfer.** Within five minutes of an order being fulfilled and captured, a `transfer` row is created and `transfers.create` moves total minus commission to the seller's account, with the charge as `source_transaction`.
+4. **Reversal.** A refund on the order reverses the seller's share of it on the original transfer.
+5. **Adjustments.** Operators can enter subscription fees, extra invoices and credits under **Finance → Stripe → Settlements**; they become debits or credits on the next run.
+6. **Settlement and payout.** Every night the settlement job nets what reached `created` since the previous settlement, writes a `settlement` and a `payout`, and calls `payouts.create` on the connected account.
+7. **Webhooks.** `account.updated` keeps the account mirror current; `payout.failed` flips the payout and feeds the alert digest.
 
-    Copy the signing secret and set it as `STRIPE_PAYOUT_WEBHOOK_SECRET` in your `.env`.
-  </Step>
-</Steps>
-
-## How the payment flow works
-
-Here's a concrete example. A customer buys items from two sellers:
-
-- **Seller A**: €40 (product)
-- **Seller B**: €30 (product)
-- **Shipping**: €10
-- **Cart total**: €80
-
-### Step 1: Authorize payment
-
-At checkout, a single `PaymentIntent` is created for €80 with `capture_method: "manual"`. The customer authenticates once (SCA-compliant). No money moves yet. The funds are held on the customer's card.
-
-### Step 2: Split orders
-
-Mercur's `completeCartWithSplitOrdersWorkflow` groups items by seller and creates separate orders: one for Seller A (€40) and one for Seller B (€30), plus shipping allocation.
-
-### Step 3: Seller acceptance and fulfillment
-
-Each seller reviews and fulfills their order through the Vendor Portal. The payout module's `sellerActionWindowMs` (default: 72 hours) defines how long sellers have to act.
-
-### Step 4: Capture payment
-
-Once orders meet the `requiredFulfillmentStatus` (default: `"fulfilled"`), the platform captures the authorized payment. The capture-check job runs automatically and respects the `captureSafetyBufferMs` to ensure capture happens before authorization expiry.
-
-<Warning>
-  Card authorizations typically expire after **7 days**. The default configuration gives sellers 72 hours to fulfill, with a 24-hour safety buffer before capture. If your business requires longer seller action windows, consider whether the 7-day authorization window is sufficient.
-</Warning>
-
-### Step 5: Commission calculation and transfers
-
-After capture, Mercur calculates commission for each order and creates Stripe Transfers for the net amounts:
-
-```
-Seller A net = €40 - commission
-Seller B net = €30 - commission
-```
-
-Each transfer is linked to the original charge via `source_transaction` and grouped by `transfer_group` (the order ID).
-
-### Step 6: Bank payouts
-
-Stripe automatically pays out connected account balances to sellers' bank accounts on the configured payout schedule. Mercur tracks payout status changes via the `account.updated` webhook.
+Statuses are `pending`, `created`, `failed`, `on_hold`, `aborted`, `ignored`, each with a human-readable reason. Failed and held rows are retried from the backlog on every run.
 
 ## Seller onboarding
 
-When a seller creates a payout account, the following lifecycle begins:
+Sellers open **Settings → Stripe** in the vendor panel. Before an account exists they pick a country and business type; the onboarding job can also create the account on its own. The page then shows the Express onboarding link (refreshable when it expires), and after onboarding the KYC status, outstanding requirements, whether payouts are enabled, a link to the Stripe dashboard, and their transfers, refunds, statements and payouts.
 
-```
-PENDING → (Stripe onboarding) → ACTIVE
-                                   ↓
-                               RESTRICTED → ACTIVE (remediation)
-                                   ↓
-                               REJECTED (permanent)
-```
-
-1. **Account creation.** Mercur calls `stripe.accounts.create({ type: "express" })`, creating a Stripe Express connected account. The payout account starts in `PENDING` status.
-
-2. **Onboarding link.** The seller receives a Stripe-hosted onboarding URL via `stripe.accountLinks.create()`. They complete identity verification, bank account setup, and any required compliance steps directly on Stripe.
-
-3. **Webhook activation.** When the seller completes onboarding, Stripe sends an `account.updated` webhook. The provider evaluates the account against the `accountValidation` options and transitions the status:
-   - All validation checks pass → `ACTIVE`
-   - Missing requirements or disabled reason → `RESTRICTED`
-   - Disabled reason starts with `rejected.` → `REJECTED`
-
-4. **Ongoing monitoring.** Stripe may send additional `account.updated` events if requirements change. The provider re-evaluates and updates the status accordingly.
-
-For more details on payout accounts, balances, and transactions, see [Payout](/rc/learn/payouts).
-
-## Transfers vs payouts
-
-Stripe uses two distinct concepts for moving money, and it's important to understand the difference:
-
-| | Transfer | Payout |
-|---|---|---|
-| **What it does** | Moves funds from platform balance to connected account balance | Moves funds from connected account balance to seller's bank account |
-| **Speed** | Instant ledger movement | 1–3 business days (varies by country) |
-| **Status lifecycle** | None. Transfers are immediate | `pending` → `in_transit` → `paid` / `failed` |
-| **Who triggers it** | Mercur (via `stripe.transfers.create()`) | Stripe (on the connected account's payout schedule) |
-| **Mercur tracking** | Transfer created with status `PAID` immediately | Status tracked via webhooks |
-
-When Mercur's `createPayout` method is called, the Stripe Connect provider creates a **Transfer** (platform → connected account). The actual bank payout (connected account → bank) happens automatically on Stripe's schedule.
-
-## Refunds and reversals
-
-Refunding a charge does **not** automatically reverse the associated transfers. These are two separate operations:
-
-1. **Refund the PaymentIntent.** Returns funds to the customer's payment method
-2. **Reverse the Transfer(s).** Claws back funds from the connected account(s)
-
-Mercur doesn't reverse transfers for you. The Stripe Connect payout provider only handles `account.updated`, and a `charge.refunded` event is not confirmation that any seller transfer was reversed. If you refund after a seller has been paid out, reconcile their side yourself, either with a transfer reversal or by deducting the amount from their next payout.
-
-For a full refund of a multi-seller order, you would need to reverse each seller's transfer individually. For partial refunds, you need to calculate how much to reverse from each seller based on which items are being refunded.
-
-<Info>
-  Refund and transfer reversal orchestration is an area where custom workflow logic may be needed depending on your business rules. See Stripe's documentation on [reversing transfers](https://docs.stripe.com/connect/separate-charges-and-transfers#reverse-transfers) for the API details.
-</Info>
-
-## EU/EEA considerations
-
-### Merchant of Record
-
-Using Separate Charges and Transfers makes the platform the Merchant of Record. This means:
-
-- The platform collects and remits VAT
-- The platform handles consumer disputes and chargebacks
-- The platform is responsible for PSD2 compliance
-
-### Strong Customer Authentication (SCA)
-
-SCA is enforced at **authorization time**, not capture time. Since the customer authenticates once during checkout, no additional SCA step is needed when the platform captures later. The single authorization at checkout satisfies the SCA requirement for the entire order.
-
-### Authorization windows
-
-Card authorizations in Europe typically last **7 days**. Design your seller acceptance workflow to complete well within this window. The payout module options give you control over the timing:
-
-```ts
-{
-  resolve: "@mercurjs/core/modules/payout",
-  options: {
-    authorizationWindowMs: 7 * 24 * 60 * 60 * 1000,    // 7 days
-    sellerActionWindowMs: 72 * 60 * 60 * 1000,          // 72 hours
-    captureSafetyBufferMs: 24 * 60 * 60 * 1000,         // 24 hours
-    // ...providers
-  },
-}
-```
+Operators see the same account on the seller page, and can map an existing Stripe account, refresh links, sync from Stripe, or pause a seller's payouts under **Finance → Stripe → Onboarding**.
 
 ## Testing
 
-### Test mode
-
-Use Stripe test mode keys (`sk_test_`, `pk_test_`) during development. All connected accounts and payments created in test mode are isolated from production.
-
-**Test card number**: `4242 4242 4242 4242` (any future expiry, any CVC)
-
-### Webhook forwarding with Stripe CLI
-
-Since webhooks need to reach your local machine during development, use the [Stripe CLI](https://docs.stripe.com/stripe-cli) to forward events. You need **two separate listeners**, one for each webhook endpoint:
+Use test-mode keys and forward both webhooks with the Stripe CLI:
 
 ```bash
-# Terminal 1: Payment webhooks
-stripe listen --forward-to localhost:9000/hooks/payment/stripe_stripe
-
-# Terminal 2: Payout webhooks
-stripe listen --forward-to localhost:9000/hooks/payout
+stripe listen --forward-to localhost:9000/hooks/payment/pp_stripe-connector_stripe
+stripe listen --forward-connect-to localhost:9000/hooks/payout/pop_stripe-connect_stripe
 ```
 
-<Tip>
-  Each `stripe listen` process outputs its own webhook signing secret. Use these as your `STRIPE_WEBHOOK_SECRET` and `STRIPE_PAYOUT_WEBHOOK_SECRET` respectively during local development.
-</Tip>
-
-### Testing the full flow
-
-1. Create a seller and complete Stripe's test onboarding flow
-2. Add products from the seller to a cart
-3. Complete checkout using the test card
-4. Verify orders are split by seller in the Admin Panel
-5. Fulfill the orders through the Vendor Portal
-6. Confirm transfers appear in the Stripe Dashboard under the connected account
-
-## FAQ
-
-<AccordionGroup>
-  <Accordion title="Why do I need two webhook endpoints with two secrets?">
-    They belong to two different integrations: the payment webhook feeds Medusa's payment provider (charges, captures, refunds), while the payout webhook feeds Mercur's payout provider (connected-account status, transfer status). Each endpoint verifies its own signing secret. Combining them silently breaks whichever side's signature doesn't match.
-  </Accordion>
-  <Accordion title="Why must capture be set to false on the payment provider?">
-    The marketplace flow authorizes at checkout and captures later, after sellers fulfill. Automatic capture would take the money before the split-order pipeline (fulfillment checks, commission, payouts) has run. `capture: false` hands that timing to the payout module's capture job.
-  </Accordion>
-  <Accordion title="A seller finished Stripe onboarding but is still not ACTIVE. Why?">
-    Check the `accountValidation` options: by default the account must have details submitted, charges and payouts enabled, and **no outstanding requirements**. Stripe often adds follow-up requirements (e.g. extra KYC) after initial onboarding. The account shows as `RESTRICTED` until they're cleared.
-  </Accordion>
-  <Accordion title="Who handles VAT, disputes, and chargebacks?">
-    The platform. Separate Charges and Transfers makes the platform the Merchant of Record. See [EU/EEA considerations](#eueea-considerations) for what that entails.
-  </Accordion>
-</AccordionGroup>
+Then register a seller, finish Express onboarding with Stripe's test data, place a two-seller order, fulfil both orders, and run each job from the admin tabs. The transfers, reversal and payouts appear in the Stripe test dashboard.
 
 ## Next steps
 
-<CardGroup cols={2}>
-  <Card title="Payout" href="/platform/payout/overview">
-    Payout accounts, onboarding, and the transfer pipeline.
-  </Card>
-  <Card title="The payout pipeline" href="/platform/payout/concepts/payout-pipeline">
-    Statuses, jobs, and webhook events.
-  </Card>
-</CardGroup>
+- [Payout module](/platform/payout/overview)
+- [Configuration reference](/references/configuration)

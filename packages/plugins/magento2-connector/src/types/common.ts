@@ -28,7 +28,6 @@ export const MAGENTO_WEBHOOK_EVENTS = [
   "order.return_received",
   "order.refund_recorded",
   "order.refund_requested",
-  "order.payment_captured",
 ] as const
 
 /**
@@ -42,7 +41,6 @@ export const MagentoWebhookEvents = {
   DELIVERY_CREATED: "magento_webhook_delivery.created",
   REFUND_RECORDED: "order.refund_recorded",
   REFUND_REQUESTED: "order.refund_requested",
-  PAYMENT_CAPTURED: "order.payment_captured",
 } as const
 
 export const EXTERNAL_REFUND_SOURCE = "external"
@@ -137,10 +135,7 @@ export type FilterableMagentoWebhookDeliveryProps =
 
 export type ExternalPaymentSessionData = {
   reference?: string
-  authorized_at?: string
   captured_at?: string
-  canceled_at?: string
-  payment_method?: string
   channel?: string
   amount?: number
   currency_code?: string

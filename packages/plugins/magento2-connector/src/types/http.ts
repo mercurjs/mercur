@@ -75,14 +75,6 @@ export interface AdminRecordExternalRefund {
   note?: string
 }
 
-export interface AdminCaptureExternalPayment {
-  reference?: string
-}
-
-export interface AdminCancelExternalPayment {
-  reference?: string
-}
-
 export interface AdminMagentoWebhookResponse {
   webhook: AdminMagentoWebhook
 }
@@ -118,20 +110,13 @@ export interface AdminMagentoStatusResponse {
   orders: { channel: string; last_24h: number }
 }
 
-export interface AdminExternalPayment {
-  id: string
-  amount: number
-  currency_code: string
-  provider_id: string
-  captured_at: string | null
-  canceled_at: string | null
-  refunds: { id: string; amount: number; note: string | null; created_at: string }[]
-}
-
 export interface AdminExternalRefundResponse {
-  payment: AdminExternalPayment
-}
-
-export interface AdminExternalPaymentResponse {
-  payment: AdminExternalPayment
+  payment: {
+    id: string
+    amount: number
+    currency_code: string
+    provider_id: string
+    captured_at: string | null
+    refunds: { id: string; amount: number; note: string | null; created_at: string }[]
+  }
 }

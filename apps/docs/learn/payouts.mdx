@@ -41,15 +41,15 @@ A scheduled job scans for orders that are ready for payment capture. For each or
 - Order meets the required fulfillment status (configurable, default: `fulfilled`)
 - No payout has been created yet
 
-When the capture deadline approaches (authorization window minus safety buffer), the job emits an `order.capture_requested` event. If the authorization has already expired, it emits `order.authorization_expired` instead.
+The capture job (`payout-validate-captures`, every five minutes) captures the cart payment once every seller order in the group is canceled or fulfilled, for the authorized amount minus the canceled orders, and cancels the authorization when nothing is left. Inside the safety buffer it captures what is decided; past the window it marks the payment failed.
 
 ### 2. Payment capture (event-driven)
 
-A subscriber listens for `order.capture_requested` events and runs the Medusa `capturePaymentWorkflow` to capture the authorized payment. On success, the order is marked as captured. On failure, the order is flagged so it won't be retried.
+On success Medusa's split gives each seller order its own captured payment on the same charge. A provider error is written on the payment collection and retried on the next run.
 
 ### 3. Daily payouts (once per day)
 
-A daily scheduled job (1 AM UTC) scans for captured orders that haven't been paid out yet. For each eligible order, it emits a `payout.requested` event.
+The transfer job (`payout-process-transfers`, every five minutes) moves each fulfilled and captured order's total minus commission to the seller's account; the reversal job returns the seller's share of refunds; the settlement job (daily 01:03 UTC) nets what landed since the previous settlement into one settlement per seller and currency and pays it out.
 
 An order qualifies for payout when:
 - Payment has been captured (`metadata.captured = true`)
@@ -58,7 +58,7 @@ An order qualifies for payout when:
 
 ### 4. Payout transfer (event-driven)
 
-A subscriber listens for `payout.requested` events and runs the `createPayoutWorkflow`:
+Each stage is a workflow (`processTransferWorkflow`, `reverseTransferWorkflow`, `processPayoutWorkflow`) and a row (`transfer`, `settlement`, `payout`) with the connector's statuses:
 
 1. **Fetch order** — Loads the order with its seller, payout account, and commission lines
 2. **Calculate payout amount** — Subtracts commission from the order total:
@@ -102,10 +102,10 @@ The payout module accepts the following options in `medusa-config.ts`:
 | Option | Default | Description |
 |--------|---------|-------------|
 | `disabled` | `false` | Disables both scheduled jobs |
-| `authorizationWindowMs` | 7 days | How long a payment authorization is valid |
+| `capture.authorizationWindowMs` | 7 days | How long a payment authorization is valid |
 | `sellerActionWindowMs` | 72 hours | Time for seller to fulfill the order |
 | `captureSafetyBufferMs` | 24 hours | Safety margin before authorization expiry to trigger capture |
-| `requiredFulfillmentStatus` | `"fulfilled"` | Minimum fulfillment status before capture is allowed |
+| `transfers.requiredFulfillmentStatus` | `"fulfilled"` | Minimum fulfillment status before capture and transfer |
 
 ## Data model overview
 
@@ -123,7 +123,7 @@ PayoutAccount
   resolve: "./modules/payout",
   options: {
     // How long payment authorizations are valid
-    authorizationWindowMs: 7 * 24 * 60 * 60 * 1000, // 7 days
+    capture: { authorizationWindowMs: 7 * 24 * 60 * 60 * 1000 },
 
     // Time for seller to fulfill before capture
     sellerActionWindowMs: 72 * 60 * 60 * 1000, // 72 hours
@@ -132,7 +132,7 @@ PayoutAccount
     captureSafetyBufferMs: 24 * 60 * 60 * 1000, // 24 hours
 
     // Minimum fulfillment status before capture
-    requiredFulfillmentStatus: "fulfilled",
+    transfers: { requiredFulfillmentStatus: "fulfilled" },
   },
 }
 ```

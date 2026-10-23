@@ -177,15 +177,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
   }
   logger.info("Finished seeding regions.");
 
-  if (!store.default_region_id) {
-    await updateStoresWorkflow(container).run({
-      input: {
-        selector: { id: store.id },
-        update: { default_region_id: region.id },
-      },
-    });
-  }
-
   logger.info("Seeding tax regions...");
   const taxModuleService = container.resolve(Modules.TAX);
   const existingTaxRegions = await taxModuleService.listTaxRegions();

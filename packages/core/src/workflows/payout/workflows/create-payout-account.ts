@@ -21,6 +21,8 @@ export const createPayoutAccountWorkflow = createWorkflow(
     const payoutAccount = createPayoutAccountStep({
       context: input.context,
       data: input.data,
+      provider_id: input.provider_id,
+      seller: input.seller,
     })
 
     createRemoteLinkStep([

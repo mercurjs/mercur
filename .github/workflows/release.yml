@@ -55,7 +55,7 @@ jobs:
 
       - name: Publish to npm
         run: |
-          for dir in packages/*/ packages/providers/*/ packages/plugins/*/; do
+          for dir in packages/*/ packages/plugins/*/; do
             if [ -f "$dir/package.json" ] && ! grep -q '"private": true' "$dir/package.json"; then
               echo "Publishing $dir with --tag ${{ steps.npm-tag.outputs.tag }}..."
               cd "$dir"

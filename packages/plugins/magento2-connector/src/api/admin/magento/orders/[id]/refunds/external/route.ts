@@ -6,8 +6,19 @@ import {
 
 import { AdminExternalRefundResponse } from "../../../../../../../types"
 import { recordExternalRefundWorkflow } from "../../../../../../../workflows"
-import { EXTERNAL_PAYMENT_FIELDS } from "../../../../order-groups/payment-fields"
 import { AdminRecordExternalRefundType } from "../../../validators"
+
+const PAYMENT_FIELDS = [
+  "id",
+  "amount",
+  "currency_code",
+  "provider_id",
+  "captured_at",
+  "refunds.id",
+  "refunds.amount",
+  "refunds.note",
+  "refunds.created_at",
+]
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminRecordExternalRefundType>,
@@ -25,7 +36,7 @@ export const POST = async (
     entity: "payment",
     idOrFilter: result.id,
     scope: req.scope,
-    fields: EXTERNAL_PAYMENT_FIELDS,
+    fields: PAYMENT_FIELDS,
   })
 
   res.status(200).json({ payment })

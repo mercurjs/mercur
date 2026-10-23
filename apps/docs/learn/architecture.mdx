@@ -51,11 +51,11 @@ Everything else in this file is standard Medusa configuration.
 
 [Source](https://github.com/mercurjs/mercur/tree/main/packages/core) · [Platform modules](/platform/store/overview)
 
-### `@mercurjs/payout-stripe-connect`
+### `@mercurjs/stripe-connector-plugin`
 
 A payout provider built on Stripe Connect. It creates a connected account per seller, returns onboarding links, transfers each seller’s share, and maps Stripe webhooks to payout account statuses.
 
-[Source](https://github.com/mercurjs/mercur/tree/main/packages/providers/payout-stripe-connect) · [Stripe Connect guide](/resources/integrations/stripe-connect)
+[Source](https://github.com/mercurjs/mercur/tree/main/packages/plugins/stripe-connector) · [Stripe Connect guide](/resources/integrations/stripe-connect)
 
 ### PostgreSQL and Redis
 
@@ -68,7 +68,7 @@ Mercur doesn’t choose your payment gateway, carrier, email service, or search 
 | Concern | Provider interface | Available implementations |
 | --- | --- | --- |
 | Payments | Medusa payment module | Stripe, or your own provider |
-| Seller payouts | Mercur payout module | `@mercurjs/payout-stripe-connect`, a `system` provider for development |
+| Seller payouts | Mercur payout module | `@mercurjs/stripe-connector-plugin` (Stripe Connect), `pop_system_default` for development |
 | Fulfillment | Medusa fulfillment module | Manual, or a carrier provider |
 | Notifications | Medusa notification module | Local, SendGrid |
 | Files | Medusa file module | Local, S3 |

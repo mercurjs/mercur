@@ -1,18 +1,29 @@
-import { asFunction, Lifetime } from "@medusajs/framework/awilix"
+import { asFunction, asValue, Lifetime } from "@medusajs/framework/awilix"
 import { moduleProviderLoader } from "@medusajs/framework/modules-sdk"
 import {
   LoaderOptions,
   ModuleProvider,
   ModulesSdkTypes,
 } from "@medusajs/framework/types"
+import { MedusaError } from "@medusajs/framework/utils"
 
 import {
   PayoutProviderRegistrationPrefix,
+  PayoutProviderRegistrationKey,
 } from "../services/provider-service"
 import { SystemPayoutProvider } from "../providers"
 
 const registrationFn = async (klass, container, pluginOptions) => {
-  const key = `${PayoutProviderRegistrationPrefix}${klass.identifier}_${pluginOptions.id}`
+  if (!klass?.identifier) {
+    throw new MedusaError(
+      MedusaError.Types.INVALID_ARGUMENT,
+      `Trying to register a payout provider without a provider identifier.`
+    )
+  }
+
+  const key = `${PayoutProviderRegistrationPrefix}${klass.identifier}${
+    pluginOptions.id ? `_${pluginOptions.id}` : ""
+  }`
 
   container.register({
     [key]: asFunction(
@@ -22,6 +33,8 @@ const registrationFn = async (klass, container, pluginOptions) => {
       }
     ),
   })
+
+  container.registerAdd(PayoutProviderRegistrationKey, asValue(key))
 }
 
 export default async ({
@@ -33,12 +46,7 @@ export default async ({
     | ModulesSdkTypes.ModuleServiceInitializeCustomDataLayerOptions
   ) & { providers: ModuleProvider[] }
 >): Promise<void> => {
-  const providers = options?.providers || []
-  if (!providers.length) {
-    return await registrationFn(SystemPayoutProvider, container, {
-      id: "default",
-    })
-  }
+  await registrationFn(SystemPayoutProvider, container, { id: "default" })
 
   await moduleProviderLoader({
     container,

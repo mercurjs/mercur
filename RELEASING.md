@@ -20,8 +20,7 @@ resolves to it.
 - `@mercurjs/core`
 - `@mercurjs/admin`
 - `@mercurjs/vendor`
-- `@mercurjs/payout-stripe-connect`
-- `@mercurjs/magento2-connector-plugin`
+- `@mercurjs/stripe-connector-plugin`
 
 `@mercurjs/registry` is private and not published.
 
@@ -61,7 +60,7 @@ and hoists it to the repo root, where `@mercurjs/core` resolves it and
 ```
 
    Also bump every internal cross-dependency (`@mercurjs/*` and `create-mercur-app`)
-   in `packages/*`, `packages/providers/*` and `packages/plugins/*` to the same `2.X.Y` (see [Internal Dependencies](#internal-dependencies)).
+   in `packages/*` and `packages/plugins/*` to the same `2.X.Y` (see [Internal Dependencies](#internal-dependencies)).
 
 2. Bump every `@mercurjs/*` dependency version inside the `templates/basic` template so newly scaffolded projects pin to the matching release:
 
@@ -105,7 +104,7 @@ git push origin main --tags
 Where `Z` is the next incremental number (0, 1, 2, ...).
 
    Also bump every internal cross-dependency (`@mercurjs/*` and `create-mercur-app`)
-   in `packages/*`, `packages/providers/*` and `packages/plugins/*` to the same `2.X.Y-canary.Z` (see [Internal Dependencies](#internal-dependencies)).
+   in `packages/*` and `packages/plugins/*` to the same `2.X.Y-canary.Z` (see [Internal Dependencies](#internal-dependencies)).
 
 2. Bump every `@mercurjs/*` dependency version inside the `templates/basic` template to the same `2.X.Y-canary.Z` value:
 
@@ -151,7 +150,7 @@ shippable and is published so it can be tested before being promoted to
 Where `Z` is the next incremental number (0, 1, 2, ...).
 
    Also bump every internal cross-dependency (`@mercurjs/*` and `create-mercur-app`)
-   in `packages/*`, `packages/providers/*` and `packages/plugins/*` to the same `2.X.Y-rc.Z` (see [Internal Dependencies](#internal-dependencies)).
+   in `packages/*` and `packages/plugins/*` to the same `2.X.Y-rc.Z` (see [Internal Dependencies](#internal-dependencies)).
 
 2. Bump every `@mercurjs/*` dependency version inside the `templates/basic` template to the same `2.X.Y-rc.Z` value:
 

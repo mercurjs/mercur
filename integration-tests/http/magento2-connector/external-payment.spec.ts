@@ -83,7 +83,7 @@ medusaIntegrationTestRunner({
         })
       })
 
-      const checkout = (reference = "MIR$000001", captured = false) =>
+      const checkout = (reference = "MIR$000001") =>
         completeExternalCheckout({
           container: appContainer,
           api,
@@ -93,28 +93,7 @@ medusaIntegrationTestRunner({
           offerIds: [seedA.offer.id, seedB.offer.id],
           email: customerEmail,
           reference,
-          captured,
         })
-
-      const getOrder = async (orderId: string, fields = "id,payment_status") =>
-        (await api.get(`/admin/orders/${orderId}?fields=${fields}`, adminHeaders)).data.order
-
-      // The order reports the cart payment as captured before the split hands it
-      // a payment collection of its own, which refunds need.
-      const waitForSplitCapture = (orderId: string) =>
-        waitFor(async () => {
-          const order = await getOrder(orderId, "id,payment_status,*payment_collections")
-          return (
-            order.payment_status === "captured" &&
-            !!order.payment_collections?.[0]?.metadata?.cart_payment_collection_id
-          )
-        })
-
-      const captureGroup = (orderGroupId: string, body: Record<string, unknown> = {}) =>
-        api.post(`/admin/magento/order-groups/${orderGroupId}/payments/capture`, body, adminHeaders)
-
-      const cancelGroup = (orderGroupId: string, body: Record<string, unknown> = {}) =>
-        api.post(`/admin/magento/order-groups/${orderGroupId}/payments/cancel`, body, adminHeaders)
 
       it("completes a two-seller cart on the external provider and carries the channel onto the order group", async () => {
         const { completed, orderGroup } = await checkout()
@@ -133,158 +112,33 @@ medusaIntegrationTestRunner({
         expect(data.order_group.metadata).toEqual({ channel: "magento" })
       })
 
-      it("leaves each child order authorized until the storefront reports the capture", async () => {
+      it("records the external capture so each child order is paid and commission lines exist", async () => {
         const { orderGroup } = await checkout("MIR$000002")
 
         for (const order of orderGroup.orders) {
-          const data = await getOrder(
-            order.id,
-            "id,payment_status,*payment_collections,*payment_collections.payments"
-          )
-          expect(data.payment_status).toEqual("authorized")
+          await waitFor(async () => {
+            const { data } = await api.get(
+              `/admin/orders/${order.id}?fields=id,payment_status,*payment_collections,*payment_collections.payments`,
+              adminHeaders
+            )
+            return data.order.payment_status === "captured"
+          })
 
-          const payments = data.payment_collections.flatMap((pc: any) => pc.payments)
-          expect(payments).toHaveLength(1)
+          const { data } = await api.get(
+            `/admin/orders/${order.id}?fields=id,payment_status,total,*payment_collections,*payment_collections.payments`,
+            adminHeaders
+          )
+          const payments = data.order.payment_collections.flatMap((pc: any) => pc.payments)
+          expect(payments.length).toBeGreaterThan(0)
           expect(payments[0].provider_id).toEqual("pp_external_external")
-          expect(payments[0].captured_at).toBeNull()
+          expect(payments[0].captured_at).toBeTruthy()
           expect(payments[0].data).toEqual(
             expect.objectContaining({ reference: "MIR$000002", channel: "magento" })
           )
-          expect(payments[0].data.authorized_at).toBeTruthy()
-        }
-      })
 
-      it("captures the group payment so each child order is paid and commission lines exist", async () => {
-        const receiver: WebhookReceiver = await startWebhookReceiver()
-        try {
-          await api.post(
-            `/admin/magento/webhooks`,
-            { url: receiver.url, events: ["order.payment_captured"] },
-            adminHeaders
-          )
-
-          const { orderGroup } = await checkout("MIR$000012")
-
-          const captured = await captureGroup(orderGroup.id, { reference: "INV-1" })
-          expect(captured.status).toEqual(200)
-          expect(captured.data.payment.provider_id).toEqual("pp_external_external")
-          expect(captured.data.payment.captured_at).toBeTruthy()
-
-          for (const order of orderGroup.orders) {
-            await waitForSplitCapture(order.id)
-
-            const data = await getOrder(
-              order.id,
-              "id,payment_status,total,*payment_collections,*payment_collections.payments"
-            )
-            const payments = data.payment_collections.flatMap((pc: any) => pc.payments)
-            expect(payments.length).toBeGreaterThan(0)
-            expect(payments[0].provider_id).toEqual("pp_external_external")
-            expect(payments[0].captured_at).toBeTruthy()
-            expect(payments[0].data).toEqual(
-              expect.objectContaining({ reference: "MIR$000012", channel: "magento" })
-            )
-
-            const lines = await api.get(`/admin/orders/${order.id}/commission-lines`, adminHeaders)
-            expect(lines.status).toEqual(200)
-            expect(Array.isArray(lines.data.commission_lines)).toBe(true)
-          }
-
-          await waitFor(() => receiver.received.length > 0)
-          const body = JSON.parse(receiver.received[0].body)
-          expect(body.event).toEqual("order.payment_captured")
-          expect(body.data).toEqual(
-            expect.objectContaining({
-              id: orderGroup.id,
-              payment_id: captured.data.payment.id,
-              reference: "INV-1",
-            })
-          )
-        } finally {
-          await receiver.close()
-        }
-      })
-
-      it("captures the group payment only once", async () => {
-        const { orderGroup } = await checkout("MIR$000013")
-
-        const first = await captureGroup(orderGroup.id)
-        expect(first.status).toEqual(200)
-
-        const second = await captureGroup(orderGroup.id)
-        expect(second.status).toEqual(200)
-        expect(second.data.payment.id).toEqual(first.data.payment.id)
-        expect(second.data.payment.captured_at).toEqual(first.data.payment.captured_at)
-
-        for (const order of orderGroup.orders) {
-          await waitForSplitCapture(order.id)
-        }
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        for (const order of orderGroup.orders) {
-          const data = await getOrder(
-            order.id,
-            "id,payment_status,*payment_collections,*payment_collections.payments,*payment_collections.payments.captures"
-          )
-          expect(data.payment_status).toEqual("captured")
-          const payments = data.payment_collections.flatMap((pc: any) => pc.payments)
-          expect(payments).toHaveLength(1)
-          expect(payments[0].captures).toHaveLength(1)
-        }
-      })
-
-      it("refuses an external refund before the group payment is captured", async () => {
-        const { orderGroup } = await checkout("MIR$000014")
-
-        const res = await api
-          .post(
-            `/admin/magento/orders/${orderGroup.orders[0].id}/refunds/external`,
-            { amount: 100 },
-            adminHeaders
-          )
-          .catch((e: any) => e.response)
-        expect(res.status).toEqual(400)
-        expect(res.data.message).toMatch(/not yet captured/)
-      })
-
-      it("cancels the child orders and voids the authorization when the storefront cancels before capture", async () => {
-        const { orderGroup } = await checkout("MIR$000015")
-
-        const res = await cancelGroup(orderGroup.id, { reference: "CANCEL-1" })
-        expect(res.status).toEqual(200)
-        expect(res.data.payment.captured_at).toBeNull()
-        expect(res.data.payment.canceled_at).toBeTruthy()
-
-        for (const order of orderGroup.orders) {
-          const data = await getOrder(order.id, "id,status,payment_status")
-          expect(data.status).toEqual("canceled")
-          expect(data.payment_status).toEqual("canceled")
-        }
-
-        const capture = await captureGroup(orderGroup.id).catch((e: any) => e.response)
-        expect(capture.status).toEqual(400)
-      })
-
-      it("refuses to cancel a captured group payment", async () => {
-        const { orderGroup } = await checkout("MIR$000016")
-        await captureGroup(orderGroup.id)
-
-        const res = await cancelGroup(orderGroup.id).catch((e: any) => e.response)
-        expect(res.status).toEqual(400)
-        expect(res.data.message).toMatch(/already captured/)
-      })
-
-      it("still accepts a session that reports captured_at up front", async () => {
-        const { orderGroup } = await checkout("MIR$000017", true)
-
-        for (const order of orderGroup.orders) {
-          await waitForSplitCapture(order.id)
-          const data = await getOrder(
-            order.id,
-            "id,payment_status,*payment_collections,*payment_collections.payments"
-          )
-          const payments = data.payment_collections.flatMap((pc: any) => pc.payments)
-          expect(payments[0].captured_at).toBeTruthy()
+          const lines = await api.get(`/admin/orders/${order.id}/commission-lines`, adminHeaders)
+          expect(lines.status).toEqual(200)
+          expect(Array.isArray(lines.data.commission_lines)).toBe(true)
         }
       })
 
@@ -300,8 +154,13 @@ medusaIntegrationTestRunner({
           const { orderGroup } = await checkout("MIR$000003")
           const order = orderGroup.orders[0]
 
-          await captureGroup(orderGroup.id)
-          await waitForSplitCapture(order.id)
+          await waitFor(async () => {
+            const { data } = await api.get(
+              `/admin/orders/${order.id}?fields=id,payment_status`,
+              adminHeaders
+            )
+            return data.order.payment_status === "captured"
+          })
 
           const refund = await api.post(
             `/admin/magento/orders/${order.id}/refunds/external`,
@@ -335,8 +194,13 @@ medusaIntegrationTestRunner({
           const { orderGroup } = await checkout("MIR$000004")
           const order = orderGroup.orders[0]
 
-          await captureGroup(orderGroup.id)
-          await waitForSplitCapture(order.id)
+          await waitFor(async () => {
+            const { data } = await api.get(
+              `/admin/orders/${order.id}?fields=id,payment_status`,
+              adminHeaders
+            )
+            return data.order.payment_status === "captured"
+          })
 
           await api.post(
             `/admin/magento/orders/${order.id}/refunds/external`,

@@ -1,7 +1,7 @@
 ---
 title: "Payout events"
 sidebarTitle: "Events"
-description: "The payout webhook event, the data-model events the Payout module emits, and the reserved PayoutEvents names that nothing emits yet."
+description: "The payout webhook event, the data-model events the Payout module emits, and the reserved PayoutModuleEvents names that nothing emits yet."
 ---
 
 The Payout module has one event of its own, `payout.webhook_received`, which carries provider webhooks to the shipped subscriber. Medusa also emits a created, updated, or deleted event whenever a payout record changes. Subscribe to those for side effects such as seller notifications or ledger syncs.
@@ -59,13 +59,16 @@ This subscriber logs a warning each time an account lands in `restricted`, which
 
 ## Reserved event names
 
-`@mercurjs/types` exports a `PayoutEvents` enum. Nothing in `@mercurjs/core` emits these events or subscribes to them, and the enum carries a TODO to move them to order events.
+`@mercurjs/types` exports a `PayoutModuleEvents` enum. Nothing in `@mercurjs/core` emits these events or subscribes to them, and the enum carries a TODO to move them to order events.
 
 | Member | Name |
 | --- | --- |
-| `OrderCaptureRequested` | `order.capture_requested` |
-| `OrderAuthorizationExpired` | `order.authorization_expired` |
-| `PayoutRequested` | `payout.requested` |
+| `ACCOUNT_UPDATED` | `payout_account.updated` |
+| `TRANSFER_FAILED` | `transfer.failed` |
+| `TRANSFER_REVERSAL_FAILED` | `transfer.reversal_failed` |
+| `SETTLEMENT_CREATED` | `payout.settlement_created` |
+| `WEBHOOK_RECEIVED` | `payout.webhook_received` |
+| `PAYOUT_FAILED` | `payout.failed` |
 
 You can emit them from your own payout trigger and subscribe to them in your project. See [The payout pipeline](/platform/payout/concepts/payout-pipeline).
 

@@ -23,6 +23,11 @@ const applySellerPayoutAccountLinkFilter = applySellerLinkFilter()
 export const vendorPayoutAccountsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["GET"],
+    matcher: "/vendor/payout-accounts/me",
+    middlewares: [requirePermission("payout_accounts", "view")],
+  },
+  {
+    method: ["GET"],
     matcher: "/vendor/payout-accounts",
     middlewares: [
       requirePermission("payout_accounts", "view"),
