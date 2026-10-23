@@ -52,7 +52,8 @@ Run `medusa db:migrate` afterwards.
    `{ provider_id: "pp_external_external", data: { reference, channel } }`.
    The session is authorized, not captured. Pass `captured_at` only when the
    storefront already settled the payment.
-6. `POST /store/carts/:id/complete`.
+6. `POST /store/carts/:id/complete`. The `order_group` in the response lists its child `orders`
+   with each one's `seller`, so the storefront can map its lines to seller orders without further calls.
 7. When the storefront invoices the order,
    `POST /admin/magento/order-groups/:id/payments/capture` (optional
    `{ reference }`). Mercur captures the cart payment once, splits it between
