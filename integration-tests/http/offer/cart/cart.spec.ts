@@ -165,7 +165,24 @@ medusaIntegrationTestRunner({
             })
 
             describe("POST /store/carts/:id/line-items", () => {
-                it("should reject add-to-cart when offer_id is missing", async () => {
+                it("creates the cart in the region currency when currency_code is empty", async () => {
+                const response = await api.post(
+                    `/store/carts`,
+                    {
+                        region_id: region.id,
+                        sales_channel_id: salesChannel.id,
+                        currency_code: "",
+                    },
+                    storeHeaders
+                )
+
+                expect(response.status).toEqual(200)
+                expect(response.data.cart.currency_code).toEqual(
+                    region.currency_code
+                )
+            })
+
+            it("should reject add-to-cart when offer_id is missing", async () => {
                     await seedSellerOffer({
                         email: "missing-offer@test.com",
                         name: "Missing Offer",
