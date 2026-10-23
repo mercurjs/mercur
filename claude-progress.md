@@ -14,6 +14,19 @@ session detail aggressively. The per-spec source of truth lives in
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
 
+## Session — Magento integration gaps in core (2026-10-23), branch `fix/magento-integration-gaps`
+
+Running the Magento connector against a live API (see the connector PRs #2–#5) exposed core behaviour the
+integration had to work around. Fixed here: `POST /store/carts` now ignores an empty `currency_code` instead of
+storing it and failing every later price calculation; the cart completion response lists the order group's child
+`orders` with `display_id`, `status` and `seller`; an admin product created or updated as `published` emits
+`product.published` (previously only `/confirm` did, so webhook subscribers never saw admin-published products);
+`createOffersWorkflow` refuses offers on products restricted to other sellers or rejected
+(`validateOfferProductsStep`); `GET /admin/products?sku=` filters variants instead of 500ing on `Product.sku`;
+the plugin's event list drops `order.shipment_created`, which nothing emits. Tests: new
+`product/admin/product-publish-and-sku.spec.ts`, three cases in `offer/vendor/offer.spec.ts`, one each in
+`offer/cart/cart.spec.ts` and `offer/order/order.spec.ts`. `bun run build` green (13/13).
+
 ## Session — Magento connector hardening sweep (2026-10-22), branches `feat/magento-external-payment-capture` (this repo) + `feat/checkout-orders-indexer-platform` (magento2-connector)
 
 Audited `mercurjs/magento2-connector` v0.2.0 for checkout, order, indexing and platform gaps and
