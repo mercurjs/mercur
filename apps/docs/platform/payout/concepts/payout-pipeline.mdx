@@ -13,15 +13,15 @@ The core plugin gives you every piece that talks to the provider or writes payou
 - **Workflows**: `createPayoutAccountWorkflow`, `createOnboardingWorkflow`, `createPayoutWorkflow`, and `processPayoutForWebhookWorkflow`
 - **Webhook route**: `POST /hooks/payout` keeps the raw body and emits `payout.webhook_received` with a 5000 ms delay and 3 attempts
 - **Webhook subscriber**: `payout-webhook` parses the event through the provider and runs `processPayoutForWebhookWorkflow`
-- **Providers**: the built-in `system` provider, plus `@mercurjs/payout-stripe-connect` as a separate package
+- **Providers**: the built-in `system` provider, plus `@mercurjs/stripe-connector-plugin` as a separate package
 
 ## What you wire yourself
 
 No scheduled job, subscriber, or route in core calls `createPayoutWorkflow`. Core also has no `jobs` directory, so nothing captures authorized payments on a timer.
 
-`@mercurjs/types` exports a `PayoutEvents` enum with `order.capture_requested`, `order.authorization_expired`, and `payout.requested`, but nothing emits these events or subscribes to them. The enum carries a TODO to move them to order events. Treat the names as reserved, not as hooks you can listen to.
+The payout module ships seven scheduled jobs: `payout-sync-onboarding` (every minute), `payout-validate-captures`, `payout-process-transfers` and `payout-process-reversals` (every five minutes), `payout-process-settlements` (daily 01:03 UTC), `payout-alert-failed-operations` (daily 08:04 UTC) and `payout-monitor-kyc` (every six hours, opt-in). Each run is recorded as a `payout_job_run` and can be triggered from `POST /admin/payout-jobs/:job/run`. The events the module emits are `payout_account.updated`, `transfer.failed`, `transfer.reversal_failed`, `payout.failed`, `payout.settlement_created` and `payout.webhook_received`.
 
-The module options also describe a capture and payout schedule. `PayoutModuleOptions` and `PAYOUT_MODULE_OPTION_DEFAULTS` define them, and `getOptions()` returns them with defaults applied, but no core code reads them:
+The module options configure the pipeline. `resolvePayoutModuleOptions` applies the defaults and every job reads them through `getOptions()`:
 
 | Option | Default | Intended meaning |
 | --- | --- | --- |

@@ -35,7 +35,7 @@ bun run test:integration:tests       # Run integration tests
 - `packages/admin` - Admin panel UI package
 - `packages/vendor` - Vendor panel UI package
 - `packages/registry` - Private workspace for the Mercur blocks registry
-- `packages/providers/payout-stripe-connect` - Stripe Connect payout provider
+- `packages/plugins/stripe-connector` - Stripe connector plugin: Stripe payment provider, Stripe Connect payout provider, admin and vendor Stripe screens
 - `apps/api` - Starter Medusa server wired to `@mercurjs/core`
 - `apps/admin-test` - Starter admin Vite app (port 7000)
 - `apps/vendor` - Starter vendor Vite app (port 7001)

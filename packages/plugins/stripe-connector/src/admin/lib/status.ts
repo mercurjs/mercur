@@ -1,0 +1,106 @@
+export type BadgeColor = "green" | "red" | "orange" | "grey" | "blue" | "purple"
+
+export const TRANSFER_STATUS_COLOR: Record<string, BadgeColor> = {
+  pending: "blue",
+  created: "green",
+  failed: "red",
+  on_hold: "orange",
+  aborted: "grey",
+  ignored: "grey",
+}
+
+export const TRANSFER_STATUS_LABEL: Record<string, string> = {
+  pending: "Pending",
+  created: "Created",
+  failed: "Failed",
+  on_hold: "On hold",
+  aborted: "Aborted",
+  ignored: "Ignored",
+}
+
+export const PAYOUT_STATUS_COLOR: Record<string, BadgeColor> = {
+  pending: "blue",
+  processing: "blue",
+  paid: "green",
+  failed: "red",
+  canceled: "grey",
+  on_hold: "orange",
+  aborted: "grey",
+}
+
+export const PAYOUT_STATUS_LABEL: Record<string, string> = {
+  pending: "Pending",
+  processing: "Processing",
+  paid: "Paid",
+  failed: "Failed",
+  canceled: "Canceled",
+  on_hold: "On hold",
+  aborted: "Aborted",
+}
+
+export const SETTLEMENT_STATUS_COLOR: Record<string, BadgeColor> = {
+  open: "blue",
+  paid_out: "green",
+  failed: "red",
+  aborted: "grey",
+}
+
+export const SETTLEMENT_STATUS_LABEL: Record<string, string> = {
+  open: "Open",
+  paid_out: "Paid out",
+  failed: "Failed",
+  aborted: "Aborted",
+}
+
+export const ACCOUNT_STATUS_COLOR: Record<string, BadgeColor> = {
+  pending: "orange",
+  active: "green",
+  restricted: "red",
+  rejected: "red",
+}
+
+export const KYC_STATUS_COLOR: Record<string, BadgeColor> = {
+  pending_submission: "orange",
+  pending_approval: "blue",
+  approved: "green",
+  refused: "red",
+}
+
+export const KYC_STATUS_LABEL: Record<string, string> = {
+  pending_submission: "Pending submission",
+  pending_approval: "Pending approval",
+  approved: "Approved",
+  refused: "Refused",
+}
+
+export const JOB_LABEL: Record<string, string> = {
+  "payout-sync-onboarding": "Onboarding",
+  "payout-validate-captures": "Captures",
+  "payout-process-transfers": "Transfers",
+  "payout-process-reversals": "Reversals",
+  "payout-process-settlements": "Settlements",
+  "payout-alert-failed-operations": "Alerts",
+  "payout-monitor-kyc": "KYC",
+}
+
+export const JOB_DESCRIPTION: Record<string, string> = {
+  "payout-sync-onboarding": "Creates Stripe Express accounts for new sellers and publishes their onboarding links.",
+  "payout-validate-captures": "Captures or cancels the authorized card payment once every seller order in the group is decided.",
+  "payout-process-transfers": "Transfers each fulfilled order's total minus commission to the seller's connected account.",
+  "payout-process-reversals": "Reverses the seller's share of every refund, net of commission.",
+  "payout-process-settlements": "Retries failed payouts, converts adjustments, builds settlements and pays them out.",
+  "payout-alert-failed-operations": "Emails the technical contact everything that is still failed.",
+  "payout-monitor-kyc": "Re-reads every connected account's requirements and KYC status.",
+}
+
+export const formatDate = (value: string | Date | null | undefined) =>
+  value ? new Date(value).toLocaleString() : "Never"
+
+export const formatAmount = (amount: unknown, currency: string) => {
+  const numeric = Number(amount ?? 0)
+  try {
+    return new Intl.NumberFormat(undefined, { style: "currency", currency: currency.toUpperCase() }).format(numeric)
+  } catch {
+    return `${numeric.toFixed(2)} ${currency.toUpperCase()}`
+  }
+}

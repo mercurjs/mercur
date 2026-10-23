@@ -77,7 +77,7 @@ Passes `{ data, rawData, headers }` to the provider and returns its action and M
 getOptions(): PayoutModuleOptions
 ```
 
-Returns the module options merged over `PAYOUT_MODULE_OPTION_DEFAULTS`. Core reads none of the timing options, so use them in your own payout trigger. See [The payout pipeline](/platform/payout/concepts/payout-pipeline).
+Returns the resolved module options (`onboarding`, `capture`, `transfers`, `reversals`, `settlements`, `notifications`, `alerting`, `kycMonitor`, `webhookDelay`, `webhookRetries`) with defaults applied. Every scheduled job reads them. See [The payout pipeline](/platform/payout/concepts/payout-pipeline).
 
 ## Idempotency keys
 

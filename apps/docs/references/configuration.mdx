@@ -99,7 +99,7 @@ modules: [
 
 ## Stripe Connect payout provider
 
-Register `@mercurjs/payout-stripe-connect` as a provider of the payout module:
+Register the Stripe connector plugin's payout provider on the payout module (any number of providers can be registered; `pop_system_default` is always present):
 
 ```ts
 {
@@ -107,7 +107,7 @@ Register `@mercurjs/payout-stripe-connect` as a provider of the payout module:
   options: {
     providers: [
       {
-        resolve: "@mercurjs/payout-stripe-connect",
+        resolve: "@mercurjs/stripe-connector-plugin/providers/payout-stripe-connect",
         id: "stripe-connect",
         options: {
           apiKey: process.env.STRIPE_SECRET_KEY,

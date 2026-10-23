@@ -76,7 +76,6 @@ export const completeExternalCheckout = async (opts: {
   email: string
   reference: string
   channel?: string
-  captured?: boolean
 }) => {
   const { api, storeHeaders } = opts
 
@@ -128,8 +127,8 @@ export const completeExternalCheckout = async (opts: {
       provider_id: "pp_external_external",
       data: {
         reference: opts.reference,
+        captured_at: new Date().toISOString(),
         channel: opts.channel ?? "magento",
-        ...(opts.captured ? { captured_at: new Date().toISOString() } : {}),
       },
     },
     storeHeaders
