@@ -1,4 +1,5 @@
 import { Container, Heading, StatusBadge, Text } from "@medusajs/ui"
+import { useNavigate } from "react-router-dom"
 
 import { useStripeStatus } from "../../../../hooks/api/stripe"
 import { formatDate } from "../../../../lib/status"
@@ -18,6 +19,7 @@ const Count = ({ label, value, onClick }: { label: string; value: number; onClic
 )
 
 export const StatusStrip = ({ onJump }: { onJump: (tab: string) => void }) => {
+  const navigate = useNavigate()
   const { data, isPending } = useStripeStatus({ refetchInterval: 30_000 })
   const providers = data?.providers.filter((p) => p.id !== "pop_system_default") ?? []
   const failed = data?.failed
@@ -40,7 +42,7 @@ export const StatusStrip = ({ onJump }: { onJump: (tab: string) => void }) => {
         )}
       </div>
       <div className="flex flex-wrap items-center gap-x-2 px-3 py-2">
-        <Count label="Captures" value={failed?.captures ?? 0} onClick={() => onJump("captures")} />
+        <Count label="Captures" value={failed?.captures ?? 0} onClick={() => navigate("/orders/captures")} />
         <Count label="Transfers" value={failed?.transfers ?? 0} onClick={() => onJump("transfers")} />
         <Count label="Reversals" value={failed?.reversals ?? 0} onClick={() => onJump("reversals")} />
         <Count label="Payouts" value={failed?.payouts ?? 0} onClick={() => onJump("settlements")} />
