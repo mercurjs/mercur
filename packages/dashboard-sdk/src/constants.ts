@@ -32,6 +32,19 @@ export const VIRTUAL_MODULES = [
     PREFERENCES_VIRTUAL_MODULE,
 ]
 
+/**
+ * Packages whose state crosses package boundaries (React context, the i18n instance, a form's
+ * `control`), so the dashboard and every plugin bundle must share one copy. Vite resolves them from
+ * the project root, which means a project has to declare each of them.
+ */
+export const DEDUPED_DEPENDENCIES = [
+    "react",
+    "react-dom",
+    "i18next",
+    "react-i18next",
+    "react-hook-form",
+]
+
 /** The file-name stem of a layer's code-level layout preferences. */
 export const LAYOUT_PREFERENCES_FILE = "_layouts"
 /** The file-name stem of the legacy host-only navigation overrides. */
