@@ -5,7 +5,10 @@ import {
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
-import { createPayoutAccountWorkflow } from "../../../workflows/payout"
+import {
+  createPayoutAccountWorkflow,
+  ensureSellerPayoutAccountWorkflow,
+} from "../../../workflows/payout"
 import { VendorCreatePayoutAccountType } from "./validators"
 
 export const GET = async (
@@ -42,6 +45,14 @@ export const POST = async (
       data: req.validatedBody.data,
       context: req.validatedBody.context,
     },
+  })
+
+  // Publish the onboarding link right away instead of waiting for the sync
+  // job; a provider that cannot issue one yet leaves the account usable and
+  // the seller can refresh the link later.
+  await ensureSellerPayoutAccountWorkflow(req.scope).run({
+    input: { seller_id: sellerId },
+    throwOnError: false,
   })
 
   const {
