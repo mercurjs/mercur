@@ -4,6 +4,7 @@ import fs from "fs";
 import { createRequire } from "module";
 import { getFileExports } from "./utils";
 import {
+    DEDUPED_DEPENDENCIES,
     LAYOUT_PREFERENCES_FILE,
     NAVIGATION_FILE,
     RESOLVED_ROUTES_MODULE,
@@ -381,7 +382,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                     __VENDOR_URL__: JSON.stringify(vendorAppUrl || ""),
                 },
                 resolve: {
-                    dedupe: ["i18next", "react-i18next", "react", "react-dom"],
+                    dedupe: DEDUPED_DEPENDENCIES,
                 },
                 optimizeDeps: {
                     exclude: [...VIRTUAL_MODULES, ...MEDUSA_VIRTUAL_MODULES],
@@ -397,6 +398,9 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                             "@medusajs/dashboard",
                             "@mercurjs/client",
                             "@tanstack/react-query",
+                            // Plugin admin bundles import it from outside the app, so Vite never
+                            // discovers it and its CommonJS deps reach the browser unconverted.
+                            "@mercurjs/dashboard-shared",
                         ],
                         root,
                     ),
