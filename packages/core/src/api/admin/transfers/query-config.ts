@@ -1,0 +1,30 @@
+export const adminTransferFields = [
+  "id",
+  "provider_id",
+  "type",
+  "order_id",
+  "adjustment_id",
+  "reverses_transfer_id",
+  "refund_id",
+  "source_payment_id",
+  "provider_transfer_id",
+  "amount",
+  "currency_code",
+  "status",
+  "status_reason",
+  "source_created_at",
+  "settlement_id",
+  "account_id",
+  "created_at",
+  "updated_at",
+  "account.id",
+  "account.provider_account_id",
+  "account.seller.id",
+  "account.seller.name",
+  "account.seller.handle",
+]
+
+export const adminTransferQueryConfig = {
+  list: { defaults: adminTransferFields, isList: true },
+  retrieve: { defaults: adminTransferFields, isList: false },
+}
