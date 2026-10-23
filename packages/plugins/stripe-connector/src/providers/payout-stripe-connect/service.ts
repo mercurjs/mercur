@@ -38,6 +38,19 @@ const DEFAULT_ACCOUNT_VALIDATION = {
 
 const asRecord = (value: unknown) => value as unknown as Record<string, unknown>
 
+// Requested explicitly so onboarding links work for any country, not only
+// those enabled in the platform's Express settings. Stripe refuses
+// `transfers` on its own for US accounts, so both are requested together.
+const EXPRESS_CAPABILITIES: Stripe.AccountCreateParams["capabilities"] = {
+  card_payments: { requested: true },
+  transfers: { requested: true },
+}
+
+const hasRequestedCapabilities = (data: Record<string, unknown> | null | undefined) => {
+  const capabilities = (data?.capabilities ?? null) as Record<string, string> | null
+  return !!capabilities && "transfers" in capabilities
+}
+
 
 
 /**
@@ -118,6 +131,7 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
       type: "express",
       country: input.country,
       metadata: input.metadata,
+      capabilities: EXPRESS_CAPABILITIES,
       ...(input.business_type ? { business_type: input.business_type } : {}),
       ...(input.business_profile
         ? {
@@ -161,6 +175,10 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
   }
 
   async createOnboarding(input: CreateOnboardingInput): Promise<LinkOutput> {
+    if (!hasRequestedCapabilities(input.account.data)) {
+      await this.stripe_.accounts.update(input.account.id, { capabilities: EXPRESS_CAPABILITIES })
+    }
+
     const link = await this.stripe_.accountLinks.create({
       account: input.account.id,
       refresh_url: input.refresh_url,

@@ -55,7 +55,7 @@ describe("StripeConnectPayoutProviderService", () => {
       context: { idempotency_key: "pacc_1" },
     })
     expect(calls[0].method).toBe("accounts.create")
-    expect(calls[0].args[0]).toMatchObject({ type: "express", country: "DE", business_type: "company", settings: { payouts: { debit_negative_balances: false, schedule: { interval: "manual" } } } })
+    expect(calls[0].args[0]).toMatchObject({ type: "express", country: "DE", business_type: "company", capabilities: { card_payments: { requested: true }, transfers: { requested: true } }, settings: { payouts: { debit_negative_balances: false, schedule: { interval: "manual" } } } })
     expect(calls[0].args[1]).toEqual({ idempotencyKey: "pacc_1" })
     expect(out.status).toBe(PayoutAccountStatus.PENDING)
     expect(out.requirements.currently_due).toEqual(["x"])
@@ -64,8 +64,13 @@ describe("StripeConnectPayoutProviderService", () => {
   it("creates onboarding and login links", async () => {
     const { service, calls } = build()
     const link = await service.createOnboarding({ account, refresh_url: "https://api/refresh", return_url: "https://vendor/stripe" })
-    expect(calls[0].args[0]).toMatchObject({ account: "acct_seller", refresh_url: "https://api/refresh", return_url: "https://vendor/stripe", type: "account_onboarding" })
+    expect(calls[0].method).toBe("accounts.update")
+    expect(calls[0].args[1]).toEqual({ capabilities: { card_payments: { requested: true }, transfers: { requested: true } } })
+    expect(calls[1].args[0]).toMatchObject({ account: "acct_seller", refresh_url: "https://api/refresh", return_url: "https://vendor/stripe", type: "account_onboarding" })
     expect(link.url).toContain("setup")
+    calls.length = 0
+    await service.createOnboarding({ account: { id: "acct_seller", data: { capabilities: { transfers: "active" } } }, refresh_url: "r", return_url: "u" })
+    expect(calls[0].method).toBe("accountLinks.create")
     const login = await service.createLoginLink({ account })
     expect(calls[1].method).toBe("accounts.createLoginLink")
     expect(login.url).toContain("login")
