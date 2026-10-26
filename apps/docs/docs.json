@@ -426,7 +426,19 @@
             "pages": [
               "resources/integrations/overview",
               "resources/integrations/stripe-connect",
-              "resources/integrations/magento2"
+              {
+                "group": "Magento 2",
+                "pages": [
+                  "resources/integrations/magento2/overview",
+                  "resources/integrations/magento2/quickstart",
+                  "resources/integrations/magento2/architecture",
+                  "resources/integrations/magento2/configuration",
+                  "resources/integrations/magento2/catalog-and-offers",
+                  "resources/integrations/magento2/storefront",
+                  "resources/integrations/magento2/orders-and-payments",
+                  "resources/integrations/magento2/reference"
+                ]
+              }
             ]
           },
           {
@@ -853,6 +865,10 @@
     ]
   },
   "redirects": [
+    {
+      "source": "/resources/integrations/magento2",
+      "destination": "/resources/integrations/magento2/overview"
+    },
     {
       "source": "/welcome",
       "destination": "/learn/introduction"
