@@ -190,7 +190,7 @@ declare module "@mercurjs/dashboard-sdk" {
       displayZones: "budget" | "configuration" | "general" | "promotions" | "spend"
       displayFieldIds: "campaign_identifier" | "description" | "name" | "status"
       listZones: "list"
-      listColumnIds: never
+      listColumnIds: "campaign_identifier" | "description" | "ends_at" | "name" | "starts_at" | "status" | "type"
     }
     "category": {
       formZones: never
@@ -198,8 +198,8 @@ declare module "@mercurjs/dashboard-sdk" {
       formFieldIds: never
       displayZones: "general" | "icon" | "media" | "organize" | "products"
       displayFieldIds: "description" | "handle" | "name"
-      listZones: "list"
-      listColumnIds: "handle" | "is_active" | "is_internal" | "name"
+      listZones: "list" | "products"
+      listColumnIds: "categories" | "collection" | "handle" | "is_active" | "is_internal" | "name" | "product" | "status" | "variants"
     }
     "collection": {
       formZones: never
@@ -207,8 +207,8 @@ declare module "@mercurjs/dashboard-sdk" {
       formFieldIds: never
       displayZones: "general" | "icon" | "media" | "products"
       displayFieldIds: "handle" | "title"
-      listZones: "list"
-      listColumnIds: never
+      listZones: "list" | "products"
+      listColumnIds: "categories" | "collection" | "handle" | "product" | "products" | "status" | "title" | "variants"
     }
     "customer": {
       formZones: never
@@ -217,7 +217,7 @@ declare module "@mercurjs/dashboard-sdk" {
       displayZones: "addresses" | "general" | "groups" | "orders"
       displayFieldIds: "company_name" | "email" | "name" | "phone" | "status"
       listZones: "list"
-      listColumnIds: never
+      listColumnIds: "created_at" | "email" | "has_account" | "name"
     }
     "customer_group": {
       formZones: "edit"
@@ -262,7 +262,7 @@ declare module "@mercurjs/dashboard-sdk" {
       displayZones: "active-claim" | "active-edit" | "active-exchange" | "active-return" | "activity" | "customer" | "fulfillment" | "general" | "payment" | "summary"
       displayFieldIds: "display_id" | "fulfillment_status" | "payment_status" | "status"
       listZones: "list"
-      listColumnIds: never
+      listColumnIds: "created_at" | "customer" | "display_id" | "fulfillment_status" | "payment_status" | "total"
     }
     "payout": {
       formZones: never
@@ -271,7 +271,7 @@ declare module "@mercurjs/dashboard-sdk" {
       displayZones: "general"
       displayFieldIds: "amount" | "created_at" | "display_id" | "status" | "updated_at"
       listZones: "list"
-      listColumnIds: never
+      listColumnIds: "amount" | "created_at" | "display_id" | "status"
     }
     "price_list": {
       formZones: "edit"
@@ -288,8 +288,8 @@ declare module "@mercurjs/dashboard-sdk" {
       formFieldIds: "attributes" | "category_id" | "collection_id" | "description" | "discountable" | "handle" | "media" | "sku" | "subtitle" | "tags" | "title" | "type_id"
       displayZones: "general" | "media" | "organize" | "sales-channels" | "shipping-profile" | "variants"
       displayFieldIds: "description" | "discountable" | "handle" | "status" | "subtitle" | "title"
-      listZones: "list"
-      listColumnIds: never
+      listZones: "list" | "variants"
+      listColumnIds: "categories" | "collection" | "product" | "sku" | "status" | "title" | "variants"
     }
     "promotion": {
       formZones: "edit"
@@ -298,7 +298,7 @@ declare module "@mercurjs/dashboard-sdk" {
       displayZones: "campaign" | "general"
       displayFieldIds: "allocation" | "code" | "code_value" | "is_automatic" | "status" | "tax_inclusive" | "type" | "usage_limit" | "value"
       listZones: "list"
-      listColumnIds: never
+      listColumnIds: "campaign" | "code" | "method" | "status" | "type"
     }
     "reservation": {
       formZones: "edit"

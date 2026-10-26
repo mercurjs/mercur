@@ -223,15 +223,20 @@ function collectCustomFields(files: string[]): Map<string, ModelZones> {
   // `columnHelper.accessor("key")` / `accessor(fn, { id })`, grid `column({ id })`.
   const columnIdRe =
     /\b\w*[hH]elper\.(?:display|accessor|column)\(\s*(?:["'`]([^"'`$]+)["'`]|\{?[\s\S]{0,300}?\bid:\s*["'`]([^"'`$]+)["'`])/g
-  // Column hooks often live next to the table (`use-*-columns.tsx`), so the
-  // scan follows relative imports whose path mentions columns.
+  // Column hooks often live next to the table (`use-*-columns.tsx`) or under
+  // `@hooks/table/columns`, so the scan follows relative and `@<dir>/` alias
+  // imports (tsconfig maps `@hooks/*` to `src/hooks/*`) whose path mentions columns.
+  const columnImportRe = /\bfrom\s+["']((?:\.|@\w*\/)[^"']+)["']/g
   const columnSources = (file: string, code: string) => {
     const sources = [code]
     let i: RegExpExecArray | null
-    importRe.lastIndex = 0
-    while ((i = importRe.exec(code))) {
+    columnImportRe.lastIndex = 0
+    while ((i = columnImportRe.exec(code))) {
       if (!/column/i.test(i[1])) continue
-      const base = path.resolve(path.dirname(file), i[1])
+      const alias = /^@(\w*)\/(.*)$/.exec(i[1])
+      const base = alias
+        ? path.join(SRC, alias[1], alias[2])
+        : path.resolve(path.dirname(file), i[1])
       const match = [".tsx", ".ts", "/index.tsx", "/index.ts"]
         .map((ext) => base + ext)
         .find((candidate) => fs.existsSync(candidate))

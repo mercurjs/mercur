@@ -1,9 +1,14 @@
 import { PencilSquare, Plus, Trash } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
+import { ProductDTO } from "@mercurjs/types"
 import { Checkbox, Container, Heading, toast, usePrompt } from "@medusajs/ui"
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import {
+  DisplayExtensionZone,
+  mergeListFilters,
+  useExtendableTable,
+} from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
-import { createColumnHelper } from "@tanstack/react-table"
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { ActionMenu } from "../../../../../components/common/action-menu"
@@ -38,8 +43,12 @@ export const CollectionProductSection = ({
     }
   )
 
-  const filters = useProductTableFilters(["collections"])
-  const columns = useColumns()
+  const baseFilters = useProductTableFilters(["collections"])
+  const { columns, filters: extFilters } = useColumns()
+  const filters = useMemo(
+    () => mergeListFilters(baseFilters, extFilters),
+    [baseFilters, extFilters]
+  )
 
   const { table } = useDataTable({
     data: products ?? [],
@@ -156,7 +165,7 @@ const ProductActions = ({
   product,
   collectionId,
 }: {
-  product: HttpTypes.AdminProduct
+  product: ProductDTO
   collectionId: string
 }) => {
   const { t } = useTranslation()
@@ -224,12 +233,18 @@ const ProductActions = ({
   )
 }
 
-const columnHelper = createColumnHelper<HttpTypes.AdminProduct>()
+const columnHelper = createColumnHelper<ProductDTO>()
+
+type ProductRow = ProductDTO
 
 const useColumns = () => {
-  const columns = useProductTableColumns()
+  const { columns, filters } = useExtendableTable<ProductRow>({
+    model: "collection",
+    zone: "products",
+    columns: useProductTableColumns() as unknown as ColumnDef<ProductRow, unknown>[],
+  })
 
-  return useMemo(
+  const tableColumns = useMemo(
     () => [
       columnHelper.display({
         id: "select",
@@ -274,4 +289,6 @@ const useColumns = () => {
     ],
     [columns]
   )
+
+  return { columns: tableColumns, filters }
 }

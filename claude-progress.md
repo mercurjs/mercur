@@ -41,6 +41,14 @@ inventory detail `location-levels` / reservations `inventory-item` tables in bot
 Unrelated finding, not fixed: the batch route drops `condition_id` when mapping items, though the validator
 accepts it and the create form sends it. The admin `ProductCreateAttributeSection` (dimensions) is never rendered.
 
+Follow-up 2: detail-page tables in both panels take `list` blocks: `product` `variants`, `collection` `products`,
+`category` `products` (select stays first, actions last; collection/category also merge extension filters). Generator
+now follows `@<dir>/` alias column imports, so vendor list pages (product, order, customer, promotion, campaign,
+payout, collection) finally get `listColumnIds`. Example configs in `apps/vendor/src/custom-fields` (offer, product,
+collection, category) plus an `offersCreated` logging hook in `apps/api`. Generator specs 10/10 per panel, build green.
+Known gap (pre-existing, all tables): added list filters render in the menu but their keys are not forwarded to the
+API query, because each `use*TableQuery` reads a fixed key list. Not browser-verified.
+
 ## Session — Magento integration gaps in core (2026-10-23), branch `fix/magento-integration-gaps`
 
 Running the Magento connector against a live API (see the connector PRs #2–#5) exposed core behaviour the

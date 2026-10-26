@@ -386,9 +386,12 @@ list: [
 | `offer` | `create-catalogue` | Product picker in the offer create form (vendor) |
 | `inventory_item` | `location-levels` | Inventory item detail location levels (admin and vendor) |
 | `reservation` | `inventory-item` | Inventory item detail reservations (admin and vendor) |
+| `product` | `variants` | Product detail variants table (admin and vendor) |
+| `collection` | `products` | Collection detail products table (admin and vendor) |
+| `category` | `products` | Category detail products table (admin and vendor) |
 
-Every table keeps its row actions menu as the last column; extensions add and
-reorder columns before it.
+Every table keeps its row selection checkbox as the first column and its row
+actions menu as the last; extensions add and reorder columns between them.
 
 <Note>
   **Bulk-action rendering is deferred in the MVP.** `bulkActions` are accepted and
