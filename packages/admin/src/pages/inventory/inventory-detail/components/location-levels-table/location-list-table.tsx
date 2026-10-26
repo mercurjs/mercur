@@ -1,3 +1,6 @@
+import { ColumnDef } from "@tanstack/react-table";
+import { useMemo } from "react";
+import { useExtendableTable } from "@mercurjs/dashboard-shared";
 import type { ExtendedInventoryItemLevel } from "@custom-types/inventory";
 
 import { _DataTable } from "@components/table/data-table";
@@ -34,7 +37,17 @@ export const ItemLocationListTable = ({
     fields: "+stock_locations.id,+stock_locations.name",
   });
 
-  const columns = useLocationListTableColumns();
+  const baseColumns = useLocationListTableColumns();
+  const actionsColumn = baseColumns[baseColumns.length - 1];
+  const { columns: extended } = useExtendableTable<ExtendedInventoryItemLevel>({
+    model: "inventory_item",
+    zone: "location-levels",
+    columns: baseColumns.slice(0, -1) as unknown as ColumnDef<ExtendedInventoryItemLevel, unknown>[],
+  });
+  const columns = useMemo(
+    () => [...extended, actionsColumn] as ColumnDef<ExtendedInventoryItemLevel, unknown>[],
+    [extended, actionsColumn],
+  );
 
   if (isError) {
     throw error;

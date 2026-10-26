@@ -11,6 +11,7 @@ export type EditPriceRow = {
   product_thumbnail?: string | null
   prices: Record<string, number | string>
   region_prices: Record<string, number | string>
+  additional_data?: Record<string, unknown>
 }
 
 export type Region = HttpTypes.AdminRegion

@@ -1,11 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { HttpTypes } from "@medusajs/types"
 import { Button, toast, usePrompt } from "@medusajs/ui"
-import { useMemo, useRef, useState } from "react"
+import { useExtendableGrid } from "@mercurjs/dashboard-shared"
+import { ColumnDef } from "@tanstack/react-table"
+import { useCallback, useMemo, useRef, useState } from "react"
 import { DefaultValues, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { DataGrid } from "../../../../../components/data-grid"
+import {
+  createDataGridExtensionColumn,
+  DataGrid,
+} from "../../../../../components/data-grid"
 import {
   RouteFocusModal,
   useRouteModal,
@@ -22,6 +27,8 @@ import {
   OfferStockSchema,
 } from "./schema"
 import { OfferInventoryItemRow } from "./types"
+
+const LOCKED_COLUMN_IDS = ["title"]
 
 type InventoryBatchFormProps = {
   offer: OfferDetail
@@ -49,7 +56,20 @@ export const InventoryBatchForm = ({
     resolver: zodResolver(OfferStockSchema),
   })
 
-  const columns = useOfferStockColumns(locations)
+  const baseColumns = useOfferStockColumns(locations)
+  const createColumn = useCallback(
+    createDataGridExtensionColumn<OfferInventoryItemRow, OfferStockFormValues>,
+    [],
+  )
+  const columns = useExtendableGrid<OfferInventoryItemRow>({
+    model: "offer",
+    zone: "inventory-batch",
+    columns: baseColumns as ColumnDef<OfferInventoryItemRow, unknown>[],
+    lockedColumnIds: LOCKED_COLUMN_IDS,
+    // Rows save to an endpoint without `additional_data`: overrides only.
+    allowAdd: false,
+    createColumn,
+  })
   const { mutateAsync, isPending } = useBatchInventoryItemsLocationLevels()
 
   const onSubmit = form.handleSubmit(async (data) => {

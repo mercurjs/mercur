@@ -1,9 +1,15 @@
 import { Input } from "@medusajs/ui"
-import { useMemo, useState } from "react"
+import { useExtendableGrid } from "@mercurjs/dashboard-shared"
+import { ColumnDef } from "@tanstack/react-table"
+import { useCallback, useMemo, useState } from "react"
 import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { createDataGridHelper, DataGrid } from "@components/data-grid"
+import {
+  createDataGridExtensionColumn,
+  createDataGridHelper,
+  DataGrid,
+} from "@components/data-grid"
 import { useRouteModal } from "@components/modals"
 import { useTabbedForm } from "@components/tabbed-form/tabbed-form"
 import { defineTabMeta } from "@components/tabbed-form/types"
@@ -38,7 +44,20 @@ const Root = () => {
       }))
   }, [watchedAttributes])
 
-  const columns = useColumns({ variantAxes })
+  const baseColumns = useColumns({ variantAxes })
+  const createColumn = useCallback(
+    createDataGridExtensionColumn<VariantRow, ProductCreateSchemaType>,
+    []
+  )
+  const columns = useExtendableGrid<VariantRow>({
+    model: "product",
+    zone: "create",
+    tab: "variants",
+    columns: baseColumns as ColumnDef<VariantRow, unknown>[],
+    lockedColumnIds: LOCKED_COLUMN_IDS,
+    getRowPath: rowPath,
+    createColumn,
+  })
 
   const variantData = useMemo(() => {
     const ret: (ProductCreateVariantSchema & { originalIndex: number })[] = []
@@ -113,6 +132,10 @@ Root._tabMeta = defineTabMeta<ProductCreateSchemaType>({
 export const ProductCreateVariantsForm = Root
 
 type VariantRow = ProductCreateVariantSchema & { originalIndex: number }
+
+const LOCKED_COLUMN_IDS = ["attributes"]
+
+const rowPath = (row: VariantRow) => `variants.${row.originalIndex}`
 
 const columnHelper = createDataGridHelper<VariantRow, ProductCreateSchemaType>()
 

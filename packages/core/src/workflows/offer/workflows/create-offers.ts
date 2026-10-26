@@ -34,6 +34,8 @@ import { OFFER_PRICE_FIELDS, pickOfferPrices } from "./upsert-offer-prices"
 
 export type CreateOffersWorkflowInput = {
   offers: CreateOfferDTO[]
+  /** Per-offer custom data, aligned by index with `offers`. */
+  offers_additional_data?: (Record<string, unknown> | undefined)[]
 } & AdditionalData
 
 export type CreateOffersWorkflowHooks = [
@@ -43,6 +45,7 @@ export type CreateOffersWorkflowHooks = [
     {
       offers: OfferDTO[]
       additional_data: Record<string, unknown> | undefined
+      offers_additional_data: Record<string, Record<string, unknown>>
     },
     unknown
   >,
@@ -395,9 +398,22 @@ export const createOffersWorkflow: ReturnWorkflow<
       },
     )
 
+    const offersAdditionalData = transform(
+      { offers, input },
+      ({ offers, input }) => {
+        const byOfferId: Record<string, Record<string, unknown>> = {}
+        offers.forEach((offer, index) => {
+          const data = input.offers_additional_data?.[index]
+          if (data) byOfferId[offer.id] = data
+        })
+        return byOfferId
+      },
+    )
+
     const offersCreated = createHook("offersCreated", {
       offers: createdOffers,
       additional_data: input.additional_data,
+      offers_additional_data: offersAdditionalData,
     })
 
     return new WorkflowResponse(offers, {

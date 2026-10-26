@@ -1,8 +1,9 @@
 import { HttpTypes } from "@medusajs/types"
+import { ProductDTO } from "@mercurjs/types"
 import { Container, Heading } from "@medusajs/ui"
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import { DisplayExtensionZone, useExtendableTable } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
-import { RowSelectionState } from "@tanstack/react-table"
+import { RowSelectionState, type ColumnDef } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -166,8 +167,14 @@ export const CategoryProductSection = ({
 
 // const columnHelper = createColumnHelper<HttpTypes.AdminProduct>()
 
+type ProductRow = ProductDTO
+
 const useColumns = () => {
-  const base = useProductTableColumns()
+  const { columns: base } = useExtendableTable<ProductRow>({
+    model: "category",
+    zone: "products",
+    columns: useProductTableColumns() as unknown as ColumnDef<ProductRow, unknown>[],
+  })
 
   return useMemo(
     () => [

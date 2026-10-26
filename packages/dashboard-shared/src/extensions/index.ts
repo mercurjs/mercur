@@ -14,6 +14,7 @@ export {
   type PreferenceModule,
   type SectionWidget,
   type SectionWidgetMap,
+  type FormFieldOverride,
 } from "./registry"
 export { resolveRouteOverrides, type RenderDefaultProps } from "./route-layers"
 export { mergeLayoutPreferences, navOverridesFromPreferences } from "./preferences"
@@ -36,7 +37,9 @@ export {
 } from "./nav"
 export {
   FormExtensionZone,
+  ExtendableFormField,
   type FormExtensionZoneProps,
+  type ExtendableFormFieldProps,
 } from "./form-extension-zone"
 export {
   DisplayExtensionZone,
@@ -53,12 +56,23 @@ export {
   type UseExtendableTableProps,
   type ExtendableTable,
 } from "./use-extendable-table"
+export {
+  useExtendableGrid,
+  type UseExtendableGridProps,
+  type ExtensionGridColumnArgs,
+  type GridFieldName,
+} from "./use-extendable-grid"
 export { mergeListFilters } from "./list-filters"
 export { withLinkFields, linkFields, getLinkQuery, useLinkQuery } from "./links"
 export {
   createFormHelper,
   buildAdditionalDataSchema,
   buildAdditionalDataDefaults,
+  resolveFormFieldType,
+  buildScopedAdditionalData,
+  refineAdditionalData,
+  type AdditionalDataScope,
+  type FormFieldInputType,
 } from "./custom-fields-form"
 export {
   useExtendableForm,

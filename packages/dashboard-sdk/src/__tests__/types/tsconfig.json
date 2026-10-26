@@ -8,5 +8,5 @@
     "skipLibCheck": true,
     "jsx": "react-jsx"
   },
-  "files": ["permission-keys.augment.ts"]
+  "files": ["permission-keys.augment.ts", "custom-fields-zones.augment.ts"]
 }
