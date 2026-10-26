@@ -1,0 +1,111 @@
+---
+title: "Magento 2 architecture"
+sidebarTitle: "Architecture"
+description: "What runs in Magento and in Mercur, the three channels between them, how the mirror stays current, and how one checkout becomes one order per seller."
+---
+
+The connector keeps two systems in step without making either depend on the other at every request. Magento holds a local mirror of Mercur's sellers and offers and serves the storefront from it. Mercur stays the source of truth for marketplace data and tells Magento when it changes. They only talk in real time during checkout, when Magento needs seller shipping prices and an order per seller.
+
+<img className="block dark:hidden" src="/images/figures/magento2-architecture-light.svg" alt="Magento 2, running the nine Mercur modules, sits above Mercur, running @mercurjs/magento2-connector-plugin beside the marketplace modules. Between them are three channels: the Admin API with a secret key and the Store API with a publishable key, which Magento calls, and signed webhooks to POST /mercur/webhook, which Mercur sends." />
+<img className="hidden dark:block" src="/images/figures/magento2-architecture-dark.svg" alt="Magento 2, running the nine Mercur modules, sits above Mercur, running @mercurjs/magento2-connector-plugin beside the marketplace modules. Between them are three channels: the Admin API with a secret key and the Store API with a publishable key, which Magento calls, and signed webhooks to POST /mercur/webhook, which Mercur sends." />
+
+## The two halves
+
+### In Mercur: `@mercurjs/magento2-connector-plugin`
+
+A Medusa plugin you add to your Mercur API. It adds four things:
+
+- **The `magento_webhook` module**: webhook endpoints and a delivery log. Every delivery is signed, retried on failure and kept for inspection.
+- **The `pp_external_external` payment provider**: it records a payment that Magento collected. It authorizes, captures, cancels and refunds on paper only, so no money moves through Mercur at checkout.
+- **Admin routes under `/admin/magento`**: connection status, webhook endpoints, and the capture, cancel and refund calls Magento makes after checkout.
+- **Settings → Magento** in the admin panel: connection status, endpoints and their delivery history.
+
+### In Magento: `mercurjs/magento2-connector`
+
+A Composer package of nine modules. Each one owns one part of the job:
+
+| Module | Responsibility |
+| --- | --- |
+| `Mercur_Core` | Configuration, the Mercur API client, logging to `var/log/mercur.log` |
+| `Mercur_Process` | The background job table, its runner and cron, the `mercur:*` commands and the **Processes** grid |
+| `Mercur_Connector` | Seller and offer mirror, offer lines in the cart, the Mercur cart behind checkout, seller shipping, order placement, the webhook endpoint, fulfillment sync |
+| `Mercur_OfferIndexer` | The best offer per SKU and website, and listing prices |
+| `Mercur_Catalog` | Taxonomy push, product push, seller product import, stock from offers |
+| `Mercur_Settlement` | Credit memos reported to Mercur, refunds from Mercur executed in Magento |
+| `Mercur_Frontend` | Product page offers, seller panels in cart and checkout, seller pages, marketplace orders in the customer account |
+| `Mercur_GraphQl` | Offers, buy box, seller shipping and seller data in GraphQL |
+| `Mercur_Inventory` | Optional, for Multi-Source Inventory: keeps seller lines out of salable checks, reservations and source deduction |
+
+## Three channels
+
+Every exchange between the two systems goes through one of three channels:
+
+| Channel | Direction | Authenticated with | Used for |
+| --- | --- | --- | --- |
+| Admin API | Magento → Mercur | Secret admin API key | Reading sellers, offers, products and seller orders. Pushing taxonomy and products. Confirming captures, cancellations and refunds |
+| Store API | Magento → Mercur | Publishable API key | The Mercur cart behind each checkout: lines, address, seller shipping, payment session, completion. Per-website offer prices |
+| Webhooks | Mercur → Magento | HMAC-SHA256 signature | Telling Magento that offers, sellers, products or seller orders changed, and asking it to execute refunds |
+
+Magento never exposes an API that Mercur calls besides the webhook endpoint, `POST /mercur/webhook`.
+
+## Keeping the mirror current
+
+The storefront never asks Mercur what a seller sells. It reads the mirror: `mercur_seller`, `mercur_offer`, `mercur_offer_price` per website, and the best-offer index. Three mechanisms keep that mirror current, each a backstop for the one before it.
+
+1. **Webhooks.** When an offer, seller or product changes, Mercur posts the event to Magento. Magento doesn't apply the payload. It queues a delta sync of that kind, which reads everything changed since the last run from the Admin API.
+2. **Cron.** Each sync also runs on a schedule: sellers every 15 minutes, offers every 5 minutes, published products hourly. A missed webhook delays a change by one schedule at most.
+3. **A nightly full resync.** At 02:00 every mirror is rebuilt from scratch, and anything Mercur deleted that a delta couldn't see is removed.
+
+A delta sync reads every record updated since the last run. Offer and seller deltas include deleted records, so a withdrawn offer or a removed seller disappears from the storefront without waiting for the full resync.
+
+### Processes
+
+All background work runs as a **process**: a row in `mercur_process` with a task code, parameters, status, attempt count and output log. Webhooks, cron and the admin all queue processes the same way, and one runner executes them:
+
+- The `mercur_process_run_pending` cron job runs every minute under a global lock, so two cron workers never run the same process.
+- A process queued while an identical one (same task and parameters) is still pending or running is merged into it. A burst of 50 offer webhooks produces one offer sync.
+- A task that asks to retry later is rescheduled with exponential backoff, from 60 seconds up to an hour, until it reaches its maximum attempts.
+- A process with no output for longer than the timeout (one hour by default) is marked **Timed out**.
+- A full resync queues one child process per step, so each step has its own status and log.
+
+Every process is visible under **Mercur → Processes**, where you can run, stop and delete processes and read their output.
+
+## Anatomy of a checkout
+
+A shopper buys one of your products and one seller offer, and pays once.
+
+1. **Add to cart.** The seller's line carries a `mercur_offer_id`. Magento prices it from the offer for the current website and labels it "Sold by" the seller. Your own line is a normal Magento line.
+2. **Mirror the cart in Mercur.** When totals are collected, Magento creates a Mercur cart in the website's region and sales channel and copies the seller lines into it. Your own lines never leave Magento.
+3. **Quote seller shipping.** Magento sends the address to the Mercur cart and reads the shipping options, grouped by seller. The shopper picks one per seller, or the cheapest is used. Their sum is the **Seller shipping** total, taxed with your shipping tax class.
+4. **Place the order.** The shopper pays through your Magento payment method. Nothing is sent to Mercur yet.
+5. **Create the seller orders.** Once the order is committed in one of the configured statuses (`pending` or `processing` by default), Magento adds an authorized payment session on `pp_external_external`, with the Magento order number as its reference, and completes the Mercur cart. Mercur splits it into an order group with one order per seller and computes commission lines.
+6. **Capture.** When Magento invoices the order and the invoice is paid, it calls the capture route. Mercur captures the external payment and splits it across the seller orders, so payouts only follow money you actually collected.
+7. **Fulfill.** Sellers ship from the vendor panel. Each fulfillment Mercur reports becomes a Magento shipment with its tracking numbers.
+
+See [Orders and payments](/resources/integrations/magento2/orders-and-payments) for cancellations, returns and refunds.
+
+## When something fails
+
+The connector is built so that Mercur being slow or down never loses a Magento order.
+
+| What fails | What happens |
+| --- | --- |
+| Seller shipping can't be quoted at checkout | The shopper sees "Marketplace shipping could not be quoted. Please try again." and can't place the order until it can be |
+| Mercur is down when the order is placed | The Magento order succeeds. The `order_retry` process creates it in Mercur on its next run, every 10 minutes by default |
+| The capture call fails on invoice | The invoice succeeds, the order gets a comment, and `order_retry` confirms the capture later |
+| Magento is down when Mercur sends a webhook | Mercur retries after 1 minute, 5 minutes, 30 minutes, 2 hours and 12 hours, then marks the delivery **Gave up**. You can redeliver it from the admin. Cron syncs cover the gap |
+| A webhook handler throws in Magento | Magento answers `500` and forgets the delivery id, so Mercur's retry runs it again |
+| Mercur delivers the same webhook twice | Magento recognises the `x-mercur-delivery` id and answers `{"received":true,"duplicate":true}` without running handlers |
+| A refund webhook never arrives | The `refunds` process polls recent seller orders every 15 minutes and executes any refund it missed |
+
+The admin order view has **Send to marketplace**, **Capture marketplace payment** and **Resync marketplace status** buttons for anything that needs a push by hand.
+
+## What Magento stores
+
+Besides the mirror tables, the connector adds its own columns to Magento's sales tables, so every order line knows where it came from:
+
+- **Cart and order lines** carry the offer, the seller, the Mercur line item, the seller order and a marketplace status such as `shipped` or `refused`.
+- **Orders** carry the Mercur cart and order group, the seller shipping amounts with their tax, and when the order was sent and captured.
+- **Shipments** carry the Mercur fulfillment they record. **Credit memos** carry the Mercur refund they executed, or whether they were reported.
+
+The full list is in the [reference](/resources/integrations/magento2/reference#database).
