@@ -41,7 +41,6 @@
               "home",
               "learn/introduction",
               "learn/why-mercur",
-        "learn/use-cases",
               {
                 "group": "Build with AI",
                 "pages": [
@@ -52,6 +51,14 @@
               },
               "learn/architecture",
               "learn/migration-to-2-0"
+            ]
+          },
+          {
+            "group": "Use cases",
+            "icon": "signs-post",
+            "pages": [
+              "learn/use-cases/standalone-marketplace",
+              "learn/use-cases/marketplace-inside-store"
             ]
           },
           {
@@ -419,7 +426,7 @@
             "pages": [
               "resources/integrations/overview",
               "resources/integrations/stripe-connect",
-                "resources/integrations/magento2"
+              "resources/integrations/magento2"
             ]
           },
           {
@@ -1473,6 +1480,10 @@
     {
       "source": "/resources/tutorials/replace-panel-components",
       "destination": "/resources/customization/extending-panels"
+    },
+    {
+      "source": "/learn/use-cases",
+      "destination": "/learn/use-cases/standalone-marketplace"
     }
   ],
   "footer": {
