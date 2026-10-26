@@ -529,7 +529,7 @@ export type Routes = {
         };
         payoutAdjustments: typeof import("../src/api/admin/payout-adjustments/route");
         payoutCaptures: typeof import("../src/api/admin/payout-captures/route") & {
-            $orderGroupId: {
+            $orderGroupId: typeof import("../src/api/admin/payout-captures/[order_group_id]/route") & {
                 cancel: typeof import("../src/api/admin/payout-captures/[order_group_id]/cancel/route");
                 capture: typeof import("../src/api/admin/payout-captures/[order_group_id]/capture/route");
             };

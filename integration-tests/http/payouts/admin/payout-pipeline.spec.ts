@@ -150,6 +150,7 @@ medusaIntegrationTestRunner({
         const settlements = await api.get(`/admin/settlements?account_id=${account_id}`, adminHeaders)
         expect(settlements.data.count).toEqual(1)
         const settlement = settlements.data.settlements[0]
+        expect(settlement.display_id).toEqual(expect.any(Number))
         expect(settlement.amount).toEqual(42)
         expect(settlement.adjustments_total).toEqual(42)
         expect(settlement.adjustment_count).toEqual(1)
@@ -158,10 +159,15 @@ medusaIntegrationTestRunner({
         expect(settlement.payout.status).toEqual(PayoutStatus.PAID)
 
         const detail = await api.get(`/admin/settlements/${settlement.id}`, adminHeaders)
+        expect(detail.data.settlement.display_id).toEqual(settlement.display_id)
         expect(detail.data.settlement.adjustments).toHaveLength(1)
         expect(detail.data.settlement.adjustments[0].transfer_status).toEqual(TransferStatus.CREATED)
 
         const payouts = await api.get(`/admin/payouts?settlement_id=${settlement.id}`, adminHeaders)
+        const bySeller = await api.get(`/admin/payouts?seller_id=${seller.id}&status=paid`, adminHeaders)
+        expect(bySeller.data.payouts.map((p: any) => p.id)).toEqual(payouts.data.payouts.map((p: any) => p.id))
+        const byOther = await api.get(`/admin/payouts?seller_id=sel_none`, adminHeaders)
+        expect(byOther.data.payouts).toEqual([])
         expect(payouts.data.count).toEqual(1)
         expect(payouts.data.payouts[0].provider_payout_id).toBeTruthy()
 
@@ -210,6 +216,19 @@ medusaIntegrationTestRunner({
         expect(paid.data.run.stats.payouts_retried).toEqual(1)
         const [after] = await payoutService.listPayouts({ account_id })
         expect(after.status).toEqual(PayoutStatus.PAID)
+      })
+
+      it("lists pending captures as a paginated collection", async () => {
+        const response = await api.get("/admin/payout-captures", adminHeaders)
+        expect(response.status).toEqual(200)
+        expect(response.data).toEqual({ captures: [], count: 0, offset: 0, limit: 20 })
+      })
+
+      it("returns 404 for a capture detail that is not pending", async () => {
+        const response = await api
+          .get("/admin/payout-captures/ogrp_missing", adminHeaders)
+          .catch((e: any) => e.response)
+        expect(response.status).toEqual(404)
       })
 
       it("reports status and an empty failed strip", async () => {

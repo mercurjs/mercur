@@ -146,6 +146,7 @@
   "/admin/payout-accounts/:id/sync": "typeof import(\"@mercurjs/core/api/admin/payout-accounts/[id]/sync/route\")",
   "/admin/payout-adjustments": "typeof import(\"@mercurjs/core/api/admin/payout-adjustments/route\")",
   "/admin/payout-captures": "typeof import(\"@mercurjs/core/api/admin/payout-captures/route\")",
+  "/admin/payout-captures/:order_group_id": "typeof import(\"@mercurjs/core/api/admin/payout-captures/[order_group_id]/route\")",
   "/admin/payout-captures/:order_group_id/cancel": "typeof import(\"@mercurjs/core/api/admin/payout-captures/[order_group_id]/cancel/route\")",
   "/admin/payout-captures/:order_group_id/capture": "typeof import(\"@mercurjs/core/api/admin/payout-captures/[order_group_id]/capture/route\")",
   "/admin/payout-jobs": "typeof import(\"@mercurjs/core/api/admin/payout-jobs/route\")",

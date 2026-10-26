@@ -16,6 +16,9 @@ export const adminPayoutFields = [
   "provider_payout_id",
   "settlement_id",
   "account.provider_id",
+  "account.seller.id",
+  "account.seller.name",
+  "account.seller.handle",
 ]
 
 export const adminPayoutQueryConfig = {

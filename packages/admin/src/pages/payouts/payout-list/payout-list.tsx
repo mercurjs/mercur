@@ -9,6 +9,7 @@ import { SingleColumnPage } from "../../../components/layout/pages"
 import { _DataTable } from "../../../components/table/data-table"
 import { usePayouts } from "../../../hooks/api/payouts"
 import { usePayoutTableColumns } from "../../../hooks/table/columns/use-payout-table-columns"
+import { usePayoutTableFilters } from "../../../hooks/table/filters/use-payout-table-filters"
 import { usePayoutTableQuery } from "../../../hooks/table/query/use-payout-table-query"
 import { useDataTable } from "../../../hooks/use-data-table"
 import { PayoutDTO } from "@mercurjs/types"
@@ -61,6 +62,7 @@ export const PayoutListDataTable = () => {
   )
 
   const columns = usePayoutTableColumns()
+  const filters = usePayoutTableFilters()
 
   const { table } = useDataTable({
     data: (payouts as PayoutDTO[]) ?? [],
@@ -81,13 +83,17 @@ export const PayoutListDataTable = () => {
       pagination
       navigateTo={(row) => `/payouts/${row.original.id}`}
       count={count ?? 0}
+      filters={filters}
       search
       isLoading={isLoading}
       pageSize={PAGE_SIZE}
       orderBy={[
+        { key: "status", label: t("fields.status") },
+        { key: "amount", label: t("fields.amount") },
         { key: "created_at", label: t("fields.createdAt") },
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
+      defaultOrder="-created_at"
       queryObject={raw}
       noRecords={{
         message: t("payouts.list.empty"),

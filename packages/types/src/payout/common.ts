@@ -338,6 +338,7 @@ export interface TransferDTO {
 
 export interface SettlementDTO {
   id: string
+  display_id: number
   account_id: string
   provider_id: string
   currency_code: string

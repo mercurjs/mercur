@@ -39,10 +39,13 @@ export type PendingCapture = {
     display_id: number | null
     orders: {
       id: string
+      display_id: number | null
       status: string
       canceled_at: Date | string | null
       fulfillment_status: string | null
       total: BigNumberInput
+      currency_code: string | null
+      seller: { id: string; name: string | null } | null
       metadata: Record<string, unknown> | null
     }[]
   }
@@ -119,7 +122,18 @@ export async function listPendingCaptures(
   const { data: orderRows } = orderIds.length
     ? await query.graph({
         entity: "order",
-        fields: ["id", "status", "canceled_at", "total", "metadata", ...ORDER_FULFILLMENT_FIELDS],
+        fields: [
+          "id",
+          "display_id",
+          "status",
+          "canceled_at",
+          "total",
+          "currency_code",
+          "metadata",
+          "seller.id",
+          "seller.name",
+          ...ORDER_FULFILLMENT_FIELDS,
+        ],
         filters: { id: orderIds },
       })
     : { data: [] }
@@ -144,10 +158,13 @@ export async function listPendingCaptures(
 
     const orders = (group.orders ?? []).map((order) => ({
       id: order.id,
+      display_id: order.display_id ?? null,
       status: order.status,
       canceled_at: order.canceled_at ?? null,
       fulfillment_status: order.fulfillment_status ?? null,
       total: order.total,
+      currency_code: order.currency_code ?? null,
+      seller: order.seller ? { id: order.seller.id, name: order.seller.name ?? null } : null,
       metadata: order.metadata ?? null,
       accepted:
         order.metadata && "accepted" in order.metadata ? !!order.metadata.accepted : null,
@@ -188,9 +205,20 @@ export function toAdminCapture(item: PendingCapture): HttpTypes.AdminPayoutCaptu
     orders_total: item.decision.orders_total,
     orders_decided: item.decision.orders_decided,
     decided: item.decision.orders_decided === item.decision.orders_total,
+    action: item.decision.action,
     authorized_at: item.payment.created_at ? new Date(item.payment.created_at) : null,
     expires_at: item.decision.expires_at,
     capture_error: (item.collection.metadata?.[CAPTURE_ERROR_KEY] as string | undefined) ?? null,
+    orders: item.group.orders.map((order) => ({
+      id: order.id,
+      display_id: order.display_id,
+      status: order.status,
+      canceled_at: order.canceled_at,
+      fulfillment_status: order.fulfillment_status,
+      total: order.total,
+      currency_code: order.currency_code,
+      seller: order.seller,
+    })),
   }
 }
 

@@ -180,6 +180,17 @@ export interface AdminPayoutStatusResponse {
   jobs: AdminPayoutJob[]
 }
 
+export interface AdminPayoutCaptureOrder {
+  id: string
+  display_id: number | null
+  status: string
+  canceled_at: Date | string | null
+  fulfillment_status: string | null
+  total: BigNumberInput
+  currency_code: string | null
+  seller: { id: string; name: string | null } | null
+}
+
 export interface AdminPayoutCapture {
   order_group_id: string
   order_group_display_id: number | null
@@ -192,9 +203,15 @@ export interface AdminPayoutCapture {
   orders_total: number
   orders_decided: number
   decided: boolean
+  action: "wait" | "capture" | "cancel" | "expired"
   authorized_at: Date | null
   expires_at: Date | null
   capture_error: string | null
+  orders: AdminPayoutCaptureOrder[]
+}
+
+export type AdminPayoutCaptureResponse = {
+  capture: AdminPayoutCapture
 }
 
 export type AdminPayoutCaptureListResponse = PaginatedResponse<{

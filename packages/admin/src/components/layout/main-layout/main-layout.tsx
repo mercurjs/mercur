@@ -421,6 +421,10 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       label: t("orders.domain"),
       to: "/orders",
       items: [
+        {
+          label: t("payoutCaptures.domain"),
+          to: "/payout-captures",
+        },
         // TODO: Enable when domin is introduced
         // {
         //   label: t("draftOrders.domain"),
@@ -505,6 +509,24 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       icon: <CreditCardRefresh />,
       label: t("payouts.domain"),
       to: "/payouts",
+      items: [
+        {
+          label: t("payoutAccounts.domain"),
+          to: "/payout-accounts",
+        },
+        {
+          label: t("transfers.domain"),
+          to: "/transfers",
+        },
+        {
+          label: t("reversals.domain"),
+          to: "/reversals",
+        },
+        {
+          label: t("settlements.domain"),
+          to: "/settlements",
+        },
+      ],
     },
   ];
 };

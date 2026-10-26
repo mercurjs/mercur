@@ -1863,7 +1863,174 @@
       "processing": "Processing",
       "pending": "Pending",
       "failed": "Failed",
-      "canceled": "Canceled"
+      "canceled": "Canceled",
+      "on_hold": "On hold",
+      "aborted": "Aborted"
+    }
+  },
+  "payoutAccounts": {
+    "domain": "Payout accounts",
+    "subtitle": "Every store's payout account, mirrored from its payout provider.",
+    "noStore": "This account is not linked to a store.",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "list": {
+      "noRecordsMessage": "Payout accounts appear once a store starts onboarding with a payout provider."
+    },
+    "fields": {
+      "store": "Store",
+      "kycStatus": "KYC status",
+      "provider": "Provider",
+      "providerAccountId": "Provider account ID",
+      "payoutsEnabled": "Payouts",
+      "chargesEnabled": "Charges",
+      "detailsSubmitted": "Details submitted",
+      "disabledReason": "Disabled reason",
+      "lastSyncedAt": "Last synced",
+      "ignored": "Ignored"
+    },
+    "status": {
+      "pending": "Pending",
+      "active": "Active",
+      "restricted": "Restricted",
+      "rejected": "Rejected"
+    },
+    "kycStatus": {
+      "pending_submission": "Pending submission",
+      "pending_approval": "Pending approval",
+      "approved": "Approved",
+      "refused": "Refused"
+    },
+    "actions": {
+      "sync": "Sync from provider",
+      "refreshLink": "Refresh onboarding link",
+      "openLink": "Open onboarding link",
+      "ignore": "Ignore account",
+      "unignore": "Stop ignoring"
+    },
+    "sync": {
+      "successToast": "Account synced from the payout provider."
+    },
+    "refreshLink": {
+      "successToast": "A new onboarding link was created."
+    },
+    "ignore": {
+      "title": "Ignore payout account",
+      "description": "Ignored accounts are skipped by the payout jobs: no transfers or settlements are made for this store until you stop ignoring it.",
+      "successToast": "Account is now ignored."
+    },
+    "unignore": {
+      "successToast": "Account is no longer ignored."
+    },
+    "requirements": {
+      "header": "Requirements",
+      "emptyTitle": "No outstanding requirements",
+      "emptyMessage": "The payout provider has everything it needs from this store.",
+      "pastDue": "Past due",
+      "currentlyDue": "Currently due",
+      "pendingVerification": "Pending verification"
+    },
+    "capabilities": {
+      "header": "Capabilities",
+      "kycUnknown": "Not reported"
+    }
+  },
+  "transfers": {
+    "domain": "Transfers",
+    "subtitle": "Money moved to each store's payout account: order totals minus commission, reversals and adjustments.",
+    "payoutAccount": "Payout account",
+    "list": {
+      "noRecordsMessage": "Transfers appear once a fulfilled and paid order is processed by the payout jobs."
+    },
+    "fields": {
+      "store": "Store",
+      "provider": "Provider",
+      "providerTransferId": "Provider transfer ID",
+      "sourceCreatedAt": "Source created at",
+      "order": "Order",
+      "refund": "Refund",
+      "sourcePayment": "Source payment",
+      "reversesTransfer": "Reverses transfer",
+      "adjustment": "Adjustment",
+      "settlement": "Settlement"
+    },
+    "status": {
+      "pending": "Pending",
+      "created": "Created",
+      "failed": "Failed",
+      "on_hold": "On hold",
+      "aborted": "Aborted",
+      "ignored": "Ignored"
+    },
+    "type": {
+      "order": "Order",
+      "tax": "Tax",
+      "refund_reversal": "Refund reversal",
+      "adjustment_credit": "Adjustment credit",
+      "adjustment_debit": "Adjustment debit"
+    },
+    "actions": {
+      "retry": "Retry transfer"
+    },
+    "retry": {
+      "title": "Retry transfer",
+      "description": "The transfer is reset to pending and sent to the payout provider again.",
+      "successToast": "Transfer retried.",
+      "disabledTooltip": "Only pending, failed or on-hold transfers can be retried."
+    },
+    "references": {
+      "header": "References",
+      "empty": "This transfer has no linked records."
+    }
+  },
+  "reversals": {
+    "domain": "Reversals",
+    "subtitle": "The store's share of every refund, reversed on the original transfer.",
+    "list": {
+      "noRecordsMessage": "Reversals appear once a refund on a paid-out order is processed by the payout jobs."
+    }
+  },
+  "settlements": {
+    "domain": "Settlements",
+    "subtitle": "Transfers, reversals and adjustments netted per store and currency, then paid out.",
+    "period": "{{start}} to {{end}}",
+    "noStore": "This settlement is not linked to a store.",
+    "noPayout": "No payout has been created for this settlement yet.",
+    "payoutAccount": "Payout account",
+    "list": {
+      "noRecordsMessage": "Settlements are created by the daily settlement job once a store has anything to pay out."
+    },
+    "fields": {
+      "store": "Store",
+      "periodStart": "Period start",
+      "periodEnd": "Period end",
+      "payout": "Payout",
+      "transfersTotal": "Transfers",
+      "reversalsTotal": "Reversals",
+      "adjustmentsTotal": "Adjustments",
+      "provider": "Provider",
+      "providerPayoutId": "Provider payout ID",
+      "statusReason": "Status reason"
+    },
+    "status": {
+      "open": "Open",
+      "paid_out": "Paid out",
+      "failed": "Failed",
+      "aborted": "Aborted"
+    },
+    "adjustmentType": {
+      "subscription": "Subscription",
+      "extra_invoice": "Extra invoice",
+      "extra_credit": "Extra credit"
+    },
+    "lines": {
+      "transfers": "Transfers",
+      "reversals": "Reversals",
+      "adjustments": "Adjustments",
+      "transfersEmpty": "No transfers",
+      "reversalsEmpty": "No reversals",
+      "adjustmentsEmpty": "No adjustments",
+      "emptyMessage": "Nothing of this kind was netted into this settlement."
     }
   },
   "draftOrders": {
@@ -4594,5 +4761,63 @@
     "imageUploadFailed": "Failed to upload image",
     "undo": "Undo",
     "redo": "Redo"
+  },
+  "payoutCaptures": {
+    "domain": "Captures",
+    "subtitle": "Authorized payments waiting for every order in the group to be decided before the money is captured.",
+    "list": {
+      "noRecordsTitle": "Nothing to capture",
+      "noRecordsMessage": "Every authorized payment has been captured or canceled."
+    },
+    "fields": {
+      "orderGroup": "Order group",
+      "authorizedAmount": "Authorized",
+      "capturableAmount": "Capturable",
+      "ordersDecided": "Orders decided",
+      "authorizedAt": "Authorized at",
+      "expiresAt": "Authorization expires",
+      "captureError": "Last error",
+      "provider": "Payment provider",
+      "currency": "Currency",
+      "paymentId": "Payment ID",
+      "paymentCollectionId": "Payment collection ID"
+    },
+    "action": {
+      "wait": "Waiting",
+      "capture": "Ready to capture",
+      "cancel": "To cancel",
+      "expired": "Expired"
+    },
+    "actions": {
+      "capture": "Capture now",
+      "captureDisabled": "Nothing is capturable yet.",
+      "cancel": "Cancel authorization"
+    },
+    "capture": {
+      "title": "Capture payment",
+      "description": "{{amount}} will be captured from the customer now, before the payout job runs.",
+      "successToast": "Payment captured."
+    },
+    "cancel": {
+      "title": "Cancel authorization",
+      "description": "The authorized payment will be released back to the customer. No order in this group will be paid out.",
+      "successToast": "Authorization canceled."
+    },
+    "orders": {
+      "header": "Orders",
+      "emptyTitle": "No orders",
+      "emptyMessage": "This order group has no orders.",
+      "unknownSeller": "Unknown store",
+      "status": {
+        "pending": "Pending",
+        "fulfilled": "Fulfilled",
+        "shipped": "Shipped",
+        "delivered": "Delivered",
+        "canceled": "Canceled"
+      }
+    },
+    "payment": {
+      "header": "Payment"
+    }
   }
 }

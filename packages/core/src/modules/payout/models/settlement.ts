@@ -8,6 +8,7 @@ import { Transfer } from "./transfer"
 export const Settlement = model
   .define("settlement", {
     id: model.id({ prefix: "stl" }).primaryKey(),
+    display_id: model.autoincrement(),
     provider_id: model.text(),
     currency_code: model.text(),
     period_start: model.dateTime(),

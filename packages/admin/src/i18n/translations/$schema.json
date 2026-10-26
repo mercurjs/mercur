@@ -7601,6 +7601,12 @@
             },
             "canceled": {
               "type": "string"
+            },
+            "on_hold": {
+              "type": "string"
+            },
+            "aborted": {
+              "type": "string"
             }
           },
           "required": [
@@ -7608,7 +7614,9 @@
             "processing",
             "pending",
             "failed",
-            "canceled"
+            "canceled",
+            "on_hold",
+            "aborted"
           ],
           "additionalProperties": false
         }
@@ -7617,6 +7625,931 @@
         "domain",
         "list",
         "status"
+      ],
+      "additionalProperties": false
+    },
+    "payoutAccounts": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "noStore": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "string"
+        },
+        "disabled": {
+          "type": "string"
+        },
+        "list": {
+          "type": "object",
+          "properties": {
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "store": {
+              "type": "string"
+            },
+            "kycStatus": {
+              "type": "string"
+            },
+            "provider": {
+              "type": "string"
+            },
+            "providerAccountId": {
+              "type": "string"
+            },
+            "payoutsEnabled": {
+              "type": "string"
+            },
+            "chargesEnabled": {
+              "type": "string"
+            },
+            "detailsSubmitted": {
+              "type": "string"
+            },
+            "disabledReason": {
+              "type": "string"
+            },
+            "lastSyncedAt": {
+              "type": "string"
+            },
+            "ignored": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "store",
+            "kycStatus",
+            "provider",
+            "providerAccountId",
+            "payoutsEnabled",
+            "chargesEnabled",
+            "detailsSubmitted",
+            "disabledReason",
+            "lastSyncedAt",
+            "ignored"
+          ],
+          "additionalProperties": false
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "pending": {
+              "type": "string"
+            },
+            "active": {
+              "type": "string"
+            },
+            "restricted": {
+              "type": "string"
+            },
+            "rejected": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "pending",
+            "active",
+            "restricted",
+            "rejected"
+          ],
+          "additionalProperties": false
+        },
+        "kycStatus": {
+          "type": "object",
+          "properties": {
+            "pending_submission": {
+              "type": "string"
+            },
+            "pending_approval": {
+              "type": "string"
+            },
+            "approved": {
+              "type": "string"
+            },
+            "refused": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "pending_submission",
+            "pending_approval",
+            "approved",
+            "refused"
+          ],
+          "additionalProperties": false
+        },
+        "actions": {
+          "type": "object",
+          "properties": {
+            "sync": {
+              "type": "string"
+            },
+            "refreshLink": {
+              "type": "string"
+            },
+            "openLink": {
+              "type": "string"
+            },
+            "ignore": {
+              "type": "string"
+            },
+            "unignore": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "sync",
+            "refreshLink",
+            "openLink",
+            "ignore",
+            "unignore"
+          ],
+          "additionalProperties": false
+        },
+        "sync": {
+          "type": "object",
+          "properties": {
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "refreshLink": {
+          "type": "object",
+          "properties": {
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "ignore": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "unignore": {
+          "type": "object",
+          "properties": {
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "requirements": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "emptyTitle": {
+              "type": "string"
+            },
+            "emptyMessage": {
+              "type": "string"
+            },
+            "pastDue": {
+              "type": "string"
+            },
+            "currentlyDue": {
+              "type": "string"
+            },
+            "pendingVerification": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "emptyTitle",
+            "emptyMessage",
+            "pastDue",
+            "currentlyDue",
+            "pendingVerification"
+          ],
+          "additionalProperties": false
+        },
+        "capabilities": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "kycUnknown": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "kycUnknown"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "domain",
+        "subtitle",
+        "noStore",
+        "enabled",
+        "disabled",
+        "list",
+        "fields",
+        "status",
+        "kycStatus",
+        "actions",
+        "sync",
+        "refreshLink",
+        "ignore",
+        "unignore",
+        "requirements",
+        "capabilities"
+      ],
+      "additionalProperties": false
+    },
+    "payoutCaptures": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "list": {
+          "type": "object",
+          "properties": {
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsTitle",
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "orderGroup": {
+              "type": "string"
+            },
+            "authorizedAmount": {
+              "type": "string"
+            },
+            "capturableAmount": {
+              "type": "string"
+            },
+            "ordersDecided": {
+              "type": "string"
+            },
+            "authorizedAt": {
+              "type": "string"
+            },
+            "expiresAt": {
+              "type": "string"
+            },
+            "captureError": {
+              "type": "string"
+            },
+            "provider": {
+              "type": "string"
+            },
+            "currency": {
+              "type": "string"
+            },
+            "paymentId": {
+              "type": "string"
+            },
+            "paymentCollectionId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "orderGroup",
+            "authorizedAmount",
+            "capturableAmount",
+            "ordersDecided",
+            "authorizedAt",
+            "expiresAt",
+            "captureError",
+            "provider",
+            "currency",
+            "paymentId",
+            "paymentCollectionId"
+          ],
+          "additionalProperties": false
+        },
+        "action": {
+          "type": "object",
+          "properties": {
+            "wait": {
+              "type": "string"
+            },
+            "capture": {
+              "type": "string"
+            },
+            "cancel": {
+              "type": "string"
+            },
+            "expired": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "wait",
+            "capture",
+            "cancel",
+            "expired"
+          ],
+          "additionalProperties": false
+        },
+        "actions": {
+          "type": "object",
+          "properties": {
+            "capture": {
+              "type": "string"
+            },
+            "captureDisabled": {
+              "type": "string"
+            },
+            "cancel": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "capture",
+            "captureDisabled",
+            "cancel"
+          ],
+          "additionalProperties": false
+        },
+        "capture": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "cancel": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "orders": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "emptyTitle": {
+              "type": "string"
+            },
+            "emptyMessage": {
+              "type": "string"
+            },
+            "unknownSeller": {
+              "type": "string"
+            },
+            "status": {
+              "type": "object",
+              "properties": {
+                "pending": {
+                  "type": "string"
+                },
+                "fulfilled": {
+                  "type": "string"
+                },
+                "shipped": {
+                  "type": "string"
+                },
+                "delivered": {
+                  "type": "string"
+                },
+                "canceled": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "pending",
+                "fulfilled",
+                "shipped",
+                "delivered",
+                "canceled"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "header",
+            "emptyTitle",
+            "emptyMessage",
+            "unknownSeller",
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        "payment": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "domain",
+        "subtitle",
+        "list",
+        "fields",
+        "action",
+        "actions",
+        "capture",
+        "cancel",
+        "orders",
+        "payment"
+      ],
+      "additionalProperties": false
+    },
+    "transfers": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "payoutAccount": {
+          "type": "string"
+        },
+        "list": {
+          "type": "object",
+          "properties": {
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "store": {
+              "type": "string"
+            },
+            "provider": {
+              "type": "string"
+            },
+            "providerTransferId": {
+              "type": "string"
+            },
+            "sourceCreatedAt": {
+              "type": "string"
+            },
+            "order": {
+              "type": "string"
+            },
+            "refund": {
+              "type": "string"
+            },
+            "sourcePayment": {
+              "type": "string"
+            },
+            "reversesTransfer": {
+              "type": "string"
+            },
+            "adjustment": {
+              "type": "string"
+            },
+            "settlement": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "store",
+            "provider",
+            "providerTransferId",
+            "sourceCreatedAt",
+            "order",
+            "refund",
+            "sourcePayment",
+            "reversesTransfer",
+            "adjustment",
+            "settlement"
+          ],
+          "additionalProperties": false
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "pending": {
+              "type": "string"
+            },
+            "created": {
+              "type": "string"
+            },
+            "failed": {
+              "type": "string"
+            },
+            "on_hold": {
+              "type": "string"
+            },
+            "aborted": {
+              "type": "string"
+            },
+            "ignored": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "pending",
+            "created",
+            "failed",
+            "on_hold",
+            "aborted",
+            "ignored"
+          ],
+          "additionalProperties": false
+        },
+        "type": {
+          "type": "object",
+          "properties": {
+            "order": {
+              "type": "string"
+            },
+            "tax": {
+              "type": "string"
+            },
+            "refund_reversal": {
+              "type": "string"
+            },
+            "adjustment_credit": {
+              "type": "string"
+            },
+            "adjustment_debit": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "order",
+            "tax",
+            "refund_reversal",
+            "adjustment_credit",
+            "adjustment_debit"
+          ],
+          "additionalProperties": false
+        },
+        "actions": {
+          "type": "object",
+          "properties": {
+            "retry": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "retry"
+          ],
+          "additionalProperties": false
+        },
+        "retry": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            },
+            "disabledTooltip": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "successToast",
+            "disabledTooltip"
+          ],
+          "additionalProperties": false
+        },
+        "references": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "empty": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "empty"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "domain",
+        "subtitle",
+        "payoutAccount",
+        "list",
+        "fields",
+        "status",
+        "type",
+        "actions",
+        "retry",
+        "references"
+      ],
+      "additionalProperties": false
+    },
+    "reversals": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "list": {
+          "type": "object",
+          "properties": {
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "domain",
+        "subtitle",
+        "list"
+      ],
+      "additionalProperties": false
+    },
+    "settlements": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "period": {
+          "type": "string"
+        },
+        "noStore": {
+          "type": "string"
+        },
+        "noPayout": {
+          "type": "string"
+        },
+        "payoutAccount": {
+          "type": "string"
+        },
+        "list": {
+          "type": "object",
+          "properties": {
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "store": {
+              "type": "string"
+            },
+            "periodStart": {
+              "type": "string"
+            },
+            "periodEnd": {
+              "type": "string"
+            },
+            "payout": {
+              "type": "string"
+            },
+            "transfersTotal": {
+              "type": "string"
+            },
+            "reversalsTotal": {
+              "type": "string"
+            },
+            "adjustmentsTotal": {
+              "type": "string"
+            },
+            "provider": {
+              "type": "string"
+            },
+            "providerPayoutId": {
+              "type": "string"
+            },
+            "statusReason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "store",
+            "periodStart",
+            "periodEnd",
+            "payout",
+            "transfersTotal",
+            "reversalsTotal",
+            "adjustmentsTotal",
+            "provider",
+            "providerPayoutId",
+            "statusReason"
+          ],
+          "additionalProperties": false
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "open": {
+              "type": "string"
+            },
+            "paid_out": {
+              "type": "string"
+            },
+            "failed": {
+              "type": "string"
+            },
+            "aborted": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "open",
+            "paid_out",
+            "failed",
+            "aborted"
+          ],
+          "additionalProperties": false
+        },
+        "adjustmentType": {
+          "type": "object",
+          "properties": {
+            "subscription": {
+              "type": "string"
+            },
+            "extra_invoice": {
+              "type": "string"
+            },
+            "extra_credit": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "subscription",
+            "extra_invoice",
+            "extra_credit"
+          ],
+          "additionalProperties": false
+        },
+        "lines": {
+          "type": "object",
+          "properties": {
+            "transfers": {
+              "type": "string"
+            },
+            "reversals": {
+              "type": "string"
+            },
+            "adjustments": {
+              "type": "string"
+            },
+            "transfersEmpty": {
+              "type": "string"
+            },
+            "reversalsEmpty": {
+              "type": "string"
+            },
+            "adjustmentsEmpty": {
+              "type": "string"
+            },
+            "emptyMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "transfers",
+            "reversals",
+            "adjustments",
+            "transfersEmpty",
+            "reversalsEmpty",
+            "adjustmentsEmpty",
+            "emptyMessage"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "domain",
+        "subtitle",
+        "period",
+        "noStore",
+        "noPayout",
+        "payoutAccount",
+        "list",
+        "fields",
+        "status",
+        "adjustmentType",
+        "lines"
       ],
       "additionalProperties": false
     },
@@ -17103,6 +18036,11 @@
     "customerGroups",
     "orders",
     "payouts",
+    "payoutAccounts",
+    "payoutCaptures",
+    "transfers",
+    "reversals",
+    "settlements",
     "draftOrders",
     "stockLocations",
     "shippingProfile",

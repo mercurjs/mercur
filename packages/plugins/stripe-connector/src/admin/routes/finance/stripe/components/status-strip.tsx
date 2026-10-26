@@ -42,7 +42,7 @@ export const StatusStrip = ({ onJump }: { onJump: (tab: string) => void }) => {
         )}
       </div>
       <div className="flex flex-wrap items-center gap-x-2 px-3 py-2">
-        <Count label="Captures" value={failed?.captures ?? 0} onClick={() => navigate("/orders/captures")} />
+        <Count label="Captures" value={failed?.captures ?? 0} onClick={() => navigate("/payout-captures")} />
         <Count label="Transfers" value={failed?.transfers ?? 0} onClick={() => onJump("transfers")} />
         <Count label="Reversals" value={failed?.reversals ?? 0} onClick={() => onJump("reversals")} />
         <Count label="Payouts" value={failed?.payouts ?? 0} onClick={() => onJump("settlements")} />
