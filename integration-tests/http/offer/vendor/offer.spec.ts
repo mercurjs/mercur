@@ -500,6 +500,41 @@ medusaIntegrationTestRunner({
 
                     expect(response.status).toEqual(400)
                 })
+
+                it("should reject the whole batch when any item targets a product restricted to other sellers", async () => {
+                    const allowed = await seedSellerOfferDeps(seller1Headers)
+                    const restricted = await seedSellerOfferDeps(seller1Headers)
+                    await assignProductsToSeller(appContainer, seller2Id, [
+                        restricted.product_id,
+                    ])
+
+                    const response = await api
+                        .post(
+                            `/vendor/offers/batch`,
+                            {
+                                offers: [allowed, restricted].map((deps, i) => ({
+                                    sku: `BATCH-RESTRICTED-${i}`,
+                                    variant_id: deps.variant_id,
+                                    shipping_profile_id: deps.shipping_profile_id,
+                                    inventory_items: [{ required_quantity: 1 }],
+                                    prices: [{ amount: 2000, currency_code: "usd" }],
+                                })),
+                            },
+                            seller1Headers
+                        )
+                        .catch((e: any) => e.response)
+
+                    expect(response.status).toEqual(400)
+                    expect(response.data.message).toContain("restricted to other sellers")
+
+                    const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+                    const { data: offers } = await query.graph({
+                        entity: "offer",
+                        fields: ["id"],
+                        filters: { seller_id: seller1Id },
+                    })
+                    expect(offers).toHaveLength(0)
+                })
             })
 
             describe("GET /vendor/offers", () => {
