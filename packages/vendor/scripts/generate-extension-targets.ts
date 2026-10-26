@@ -11,6 +11,10 @@
  *   - settings sidebar `to:` / group `id:`    → NavItemRegistry / NavGroupRegistry
  *   - `<FormExtensionZone model zone>` /       → CustomFieldsRegistry (form/display zones)
  *     `<DisplayExtensionZone model zone>`
+ *   - `<ExtendableFormField id>`,              → CustomFieldsRegistry (overridable form
+ *     `useExtendableGrid` column ids             field / grid column ids)
+ *   - `useExtendableTable({ model, zone })`    → CustomFieldsRegistry (list zones +
+ *                                                same-file column ids)
  *
  * A zone that no page renders as a host can never be targeted and never enters
  * the types. This runs after `tsup` in the package `build`: it writes the source
@@ -150,6 +154,9 @@ type ModelZones = {
   // TabbedForm tab ids per form zone (from <TabbedForm model zone> hosts +
   // sibling `defineTabMeta({ id })` tab modules)
   formTabs: Map<string, Set<string>>
+  formFieldIds: Set<string>
+  listZones: Set<string>
+  listColumnIds: Set<string>
 }
 
 // A <TabbedForm model zone> host anchors every `defineTabMeta` tab id under its
@@ -172,6 +179,9 @@ function collectCustomFields(files: string[]): Map<string, ModelZones> {
         displayZones: new Set(),
         displayFieldIds: new Map(),
         formTabs: new Map(),
+        formFieldIds: new Set(),
+        listZones: new Set(),
+        listColumnIds: new Set(),
       }
       models.set(model, m)
     }
@@ -192,6 +202,54 @@ function collectCustomFields(files: string[]): Map<string, ModelZones> {
     /defineTabMeta\b\s*(?:<[^>]*>)?\s*\(\s*\{[\s\S]*?\bid:\s*["'`]([^"'`]+)["'`]/g
   // Relative import specifiers, used to follow a host to its tab modules.
   const importRe = /\bfrom\s+["'](\.[^"']+)["']/g
+  // `useExtendableTable/Grid<…>({ model: "…", zone: "…" })` — zone optional for
+  // tables (defaults to "list").
+  const hookRe = (name: string) =>
+    new RegExp(
+      `\\b${name}\\b[\\s\\S]{0,200}?model:\\s*["'\`]([^"'\`]+)["'\`](?:,\\s*zone:\\s*(?:["'\`]([^"'\`]+)["'\`]|([A-Z][A-Z0-9_]*)))?`,
+      "g"
+    )
+  // A zone passed as a module constant (`zone: GRID_ZONE`) resolves to its
+  // literal in the same file.
+  const zoneOf = (code: string, m: RegExpExecArray) => {
+    if (m[2]) return m[2]
+    if (!m[3]) return undefined
+    return new RegExp(`\\bconst\\s+${m[3]}\\s*=\\s*["'\`]([^"'\`]+)["'\`]`).exec(
+      code
+    )?.[1]
+  }
+  const extendableFieldRe = /<ExtendableFormField\b[^>]*>/gs
+  // Column ids in the same file: `columnHelper.display({ id })`,
+  // `columnHelper.accessor("key")` / `accessor(fn, { id })`, grid `column({ id })`.
+  const columnIdRe =
+    /\b\w*[hH]elper\.(?:display|accessor|column)\(\s*(?:["'`]([^"'`$]+)["'`]|\{?[\s\S]{0,300}?\bid:\s*["'`]([^"'`$]+)["'`])/g
+  // Column hooks often live next to the table (`use-*-columns.tsx`), so the
+  // scan follows relative imports whose path mentions columns.
+  const columnSources = (file: string, code: string) => {
+    const sources = [code]
+    let i: RegExpExecArray | null
+    importRe.lastIndex = 0
+    while ((i = importRe.exec(code))) {
+      if (!/column/i.test(i[1])) continue
+      const base = path.resolve(path.dirname(file), i[1])
+      const match = [".tsx", ".ts", "/index.tsx", "/index.ts"]
+        .map((ext) => base + ext)
+        .find((candidate) => fs.existsSync(candidate))
+      if (match) sources.push(fs.readFileSync(match, "utf-8"))
+    }
+    return sources
+  }
+  const columnIds = (file: string, code: string) => {
+    const ids = new Set<string>()
+    for (const source of columnSources(file, code)) {
+      let c: RegExpExecArray | null
+      columnIdRe.lastIndex = 0
+      while ((c = columnIdRe.exec(source))) ids.add(c[1] ?? c[2])
+    }
+    ids.delete("actions")
+    ids.delete("select")
+    return ids
+  }
 
   const hosts: TabHost[] = []
   const tabIdsByFile = new Map<string, Set<string>>()
@@ -212,6 +270,29 @@ function collectCustomFields(files: string[]): Map<string, ModelZones> {
         model.displayFieldIds.set(m[2], ids)
       }
       ids.add(m[3])
+    }
+    const tableRe = hookRe("useExtendableTable")
+    while ((m = tableRe.exec(code))) {
+      const model = ensure(m[1])
+      model.listZones.add(zoneOf(code, m) ?? "list")
+      for (const id of columnIds(file, code)) model.listColumnIds.add(id)
+    }
+    const gridRe = hookRe("useExtendableGrid")
+    while ((m = gridRe.exec(code))) {
+      const model = ensure(m[1])
+      const zone = zoneOf(code, m)
+      if (zone) model.formZones.add(zone)
+      for (const id of columnIds(file, code)) model.formFieldIds.add(id)
+    }
+    while ((m = extendableFieldRe.exec(code))) {
+      const tag = m[0]
+      const model = attrRe("model").exec(tag)?.[1]
+      const zone = attrRe("zone").exec(tag)?.[1]
+      const id = attrRe("id").exec(tag)?.[1]
+      if (model && zone && id) {
+        ensure(model).formZones.add(zone)
+        ensure(model).formFieldIds.add(id)
+      }
     }
     while ((m = tabbedFormRe.exec(code))) {
       const tag = m[0]
@@ -292,8 +373,11 @@ function customFieldsBlock(models: Map<string, ModelZones>): string {
       return `    ${JSON.stringify(model)}: {
       formZones: ${union(z.formZones)}
       formTabs: ${formTabsType(z.formTabs)}
+      formFieldIds: ${union(z.formFieldIds)}
       displayZones: ${union(z.displayZones)}
       displayFieldIds: ${union(allFieldIds)}
+      listZones: ${union(z.listZones)}
+      listColumnIds: ${union(z.listColumnIds)}
     }`
     })
     .join("\n")

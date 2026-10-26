@@ -7,12 +7,39 @@ session detail aggressively. The per-spec source of truth lives in
 ## Current Verified State
 
 - **Repository root**: `/Users/viktorholik/Desktop/mercur`
-- **Current branch**: `feat/magento2-connector`
+- **Current branch**: `feat/extendable-offer-tables-forms`
 - **Current version**: `2.2.0-rc.1`
 - **Standard startup path**: `bun install && bun run dev`
 - **Standard verification path**: `bun run build`, `bun run lint` (oxlint),
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
+
+## Session — Extendable offer tables, grid and form fields (2026-10-26), branch `feat/extendable-offer-tables-forms`
+
+Panel extensions can now hide, replace, and add columns and fields beyond list pages, reusing the existing
+custom-fields keys (no new config keys). `list` takes an optional `zone` and may be an array; `useExtendableTable`
+takes `zone` (default `"list"`). `forms[].fields` keyed by a built-in id overrides it (`null` hides), through the
+new `<ExtendableFormField>` and, for spreadsheet tabs, `useExtendableGrid` (cells come from the panel via
+`createDataGridExtensionColumn`). Wired on offers: vendor `variants` / `create-catalogue` tables, the create
+stock-and-prices grid, the edit drawer; admin `variants` / `inventory` tables. Core: `POST /vendor/offers/batch`
+items accept `additional_data`, surfaced on `offersCreated` as `offers_additional_data` keyed by offer id.
+Generators emit `listZones`, `listColumnIds`, `formFieldIds`. Tests: registry + grid unit specs (32 pass), SDK type
+test, `offer/vendor` integration suites 7/7 (62 tests). `bun run build` green (13/13). Other pages still use
+list-only extensions; follow the offer wiring to migrate them.
+
+Follow-up (same day): product create (both panels) takes per-tab added fields, built-in overrides (title, subtitle,
+handle, description, media, discountable, category/collection/type, tags; admin also sellers + global availability)
+and an extendable variants grid. `POST /vendor|admin/products` variants accept `additional_data`, surfaced on
+`productsCreated` as `variants_additional_data` keyed by variant id (the variant batch route still rejects it).
+Untabbed `forms` fields now render on the first tab only and never become spreadsheet columns (`exactTab`), which also
+fixes the create-offer grid. Vendor offer grids: `edit-price` takes added columns (saved via `offersUpdated`);
+`edit-stock`, `pricing`, `inventory-batch` take overrides only (`allowAdd: false`). Vendor offer `inventory` table,
+inventory detail `location-levels` / reservations `inventory-item` tables in both panels. Generator follows
+`use-*-columns` imports and resolves constant zones. Tests: shared 37, SDK types, variant-sync specs, integration
+11 suites (103 pass). Build green.
+
+Unrelated finding, not fixed: the batch route drops `condition_id` when mapping items, though the validator
+accepts it and the create form sends it. The admin `ProductCreateAttributeSection` (dimensions) is never rendered.
 
 ## Session — Magento integration gaps in core (2026-10-23), branch `fix/magento-integration-gaps`
 

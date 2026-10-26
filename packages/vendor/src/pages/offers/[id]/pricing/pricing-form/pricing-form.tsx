@@ -1,12 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useCan } from "@mercurjs/dashboard-shared"
+import {
+  useCan,
+  useExtendableGrid,
+} from "@mercurjs/dashboard-shared"
 import { HttpTypes } from "@medusajs/types"
 import { Button, toast } from "@medusajs/ui"
-import { useMemo } from "react"
+import { ColumnDef } from "@tanstack/react-table"
+import { useCallback, useMemo } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
+  createDataGridExtensionColumn,
   createDataGridHelper,
   createDataGridPriceColumns,
   DataGrid,
@@ -27,6 +32,8 @@ import {
   PricingFormValues,
   PricingRow,
 } from "./schema"
+
+const LOCKED_COLUMN_IDS = ["title"]
 
 type Props = {
   offer: OfferDetail
@@ -101,10 +108,23 @@ const PricingFormInner = ({
     resolver: zodResolver(PricingFormSchema),
   })
 
-  const columns = usePriceGridColumns({
+  const baseColumns = usePriceGridColumns({
     currencies,
     regions,
     pricePreferences,
+  })
+  const createColumn = useCallback(
+    createDataGridExtensionColumn<PricingRow, PricingFormValues>,
+    [],
+  )
+  const columns = useExtendableGrid<PricingRow>({
+    model: "offer",
+    zone: "pricing",
+    columns: baseColumns as ColumnDef<PricingRow, unknown>[],
+    lockedColumnIds: LOCKED_COLUMN_IDS,
+    // Rows save to an endpoint without `additional_data`: overrides only.
+    allowAdd: false,
+    createColumn,
   })
 
   const prices = useWatch({

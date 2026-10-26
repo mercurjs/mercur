@@ -28,6 +28,7 @@ const ProductCreateVariantSchema = z.object({
   sku: z.string().optional(),
   options: z.record(z.string(), z.string()).optional(),
   variant_rank: z.number(),
+  additional_data: z.record(z.string(), z.unknown()).optional(),
 })
 
 export type ProductCreateVariantSchema = z.infer<
@@ -72,6 +73,7 @@ export const ProductCreateSchema = z
     })).optional(),
     variants: z.array(ProductCreateVariantSchema).min(1),
     media: z.array(MediaSchema).optional(),
+    additional_data: z.record(z.string(), z.unknown()).optional(),
   })
   .superRefine((data, ctx) => {
     if (!data.globally_available && !data.seller_ids?.length) {
@@ -132,6 +134,25 @@ export const ProductCreateSchema = z
       }
     })
   })
+
+/** The create form's own fields, overridable through `forms[].fields`. */
+export const PRODUCT_CREATE_FIELD_IDS = [
+  "title",
+  "subtitle",
+  "handle",
+  "description",
+  "media",
+  "discountable",
+  "category_id",
+  "collection_id",
+  "type_id",
+  "tags",
+  "globally_available",
+  "seller_ids",
+]
+
+/** Columns of the variants grid, overridable through the `variants` tab. */
+export const PRODUCT_CREATE_VARIANT_COLUMN_IDS = ["attributes", "title", "sku"]
 
 export const EditProductMediaSchema = z.object({
   media: z.array(MediaSchema),

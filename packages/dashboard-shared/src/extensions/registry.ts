@@ -41,7 +41,21 @@ export type LayoutModule = { layouts?: LayoutConfig[] }
 export type PreferenceModule = { layers?: LayoutPreferences[] }
 
 export type ResolvedFormField = { name: string; field: CustomFormField }
-type ResolvedFormEntry = ResolvedFormField & { zone: string; tab?: string }
+type ResolvedFormEntry = {
+  name: string
+  field: CustomFormField | null
+  zone: string
+  tab?: string
+}
+
+/**
+ * A config entry keyed by a built-in field id. `field: null` removes the
+ * built-in; a field replaces it.
+ */
+export type FormFieldOverride = {
+  overridden: boolean
+  field: CustomFormField | null
+}
 
 export type OnboardingStep = {
   id: string
@@ -286,15 +300,53 @@ export class ExtensionRegistry {
     return [...byName.values()]
   }
 
-  /** Custom form fields for a model's form zone (and optional tab). */
-  getFormFields(model: string, zone: string, tab?: string): ResolvedFormField[] {
-    return this.resolveFormFields(model)
-      .filter((entry) => {
-        if (entry.zone !== zone) return false
-        if (!entry.tab) return true
-        return !!tab && entry.tab === tab
-      })
-      .map(({ name, field }) => ({ name, field }))
+  // An entry without a tab belongs to every tab of its zone, unless the host
+  // asks for `exactTab` (a data grid tab only takes fields aimed at it).
+  private formEntriesFor(
+    model: string,
+    zone: string,
+    tab?: string,
+    exactTab = false
+  ) {
+    return this.resolveFormFields(model).filter((entry) => {
+      if (entry.zone !== zone) return false
+      if (!entry.tab) return !exactTab
+      return !!tab && entry.tab === tab
+    })
+  }
+
+  /**
+   * Custom form fields added to a model's form zone (and optional tab). Entries
+   * keyed by one of the host's `builtInFieldIds` are overrides, not additions,
+   * and are read through `getFormFieldOverride` instead.
+   */
+  getFormFields(
+    model: string,
+    zone: string,
+    tab?: string,
+    builtInFieldIds: string[] = [],
+    exactTab = false
+  ): ResolvedFormField[] {
+    const builtIns = new Set(builtInFieldIds)
+    return this.formEntriesFor(model, zone, tab, exactTab).flatMap(({ name, field }) =>
+      field && !builtIns.has(name) ? [{ name, field }] : []
+    )
+  }
+
+  /** Replacement (or removal, `field: null`) of a built-in form field. */
+  getFormFieldOverride(
+    model: string,
+    zone: string,
+    id: string,
+    tab?: string,
+    exactTab = false
+  ): FormFieldOverride {
+    const entry = this.formEntriesFor(model, zone, tab, exactTab).find(
+      (e) => e.name === id
+    )
+    return entry
+      ? { overridden: true, field: entry.field }
+      : { overridden: false, field: null }
   }
 
   /**
@@ -359,7 +411,9 @@ export class ExtensionRegistry {
 
   /** All custom form fields for a model, keyed for schema/default building. */
   getAllFormFields(model: string): ResolvedFormField[] {
-    return this.resolveFormFields(model).map(({ name, field }) => ({ name, field }))
+    return this.resolveFormFields(model).flatMap(({ name, field }) =>
+      field ? [{ name, field }] : []
+    )
   }
 
   /** Section display contributions (field add/replace/remove + actions). */
@@ -377,17 +431,22 @@ export class ExtensionRegistry {
     return { fields: [...fields.values()], actions }
   }
 
-  /** Merged list-table extension for a model. */
-  getListExtension(model: string): CustomListExtension {
+  /**
+   * Merged table extension for a model. `zone` picks the table: `"list"` is the
+   * model's list page, and also matches `list` blocks that omit a zone.
+   */
+  getListExtension(model: string, zone = "list"): CustomListExtension {
     const columns = new Map<string, CustomColumn>()
     const filters = new Map<string, CustomListFilter>()
     const bulkActions: SectionAction[] = []
     const columnVisibility: Record<string, boolean> = {}
     let columnOrder: string[] = []
 
-    for (const config of this.configsFor(model)) {
-      const list = config.list
-      if (!list) continue
+    const lists = this.configsFor(model).flatMap((config) =>
+      config.list ? [config.list].flat() : []
+    )
+    for (const list of lists) {
+      if ((list.zone ?? "list") !== zone) continue
       for (const column of list.columns ?? []) columns.set(column.id, column)
       for (const filter of list.filters ?? []) filters.set(filter.key, filter)
       if (list.bulkActions) bulkActions.push(...list.bulkActions)

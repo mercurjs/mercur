@@ -89,7 +89,7 @@ module data alongside it, and describes what to add to each surface.
 | `link`     | `string \| string[]`   | Module link or links fetched alongside the entity. Their data is available to columns and displays. |
 | `forms`    | `CustomFormEntry[]`    | Fields injected into built-in create, edit, and onboarding forms.                                   |
 | `displays` | `CustomDisplayEntry[]` | Field replace, remove, or add, plus `ActionMenu` actions on detail sections.                        |
-| `list`     | `CustomListExtension`  | Columns, bulk actions, filters, and view defaults on the model's list table.                        |
+| `list`     | `CustomListExtension \| CustomListExtension[]` | Columns, bulk actions, filters, and view defaults on the model's tables. |
 
 ## Add fields to a form
 
@@ -123,16 +123,96 @@ Each field is a `CustomFormField`.
 | `label`        | `string` (optional)              | Field label.                                                  |
 | `description`  | `string` (optional)              | Help text below the input.                                    |
 | `placeholder`  | `string` (optional)              | Input placeholder.                                            |
-| `component`    | `ComponentType` (optional)       | Custom render. Falls back to a default input for the Zod type. |
+| `type`         | `"text" \| "number" \| "boolean" \| "select"` (optional) | Input kind. Defaults to the Zod type. Data grids use it to pick the cell. |
+| `options`      | `{ label: string; value: string }[]` (optional) | Choices for `type: "select"`.                        |
+| `component`    | `ComponentType<{ field?, data? }>` (optional) | Custom render. Falls back to a default input for the type. |
 
 <Warning>
-  **A form-field `component` receives no props.** It renders as `<Component />`
-  inside the field's `additional_data.<field>` React Hook Form context. Read and
-  write the value with `useFormContext()` or `useController()`, and render through
-  the `Form.Field` and `Form.Item` chain. Do not use a raw `Controller`. Values
-  live in form state under `additional_data`. For `product`, custom fields persist
-  onto the product's `metadata`.
+  **A form-field `component` renders inside the `Form.Field` chain.** It receives
+  `field` (the bound `name`, `value`, `onChange`, and `onBlur`) and `data` (the
+  loaded entity). Values live in form state under `additional_data`. For
+  `product`, custom fields persist onto the product's `metadata`.
 </Warning>
+
+### Replace or hide a built-in field
+
+A `fields` key that matches one of the form's own fields overrides it instead of
+adding a new one. `null` hides the field. A field definition replaces how it
+renders, and the replacement still writes to the built-in form key.
+
+```tsx
+forms: [
+  {
+    zone: "edit",
+    fields: {
+      leadtime_to_ship: null,                                   // hide
+      sku: form.define({ validation: form.string(), component: SkuInput }), // replace
+    },
+  },
+]
+```
+
+The overridable field ids are typed per model and autocomplete in your editor.
+Validation of a built-in field stays the built-in schema's. A hidden field keeps
+its default value, so hide a required field only when that default is valid.
+
+### Fields in tabbed create forms
+
+In a tabbed create form, set `tab` to place a field on a tab. A field without a
+`tab` renders on the first tab. Continue validates the custom fields of the tab
+you leave, and Publish validates them all.
+
+```tsx
+forms: [
+  { zone: "create", tab: "organize", fields: { season: form.define({ validation: form.string().optional(), label: "Season" }) } },
+  { zone: "create", fields: { erp_id: form.define({ validation: form.string(), label: "ERP ID" }) } }, // first tab
+]
+```
+
+The product create form has the tabs `details`, `organize`, `attributes`, and
+`variants`. Product-level values reach the `productsCreated` hook of
+`createProductsWorkflow` as `additional_data`.
+
+### Add columns to a spreadsheet tab
+
+Some forms are spreadsheets, such as the product create form's `variants` tab or
+the offer create form's `stockLevelsAndPrices` tab. Target the tab and the same
+rules apply to its columns: a built-in column id with `null` hides it, a
+definition replaces it, and any other key adds an editable column. Added values
+are stored per row under `additional_data`. A spreadsheet tab only takes fields
+that name it in `tab`; untabbed fields never become columns.
+
+```tsx
+forms: [
+  {
+    zone: "create",
+    tab: "stockLevelsAndPrices",
+    fields: {
+      condition: null,
+      warranty_months: form.define({
+        validation: form.number().optional(),
+        label: "Warranty (months)",
+      }),
+    },
+  },
+]
+```
+
+Each row's values reach a workflow hook, keyed by the id of the record the row
+created or updated. Persist them from the hook.
+
+| Model     | Zone and tab                        | Spreadsheet                                  | Added columns reach                                                             |
+| --------- | ----------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------- |
+| `product` | `create`, tab `variants`            | Product create variants (admin and vendor)   | `createProductsWorkflow` → `productsCreated` as `variants_additional_data`     |
+| `offer`   | `create`, tab `stockLevelsAndPrices` | Offer create stock and prices (vendor)       | `createOffersWorkflow` → `offersCreated` as `offers_additional_data`           |
+| `offer`   | `edit-price`                        | Offer prices for a product (vendor)          | `updateOffersWorkflow` → `offersUpdated` as `additional_data`, one call per offer |
+| `offer`   | `edit-stock`                        | Offer stock levels for a product (vendor)    | Not supported: hide and replace only                                            |
+| `offer`   | `pricing`                           | Offer price tiers (vendor)                   | Not supported: hide and replace only                                            |
+| `offer`   | `inventory-batch`                   | Offer inventory items by location (vendor)   | Not supported: hide and replace only                                            |
+
+A replaced spreadsheet column with a `component` is read-only and receives the
+row as `data`. Without a `component`, it keeps editing the built-in value with the
+cell for its `type`.
 
 ## Customize the onboarding wizard
 
@@ -279,6 +359,36 @@ writes, so it matches a built-in filter by its param name (`customer_id`,
 
 A replacement keeps the built-in filter's position; added filters go after the
 built-in ones.
+
+### Extend other tables of the model
+
+A `list` block without a `zone` targets the model's list page. Other tables of
+the same model, such as a detail-page section or a picker inside a create form,
+have their own `zone`. Pass an array to extend several tables. The zones and
+column ids are typed per model.
+
+```tsx
+list: [
+  { columns: [{ id: "brand_name", header: "Brand", component: BrandCell }] },
+  {
+    zone: "variants",
+    columns: [{ id: "sku", component: SkuCell }],
+    viewDefaults: { columnVisibility: { inventory: false } },
+  },
+]
+```
+
+| Model   | Zone               | Table                                       |
+| ------- | ------------------ | ------------------------------------------- |
+| `offer` | `list`             | Offer list (admin and vendor)               |
+| `offer` | `variants`         | Offer detail variants table (admin and vendor) |
+| `offer` | `inventory`        | Inventory items of an offer variant (admin and vendor) |
+| `offer` | `create-catalogue` | Product picker in the offer create form (vendor) |
+| `inventory_item` | `location-levels` | Inventory item detail location levels (admin and vendor) |
+| `reservation` | `inventory-item` | Inventory item detail reservations (admin and vendor) |
+
+Every table keeps its row actions menu as the last column; extensions add and
+reorder columns before it.
 
 <Note>
   **Bulk-action rendering is deferred in the MVP.** `bulkActions` are accepted and

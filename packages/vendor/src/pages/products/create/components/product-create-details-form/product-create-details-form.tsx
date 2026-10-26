@@ -1,12 +1,20 @@
 import { Heading } from "@medusajs/ui"
+import {
+  ExtendableFormField,
+  FormExtensionZone,
+} from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 
+import { useTabbedForm } from "@components/tabbed-form/tabbed-form"
 import { defineTabMeta } from "@components/tabbed-form/types"
+import { PRODUCT_CREATE_FIELD_IDS } from "../../constants"
 import { ProductCreateSchemaType } from "../../types"
 import { ProductCreateGeneralSection } from "./components/product-create-details-general-section"
 import { ProductCreateMediaSection } from "./components/product-create-details-media-section"
 
 const Root = () => {
+  const form = useTabbedForm<ProductCreateSchemaType>()
+
   return (
     <div
       className="flex flex-col items-center p-16"
@@ -22,7 +30,22 @@ const Root = () => {
           data-testid="product-create-details-form-sections"
         >
           <ProductCreateGeneralSection />
-          <ProductCreateMediaSection />
+          <ExtendableFormField
+            model="product"
+            zone="create"
+            tab="details"
+            id="media"
+            control={form.control}
+          >
+            <ProductCreateMediaSection />
+          </ExtendableFormField>
+          <FormExtensionZone
+            model="product"
+            zone="create"
+            tab="details"
+            control={form.control}
+            builtInFieldIds={PRODUCT_CREATE_FIELD_IDS}
+          />
         </div>
       </div>
     </div>

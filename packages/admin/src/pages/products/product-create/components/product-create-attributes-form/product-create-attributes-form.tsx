@@ -1,4 +1,4 @@
-import { useCan } from "@mercurjs/dashboard-shared"
+import { FormExtensionZone, useCan } from "@mercurjs/dashboard-shared"
 import { XMarkMini } from "@medusajs/icons"
 import {
   Button,
@@ -34,6 +34,7 @@ import {
 import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
 import { defineTabMeta } from "../../../../../components/tabbed-form/types"
 import { useProductAttributes } from "../../../../../hooks/api"
+import { PRODUCT_CREATE_FIELD_IDS } from "../../constants"
 import { ProductCreateSchemaType } from "../../types"
 import {
   ADD_ATTRIBUTES_MODAL_ID,
@@ -129,6 +130,15 @@ const Root = () => {
         )}
 
         <RequiredAttributes />
+
+        <FormExtensionZone
+          model="product"
+          zone="create"
+          tab="attributes"
+          exactTab
+          control={form.control}
+          builtInFieldIds={PRODUCT_CREATE_FIELD_IDS}
+        />
       </div>
     </div>
   )

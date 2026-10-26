@@ -24,7 +24,10 @@ type PriceChange = {
     deleted: string[]
 }
 
-let createdPayload: { offers: OfferDTO[] } | null = null
+let createdPayload: {
+    offers: OfferDTO[]
+    offers_additional_data: Record<string, Record<string, unknown>>
+} | null = null
 let updatedPayload: {
     offers: OfferDTO[]
     previous_offers: OfferDTO[]
@@ -36,8 +39,8 @@ let pricesPayload: {
 } | null = null
 let deletedPayload: { ids: string[]; offers: OfferDTO[] } | null = null
 
-createOffersWorkflow.hooks.offersCreated(({ offers }) => {
-    createdPayload = { offers }
+createOffersWorkflow.hooks.offersCreated(({ offers, offers_additional_data }) => {
+    createdPayload = { offers, offers_additional_data }
     return new StepResponse(undefined)
 })
 
@@ -130,6 +133,46 @@ medusaIntegrationTestRunner({
                     prices: OfferPriceDTO[]
                 }
             }
+
+            it("passes each batch item's additional_data to offersCreated by offer id", async () => {
+                const product = await createVendorProduct(api, headers, {
+                    title: "Batch Hooked Product",
+                    variants: [{ title: "Small" }, { title: "Large" }],
+                })
+                const [small, large] = product.variants
+
+                const response = await api.post(
+                    `/vendor/offers/batch`,
+                    {
+                        offers: [
+                            {
+                                sku: "BATCH-HOOK-S",
+                                variant_id: small.id,
+                                shipping_profile_id: shippingProfileId,
+                                inventory_items: [{}],
+                                prices: [{ amount: 1000, currency_code: "usd" }],
+                                additional_data: { warranty_months: 24 },
+                            },
+                            {
+                                sku: "BATCH-HOOK-L",
+                                variant_id: large.id,
+                                shipping_profile_id: shippingProfileId,
+                                inventory_items: [{}],
+                                prices: [{ amount: 1200, currency_code: "usd" }],
+                            },
+                        ],
+                    },
+                    headers
+                )
+                expect(response.status).toEqual(201)
+
+                const bySku = new Map(
+                    createdPayload!.offers.map((offer) => [offer.sku, offer.id])
+                )
+                expect(createdPayload!.offers_additional_data).toEqual({
+                    [bySku.get("BATCH-HOOK-S")!]: { warranty_months: 24 },
+                })
+            })
 
             it("passes the created prices and created_by to offersCreated", async () => {
                 const offer = await createOffer()

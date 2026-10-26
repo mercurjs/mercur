@@ -9,7 +9,7 @@ import {
   usePrompt,
 } from "@medusajs/ui"
 import { OfferDTO } from "@mercurjs/types"
-import { createColumnHelper } from "@tanstack/react-table"
+import { type ColumnDef, createColumnHelper } from "@tanstack/react-table"
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
@@ -22,7 +22,10 @@ import { PlaceholderCell } from "../../../../components/table/table-cells/common
 import { useBulkDeleteOffers } from "../../../../hooks/api/offers"
 import { useDataTable } from "../../../../hooks/use-data-table"
 import { useQueryParams } from "../../../../hooks/use-query-params"
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import {
+  DisplayExtensionZone,
+  useExtendableTable,
+} from "@mercurjs/dashboard-shared"
 
 import { OfferProductVariant } from "../../common/types"
 
@@ -108,7 +111,7 @@ const useColumns = ({
 }) => {
   const { t } = useTranslation()
 
-  return useMemo(
+  const base = useMemo(
     () => [
       columnHelper.accessor((row) => row.variant.title ?? "", {
         id: "title",
@@ -236,6 +239,18 @@ const useColumns = ({
       }),
     ],
     [t, optionTitles, thumbnail, onEdit, onDelete],
+  )
+
+  const actionsColumn = base[base.length - 1]
+  const { columns: extended } = useExtendableTable<OfferVariantRow>({
+    model: "offer",
+    zone: "variants",
+    columns: base.slice(0, -1) as unknown as ColumnDef<OfferVariantRow, unknown>[],
+  })
+
+  return useMemo(
+    () => [...extended, actionsColumn] as ColumnDef<OfferVariantRow, unknown>[],
+    [extended, actionsColumn],
   )
 }
 

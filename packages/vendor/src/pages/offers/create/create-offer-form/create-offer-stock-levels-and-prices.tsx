@@ -1,10 +1,15 @@
 import { HttpTypes } from "@medusajs/types";
-import { usePermissions } from "@mercurjs/dashboard-shared";
-import { useMemo } from "react";
+import { ColumnDef } from "@tanstack/react-table";
+import {
+  useExtendableGrid,
+  usePermissions,
+} from "@mercurjs/dashboard-shared";
+import { useCallback, useMemo } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import {
+  createDataGridExtensionColumn,
   createDataGridHelper,
   createDataGridLocationStockColumns,
   createDataGridPriceColumns,
@@ -43,6 +48,11 @@ type GridRow = ProductGroupRow | VariantGridRow;
 
 const isGroup = (row: GridRow): row is ProductGroupRow =>
   (row as ProductGroupRow).__group === true;
+
+const LOCKED_COLUMN_IDS = ["title"];
+
+const rowPath = (row: GridRow) =>
+  isGroup(row) ? null : `variants.${row.__formIndex}`;
 
 const Root = () => {
   const form = useFormContext<CreateOfferFormValues>();
@@ -87,7 +97,7 @@ const Root = () => {
     return rows;
   }, [variants]);
 
-  const columns = useColumns({
+  const baseColumns = useColumns({
     currencies,
     stockLocations: stock_locations as
       | HttpTypes.AdminStockLocation[]
@@ -96,6 +106,21 @@ const Root = () => {
     offerConditions: offer_conditions ?? [],
     pricePreferences,
     regions,
+  });
+
+  const createColumn = useCallback(
+    createDataGridExtensionColumn<GridRow, CreateOfferFormValues>,
+    []
+  );
+
+  const columns = useExtendableGrid<GridRow>({
+    model: "offer",
+    zone: "create",
+    tab: "stockLevelsAndPrices",
+    columns: baseColumns as ColumnDef<GridRow, unknown>[],
+    lockedColumnIds: LOCKED_COLUMN_IDS,
+    getRowPath: rowPath,
+    createColumn,
   });
 
   return (

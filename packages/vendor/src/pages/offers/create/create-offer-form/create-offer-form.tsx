@@ -1,5 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCan } from "@mercurjs/dashboard-shared";
+import {
+  buildScopedAdditionalData,
+  useCan,
+  useExtension,
+} from "@mercurjs/dashboard-shared";
 import { Button, toast } from "@medusajs/ui";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -16,12 +20,16 @@ import { useSellerCurrencies } from "../../common/use-seller-currencies";
 import { CreateOfferCatalogueTab } from "./create-offer-catalogue";
 import { CreateOfferStockLevelsAndPricesTab } from "./create-offer-stock-levels-and-prices";
 import {
+  buildCreateOfferSchema,
   CreateOfferFormValues,
-  CreateOfferSchema,
+  GRID_COLUMN_IDS,
   OfferVariantRow,
   variantRowHasPartialInput,
   variantRowHasPrice,
 } from "./schema";
+
+const GRID_ZONE = "create";
+const GRID_TAB = "stockLevelsAndPrices";
 
 const DEFAULTS: CreateOfferFormValues = {
   selected_product_ids: [],
@@ -65,9 +73,26 @@ export const CreateOfferForm = () => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const extension = useExtension();
+  const rowAdditionalData = useMemo(
+    () =>
+      buildScopedAdditionalData(extension, {
+        model: "offer",
+        zone: GRID_ZONE,
+        tabs: [GRID_TAB],
+        exactTab: true,
+        builtInFieldIds: GRID_COLUMN_IDS,
+      }),
+    [extension],
+  );
+  const schema = useMemo(
+    () => buildCreateOfferSchema(rowAdditionalData.schema),
+    [rowAdditionalData],
+  );
+  const rowAdditionalDataDefaults = rowAdditionalData.defaults;
   const form = useForm<CreateOfferFormValues>({
     defaultValues: DEFAULTS,
-    resolver: zodResolver(CreateOfferSchema),
+    resolver: zodResolver(schema),
   });
 
   const { mutateAsync: bulkCreateOffers } = useBulkCreateOffers();
@@ -152,6 +177,7 @@ export const CreateOfferForm = () => {
           prices: { ...emptyPrices },
           region_prices: {},
           inventory: { ...emptyInventory },
+          additional_data: { ...rowAdditionalDataDefaults },
         });
       }
     }
@@ -166,6 +192,7 @@ export const CreateOfferForm = () => {
     currenciesKey,
     locationsKey,
     defaultConditionId,
+    rowAdditionalDataDefaults,
     form,
   ]);
 
@@ -281,6 +308,9 @@ export const CreateOfferForm = () => {
             stock_levels,
           },
         ],
+        ...(row.additional_data && Object.keys(row.additional_data).length
+          ? { additional_data: row.additional_data }
+          : {}),
       };
     });
 

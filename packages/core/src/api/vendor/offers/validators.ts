@@ -150,6 +150,7 @@ const VendorCreateOffersBatchItem = z
     leadtime_to_ship: z.number().int().min(0).nullish(),
     condition_id: z.string().min(1).nullish(),
     metadata: z.record(z.string(), z.unknown()).nullish(),
+    additional_data: z.record(z.string(), z.unknown()).optional(),
   })
   .strict()
 

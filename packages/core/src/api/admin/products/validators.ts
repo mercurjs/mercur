@@ -224,7 +224,13 @@ const CreateProduct = z
       .array(z.object({ title: z.string(), values: z.array(z.string()) }))
       .optional(),
     attributes: z.array(UnifiedProductAttributeInput).optional(),
-    variants: z.array(CreateProductVariant).optional(),
+    variants: z
+      .array(
+        CreateProductVariant.extend({
+          additional_data: z.record(z.string(), z.unknown()).optional(),
+        })
+      )
+      .optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),
     height: z.number().nullish(),
