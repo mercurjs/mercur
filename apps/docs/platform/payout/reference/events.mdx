@@ -1,20 +1,27 @@
 ---
 title: "Payout events"
 sidebarTitle: "Events"
-description: "The payout webhook event, the data-model events the Payout module emits, and the reserved PayoutModuleEvents names that nothing emits yet."
+description: "The payout webhook event, the events the payout workflows emit, and the data-model events of the Payout module."
 ---
 
-The Payout module has one event of its own, `payout.webhook_received`, which carries provider webhooks to the shipped subscriber. Medusa also emits a created, updated, or deleted event whenever a payout record changes. Subscribe to those for side effects such as seller notifications or ledger syncs.
+The Payout module’s events are named in `PayoutModuleEvents` from `@mercurjs/types`. `payout.webhook_received` carries provider webhooks to the shipped subscriber; the others come from the payout workflows. Medusa also emits a created, updated, or deleted event whenever a payout record changes. Subscribe to these for side effects such as seller notifications or operator alerts.
+
+## PayoutModuleEvents
+
+| Member | Name | Emitted by | Payload |
+| --- | --- | --- | --- |
+| `WEBHOOK_RECEIVED` | `payout.webhook_received` | `POST /hooks/payout` | `{ data, rawData, headers }` |
+| `ACCOUNT_UPDATED` | `payout_account.updated` | `syncPayoutAccountWorkflow` | `{ id, seller_id, provider_account_id, status, kyc_status, payouts_enabled, charges_enabled, disabled_reason }` |
+| `PAYOUT_FAILED` | `payout.failed` | `createOrderPayoutsWorkflow`, `processPayoutWorkflow` | `{ id, account_id, order_id, amount, currency_code, status, status_reason, provider_payout_id }` |
+| `PAYOUT_REVERSAL_FAILED` | `payout.reversal_failed` | `createPayoutReversalsWorkflow`, `processPayoutReversalWorkflow` | `{ id, payout_id, refund_id, amount, status, status_reason }` |
+
+`payout.failed` and `payout.reversal_failed` are emitted once per row that the provider refused in that run. A row the provider refused for good is `aborted` and emits nothing.
 
 ## Webhook event
 
-The `POST /hooks/payout` route emits this event with a 5000 ms delay and 3 attempts.
+The `POST /hooks/payout` route emits `payout.webhook_received` with a 5000 ms delay and 3 attempts. `data` is the parsed body, `rawData` is the raw body, and `headers` are the request headers.
 
-| Event | Emitted when | Payload |
-| --- | --- | --- |
-| `payout.webhook_received` | The provider posts to `/hooks/payout` | `{ data, rawData, headers }` |
-
-`data` is the parsed body, `rawData` is the raw body, and `headers` are the request headers. The `payout-webhook` subscriber, with subscriber id `payout-webhook-handler`, handles it and runs `processPayoutForWebhookWorkflow`. The event bus serializes `rawData` as a buffer object, and the subscriber turns it back into a `Buffer` before signature checks.
+The `payout-webhook` subscriber, with subscriber id `payout-webhook-handler`, parses it through the provider and runs `processPayoutForWebhookWorkflow`. The event bus serializes `rawData` as a buffer object, and the subscriber turns it back into a `Buffer` before signature checks. Other subscribers can listen to the same event; the Stripe connector plugin uses it to record bank payout events on its settlements.
 
 ## Data-model events
 
@@ -23,55 +30,44 @@ The `POST /hooks/payout` route emits this event with a 5000 ms delay and 3 attem
 | Event | Emitted when |
 | --- | --- |
 | `payout.payout-account.created` | `createPayoutAccount` inserts an account |
-| `payout.payout-account.updated` | The provider response is stored, or a webhook changes the status |
+| `payout.payout-account.updated` | The provider response is stored, or a sync refreshes the account |
 | `payout.payout-account.deleted` | The provider call fails and the new account is removed |
 | `payout.onboarding.created` | `createOnboarding` runs for the first time on an account |
-| `payout.onboarding.updated` | `createOnboarding` runs again on the same account |
-| `payout.payout.created` | `createPayouts` inserts a `pending` payout |
-| `payout.payout.updated` | The provider response is stored, or a webhook changes the status |
-| `payout.payout.deleted` | The provider call fails and the new payout is removed |
+| `payout.onboarding.updated` | `createOnboarding` or `refreshLoginLink` runs again on the same account |
+| `payout.payout.created` | `createOrderPayoutsWorkflow` inserts a payout |
+| `payout.payout.updated` | A payout is re-decided, sent, or changed by a webhook |
+| `payout.payout-reversal.created` | `createPayoutReversalsWorkflow` inserts a reversal |
+| `payout.payout-reversal.updated` | A reversal is re-decided or sent |
 
-An `updated` event doesn’t say which field changed. Retrieve the record in your subscriber and read its `status`.
+An `updated` event doesn’t say which field changed. Subscribe to `payout_account.updated` instead when you need the account’s new status:
 
 ```ts title="src/subscribers/payout-account-updated.ts"
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
-import { MercurModules, PayoutAccountStatus } from "@mercurjs/types"
+import { PayoutAccountStatus, PayoutModuleEvents } from "@mercurjs/types"
+
+type AccountUpdated = {
+  id: string
+  seller_id: string | null
+  status: PayoutAccountStatus
+}
 
 export default async function payoutAccountUpdated({
   event,
   container,
-}: SubscriberArgs<{ id: string }>) {
-  const payoutService = container.resolve(MercurModules.PAYOUT)
-  const account = await payoutService.retrievePayoutAccount(event.data.id)
-
-  if (account.status === PayoutAccountStatus.RESTRICTED) {
+}: SubscriberArgs<AccountUpdated>) {
+  if (event.data.status === PayoutAccountStatus.RESTRICTED) {
     const logger = container.resolve("logger")
-    logger.warn(`Payout account ${account.id} is restricted`)
+    logger.warn(`Payout account ${event.data.id} of seller ${event.data.seller_id} is restricted`)
   }
 }
 
 export const config: SubscriberConfig = {
-  event: "payout.payout-account.updated",
+  event: PayoutModuleEvents.ACCOUNT_UPDATED,
 }
 ```
 
 This subscriber logs a warning each time an account lands in `restricted`, which is where you’d send the seller a reminder to finish onboarding.
 
-## Reserved event names
-
-`@mercurjs/types` exports a `PayoutModuleEvents` enum. Nothing in `@mercurjs/core` emits these events or subscribes to them, and the enum carries a TODO to move them to order events.
-
-| Member | Name |
-| --- | --- |
-| `ACCOUNT_UPDATED` | `payout_account.updated` |
-| `TRANSFER_FAILED` | `transfer.failed` |
-| `TRANSFER_REVERSAL_FAILED` | `transfer.reversal_failed` |
-| `SETTLEMENT_CREATED` | `payout.settlement_created` |
-| `WEBHOOK_RECEIVED` | `payout.webhook_received` |
-| `PAYOUT_FAILED` | `payout.failed` |
-
-You can emit them from your own payout trigger and subscribe to them in your project. See [The payout pipeline](/platform/payout/concepts/payout-pipeline).
-
 ## Workflow hook
 
-`createPayoutWorkflow` exposes a `payoutCreated` hook with `{ order_id, payout_id }`. Use it instead of `payout.payout.created` when you need the order id, because the data-model event carries only the payout id.
+`createOrderPayoutsWorkflow` exposes a `payoutsCreated` hook with `{ order_ids, payouts }`, where `payouts` are the payouts sent to the provider in that run. Use it when you need the order ids with the result.

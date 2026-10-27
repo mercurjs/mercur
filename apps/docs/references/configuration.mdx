@@ -99,7 +99,7 @@ modules: [
 
 ## Stripe Connect payout provider
 
-Register the Stripe connector plugin's payout provider on the payout module (any number of providers can be registered; `pop_system_default` is always present):
+Register the Stripe connector plugin's payout provider on the payout module. A marketplace has exactly one payout provider; with none registered, the module loads the built-in `system` provider:
 
 ```ts
 {
@@ -112,9 +112,14 @@ Register the Stripe connector plugin's payout provider on the payout module (any
         options: {
           apiKey: process.env.STRIPE_SECRET_KEY,
           webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+          manualPayouts: true,
         },
       },
     ],
+    onboarding: {
+      returnUrl: `${process.env.VENDOR_URL}/settings/stripe`,
+      refreshBaseUrl: process.env.BACKEND_URL,
+    },
   },
 }
 ```
@@ -123,13 +128,14 @@ Register the Stripe connector plugin's payout provider on the payout module (any
 | --- | --- | --- | --- |
 | `apiKey` | `string` | Required | Stripe secret key |
 | `webhookSecret` | `string` | Required | Verifies incoming Stripe webhook signatures |
+| `manualPayouts` | `boolean` | `false` | Put new connected accounts on a manual payout schedule, so the plugin's settlements send bank payouts |
 | `accountValidation.detailsSubmitted` | `boolean` | `true` | Require onboarding details submitted before the account is active |
 | `accountValidation.chargesEnabled` | `boolean` | `true` | Require charges enabled |
 | `accountValidation.payoutsEnabled` | `boolean` | `true` | Require payouts enabled |
 | `accountValidation.noOutstandingRequirements` | `boolean` | `true` | Treat pending Stripe requirements as `restricted` |
 | `accountValidation.requiredCapabilities` | `string[]` | `[]` | Stripe capabilities that must be `active` |
 
-The payout module itself also accepts scheduling options (`authorizationWindowMs`, `sellerActionWindowMs`, `captureSafetyBufferMs`, `requiredFulfillmentStatus`). See the [Payout module](/platform/payout/overview).
+The payout module itself accepts only `onboarding` options (`returnUrl`, `refreshBaseUrl`, `prefill`, `defaultCountry`). Scheduling options (`capture`, `transfers`, `reversals`, `settlements`, `notifications`, `alerting`, `kycMonitor`) belong to the Stripe connector plugin's entry under `plugins`. See the [Stripe Connect integration](/resources/integrations/stripe-connect).
 
 ## Next steps
 

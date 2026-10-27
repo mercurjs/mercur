@@ -58,7 +58,7 @@ Computed lines carry no `id`. The module’s `upsertCommissionLines` first delet
 
 ## How payouts use the lines
 
-`createPayoutWorkflow` reads every commission line whose `item_id` or `shipping_method_id` belongs to the order. It sums their `amount` and transfers the order `total` minus that sum to the seller’s payout account. With the lines from the [overview figure](/platform/commission/overview), an order total of € 92.00 and commission of € 10.14 pays the seller € 81.86.
+`createOrderPayoutsWorkflow` reads every commission line whose `item_id` or `shipping_method_id` belongs to the order. It sums their `amount` and pays the order `total` minus that sum to the seller’s payout account. A refund taken back later is reduced by its share of the same sum. With the lines from the [overview figure](/platform/commission/overview), an order total of € 92.00 and commission of € 10.14 pays the seller € 81.86.
 
 ## Related
 

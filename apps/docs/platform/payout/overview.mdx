@@ -1,12 +1,12 @@
 ---
 title: "Payouts"
 sidebarTitle: "Overview"
-description: "Connect each seller to a payout provider, onboard them, and transfer their share of an order to their own account."
+description: "Connect each seller to the marketplace's payout provider, onboard them, and pay their share of each order to their own account."
 ---
 
 Use Mercur to connect each seller to a payment provider and send them their share of every order.
 
-A payout is a transfer from the marketplace to one seller, for one order. The Payout module holds 3 records: the seller’s payout account, its onboarding state, and the payouts made to it. Every external call goes through a single payout provider. Stripe Connect ships as a package, and a built-in `system` provider runs when you register none.
+A payout is the seller’s share of one order, sent from the marketplace to the seller’s account. The Payout module holds 4 records: the seller’s payout account, its onboarding state, the payouts made to it, and the reversals that take a refunded share back. Every external call goes through the one payout provider the marketplace registers. Stripe Connect ships as a plugin, and a built-in `system` provider runs when you register none.
 
 <img className="block dark:hidden" src="/images/figures/payout-overview-light.svg" alt="A Payouts list in front of a Payout accounts list. Payout #12 for ACME is accented: an order total of € 47.00 minus € 4.70 commission gives a € 42.30 payout, marked Paid. Behind it, ACME's payout account is Active and GLOBEX's is Restricted." />
 <img className="hidden dark:block" src="/images/figures/payout-overview-dark.svg" alt="A Payouts list in front of a Payout accounts list. Payout #12 for ACME is accented: an order total of € 47.00 minus € 4.70 commission gives a € 42.30 payout, marked Paid. Behind it, ACME's payout account is Active and GLOBEX's is Restricted." />
@@ -17,32 +17,33 @@ A payout is a transfer from the marketplace to one seller, for one order. The Pa
 
 ## Key features
 
-The Payout module covers a seller’s connection to the provider and each transfer made through it:
+The Payout module covers a seller’s connection to the provider and the money sent through it:
 
-- **One provider interface**: `IPayoutProvider` has 4 methods, and the module loads exactly one implementation
-- **Stripe Connect provider**: `@mercurjs/stripe-connector-plugin` creates Express accounts, onboarding and login links, and transfers
+- **One provider per marketplace**: the module loads exactly one `IPayoutProvider`, shaped like Medusa’s payment providers
+- **Stripe Connect plugin**: `@mercurjs/stripe-connector-plugin` creates Express accounts, onboarding and login links, and pays each payout as a Connect transfer
 - **One account per store**: `createPayoutAccountWorkflow` refuses a second account for the same seller
 - **Re-runnable onboarding**: `createOnboardingWorkflow` creates the onboarding record once and updates it after that
-- **Webhook-driven statuses**: provider webhooks move accounts and payouts between statuses through `processPayoutForWebhookWorkflow`
-- **Commission-aware amounts**: `createPayoutWorkflow` pays the order total minus the order’s commission lines
+- **One payout per order**: `createOrderPayoutsWorkflow` pays the order total minus the order’s commission lines, puts orders that aren’t ready on hold, and never pays an order twice
+- **Reversals like refunds**: `createPayoutReversalsWorkflow` takes each later refund’s share back, net of its commission
+- **Webhook-driven statuses**: provider webhooks refresh accounts and settle payouts through `processPayoutForWebhookWorkflow`
 
 ## How it works
 
 A seller moves from no account to a paid order in 5 steps:
 
-1. Run `createPayoutAccountWorkflow` for the seller. The provider creates a connected account.
+1. Run `createPayoutAccountWorkflow` (or `ensureSellerPayoutAccountWorkflow`) for the seller. The provider creates a connected account.
 2. Run `createOnboardingWorkflow`. The provider returns onboarding data, such as a Stripe onboarding link.
-3. The provider posts webhooks to `/hooks/payout`, and the `payout-webhook` subscriber sets the account to `active`, `restricted`, or `rejected`.
-4. Run `createPayoutWorkflow` with an order id. It computes the seller’s share and asks the provider to transfer it.
-5. Later provider webhooks update the payout’s status.
+3. The provider posts webhooks to `/hooks/payout`, and the `payout-webhook` subscriber re-reads the account from the provider and sets it to `pending`, `active`, `restricted`, or `rejected`.
+4. Run `createOrderPayoutsWorkflow` with order ids. It computes each seller’s share and asks the provider to pay it.
+5. Run `createPayoutReversalsWorkflow` after refunds. Provider webhooks update payout statuses along the way.
 
 <Warning>
-  Mercur doesn’t trigger step 4 for you. No scheduled job or subscriber in `@mercurjs/core` captures payments or runs `createPayoutWorkflow`. Call it from your own job, subscriber, or route. See [The payout pipeline](/platform/payout/concepts/payout-pipeline).
+  `@mercurjs/core` ships no scheduled jobs, so it doesn’t decide when steps 4 and 5 run. The Stripe connector plugin brings its own schedule. Without it, call the workflows from your own job, subscriber, or route. See [The payout pipeline](/platform/payout/concepts/payout-pipeline).
 </Warning>
 
 ## Get started
 
-Learn how accounts, onboarding, and transfers fit together.
+Learn how accounts, onboarding, and payouts fit together.
 
 <CardGroup cols={2}>
   <Card title="Accounts & onboarding" icon="id-card" href="/platform/payout/concepts/accounts-and-onboarding">
@@ -52,7 +53,7 @@ Learn how accounts, onboarding, and transfers fit together.
     Account and payout statuses, and the webhooks that change them.
   </Card>
   <Card title="The payout pipeline" icon="arrows-turn-right" href="/platform/payout/concepts/payout-pipeline">
-    What ships, what you wire yourself, and the provider interface.
+    What core ships, what the plugin or your code schedules, and the provider interface.
   </Card>
 </CardGroup>
 
@@ -78,18 +79,18 @@ The data models, links, workflows, service methods, and events behind payouts.
 
 <CardGroup cols={2}>
   <Card title="Data models" icon="table" href="/platform/payout/reference/data-models">
-    `PayoutAccount`, `Onboarding`, and `Payout`, with every field.
+    `PayoutAccount`, `Onboarding`, `Payout`, and `PayoutReversal`, with every field.
   </Card>
   <Card title="Links" icon="link" href="/platform/payout/reference/links">
     How payout records link to sellers and orders.
   </Card>
   <Card title="Workflows" icon="diagram-project" href="/platform/payout/reference/workflows">
-    The 4 payout workflows, their steps, and their hooks.
+    The payout workflows, their steps, and their hooks.
   </Card>
   <Card title="Service" icon="gear" href="/platform/payout/reference/service">
     Generated and provider-backed methods on the module service.
   </Card>
   <Card title="Events" icon="bell" href="/platform/payout/reference/events">
-    The webhook event, the data-model events, and the reserved event names.
+    The webhook event, the failure events, and the data-model events.
   </Card>
 </CardGroup>
