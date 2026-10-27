@@ -1,9 +1,8 @@
-import { HandTruck, PencilSquare } from "@medusajs/icons"
+import { HandTruck } from "@medusajs/icons"
 import { Container, Heading } from "@medusajs/ui"
 import { Fragment } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ActionMenu } from "@components/common/action-menu"
 import { NoRecords } from "@components/common/empty-table-content"
 import { IconAvatar } from "@components/common/icon-avatar"
 import { formatProvider } from "@lib/format-provider"
@@ -22,21 +21,6 @@ function LocationsFulfillmentProvidersSection({
         <Heading level="h2">
           {t("stockLocations.fulfillmentProviders.header")}
         </Heading>
-
-        <ActionMenu
-          groups={[
-            {
-              actions: [
-                {
-                  permission: "stock_locations:edit",
-                  label: t("actions.edit"),
-                  to: "fulfillment-providers",
-                  icon: <PencilSquare />,
-                },
-              ],
-            },
-          ]}
-        />
       </div>
 
       {location.fulfillment_providers?.length ? (
@@ -60,11 +44,6 @@ function LocationsFulfillmentProvidersSection({
       ) : (
         <NoRecords
           className="h-fit pb-2 pt-6 text-center"
-          action={{
-            label: t("stockLocations.fulfillmentProviders.action"),
-            to: "fulfillment-providers",
-            permission: "stock_locations:edit",
-          }}
           message={t("stockLocations.fulfillmentProviders.noProviders")}
         />
       )}

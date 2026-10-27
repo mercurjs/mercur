@@ -8,6 +8,9 @@ import { useStockLocation } from "@hooks/api/stock-locations";
 
 import { LocationGeneralSection } from "./_components/location-general-section";
 import LocationsFulfillmentProvidersSection from "./_components/location-fulfillment-providers-section";
+import { LocationLegacyShippingOptionsSection } from "./_components/location-legacy-shipping-options-section";
+import { LocationShippingMethodsSection } from "./_components/location-shipping-methods-section";
+import { MissingMandatoryShippingAlert } from "./_components/missing-mandatory-shipping-alert";
 import { LOCATION_DETAILS_FIELD } from "./constants";
 
 import type { locationLoader } from "./loader";
@@ -31,7 +34,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
   if (isLoading || !location) {
     return (
-      <TwoColumnPageSkeleton mainSections={3} sidebarSections={2} showJSON />
+      <TwoColumnPageSkeleton mainSections={2} sidebarSections={1} showJSON />
     );
   }
 
@@ -47,7 +50,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
         <TwoColumnPage data={location} hasOutlet>
           <TwoColumnPage.Main>
             <WidgetZone id="locations.detail.main" data={location}>
+              <MissingMandatoryShippingAlert />
               <LocationGeneralSection location={location} />
+              <LocationShippingMethodsSection locationId={location.id} />
+              <LocationLegacyShippingOptionsSection locationId={location.id} />
             </WidgetZone>
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
@@ -65,5 +71,8 @@ export const LocationDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainGeneralSection: LocationGeneralSection,
+  MainShippingMethodsSection: LocationShippingMethodsSection,
+  MainLegacyShippingOptionsSection: LocationLegacyShippingOptionsSection,
+  MissingMandatoryShippingAlert,
   SidebarFulfillmentProvidersSection: LocationsFulfillmentProvidersSection,
 });

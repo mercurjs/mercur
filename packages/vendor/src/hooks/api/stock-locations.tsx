@@ -13,7 +13,6 @@ import {
 import { sdk } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
-import { fulfillmentProvidersQueryKeys } from "./fulfillment-providers";
 import { HttpTypes } from "@mercurjs/types";
 
 const STOCK_LOCATIONS_QUERY_KEY = "stock_locations" as const;
@@ -161,73 +160,6 @@ export const useDeleteStockLocation = (
       });
       await queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.detail(id),
-      });
-
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
-};
-
-export const useCreateStockLocationFulfillmentSet = (
-  locationId: string,
-  options?: UseMutationOptions<
-    InferClientOutput<
-      typeof sdk.vendor.stockLocations.$id.fulfillmentSets.mutate
-    >,
-    ClientError,
-    Omit<
-      InferClientInput<
-        typeof sdk.vendor.stockLocations.$id.fulfillmentSets.mutate
-      >,
-      "$id"
-    >
-  >,
-) => {
-  return useMutation({
-    mutationFn: (payload) =>
-      sdk.vendor.stockLocations.$id.fulfillmentSets.mutate({
-        $id: locationId,
-        ...payload,
-      }),
-    onSuccess: async (data, variables, context) => {
-      await queryClient.invalidateQueries({
-        queryKey: stockLocationsQueryKeys.all,
-      });
-
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
-};
-
-export const useUpdateStockLocationFulfillmentProviders = (
-  id: string,
-  options?: UseMutationOptions<
-    InferClientOutput<
-      typeof sdk.vendor.stockLocations.$id.fulfillmentProviders.mutate
-    >,
-    ClientError,
-    Omit<
-      InferClientInput<
-        typeof sdk.vendor.stockLocations.$id.fulfillmentProviders.mutate
-      >,
-      "$id"
-    >
-  >,
-) => {
-  return useMutation({
-    mutationFn: (payload) =>
-      sdk.vendor.stockLocations.$id.fulfillmentProviders.mutate({
-        $id: id,
-        ...payload,
-      }),
-    onSuccess: async (data, variables, context) => {
-      await queryClient.invalidateQueries({
-        queryKey: stockLocationsQueryKeys.details(),
-      });
-      await queryClient.invalidateQueries({
-        queryKey: fulfillmentProvidersQueryKeys.all,
       });
 
       options?.onSuccess?.(data, variables, context);
