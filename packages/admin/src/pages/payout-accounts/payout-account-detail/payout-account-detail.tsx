@@ -7,6 +7,7 @@ import { TwoColumnPage } from "../../../components/layout/pages"
 import { usePayoutAccount } from "../../../hooks/api/payout-accounts"
 import { PayoutAccountCapabilitiesSection } from "./components/payout-account-capabilities-section"
 import { PayoutAccountGeneralSection } from "./components/payout-account-general-section"
+import { PayoutAccountPayoutsSection } from "./components/payout-account-payouts-section"
 import { PayoutAccountStatusAlert } from "./components/payout-account-status-alert"
 import { PayoutAccountStoreSection } from "./components/payout-account-store-section"
 import { payoutAccountLoader } from "./loader"
@@ -44,6 +45,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
         <WidgetZone id="payout_accounts.detail.main" data={payout_account}>
           <PayoutAccountStatusAlert account={payout_account} />
           <PayoutAccountGeneralSection account={payout_account} />
+          <PayoutAccountPayoutsSection account={payout_account} />
         </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
@@ -61,6 +63,7 @@ export const PayoutAccountDetailPage = Object.assign(Root, {
   Sidebar: TwoColumnPage.Sidebar,
   MainStatusAlert: PayoutAccountStatusAlert,
   MainGeneralSection: PayoutAccountGeneralSection,
+  MainPayoutsSection: PayoutAccountPayoutsSection,
   SidebarStoreSection: PayoutAccountStoreSection,
   SidebarCapabilitiesSection: PayoutAccountCapabilitiesSection,
 })
