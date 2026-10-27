@@ -4,6 +4,8 @@ import { retrieveCustomer } from "@/lib/data/customer"
 import { OrderParcelItems } from "@/components/molecules/OrderParcelItems/OrderParcelItems"
 import { OrderParcelStatus } from "@/components/molecules/OrderParcelStatus/OrderParcelStatus"
 import { OrderParcelActions } from "@/components/molecules/OrderParcelActions/OrderParcelActions"
+import { DeliveryEstimate } from "@/components/molecules/DeliveryEstimate/DeliveryEstimate"
+import { getExpectedDelivery } from "@/lib/helpers/delivery-estimate"
 
 export const OrderParcels = async ({ orders }: { orders: any[] }) => {
   const user = await retrieveCustomer()
@@ -18,6 +20,11 @@ export const OrderParcels = async ({ orders }: { orders: any[] }) => {
           <div className="border rounded-sm">
             <div className="p-4 border-b">
               <OrderParcelStatus order={order} />
+              <DeliveryEstimate
+                estimate={getExpectedDelivery(order)}
+                className="label-md mt-4"
+                data-testid="order-parcel-delivery-estimate"
+              />
             </div>
             <div className="p-4 border-b md:flex items-center justify-between">
               <div className="flex items-center gap-4 mb-4 md:mb-0">

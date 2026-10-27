@@ -10,9 +10,11 @@ import clsx from 'clsx';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { Button } from '@/components/atoms';
+import { DeliveryEstimate } from '@/components/molecules/DeliveryEstimate/DeliveryEstimate';
 import ErrorMessage from '@/components/molecules/ErrorMessage/ErrorMessage';
 import { removeShippingMethod, setShippingMethod } from '@/lib/data/cart';
 import { calculatePriceForShippingOption } from '@/lib/data/fulfillment';
+import type { DeliveryEstimate as DeliveryEstimateValue } from '@/lib/helpers/delivery-estimate';
 import { convertToLocale } from '@/lib/helpers/money';
 
 import { CartShippingMethodRow } from './CartShippingMethodRow';
@@ -31,6 +33,7 @@ type CartItem = {
 export type StoreCardShippingMethod = HttpTypes.StoreCartShippingOption & {
   seller_id?: string;
   seller_name?: string;
+  estimated_delivery?: DeliveryEstimateValue | null;
   service_zone?: {
     fulfillment_set: {
       type: string;
@@ -50,6 +53,7 @@ type ShippingProps = {
           price_type: string;
           id: string;
           amount?: number;
+          estimated_delivery?: DeliveryEstimateValue | null;
         }[])
     | null;
 };
@@ -179,6 +183,10 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
     (_shippingMethods ?? []).map((option: any) => [option.id, option.seller_name])
   );
 
+  const estimateByOptionId = new Map<string, DeliveryEstimateValue | null | undefined>(
+    (_shippingMethods ?? []).map(option => [option.id, option.estimated_delivery])
+  );
+
   return (
     <div className="bg-ui-bg-interactive rounded-sm border p-4">
       <div className="mb-6 flex flex-row items-center justify-between">
@@ -279,6 +287,11 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                                     ) : (
                                       '-'
                                     )}
+                                    <DeliveryEstimate
+                                      estimate={option.estimated_delivery}
+                                      className="mt-1"
+                                      data-testid="shipping-option-delivery-estimate"
+                                    />
                                   </Listbox.Option>
                                 ))}
                               </Listbox.Options>
@@ -297,6 +310,11 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                         sellerName={
                           method.shipping_option_id
                             ? sellerNameByOptionId.get(method.shipping_option_id)
+                            : undefined
+                        }
+                        estimate={
+                          method.shipping_option_id
+                            ? estimateByOptionId.get(method.shipping_option_id)
                             : undefined
                         }
                         currency_code={cart.currency_code}
@@ -341,6 +359,13 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                         currency_code: cart?.currency_code
                       })}
                     </Text>
+                    {method.shipping_option_id && (
+                      <DeliveryEstimate
+                        estimate={estimateByOptionId.get(method.shipping_option_id)}
+                        className="mt-1"
+                        data-testid="shipping-method-summary-delivery-estimate"
+                      />
+                    )}
                   </div>
                 ))}
               </div>

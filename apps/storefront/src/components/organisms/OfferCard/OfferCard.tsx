@@ -4,6 +4,7 @@ import Image from "next/image"
 
 import { Button } from "@/components/atoms"
 import { toast } from "@/lib/helpers/toast"
+import { DeliveryEstimate } from "@/components/molecules/DeliveryEstimate/DeliveryEstimate"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { useCartContext } from "@/components/providers"
 import { getOfferAmount, getOfferStock, type StoreOffer } from "@/lib/helpers/buybox"
@@ -121,6 +122,13 @@ export const OfferCard = ({
               </p>
             )}
           </div>
+          {hasPrice && (
+            <DeliveryEstimate
+              estimate={offer.estimated_delivery}
+              className="mt-1"
+              data-testid="offer-card-delivery-estimate"
+            />
+          )}
         </LocalizedClientLink>
         <Button
           onClick={handleAddToCart}

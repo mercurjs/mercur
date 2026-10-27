@@ -1,10 +1,15 @@
 import { OfferDTO } from '@mercurjs/types';
 
+import type { DeliveryEstimate } from './delivery-estimate';
+
 /**
- * `inventory_quantity` is a computed field the store offers route adds when
- * `+inventory_quantity` is requested; it is not part of `OfferDTO`.
+ * `inventory_quantity` and `estimated_delivery` are computed fields the store
+ * offers route adds; they are not part of `OfferDTO`.
  */
-export type StoreOffer = OfferDTO & { inventory_quantity?: number | null };
+export type StoreOffer = OfferDTO & {
+  inventory_quantity?: number | null;
+  estimated_delivery?: DeliveryEstimate | null;
+};
 
 export const getOfferAmount = (offer: StoreOffer): number | null =>
   offer.calculated_price?.calculated_amount ?? null;

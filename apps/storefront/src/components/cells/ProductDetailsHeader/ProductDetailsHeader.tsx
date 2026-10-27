@@ -16,6 +16,7 @@ import {
 } from "@/lib/helpers/buybox"
 import { Chat } from "@/components/organisms/Chat/Chat"
 import { CompareOffersModal } from "@/components/organisms/CompareOffersModal/CompareOffersModal"
+import { DeliveryEstimate } from "@/components/molecules/DeliveryEstimate/DeliveryEstimate"
 import { SellerDTO } from "@mercurjs/types"
 import { toast } from "@/lib/helpers/toast"
 import { useCartContext } from "@/components/providers"
@@ -161,6 +162,13 @@ export const ProductDetailsHeader = ({
               <span className="label-md text-secondary pt-2 pb-4" data-testid="product-price-unavailable">
                 Not available in your region
               </span>
+            )}
+            {hasOffer && (
+              <DeliveryEstimate
+                estimate={winnerOffer.estimated_delivery}
+                className="label-md"
+                data-testid="product-delivery-estimate"
+              />
             )}
           </div>
         </div>

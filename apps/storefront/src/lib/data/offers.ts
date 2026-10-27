@@ -14,7 +14,7 @@ import { getRegion } from './regions';
 // unprefixed field) silently yields null prices and zero stock.
 const OFFER_FIELDS =
   '+seller.logo,+seller.banner,+seller.is_premium,' +
-  '+calculated_price,+inventory_quantity,' +
+  '+calculated_price,+inventory_quantity,+estimated_delivery,' +
   '+product.id,+product.title,+product.handle,+product.thumbnail';
 
 export const listOffers = async ({

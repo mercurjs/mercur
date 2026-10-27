@@ -2,6 +2,8 @@ import OrderDetails from "@/components/organisms/OrderDefails/OrderDetails"
 import OrderShipping from "@/components/organisms/OrderDefails/OrderShipping"
 import OrderTotals from "@/components/organisms/OrderDefails/OrderTotals"
 import OrderItems from "@/components/organisms/OrderItems/OrderItems"
+import { DeliveryEstimate } from "@/components/molecules/DeliveryEstimate/DeliveryEstimate"
+import { getExpectedDelivery } from "@/lib/helpers/delivery-estimate"
 import { HttpTypes } from "@medusajs/types"
 import { Heading, Text } from "@medusajs/ui"
 
@@ -36,6 +38,11 @@ export const OrderConfirmedSection = ({
               </span>
               .
             </Text>
+            <DeliveryEstimate
+              estimate={getExpectedDelivery(order)}
+              className="label-md mt-2"
+              data-testid="order-confirmed-delivery-estimate"
+            />
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { useState } from "react"
 
 import { Badge, Button } from "@/components/atoms"
 import { SellerAvatar } from "@/components/cells/SellerAvatar/SellerAvatar"
+import { DeliveryEstimate } from "@/components/molecules/DeliveryEstimate/DeliveryEstimate"
 import { Modal } from "@/components/molecules/Modal/Modal"
 import { useCartContext } from "@/components/providers"
 import { convertToLocale } from "@/lib/helpers/money"
@@ -92,6 +93,12 @@ export const CompareOffersModal = ({
                   <p className="label-sm text-secondary">
                     {buyable ? `${stock} in stock` : "Out of stock"}
                   </p>
+                  {buyable && (
+                    <DeliveryEstimate
+                      estimate={offer.estimated_delivery}
+                      data-testid="compare-offer-delivery-estimate"
+                    />
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-4 shrink-0">
