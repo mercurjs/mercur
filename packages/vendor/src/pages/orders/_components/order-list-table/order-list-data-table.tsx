@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { keepPreviousData } from "@tanstack/react-query";
-import { type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { HttpTypes } from "@medusajs/types";
 import { useExtendableTable, useLinkQuery, mergeListFilters } from "@mercurjs/dashboard-shared";
 
@@ -12,11 +12,26 @@ import { useOrderTableQuery } from "@hooks/table/query/use-order-table-query";
 import { useDataTable } from "@hooks/use-data-table";
 import { useOrderTableFilters } from "@hooks/table/filters";
 
+import { ShipByCell, ShipByHeader } from "./ship-by-cell";
+
 const PAGE_SIZE = 10;
+
+const columnHelper = createColumnHelper<HttpTypes.AdminOrder>();
+
+const shipByColumn = columnHelper.display({
+  id: "ship_by",
+  header: () => <ShipByHeader />,
+  cell: ({ row }) => <ShipByCell order={row.original} />,
+});
 
 export const OrderListDataTable = () => {
   const { t } = useTranslation();
-  const baseColumns = useOrderTableColumns({});
+  const orderColumns = useOrderTableColumns({});
+  const baseColumns = [
+    ...orderColumns.slice(0, 2),
+    shipByColumn as ColumnDef<HttpTypes.AdminOrder>,
+    ...orderColumns.slice(2),
+  ];
   const baseFilters = useOrderTableFilters();
 
   const { columns, filters: extFilters } =
@@ -51,6 +66,7 @@ export const OrderListDataTable = () => {
       "fulfillment_status",
       "total",
       "currency_code",
+      "metadata",
       "*customer",
       "*payment_collections",
     ].join(","),

@@ -262,7 +262,7 @@ declare module "@mercurjs/dashboard-sdk" {
       displayZones: "active-claim" | "active-edit" | "active-exchange" | "active-return" | "activity" | "customer" | "fulfillment" | "general" | "payment" | "summary"
       displayFieldIds: "display_id" | "fulfillment_status" | "payment_status" | "status"
       listZones: "list"
-      listColumnIds: "created_at" | "customer" | "display_id" | "fulfillment_status" | "payment_status" | "total"
+      listColumnIds: "created_at" | "customer" | "display_id" | "fulfillment_status" | "payment_status" | "ship_by" | "total"
     }
     "payout": {
       formZones: never

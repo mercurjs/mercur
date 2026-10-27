@@ -1,4 +1,4 @@
-import { Button, Input, Select, toast } from "@medusajs/ui"
+import { Button, Input, toast } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -12,7 +12,10 @@ import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useShippingProfiles } from "../../../../../hooks/api/shipping-profiles"
 import { useUpdateOffer } from "../../../../../hooks/api/offers"
-import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
+import {
+  ShippingProfileSelect,
+  toShippingProfilePayload,
+} from "../../../common/components/shipping-profile-select"
 import { OfferDetail } from "../../../common/types"
 import { EditOfferSchema } from "./schema"
 
@@ -22,7 +25,6 @@ const BUILT_IN_FIELD_IDS = ["sku", "shipping_profile_id", "leadtime_to_ship"]
 
 export const EditOfferForm = ({ offer }: Props) => {
   const { t } = useTranslation()
-  const dir = useDocumentDirection()
   const { handleSuccess } = useRouteModal()
 
   const { shipping_profiles } = useShippingProfiles({ limit: 1000 })
@@ -47,7 +49,10 @@ export const EditOfferForm = ({ offer }: Props) => {
     await mutateAsync(
       {
         sku: values.sku,
-        shipping_profile_id: values.shipping_profile_id,
+        ...toShippingProfilePayload(
+          values.shipping_profile_id,
+          offer.shipping_profile_id,
+        ),
         leadtime_to_ship: values.leadtime_to_ship
           ? Number(values.leadtime_to_ship)
           : null,
@@ -103,22 +108,17 @@ export const EditOfferForm = ({ offer }: Props) => {
             <Form.Field
               control={form.control}
               name="shipping_profile_id"
-              render={({ field: { ref: _r, onChange, ...f } }) => (
+              render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t("offers.fields.shippingProfile")}</Form.Label>
+                  <Form.Label optional>
+                    {t("offers.fields.shippingProfile")}
+                  </Form.Label>
                   <Form.Control>
-                    <Select {...f} onValueChange={onChange} dir={dir}>
-                      <Select.Trigger ref={_r}>
-                        <Select.Value />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {(shipping_profiles ?? []).map((p) => (
-                          <Select.Item key={p.id} value={p.id}>
-                            {p.name}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
+                    <ShippingProfileSelect
+                      {...field}
+                      profiles={shipping_profiles ?? []}
+                      data-testid="offer-edit-form-shipping-profile-select"
+                    />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>

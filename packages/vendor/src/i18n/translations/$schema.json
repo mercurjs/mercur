@@ -8070,6 +8070,34 @@
             "returnableQuantity"
           ],
           "additionalProperties": false
+        },
+        "delivery": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "shipBy": {
+              "type": "string"
+            },
+            "expectedDelivery": {
+              "type": "string"
+            },
+            "overdue": {
+              "type": "string"
+            },
+            "dueToday": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "shipBy",
+            "expectedDelivery",
+            "overdue",
+            "dueToday"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -8102,7 +8130,8 @@
         "refund",
         "customer",
         "activity",
-        "fields"
+        "fields",
+        "delivery"
       ],
       "additionalProperties": false
     },

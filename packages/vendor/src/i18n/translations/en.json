@@ -2027,6 +2027,13 @@
       "displayId": "Order ID",
       "refundableAmount": "Refundable amount",
       "returnableQuantity": "Returnable quantity"
+    },
+    "delivery": {
+      "title": "Delivery",
+      "shipBy": "Ship by",
+      "expectedDelivery": "Expected delivery",
+      "overdue": "Overdue",
+      "dueToday": "Due today"
     }
   },
   "draftOrders": {

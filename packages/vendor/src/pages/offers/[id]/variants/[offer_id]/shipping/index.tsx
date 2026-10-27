@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { usePermissionGate } from "@mercurjs/dashboard-shared"
 import { ConditionalTooltip } from "@components/common/conditional-tooltip"
-import { Button, Heading, Select, toast } from "@medusajs/ui"
+import { Button, Heading, toast } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
@@ -12,16 +12,18 @@ import { RouteDrawer, useRouteModal } from "../../../../../../components/modals"
 import { KeyboundForm } from "../../../../../../components/utilities/keybound-form"
 import { useShippingProfiles } from "../../../../../../hooks/api/shipping-profiles"
 import { useOffer, useUpdateOffer } from "../../../../../../hooks/api/offers"
-import { useDocumentDirection } from "../../../../../../hooks/use-document-direction"
 import { OFFER_VARIANT_DETAIL_FIELDS } from "../../../../common/constants"
+import {
+  ShippingProfileSelect,
+  toShippingProfilePayload,
+} from "../../../../common/components/shipping-profile-select"
 import { OfferDetail } from "../../../../common/types"
 
-const Schema = z.object({ shipping_profile_id: z.string().min(1) })
+const Schema = z.object({ shipping_profile_id: z.string() })
 type Values = z.infer<typeof Schema>
 
 const EditShippingForm = ({ offer }: { offer: OfferDetail }) => {
   const { t } = useTranslation()
-  const direction = useDocumentDirection()
   const { handleSuccess } = useRouteModal()
   const profilesGate = usePermissionGate("shipping_profiles:view")
   const { shipping_profiles } = useShippingProfiles(
@@ -36,8 +38,18 @@ const EditShippingForm = ({ offer }: { offer: OfferDetail }) => {
   const { mutateAsync, isPending } = useUpdateOffer(offer.id)
 
   const handleSubmit = form.handleSubmit(async (values) => {
+    const payload = toShippingProfilePayload(
+      values.shipping_profile_id,
+      offer.shipping_profile_id,
+    )
+
+    if (!("shipping_profile_id" in payload)) {
+      handleSuccess()
+      return
+    }
+
     await mutateAsync(
-      { shipping_profile_id: values.shipping_profile_id },
+      payload,
       {
         onSuccess: () => {
           toast.success(t("offers.variant.shipping.successToast"))
@@ -59,37 +71,23 @@ const EditShippingForm = ({ offer }: { offer: OfferDetail }) => {
           <Form.Field
             control={form.control}
             name="shipping_profile_id"
-            render={({ field: { ref, onChange, ...f } }) => (
+            render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t("offers.fields.shippingProfile")}</Form.Label>
+                <Form.Label optional>
+                  {t("offers.fields.shippingProfile")}
+                </Form.Label>
                 <ConditionalTooltip
                   showTooltip={profilesGate.denied}
                   content={profilesGate.tooltip}
                 >
                   <div>
                     <Form.Control>
-                      <Select
-                        {...f}
-                        onValueChange={onChange}
-                        dir={direction}
+                      <ShippingProfileSelect
+                        {...field}
+                        profiles={shipping_profiles ?? []}
                         disabled={profilesGate.denied}
-                      >
-                        <Select.Trigger
-                          ref={ref}
-                          data-testid="offer-variant-shipping-select"
-                        >
-                          <Select.Value
-                            placeholder={t("offers.fields.shippingProfile")}
-                          />
-                        </Select.Trigger>
-                        <Select.Content>
-                          {(shipping_profiles ?? []).map((p) => (
-                            <Select.Item key={p.id} value={p.id}>
-                              {p.name ?? ""}
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select>
+                        data-testid="offer-variant-shipping-select"
+                      />
                     </Form.Control>
                   </div>
                 </ConditionalTooltip>
