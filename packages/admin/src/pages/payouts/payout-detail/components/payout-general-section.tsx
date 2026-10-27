@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
 import { SectionRow } from "../../../../components/common/section"
-import { AdminPayout } from "../../../../hooks/api/payouts"
+import { AdminPayout } from "../../../../lib/payouts"
 import { useDate } from "../../../../hooks/use-date"
 import { getStylizedAmount } from "../../../../lib/money-amount-helpers"
 import { useRetryPayoutAction } from "../../common/hooks/use-retry-payout-action"

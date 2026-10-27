@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { NoRecords } from "../../../../components/common/empty-table-content"
 import { SectionRow } from "../../../../components/common/section"
-import { AdminPayoutAccount } from "../../../../hooks/api/payout-accounts"
+import { AdminPayoutAccount } from "../../../../lib/payouts"
 
 const RequirementList = ({ items }: { items: string[] }) => {
   if (!items.length) {

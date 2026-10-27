@@ -3,7 +3,7 @@ import { Avatar, Container, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
-import { AdminPayout } from "../../../../hooks/api/payouts"
+import { AdminPayout } from "../../../../lib/payouts"
 
 type Reference = {
   id: string

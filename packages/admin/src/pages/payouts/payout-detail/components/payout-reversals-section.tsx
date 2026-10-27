@@ -1,7 +1,7 @@
 import { Container, Heading, StatusBadge, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
-import { AdminPayout } from "../../../../hooks/api/payouts"
+import { AdminPayout } from "../../../../lib/payouts"
 import { useDate } from "../../../../hooks/use-date"
 import { getStylizedAmount } from "../../../../lib/money-amount-helpers"
 import { getPayoutStatusProps } from "../../common/utils"

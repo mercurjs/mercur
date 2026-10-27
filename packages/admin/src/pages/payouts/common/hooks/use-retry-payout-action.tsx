@@ -1,7 +1,8 @@
 import { toast, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
-import { AdminPayout, useRetryPayout } from "../../../../hooks/api/payouts"
+import { useRetryPayout } from "../../../../hooks/api/payouts"
+import { AdminPayout } from "../../../../lib/payouts"
 import { RETRYABLE_PAYOUT_STATUSES } from "../utils"
 
 export const useRetryPayoutAction = (payout: AdminPayout) => {

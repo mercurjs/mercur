@@ -1,6 +1,6 @@
 import { Alert } from "@medusajs/ui"
 
-import { AdminPayout } from "../../../../hooks/api/payouts"
+import { AdminPayout } from "../../../../lib/payouts"
 
 const variantForStatus = (status: string) => {
   switch (status) {

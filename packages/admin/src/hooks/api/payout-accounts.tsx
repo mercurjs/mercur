@@ -1,7 +1,6 @@
 import {
   ClientError,
   InferClientInput,
-  InferClientOutput,
 } from "@mercurjs/client";
 import {
   QueryKey,
@@ -10,21 +9,18 @@ import {
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
+import { AdminPayoutAccount } from "../../lib/payouts";
 import { sdk } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
+
+export type { AdminPayoutAccount };
 
 const PAYOUT_ACCOUNTS_QUERY_KEY = "payout_accounts" as const;
 export const payoutAccountsQueryKeys = queryKeysFactory(
   PAYOUT_ACCOUNTS_QUERY_KEY,
 );
 
-export type AdminPayoutAccount = InferClientOutput<
-  typeof sdk.admin.payoutAccounts.$id.query
->["payout_account"] & {
-  seller?: { id: string; name: string; handle: string } | null;
-  onboarding?: { id: string; data: Record<string, unknown> | null } | null;
-};
 
 type PayoutAccountResponse = { payout_account: AdminPayoutAccount };
 
@@ -57,10 +53,12 @@ export const usePayoutAccount = (
   return { ...data, ...rest };
 };
 
-type PayoutAccountListResponse = Omit<
-  InferClientOutput<typeof sdk.admin.payoutAccounts.query>,
-  "payout_accounts"
-> & { payout_accounts: AdminPayoutAccount[] };
+type PayoutAccountListResponse = {
+  payout_accounts: AdminPayoutAccount[];
+  count: number;
+  offset: number;
+  limit: number;
+};
 
 export const usePayoutAccounts = (
   query?: InferClientInput<typeof sdk.admin.payoutAccounts.query>,

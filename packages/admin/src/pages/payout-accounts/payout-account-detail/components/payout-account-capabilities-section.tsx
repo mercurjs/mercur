@@ -1,7 +1,7 @@
 import { Container, Heading, Text, clx } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
-import { AdminPayoutAccount } from "../../../../hooks/api/payout-accounts"
+import { AdminPayoutAccount } from "../../../../lib/payouts"
 import { getPayoutAccountKycProps } from "../../common/utils"
 
 type Tone = "green" | "orange" | "red" | "blue" | "grey" | "purple"

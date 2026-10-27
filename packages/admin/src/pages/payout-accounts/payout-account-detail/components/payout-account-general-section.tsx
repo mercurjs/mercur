@@ -4,11 +4,8 @@ import { useTranslation } from "react-i18next"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
 import { SectionRow } from "../../../../components/common/section"
-import {
-  AdminPayoutAccount,
-  useRefreshPayoutAccountLink,
-  useSyncPayoutAccount,
-} from "../../../../hooks/api/payout-accounts"
+import { useRefreshPayoutAccountLink, useSyncPayoutAccount } from "../../../../hooks/api/payout-accounts"
+import { AdminPayoutAccount } from "../../../../lib/payouts"
 import { useDate } from "../../../../hooks/use-date"
 import { getPayoutAccountStatusProps } from "../../common/utils"
 

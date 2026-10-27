@@ -1,6 +1,6 @@
 import { requirePermission } from "../../utils"
 import { MiddlewareRoute } from "@medusajs/framework/http"
-import { validateAndTransformBody, validateAndTransformQuery } from "@medusajs/framework"
+import { validateAndTransformQuery } from "@medusajs/framework"
 
 import { adminPayoutQueryConfig } from "./query-config"
 import { AdminGetPayoutParams, AdminGetPayoutsParams } from "./validators"
