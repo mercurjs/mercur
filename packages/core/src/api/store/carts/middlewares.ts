@@ -47,7 +47,22 @@ const dropEmptyCurrencyCode = (
     next()
 }
 
+// Medusa's store cart query config silently drops requested fields outside its
+// allowlist, so line-item offers (and their seller) never reach the storefront.
+const allowLineItemOffers = (
+    req: MedusaRequest,
+    _res: MedusaResponse,
+    next: MedusaNextFunction
+) => {
+    req.allowed.push("items.offer", "items.offer.seller")
+    next()
+}
+
 export const storeCartsMiddlewares: MiddlewareRoute[] = [
+    {
+        matcher: "/store/carts*",
+        middlewares: [allowLineItemOffers],
+    },
     {
         method: ["POST"],
         matcher: "/store/carts",
