@@ -1,5 +1,11 @@
 import { ReactNode, Children } from "react";
-import { ShoppingBag, TruckFast } from "@medusajs/icons";
+import {
+  Directions,
+  GlobeEurope,
+  ListCheckbox,
+  ShoppingBag,
+  TruckFast,
+} from "@medusajs/icons";
 import { Container, Heading } from "@medusajs/ui";
 import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { useTranslation } from "react-i18next";
@@ -119,6 +125,27 @@ const LinksSection = () => {
         )}
         icon={<TruckFast />}
         data-testid="location-list-sidebar-shipping-option-types-link"
+      />
+      <SidebarLink
+        to="/settings/locations/shipping-zones"
+        labelKey={t("stockLocations.sidebar.shippingZones.label")}
+        descriptionKey={t("stockLocations.sidebar.shippingZones.description")}
+        icon={<GlobeEurope />}
+        dataTestid="location-list-sidebar-shipping-zones-link"
+      />
+      <SidebarLink
+        to="/settings/locations/shipping-methods"
+        labelKey={t("stockLocations.sidebar.shippingMethods.label")}
+        descriptionKey={t("stockLocations.sidebar.shippingMethods.description")}
+        icon={<Directions />}
+        dataTestid="location-list-sidebar-shipping-methods-link"
+      />
+      <SidebarLink
+        to="/settings/locations/shipping-rules"
+        labelKey={t("stockLocations.sidebar.shippingRules.label")}
+        descriptionKey={t("stockLocations.sidebar.shippingRules.description")}
+        icon={<ListCheckbox />}
+        dataTestid="location-list-sidebar-shipping-rules-link"
       />
     </Container>
   );

@@ -8073,12 +8073,63 @@
                 "description"
               ],
               "additionalProperties": false
+            },
+            "shippingZones": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "description"
+              ],
+              "additionalProperties": false
+            },
+            "shippingMethods": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "description"
+              ],
+              "additionalProperties": false
+            },
+            "shippingRules": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "description"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [
             "header",
             "shippingProfiles",
-            "shippingOptionTypes"
+            "shippingOptionTypes",
+            "shippingZones",
+            "shippingMethods",
+            "shippingRules"
           ],
           "additionalProperties": false
         },
@@ -14357,6 +14408,601 @@
       ],
       "additionalProperties": false
     },
+    "shippingZones": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "create": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "hint": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "hint",
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "edit": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "delete": {
+          "type": "object",
+          "properties": {
+            "confirmation": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "confirmation",
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "codeHint": {
+              "type": "string"
+            },
+            "countries": {
+              "type": "string"
+            },
+            "countriesPlaceholder": {
+              "type": "string"
+            },
+            "active": {
+              "type": "string"
+            },
+            "activeHint": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "code",
+            "codeHint",
+            "countries",
+            "countriesPlaceholder",
+            "active",
+            "activeHint"
+          ],
+          "additionalProperties": false
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "active": {
+              "type": "string"
+            },
+            "inactive": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "active",
+            "inactive"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "domain",
+        "subtitle",
+        "create",
+        "edit",
+        "delete",
+        "fields",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "shippingMethods": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "create": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "hint": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "hint",
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "edit": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "delete": {
+          "type": "object",
+          "properties": {
+            "confirmation": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "confirmation",
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "codeHint": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "provider": {
+              "type": "string"
+            },
+            "providerPlaceholder": {
+              "type": "string"
+            },
+            "optionType": {
+              "type": "string"
+            },
+            "optionTypePlaceholder": {
+              "type": "string"
+            },
+            "immutableHint": {
+              "type": "string"
+            },
+            "active": {
+              "type": "string"
+            },
+            "activeHint": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "code",
+            "codeHint",
+            "description",
+            "provider",
+            "providerPlaceholder",
+            "optionType",
+            "optionTypePlaceholder",
+            "immutableHint",
+            "active",
+            "activeHint"
+          ],
+          "additionalProperties": false
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "active": {
+              "type": "string"
+            },
+            "inactive": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "active",
+            "inactive"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "domain",
+        "subtitle",
+        "create",
+        "edit",
+        "delete",
+        "fields",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "shippingRules": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "zone": {
+          "type": "string"
+        },
+        "zonePlaceholder": {
+          "type": "string"
+        },
+        "noZones": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "action": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "message",
+            "action"
+          ],
+          "additionalProperties": false
+        },
+        "noMethods": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "action": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "message",
+            "action"
+          ],
+          "additionalProperties": false
+        },
+        "noProfiles": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "action": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "message",
+            "action"
+          ],
+          "additionalProperties": false
+        },
+        "columns": {
+          "type": "object",
+          "properties": {
+            "zone": {
+              "type": "string"
+            },
+            "method": {
+              "type": "string"
+            },
+            "profile": {
+              "type": "string"
+            },
+            "requirement": {
+              "type": "string"
+            },
+            "price": {
+              "type": "string"
+            },
+            "sellerCanEditPrice": {
+              "type": "string"
+            },
+            "transit": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "zone",
+            "method",
+            "profile",
+            "requirement",
+            "price",
+            "sellerCanEditPrice",
+            "transit"
+          ],
+          "additionalProperties": false
+        },
+        "requirement": {
+          "type": "object",
+          "properties": {
+            "mandatory": {
+              "type": "string"
+            },
+            "optional": {
+              "type": "string"
+            },
+            "not_supported": {
+              "type": "string"
+            },
+            "notConfigured": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "mandatory",
+            "optional",
+            "not_supported",
+            "notConfigured"
+          ],
+          "additionalProperties": false
+        },
+        "priceType": {
+          "type": "object",
+          "properties": {
+            "flat": {
+              "type": "string"
+            },
+            "calculated": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "flat",
+            "calculated"
+          ],
+          "additionalProperties": false
+        },
+        "transit": {
+          "type": "object",
+          "properties": {
+            "range": {
+              "type": "string"
+            },
+            "min": {
+              "type": "string"
+            },
+            "max": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "range",
+            "min",
+            "max"
+          ],
+          "additionalProperties": false
+        },
+        "edit": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "description",
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "delete": {
+          "type": "object",
+          "properties": {
+            "confirmation": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "confirmation",
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "requirement": {
+              "type": "string"
+            },
+            "requirementHint": {
+              "type": "string"
+            },
+            "priceType": {
+              "type": "string"
+            },
+            "prices": {
+              "type": "string"
+            },
+            "pricesHint": {
+              "type": "string"
+            },
+            "sellerCanEditPrice": {
+              "type": "string"
+            },
+            "sellerCanEditPriceHint": {
+              "type": "string"
+            },
+            "transitMinDays": {
+              "type": "string"
+            },
+            "transitMaxDays": {
+              "type": "string"
+            },
+            "sellerCanEditTransit": {
+              "type": "string"
+            },
+            "sellerCanEditTransitHint": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "requirement",
+            "requirementHint",
+            "priceType",
+            "prices",
+            "pricesHint",
+            "sellerCanEditPrice",
+            "sellerCanEditPriceHint",
+            "transitMinDays",
+            "transitMaxDays",
+            "sellerCanEditTransit",
+            "sellerCanEditTransitHint"
+          ],
+          "additionalProperties": false
+        },
+        "validation": {
+          "type": "object",
+          "properties": {
+            "transitRange": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "transitRange"
+          ],
+          "additionalProperties": false
+        },
+        "actions": {
+          "type": "object",
+          "properties": {
+            "configure": {
+              "type": "string"
+            },
+            "remove": {
+              "type": "string"
+            },
+            "manage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "configure",
+            "remove",
+            "manage"
+          ],
+          "additionalProperties": false
+        },
+        "profileSection": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "empty": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "empty"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "domain",
+        "subtitle",
+        "zone",
+        "zonePlaceholder",
+        "noZones",
+        "noMethods",
+        "noProfiles",
+        "columns",
+        "requirement",
+        "priceType",
+        "transit",
+        "edit",
+        "delete",
+        "fields",
+        "validation",
+        "actions",
+        "profileSection"
+      ],
+      "additionalProperties": false
+    },
     "productTypes": {
       "type": "object",
       "properties": {
@@ -17293,6 +17939,9 @@
     "resetPassword",
     "workflowExecutions",
     "shippingOptionTypes",
+    "shippingZones",
+    "shippingMethods",
+    "shippingRules",
     "productTypes",
     "productTags",
     "errors",
