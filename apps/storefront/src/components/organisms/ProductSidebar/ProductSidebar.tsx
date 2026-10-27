@@ -2,9 +2,12 @@
 
 import { useState } from 'react';
 
-import { Button } from '@/components/atoms';
-import { ColorFilter, ConditionFilter, PriceFilter, SizeFilter } from '@/components/cells';
-import { ProductListingActiveFilters } from '@/components/organisms';
+import { Button } from '@/components/atoms/Button/Button';
+import { ColorFilter } from '@/components/cells/ColorFilter/ColorFilter';
+import { ConditionFilter } from '@/components/cells/ConditionFilter/ConditionFilter';
+import { PriceFilter } from '@/components/cells/PriceFilter/PriceFilter';
+import { SizeFilter } from '@/components/cells/SizeFilter/SizeFilter';
+import { ProductListingActiveFilters } from '@/components/organisms/ProductListingActiveFilters/ProductListingActiveFilters';
 import useFilters from '@/hooks/useFilters';
 import { CloseIcon } from '@/icons';
 import { cn } from '@/lib/utils';

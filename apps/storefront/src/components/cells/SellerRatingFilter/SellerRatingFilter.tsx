@@ -1,10 +1,8 @@
 'use client';
 
-import {
-  Accordion,
-  FilterCheckboxOption,
-} from '@/components/molecules';
-import { StarRating } from '@/components/atoms';
+import { Accordion } from '@/components/molecules/Accordion/Accordion';
+import { FilterCheckboxOption } from '@/components/molecules/FilterCheckboxOption/FilterCheckboxOption';
+import { StarRating } from '@/components/atoms/StarRating/StarRating';
 import { cn } from '@/lib/utils';
 import useFilters from '@/hooks/useFilters';
 

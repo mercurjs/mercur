@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 
-import { Button } from "@/components/atoms"
+import { Button } from '@/components/atoms/Button/Button';
 import { toast } from "@/lib/helpers/toast"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { useCartContext } from "@/components/providers"

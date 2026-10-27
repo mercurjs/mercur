@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { Card } from '@/components/atoms';
-import { OrderProductListItem } from '@/components/cells';
+import { Card } from '@/components/atoms/Card/Card';
+import { OrderProductListItem } from '@/components/cells/OrderProductListItem/OrderProductListItem';
 import { CollapseIcon } from '@/icons';
 import { convertToLocale } from '@/lib/helpers/money';
 import { parcelStatuses, steps } from '@/lib/helpers/parcel-statuses';

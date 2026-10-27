@@ -1,8 +1,20 @@
+import { Suspense } from "react"
+import { RouteFallback } from "@/components/molecules/RouteFallback/RouteFallback"
 import { Button } from "@/components/atoms/Button/Button"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { UserNavigation } from "@/components/molecules/UserNavigation/UserNavigation"
 
-export default async function RequestSuccessPage({
+export default function RequestSuccessPage(props: {
+  params: Promise<{ id: string }>
+}) {
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <RequestSuccessPageContent {...props} />
+    </Suspense>
+  )
+}
+
+async function RequestSuccessPageContent({
   params,
 }: {
   params: Promise<{ id: string }>

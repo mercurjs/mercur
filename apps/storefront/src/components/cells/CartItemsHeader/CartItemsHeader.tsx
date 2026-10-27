@@ -1,4 +1,4 @@
-import { Divider } from "@/components/atoms"
+import { Divider } from '@/components/atoms/Divider/Divider';
 import { SingleProductSeller } from "@/types/product"
 import { format } from "date-fns"
 import { SellerAvatar } from "../SellerAvatar/SellerAvatar"

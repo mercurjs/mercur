@@ -1,9 +1,19 @@
+import { Suspense } from "react"
+import { RouteFallback } from "@/components/molecules/RouteFallback/RouteFallback"
 import { LoginForm } from "@/components/molecules/LoginForm/LoginForm"
 import { UserNavigation } from "@/components/molecules/UserNavigation/UserNavigation"
 import { UserMessagesSection } from "@/components/sections/UserMessagesSection/UserMessagesSection"
 import { retrieveCustomer } from "@/lib/data/customer"
 
-export default async function MessagesPage() {
+export default function MessagesPage() {
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <MessagesPageContent />
+    </Suspense>
+  )
+}
+
+async function MessagesPageContent() {
   const user = await retrieveCustomer()
 
   if (!user) return <LoginForm />

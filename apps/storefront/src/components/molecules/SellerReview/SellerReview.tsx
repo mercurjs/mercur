@@ -1,4 +1,4 @@
-import { StarRating } from "@/components/atoms"
+import { StarRating } from '@/components/atoms/StarRating/StarRating';
 import { SingleProductReview } from "@/types/product"
 import { Divider } from "@medusajs/ui"
 import clsx from "clsx"

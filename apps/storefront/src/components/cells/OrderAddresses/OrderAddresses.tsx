@@ -1,4 +1,4 @@
-import { Card } from "@/components/atoms"
+import { Card } from '@/components/atoms/Card/Card';
 import { retrieveCustomer } from "@/lib/data/customer"
 import { getRegion } from "@/lib/data/regions"
 

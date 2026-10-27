@@ -1,12 +1,10 @@
 "use client"
 
-import {
-  Badge,
-  Divider,
-  LogoutButton,
-  NavigationItem,
-} from "@/components/atoms"
-import { Dropdown } from "@/components/molecules"
+import { Badge } from '@/components/atoms/Badge/Badge';
+import { Divider } from '@/components/atoms/Divider/Divider';
+import { LogoutButton } from '@/components/atoms/LogoutButton/LogoutButton';
+import { NavigationItem } from '@/components/atoms/NavigationItem/NavigationItem';
+import { Dropdown } from '@/components/molecules/Dropdown/Dropdown';
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { ProfileIcon } from "@/icons"
 import { HttpTypes } from "@medusajs/types"

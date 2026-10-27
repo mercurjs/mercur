@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/atoms"
+import { Button } from '@/components/atoms/Button/Button';
 import { BinIcon } from "@/icons"
 import { useCartContext } from "@/components/providers"
 import { toast } from "@/lib/helpers/toast"

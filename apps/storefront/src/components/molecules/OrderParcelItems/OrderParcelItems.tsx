@@ -1,4 +1,4 @@
-import { OrderProductListItem } from "@/components/cells"
+import { OrderProductListItem } from '@/components/cells/OrderProductListItem/OrderProductListItem';
 
 export const OrderParcelItems = ({
   items,

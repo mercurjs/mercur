@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/atoms"
+import { Button } from '@/components/atoms/Button/Button';
 import Link from "next/link"
 
 export const OrderReturn = ({ order }: { order: any }) => {

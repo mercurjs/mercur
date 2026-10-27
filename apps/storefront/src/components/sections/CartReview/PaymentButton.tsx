@@ -6,7 +6,7 @@ import { placeOrder } from "@/lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
 import React, { useEffect, useState } from "react"
-import { Button } from "@/components/atoms"
+import { Button } from '@/components/atoms/Button/Button';
 import { orderErrorFormatter } from "@/lib/helpers/order-error-formatter"
 import { toast } from "@/lib/helpers/toast"
 

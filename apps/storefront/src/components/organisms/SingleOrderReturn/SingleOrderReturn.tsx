@@ -1,6 +1,9 @@
 "use client"
 
-import { Avatar, Badge, Card, Divider } from "@/components/atoms"
+import { Avatar } from '@/components/atoms/Avatar/Avatar';
+import { Badge } from '@/components/atoms/Badge/Badge';
+import { Card } from '@/components/atoms/Card/Card';
+import { Divider } from '@/components/atoms/Divider/Divider';
 import { CollapseIcon } from "@/icons"
 import { cn } from "@/lib/utils"
 import { Heading } from "@medusajs/ui"

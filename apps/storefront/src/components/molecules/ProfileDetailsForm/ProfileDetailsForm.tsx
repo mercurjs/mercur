@@ -6,8 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { HttpTypes } from '@medusajs/types';
 import { FieldError, FieldValues, FormProvider, useForm, useFormContext } from 'react-hook-form';
 
-import { Button } from '@/components/atoms';
-import { LabeledInput } from '@/components/cells';
+import { Button } from '@/components/atoms/Button/Button';
+import { LabeledInput } from '@/components/cells/LabeledInput/LabeledInput';
 import { updateCustomer } from '@/lib/data/customer';
 
 import { ProfileDetailsFormData, profileDetailsSchema } from './schema';

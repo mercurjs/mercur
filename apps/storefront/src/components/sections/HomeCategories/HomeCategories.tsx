@@ -1,5 +1,5 @@
-import { Carousel } from "@/components/cells"
-import { CategoryCard } from "@/components/organisms"
+import { CustomCarousel as Carousel } from '@/components/cells/Carousel/Carousel';
+import { CategoryCard } from '@/components/organisms/CategoryCard/CategoryCard';
 
 export const categories: { id: number; name: string; handle: string }[] = [
   {

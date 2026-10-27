@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { CheckCircle } from '@medusajs/icons';
 
-import { Card } from '@/components/atoms';
+import { Card } from '@/components/atoms/Card/Card';
 import { cn } from '@/lib/utils';
 
 function validatePassword(password: string) {

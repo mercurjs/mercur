@@ -1,7 +1,5 @@
-import {
-  ProductPageAccordion,
-  ProdutMeasurementRow,
-} from '@/components/molecules';
+import { ProductPageAccordion } from '@/components/molecules/ProductPageAccordion/ProductPageAccordion';
+import { ProdutMeasurementRow } from '@/components/molecules/ProdutMeasurementRow/ProdutMeasurementRow';
 import { SingleProductMeasurement } from '@/types/product';
 
 export const ProductDetailsMeasurements = ({

@@ -1,5 +1,9 @@
-import { SellerTabs } from "@/components/organisms"
-import { SellerPageHeader } from "@/components/sections"
+import { notFound } from "next/navigation"
+import { Suspense } from "react"
+
+import { RouteFallback } from "@/components/molecules/RouteFallback/RouteFallback"
+import { SellerTabs } from '@/components/organisms/SellerTabs/SellerTabs';
+import { SellerPageHeader } from '@/components/sections/SellerPageHeader/SellerPageHeader';
 import { retrieveCustomer } from "@/lib/data/customer"
 import { listRegions } from "@/lib/data/regions"
 import { getSellerByHandle } from "@/lib/data/seller"
@@ -7,9 +11,8 @@ import {
   buildHreflangAlternates,
   getStorefrontLocales,
 } from "@/lib/helpers/hreflang"
-import { SellerDTO } from "@mercurjs/types"
 import type { Metadata } from "next"
-import { headers } from "next/headers"
+import { getBaseUrl } from "@/lib/helpers/base-url"
 
 export async function generateMetadata({
   params,
@@ -18,15 +21,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { handle, locale } = await params
 
-  const seller = (await getSellerByHandle(handle)) as SellerDTO
+  const seller = await getSellerByHandle(handle)
   if (!seller) {
     return {}
   }
 
-  const headersList = await headers()
-  const host = headersList.get("host")
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
+  const baseUrl = getBaseUrl()
 
   let locales: string[] = []
   try {
@@ -65,37 +65,41 @@ export async function generateMetadata({
   }
 }
 
-export default async function SellerPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ handle: string; locale: string }>
-  searchParams: Promise<{ page?: string }>
-}) {
+export default function SellerPage(props: PageProps<"/[locale]/sellers/[handle]">) {
+  return (
+    <main className="container">
+      <Suspense fallback={<RouteFallback />}>
+        <SellerContent {...props} />
+      </Suspense>
+    </main>
+  )
+}
+
+async function SellerContent({ params, searchParams }: PageProps<"/[locale]/sellers/[handle]">) {
   const { handle, locale } = await params
   const { page } = await searchParams
 
-  const [seller, user] = (await Promise.all([
+  const [seller, user] = await Promise.all([
     getSellerByHandle(handle),
     retrieveCustomer(),
-  ])) as [SellerDTO, Awaited<ReturnType<typeof retrieveCustomer>>]
-
-  const tab = "offers"
+  ])
 
   if (!seller) {
-    return null
+    notFound()
   }
 
+  const pageNumber = typeof page === "string" ? parseInt(page, 10) || 1 : 1
+
   return (
-    <main className="container">
+    <>
       <SellerPageHeader header seller={seller} user={user} />
       <SellerTabs
-        tab={tab}
+        tab="offers"
         seller_id={seller.id}
         seller_handle={seller.handle}
         locale={locale}
-        page={page ? parseInt(page, 10) : 1}
+        page={pageNumber}
       />
-    </main>
+    </>
   )
 }

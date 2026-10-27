@@ -1,4 +1,5 @@
-import { Card, Checkbox } from "@/components/atoms"
+import { Card } from '@/components/atoms/Card/Card';
+import { Checkbox } from '@/components/atoms/Checkbox/Checkbox';
 import { convertToLocale } from "@/lib/helpers/money"
 import {
   Listbox,

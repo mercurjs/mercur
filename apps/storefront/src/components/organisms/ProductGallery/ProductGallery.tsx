@@ -1,4 +1,4 @@
-import { GalleryCarousel } from '@/components/organisms';
+import { GalleryCarousel } from '@/components/organisms/GalleryCarousel/GalleryCarousel';
 import { HttpTypes } from '@medusajs/types';
 
 export const ProductGallery = ({

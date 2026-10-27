@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/atoms"
+import { Button } from '@/components/atoms/Button/Button';
 import { BinIcon } from "@/icons"
 
 import { convertToLocale } from "@/lib/helpers/money"

@@ -1,8 +1,6 @@
-import {
-  ProductPostedDate,
-  ProductReportButton,
-  ProductTags,
-} from '@/components/molecules';
+import { ProductPostedDate } from '@/components/molecules/ProductPostedDate/ProductPostedDate';
+import { ProductReportButton } from '@/components/molecules/ProductReportButton/ProductReportButton';
+import { ProductTags } from '@/components/molecules/ProductTags/ProductTags';
 import { HttpTypes } from '@medusajs/types';
 
 export const ProductDetailsFooter = ({

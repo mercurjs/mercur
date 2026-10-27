@@ -1,8 +1,10 @@
 'use client';
 
-import { Button } from '@/components/atoms';
+import { Button } from '@/components/atoms/Button/Button';
 import LocalizedClientLink from '@/components/molecules/LocalizedLink/LocalizedLink';
-import { CartEmpty, CartItems, CartSummary } from '@/components/organisms';
+import { CartEmpty } from '@/components/organisms/CartEmpty/CartEmpty';
+import { CartItems } from '@/components/organisms/CartItems/CartItems';
+import { CartSummary } from '@/components/organisms/CartSummary/CartSummary';
 import { useCartContext } from '@/components/providers';
 
 export const Cart = () => {

@@ -94,7 +94,7 @@ export async function updateCart(data: HttpTypes.StoreUpdateCart) {
     .mutate({ $id: cartId, ...data, fetchOptions: { headers } })
     .then(async ({ cart }) => {
       const cartCacheTag = await getCacheTag('carts');
-      await revalidateTag(cartCacheTag);
+      await revalidateTag(cartCacheTag, { expire: 0 });
       return cart;
     })
     .catch(medusaError);
@@ -222,7 +222,7 @@ export async function setShippingMethod({
     .catch(error => ({ ok: false, error, data: null }));
 
   const cartCacheTag = await getCacheTag('carts');
-  revalidateTag(cartCacheTag);
+  revalidateTag(cartCacheTag, { expire: 0 });
 
   return res;
 }
@@ -257,7 +257,7 @@ export async function initiatePaymentSession(
     });
 
     const cartCacheTag = await getCacheTag('carts');
-    revalidateTag(cartCacheTag);
+    revalidateTag(cartCacheTag, { expire: 0 });
 
     return resp;
   } catch (error) {
@@ -283,7 +283,7 @@ export async function applyPromotions(codes: string[]) {
       fetchOptions: { headers }
     })
     const cartCacheTag = await getCacheTag("carts")
-    revalidateTag(cartCacheTag)
+    revalidateTag(cartCacheTag, { expire: 0 })
     // @ts-ignore
     const applied = cart.promotions?.some((promotion: any) =>
       codes.includes(promotion.code)
@@ -317,7 +317,7 @@ export async function removeShippingMethod(shippingMethodId: string) {
     } as never) as unknown as Promise<{ cart: HttpTypes.StoreCart }>)
     .then(async () => {
       const cartCacheTag = await getCacheTag('carts');
-      revalidateTag(cartCacheTag);
+      revalidateTag(cartCacheTag, { expire: 0 });
     })
     .catch(medusaError);
 }
@@ -341,7 +341,7 @@ export async function deletePromotionCode(promoId: string) {
     } as never) as unknown as Promise<{ cart: HttpTypes.StoreCart }>)
     .then(async () => {
       const cartCacheTag = await getCacheTag('carts');
-      revalidateTag(cartCacheTag);
+      revalidateTag(cartCacheTag, { expire: 0 });
     })
     .catch(medusaError);
 }
@@ -398,7 +398,7 @@ export async function placeOrder(cartId?: string) {
     .catch(error => ({ ok: false, error, data: null as any }));
 
   const cartCacheTag = await getCacheTag('carts');
-  revalidateTag(cartCacheTag);
+  revalidateTag(cartCacheTag, { expire: 0 });
 
   if (res.data?.order_group) {
     revalidatePath('/user/reviews');
@@ -425,14 +425,14 @@ export async function updateRegion(countryCode: string, currentPath: string) {
   if (cartId) {
     await updateCart({ region_id: region.id });
     const cartCacheTag = await getCacheTag('carts');
-    revalidateTag(cartCacheTag);
+    revalidateTag(cartCacheTag, { expire: 0 });
   }
 
   const regionCacheTag = await getCacheTag('regions');
-  revalidateTag(regionCacheTag);
+  revalidateTag(regionCacheTag, { expire: 0 });
 
   const productsCacheTag = await getCacheTag('products');
-  revalidateTag(productsCacheTag);
+  revalidateTag(productsCacheTag, { expire: 0 });
 
   redirect(`/${countryCode}${currentPath}`);
 }
@@ -500,14 +500,14 @@ export async function updateRegionWithValidation(
     }
 
     const cartCacheTag = await getCacheTag('carts');
-    revalidateTag(cartCacheTag);
+    revalidateTag(cartCacheTag, { expire: 0 });
   }
 
   const regionCacheTag = await getCacheTag('regions');
-  revalidateTag(regionCacheTag);
+  revalidateTag(regionCacheTag, { expire: 0 });
 
   const productsCacheTag = await getCacheTag('products');
-  revalidateTag(productsCacheTag);
+  revalidateTag(productsCacheTag, { expire: 0 });
 
   return {
     removedItems,

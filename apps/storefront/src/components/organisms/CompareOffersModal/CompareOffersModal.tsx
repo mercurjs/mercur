@@ -1,6 +1,7 @@
 "use client"
 
-import { Badge, Button } from "@/components/atoms"
+import { Badge } from '@/components/atoms/Badge/Badge';
+import { Button } from '@/components/atoms/Button/Button';
 import { SellerAvatar } from "@/components/cells/SellerAvatar/SellerAvatar"
 import { Modal } from "@/components/molecules/Modal/Modal"
 import { useCartContext } from "@/components/providers"

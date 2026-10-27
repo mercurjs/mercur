@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/atoms"
+import { Button } from '@/components/atoms/Button/Button';
 import { Card } from "@/components/atoms/Card/Card"
 import { InfoIcon } from "@/icons"
 import { Divider, Heading } from "@medusajs/ui"

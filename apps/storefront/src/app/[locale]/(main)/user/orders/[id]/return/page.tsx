@@ -1,3 +1,5 @@
+import { Suspense } from "react"
+import { RouteFallback } from "@/components/molecules/RouteFallback/RouteFallback"
 import { OrderReturnSection } from "@/components/sections/OrderReturnSection/OrderReturnSection"
 import {
   retrieveOrder,
@@ -5,7 +7,17 @@ import {
   retriveReturnMethods,
 } from "@/lib/data/orders"
 
-export default async function ReturnOrderPage({
+export default function ReturnOrderPage(props: {
+  params: Promise<{ id: string }>
+}) {
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <ReturnOrderPageContent {...props} />
+    </Suspense>
+  )
+}
+
+async function ReturnOrderPageContent({
   params,
 }: {
   params: Promise<{ id: string }>

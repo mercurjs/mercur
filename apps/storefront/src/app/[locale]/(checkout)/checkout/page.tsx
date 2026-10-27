@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false }
 };
 
-export default async function CheckoutPage({}) {
+export default function CheckoutPage() {
   return (
     <Suspense
       fallback={<div className="container flex items-center justify-center" data-testid="checkout-page-loading">Loading...</div>}
@@ -29,7 +29,7 @@ export default async function CheckoutPage({}) {
   );
 }
 
-async function CheckoutPageContent({}) {
+async function CheckoutPageContent() {
   const cart = await retrieveCart();
 
   if (!cart) {

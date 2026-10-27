@@ -1,4 +1,4 @@
-import { ProductPageAccordion } from '@/components/molecules';
+import { ProductPageAccordion } from '@/components/molecules/ProductPageAccordion/ProductPageAccordion';
 
 export const ProductDetailsShipping = () => {
   return (

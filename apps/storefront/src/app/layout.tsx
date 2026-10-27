@@ -3,9 +3,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 import { Toaster } from '@medusajs/ui';
-import Head from 'next/head';
 
-import { HtmlLangSetter } from '@/components/atoms/HtmlLangSetter/HtmlLangSetter';
 import { retrieveCart } from '@/lib/data/cart';
 
 import { Providers } from './providers';
@@ -29,7 +27,7 @@ export default function RootLayout({
 }>) {
   const cartPromise = retrieveCart();
 
-  // default lang updated by HtmlLangSetter
+  // LocaleProvider sets the visitor's language once the [locale] segment renders.
   const htmlLang = 'en';
 
   return (
@@ -37,7 +35,7 @@ export default function RootLayout({
       lang={htmlLang}
       className=""
     >
-      <Head>
+      <head>
         <link
           rel="preconnect"
           href="https://i.imgur.com"
@@ -84,9 +82,8 @@ export default function RootLayout({
           rel="dns-prefetch"
           href="https://api.mercurjs.com"
         />
-      </Head>
+      </head>
       <body className="relative bg-primary text-secondary antialiased">
-        <HtmlLangSetter />
         <Providers cartPromise={cartPromise}>{children}</Providers>
         <Toaster position="top-right" />
       </body>

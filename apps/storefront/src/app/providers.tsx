@@ -1,6 +1,5 @@
 "use client"
 
-import { CartDrawer } from "@/components/cells/CartDrawer/CartDrawer"
 import { CartProvider } from "@/components/providers"
 import { Cart } from "@/types/cart"
 import type React from "react"
@@ -15,7 +14,6 @@ export function Providers({ children, cartPromise }: ProvidersProps) {
   return (
     <CartProvider cartPromise={cartPromise}>
       {children}
-      <CartDrawer />
     </CartProvider>
   )
 }

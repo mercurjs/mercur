@@ -1,6 +1,6 @@
 "use client"
 
-import { Badge } from "@/components/atoms"
+import { Badge } from '@/components/atoms/Badge/Badge';
 import { useCartContext } from "@/components/providers"
 import { useCartDrawer } from "@/components/providers/Cart/drawer"
 import { CartIcon } from "@/icons"

@@ -1,6 +1,6 @@
 import { Brand } from '@/types/brands';
-import { BrandCard } from '@/components/organisms';
-import { Carousel } from '@/components/cells';
+import { BrandCard } from '@/components/organisms/BrandCard/BrandCard';
+import { CustomCarousel as Carousel } from '@/components/cells/Carousel/Carousel';
 
 const brands: Brand[] = [
   {

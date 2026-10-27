@@ -1,4 +1,4 @@
-import { Avatar } from "@/components/atoms"
+import { Avatar } from '@/components/atoms/Avatar/Avatar';
 import { Chat } from "../Chat/Chat"
 import { retrieveCustomer } from "@/lib/data/customer"
 import { OrderParcelItems } from "@/components/molecules/OrderParcelItems/OrderParcelItems"

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/atoms';
+import { Button } from '@/components/atoms/Button/Button';
 import { useState } from 'react';
 import { Modal } from '../Modal/Modal';
 import { ReportListingForm } from '../ReportListingForm/ReportListingForm';

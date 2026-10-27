@@ -1,4 +1,4 @@
-import { ProductPageAccordion } from "@/components/molecules"
+import { ProductPageAccordion } from '@/components/molecules/ProductPageAccordion/ProductPageAccordion';
 import { isRichText, sanitizeRichText } from "@/lib/helpers/sanitize-rich-text"
 
 export const ProductPageDetails = ({ details }: { details: string }) => {

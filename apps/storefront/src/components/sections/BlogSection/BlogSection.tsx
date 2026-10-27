@@ -1,5 +1,5 @@
 import { BlogPost } from '@/types/blog';
-import { BlogCard } from '@/components/organisms';
+import { BlogCard } from '@/components/organisms/BlogCard/BlogCard';
 
 export const blogPosts: BlogPost[] = [
   {

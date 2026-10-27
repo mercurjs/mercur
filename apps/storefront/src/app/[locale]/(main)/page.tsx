@@ -1,14 +1,12 @@
-import {
-  BannerSection,
-  BlogSection,
-  Hero,
-  HomeCategories,
-  HomeProductSection,
-  ShopByStyleSection,
-} from "@/components/sections"
+import { BannerSection } from '@/components/sections/BannerSection/BannerSection';
+import { BlogSection } from '@/components/sections/BlogSection/BlogSection';
+import { Hero } from '@/components/sections/Hero/Hero';
+import { HomeCategories } from '@/components/sections/HomeCategories/HomeCategories';
+import { HomeProductSection } from '@/components/sections/HomeProductSection/HomeProductSection';
+import { ShopByStyleSection } from '@/components/sections/ShopByStyle/ShopByStyleSection';
 
 import type { Metadata } from "next"
-import { headers } from "next/headers"
+import { getBaseUrl } from "@/lib/helpers/base-url"
 import Script from "next/script"
 import { listRegions } from "@/lib/data/regions"
 import {
@@ -24,10 +22,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
 
-  const headersList = await headers()
-  const host = headersList.get("host")
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
+  const baseUrl = getBaseUrl()
 
   let locales: string[] = []
   try {
@@ -104,10 +99,7 @@ export default async function Home({
 }) {
   const { locale } = await params
 
-  const headersList = await headers()
-  const host = headersList.get("host")
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
+  const baseUrl = getBaseUrl()
 
   const siteName =
     process.env.NEXT_PUBLIC_SITE_NAME ||
