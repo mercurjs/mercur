@@ -1,7 +1,22 @@
 import { Migration } from "@medusajs/framework/mikro-orm/migrations"
 
-export class Migration20261022120000 extends Migration {
+export class Migration20261027160000 extends Migration {
   override async up(): Promise<void> {
+    // Databases that ran an earlier draft of this migration carry tables and
+    // columns the payout module no longer has.
+    this.addSql(`alter table if exists "payout" drop constraint if exists "payout_settlement_id_foreign";`)
+    this.addSql(`DROP INDEX IF EXISTS "IDX_payout_settlement_id";`)
+    this.addSql(`alter table if exists "payout" drop column if exists "settlement_id";`)
+    this.addSql(`drop table if exists "transfer" cascade;`)
+    this.addSql(`drop table if exists "adjustment" cascade;`)
+    this.addSql(`drop table if exists "settlement" cascade;`)
+    this.addSql(`drop table if exists "payout_checkpoint" cascade;`)
+    this.addSql(`drop table if exists "payout_job_run" cascade;`)
+    this.addSql(`drop table if exists "payout_notification" cascade;`)
+    this.addSql(`drop table if exists "payout_provider" cascade;`)
+    this.addSql(`DROP INDEX IF EXISTS "IDX_payout_account_provider_account_id";`)
+    this.addSql(`alter table if exists "payout_account" drop column if exists "provider_id", drop column if exists "ignored";`)
+
     this.addSql(`alter table if exists "payout_account" add column if not exists "provider_account_id" text null, add column if not exists "kyc_status" text check ("kyc_status" in ('pending_submission', 'pending_approval', 'approved', 'refused')) null, add column if not exists "payouts_enabled" boolean not null default false, add column if not exists "charges_enabled" boolean not null default false, add column if not exists "details_submitted" boolean not null default false, add column if not exists "disabled_reason" text null, add column if not exists "requirements" jsonb null, add column if not exists "onboarding_token" text null, add column if not exists "last_synced_at" timestamptz null;`)
     this.addSql(`update "payout_account" set "provider_account_id" = "data"->>'id' where "provider_account_id" is null and "data"->>'id' is not null;`)
     this.addSql(`update "payout_account" set "payouts_enabled" = true, "charges_enabled" = true, "details_submitted" = true where "status" = 'active';`)
