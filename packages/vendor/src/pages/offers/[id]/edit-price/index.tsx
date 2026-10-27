@@ -1,13 +1,25 @@
+import { zodResolver } from "@hookform/resolvers/zod"
 import { HttpTypes } from "@medusajs/types"
 import { Button, toast } from "@medusajs/ui"
-import { useMemo } from "react"
-import { useForm } from "react-hook-form"
+import { ColumnDef } from "@tanstack/react-table"
+import { useCallback, useMemo } from "react"
+import { Resolver, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
-import { isForbidden, SectionNoAccess, useCan } from "@mercurjs/dashboard-shared"
+import {
+  buildScopedAdditionalData,
+  isForbidden,
+  refineAdditionalData,
+  SectionNoAccess,
+  useCan,
+  useExtendableGrid,
+  useExtension,
+} from "@mercurjs/dashboard-shared"
+import { z } from "zod"
 
 import { Thumbnail } from "../../../../components/common/thumbnail"
 import {
+  createDataGridExtensionColumn,
   createDataGridHelper,
   createDataGridPriceColumns,
   DataGrid,
@@ -30,6 +42,15 @@ import {
 } from "./utils"
 
 type FormValues = { rows: EditPriceRow[] }
+
+const GRID_ZONE = "edit-price"
+const LOCKED_COLUMN_IDS = ["title"]
+const ROWS_SCHEMA = z
+  .object({ rows: z.array(z.object({}).passthrough()) })
+  .passthrough()
+
+const rowPath = (row: EditPriceRow & { __formIndex?: number }) =>
+  `rows.${row.__formIndex}`
 
 const columnHelper = createDataGridHelper<EditPriceRow, FormValues>()
 
@@ -106,13 +127,69 @@ const EditPriceGrid = ({
     { enabled: canViewPricePreferences }
   )
 
-  const rows = useMemo(
-    () => buildRows(product, currencies, regions),
-    [product, currencies, regions],
+  const extension = useExtension()
+  const offersById = useMemo(
+    () =>
+      new Map(
+        (product.variants ?? []).flatMap((variant) =>
+          ((variant as { offers?: { id: string }[] | null }).offers ?? []).map(
+            (offer) => [offer.id, offer] as const,
+          ),
+        ),
+      ),
+    [product],
   )
 
-  const form = useForm<FormValues>({ defaultValues: { rows } })
-  const columns = useColumns({ currencies, regions, pricePreferences })
+  const scope = useMemo(
+    () => ({
+      model: "offer",
+      zone: GRID_ZONE,
+      exactTab: true,
+      builtInFieldIds: LOCKED_COLUMN_IDS,
+    }),
+    [],
+  )
+  const rowSchema = useMemo(
+    () => buildScopedAdditionalData(extension, scope).schema,
+    [extension, scope],
+  )
+
+  const rows = useMemo(
+    () =>
+      buildRows(product, currencies, regions).map((row, index) => ({
+        ...row,
+        __formIndex: index,
+        additional_data: buildScopedAdditionalData(
+          extension,
+          scope,
+          offersById.get(row.offer_id),
+        ).defaults,
+      })),
+    [product, currencies, regions, extension, scope, offersById],
+  )
+
+  const form = useForm<FormValues>({
+    defaultValues: { rows },
+    // The grid's own cells are unvalidated; only custom-field cells are checked.
+    resolver: zodResolver(
+      refineAdditionalData(ROWS_SCHEMA, {
+        rows: { path: "rows", schema: rowSchema },
+      }),
+    ) as unknown as Resolver<FormValues>,
+  })
+  const baseColumns = useColumns({ currencies, regions, pricePreferences })
+  const createColumn = useCallback(
+    createDataGridExtensionColumn<EditPriceRow, FormValues>,
+    [],
+  )
+  const columns = useExtendableGrid<EditPriceRow>({
+    model: "offer",
+    zone: GRID_ZONE,
+    columns: baseColumns as ColumnDef<EditPriceRow, unknown>[],
+    lockedColumnIds: LOCKED_COLUMN_IDS,
+    getRowPath: rowPath,
+    createColumn,
+  })
 
   const handleSubmit = form.handleSubmit(async (values) => {
     try {
@@ -121,6 +198,9 @@ const EditPriceGrid = ({
           sdk.vendor.offers.$id.mutate({
             $id: row.offer_id,
             prices: buildPricePayload(row, currencies, regions),
+            ...(row.additional_data && Object.keys(row.additional_data).length
+              ? { additional_data: row.additional_data }
+              : {}),
           }),
         ),
       )

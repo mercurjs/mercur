@@ -12,9 +12,13 @@ import {
   Tooltip,
   usePrompt,
 } from "@medusajs/ui";
-import { DisplayExtensionZone, PermissionAction } from "@mercurjs/dashboard-shared";
+import {
+  DisplayExtensionZone,
+  PermissionAction,
+  useExtendableTable,
+} from "@mercurjs/dashboard-shared";
 import { keepPreviousData } from "@tanstack/react-query";
-import { createColumnHelper } from "@tanstack/react-table";
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
@@ -210,7 +214,7 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
     });
   }, [product]);
 
-  return useMemo(
+  const base = useMemo(
     () => [
       columnHelper.accessor("title", {
         id: "title",
@@ -282,6 +286,19 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
       }),
     ],
     [t, attributeColumns, navigate, handleDelete, tableSearchParams, product],
+  );
+
+  const actionsColumn = base[base.length - 1];
+  const { columns: extended } = useExtendableTable<ProductVariantDTO>({
+    model: "product",
+    zone: "variants",
+    columns: base.slice(0, -1) as unknown as ColumnDef<ProductVariantDTO, unknown>[],
+  });
+
+  return useMemo(
+    () =>
+      [...extended, actionsColumn] as ColumnDef<ProductVariantDTO, unknown>[],
+    [extended, actionsColumn],
   );
 };
 

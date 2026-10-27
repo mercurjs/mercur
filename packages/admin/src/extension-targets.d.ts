@@ -241,92 +241,137 @@ declare module "@mercurjs/dashboard-sdk" {
     "attribute": {
       formZones: "create"
       formTabs: { "create": "details" | "type" }
+      formFieldIds: never
       displayZones: never
       displayFieldIds: never
+      listZones: never
+      listColumnIds: never
     }
     "campaign": {
       formZones: "edit"
       formTabs: Record<string, string>
+      formFieldIds: never
       displayZones: "configuration" | "general" | "promotions"
       displayFieldIds: "campaign_identifier" | "description" | "name" | "owner" | "status"
+      listZones: "list"
+      listColumnIds: "campaign_identifier" | "description" | "ends_at" | "name" | "owner" | "starts_at" | "status" | "type"
     }
     "category": {
       formZones: "create" | "edit"
       formTabs: { "create": "details" | "organize" }
+      formFieldIds: never
       displayZones: "general" | "icon" | "media" | "organize" | "products"
       displayFieldIds: "description" | "handle" | "is_active" | "is_internal" | "name"
+      listZones: "list" | "products"
+      listColumnIds: "categories" | "collection" | "handle" | "is_active" | "is_internal" | "name" | "product" | "status" | "variants"
     }
     "collection": {
       formZones: "edit"
       formTabs: Record<string, string>
+      formFieldIds: never
       displayZones: "general" | "icon" | "media" | "products"
       displayFieldIds: "handle" | "title"
+      listZones: "list" | "products"
+      listColumnIds: "categories" | "collection" | "handle" | "product" | "products" | "status" | "title" | "variants"
     }
     "customer": {
       formZones: "edit"
       formTabs: Record<string, string>
+      formFieldIds: never
       displayZones: "addresses" | "general" | "groups" | "orders"
       displayFieldIds: "company_name" | "email" | "name" | "phone" | "status"
+      listZones: "list"
+      listColumnIds: "created_at" | "email" | "has_account" | "name"
     }
     "customer_group": {
       formZones: "edit"
       formTabs: Record<string, string>
+      formFieldIds: never
       displayZones: "customers" | "general"
       displayFieldIds: "customers" | "name" | "owner"
+      listZones: "list"
+      listColumnIds: "created_at" | "customers" | "name" | "owner" | "updated_at"
     }
     "inventory_item": {
       formZones: "edit"
       formTabs: Record<string, string>
+      formFieldIds: never
       displayZones: "attributes" | "general" | "locations" | "reservations" | "variants"
       displayFieldIds: "available_quantity" | "reserved_quantity" | "sku" | "stocked_quantity" | "title"
+      listZones: "list" | "location-levels"
+      listColumnIds: "available_quantity" | "location" | "product" | "reserved_quantity" | "sku" | "stocked_quantity" | "store" | "title"
     }
     "offer": {
       formZones: never
       formTabs: Record<string, string>
+      formFieldIds: never
       displayZones: "associated-product" | "general" | "store" | "variants"
       displayFieldIds: "description" | "discountable" | "handle" | "status" | "subtitle" | "title"
+      listZones: "inventory" | "list" | "variants"
+      listColumnIds: "categories" | "collection" | "inventory" | "product" | "required_quantity" | "sku" | "status" | "store" | "title" | "variants"
     }
     "order": {
       formZones: never
       formTabs: Record<string, string>
+      formFieldIds: never
       displayZones: "activity" | "customer" | "general" | "order-group" | "payment" | "summary"
       displayFieldIds: "created_at" | "display_id" | "fulfillment_status" | "payment_status" | "status"
+      listZones: "list"
+      listColumnIds: "created_at" | "customer_name" | "display_id" | "fulfillment_status" | "order_ids" | "payment_status" | "total" | "vendor"
     }
     "price_list": {
       formZones: "create" | "edit"
       formTabs: { "create": "detail" | "price" | "product" }
+      formFieldIds: never
       displayZones: "configuration" | "general" | "products"
       displayFieldIds: "description" | "price_overrides" | "status" | "title" | "type"
+      listZones: "list"
+      listColumnIds: "owner" | "prices" | "status" | "title" | "type"
     }
     "product": {
       formZones: "create"
       formTabs: { "create": "attributes" | "details" | "organize" | "variants" }
+      formFieldIds: "attributes" | "category_id" | "collection_id" | "description" | "discountable" | "globally_available" | "handle" | "media" | "seller_ids" | "sku" | "subtitle" | "tags" | "title" | "type_id"
       displayZones: "general" | "media" | "organize" | "request" | "variants"
       displayFieldIds: "description" | "discountable" | "handle" | "status" | "subtitle" | "title"
+      listZones: "list" | "variants"
+      listColumnIds: "categories" | "collection" | "product" | "sku" | "status" | "title" | "variants"
     }
     "promotion": {
       formZones: "create" | "edit"
       formTabs: { "create": "campaign" | "promotion" | "type" }
+      formFieldIds: never
       displayZones: "campaign" | "general"
       displayFieldIds: "allocation" | "code" | "code_badge" | "coverage" | "is_automatic" | "is_tax_inclusive" | "owner" | "status" | "type" | "usage_limit" | "value"
+      listZones: "list"
+      listColumnIds: "campaign" | "code" | "method" | "owner" | "status" | "type"
     }
     "reservation": {
       formZones: "edit"
       formTabs: Record<string, string>
+      formFieldIds: never
       displayZones: "general"
       displayFieldIds: "available_quantity" | "description" | "header" | "item_id" | "location" | "reserved_quantity" | "stocked_quantity"
+      listZones: "inventory-item" | "list"
+      listColumnIds: "created_at" | "description" | "inventory_item.sku" | "inventory_item.title" | "line_item.order_id" | "location.name" | "product" | "quantity" | "sku" | "store"
     }
     "seller": {
       formZones: "create" | "edit"
       formTabs: { "create": "details" | "users" }
+      formFieldIds: never
       displayZones: "address" | "company-details" | "configuration" | "general" | "members" | "offers" | "orders" | "payment-details" | "regions" | "requests"
       displayFieldIds: "currency_code" | "description" | "email" | "handle" | "phone" | "website_url"
+      listZones: "list"
+      listColumnIds: "created_at" | "email" | "is_premium" | "name" | "status"
     }
     "user": {
       formZones: never
       formTabs: Record<string, string>
+      formFieldIds: never
       displayZones: "general"
       displayFieldIds: "email" | "language" | "name"
+      listZones: "list"
+      listColumnIds: "created_at" | "email" | "first_name" | "last_name" | "updated_at"
     }
   }
 }

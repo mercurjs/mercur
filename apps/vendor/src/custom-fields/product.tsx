@@ -1,8 +1,10 @@
 import { defineCustomFieldsConfig } from "@mercurjs/dashboard-sdk";
 import { createFormHelper } from "@mercurjs/dashboard-shared";
-import { Text } from "@medusajs/ui";
+import { Badge, Text } from "@medusajs/ui";
 
 type ProductWithMeta = { metadata?: Record<string, unknown> };
+
+type VariantRow = { sku?: string | null; updated_at?: string | Date | null };
 
 const form = createFormHelper<ProductWithMeta>();
 
@@ -54,14 +56,43 @@ export default defineCustomFieldsConfig({
       ],
     },
   ],
-  list: {
-    // ADD a column; OVERRIDE an existing column keyed by id
-    columns: [
-      { id: "erp_id", header: "ERP", component: ({ row }) => erpId(row) },
-    ],
-    viewDefaults: {
-      columnVisibility: { collection: false }, // HIDE the built-in collection column
-      columnOrder: ["product", "erp_id", "status"], // reorder
+  list: [
+    {
+      // ADD a column; OVERRIDE an existing column keyed by id
+      columns: [
+        { id: "erp_id", header: "ERP", component: ({ row }) => erpId(row) },
+      ],
+      viewDefaults: {
+        columnVisibility: { collection: false }, // HIDE the built-in collection column
+        columnOrder: ["product", "erp_id", "status"], // reorder
+      },
     },
-  },
+    // Product detail → variants table
+    {
+      zone: "variants",
+      columns: [
+        {
+          id: "sku",
+          header: "SKU (custom)",
+          component: ({ row }) => (
+            <Badge size="2xsmall" color="purple">
+              {(row as VariantRow).sku ?? "-"}
+            </Badge>
+          ),
+        },
+        {
+          id: "updated",
+          header: "Updated",
+          component: ({ row }) => {
+            const updatedAt = (row as VariantRow).updated_at;
+            return (
+              <Text size="small" className="text-ui-fg-subtle">
+                {updatedAt ? new Date(updatedAt).toLocaleDateString() : "-"}
+              </Text>
+            );
+          },
+        },
+      ],
+    },
+  ],
 });

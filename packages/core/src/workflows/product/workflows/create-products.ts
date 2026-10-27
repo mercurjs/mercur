@@ -17,6 +17,7 @@ import {
   removeProductOptionsFromProductStep,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
+import { ProductStatus } from "@medusajs/framework/utils"
 import {
   AttributeType,
   CreateProductDTO,
@@ -182,18 +183,22 @@ export const createProductsWorkflow: ReturnWorkflow<
           const product_id = createdProducts[idx]?.id as string
           const formOptions = (v: unknown) =>
             (v as { options?: Record<string, string> }).options ?? {}
-          return (p.variants ?? []).map((v) => ({
-            manage_inventory: false,
-            ...v,
-            product_id,
-            options: hasAxisByIndex[idx]
-              ? formOptions(v)
-              : { __default__: "__default__", ...formOptions(v) },
-          }))
+          return (p.variants ?? []).map((v) => {
+            const { additional_data: _additional_data, ...variant } =
+              v as typeof v & { additional_data?: Record<string, unknown> }
+            return {
+              manage_inventory: false,
+              ...variant,
+              product_id,
+              options: hasAxisByIndex[idx]
+                ? formOptions(v)
+                : { __default__: "__default__", ...formOptions(v) },
+            }
+          })
         }),
     )
 
-    when(
+    const createdVariants = when(
       { productVariants },
       ({ productVariants }) => productVariants.length > 0,
     ).then(() =>
@@ -273,9 +278,29 @@ export const createProductsWorkflow: ReturnWorkflow<
       ),
     })
 
+    // Variants are created in input order, so the flattened input lines up
+    // with the created rows by index.
+    const variantsAdditionalData = transform(
+      { input, createdVariants },
+      ({ input, createdVariants }) => {
+        const byVariantId: Record<string, Record<string, unknown>> = {}
+        const variants = (createdVariants ?? []) as { id: string }[]
+        input.products
+          .flatMap((p) => p.variants ?? [])
+          .forEach((v, index) => {
+            const data = (v as { additional_data?: Record<string, unknown> })
+              .additional_data
+            const id = variants[index]?.id
+            if (data && id) byVariantId[id] = data
+          })
+        return byVariantId
+      },
+    )
+
     const productsCreated = createHook("productsCreated", {
       products: createdProducts,
       additional_data: input.additional_data,
+      variants_additional_data: variantsAdditionalData,
     })
 
     emitEventStep({
@@ -283,6 +308,20 @@ export const createProductsWorkflow: ReturnWorkflow<
       data: transform({ createdProducts }, ({ createdProducts }) =>
         createdProducts.map((p) => ({ id: p.id })),
       ),
+    })
+
+    // Only the review flow emitted this, so a product an admin creates as published never reached
+    // the subscribers that mirror published products elsewhere.
+    const publishedIds = transform({ createdProducts }, ({ createdProducts }) =>
+      createdProducts
+        .filter((p) => p.status === ProductStatus.PUBLISHED)
+        .map((p) => ({ id: p.id })),
+    )
+    when(publishedIds, (ids) => ids.length > 0).then(() => {
+      emitEventStep({
+        eventName: ProductWorkflowEvents.PUBLISHED,
+        data: publishedIds,
+      }).config({ name: "emit-created-products-published" })
     })
 
     return new WorkflowResponse(createdProducts, {

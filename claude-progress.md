@@ -7,12 +7,62 @@ session detail aggressively. The per-spec source of truth lives in
 ## Current Verified State
 
 - **Repository root**: `/Users/viktorholik/Desktop/mercur`
-- **Current branch**: `feat/magento2-connector`
+- **Current branch**: `feat/extendable-offer-tables-forms`
 - **Current version**: `2.2.0-rc.1`
 - **Standard startup path**: `bun install && bun run dev`
 - **Standard verification path**: `bun run build`, `bun run lint` (oxlint),
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
+
+## Session — Extendable offer tables, grid and form fields (2026-10-26), branch `feat/extendable-offer-tables-forms`
+
+Panel extensions can now hide, replace, and add columns and fields beyond list pages, reusing the existing
+custom-fields keys (no new config keys). `list` takes an optional `zone` and may be an array; `useExtendableTable`
+takes `zone` (default `"list"`). `forms[].fields` keyed by a built-in id overrides it (`null` hides), through the
+new `<ExtendableFormField>` and, for spreadsheet tabs, `useExtendableGrid` (cells come from the panel via
+`createDataGridExtensionColumn`). Wired on offers: vendor `variants` / `create-catalogue` tables, the create
+stock-and-prices grid, the edit drawer; admin `variants` / `inventory` tables. Core: `POST /vendor/offers/batch`
+items accept `additional_data`, surfaced on `offersCreated` as `offers_additional_data` keyed by offer id.
+Generators emit `listZones`, `listColumnIds`, `formFieldIds`. Tests: registry + grid unit specs (32 pass), SDK type
+test, `offer/vendor` integration suites 7/7 (62 tests). `bun run build` green (13/13). Other pages still use
+list-only extensions; follow the offer wiring to migrate them.
+
+Follow-up (same day): product create (both panels) takes per-tab added fields, built-in overrides (title, subtitle,
+handle, description, media, discountable, category/collection/type, tags; admin also sellers + global availability)
+and an extendable variants grid. `POST /vendor|admin/products` variants accept `additional_data`, surfaced on
+`productsCreated` as `variants_additional_data` keyed by variant id (the variant batch route still rejects it).
+Untabbed `forms` fields now render on the first tab only and never become spreadsheet columns (`exactTab`), which also
+fixes the create-offer grid. Vendor offer grids: `edit-price` takes added columns (saved via `offersUpdated`);
+`edit-stock`, `pricing`, `inventory-batch` take overrides only (`allowAdd: false`). Vendor offer `inventory` table,
+inventory detail `location-levels` / reservations `inventory-item` tables in both panels. Generator follows
+`use-*-columns` imports and resolves constant zones. Tests: shared 37, SDK types, variant-sync specs, integration
+11 suites (103 pass). Build green.
+
+Unrelated finding, not fixed: the batch route drops `condition_id` when mapping items, though the validator
+accepts it and the create form sends it. The admin `ProductCreateAttributeSection` (dimensions) is never rendered.
+
+Follow-up 2: detail-page tables in both panels take `list` blocks: `product` `variants`, `collection` `products`,
+`category` `products` (select stays first, actions last; collection/category also merge extension filters). Generator
+now follows `@<dir>/` alias column imports, so vendor list pages (product, order, customer, promotion, campaign,
+payout, collection) finally get `listColumnIds`. Example configs in `apps/vendor/src/custom-fields` (offer, product,
+collection, category) plus an `offersCreated` logging hook in `apps/api`. Generator specs 10/10 per panel, build green.
+Known gap (pre-existing, all tables): added list filters render in the menu but their keys are not forwarded to the
+API query, because each `use*TableQuery` reads a fixed key list. Not browser-verified.
+
+## Session — Magento integration gaps in core (2026-10-23), branch `fix/magento-integration-gaps`
+
+Running the Magento connector against a live API (see the connector PRs #2–#5) exposed core behaviour the
+integration had to work around. Fixed here: `POST /store/carts` now ignores an empty `currency_code` instead of
+storing it and failing every later price calculation; the cart completion response lists the order group's child
+`orders` with `display_id`, `status` and `seller`; an admin product created or updated as `published` emits
+`product.published` (previously only `/confirm` did, so webhook subscribers never saw admin-published products);
+`createOffersWorkflow` refuses offers on products restricted to other sellers or rejected
+(`validateOfferProductsStep`); `GET /admin/products?sku=` filters variants instead of 500ing on `Product.sku`;
+the plugin's event list drops `order.shipment_created`, which nothing emits. Tests: new
+`product/admin/product-publish-and-sku.spec.ts`, three cases in `offer/vendor/offer.spec.ts`, one each in
+`offer/cart/cart.spec.ts` and `offer/order/order.spec.ts`. `bun run build` green (13/13).
+
+## Session — Magento connector hardening sweep (2026-10-22), branches `feat/magento-external-payment-capture` (this repo) + `feat/checkout-orders-indexer-platform` (magento2-connector)
 
 ## Session — Stripe connector (2026-10-22), branch `feat/stripe-connector`, worktree `~/Desktop/mercur-stripe-connector`
 

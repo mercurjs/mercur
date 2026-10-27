@@ -1,0 +1,150 @@
+---
+title: "Storefront"
+sidebarTitle: "Storefront"
+description: "What shoppers see on the product page, in the cart, at checkout, on seller pages and in their account, and how a headless storefront does the same through GraphQL and REST."
+---
+
+The connector adds marketplace behavior to Magento's own storefront: Luma and any theme built on its layouts. A headless storefront gets the same through GraphQL. Your own products look and sell exactly as before.
+
+## Product page
+
+Under the add-to-cart button, an **Also sold by** block lists every way to buy the product on this website:
+
+- **Your own stock**, labelled with **Label for your own stock** ("Sold by us" by default), when you can sell it
+- **Each seller offer**, cheapest first, with the seller's name linked to their page, a **Premium seller** badge, the price with a strike-through when a Mercur price list lowers it, quantity tiers ("Buy 10+ for €8.50 each"), the condition and an estimated delivery date
+
+The way the [best offer rule](/resources/integrations/magento2/catalog-and-offers#the-buy-box) picks is marked **Best offer**. Each row has its own add-to-cart button. The main add-to-cart button buys your own stock, or the best offer when you can't sell the product.
+
+On a configurable product, choosing options or swatches filters the block down to the selected variant's offers.
+
+Category pages and search results show the best price for each product, or "From" the lowest price when there are several ways to buy. Products you've run out of stay listed while a seller has stock.
+
+## Cart and checkout
+
+Seller lines carry **Sold by** with the seller's name, on the cart, the order, the invoice and in emails. Magento's cart price rules never discount them, and a rule's subtotal or quantity conditions count your own lines only.
+
+The cart and the shipping step of checkout group seller lines by seller. Each group shows the seller's shipping options with their price and estimated delivery, and the shopper picks one per seller. The cheapest is selected until they do. The totals show:
+
+| Total | Contains |
+| --- | --- |
+| Shipping | Your own carriers, for your own lines only |
+| Seller shipping | The sum of each seller's chosen option, taxed with your shipping tax class |
+
+A cart with seller lines only offers a single method, **Shipped by the sellers**, at no extra charge.
+
+Before totals are collected, every seller line is checked against the mirror:
+
+| The offer… | The shopper sees |
+| --- | --- |
+| was withdrawn | The line is removed with a notice, or kept with an error that blocks checkout when **Remove unavailable seller lines automatically** is off |
+| no longer has enough stock | `{Seller} can only ship {n} of this item.` on the line |
+| changed price | The line is repriced, with `The price of {product} changed to {price}.` |
+
+If seller shipping can't be quoted, checkout shows "Marketplace shipping could not be quoted. Please try again." and the order can't be placed until it can, from the storefront, REST or GraphQL.
+
+## Delivery estimates
+
+Each offer and each seller group in the cart shows `Arrives {date}` or `Arrives {from} – {to}`:
+
+1. Start today, or the next business day when today isn't one or it's past the **Order cut-off time** in the store's timezone.
+2. Add the seller's lead time in business days: the offer's, or the seller's default. In the cart, the longest lead time of the seller's lines counts.
+3. Add the minimum and maximum transit days in business days: the chosen shipping option's `data.transit_days_min` and `data.transit_days_max`, or the configured defaults.
+
+There is no holiday calendar.
+
+## Seller pages
+
+Every seller that is selling has a page at `/seller/{handle}`, with their banner, logo, premium badge, location, "Selling since" date, description and up to 60 of their products at their lowest price. A seller that is suspended, closed or unknown returns a 404.
+
+## Customer account
+
+The order view in **My Orders** adds a **Sellers** table: one row per seller with their items, shipping, status and tracking links. The status follows the seller order in Mercur:
+
+| Status | Shown as |
+| --- | --- |
+| `not_fulfilled` | Processing |
+| `fulfilled` | Preparing |
+| `partially_shipped` | Partially shipped |
+| `shipped` | Shipped |
+| `delivered` | Delivered |
+| `return_requested` | Return requested |
+| `returned` | Returned |
+| `canceled` | Canceled |
+| `refused` | Refused by seller |
+
+## GraphQL
+
+`Mercur_GraphQl` extends Magento's schema. The full list is in the [reference](/resources/integrations/magento2/reference#graphql).
+
+Read a product's offers and buy box:
+
+```graphql
+{
+  products(filter: { sku: { eq: "MB01" } }) {
+    items {
+      sku
+      mercur_buy_box { best_offer_id best_price offer_count operator_available }
+      mercur_offers {
+        id
+        price
+        origin_price
+        price_ranges { min_quantity amount }
+        seller { name handle url premium }
+        estimated_delivery { from to }
+        is_best
+      }
+    }
+  }
+}
+```
+
+Add a line from a seller offer by passing `mercur_offer_id` on the cart item. Without it, the line buys your own stock:
+
+```graphql
+mutation {
+  addProductsToCart(
+    cartId: "4JQaNVJokOpFxrykGVvYrjhiNv9qt31C"
+    cartItems: [{ sku: "MB01", quantity: 1, mercur_offer_id: "offer_01J9..." }]
+  ) {
+    cart { items { uid mercur_offer { offer_id seller { name } } } }
+  }
+}
+```
+
+Read the seller groups and pick shipping per seller:
+
+```graphql
+mutation {
+  setMercurShippingMethods(input: {
+    cart_id: "4JQaNVJokOpFxrykGVvYrjhiNv9qt31C"
+    shipping_methods: [{ seller_id: "sel_01J9...", option_id: "so_01J9..." }]
+  }) {
+    cart {
+      mercur_sellers {
+        seller { name }
+        shipping_options { id name amount selected estimated_delivery { from to } }
+      }
+      prices { mercur_shipping { value currency } }
+    }
+  }
+}
+```
+
+Load a seller page with `mercurSeller(handle: "...")`, and a line's seller and marketplace status with `mercur` on order items.
+
+## REST
+
+There are no new REST routes. To buy from a seller through the REST cart API, pass the offer id as an extension attribute of the item's product option:
+
+```json
+{
+  "cartItem": {
+    "quote_id": "4JQaNVJokOpFxrykGVvYrjhiNv9qt31C",
+    "sku": "MB01",
+    "qty": 1,
+    "product_option": {
+      "extension_attributes": { "mercur_offer_id": "offer_01J9..." }
+    }
+  }
+}
+```

@@ -21,7 +21,6 @@ export const MAGENTO_WEBHOOK_EVENTS = [
   "order.canceled",
   "order.fulfillment_created",
   "order.fulfillment_canceled",
-  "order.shipment_created",
   "shipment.created",
   "delivery.created",
   "order.return_requested",

@@ -50,7 +50,13 @@ export const POST = async (
   )
 
   const { result } = await createOffersWorkflow(req.scope).run({
-    input: { offers, additional_data },
+    input: {
+      offers,
+      additional_data,
+      offers_additional_data: req.validatedBody.offers.map(
+        (o) => o.additional_data
+      ),
+    },
   })
 
   const offerIds = result.map((o) => o.id)

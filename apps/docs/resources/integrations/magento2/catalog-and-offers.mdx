@@ -1,0 +1,137 @@
+---
+title: "Catalog and offers"
+sidebarTitle: "Catalog and offers"
+description: "How sellers and offers reach Magento, how a SKU's buy box is decided, and how products move between the two catalogs in both directions."
+---
+
+Magento and Mercur each keep a catalog. Yours lives in Magento. Sellers' products, and the offers that let sellers sell your products, live in Mercur. The connector moves exactly what each side needs: offers and seller products flow into Magento, and your taxonomy and, optionally, your products flow into Mercur.
+
+| Flow | Direction | Task | Triggered by |
+| --- | --- | --- | --- |
+| Sellers | Mercur → Magento | `sellers` | `seller.*` webhooks, every 15 minutes |
+| Offers and their prices | Mercur → Magento | `offers` | `offer.*` webhooks, every 5 minutes |
+| Seller products | Mercur → Magento | `products` | `product.published` webhook, hourly |
+| Categories and attributes | Magento → Mercur | `taxonomy` | Saving a category or attribute, the full resync, the CLI |
+| Your products | Magento → Mercur | `product_push` | Saving or deleting a product, every hour at :30, when it's on |
+
+## Sellers
+
+The seller mirror holds what the storefront shows about a seller: name, handle, description, logo, banner, city, country, premium flag, default lead time and closure window. It's listed under **Mercur → Sellers** in the Magento admin.
+
+A seller's offers are sellable only while the seller is `open` and not inside its `closed_from`–`closed_to` window. When a seller is suspended, terminated or deleted, the `seller.*` webhook triggers a seller sync, which turns their offers off and reindexes the SKUs they sold. When they're reopened, the offers come back the same way.
+
+<Note>
+  The closure window is checked when the seller syncs. A window that starts or ends without any change to the seller takes effect at the next full resync, 02:00 by default.
+</Note>
+
+Each selling seller also gets a [seller page](/resources/integrations/magento2/storefront#seller-pages).
+
+## Offers
+
+An offer is one seller's way to sell one variant. The offer mirror, under **Mercur → Offers**, carries:
+
+- **The product SKU it sells**, which is how Magento finds the product page to show it on
+- **The seller's own SKU**, condition and lead time
+- **Stock**: the stocked minus reserved quantity across the seller's locations. An offer that doesn't manage inventory or allows backorders is always available
+- **A price per website**, read from the Store API in that website's region, so Mercur price lists, quantity tiers and currency all apply. When a price list lowers the price, the original price is kept for a strike-through
+
+### Matching offers to your products
+
+An offer lands on the Magento product whose SKU equals the Mercur variant SKU. When your SKUs differ from the ones sellers use, match on a barcode instead:
+
+1. Choose the attributes that hold your EAN, UPC or GTIN under **Mercur → Marketplace → Offers → Identifier attributes**.
+2. Run a full offer sync: `bin/magento mercur:sync offers --full`.
+
+An offer whose SKU is unknown to Magento is then attached to the product whose identifier matches the offer's EAN or UPC, or its variant's EAN, UPC or barcode. Numeric codes are compared without leading zeros, so a 12-digit UPC matches the same EAN-13 written with a leading `0`. The offer sync output reports how many offers were matched by identifier.
+
+## The buy box
+
+For every SKU and website, the `mercur_offer_product` indexer decides which way to buy is preselected. The candidates are:
+
+- **Your own stock**, when the product has a price and is salable in Magento
+- **Every available offer** of an open seller with a price on that website
+
+The **Best offer rule** picks among them:
+
+| Rule | Preselects |
+| --- | --- |
+| Lowest total price | The lowest unit price, yours or a seller's |
+| Our own stock first | Your stock whenever it's in stock, then the cheapest offer |
+| Premium sellers first | Offers from premium sellers, then the cheapest |
+
+<Note>
+  The rule compares unit prices. Seller shipping isn't known until checkout, so it isn't part of the comparison.
+</Note>
+
+A configurable product rolls up from its children: the cheapest child's best offer, the lowest and highest price across children, and the total offer count. Category pages and search results show the best price, or "From" the lowest one when there are several ways to buy.
+
+The index reindexes the touched SKUs after every offer and seller sync, and a SKU when you save its product. Rebuild it by hand with `bin/magento indexer:reindex mercur_offer_product`.
+
+## Your products, seller products, or both
+
+| Situation | What the shopper gets |
+| --- | --- |
+| A product only you sell | A normal Magento product: your price, your stock, your carriers |
+| A product only sellers sell | A product imported from Mercur. It's in stock while any offer is available, and every line is a seller line |
+| A product you and sellers sell | One product page and one buy box. When you run out, the product stays buyable from sellers and stays visible in categories and search |
+
+## Importing seller products
+
+When a product a seller created is published in Mercur, the connector creates it in Magento so it can be shown and sold. Turn this off with **Import published seller products**.
+
+The workflow starts when Mercur emits `product.published`, or on the hourly schedule.
+
+1. The `products` task reads published products changed since its last run, with their variants, options and images.
+2. Products that Magento pushed itself are skipped. Their source product is already here.
+3. Each variant is matched by SKU, then by identifier. A variant that matches one of your own products isn't imported: the offers attach to your product instead.
+4. A product with two or more variants and global variant axes becomes a **configurable product**. The connector creates any missing axis attribute in the **Marketplace** attribute group, and each variant becomes a child that is Not Visible Individually. Otherwise every variant becomes a standalone simple product.
+5. Name, description, websites, visibility and attribute values are written at the default scope. A global Mercur attribute whose handle matches a Magento attribute code is written to that attribute, and its options are created when missing. Everything else is kept as JSON in **Seller attributes** (`mercur_scoped_attributes`).
+6. Images are downloaded into the media gallery when **Import product images** is on. The first one gets the base, small and thumbnail roles unless you already set them. Each image is named after a hash of its source URL, so a later run adds new images, removes ones Mercur dropped and leaves images you added in Magento untouched.
+7. Stock follows the offers. An imported product is in stock while any offer for it is available on a selling website.
+
+Imported products carry **Imported from Mercur** (`mercur_product`), their Mercur product and variant ids, and are never pushed back. Their price in Magento is `0`, because every line is priced from the offer the shopper picks.
+
+When a product is rejected in Mercur, the `product.rejected` webhook disables it in Magento. It isn't deleted, so past orders keep their product.
+
+<Tip>
+  A product whose variant axis is product-scoped (an inline attribute in Mercur) has no Magento attribute to configure on, so its variants are imported as simple products. The process output says so. Use a global attribute as the axis to get a configurable.
+</Tip>
+
+## Pushing your taxonomy
+
+Sellers create products in your categories and with your attributes, so Mercur needs both. The `taxonomy` task pushes:
+
+- **Categories** below the root, in tree order. Each is matched by handle, the slug of its URL key. Name, description, active flag, position and parent are kept in sync, and the Magento id and path are stored in `metadata`.
+- **Attributes** in the **Marketplace** attribute group of the configured attribute set. Each becomes a global Mercur attribute with the attribute code as its handle, and its options become values. On later runs, missing values are added.
+
+Magento input types map to Mercur attribute types:
+
+| Magento | Mercur |
+| --- | --- |
+| Dropdown | `single_select` |
+| Multiple select | `multi_select` |
+| Yes/No | `toggle` |
+| Text field, text area | `text` |
+| Price, weight | `unit` |
+| A global dropdown used by configurables | `multi_select`, as a variant axis |
+
+Saving a category or an attribute queues a taxonomy push. Run it by hand with `bin/magento mercur:sync taxonomy`.
+
+## Pushing your products
+
+Sellers can only make offers on products that exist in Mercur. With **Push operator products** on, the connector creates your Magento products in Mercur so sellers can list offers against them.
+
+The workflow starts when you save a product, or on the hourly schedule.
+
+1. The `product_push` task reads simple, virtual and configurable products changed since its last run. A child of a configurable is pushed through its parent, so one Mercur product carries all its variants.
+2. Each product is looked up in Mercur by variant SKU. If a seller's product already uses the SKU, it's left alone and the output says so.
+3. A new product is created with its title, description, URL key as handle, weight, images, categories and marketplace attributes. Its status is `published` when the Magento product is enabled, `draft` otherwise. Its `metadata.source` is `magento`, with the Magento id and SKU.
+4. An existing product pushed earlier is updated, and new variants are added.
+
+Prices and stock aren't pushed. You keep selling your own stock through Magento, and sellers attach their own price and stock through offers.
+
+Deleting a product in Magento moves its Mercur product back to `draft`. It isn't deleted, so existing offers and past orders keep their variant.
+
+<Warning>
+  Push your taxonomy before your products. A product's categories and attributes are linked to their Mercur counterparts, and the push can't link what doesn't exist yet. The full resync runs `taxonomy` before `product_push` for this reason.
+</Warning>

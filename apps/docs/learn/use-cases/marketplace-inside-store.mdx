@@ -1,0 +1,80 @@
+---
+title: "Add a marketplace to your store"
+sidebarTitle: "Marketplace inside a store"
+description: "Sell third-party seller offers next to your own products in a store you already run, such as Magento 2. Your store keeps the storefront, cart, checkout and payment; Mercur runs the sellers, their offers, one order per seller, commissions and payouts."
+---
+
+You already sell your own products on a platform such as Magento 2 or Adobe Commerce, and you want third-party sellers on the same product page and in the same checkout, without moving your catalog or your payments. Your store stays the storefront. Mercur becomes the marketplace layer behind it: sellers log into the vendor panel to list offers against your products and ship their orders, and a connector keeps the two systems in step.
+
+<Card title="Magento 2 integration" icon="store" href="/resources/integrations/magento2/overview">
+  Install the Mercur plugin and the Magento connector, connect the two stores, run the first sync and place a mixed first-party and seller order.
+</Card>
+
+<img className="block dark:hidden" src="/images/figures/use-case-hybrid-light.svg" alt="A product page in your own store lists your warehouse next to two seller offers from ACME and GLOBEX. A wire leads from the seller rows to a Mercur order group with one order per seller; your own line never leaves your store." />
+<img className="hidden dark:block" src="/images/figures/use-case-hybrid-dark.svg" alt="A product page in your own store lists your warehouse next to two seller offers from ACME and GLOBEX. A wire leads from the seller rows to a Mercur order group with one order per seller; your own line never leaves your store." />
+
+## See it in action
+
+A demo of the Magento 2 connector running a marketplace inside a Magento store.
+
+<Frame>
+  <iframe
+    className="w-full aspect-video rounded-xl"
+    src="https://www.youtube.com/embed/aDb_Qx37z70"
+    title="Magento 2 Connector for Mercur"
+    frameBorder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowFullScreen
+  ></iframe>
+</Frame>
+
+## Use cases
+
+<CardGroup cols={2}>
+  <Card title="Sell seller offers next to your stock" icon="store" href="/resources/integrations/magento2/overview">
+    Seller offers appear in a buy box on your product page; your own stock stays one of the candidates and sells exactly as before.
+  </Card>
+  <Card title="Let sellers compete on your SKUs" icon="tags" href="/platform/offer/overview">
+    Push your catalog to Mercur so sellers can offer on it, and match their offers to your products by SKU or EAN.
+  </Card>
+  <Card title="Keep checkout and payment where they are" icon="cart-shopping" href="/resources/integrations/magento2/architecture#anatomy-of-a-checkout">
+    The shopper pays once in your store. Seller lines are mirrored into Mercur and captured only after your invoice is paid.
+  </Card>
+  <Card title="Split per seller, commission and pay out" icon="money-bill-transfer" href="/platform/order-group/overview">
+    Each order becomes one Mercur order per seller with its commission lines; sellers ship from the vendor panel and are paid out by Mercur.
+  </Card>
+</CardGroup>
+
+## What is a marketplace inside a store?
+
+A hybrid marketplace is a first-party store that also sells other sellers' stock. The operator keeps selling their own products with their own prices, warehouses and carriers; sellers compete on the same products with their own offers. The shopper never notices a second system: one product page, one cart, one payment. Only fulfillment is split, because each seller ships what they sold.
+
+## Why keep your store
+
+A store that is live has a storefront, a theme, integrations, a payment provider, carriers and an order history that nobody wants to migrate. Replacing it to add sellers trades a working system for a project. Keeping it means the marketplace is an addition: your catalog, checkout and payments are untouched, and Mercur only takes the parts a single-store platform does not have — seller accounts and teams, offers, order splitting, commissions and payouts.
+
+## How Mercur does it
+
+| Concern | Your store | Mercur |
+| --- | --- | --- |
+| Catalog, prices, stock of your own products | ✔ | |
+| Storefront, cart, checkout, payment capture | ✔ | |
+| Sellers, their offers, their panel | | ✔ |
+| One order per seller, commissions, payouts | | ✔ |
+
+The integration has two halves. A plugin on the Mercur API, [`@mercurjs/magento2-connector-plugin`](/resources/integrations/magento2/overview), adds outbound webhooks, an external payment provider and the admin routes the connector needs. A Composer package of Magento modules, [`mercurjs/magento2-connector`](https://github.com/mercurjs/magento2-connector), does the rest:
+
+- **Mercur → your store:** sellers, their offers with prices per website and stock, and published seller products imported as configurable products with images. Webhooks trigger a delta sync; cron is the floor.
+- **Your store → Mercur:** your attribute and category taxonomy, optionally your own products so sellers can offer on them, and every order with seller lines once it reaches a configured status.
+- **Orders:** the order is placed in your store first, created in Mercur with the payment authorized, captured when the invoice is paid, and shipped by each seller from the [vendor panel](/user-guide/vendor/orders/overview). Seller shipments come back as shipments with tracking; refunds and cancellations flow both ways.
+
+Sellers use the same vendor panel and the same [Offer](/platform/offer/overview), [Order Group](/platform/order-group/overview), [Commission](/platform/commission/overview) and [Payout](/platform/payout/overview) modules as a standalone marketplace. Magento 2 is the storefront platform supported today; the same split applies to any platform that can mirror offers and call the Store API during checkout.
+
+<CardGroup cols={2}>
+  <Card title="Magento 2 integration" icon="store" href="/resources/integrations/magento2/overview">
+    The setup guide: plugin, connector, configuration, first sync.
+  </Card>
+  <Card title="Standalone marketplace" icon="arrow-right-arrow-left" href="/learn/use-cases/standalone-marketplace">
+    No store yet? Run the whole marketplace on Mercur instead.
+  </Card>
+</CardGroup>
