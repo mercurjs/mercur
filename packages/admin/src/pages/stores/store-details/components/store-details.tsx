@@ -26,6 +26,7 @@ import { StoreMembersSection } from "./store-members-section";
 import { StoreRequestSection } from "./store-request-section";
 import { StoreOrdersSection } from "./store-orders-section";
 import { StoreOffersSection } from "./store-offers-section";
+import { PayoutsSection } from "../../../payouts/common/components/payouts-section";
 import {
   StoreDetailHeader,
   StoreDetailTitle,
@@ -133,6 +134,21 @@ const Root = ({ children }: { children?: ReactNode }) => {
             id: "offers",
             label: t("offers.domain"),
             content: <StoreOffersSection sellerId={seller.id} />,
+          },
+        ]
+      : []),
+    ...(can("payouts")
+      ? [
+          {
+            id: "payouts",
+            label: t("payouts.domain"),
+            content: (
+              <PayoutsSection
+                scope={{ seller_id: seller.id }}
+                prefix="store-payouts"
+                data-testid="store-payouts-section"
+              />
+            ),
           },
         ]
       : []),

@@ -1,3 +1,4 @@
+import { CurrencyDollar } from "@medusajs/icons"
 import { Container, Heading } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
 import { useMemo } from "react"
@@ -9,25 +10,30 @@ import { usePayoutTableColumns } from "../../../../hooks/table/columns/use-payou
 import { usePayoutTableFilters } from "../../../../hooks/table/filters/use-payout-table-filters"
 import { usePayoutTableQuery } from "../../../../hooks/table/query/use-payout-table-query"
 import { useDataTable } from "../../../../hooks/use-data-table"
-import { AdminPayoutAccount } from "../../../../lib/payouts"
 
-const PREFIX = "pacpay"
 const PAGE_SIZE = 10
 
-export const PayoutAccountPayoutsSection = ({
-  account,
-}: {
-  account: AdminPayoutAccount
-}) => {
+type PayoutsSectionProps = {
+  /** Narrows the payouts to one payout account or one store; the Store column and filter drop out. */
+  scope: { account_id: string } | { seller_id: string }
+  prefix: string
+  "data-testid"?: string
+}
+
+export const PayoutsSection = ({
+  scope,
+  prefix,
+  "data-testid": testId = "payouts-section",
+}: PayoutsSectionProps) => {
   const { t } = useTranslation()
 
   const { searchParams, raw } = usePayoutTableQuery({
-    prefix: PREFIX,
+    prefix,
     pageSize: PAGE_SIZE,
   })
 
   const { payouts, count, isError, error, isLoading } = usePayouts(
-    { ...searchParams, account_id: account.id },
+    { ...searchParams, ...scope },
     { placeholderData: keepPreviousData }
   )
 
@@ -47,7 +53,7 @@ export const PayoutAccountPayoutsSection = ({
     getRowId: (row) => row.id,
     count: count ?? 0,
     pageSize: PAGE_SIZE,
-    prefix: PREFIX,
+    prefix,
   })
 
   if (isError) {
@@ -55,9 +61,11 @@ export const PayoutAccountPayoutsSection = ({
   }
 
   return (
-    <Container className="divide-y p-0" data-testid="payout-account-payouts-section">
+    <Container className="divide-y p-0" data-testid={testId}>
       <div className="flex items-center justify-between px-6 py-4">
-        <Heading level="h2">{t("payouts.domain")}</Heading>
+        <Heading level="h2" data-testid={`${testId}-heading`}>
+          {t("payouts.domain")}
+        </Heading>
       </div>
       <_DataTable
         columns={columns}
@@ -75,9 +83,10 @@ export const PayoutAccountPayoutsSection = ({
         ]}
         defaultOrder="-created_at"
         queryObject={raw}
-        prefix={PREFIX}
+        prefix={prefix}
         noRecords={{
           message: t("payouts.list.empty"),
+          icon: <CurrencyDollar className="text-ui-fg-subtle" />,
         }}
       />
     </Container>
