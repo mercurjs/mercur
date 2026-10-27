@@ -10,6 +10,7 @@ import { CategoryIconSection } from "./components/category-icon-section"
 import { CategoryMediaSection } from "./components/category-media-section"
 import { CategoryOrganizeSection } from "./components/category-organize-section"
 import { CategoryProductSection } from "./components/category-product-section"
+import { CategoryShippingSection } from "./components/category-shipping-section"
 import { categoryLoader } from "./loader"
 
 const Root = ({ children }: { children?: ReactNode }) => {
@@ -63,6 +64,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
       <TwoColumnPage.Sidebar>
         <WidgetZone id="categories.detail.side" data={product_category}>
           <CategoryOrganizeSection category={product_category} />
+          <CategoryShippingSection category={product_category} />
         </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
@@ -77,4 +79,5 @@ export const CategoryDetailPage = Object.assign(Root, {
   MainIconSection: CategoryIconSection,
   MainProductSection: CategoryProductSection,
   SidebarOrganizeSection: CategoryOrganizeSection,
+  SidebarShippingSection: CategoryShippingSection,
 })

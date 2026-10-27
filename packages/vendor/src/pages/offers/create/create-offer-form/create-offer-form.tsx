@@ -243,14 +243,6 @@ export const CreateOfferForm = () => {
         skuSeen.set(sku, i);
       }
 
-      if (!row.shipping_profile_id) {
-        form.setError(`variants.${i}.shipping_profile_id`, {
-          type: "manual",
-          message: t("offers.validation.shippingProfileRequired"),
-        });
-        hasValidationError = true;
-      }
-
       rows.push({ row, index: i, sku });
     }
 
@@ -296,7 +288,9 @@ export const CreateOfferForm = () => {
       return {
         sku,
         variant_id: row.variant_id,
-        shipping_profile_id: row.shipping_profile_id,
+        ...(row.shipping_profile_id
+          ? { shipping_profile_id: row.shipping_profile_id }
+          : {}),
         ...(row.condition_id ? { condition_id: row.condition_id } : {}),
         ...(row.leadtime_to_ship !== "" && row.leadtime_to_ship !== undefined
           ? { leadtime_to_ship: Number(row.leadtime_to_ship) }

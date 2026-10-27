@@ -70,7 +70,7 @@ const AdminCreateOffersBatchItem = z
   .object({
     sku: z.string().min(1),
     variant_id: z.string(),
-    shipping_profile_id: z.string(),
+    shipping_profile_id: z.string().optional(),
     prices: z.array(AdminOfferPrice).min(1),
     inventory_items: z.array(AdminOfferInventoryItem).min(1),
     ean: z.string().min(1).nullish(),

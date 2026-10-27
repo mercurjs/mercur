@@ -4403,6 +4403,51 @@
             "new"
           ],
           "additionalProperties": false
+        },
+        "shippingProfile": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "action": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "hint": {
+              "type": "string"
+            },
+            "edit": {
+              "type": "object",
+              "properties": {
+                "header": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "successToast": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "header",
+                "description",
+                "successToast"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "header",
+            "action",
+            "label",
+            "hint",
+            "edit"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -4417,7 +4462,8 @@
         "organize",
         "media",
         "icon",
-        "fields"
+        "fields",
+        "shippingProfile"
       ],
       "additionalProperties": false
     },
@@ -17040,12 +17086,132 @@
             "marketplaceDefault"
           ],
           "additionalProperties": false
+        },
+        "shipping": {
+          "type": "object",
+          "properties": {
+            "domain": {
+              "type": "string"
+            },
+            "shippingOptions": {
+              "type": "object",
+              "properties": {
+                "header": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "header"
+              ],
+              "additionalProperties": false
+            },
+            "stockLocations": {
+              "type": "object",
+              "properties": {
+                "header": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "header"
+              ],
+              "additionalProperties": false
+            },
+            "columns": {
+              "type": "object",
+              "properties": {
+                "stockLocation": {
+                  "type": "string"
+                },
+                "serviceZone": {
+                  "type": "string"
+                },
+                "shippingProfile": {
+                  "type": "string"
+                },
+                "provider": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "stockLocation",
+                "serviceZone",
+                "shippingProfile",
+                "provider",
+                "price"
+              ],
+              "additionalProperties": false
+            },
+            "actions": {
+              "type": "object",
+              "properties": {
+                "editPrices": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "editPrices"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "domain",
+            "shippingOptions",
+            "stockLocations",
+            "columns",
+            "actions"
+          ],
+          "additionalProperties": false
+        },
+        "emptyStates": {
+          "type": "object",
+          "properties": {
+            "shippingOptions": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "message"
+              ],
+              "additionalProperties": false
+            },
+            "stockLocations": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "shippingOptions",
+            "stockLocations"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
         "regions",
         "create",
-        "fields"
+        "fields",
+        "shipping",
+        "emptyStates"
       ],
       "additionalProperties": false
     },

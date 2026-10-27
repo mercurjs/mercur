@@ -1081,6 +1081,17 @@
       "new": {
         "label": "New"
       }
+    },
+    "shippingProfile": {
+      "header": "Shipping",
+      "action": "Edit default shipping profile",
+      "label": "Default shipping profile",
+      "hint": "Offers in this category that don't have a shipping profile inherit this one.",
+      "edit": {
+        "header": "Edit Default Shipping Profile",
+        "description": "Choose the shipping profile that offers in this category inherit by default.",
+        "successToast": "Default shipping profile was successfully updated."
+      }
     }
   },
   "inventory": {
@@ -4129,6 +4140,13 @@
       },
       "orders": {
         "title": "No orders yet"
+      },
+      "shippingOptions": {
+        "title": "No shipping options yet",
+        "message": "Shipping options created by this store will appear here."
+      },
+      "stockLocations": {
+        "title": "This store has no stock locations yet."
       }
     },
     "fields": {
@@ -4284,6 +4302,25 @@
       },
       "hint": "Assigned regions decide which currencies this store can price in. The default region is assigned on creation.",
       "lastRegion": "A store must stay assigned to at least one region."
+    },
+    "shipping": {
+      "domain": "Shipping",
+      "shippingOptions": {
+        "header": "Shipping options"
+      },
+      "stockLocations": {
+        "header": "Stock locations"
+      },
+      "columns": {
+        "stockLocation": "Stock location",
+        "serviceZone": "Service zone",
+        "shippingProfile": "Shipping profile",
+        "provider": "Provider",
+        "price": "Price"
+      },
+      "actions": {
+        "editPrices": "Edit prices"
+      }
     }
   },
   "messages": {

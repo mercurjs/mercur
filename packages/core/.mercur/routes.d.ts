@@ -255,6 +255,7 @@ export type Routes = {
             $id: typeof import("../src/api/admin/product-categories/[id]/route") & {
                 products: typeof import("../src/api/admin/product-categories/[id]/products/route");
                 sellers: typeof import("../src/api/admin/product-categories/[id]/sellers/route");
+                shippingProfile: typeof import("../src/api/admin/product-categories/[id]/shipping-profile/route");
             };
         };
         productChanges: {

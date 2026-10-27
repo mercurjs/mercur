@@ -350,7 +350,7 @@ declare module "@mercurjs/dashboard-sdk" {
       formZones: "create" | "edit"
       formTabs: { "create": "details" | "users" }
       formFieldIds: never
-      displayZones: "address" | "company-details" | "configuration" | "general" | "members" | "offers" | "orders" | "payment-details" | "regions" | "requests"
+      displayZones: "address" | "company-details" | "configuration" | "general" | "members" | "offers" | "orders" | "payment-details" | "regions" | "requests" | "shipping"
       displayFieldIds: "currency_code" | "description" | "email" | "handle" | "phone" | "website_url"
       listZones: "list"
       listColumnIds: "created_at" | "email" | "is_premium" | "name" | "status"

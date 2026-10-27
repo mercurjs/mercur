@@ -60,7 +60,7 @@ export interface CreateOfferDTO {
   created_by: string
   sku: string
   variant_id: string
-  shipping_profile_id: string
+  shipping_profile_id?: string
   inventory_items: CreateOfferInventoryItemDTO[]
   prices: CreateOfferPriceDTO[]
   ean?: string | null

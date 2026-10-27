@@ -332,6 +332,12 @@ export function getRouteMap({
                               import("./pages/categories/category-organize"),
                           },
                           {
+                            path: "shipping-profile",
+                            handle: { permissions: "product_categories:edit" },
+                            lazy: () =>
+                              import("./pages/categories/category-shipping-profile"),
+                          },
+                          {
                             path: "metadata/edit",
                             handle: { permissions: "product_categories:edit" },
                             lazy: () =>

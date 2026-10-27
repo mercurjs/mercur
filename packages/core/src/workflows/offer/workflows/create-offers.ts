@@ -25,6 +25,7 @@ import {
   addOfferPricesStep,
   createOffersStep,
   ensureVariantPriceSetsStep,
+  resolveOfferShippingProfilesStep,
   validateOfferConditionsStep,
   validateOfferProductsStep,
 } from "../steps"
@@ -178,9 +179,19 @@ export const createOffersWorkflow: ReturnWorkflow<
       inventory_item_ids: createdInventoryItemIds,
     })
 
+    const shippingProfileIds = resolveOfferShippingProfilesStep({
+      offers: transform({ input }, ({ input }) =>
+        input.offers.map((o) => ({
+          variant_id: o.variant_id,
+          shipping_profile_id: o.shipping_profile_id,
+        })),
+      ),
+      variants,
+    })
+
     const stripped = transform(
-      { input, variants, variantIds },
-      ({ input, variants, variantIds }) => {
+      { input, variants, variantIds, shippingProfileIds },
+      ({ input, variants, variantIds, shippingProfileIds }) => {
         const variantById = new Map(variants.map((v) => [v.id, v]))
 
         const missingVariant = variantIds.find((id) => !variantById.has(id))
@@ -191,13 +202,13 @@ export const createOffersWorkflow: ReturnWorkflow<
           )
         }
 
-        return input.offers.map((offer) => {
+        return input.offers.map((offer, idx) => {
           const variant = variantById.get(offer.variant_id)!
           return {
             seller_id: offer.seller_id,
             variant_id: offer.variant_id,
             product_id: variant.product?.id,
-            shipping_profile_id: offer.shipping_profile_id,
+            shipping_profile_id: shippingProfileIds[idx],
             sku: offer.sku,
             ean: offer.ean ?? variant.ean ?? null,
             upc: offer.upc ?? variant.upc ?? null,
