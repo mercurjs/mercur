@@ -6,6 +6,7 @@ import {
   normalizeOrderPaymentCollections,
   withCartPaymentCollectionFields,
 } from "../../../utils/split-order-payment-status"
+import { wrapOrdersWithExpectedDelivery } from "../../../utils"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -22,5 +23,8 @@ export const GET = async (
 
   normalizeOrderPaymentCollections(result as never)
 
-  res.json({ order: result as HttpTypes.StoreOrderResponse["order"] })
+  const order = result as unknown as HttpTypes.StoreOrderResponse["order"] & { id: string }
+  await wrapOrdersWithExpectedDelivery(req, [order])
+
+  res.json({ order })
 }

@@ -200,7 +200,7 @@ medusaIntegrationTestRunner({
         expect(await listOptions(await cartWithOffer())).toHaveLength(0)
       })
 
-      it("stores the expected delivery on the seller's order", async () => {
+      it("computes the expected delivery on the seller's order", async () => {
         const order = await completeSplitOrderCheckout({
           container: appContainer,
           api,
@@ -211,25 +211,20 @@ medusaIntegrationTestRunner({
           email: customerEmail,
         })
 
-        const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
-        const {
-          data: [stored],
-        } = await query.graph({
-          entity: "order",
-          fields: ["id", "metadata", "shipping_methods.metadata"],
-          filters: { id: order.id },
-        })
+        const { data } = await api.get(
+          `/store/orders/${order.id}`,
+          storeHeaders
+        )
 
-        const expected = computeExpectedDelivery({
-          start: new Date(),
-          leadtimeDays: 2,
-          transitMinDays: 1,
-          transitMaxDays: 3,
-        })
-        expect(stored.metadata?.expected_delivery).toEqual(expected)
-        expect(
-          (stored.shipping_methods ?? [])[0]?.metadata?.expected_delivery
-        ).toEqual(expected)
+        expect(data.order.expected_delivery).toEqual(
+          computeExpectedDelivery({
+            start: data.order.created_at,
+            leadtimeDays: 2,
+            transitMinDays: 1,
+            transitMaxDays: 3,
+          })
+        )
+        expect(data.order.metadata?.expected_delivery).toBeUndefined()
         expect(sellerId).toBeDefined()
       })
     })

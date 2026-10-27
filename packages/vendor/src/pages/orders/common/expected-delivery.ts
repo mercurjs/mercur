@@ -17,9 +17,9 @@ const asDateString = (value: unknown) =>
   typeof value === "string" && DATE_ONLY.test(value) ? value : null
 
 export const getExpectedDelivery = (
-  metadata: Record<string, unknown> | null | undefined
+  order: object | null | undefined
 ): ExpectedDelivery | null => {
-  const raw = metadata?.expected_delivery
+  const raw = order && "expected_delivery" in order ? order.expected_delivery : undefined
 
   if (!isRecord(raw)) {
     return null

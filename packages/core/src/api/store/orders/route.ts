@@ -7,6 +7,7 @@ import {
   normalizeOrderPaymentCollections,
   withCartPaymentCollectionFields,
 } from "../../utils/split-order-payment-status"
+import { wrapOrdersWithExpectedDelivery } from "../../utils/expected-delivery"
 
 // Overrides the stock Medusa route to surface the split order payment
 // collection, which lives on the cart rather than on the order link.
@@ -34,6 +35,7 @@ export const GET = async (
   const { rows, metadata } = result as { rows: OrderDTO[]; metadata: any }
 
   rows.forEach((order) => normalizeOrderPaymentCollections(order as never))
+  await wrapOrdersWithExpectedDelivery(req, rows)
 
   res.json({
     orders: rows as unknown as HttpTypes.StoreOrderListResponse["orders"],

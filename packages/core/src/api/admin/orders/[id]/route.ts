@@ -12,6 +12,7 @@ import {
 // maps a path to a single module, so it has to be re-exported here for the
 // typed client to keep seeing it.
 export { POST } from "@medusajs/medusa/api/admin/orders/[id]/route"
+import { wrapOrdersWithExpectedDelivery } from "../../../utils"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -28,5 +29,8 @@ export const GET = async (
 
   normalizeOrderPaymentCollections(result as never)
 
-  res.json({ order: result as HttpTypes.AdminOrderResponse["order"] })
+  const order = result as unknown as HttpTypes.AdminOrderResponse["order"] & { id: string }
+  await wrapOrdersWithExpectedDelivery(req, [order])
+
+  res.json({ order })
 }

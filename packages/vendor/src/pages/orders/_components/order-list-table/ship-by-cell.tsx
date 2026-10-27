@@ -12,7 +12,7 @@ import { useExpectedDeliveryFormat } from "../../common/use-expected-delivery-fo
 
 export const ShipByCell = ({ order }: { order: HttpTypes.AdminOrder }) => {
   const { formatCalendarDate } = useExpectedDeliveryFormat()
-  const delivery = getExpectedDelivery(order.metadata)
+  const delivery = getExpectedDelivery(order)
   const label = delivery ? formatCalendarDate(delivery.shipping_deadline) : null
 
   if (!delivery || !label) {

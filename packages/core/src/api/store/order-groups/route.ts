@@ -4,6 +4,7 @@ import {
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
+import { wrapOrdersWithExpectedDelivery } from "../../utils"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -22,6 +23,13 @@ export const GET = async (
     fields: req.queryConfig.fields,
     pagination: req.queryConfig.pagination,
   })
+
+  await wrapOrdersWithExpectedDelivery(
+    req,
+    (order_groups as { orders?: { id: string }[] | null }[]).flatMap(
+      (group) => group.orders ?? []
+    )
+  )
 
   res.json({
     order_groups,

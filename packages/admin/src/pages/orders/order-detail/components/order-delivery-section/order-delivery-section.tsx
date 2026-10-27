@@ -19,9 +19,9 @@ const isNullableDateString = (value: unknown): value is string | null =>
   value === null || value === undefined || isDateString(value)
 
 const getExpectedDelivery = (
-  metadata: Record<string, unknown> | null | undefined
+  order: object | null | undefined
 ): ExpectedDeliveryMetadata | null => {
-  const value = metadata?.expected_delivery
+  const value = order && "expected_delivery" in order ? order.expected_delivery : undefined
 
   if (!value || typeof value !== "object") {
     return null
@@ -55,7 +55,7 @@ export const OrderDeliverySection = ({ order }: OrderDeliverySectionProps) => {
   const { t } = useTranslation()
   const { getFullDate } = useDate()
 
-  const delivery = getExpectedDelivery(order.metadata)
+  const delivery = getExpectedDelivery(order)
 
   if (!delivery) {
     return null

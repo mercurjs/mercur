@@ -7,6 +7,7 @@ import {
   MedusaError,
 } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
+import { wrapOrdersWithExpectedDelivery } from "../../../utils"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -33,6 +34,11 @@ export const GET = async (
       `Order group with id ${req.params.id} was not found`
     )
   }
+
+  await wrapOrdersWithExpectedDelivery(
+    req,
+    (order_group as { orders?: { id: string }[] | null }).orders ?? []
+  )
 
   res.json({ order_group })
 }

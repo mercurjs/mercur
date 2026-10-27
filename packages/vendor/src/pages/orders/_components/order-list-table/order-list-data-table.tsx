@@ -66,7 +66,6 @@ export const OrderListDataTable = () => {
       "fulfillment_status",
       "total",
       "currency_code",
-      "metadata",
       "*customer",
       "*payment_collections",
     ].join(","),

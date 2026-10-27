@@ -32,19 +32,7 @@ import {
     useQueryGraphStep,
     validateCartPaymentsStep,
 } from "@medusajs/medusa/core-flows"
-import {
-    CreateOrderGroupDTO,
-    ExpectedDelivery,
-    MercurModules,
-    SellerDTO,
-} from "@mercurjs/types"
-import {
-    buildExpectedDeliveryByShippingOption,
-    DeliveryOffer,
-    DeliverySellerDefaults,
-    DeliveryShippingOption,
-    latestExpectedDelivery,
-} from "../../shipping-rule/utils"
+import { CreateOrderGroupDTO, MercurModules, SellerDTO } from "@mercurjs/types"
 import { createOrderGroupStep } from "../../order-group"
 import { OrderGroupWorkflowEvents } from "../../events"
 import {
@@ -203,15 +191,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             ] = parallelize(
                 useQueryGraphStep({
                     entity: "shipping_option",
-                    fields: [
-                        'id',
-                        "shipping_profile_id",
-                        'seller.id',
-                        "metadata",
-                        "shipping_rule.transit_min_days",
-                        "shipping_rule.transit_max_days",
-                        "shipping_rule.shipping_method.cutoff_time",
-                    ],
+                    fields: ['id', "shipping_profile_id", 'seller.id'],
                     filters: { id: cartOptionIds },
                     options: {
                         cache: {
@@ -254,51 +234,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
 
             const orderStatusResult = setOrderStatus.getResult()
 
-            const [deliveryOffers, deliverySellers, deliveryStores] = parallelize(
-                useQueryGraphStep({
-                    entity: "offer",
-                    fields: ["id", "seller_id", "leadtime_to_ship"],
-                    filters: { id: uniqueOffers },
-                }).config({ name: "fetch-offers-for-delivery" }),
-                useQueryGraphStep({
-                    entity: "seller",
-                    fields: ["id", "default_leadtime_to_ship", "closed_from", "closed_to"],
-                    filters: {
-                        id: transform({ shippingOptionsData }, ({ shippingOptionsData }) =>
-                            Array.from(
-                                new Set(
-                                    (shippingOptionsData.data as { seller?: { id: string } | null }[])
-                                        .map((option) => option.seller?.id)
-                                        .filter((id): id is string => !!id)
-                                )
-                            )
-                        ),
-                    },
-                }).config({ name: "fetch-sellers-for-delivery" }),
-                useQueryGraphStep({
-                    entity: "store",
-                    fields: ["id", "metadata"],
-                }).config({ name: "fetch-store-for-delivery" })
-            )
-
-            const expectedDeliveryByOption = transform(
-                {
-                    shippingOptions: shippingOptionsData.data,
-                    offers: deliveryOffers.data,
-                    sellers: deliverySellers.data,
-                    stores: deliveryStores.data,
-                },
-                ({ shippingOptions, offers, sellers, stores }) =>
-                    buildExpectedDeliveryByShippingOption({
-                        start: new Date(),
-                        shippingOptions: shippingOptions as unknown as DeliveryShippingOption[],
-                        offers: offers as unknown as DeliveryOffer[],
-                        sellers: sellers as unknown as DeliverySellerDefaults[],
-                        marketplaceMetadata: (stores[0] as { metadata?: Record<string, unknown> | null } | undefined)?.metadata,
-                    })
-            )
-
-            const { ordersToCreate, sellerOrdersMap, offerIdsByOrderId } = transform({ cart: cartData.data, shippingOptionsData: shippingOptionsData.data, orderStatusResult, promotionSellerIds, expectedDeliveryByOption }, ({ cart, shippingOptionsData, orderStatusResult, promotionSellerIds, expectedDeliveryByOption }) => {
+            const { ordersToCreate, sellerOrdersMap, offerIdsByOrderId } = transform({ cart: cartData.data, shippingOptionsData: shippingOptionsData.data, orderStatusResult, promotionSellerIds }, ({ cart, shippingOptionsData, orderStatusResult, promotionSellerIds }) => {
                 const statusResult = orderStatusResult as SetOrderStatusHookResult
                 const sellerIdOfPromotion = (promotionId?: string | null) =>
                     promotionId ? ((promotionSellerIds as PromotionSellerIds)[promotionId] ?? null) : null
@@ -365,14 +301,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                         return prepareLineItemData(input)
                     })
 
-                    const sellerExpectedDeliveries: ExpectedDelivery[] = []
                     const shippingMethods = sellerCartShippingMethods.map((sm) => {
-                        const expectedDelivery = sm.shipping_option_id
-                            ? expectedDeliveryByOption[sm.shipping_option_id]
-                            : undefined
-                        if (expectedDelivery) {
-                            sellerExpectedDeliveries.push(expectedDelivery)
-                        }
                         return {
                             name: sm.name,
                             description: sm.description,
@@ -380,9 +309,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                             is_tax_inclusive: sm.is_tax_inclusive,
                             shipping_option_id: sm.shipping_option_id,
                             data: sm.data,
-                            metadata: expectedDelivery
-                                ? { ...(sm.metadata ?? {}), expected_delivery: expectedDelivery }
-                                : sm.metadata,
+                            metadata: sm.metadata,
                             tax_lines: prepareTaxLinesData(sm.tax_lines ?? []),
                             adjustments: prepareAdjustmentsData(
                                 sellerAdjustments(sm.adjustments ?? [], sellerId)
@@ -449,12 +376,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                         no_notification: false,
                         items: allItems,
                         shipping_methods: shippingMethods,
-                        metadata: sellerExpectedDeliveries.length
-                            ? {
-                                  ...(cart.metadata ?? {}),
-                                  expected_delivery: latestExpectedDelivery(sellerExpectedDeliveries),
-                              }
-                            : cart.metadata,
+                        metadata: cart.metadata,
                         promo_codes: promoCodes,
                         // todo: add credit lines support for child orders
                         credit_lines: [],

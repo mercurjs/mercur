@@ -19,7 +19,7 @@ export const OrderDeliverySection = ({ order }: OrderDeliverySectionProps) => {
   const { formatCalendarDate, formatDeliveryWindow } =
     useExpectedDeliveryFormat()
 
-  const delivery = getExpectedDelivery(order.metadata)
+  const delivery = getExpectedDelivery(order)
 
   if (!delivery) {
     return null

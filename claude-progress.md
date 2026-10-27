@@ -23,7 +23,8 @@ price/transit, transit days). Vendors enable rules per stock location (`POST /ve
 composes Medusa fulfillment-set/service-zone/batch-link + seller shipping option workflows); vendor create of
 shipping options, service zones, fulfillment sets and provider links removed. Mandatory rules gate offer
 create/profile change and last-option delete. Store shipping options carry `estimated_delivery`; seller orders store
-`metadata.expected_delivery`. Tests: shipping-rules 13/13, delivery store 2/2, offer default profile 4/4, migrated
+a computed `expected_delivery` on order reads (via `wrapOrdersWithExpectedDelivery`, nothing persisted); method cut-off times;
+`/store/offers` `estimated_delivery`; offer profile clearable (`null` → category default). Tests: shipping-rules 13/13, delivery store 2/2, offer default profile 4/4, migrated
 shipping-options 29/29 and fulfillment-sets 7/7, delivery unit 6/6. Checkout-path specs blocked locally by the
 worktree awilix issue (`parentContainer[ROLL_UP_REGISTRATIONS]`), rely on CI. Open: `/store/offers` estimate,
 order-detail delivery UI, offer edit profile still required in the vendor form, zone provinces not editable in admin UI.

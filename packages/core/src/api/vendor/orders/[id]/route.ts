@@ -10,6 +10,7 @@ import {
   validateSellerOrder,
   withCartPaymentCollectionFields,
 } from "../helpers"
+import { wrapOrdersWithExpectedDelivery } from "../../../utils"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -29,5 +30,8 @@ export const GET = async (
 
   normalizeOrderPaymentCollections(result as never)
 
-  res.json({ order: result as HttpTypes.VendorOrderResponse["order"] })
+  const order = result as unknown as HttpTypes.VendorOrderResponse["order"] & { id: string }
+  await wrapOrdersWithExpectedDelivery(req, [order])
+
+  res.json({ order })
 }

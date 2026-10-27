@@ -10,6 +10,7 @@ import {
   normalizeOrderPaymentCollections,
   withCartPaymentCollectionFields,
 } from "./helpers"
+import { wrapOrdersWithExpectedDelivery } from "../../utils"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -37,6 +38,7 @@ export const GET = async (
   }
 
   rows.forEach((order) => normalizeOrderPaymentCollections(order as never))
+  await wrapOrdersWithExpectedDelivery(req, rows)
 
   res.json({
     orders: rows as unknown as HttpTypes.VendorOrderListResponse["orders"],
