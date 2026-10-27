@@ -100,12 +100,14 @@ export interface CreateOfferRowDTO {
  * Input to `updateOffersWorkflow`. Each entry is keyed by `id`; setting the
  * `prices` field replaces the offer's own prices (prices of other offers on
  * the same variant are left alone); omitting it leaves them untouched. Offer-row fields
- * (`sku`, `shipping_profile_id`, `metadata`) are partial.
+ * (`sku`, `shipping_profile_id`, `metadata`) are partial. A `null`
+ * `shipping_profile_id` re-resolves the profile from the product's categories,
+ * then the store default.
  */
 export interface UpdateOfferDTO {
   id: string
   sku?: string
-  shipping_profile_id?: string
+  shipping_profile_id?: string | null
   manage_inventory?: boolean
   allow_backorder?: boolean
   leadtime_to_ship?: number | null

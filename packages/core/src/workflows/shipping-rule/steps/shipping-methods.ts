@@ -103,6 +103,7 @@ export const updateShippingMethodsStep = createStep(
       id: prev.id,
       name: prev.name,
       description: prev.description,
+      cutoff_time: prev.cutoff_time,
       is_active: prev.is_active,
       metadata: prev.metadata ?? null,
     }))

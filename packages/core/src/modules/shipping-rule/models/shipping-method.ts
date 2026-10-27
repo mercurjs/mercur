@@ -17,6 +17,7 @@ const MarketplaceShippingMethod = model
       description: model.text().nullable(),
       provider_id: model.text(),
       shipping_option_type_id: model.text(),
+      cutoff_time: model.text().nullable(),
       is_active: model.boolean().default(true),
       metadata: model.json().nullable(),
       rules: model.hasMany(() => ShippingRule, {

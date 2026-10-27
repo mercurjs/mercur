@@ -152,6 +152,42 @@ medusaIntegrationTestRunner({
         )
       })
 
+      it("counts orders after the method's cut-off time from the next day", async () => {
+        const adminHeaders = await createScopedAdminHeaders(appContainer)
+        const { data } = await api.get("/admin/shipping-methods", adminHeaders)
+        await api.post(
+          `/admin/shipping-methods/${data.shipping_methods[0].id}`,
+          { cutoff_time: "00:00" },
+          adminHeaders
+        )
+
+        const options = await listOptions(await cartWithOffer())
+        expect(options[0].estimated_delivery).toEqual(
+          computeExpectedDelivery({
+            start: new Date(),
+            leadtimeDays: 2,
+            transitMinDays: 1,
+            transitMaxDays: 3,
+            cutoffTime: "00:00",
+          })
+        )
+      })
+
+      it("returns the fastest delivery window on store offers", async () => {
+        const { data } = await api.get(
+          `/store/offers?id=${offerId}&fields=id,estimated_delivery`,
+          storeHeaders
+        )
+        expect(data.offers[0].estimated_delivery).toEqual(
+          computeExpectedDelivery({
+            start: new Date(),
+            leadtimeDays: 2,
+            transitMinDays: 1,
+            transitMaxDays: 3,
+          })
+        )
+      })
+
       it("hides options whose rule the marketplace marked not supported", async () => {
         const adminHeaders = await createScopedAdminHeaders(appContainer)
         const { data } = await api.get("/admin/shipping-rules", adminHeaders)

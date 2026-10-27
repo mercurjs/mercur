@@ -11,6 +11,7 @@ import {
   splitComputedOfferFields,
   wrapOffersWithCalculatedPrices,
   wrapOffersWithEffectiveLeadtime,
+  wrapOffersWithEstimatedDelivery,
   wrapOffersWithInventoryQuantityForSalesChannel,
   wrapOffersWithTaxPrices,
 } from "../helpers"
@@ -22,7 +23,7 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { fields, withCalculatedPrice, withInventoryQuantity, withEffectiveLeadtime } =
+  const { fields, withCalculatedPrice, withInventoryQuantity, withEffectiveLeadtime, withEstimatedDelivery } =
     splitComputedOfferFields(req.queryConfig.fields)
 
   const {
@@ -55,6 +56,10 @@ export const GET = async (
 
   if (withEffectiveLeadtime) {
     await wrapOffersWithEffectiveLeadtime(req, offers)
+  }
+
+  if (withEstimatedDelivery) {
+    await wrapOffersWithEstimatedDelivery(req, offers)
   }
 
   res.json({ offer })

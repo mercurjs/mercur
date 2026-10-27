@@ -15,6 +15,7 @@ export type ComputeExpectedDeliveryInput = {
   transitMinDays: number | null
   transitMaxDays: number | null
   closure?: DeliveryClosure | null
+  cutoffTime?: string | null
 }
 
 type TransitValue = number | string | null | undefined
@@ -62,9 +63,22 @@ const addOpenDays = (
 
 const formatDay = (day: Date) => day.toISOString().slice(0, 10)
 
+const CUTOFF_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/
+
+const isPastCutoff = (start: Date | string, cutoffTime?: string | null) => {
+  const match = cutoffTime ? CUTOFF_PATTERN.exec(cutoffTime) : null
+  if (!match) {
+    return false
+  }
+  const at = new Date(start)
+  const minutes = at.getUTCHours() * 60 + at.getUTCMinutes()
+  return minutes >= Number(match[1]) * 60 + Number(match[2])
+}
+
 /**
  * Lead time counts business days (Monday to Friday) the seller is open; the
- * transit time counts business days only. Dates are calendar days in UTC.
+ * transit time counts business days only. Dates are calendar days in UTC, and
+ * an order at or after the method's cut-off time counts from the next day.
  */
 export const computeExpectedDelivery = ({
   start,
@@ -72,6 +86,7 @@ export const computeExpectedDelivery = ({
   transitMinDays,
   transitMaxDays,
   closure,
+  cutoffTime,
 }: ComputeExpectedDeliveryInput): ExpectedDelivery => {
   const closedFrom = closure?.closed_from ? toUtcDay(closure.closed_from) : null
   const closedTo = closure?.closed_to ? toUtcDay(closure.closed_to) : null
@@ -82,8 +97,11 @@ export const computeExpectedDelivery = ({
       day.getTime() >= closedFrom.getTime() &&
       (!closedTo || day.getTime() <= closedTo.getTime()))
 
+  const firstDay = toUtcDay(start)
   const deadline = addOpenDays(
-    toUtcDay(start),
+    isPastCutoff(start, cutoffTime)
+      ? new Date(firstDay.getTime() + DAY_MS)
+      : firstDay,
     leadtimeDays ?? 0,
     isSellerClosed
   )

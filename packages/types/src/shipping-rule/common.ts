@@ -33,6 +33,7 @@ export interface MarketplaceShippingMethodDTO {
   description: string | null
   provider_id: string
   shipping_option_type_id: string
+  cutoff_time: string | null
   is_active: boolean
   metadata: Record<string, unknown> | null
   created_at: Date
@@ -92,6 +93,7 @@ export interface CreateMarketplaceShippingMethodDTO {
   description?: string | null
   provider_id: string
   shipping_option_type_id: string
+  cutoff_time?: string | null
   is_active?: boolean
   metadata?: Record<string, unknown> | null
 }
@@ -100,6 +102,7 @@ export interface UpdateMarketplaceShippingMethodDTO {
   id: string
   name?: string
   description?: string | null
+  cutoff_time?: string | null
   is_active?: boolean
   metadata?: Record<string, unknown> | null
 }

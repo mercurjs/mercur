@@ -67,6 +67,55 @@ describe("computeExpectedDelivery", () => {
   })
 })
 
+describe("cut-off time", () => {
+  it("counts an order placed after the cut-off from the next day", () => {
+    const base = {
+      leadtimeDays: 0,
+      transitMinDays: 1,
+      transitMaxDays: 1,
+      cutoffTime: "14:00",
+    }
+    expect(
+      computeExpectedDelivery({ ...base, start: "2026-10-27T13:59:00Z" })
+    ).toEqual({
+      shipping_deadline: "2026-10-27",
+      earliest: "2026-10-28",
+      latest: "2026-10-28",
+    })
+    expect(
+      computeExpectedDelivery({ ...base, start: "2026-10-27T14:00:00Z" })
+    ).toEqual({
+      shipping_deadline: "2026-10-28",
+      earliest: "2026-10-29",
+      latest: "2026-10-29",
+    })
+  })
+
+  it("rolls a Friday order after the cut-off to Monday", () => {
+    expect(
+      computeExpectedDelivery({
+        start: "2026-10-30T18:00:00Z",
+        leadtimeDays: 0,
+        transitMinDays: null,
+        transitMaxDays: null,
+        cutoffTime: "12:00",
+      }).shipping_deadline
+    ).toEqual("2026-11-02")
+  })
+
+  it("ignores a malformed cut-off", () => {
+    expect(
+      computeExpectedDelivery({
+        start: "2026-10-27T23:00:00Z",
+        leadtimeDays: 0,
+        transitMinDays: null,
+        transitMaxDays: null,
+        cutoffTime: "25:00",
+      }).shipping_deadline
+    ).toEqual("2026-10-27")
+  })
+})
+
 describe("resolveTransitDays", () => {
   it("prefers the seller's override over the rule", () => {
     expect(

@@ -15,8 +15,12 @@ import {
 import { calculateAmountsWithTax, promiseAll } from "@medusajs/framework/utils"
 import { transformAndValidateSalesChannelIds } from "@medusajs/medusa/api/utils/middlewares/index"
 import {
+  computeExpectedDelivery,
+  ExpectedDelivery,
   getMarketplaceDefaultLeadtime,
   resolveLeadtimeToShip,
+  resolveTransitDays,
+  ShippingRuleRequirement,
 } from "@mercurjs/types"
 
 type OfferLocationLevel = {
@@ -288,6 +292,7 @@ export const splitComputedOfferFields = (fields: string[]) => {
   const withInventoryQuantity = fields.includes("inventory_quantity")
   const withInStock = fields.includes("in_stock")
   const withEffectiveLeadtime = fields.includes(EFFECTIVE_LEADTIME_FIELD)
+  const withEstimatedDelivery = fields.includes(ESTIMATED_DELIVERY_FIELD)
 
   const filteredFields = fields.filter(
     (f) =>
@@ -295,14 +300,19 @@ export const splitComputedOfferFields = (fields: string[]) => {
       !f.startsWith("calculated_price.") &&
       f !== "inventory_quantity" &&
       f !== "in_stock" &&
-      f !== EFFECTIVE_LEADTIME_FIELD
+      f !== EFFECTIVE_LEADTIME_FIELD &&
+      f !== ESTIMATED_DELIVERY_FIELD
   )
 
-  if (withEffectiveLeadtime) {
-    for (const required of ["seller_id", "leadtime_to_ship"]) {
-      if (!filteredFields.includes(required)) {
-        filteredFields.push(required)
-      }
+  const required = [
+    ...(withEffectiveLeadtime || withEstimatedDelivery
+      ? ["seller_id", "leadtime_to_ship"]
+      : []),
+    ...(withEstimatedDelivery ? ["shipping_profile_id"] : []),
+  ]
+  for (const field of required) {
+    if (!filteredFields.includes(field)) {
+      filteredFields.push(field)
     }
   }
 
@@ -311,6 +321,7 @@ export const splitComputedOfferFields = (fields: string[]) => {
     withCalculatedPrice,
     withInventoryQuantity: withInventoryQuantity || withInStock,
     withEffectiveLeadtime,
+    withEstimatedDelivery,
   }
 }
 
@@ -364,5 +375,183 @@ export const wrapOffersWithEffectiveLeadtime = async (
       offer.seller_id ? sellerDefaults.get(offer.seller_id) : null,
       marketplaceDefault
     )
+  }
+}
+
+export const ESTIMATED_DELIVERY_FIELD = "estimated_delivery"
+
+type DeliveryEstimateOffer = {
+  seller_id?: string | null
+  shipping_profile_id?: string | null
+  leadtime_to_ship?: number | null
+  estimated_delivery?: ExpectedDelivery | null
+}
+
+type EstimateShippingOption = {
+  id: string
+  metadata: Record<string, unknown> | null
+  shipping_rule?: {
+    shipping_profile_id: string
+    requirement: string
+    transit_min_days: number | null
+    transit_max_days: number | null
+    shipping_zone?: {
+      is_active: boolean
+      geo_zones?: { country_code: string }[] | null
+    } | null
+    shipping_method?: {
+      is_active: boolean
+      cutoff_time: string | null
+    } | null
+  } | null
+}
+
+type EstimateSeller = {
+  id: string
+  default_leadtime_to_ship: number | null
+  closed_from: string | null
+  closed_to: string | null
+}
+
+const sooner = (a: ExpectedDelivery, b: ExpectedDelivery) =>
+  (b.latest ?? b.earliest ?? b.shipping_deadline) <
+  (a.latest ?? a.earliest ?? a.shipping_deadline)
+
+/**
+ * Adds `estimated_delivery`: the fastest window among the seller's shipping
+ * options enabled from a marketplace rule for the offer's shipping profile,
+ * limited to zones reaching the request's country when one is known.
+ */
+export const wrapOffersWithEstimatedDelivery = async (
+  req: MedusaStoreRequest<unknown>,
+  offers: DeliveryEstimateOffer[]
+): Promise<void> => {
+  if (!offers?.length) {
+    return
+  }
+
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const sellerIds = [
+    ...new Set(offers.map((o) => o.seller_id).filter((id): id is string => !!id)),
+  ]
+  if (!sellerIds.length) {
+    offers.forEach((offer) => (offer.estimated_delivery = null))
+    return
+  }
+
+  const countryCode = (
+    ((req.pricingContext as Record<string, unknown> | undefined)
+      ?.country_code as string | undefined) ??
+    ((req.validatedQuery as Record<string, unknown> | undefined)
+      ?.country_code as string | undefined)
+  )?.toLowerCase()
+
+  const [{ data: sellers }, { data: links }, { data: stores }] =
+    await promiseAll([
+      query.graph({
+        entity: "seller",
+        fields: ["id", "default_leadtime_to_ship", "closed_from", "closed_to"],
+        filters: { id: sellerIds },
+      }),
+      query.graph({
+        entity: "shipping_option_seller",
+        fields: ["shipping_option_id", "seller_id"],
+        filters: { seller_id: sellerIds },
+      }),
+      query.graph({
+        entity: "store",
+        fields: ["id", "metadata"],
+        pagination: { take: 1 },
+      }),
+    ])
+
+  const sellerById = new Map(
+    (sellers as unknown as EstimateSeller[]).map((seller) => [seller.id, seller])
+  )
+  const sellerByOption = new Map(
+    (links as { shipping_option_id: string; seller_id: string }[]).map(
+      (link) => [link.shipping_option_id, link.seller_id]
+    )
+  )
+
+  const { data: options } = sellerByOption.size
+    ? await query.graph({
+        entity: "shipping_option",
+        fields: [
+          "id",
+          "metadata",
+          "shipping_rule.shipping_profile_id",
+          "shipping_rule.requirement",
+          "shipping_rule.transit_min_days",
+          "shipping_rule.transit_max_days",
+          "shipping_rule.shipping_zone.is_active",
+          "shipping_rule.shipping_zone.geo_zones.country_code",
+          "shipping_rule.shipping_method.is_active",
+          "shipping_rule.shipping_method.cutoff_time",
+        ],
+        filters: { id: Array.from(sellerByOption.keys()) },
+      })
+    : { data: [] }
+
+  const optionsBySellerProfile = new Map<string, EstimateShippingOption[]>()
+  for (const option of options as unknown as EstimateShippingOption[]) {
+    const rule = option.shipping_rule
+    const sellerId = sellerByOption.get(option.id)
+    if (
+      !rule ||
+      !sellerId ||
+      rule.requirement === ShippingRuleRequirement.NOT_SUPPORTED ||
+      rule.shipping_zone?.is_active === false ||
+      rule.shipping_method?.is_active === false
+    ) {
+      continue
+    }
+    if (
+      countryCode &&
+      !(rule.shipping_zone?.geo_zones ?? []).some(
+        (geo) => geo.country_code.toLowerCase() === countryCode
+      )
+    ) {
+      continue
+    }
+    const key = `${sellerId}:${rule.shipping_profile_id}`
+    const list = optionsBySellerProfile.get(key) ?? []
+    list.push(option)
+    optionsBySellerProfile.set(key, list)
+  }
+
+  const marketplaceDefault = getMarketplaceDefaultLeadtime(stores[0]?.metadata)
+  const now = new Date()
+
+  for (const offer of offers) {
+    offer.estimated_delivery = null
+    if (!offer.seller_id || !offer.shipping_profile_id) {
+      continue
+    }
+    const seller = sellerById.get(offer.seller_id)
+    const leadtime = resolveLeadtimeToShip(
+      offer.leadtime_to_ship,
+      seller?.default_leadtime_to_ship,
+      marketplaceDefault
+    )
+    for (const option of optionsBySellerProfile.get(
+      `${offer.seller_id}:${offer.shipping_profile_id}`
+    ) ?? []) {
+      const transit = resolveTransitDays(option.metadata, option.shipping_rule)
+      if (transit.min === null && transit.max === null) {
+        continue
+      }
+      const estimate = computeExpectedDelivery({
+        start: now,
+        leadtimeDays: leadtime,
+        transitMinDays: transit.min,
+        transitMaxDays: transit.max,
+        closure: seller,
+        cutoffTime: option.shipping_rule?.shipping_method?.cutoff_time,
+      })
+      if (!offer.estimated_delivery || sooner(offer.estimated_delivery, estimate)) {
+        offer.estimated_delivery = estimate
+      }
+    }
   }
 }

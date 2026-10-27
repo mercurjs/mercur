@@ -9,6 +9,7 @@ export const defaultStoreOfferFields = [
   "upc",
   "leadtime_to_ship",
   "effective_leadtime_to_ship",
+  "estimated_delivery",
   "condition_id",
   "metadata",
   "created_at",

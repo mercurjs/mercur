@@ -46,7 +46,7 @@ type GovernedShippingOption = {
         transit_min_days: number | null
         transit_max_days: number | null
         shipping_zone?: { is_active: boolean } | null
-        shipping_method?: { is_active: boolean } | null
+        shipping_method?: { is_active: boolean; cutoff_time?: string | null } | null
     } | null
 }
 
@@ -274,6 +274,7 @@ export const listSellerShippingOptionsForCartWorkflow = createWorkflow(
                 "shipping_rule.transit_max_days",
                 "shipping_rule.shipping_zone.is_active",
                 "shipping_rule.shipping_method.is_active",
+                "shipping_rule.shipping_method.cutoff_time",
             ])
         })
 
@@ -351,6 +352,7 @@ export const listSellerShippingOptionsForCartWorkflow = createWorkflow(
                                   transitMinDays: transit.min,
                                   transitMaxDays: transit.max,
                                   closure: sellerById.get(sellerId),
+                                  cutoffTime: shippingOption.shipping_rule?.shipping_method?.cutoff_time,
                               })
                             : null
                     const price = shippingOption.calculated_price

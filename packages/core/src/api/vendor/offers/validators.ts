@@ -93,7 +93,7 @@ export const VendorCreateOffer = WithAdditionalData(CreateOffer)
 const UpdateOffer = z
   .object({
     sku: z.string().min(1).optional(),
-    shipping_profile_id: z.string().min(1).optional(),
+    shipping_profile_id: z.string().min(1).nullish(),
     manage_inventory: z.boolean().optional(),
     allow_backorder: z.boolean().optional(),
     leadtime_to_ship: z.number().int().min(0).nullish(),

@@ -5,6 +5,7 @@ export const defaultAdminShippingMethodFields = [
   "description",
   "provider_id",
   "shipping_option_type_id",
+  "cutoff_time",
   "is_active",
   "metadata",
   "created_at",

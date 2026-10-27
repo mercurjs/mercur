@@ -11,7 +11,11 @@ import { AdditionalData } from "@medusajs/framework/types"
 import { emitEventStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
 import { UpdateOfferDTO, OfferDTO } from "@mercurjs/types"
 
-import { updateOffersStep, validateOfferConditionsStep } from "../steps"
+import {
+  resolveOfferShippingProfilesStep,
+  updateOffersStep,
+  validateOfferConditionsStep,
+} from "../steps"
 import { upsertOfferPricesWorkflow } from "./upsert-offer-prices"
 import { OfferWorkflowEvents } from "../../events"
 import { validateSellerMandatoryShippingRulesStep } from "../../shipping-rule/steps"
@@ -62,27 +66,78 @@ export const updateOffersWorkflow: ReturnWorkflow<
       filters: { id: offerIds },
     }).config({ name: "get-offers-before-update" })
 
+    const resetOffers = transform(
+      { input, previousOffers },
+      ({ input, previousOffers }) => {
+        const previousById = new Map(
+          (previousOffers as { id: string; variant_id: string }[]).map(
+            (offer) => [offer.id, offer],
+          ),
+        )
+        return input.offers
+          .filter((o) => o.shipping_profile_id === null && previousById.has(o.id))
+          .map((o) => ({ id: o.id, variant_id: previousById.get(o.id)!.variant_id }))
+      },
+    )
+
+    const resetProfileIds = when(
+      "reset-offer-shipping-profiles",
+      { resetOffers },
+      ({ resetOffers }) => resetOffers.length > 0,
+    ).then(() => {
+      const { data: resetVariants } = useQueryGraphStep({
+        entity: "product_variant",
+        fields: ["id", "product.id"],
+        filters: {
+          id: transform({ resetOffers }, ({ resetOffers }) =>
+            resetOffers.map((o) => o.variant_id),
+          ),
+        },
+      }).config({ name: "get-reset-offer-variants" })
+
+      return resolveOfferShippingProfilesStep({
+        offers: transform({ resetOffers }, ({ resetOffers }) =>
+          resetOffers.map((o) => ({ variant_id: o.variant_id })),
+        ),
+        variants: resetVariants,
+      }).config({ name: "resolve-reset-offer-shipping-profiles" })
+    })
+
+    const nextProfileById = transform(
+      { input, resetOffers, resetProfileIds },
+      ({ input, resetOffers, resetProfileIds }) => {
+        const next: Record<string, string> = {}
+        resetOffers.forEach((o, idx) => {
+          const resolved = resetProfileIds?.[idx]
+          if (resolved) {
+            next[o.id] = resolved
+          }
+        })
+        for (const o of input.offers) {
+          if (o.shipping_profile_id) {
+            next[o.id] = o.shipping_profile_id
+          }
+        }
+        return next
+      },
+    )
+
     validateSellerMandatoryShippingRulesStep({
       sellers: transform(
-        { input, previousOffers },
-        ({ input, previousOffers }) => {
-          const previousById = new Map(
-            (previousOffers as { id: string; seller_id: string; shipping_profile_id: string }[]).map(
-              (offer) => [offer.id, offer],
-            ),
-          )
+        { nextProfileById, previousOffers },
+        ({ nextProfileById, previousOffers }) => {
           const bySeller = new Map<string, string[]>()
-          for (const offer of input.offers) {
-            const previous = previousById.get(offer.id)
-            if (
-              !previous ||
-              !offer.shipping_profile_id ||
-              offer.shipping_profile_id === previous.shipping_profile_id
-            ) {
+          for (const previous of previousOffers as {
+            id: string
+            seller_id: string
+            shipping_profile_id: string
+          }[]) {
+            const next = nextProfileById[previous.id]
+            if (!next || next === previous.shipping_profile_id) {
               continue
             }
             const profiles = bySeller.get(previous.seller_id) ?? []
-            profiles.push(offer.shipping_profile_id)
+            profiles.push(next)
             bySeller.set(previous.seller_id, profiles)
           }
           return Array.from(bySeller, ([seller_id, shipping_profile_ids]) => ({
@@ -93,11 +148,11 @@ export const updateOffersWorkflow: ReturnWorkflow<
       ),
     })
 
-    const rowUpdates = transform(input, ({ offers }) =>
-      offers.map((o) => ({
+    const rowUpdates = transform({ input, nextProfileById }, ({ input, nextProfileById }) =>
+      input.offers.map((o) => ({
         id: o.id,
         sku: o.sku,
-        shipping_profile_id: o.shipping_profile_id,
+        shipping_profile_id: nextProfileById[o.id],
         manage_inventory: o.manage_inventory,
         allow_backorder: o.allow_backorder,
         leadtime_to_ship: o.leadtime_to_ship,

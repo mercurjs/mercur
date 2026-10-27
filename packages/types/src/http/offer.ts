@@ -35,7 +35,7 @@ export interface VendorCreateOfferReq {
  */
 export interface VendorUpdateOfferReq {
   sku?: string
-  shipping_profile_id?: string
+  shipping_profile_id?: string | null
   condition_id?: string | null
   metadata?: Record<string, unknown> | null
   prices?: UpsertOfferPriceDTO[]

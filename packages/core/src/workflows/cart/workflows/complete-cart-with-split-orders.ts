@@ -210,6 +210,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                         "metadata",
                         "shipping_rule.transit_min_days",
                         "shipping_rule.transit_max_days",
+                        "shipping_rule.shipping_method.cutoff_time",
                     ],
                     filters: { id: cartOptionIds },
                     options: {

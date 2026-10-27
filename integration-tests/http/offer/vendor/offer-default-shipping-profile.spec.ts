@@ -151,6 +151,30 @@ medusaIntegrationTestRunner({
         expect(secondOffer.shipping_profile_id).toEqual(fragile.id)
       })
 
+      it("re-resolves the category profile when an offer's profile is cleared", async () => {
+        const bulky = await createShippingProfile(appContainer, {
+          name: "Bulky",
+          type: "custom",
+        })
+        const small = await createShippingProfile(appContainer, {
+          name: "Small",
+          type: "custom",
+        })
+        const category = await createCategory("Sofas")
+        await setCategoryProfile(category.id, bulky.id)
+        const product = await createProductInCategory(category.id)
+
+        const offer = await createOffer(product.variants[0].id, small.id)
+        expect(offer.shipping_profile_id).toEqual(small.id)
+
+        const updated = await api.post(
+          `/vendor/offers/${offer.id}`,
+          { shipping_profile_id: null },
+          headers
+        )
+        expect(updated.data.offer.shipping_profile_id).toEqual(bulky.id)
+      })
+
       it("falls back to the store default shipping profile", async () => {
         const fulfillment = appContainer.resolve(Modules.FULFILLMENT)
         let [defaultProfile] = await fulfillment.listShippingProfiles({

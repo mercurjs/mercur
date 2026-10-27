@@ -13,6 +13,7 @@ export type DeliveryShippingOption = {
   shipping_rule?: {
     transit_min_days: number | null
     transit_max_days: number | null
+    shipping_method?: { cutoff_time?: string | null } | null
   } | null
 }
 
@@ -82,6 +83,7 @@ export const buildExpectedDeliveryByShippingOption = ({
       transitMinDays: transit.min,
       transitMaxDays: transit.max,
       closure: sellerById.get(sellerId),
+      cutoffTime: option.shipping_rule?.shipping_method?.cutoff_time,
     })
   }
   return result
