@@ -5,6 +5,10 @@ import { MercurModules, SellerStatus } from "@mercurjs/types"
 import { createVendorProduct } from "./create-product"
 import { createSellerUser } from "./create-seller-user"
 import { createShippingProfile } from "./create-shipping-profile"
+import {
+    createScopedAdminHeaders,
+    createShippingRuleAndEnable,
+} from "./shipping-rules"
 
 let prerequisiteCounter = 0
 
@@ -27,6 +31,10 @@ export const seedSellerOfferWithShipping = async (opts: {
     name: string
     stocked: number
     offerPrice: number
+    sellerCanEditShippingPrice?: boolean
+    transitMinDays?: number | null
+    transitMaxDays?: number | null
+    leadtimeToShip?: number | null
 }) => {
     const { container, api, salesChannelId } = opts
 
@@ -42,65 +50,26 @@ export const seedSellerOfferWithShipping = async (opts: {
         await api.post(`/vendor/stock-locations`, { name: `Warehouse${tag}` }, headers)
     ).data.stock_location
 
-    await api.post(
-        `/vendor/stock-locations/${stockLocation.id}/fulfillment-sets`,
-        { name: `FS${tag}`, type: "shipping" },
-        headers
-    )
-    const fulfillmentSet = (
-        await api.get(
-            `/vendor/stock-locations/${stockLocation.id}?fields=*fulfillment_sets`,
-            headers
-        )
-    ).data.stock_location.fulfillment_sets[0]
-    const serviceZone = (
-        await api.post(
-            `/vendor/fulfillment-sets/${fulfillmentSet.id}/service-zones`,
-            {
-                name: `SZ${tag}`,
-                geo_zones: [{ type: "country", country_code: "us" }],
-            },
-            headers
-        )
-    ).data.fulfillment_set.service_zones.find((z: any) => z.name === `SZ${tag}`)
     const shippingProfile = await createShippingProfile(container, {
         name: `SP${tag}`,
     })
 
     await api.post(
-        `/vendor/stock-locations/${stockLocation.id}/fulfillment-providers`,
-        { add: ["manual_manual"] },
-        headers
-    )
-    await api.post(
         `/vendor/stock-locations/${stockLocation.id}/sales-channels`,
         { add: [salesChannelId] },
         headers
     )
-    await api.post(
-        `/vendor/shipping-options`,
-        {
-            name: `Ship${tag}`,
-            service_zone_id: serviceZone.id,
-            shipping_profile_id: shippingProfile.id,
-            provider_id: "manual_manual",
-            price_type: "flat",
-            type: {
-                label: "Standard",
-                description: "Standard",
-                code: "standard",
-            },
-            prices: [{ currency_code: "usd", amount: 500 }],
-            rules: [
-                {
-                    attribute: "enabled_in_store",
-                    value: "true",
-                    operator: "eq",
-                },
-            ],
-        },
-        headers
-    )
+    await createShippingRuleAndEnable(api, {
+        adminHeaders: await createScopedAdminHeaders(container),
+        sellerHeaders: headers,
+        stockLocationId: stockLocation.id,
+        shippingProfileId: shippingProfile.id,
+        countryCodes: ["us"],
+        prices: [{ currency_code: "usd", amount: 500 }],
+        sellerCanEditPrice: opts.sellerCanEditShippingPrice,
+        transitMinDays: opts.transitMinDays,
+        transitMaxDays: opts.transitMaxDays,
+    })
 
     const product = await createVendorProduct(api, headers, {
         title: `Prod${tag}`,
@@ -133,6 +102,9 @@ export const seedSellerOfferWithShipping = async (opts: {
                     },
                 ],
                 prices: [{ amount: opts.offerPrice, currency_code: "usd" }],
+                ...(opts.leadtimeToShip !== undefined
+                    ? { leadtime_to_ship: opts.leadtimeToShip }
+                    : {}),
             },
             headers
         )

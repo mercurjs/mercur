@@ -116,32 +116,6 @@ export const VendorUpdateShippingOptionPriceWithRegion = z
   })
   .strict()
 
-export type VendorCreateShippingOptionType = z.infer<
-  typeof VendorCreateShippingOption
->
-export const VendorCreateShippingOption = z
-  .object({
-    name: z.string(),
-    service_zone_id: z.string(),
-    shipping_profile_id: z.string(),
-    data: z.record(z.string(), z.unknown()).optional(),
-    price_type: z.nativeEnum(ShippingOptionPriceTypeEnum),
-    provider_id: z.string(),
-    type: VendorCreateShippingOptionTypeObject.optional(),
-    type_id: z.string().optional(),
-    prices: VendorCreateShippingOptionPriceWithCurrency.or(
-      VendorCreateShippingOptionPriceWithRegion
-    ).array(),
-    rules: VendorCreateShippingOptionRule.array().optional(),
-    metadata: z.record(z.string(), z.unknown()).optional(),
-  })
-  .strict()
-  .refine((data) => isDefined(data.type_id) !== isDefined(data.type), {
-    message:
-      "Exactly one of 'type' or 'type_id' must be provided, but not both",
-    path: ["type_id", "type"],
-  })
-
 export type VendorUpdateShippingOptionType = z.infer<
   typeof VendorUpdateShippingOption
 >

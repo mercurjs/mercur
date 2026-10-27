@@ -47,3 +47,4 @@ export {
 
 export { StoreCompleteCartResponse } from "./order-group"
 export * from "./user"
+export * from "./shipping-rule"

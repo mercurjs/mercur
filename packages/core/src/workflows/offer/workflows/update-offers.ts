@@ -14,6 +14,7 @@ import { UpdateOfferDTO, OfferDTO } from "@mercurjs/types"
 import { updateOffersStep, validateOfferConditionsStep } from "../steps"
 import { upsertOfferPricesWorkflow } from "./upsert-offer-prices"
 import { OfferWorkflowEvents } from "../../events"
+import { validateSellerMandatoryShippingRulesStep } from "../../shipping-rule/steps"
 
 export type UpdateOffersWorkflowInput = {
   offers: UpdateOfferDTO[]
@@ -60,6 +61,37 @@ export const updateOffersWorkflow: ReturnWorkflow<
       fields: ["*"],
       filters: { id: offerIds },
     }).config({ name: "get-offers-before-update" })
+
+    validateSellerMandatoryShippingRulesStep({
+      sellers: transform(
+        { input, previousOffers },
+        ({ input, previousOffers }) => {
+          const previousById = new Map(
+            (previousOffers as { id: string; seller_id: string; shipping_profile_id: string }[]).map(
+              (offer) => [offer.id, offer],
+            ),
+          )
+          const bySeller = new Map<string, string[]>()
+          for (const offer of input.offers) {
+            const previous = previousById.get(offer.id)
+            if (
+              !previous ||
+              !offer.shipping_profile_id ||
+              offer.shipping_profile_id === previous.shipping_profile_id
+            ) {
+              continue
+            }
+            const profiles = bySeller.get(previous.seller_id) ?? []
+            profiles.push(offer.shipping_profile_id)
+            bySeller.set(previous.seller_id, profiles)
+          }
+          return Array.from(bySeller, ([seller_id, shipping_profile_ids]) => ({
+            seller_id,
+            shipping_profile_ids,
+          }))
+        },
+      ),
+    })
 
     const rowUpdates = transform(input, ({ offers }) =>
       offers.map((o) => ({

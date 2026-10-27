@@ -58,13 +58,3 @@ export const VendorUpdateStockLocation = z.object({
   address_id: z.string().nullish(),
   metadata: z.record(z.string(), z.unknown()).nullish(),
 })
-
-export type VendorCreateStockLocationFulfillmentSetType = z.infer<
-  typeof VendorCreateStockLocationFulfillmentSet
->
-export const VendorCreateStockLocationFulfillmentSet = z
-  .object({
-    name: z.string(),
-    type: z.string(),
-  })
-  .strict()

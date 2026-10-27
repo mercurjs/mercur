@@ -11,7 +11,6 @@ import { createLinkBody } from "@medusajs/medusa/api/utils/validators"
 import { vendorStockLocationQueryConfig } from "./query-config"
 import {
   VendorCreateStockLocation,
-  VendorCreateStockLocationFulfillmentSet,
   VendorGetStockLocationParams,
   VendorGetStockLocationsParams,
   VendorUpdateStockLocation,
@@ -77,30 +76,6 @@ export const vendorStockLocationsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["POST"],
     matcher: "/vendor/stock-locations/:id/sales-channels",
-    middlewares: [
-      requirePermission("stock_locations", "edit"),
-      validateAndTransformBody(createLinkBody()),
-      validateAndTransformQuery(
-        VendorGetStockLocationParams,
-        vendorStockLocationQueryConfig.retrieve
-      ),
-    ],
-  },
-  {
-    method: ["POST"],
-    matcher: "/vendor/stock-locations/:id/fulfillment-sets",
-    middlewares: [
-      requirePermission("stock_locations", "edit"),
-      validateAndTransformBody(VendorCreateStockLocationFulfillmentSet),
-      validateAndTransformQuery(
-        VendorGetStockLocationParams,
-        vendorStockLocationQueryConfig.retrieve
-      ),
-    ],
-  },
-  {
-    method: ["POST"],
-    matcher: "/vendor/stock-locations/:id/fulfillment-providers",
     middlewares: [
       requirePermission("stock_locations", "edit"),
       validateAndTransformBody(createLinkBody()),

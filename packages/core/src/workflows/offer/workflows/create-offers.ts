@@ -30,6 +30,7 @@ import {
   validateOfferProductsStep,
 } from "../steps"
 import { linkSellerInventoryItemStep } from "../../inventory-item/steps"
+import { validateSellerMandatoryShippingRulesStep } from "../../shipping-rule/steps"
 import { OfferWorkflowEvents } from "../../events"
 import { OFFER_PRICE_FIELDS, pickOfferPrices } from "./upsert-offer-prices"
 
@@ -187,6 +188,24 @@ export const createOffersWorkflow: ReturnWorkflow<
         })),
       ),
       variants,
+    })
+
+    validateSellerMandatoryShippingRulesStep({
+      sellers: transform(
+        { input, shippingProfileIds },
+        ({ input, shippingProfileIds }) => {
+          const bySeller = new Map<string, string[]>()
+          input.offers.forEach((offer, idx) => {
+            const profiles = bySeller.get(offer.seller_id) ?? []
+            profiles.push(shippingProfileIds[idx])
+            bySeller.set(offer.seller_id, profiles)
+          })
+          return Array.from(bySeller, ([seller_id, shipping_profile_ids]) => ({
+            seller_id,
+            shipping_profile_ids,
+          }))
+        },
+      ),
     })
 
     const stripped = transform(

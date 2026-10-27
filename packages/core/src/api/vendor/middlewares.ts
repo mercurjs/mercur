@@ -40,6 +40,7 @@ import { vendorSellersMiddlewares } from "./sellers/middlewares"
 import { vendorShippingOptionsMiddlewares } from "./shipping-options/middlewares"
 import { vendorShippingOptionTypesMiddlewares } from "./shipping-option-types/middlewares"
 import { vendorShippingProfilesMiddlewares } from "./shipping-profiles/middlewares"
+import { vendorShippingRulesMiddlewares } from "./shipping-rules/middlewares"
 import { vendorStockLocationsMiddlewares } from "./stock-locations/middlewares"
 import { vendorStoresMiddlewares } from "./stores/middlewares"
 import { vendorUploadsMiddlewares } from "./uploads/middlewares"
@@ -173,6 +174,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorShippingOptionsMiddlewares,
   ...vendorShippingOptionTypesMiddlewares,
   ...vendorShippingProfilesMiddlewares,
+  ...vendorShippingRulesMiddlewares,
   ...vendorStockLocationsMiddlewares,
   ...vendorStoresMiddlewares,
   ...vendorUploadsMiddlewares,

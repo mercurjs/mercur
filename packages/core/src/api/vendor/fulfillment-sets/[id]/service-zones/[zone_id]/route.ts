@@ -1,21 +1,14 @@
 import {
-  deleteServiceZonesWorkflow,
-  updateServiceZonesWorkflow,
-} from "@medusajs/core-flows"
-import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import { IFulfillmentModuleService } from "@medusajs/framework/types"
 import {
   ContainerRegistrationKeys,
   MedusaError,
-  Modules,
 } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
-import { refetchFulfillmentSet, validateSellerFulfillmentSet } from "../../../helpers"
-import { VendorUpdateServiceZoneType } from "../../../validators"
+import { validateSellerFulfillmentSet } from "../../../helpers"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -43,79 +36,4 @@ export const GET = async (
   }
 
   res.json({ service_zone })
-}
-
-export const POST = async (
-  req: AuthenticatedMedusaRequest<VendorUpdateServiceZoneType>,
-  res: MedusaResponse<HttpTypes.VendorFulfillmentSetResponse>
-) => {
-  const { id, zone_id } = req.params
-  const sellerId = req.seller_context!.seller_id
-
-  await validateSellerFulfillmentSet(req.scope, sellerId, id)
-
-  const fulfillmentModuleService =
-    req.scope.resolve<IFulfillmentModuleService>(Modules.FULFILLMENT)
-
-  const fulfillmentSet = await fulfillmentModuleService.retrieveFulfillmentSet(
-    id,
-    { relations: ["service_zones"] }
-  )
-
-  if (!fulfillmentSet.service_zones.find((s) => s.id === zone_id)) {
-    throw new MedusaError(
-      MedusaError.Types.NOT_FOUND,
-      `Service zone with id: ${zone_id} not found on fulfillment set`
-    )
-  }
-
-  await updateServiceZonesWorkflow(req.scope).run({
-    input: {
-      selector: { id: zone_id },
-      update: req.validatedBody,
-    },
-  })
-
-  const updatedFulfillmentSet = await refetchFulfillmentSet(
-    req.scope,
-    id,
-    req.queryConfig.fields
-  )
-
-  res.json({ fulfillment_set: updatedFulfillmentSet })
-}
-
-export const DELETE = async (
-  req: AuthenticatedMedusaRequest,
-  res: MedusaResponse<HttpTypes.VendorServiceZoneDeleteResponse>
-) => {
-  const { id, zone_id } = req.params
-  const sellerId = req.seller_context!.seller_id
-
-  await validateSellerFulfillmentSet(req.scope, sellerId, id)
-
-  const fulfillmentModuleService =
-    req.scope.resolve<IFulfillmentModuleService>(Modules.FULFILLMENT)
-
-  const fulfillmentSet = await fulfillmentModuleService.retrieveFulfillmentSet(
-    id,
-    { relations: ["service_zones"] }
-  )
-
-  if (!fulfillmentSet.service_zones.find((s) => s.id === zone_id)) {
-    throw new MedusaError(
-      MedusaError.Types.NOT_FOUND,
-      `Service zone with id: ${zone_id} not found on fulfillment set`
-    )
-  }
-
-  await deleteServiceZonesWorkflow(req.scope).run({
-    input: { ids: [zone_id] },
-  })
-
-  res.json({
-    id: zone_id,
-    object: "service_zone",
-    deleted: true,
-  })
 }

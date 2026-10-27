@@ -49,6 +49,7 @@ medusaIntegrationTestRunner({
           name: "RegionSeller",
           stocked: 10,
           offerPrice: 1000,
+          sellerCanEditShippingPrice: true,
         })
         sellerId = seeded.sellerId
         headers = seeded.headers
@@ -225,7 +226,7 @@ medusaIntegrationTestRunner({
         })
       })
 
-      describe("POST /vendor/shipping-options", () => {
+      describe("POST /vendor/shipping-options/:id", () => {
         it("rejects a shipping option price for an unassigned region", async () => {
           const listed = await api.get(`/vendor/shipping-options`, headers)
           const existing = listed.data.shipping_options[0]

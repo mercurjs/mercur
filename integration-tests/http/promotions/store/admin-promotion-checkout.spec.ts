@@ -16,6 +16,10 @@ import {
   generateStoreHeaders,
 } from "../../../helpers/create-admin-user"
 import { createVendorProduct } from "../../../helpers/create-product"
+import {
+    createScopedAdminHeaders,
+    createShippingRuleAndEnable,
+} from "../../../helpers/shipping-rules"
 
 jest.setTimeout(120000)
 
@@ -49,41 +53,10 @@ medusaIntegrationTestRunner({
           )
         ).data.stock_location
 
-        await api.post(
-          `/vendor/stock-locations/${stockLocation.id}/fulfillment-sets`,
-          { name: `Fulfillment Set${uniqueSuffix}`, type: "shipping" },
-          headers
-        )
-
-        const updatedLocation = await api.get(
-          `/vendor/stock-locations/${stockLocation.id}?fields=*fulfillment_sets`,
-          headers
-        )
-        const fulfillmentSet =
-          updatedLocation.data.stock_location.fulfillment_sets[0]
-
-        const serviceZone = (
-          await api.post(
-            `/vendor/fulfillment-sets/${fulfillmentSet.id}/service-zones`,
-            {
-              name: `Service Zone${uniqueSuffix}`,
-              geo_zones: [{ type: "country", country_code: "us" }],
-            },
-            headers
-          )
-        ).data.fulfillment_set.service_zones.find(
-          (z: any) => z.name === `Service Zone${uniqueSuffix}`
-        )
-
         const shippingProfile = await createShippingProfile(appContainer, {
             name: `Shipping Profile${uniqueSuffix}`,
         })
 
-        await api.post(
-          `/vendor/stock-locations/${stockLocation.id}/fulfillment-providers`,
-          { add: ["manual_manual"] },
-          headers
-        )
 
         await api.post(
           `/vendor/stock-locations/${stockLocation.id}/sales-channels`,
@@ -91,7 +64,7 @@ medusaIntegrationTestRunner({
           headers
         )
 
-        return { stockLocation, serviceZone, shippingProfile }
+        return { stockLocation, shippingProfile }
       }
 
       beforeAll(async () => {
@@ -152,26 +125,14 @@ medusaIntegrationTestRunner({
           sellerHeaders
         )
 
-        await api.post(
-          `/vendor/shipping-options`,
-          {
-            name: "Seller Shipping",
-            service_zone_id: prerequisites.serviceZone.id,
-            shipping_profile_id: prerequisites.shippingProfile.id,
-            provider_id: "manual_manual",
-            price_type: "flat",
-            type: {
-              label: "Standard",
-              description: "Standard shipping",
-              code: "standard",
-            },
-            prices: [{ currency_code: "usd", amount: 500 }],
-            rules: [
-              { attribute: "enabled_in_store", value: "true", operator: "eq" },
-            ],
-          },
-          sellerHeaders
-        )
+        await createShippingRuleAndEnable(api, {
+          adminHeaders: await createScopedAdminHeaders(appContainer),
+          sellerHeaders,
+          stockLocationId: prerequisites.stockLocation.id,
+          shippingProfileId: prerequisites.shippingProfile.id,
+          countryCodes: ["us"],
+          prices: [{ currency_code: "usd", amount: 500 }],
+        })
 
         offer = (
           await api.post(

@@ -13,6 +13,10 @@ import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { generatePublishableKey, generateStoreHeaders } from "../../../helpers/create-admin-user"
 import { createVendorProduct } from "../../../helpers/create-product"
+import {
+    createScopedAdminHeaders,
+    createShippingRuleAndEnable,
+} from "../../../helpers/shipping-rules"
 import { createPayoutAccountWorkflow, createPayoutWorkflow } from '@mercurjs/core/workflows'
 
 jest.setTimeout(120000)
@@ -94,31 +98,15 @@ medusaIntegrationTestRunner({
 
         // Create shipping prerequisites and option
         const shippingPrerequisites = await createShippingPrerequisites(sellerHeaders)
-        const shippingOptionResponse = await api.post(
-          `/vendor/shipping-options`,
-          {
-            name: "Payout Test Shipping",
-            service_zone_id: shippingPrerequisites.serviceZone.id,
-            shipping_profile_id: shippingPrerequisites.shippingProfile.id,
-            provider_id: "manual_manual",
-            price_type: "flat",
-            type: {
-              label: "Standard",
-              description: "Standard shipping",
-              code: "standard",
-            },
-            prices: [{ currency_code: "usd", amount: 1000 }], // $10
-            rules: [
-              {
-                attribute: "enabled_in_store",
-                value: "true",
-                operator: "eq",
-              },
-            ],
-          },
-          sellerHeaders
-        )
-        shippingOption = shippingOptionResponse.data.shipping_option
+        const shippingOptionResponse = await createShippingRuleAndEnable(api, {
+          adminHeaders: await createScopedAdminHeaders(appContainer),
+          sellerHeaders,
+          stockLocationId: shippingPrerequisites.stockLocation.id,
+          shippingProfileId: shippingPrerequisites.shippingProfile.id,
+          countryCodes: ["us"],
+          prices: [{ currency_code: "usd", amount: 1000 }],
+        })
+        shippingOption = shippingOptionResponse.shippingOption
 
         // Create a store offer for the product (store add-to-cart resolves the
         // variant + price from the offer).
@@ -170,42 +158,9 @@ medusaIntegrationTestRunner({
         )
         const stockLocation = locationResponse.data.stock_location
 
-        await api.post(
-          `/vendor/stock-locations/${stockLocation.id}/fulfillment-sets`,
-          {
-            name: `Payout Fulfillment Set${uniqueSuffix}`,
-            type: "shipping",
-          },
-          headers
-        )
-
-        const updatedLocation = await api.get(
-          `/vendor/stock-locations/${stockLocation.id}?fields=*fulfillment_sets`,
-          headers
-        )
-        const fulfillmentSet = updatedLocation.data.stock_location.fulfillment_sets[0]
-
-        const serviceZoneResponse = await api.post(
-          `/vendor/fulfillment-sets/${fulfillmentSet.id}/service-zones`,
-          {
-            name: `Payout Service Zone${uniqueSuffix}`,
-            geo_zones: [{ type: "country", country_code: "us" }],
-          },
-          headers
-        )
-        const serviceZone = serviceZoneResponse.data.fulfillment_set.service_zones.find(
-          (z: any) => z.name === `Payout Service Zone${uniqueSuffix}`
-        )
-
         const shippingProfile = await createShippingProfile(appContainer, {
             name: `Payout Shipping Profile${uniqueSuffix}`,
         })
-
-        await api.post(
-          `/vendor/stock-locations/${stockLocation.id}/fulfillment-providers`,
-          { add: ["manual_manual"] },
-          headers
-        )
 
         await api.post(
           `/vendor/stock-locations/${stockLocation.id}/sales-channels`,
@@ -215,8 +170,6 @@ medusaIntegrationTestRunner({
 
         return {
           stockLocation,
-          fulfillmentSet,
-          serviceZone,
           shippingProfile,
         }
       }
