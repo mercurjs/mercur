@@ -47,6 +47,10 @@ const useColumns = () => {
           <TextCell text={optionTypeLabels.get(getValue()) ?? getValue()} />
         ),
       }),
+      columnHelper.accessor("cutoff_time", {
+        header: () => t("shippingMethods.fields.cutoffTimeColumn"),
+        cell: ({ getValue }) => <TextCell text={getValue() ?? undefined} />,
+      }),
       columnHelper.accessor("is_active", {
         header: () => t("fields.status"),
         cell: ({ getValue }) =>

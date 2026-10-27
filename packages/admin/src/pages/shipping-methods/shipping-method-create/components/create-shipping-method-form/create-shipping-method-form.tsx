@@ -1,5 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button, Heading, Input, Select, Text, Textarea, toast } from "@medusajs/ui"
+import type { TFunction } from "i18next"
+import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -17,22 +19,29 @@ import { useShippingOptionTypes } from "../../../../../hooks/api/shipping-option
 import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 import { formatProvider } from "../../../../../lib/format-provider"
 import { generateCode } from "../../../../shipping-zones/common/utils"
+import { cutoffTimeSchema, toCutoffTimePayload } from "../../../common/utils"
 
-const CreateShippingMethodSchema = z.object({
-  name: z.string().min(1),
-  code: z.string().min(1),
-  description: z.string().optional(),
-  provider_id: z.string().min(1),
-  shipping_option_type_id: z.string().min(1),
-  is_active: z.boolean(),
-})
+const createShippingMethodSchema = (t: TFunction) =>
+  z.object({
+    name: z.string().min(1),
+    code: z.string().min(1),
+    description: z.string().optional(),
+    provider_id: z.string().min(1),
+    shipping_option_type_id: z.string().min(1),
+    cutoff_time: cutoffTimeSchema(t),
+    is_active: z.boolean(),
+  })
 
-type CreateShippingMethodValues = z.infer<typeof CreateShippingMethodSchema>
+type CreateShippingMethodValues = z.infer<
+  ReturnType<typeof createShippingMethodSchema>
+>
 
 export const CreateShippingMethodForm = () => {
   const { t } = useTranslation()
   const direction = useDocumentDirection()
   const { handleSuccess } = useRouteModal()
+
+  const schema = useMemo(() => createShippingMethodSchema(t), [t])
 
   const form = useForm<CreateShippingMethodValues>({
     defaultValues: {
@@ -41,9 +50,10 @@ export const CreateShippingMethodForm = () => {
       description: "",
       provider_id: "",
       shipping_option_type_id: "",
+      cutoff_time: "",
       is_active: true,
     },
-    resolver: zodResolver(CreateShippingMethodSchema),
+    resolver: zodResolver(schema),
   })
 
   const { fulfillment_providers } = useFulfillmentProviders({
@@ -62,6 +72,7 @@ export const CreateShippingMethodForm = () => {
         description: values.description || null,
         provider_id: values.provider_id,
         shipping_option_type_id: values.shipping_option_type_id,
+        cutoff_time: toCutoffTimePayload(values.cutoff_time),
         is_active: values.is_active,
       },
       {
@@ -226,6 +237,28 @@ export const CreateShippingMethodForm = () => {
                     <Textarea
                       {...field}
                       data-testid="shipping-method-create-form-description-input"
+                    />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="cutoff_time"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label
+                    optional
+                    tooltip={t("shippingMethods.fields.cutoffTimeHint")}
+                  >
+                    {t("shippingMethods.fields.cutoffTime")}
+                  </Form.Label>
+                  <Form.Control>
+                    <Input
+                      type="time"
+                      {...field}
+                      data-testid="shipping-method-create-form-cutoff-time-input"
                     />
                   </Form.Control>
                   <Form.ErrorMessage />

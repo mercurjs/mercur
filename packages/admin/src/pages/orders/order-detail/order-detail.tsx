@@ -11,6 +11,7 @@ import { ActiveOrderReturnSection } from "./components/active-order-return-secti
 import { OrderActiveEditSection } from "./components/order-active-edit-section";
 import { OrderActivitySection } from "./components/order-activity-section";
 import { OrderCustomerSection } from "./components/order-customer-section";
+import { OrderDeliverySection } from "./components/order-delivery-section";
 import { OrderFulfillmentSection } from "./components/order-fulfillment-section";
 import { OrderGeneralSection } from "./components/order-general-section";
 import { OrderPaymentSection } from "./components/order-payment-section";
@@ -99,6 +100,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
       <TwoColumnPage.Sidebar data-testid="order-detail-sidebar">
         <WidgetZone id="orders.detail.side" data={order}>
           <OrderCustomerSection order={order} />
+          <OrderDeliverySection order={order} />
           <OrderActivitySection order={order} />
           <OrderRemainingOrdersGroupSection />
         </WidgetZone>
@@ -119,6 +121,7 @@ export const OrderDetailPage = Object.assign(Root, {
   MainPaymentSection: OrderPaymentSection,
   MainFulfillmentSection: OrderFulfillmentSection,
   SidebarCustomerSection: OrderCustomerSection,
+  SidebarDeliverySection: OrderDeliverySection,
   SidebarActivitySection: OrderActivitySection,
   SidebarOrderGroupSection: OrderRemainingOrdersGroupSection,
 });

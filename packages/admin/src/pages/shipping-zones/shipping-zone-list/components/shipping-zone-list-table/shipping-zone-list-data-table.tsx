@@ -11,7 +11,7 @@ import { TextCell } from "../../../../../components/table/table-cells/common/tex
 import { useShippingZones } from "../../../../../hooks/api/shipping-zones"
 import { useDataTable } from "../../../../../hooks/use-data-table"
 import { useQueryParams } from "../../../../../hooks/use-query-params"
-import { getZoneCountryNames } from "../../../common/utils"
+import { getZoneCountrySummaries } from "../../../common/utils"
 import { ShippingZoneRowActions } from "./shipping-zone-row-actions"
 
 const PAGE_SIZE = 20
@@ -36,7 +36,7 @@ const useColumns = () => {
         header: () => t("shippingZones.fields.countries"),
         cell: ({ row }) => (
           <div className="flex h-full w-full items-center overflow-hidden">
-            <ListSummary list={getZoneCountryNames(row.original)} n={3} />
+            <ListSummary list={getZoneCountrySummaries(row.original, t)} n={3} />
           </div>
         ),
       }),

@@ -11,16 +11,19 @@ import { Combobox } from "../../../../../components/inputs/combobox"
 import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useUpdateShippingZone } from "../../../../../hooks/api/shipping-zones"
+import { ZoneProvincesField } from "../../../common/components/zone-provinces-field"
 import {
   buildGeoZones,
   countryOptions,
   getZoneCountryCodes,
+  getZoneProvinces,
 } from "../../../common/utils"
 
 const EditShippingZoneSchema = z.object({
   name: z.string().min(1),
   is_active: z.boolean(),
   countries: z.array(z.string()).min(1),
+  provinces: z.record(z.string(), z.array(z.string())),
 })
 
 type EditShippingZoneValues = z.infer<typeof EditShippingZoneSchema>
@@ -34,6 +37,7 @@ export const EditShippingZoneForm = ({ zone }: { zone: ShippingZoneDTO }) => {
       name: zone.name,
       is_active: zone.is_active,
       countries: getZoneCountryCodes(zone),
+      provinces: getZoneProvinces(zone),
     },
     resolver: zodResolver(EditShippingZoneSchema),
   })
@@ -45,7 +49,7 @@ export const EditShippingZoneForm = ({ zone }: { zone: ShippingZoneDTO }) => {
       {
         name: values.name,
         is_active: values.is_active,
-        geo_zones: buildGeoZones(values.countries, zone.geo_zones),
+        geo_zones: buildGeoZones(values.countries, values.provinces),
       },
       {
         onSuccess: ({ shipping_zone }) => {
@@ -104,6 +108,7 @@ export const EditShippingZoneForm = ({ zone }: { zone: ShippingZoneDTO }) => {
                 </Form.Item>
               )}
             />
+            <ZoneProvincesField testId="shipping-zone-edit-form" />
             <SwitchBox
               control={form.control}
               name="is_active"

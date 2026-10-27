@@ -13,6 +13,7 @@ import {
 } from "../../../../../components/modals"
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useCreateShippingZone } from "../../../../../hooks/api/shipping-zones"
+import { ZoneProvincesField } from "../../../common/components/zone-provinces-field"
 import { buildGeoZones, countryOptions, generateCode } from "../../../common/utils"
 
 const CreateShippingZoneSchema = z.object({
@@ -20,6 +21,7 @@ const CreateShippingZoneSchema = z.object({
   code: z.string().min(1),
   is_active: z.boolean(),
   countries: z.array(z.string()).min(1),
+  provinces: z.record(z.string(), z.array(z.string())),
 })
 
 type CreateShippingZoneValues = z.infer<typeof CreateShippingZoneSchema>
@@ -34,6 +36,7 @@ export const CreateShippingZoneForm = () => {
       code: "",
       is_active: true,
       countries: [],
+      provinces: {},
     },
     resolver: zodResolver(CreateShippingZoneSchema),
   })
@@ -46,7 +49,7 @@ export const CreateShippingZoneForm = () => {
         name: values.name,
         code: values.code,
         is_active: values.is_active,
-        geo_zones: buildGeoZones(values.countries),
+        geo_zones: buildGeoZones(values.countries, values.provinces),
       },
       {
         onSuccess: ({ shipping_zone }) => {
@@ -144,6 +147,7 @@ export const CreateShippingZoneForm = () => {
                 </Form.Item>
               )}
             />
+            <ZoneProvincesField testId="shipping-zone-create-form" />
             <SwitchBox
               control={form.control}
               name="is_active"

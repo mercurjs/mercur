@@ -1862,6 +1862,11 @@
       "vendor": "Store",
       "vendorsCount_one": "{{count}} store",
       "vendorsCount_other": "{{count}} stores"
+    },
+    "delivery": {
+      "header": "Delivery",
+      "shipBy": "Ship by",
+      "expectedDelivery": "Expected delivery"
     }
   },
   "payouts": {
@@ -3829,7 +3834,12 @@
       "countries": "Countries",
       "countriesPlaceholder": "Select countries",
       "active": "Active",
-      "activeHint": "Inactive zones are not offered to sellers."
+      "activeHint": "Inactive zones are not offered to sellers.",
+      "provinces": "Provinces",
+      "provincesHint": "Optionally limit a country to specific provinces. Leave a country empty to cover all of it.",
+      "provincesPlaceholder": "Whole country",
+      "countryProvinces_one": "{{country}} ({{count}} province)",
+      "countryProvinces_other": "{{country}} ({{count}} provinces)"
     },
     "status": {
       "active": "Active",
@@ -3863,7 +3873,11 @@
       "optionTypePlaceholder": "Select a shipping option type",
       "immutableHint": "The fulfillment provider and shipping option type cannot be changed after creation.",
       "active": "Active",
-      "activeHint": "Inactive methods are not offered to sellers."
+      "activeHint": "Inactive methods are not offered to sellers.",
+      "cutoffTime": "Order cut-off time (UTC)",
+      "cutoffTimeHint": "Orders placed at or after this time count from the next day.",
+      "cutoffTimeColumn": "Cut-off (UTC)",
+      "cutoffTimeInvalid": "Enter a time in HH:MM format."
     },
     "status": {
       "active": "Active",

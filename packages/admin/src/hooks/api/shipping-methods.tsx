@@ -20,6 +20,19 @@ export const shippingMethodsQueryKeys = queryKeysFactory(
   SHIPPING_METHODS_QUERY_KEY
 )
 
+type ShippingMethodCutoffInput = { cutoff_time?: string | null }
+
+export type CreateShippingMethodInput = InferClientInput<
+  typeof sdk.admin.shippingMethods.mutate
+> &
+  ShippingMethodCutoffInput
+
+export type UpdateShippingMethodInput = Omit<
+  InferClientInput<typeof sdk.admin.shippingMethods.$id.mutate>,
+  "$id"
+> &
+  ShippingMethodCutoffInput
+
 export const useShippingMethod = (
   id: string,
   query?: Omit<
@@ -73,7 +86,7 @@ export const useCreateShippingMethod = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.admin.shippingMethods.mutate>,
     ClientError,
-    InferClientInput<typeof sdk.admin.shippingMethods.mutate>
+    CreateShippingMethodInput
   >
 ) => {
   return useMutation({
@@ -94,7 +107,7 @@ export const useUpdateShippingMethod = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.admin.shippingMethods.$id.mutate>,
     ClientError,
-    Omit<InferClientInput<typeof sdk.admin.shippingMethods.$id.mutate>, "$id">
+    UpdateShippingMethodInput
   >
 ) => {
   return useMutation({

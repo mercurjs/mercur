@@ -1,6 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button, Input, Text, Textarea, toast } from "@medusajs/ui"
 import type { MarketplaceShippingMethodDTO } from "@mercurjs/types"
+import type { TFunction } from "i18next"
+import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -13,14 +15,19 @@ import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useUpdateShippingMethod } from "../../../../../hooks/api/shipping-methods"
 import { useShippingOptionType } from "../../../../../hooks/api/shipping-option-types"
 import { formatProvider } from "../../../../../lib/format-provider"
+import { cutoffTimeSchema, toCutoffTimePayload } from "../../../common/utils"
 
-const EditShippingMethodSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().optional(),
-  is_active: z.boolean(),
-})
+const editShippingMethodSchema = (t: TFunction) =>
+  z.object({
+    name: z.string().min(1),
+    description: z.string().optional(),
+    cutoff_time: cutoffTimeSchema(t),
+    is_active: z.boolean(),
+  })
 
-type EditShippingMethodValues = z.infer<typeof EditShippingMethodSchema>
+type EditShippingMethodValues = z.infer<
+  ReturnType<typeof editShippingMethodSchema>
+>
 
 export const EditShippingMethodForm = ({
   method,
@@ -30,6 +37,8 @@ export const EditShippingMethodForm = ({
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
+  const schema = useMemo(() => editShippingMethodSchema(t), [t])
+
   const { shipping_option_type } = useShippingOptionType(
     method.shipping_option_type_id
   )
@@ -38,9 +47,10 @@ export const EditShippingMethodForm = ({
     defaultValues: {
       name: method.name,
       description: method.description ?? "",
+      cutoff_time: method.cutoff_time ?? "",
       is_active: method.is_active,
     },
-    resolver: zodResolver(EditShippingMethodSchema),
+    resolver: zodResolver(schema),
   })
 
   const { mutateAsync, isPending } = useUpdateShippingMethod(method.id)
@@ -50,6 +60,7 @@ export const EditShippingMethodForm = ({
       {
         name: values.name,
         description: values.description || null,
+        cutoff_time: toCutoffTimePayload(values.cutoff_time),
         is_active: values.is_active,
       },
       {
@@ -105,6 +116,28 @@ export const EditShippingMethodForm = ({
                     <Textarea
                       {...field}
                       data-testid="shipping-method-edit-form-description-input"
+                    />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="cutoff_time"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label
+                    optional
+                    tooltip={t("shippingMethods.fields.cutoffTimeHint")}
+                  >
+                    {t("shippingMethods.fields.cutoffTime")}
+                  </Form.Label>
+                  <Form.Control>
+                    <Input
+                      type="time"
+                      {...field}
+                      data-testid="shipping-method-edit-form-cutoff-time-input"
                     />
                   </Form.Control>
                   <Form.ErrorMessage />

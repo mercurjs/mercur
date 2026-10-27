@@ -7577,6 +7577,26 @@
             "vendorsCount_other"
           ],
           "additionalProperties": false
+        },
+        "delivery": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "shipBy": {
+              "type": "string"
+            },
+            "expectedDelivery": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "shipBy",
+            "expectedDelivery"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -7608,7 +7628,8 @@
         "refund",
         "customer",
         "activity",
-        "fields"
+        "fields",
+        "delivery"
       ],
       "additionalProperties": false
     },
@@ -14492,6 +14513,21 @@
             },
             "activeHint": {
               "type": "string"
+            },
+            "provinces": {
+              "type": "string"
+            },
+            "provincesHint": {
+              "type": "string"
+            },
+            "provincesPlaceholder": {
+              "type": "string"
+            },
+            "countryProvinces_one": {
+              "type": "string"
+            },
+            "countryProvinces_other": {
+              "type": "string"
             }
           },
           "required": [
@@ -14501,7 +14537,12 @@
             "countries",
             "countriesPlaceholder",
             "active",
-            "activeHint"
+            "activeHint",
+            "provinces",
+            "provincesHint",
+            "provincesPlaceholder",
+            "countryProvinces_one",
+            "countryProvinces_other"
           ],
           "additionalProperties": false
         },
@@ -14629,6 +14670,18 @@
             },
             "activeHint": {
               "type": "string"
+            },
+            "cutoffTime": {
+              "type": "string"
+            },
+            "cutoffTimeHint": {
+              "type": "string"
+            },
+            "cutoffTimeColumn": {
+              "type": "string"
+            },
+            "cutoffTimeInvalid": {
+              "type": "string"
             }
           },
           "required": [
@@ -14642,7 +14695,11 @@
             "optionTypePlaceholder",
             "immutableHint",
             "active",
-            "activeHint"
+            "activeHint",
+            "cutoffTime",
+            "cutoffTimeHint",
+            "cutoffTimeColumn",
+            "cutoffTimeInvalid"
           ],
           "additionalProperties": false
         },
