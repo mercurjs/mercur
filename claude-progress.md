@@ -14,6 +14,20 @@ session detail aggressively. The per-spec source of truth lives in
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
 
+## Session — Marketplace shipping governance (2026-10-27), branch `feat/shipping-governance`
+
+SPEC-004..008. Category default shipping profile (offers inherit nearest category → store default; profile optional
+on offer create). Admin seller Shipping tab. New `shipping_rule` module: operator shipping zones, methods (provider +
+option type) and rules (zone × method × profile: mandatory/optional/not supported, default prices, seller-editable
+price/transit, transit days). Vendors enable rules per stock location (`POST /vendor/shipping-rules/:id/enable`,
+composes Medusa fulfillment-set/service-zone/batch-link + seller shipping option workflows); vendor create of
+shipping options, service zones, fulfillment sets and provider links removed. Mandatory rules gate offer
+create/profile change and last-option delete. Store shipping options carry `estimated_delivery`; seller orders store
+`metadata.expected_delivery`. Tests: shipping-rules 13/13, delivery store 2/2, offer default profile 4/4, migrated
+shipping-options 29/29 and fulfillment-sets 7/7, delivery unit 6/6. Checkout-path specs blocked locally by the
+worktree awilix issue (`parentContainer[ROLL_UP_REGISTRATIONS]`), rely on CI. Open: `/store/offers` estimate,
+order-detail delivery UI, offer edit profile still required in the vendor form, zone provinces not editable in admin UI.
+
 ## Session — Extendable offer tables, grid and form fields (2026-10-26), branch `feat/extendable-offer-tables-forms`
 
 Panel extensions can now hide, replace, and add columns and fields beyond list pages, reusing the existing
