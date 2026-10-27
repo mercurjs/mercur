@@ -1,11 +1,9 @@
 import {
   AccountOutput,
-  CreateAccountDebitInput,
   CreateAccountInput,
   CreateLoginLinkInput,
   CreateOnboardingInput,
   CreatePayoutInput,
-  CreateTransferInput,
   IPayoutProvider,
   LinkOutput,
   ListAccountsInput,
@@ -14,8 +12,7 @@ import {
   PayoutWebhookActionInput,
   PayoutWebhookResult,
   RetrieveAccountInput,
-  ReverseTransferInput,
-  TransferOutput,
+  ReversePayoutInput,
 } from "@mercurjs/types"
 
 export abstract class AbstractPayoutProvider<TConfig = Record<string, unknown>>
@@ -47,10 +44,8 @@ export abstract class AbstractPayoutProvider<TConfig = Record<string, unknown>>
   listAccounts?(input: ListAccountsInput): Promise<ListAccountsOutput>
   abstract createOnboarding(input: CreateOnboardingInput): Promise<LinkOutput>
   createLoginLink?(input: CreateLoginLinkInput): Promise<LinkOutput>
-  abstract createTransfer(input: CreateTransferInput): Promise<TransferOutput>
-  abstract reverseTransfer(input: ReverseTransferInput): Promise<TransferOutput>
-  createAccountDebit?(input: CreateAccountDebitInput): Promise<TransferOutput>
   abstract createPayout(input: CreatePayoutInput): Promise<PayoutOutput>
+  abstract reversePayout(input: ReversePayoutInput): Promise<PayoutOutput>
   abstract getWebhookActionAndData(
     payload: PayoutWebhookActionInput
   ): Promise<PayoutWebhookResult>

@@ -7,7 +7,7 @@ import { useMemo, useState } from "react"
 
 import {
   useCreateAdjustment,
-  useRetryPayout,
+  useRetrySettlementPayout,
   useStripeAdjustments,
   useStripeSettlements,
 } from "../../../../hooks/api/stripe"
@@ -91,7 +91,7 @@ const AddAdjustmentDrawer = () => {
                 { seller_id: form.seller_id, type: form.type, amount: Number(form.amount), currency_code: form.currency_code, reason: form.reason || null },
                 {
                   onSuccess: () => {
-                    toast.success("Adjustment added", { description: "It becomes a transfer on the next settlement run." })
+                    toast.success("Adjustment added", { description: "It is sent to Stripe on the next settlement run." })
                     setOpen(false)
                   },
                   onError: (e) => toast.error(e.message),
@@ -111,7 +111,7 @@ export const SettlementsTab = () => {
   const { raw, offset, limit } = useListParams()
   const settlements = useStripeSettlements({ offset, limit }, { placeholderData: keepPreviousData })
   const adjustments = useStripeAdjustments({ limit: 20, offset: 0 })
-  const retry = useRetryPayout()
+  const retry = useRetrySettlementPayout()
   const blocker = useActionBlocker("payouts", "edit")
 
   const settlementColumns = useMemo(
@@ -125,9 +125,9 @@ export const SettlementsTab = () => {
         header: () => <TextHeader text="Seller" />,
         cell: ({ row }) => <TextCell text={row.original.seller?.name ?? "-"} />,
       }),
-      settlementHelper.accessor("transfers_total", {
-        header: () => <TextHeader text="Transfers" />,
-        cell: ({ row }) => <TextCell text={`${formatAmount(row.original.transfers_total, row.original.currency_code)} (${row.original.transfer_count})`} />,
+      settlementHelper.accessor("payouts_total", {
+        header: () => <TextHeader text="Payouts" />,
+        cell: ({ row }) => <TextCell text={`${formatAmount(row.original.payouts_total, row.original.currency_code)} (${row.original.payout_count})`} />,
       }),
       settlementHelper.accessor("reversals_total", {
         header: () => <TextHeader text="Reversals" />,
@@ -145,16 +145,16 @@ export const SettlementsTab = () => {
         header: () => <TextHeader text="Settlement" />,
         cell: ({ getValue }) => <StatusCell color={SETTLEMENT_STATUS_COLOR[getValue()] ?? "grey"}>{SETTLEMENT_STATUS_LABEL[getValue()] ?? getValue()}</StatusCell>,
       }),
-      settlementHelper.accessor((row) => row.payout?.status ?? "", {
+      settlementHelper.accessor((row) => row.payout_status ?? "", {
         id: "payout",
-        header: () => <TextHeader text="Payout" />,
+        header: () => <TextHeader text="Bank payout" />,
         cell: ({ row }) => {
-          const payout = row.original.payout
-          if (!payout) return <TextCell text="-" />
+          const status = row.original.payout_status
+          if (!status) return <TextCell text="-" />
           return (
-            <StatusCell color={PAYOUT_STATUS_COLOR[payout.status] ?? "grey"}>
-              {PAYOUT_STATUS_LABEL[payout.status] ?? payout.status}
-              {payout.status_reason ? ` · ${payout.status_reason}` : ""}
+            <StatusCell color={PAYOUT_STATUS_COLOR[status] ?? "grey"}>
+              {PAYOUT_STATUS_LABEL[status] ?? status}
+              {row.original.status_reason ? ` · ${row.original.status_reason}` : ""}
             </StatusCell>
           )
         },
@@ -162,7 +162,7 @@ export const SettlementsTab = () => {
       settlementHelper.display({
         id: "actions",
         cell: ({ row }) => {
-          const payout = row.original.payout
+          const status = row.original.payout_status
           return (
             <ActionMenu
               groups={[
@@ -172,12 +172,11 @@ export const SettlementsTab = () => {
                       label: "Retry payout",
                       icon: <ArrowPath />,
                       onClick: () =>
-                        payout &&
-                        retry.mutate(payout.id, {
+                        retry.mutate(row.original.id, {
                           onSuccess: () => toast.success("Retried"),
                           onError: (e) => toast.error(e.message),
                         }),
-                      disabled: blocker.disabled || !payout || !["failed", "on_hold", "pending"].includes(payout.status),
+                      disabled: blocker.disabled || !status || !["failed", "on_hold", "pending"].includes(status),
                       disabledTooltip: blocker.disabledTooltip ?? "Only failed or held payouts can be retried",
                     },
                   ],
@@ -201,9 +200,21 @@ export const SettlementsTab = () => {
         cell: ({ row }) => <TextCell text={formatAmount(row.original.amount, row.original.currency_code)} />,
       }),
       adjustmentHelper.accessor("reason", { header: () => <TextHeader text="Reason" />, cell: ({ getValue }) => <TextCell text={getValue() ?? "-"} /> }),
-      adjustmentHelper.accessor("transfer_id", {
-        header: () => <TextHeader text="Transfer" />,
-        cell: ({ getValue }) => (getValue() ? <TextCell text={getValue() as string} /> : <StatusCell color="blue">Next run</StatusCell>),
+      adjustmentHelper.accessor("status", {
+        header: () => <TextHeader text="Status" />,
+        cell: ({ row }) =>
+          row.original.status === "pending" ? (
+            <StatusCell color="blue">Next run</StatusCell>
+          ) : (
+            <StatusCell color={PAYOUT_STATUS_COLOR[row.original.status] ?? "grey"}>
+              {PAYOUT_STATUS_LABEL[row.original.status] ?? row.original.status}
+              {row.original.status_reason ? ` · ${row.original.status_reason}` : ""}
+            </StatusCell>
+          ),
+      }),
+      adjustmentHelper.accessor("provider_transfer_id", {
+        header: () => <TextHeader text="Stripe id" />,
+        cell: ({ getValue }) => <TextCell text={getValue() ?? "-"} />,
       }),
     ],
     []
@@ -223,7 +234,7 @@ export const SettlementsTab = () => {
         isLoading={settlements.isPending}
         queryObject={raw}
         emptyTitle="No settlements yet"
-        emptyMessage="Settlements are built every night at 01:03 UTC from the transfers that landed."
+        emptyMessage="Settlements are built every night at 01:03 UTC from the payouts that landed."
         testId="stripe-settlements-table"
         navigateTo={(id) => `/finance/stripe/settlements/${id}`}
       />

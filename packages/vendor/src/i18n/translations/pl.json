@@ -3033,8 +3033,7 @@
       "pending": "Oczekuje",
       "processing": "W trakcie przetwarzania",
       "paid": "Wypłacono",
-      "failed": "Nieudana",
-      "canceled": "Anulowana"
+      "failed": "Nieudana"
     }
   },
   "profile": {

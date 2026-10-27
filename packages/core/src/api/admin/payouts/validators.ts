@@ -18,11 +18,8 @@ export const AdminGetPayoutsParams = createFindParams({
     status: z.union([z.string(), z.array(z.string())]).optional(),
     account_id: z.union([z.string(), z.array(z.string())]).optional(),
     seller_id: z.union([z.string(), z.array(z.string())]).optional(),
-    settlement_id: z.union([z.string(), z.array(z.string())]).optional(),
+    order_id: z.union([z.string(), z.array(z.string())]).optional(),
     created_at: createOperatorMap().optional(),
     updated_at: createOperatorMap().optional(),
   })
 )
-
-export type AdminRunPayoutsType = z.infer<typeof AdminRunPayouts>
-export const AdminRunPayouts = z.object({ seller_id: z.string().optional() }).strict()

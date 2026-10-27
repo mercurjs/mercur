@@ -64,7 +64,6 @@ export const StatusCard = ({ account }: { account: VendorAccount }) => {
           ) : null}
         </div>
       </div>
-      {account.ignored ? <SectionRow title="Notice" value="Payouts are paused by the marketplace. Contact support." /> : null}
       <SectionRow title="Account id" value={account.provider_account_id ?? "-"} />
       <SectionRow title="Verification" value={account.kyc_status ? <StatusBadge color={KYC_STATUS_COLOR[account.kyc_status] ?? "grey"}>{KYC_STATUS_LABEL[account.kyc_status]}</StatusBadge> : "Not started"} />
       <SectionRow title="Payouts enabled" value={account.payouts_enabled ? "Yes" : "Not yet"} />

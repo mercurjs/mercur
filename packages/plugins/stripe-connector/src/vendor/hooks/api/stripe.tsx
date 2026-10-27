@@ -8,11 +8,8 @@ export const vendorStripeKeys = queryKeysFactory("vendor_stripe")
 export const useMyStripeAccount = () =>
   useQuery({ queryKey: vendorStripeKeys.detail("me"), queryFn: () => client.vendor["payout-accounts"].me.query({}) })
 
-export const useMyTransfers = (query: Record<string, unknown> = {}) =>
-  useQuery({ queryKey: vendorStripeKeys.list({ kind: "transfers", ...query }), queryFn: () => client.vendor.transfers.query(query) })
-
 export const useMySettlements = (query: Record<string, unknown> = {}) =>
-  useQuery({ queryKey: vendorStripeKeys.list({ kind: "settlements", ...query }), queryFn: () => client.vendor.settlements.query(query) })
+  useQuery({ queryKey: vendorStripeKeys.list({ kind: "settlements", ...query }), queryFn: () => client.vendor.stripe.settlements.query(query) })
 
 export const useMyPayouts = (query: Record<string, unknown> = {}) =>
   useQuery({ queryKey: vendorStripeKeys.list({ kind: "payouts", ...query }), queryFn: () => client.vendor.payouts.query(query) })

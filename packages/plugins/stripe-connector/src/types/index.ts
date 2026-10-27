@@ -15,6 +15,12 @@ export interface StripeConnectPayoutProviderOptions {
   apiKey: string
   webhookSecret: string
   accountValidation?: StripeConnectorAccountValidationOptions
+  /**
+   * Put new connected accounts on a manual payout schedule. Turn it on when
+   * the plugin's settlements run in `connector` mode, so bank payouts only
+   * leave through a settlement.
+   */
+  manualPayouts?: boolean
 }
 
 export interface StripeConnectorPaymentProviderOptions {
@@ -28,4 +34,5 @@ export interface StripeConnectorPaymentProviderOptions {
 
 export const ORDER_GROUP_METADATA_KEY = "mercur_order_group_id"
 
+export * from "./common"
 export * from "./http"

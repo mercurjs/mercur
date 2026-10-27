@@ -241,7 +241,7 @@ declare module "@mercurjs/dashboard-sdk" {
       formZones: never
       formTabs: Record<string, string>
       displayZones: "general"
-      displayFieldIds: "amount" | "created_at" | "display_id" | "status" | "updated_at"
+      displayFieldIds: "amount" | "created_at" | "display_id" | "order_id" | "status" | "status_reason" | "updated_at"
     }
     "price_list": {
       formZones: "edit"

@@ -12270,10 +12270,19 @@
         "noRecords": {
           "type": "string"
         },
+        "order": {
+          "type": "string"
+        },
+        "statusReason": {
+          "type": "string"
+        },
         "status": {
           "type": "object",
           "properties": {
             "pending": {
+              "type": "string"
+            },
+            "on_hold": {
               "type": "string"
             },
             "processing": {
@@ -12285,16 +12294,29 @@
             "failed": {
               "type": "string"
             },
-            "canceled": {
+            "aborted": {
               "type": "string"
             }
           },
           "required": [
             "pending",
+            "on_hold",
             "processing",
             "paid",
             "failed",
-            "canceled"
+            "aborted"
+          ],
+          "additionalProperties": false
+        },
+        "reversals": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header"
           ],
           "additionalProperties": false
         }
@@ -12303,7 +12325,10 @@
         "domain",
         "payout",
         "noRecords",
-        "status"
+        "order",
+        "statusReason",
+        "status",
+        "reversals"
       ],
       "additionalProperties": false
     },

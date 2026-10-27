@@ -8,7 +8,6 @@ const SYNC_AFTER_MS = 30 * 1000
 
 const FIELDS = [
   "id",
-  "provider_id",
   "provider_account_id",
   "status",
   "kyc_status",
@@ -17,7 +16,6 @@ const FIELDS = [
   "details_submitted",
   "disabled_reason",
   "requirements",
-  "ignored",
   "last_synced_at",
   "created_at",
   "updated_at",

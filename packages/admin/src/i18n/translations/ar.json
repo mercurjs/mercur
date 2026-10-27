@@ -3617,8 +3617,7 @@
       "paid": "مدفوع",
       "processing": "قيد المعالجة",
       "pending": "قيد الانتظار",
-      "failed": "فشل",
-      "canceled": "ملغى"
+      "failed": "فشل"
     }
   },
   "marketplace": {

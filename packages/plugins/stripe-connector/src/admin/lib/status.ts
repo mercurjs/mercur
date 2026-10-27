@@ -1,29 +1,10 @@
 export type BadgeColor = "green" | "red" | "orange" | "grey" | "blue" | "purple"
 
-export const TRANSFER_STATUS_COLOR: Record<string, BadgeColor> = {
-  pending: "blue",
-  created: "green",
-  failed: "red",
-  on_hold: "orange",
-  aborted: "grey",
-  ignored: "grey",
-}
-
-export const TRANSFER_STATUS_LABEL: Record<string, string> = {
-  pending: "Pending",
-  created: "Created",
-  failed: "Failed",
-  on_hold: "On hold",
-  aborted: "Aborted",
-  ignored: "Ignored",
-}
-
 export const PAYOUT_STATUS_COLOR: Record<string, BadgeColor> = {
   pending: "blue",
   processing: "blue",
   paid: "green",
   failed: "red",
-  canceled: "grey",
   on_hold: "orange",
   aborted: "grey",
 }
@@ -33,7 +14,6 @@ export const PAYOUT_STATUS_LABEL: Record<string, string> = {
   processing: "Processing",
   paid: "Paid",
   failed: "Failed",
-  canceled: "Canceled",
   on_hold: "On hold",
   aborted: "Aborted",
 }
@@ -76,7 +56,7 @@ export const KYC_STATUS_LABEL: Record<string, string> = {
 export const JOB_LABEL: Record<string, string> = {
   "payout-sync-onboarding": "Onboarding",
   "payout-validate-captures": "Captures",
-  "payout-process-transfers": "Transfers",
+  "payout-process-transfers": "Payouts",
   "payout-process-reversals": "Reversals",
   "payout-process-settlements": "Settlements",
   "payout-alert-failed-operations": "Alerts",
@@ -86,9 +66,9 @@ export const JOB_LABEL: Record<string, string> = {
 export const JOB_DESCRIPTION: Record<string, string> = {
   "payout-sync-onboarding": "Creates Stripe Express accounts for new sellers and publishes their onboarding links.",
   "payout-validate-captures": "Captures or cancels the authorized card payment once every seller order in the group is decided.",
-  "payout-process-transfers": "Transfers each fulfilled order's total minus commission to the seller's connected account.",
+  "payout-process-transfers": "Pays each fulfilled order's total minus commission into the seller's connected account.",
   "payout-process-reversals": "Reverses the seller's share of every refund, net of commission.",
-  "payout-process-settlements": "Retries failed payouts, converts adjustments, builds settlements and pays them out.",
+  "payout-process-settlements": "Sends adjustments, retries failed bank payouts, builds settlements and pays them out.",
   "payout-alert-failed-operations": "Emails the technical contact everything that is still failed.",
   "payout-monitor-kyc": "Re-reads every connected account's requirements and KYC status.",
 }

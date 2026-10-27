@@ -69,9 +69,10 @@ export const AlertsTab = () => {
         <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-cols-4">
           {[
             ["Captures", failed?.captures ?? 0],
-            ["Transfers", failed?.transfers ?? 0],
-            ["Reversals", failed?.reversals ?? 0],
             ["Payouts", failed?.payouts ?? 0],
+            ["Reversals", failed?.reversals ?? 0],
+            ["Settlements", failed?.settlements ?? 0],
+            ["Adjustments", failed?.adjustments ?? 0],
           ].map(([label, value]) => (
             <div key={label as string} className="flex flex-col">
               <Text size="xsmall" className="text-ui-fg-subtle">
@@ -93,7 +94,7 @@ export const AlertsTab = () => {
         isLoading={notifications.isPending}
         queryObject={raw}
         emptyTitle="No notifications sent"
-        emptyMessage="A notification goes out the moment a transfer, reversal or payout fails."
+        emptyMessage="A notification goes out the moment a payout, reversal or settlement fails."
         testId="stripe-notifications-table"
       />
     </div>

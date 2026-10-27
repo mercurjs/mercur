@@ -1,6 +1,5 @@
 export const adminPayoutAccountFields = [
   "id",
-  "provider_id",
   "provider_account_id",
   "status",
   "kyc_status",
@@ -9,7 +8,6 @@ export const adminPayoutAccountFields = [
   "details_submitted",
   "disabled_reason",
   "requirements",
-  "ignored",
   "last_synced_at",
   "created_at",
   "updated_at",

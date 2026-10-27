@@ -16,7 +16,6 @@ import { createOnboardingStep } from "../steps"
 
 export type EnsureSellerPayoutAccountWorkflowInput = {
   seller_id: string
-  provider_id?: string
 }
 
 type SellerSnapshot = {
@@ -27,10 +26,8 @@ type SellerSnapshot = {
   website_url: string | null
   country_code: string | null
   is_company: boolean
-  payout_ignored: boolean
   account: {
     id: string
-    ignored: boolean
     details_submitted: boolean
     onboarding_token: string | null
     onboarding_url: string | null
@@ -53,11 +50,9 @@ const loadSellerStep = createStep(
         "email",
         "phone",
         "website_url",
-        "metadata",
         "address.country_code",
         "professional_details.corporate_name",
         "payout_account.id",
-        "payout_account.ignored",
         "payout_account.details_submitted",
         "payout_account.onboarding_token",
         "payout_account.onboarding.data",
@@ -80,11 +75,9 @@ const loadSellerStep = createStep(
       website_url: seller.website_url ?? null,
       country_code: seller.address?.country_code ?? null,
       is_company: !!seller.professional_details?.corporate_name,
-      payout_ignored: String(seller.metadata?.payout_ignored ?? "") === "true",
       account: account
         ? {
             id: account.id,
-            ignored: !!account.ignored,
             details_submitted: !!account.details_submitted,
             onboarding_token: account.onboarding_token ?? null,
             onboarding_url: (onboardingData?.url as string | undefined) ?? null,
@@ -94,24 +87,6 @@ const loadSellerStep = createStep(
     }
 
     return new StepResponse(snapshot)
-  }
-)
-
-const syncIgnoredStep = createStep(
-  "sync-payout-account-ignored",
-  async (input: { account_id: string; ignored: boolean }, { container }) => {
-    const service = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
-    const previous = await service.retrievePayoutAccount(input.account_id)
-    if (previous.ignored === input.ignored) {
-      return new StepResponse(previous, null)
-    }
-    const updated = await service.updatePayoutAccounts({ id: input.account_id, ignored: input.ignored })
-    return new StepResponse(updated, { id: input.account_id, ignored: previous.ignored })
-  },
-  async (previous, { container }) => {
-    if (!previous) return
-    const service = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
-    await service.updatePayoutAccounts(previous)
   }
 )
 
@@ -135,7 +110,7 @@ export const ensureSellerPayoutAccountWorkflowId = "ensure-seller-payout-account
 
 /**
  * For one seller: create
- * the provider account when missing, mirror the ignored flag, and publish an
+ * the provider account when missing and publish an
  * onboarding link until the seller has finished onboarding.
  */
 export type EnsureSellerPayoutAccountWorkflowOutput = {
@@ -156,7 +131,6 @@ export const ensureSellerPayoutAccountWorkflow: ReturnWorkflow<
       return createPayoutAccountWorkflow.runAsStep({
         input: {
           seller_id: input.seller_id,
-          provider_id: input.provider_id,
           seller: {
             id: seller.id,
             name: seller.name,
@@ -181,10 +155,6 @@ export const ensureSellerPayoutAccountWorkflow: ReturnWorkflow<
       const account = seller.account
       if (!account || account.details_submitted) return false
       return !account.onboarding_url || account.onboarding_kind !== "login"
-    })
-
-    when("sync-ignored", { seller }, ({ seller }) => !!seller.account).then(() => {
-      syncIgnoredStep({ account_id: seller.account!.id, ignored: seller.payout_ignored })
     })
 
     when(

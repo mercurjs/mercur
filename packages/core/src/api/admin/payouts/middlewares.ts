@@ -3,14 +3,9 @@ import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformBody, validateAndTransformQuery } from "@medusajs/framework"
 
 import { adminPayoutQueryConfig } from "./query-config"
-import { AdminGetPayoutParams, AdminGetPayoutsParams, AdminRunPayouts } from "./validators"
+import { AdminGetPayoutParams, AdminGetPayoutsParams } from "./validators"
 
 export const adminPayoutsMiddlewares: MiddlewareRoute[] = [
-  {
-    method: ["POST"],
-    matcher: "/admin/payouts/run",
-    middlewares: [requirePermission("payouts", "edit"), validateAndTransformBody(AdminRunPayouts)],
-  },
   {
     method: ["POST"],
     matcher: "/admin/payouts/:id/retry",

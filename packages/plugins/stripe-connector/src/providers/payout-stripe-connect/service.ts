@@ -2,12 +2,10 @@ import { BigNumberInput } from "@medusajs/framework/types"
 import { MedusaError } from "@medusajs/framework/utils"
 import {
   AccountOutput,
-  CreateAccountDebitInput,
   CreateAccountInput,
   CreateLoginLinkInput,
   CreateOnboardingInput,
   CreatePayoutInput,
-  CreateTransferInput,
   IPayoutProvider,
   LinkOutput,
   ListAccountsInput,
@@ -19,9 +17,7 @@ import {
   PayoutWebhookActionInput,
   PayoutWebhookResult,
   RetrieveAccountInput,
-  ReverseTransferInput,
-  TransferOutput,
-  TransferStatus,
+  ReversePayoutInput,
 } from "@mercurjs/types"
 import Stripe from "stripe"
 
@@ -52,12 +48,10 @@ const hasRequestedCapabilities = (data: Record<string, unknown> | null | undefin
   return !!capabilities && "transfers" in capabilities
 }
 
-
-
 /**
- * Stripe Connect adapter for the payout module. One Stripe call per method;
- * every Mercur decision (when to transfer, how much, what to retry) stays in
- * core.
+ * Stripe Connect adapter for the payout module. A payout is a Stripe transfer
+ * to the seller's connected account; when and how much to pay out is decided
+ * by the caller.
  */
 export class StripeConnectPayoutProviderService implements IPayoutProvider {
   static identifier = "stripe-connect"
@@ -147,7 +141,7 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
       settings: {
         payouts: {
           debit_negative_balances: false,
-          ...(input.settings?.manual_payouts ? { schedule: { interval: "manual" } } : {}),
+          ...(this.options_.manualPayouts ? { schedule: { interval: "manual" } } : {}),
         },
       },
     }
@@ -198,7 +192,7 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
     return { url: link.url, data: asRecord(link) }
   }
 
-  protected sourceTransactionFrom(source: CreateTransferInput["source_payment"]): string | undefined {
+  protected sourceTransactionFrom(source: CreatePayoutInput["source_payment"]): string | undefined {
     if (!source) {
       return undefined
     }
@@ -220,7 +214,7 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
     throw new PayoutProviderError(`Payment ${source.id} is not a Stripe charge or PaymentIntent`, { final: true })
   }
 
-  protected async resolveSourceTransaction(source: CreateTransferInput["source_payment"]): Promise<string | undefined> {
+  protected async resolveSourceTransaction(source: CreatePayoutInput["source_payment"]): Promise<string | undefined> {
     const direct = this.sourceTransactionFrom(source)
     if (direct || !source) {
       return direct
@@ -262,7 +256,7 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
     }
   }
 
-  async createTransfer(input: CreateTransferInput): Promise<TransferOutput> {
+  async createPayout(input: CreatePayoutInput): Promise<PayoutOutput> {
     const sourceTransaction = await this.resolveSourceTransaction(input.source_payment)
     const settled = await this.settleAmount(sourceTransaction, input.amount, input.currency_code)
 
@@ -272,7 +266,7 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
         currency: settled.currency,
         destination: input.account.id,
         source_transaction: sourceTransaction,
-        transfer_group: input.transfer_group ?? undefined,
+        transfer_group: input.group ?? undefined,
         metadata: {
           ...input.metadata,
           requested_amount: String(input.amount),
@@ -284,7 +278,7 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
 
     return {
       id: transfer.id,
-      status: TransferStatus.CREATED,
+      status: PayoutStatus.PAID,
       data: {
         ...asRecord(transfer),
         requested_amount: String(input.amount),
@@ -294,20 +288,20 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
     }
   }
 
-  async reverseTransfer(input: ReverseTransferInput): Promise<TransferOutput> {
-    const provider = (input.transfer.data?.provider ?? input.transfer.data ?? {}) as Record<string, unknown>
-    const requestedAmount = Number(provider.requested_amount ?? NaN)
-    const settledAmount = Number(provider.amount ?? NaN)
+  async reversePayout(input: ReversePayoutInput): Promise<PayoutOutput> {
+    const transfer = input.payout.data ?? {}
+    const requestedAmount = Number(transfer.requested_amount ?? NaN)
+    const settledAmount = Number(transfer.amount ?? NaN)
     // Reversals are denominated in the transfer's currency; scale the share
     // of the original request when the transfer settled in another currency.
     const amount =
       Number.isFinite(requestedAmount) && Number.isFinite(settledAmount) && requestedAmount > 0 &&
-      String(provider.currency ?? "").toLowerCase() !== input.currency_code.toLowerCase()
+      String(transfer.currency ?? "").toLowerCase() !== input.currency_code.toLowerCase()
         ? Math.round((settledAmount * Number(input.amount)) / requestedAmount)
         : getSmallestUnit(input.amount, input.currency_code)
 
     const reversal = await this.stripe_.transfers.createReversal(
-      input.transfer.id,
+      input.payout.id,
       {
         amount,
         metadata: input.metadata,
@@ -315,68 +309,7 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
       { idempotencyKey: input.context?.idempotency_key }
     )
 
-    return { id: reversal.id, status: TransferStatus.CREATED, data: asRecord(reversal) }
-  }
-
-  async createAccountDebit(input: CreateAccountDebitInput): Promise<TransferOutput> {
-    const platform = await this.stripe_.accounts.retrieve()
-
-    const transfer = await this.stripe_.transfers.create(
-      {
-        amount: getSmallestUnit(input.amount, input.currency_code),
-        currency: input.currency_code,
-        destination: platform.id,
-        metadata: input.metadata,
-      },
-      { idempotencyKey: input.context?.idempotency_key, stripeAccount: input.account.id }
-    )
-
-    return { id: transfer.id, status: TransferStatus.CREATED, data: asRecord(transfer) }
-  }
-
-  async createPayout(input: CreatePayoutInput): Promise<PayoutOutput> {
-    const requested = getSmallestUnit(input.amount, input.currency_code)
-    const balance = await this.stripe_.balance.retrieve({}, { stripeAccount: input.account.id })
-    const inRequested = balance.available.find((b) => b.currency === input.currency_code.toLowerCase())
-
-    let amount = requested
-    let currency = input.currency_code
-    if (!inRequested || inRequested.amount < requested) {
-      // The connected balance holds what the transfers settled in; when that
-      // is another currency (or short in this one), pay out what is available.
-      const candidate = balance.available
-        .filter((b) => b.amount > 0)
-        .sort((a, b) => b.amount - a.amount)[0]
-      if (!candidate) {
-        throw new PayoutProviderError(
-          `No available balance on ${input.account.id} to pay out ${input.amount} ${input.currency_code}`
-        )
-      }
-      amount = candidate.amount
-      currency = candidate.currency
-    }
-
-    const payout = await this.stripe_.payouts.create(
-      {
-        amount,
-        currency,
-        metadata: {
-          ...input.metadata,
-          requested_amount: String(input.amount),
-          requested_currency: input.currency_code,
-        },
-      },
-      { idempotencyKey: input.context?.idempotency_key, stripeAccount: input.account.id }
-    )
-
-    const status =
-      payout.status === "paid"
-        ? PayoutStatus.PAID
-        : payout.status === "failed" || payout.status === "canceled"
-          ? PayoutStatus.FAILED
-          : PayoutStatus.PROCESSING
-
-    return { id: payout.id, status, data: asRecord(payout) }
+    return { id: reversal.id, status: PayoutStatus.PAID, data: asRecord(reversal) }
   }
 
   async getWebhookActionAndData(payload: PayoutWebhookActionInput): Promise<PayoutWebhookResult> {
@@ -402,23 +335,9 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
         return { action, data: { id: account.id } }
       }
       case "transfer.created":
-        return { action: "transfer.created", data: { id: (event.data.object as Stripe.Transfer).id } }
+        return { action: "payout.paid", data: { id: (event.data.object as Stripe.Transfer).id } }
       case "transfer.reversed":
-        return { action: "transfer.reversed", data: { id: (event.data.object as Stripe.Transfer).id } }
-      case "payout.paid":
-        return { action: "payout.paid", data: { id: (event.data.object as Stripe.Payout).id } }
-      case "payout.canceled":
-        return { action: "payout.canceled", data: { id: (event.data.object as Stripe.Payout).id } }
-      case "payout.failed": {
-        const payout = event.data.object as Stripe.Payout
-        return {
-          action: "payout.failed",
-          data: {
-            id: payout.id,
-            status_reason: `${payout.failure_code ?? "unknown_code"}: ${payout.failure_message ?? "Unknown failure reason"}`,
-          },
-        }
-      }
+        return { action: "payout.reversed", data: { id: (event.data.object as Stripe.Transfer).id } }
       default:
         return { action: "not_supported" }
     }

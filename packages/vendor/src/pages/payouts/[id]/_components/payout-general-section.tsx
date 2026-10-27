@@ -2,31 +2,20 @@ import { Container, Heading, StatusBadge, Text } from "@medusajs/ui";
 import { PayoutDTO } from "@mercurjs/types";
 import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { getStylizedAmount } from "@lib/money-amount-helpers";
+
+import { payoutStatusColor } from "../../_components/payout-status";
 
 const GENERAL_FIELD_IDS = [
   "display_id",
   "status",
   "amount",
+  "order_id",
+  "status_reason",
   "created_at",
   "updated_at",
 ];
-
-const payoutStatusColor = (status: string) => {
-  switch (status) {
-    case "paid":
-      return "green";
-    case "processing":
-      return "orange";
-    case "pending":
-      return "grey";
-    case "failed":
-    case "canceled":
-      return "red";
-    default:
-      return "grey";
-  }
-};
 
 export const PayoutGeneralSection = ({ payout }: { payout: PayoutDTO }) => {
   const { t } = useTranslation();
@@ -60,6 +49,38 @@ export const PayoutGeneralSection = ({ payout }: { payout: PayoutDTO }) => {
           </Text>
         </div>
       </DisplayField>
+      <DisplayField model="payout" zone="general" id="order_id" data={payout}>
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+          <Text size="small" leading="compact" weight="plus">
+            {t("payouts.order")}
+          </Text>
+          {payout.order_id ? (
+            <Link
+              to={`/orders/${payout.order_id}`}
+              className="text-ui-fg-interactive txt-compact-small truncate"
+              data-testid="payout-general-section-order-link"
+            >
+              {payout.order_id}
+            </Link>
+          ) : (
+            <Text size="small" leading="compact">
+              -
+            </Text>
+          )}
+        </div>
+      </DisplayField>
+      {payout.status_reason && (
+        <DisplayField model="payout" zone="general" id="status_reason" data={payout}>
+          <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+            <Text size="small" leading="compact" weight="plus">
+              {t("payouts.statusReason")}
+            </Text>
+            <Text size="small" leading="compact">
+              {payout.status_reason}
+            </Text>
+          </div>
+        </DisplayField>
+      )}
       <DisplayField model="payout" zone="general" id="created_at" data={payout}>
         <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
           <Text size="small" leading="compact" weight="plus">

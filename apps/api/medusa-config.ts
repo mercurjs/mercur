@@ -22,7 +22,19 @@ module.exports = withMercur({
   featureFlags: {
     seller_registration: true
   },
-  plugins: [{ resolve: '@mercurjs/stripe-connector-plugin', options: {} }],
+  plugins: [
+    {
+      resolve: '@mercurjs/stripe-connector-plugin',
+      options: {
+        apiKey: STRIPE_SECRET_KEY,
+        webhookSecret: process.env.STRIPE_SELLERS_WEBHOOK_SECRET,
+        alerting: {
+          technicalEmail: process.env.PAYOUT_ALERT_EMAIL,
+          from: process.env.PAYOUT_ALERT_FROM,
+        },
+      },
+    },
+  ],
   modules: [
     ...(STRIPE_SECRET_KEY
       ? [
@@ -51,16 +63,13 @@ module.exports = withMercur({
                   options: {
                     apiKey: STRIPE_SECRET_KEY,
                     webhookSecret: process.env.STRIPE_SELLERS_WEBHOOK_SECRET,
+                    manualPayouts: true,
                   },
                 },
               ],
               onboarding: {
                 returnUrl: `${process.env.VENDOR_URL || 'http://localhost:7001'}/settings/stripe`,
                 refreshBaseUrl: process.env.BACKEND_URL || 'http://localhost:9000',
-              },
-              alerting: {
-                technicalEmail: process.env.PAYOUT_ALERT_EMAIL,
-                from: process.env.PAYOUT_ALERT_FROM,
               },
             },
           },

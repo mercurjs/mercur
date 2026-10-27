@@ -2,12 +2,10 @@ import crypto from "crypto"
 
 import {
   AccountOutput,
-  CreateAccountDebitInput,
   CreateAccountInput,
   CreateLoginLinkInput,
   CreateOnboardingInput,
   CreatePayoutInput,
-  CreateTransferInput,
   LinkOutput,
   ListAccountsInput,
   ListAccountsOutput,
@@ -17,9 +15,7 @@ import {
   PayoutWebhookActionInput,
   PayoutWebhookResult,
   RetrieveAccountInput,
-  ReverseTransferInput,
-  TransferOutput,
-  TransferStatus,
+  ReversePayoutInput,
 } from "@mercurjs/types"
 
 import { AbstractPayoutProvider } from "../utils/abstract-payout-provider"
@@ -62,19 +58,11 @@ export class SystemPayoutProvider extends AbstractPayoutProvider {
     return { url: `system://account/${input.account.id}`, data: {} }
   }
 
-  async createTransfer(_input: CreateTransferInput): Promise<TransferOutput> {
-    return { id: crypto.randomUUID(), status: TransferStatus.CREATED, data: {} }
-  }
-
-  async reverseTransfer(_input: ReverseTransferInput): Promise<TransferOutput> {
-    return { id: crypto.randomUUID(), status: TransferStatus.CREATED, data: {} }
-  }
-
-  async createAccountDebit(_input: CreateAccountDebitInput): Promise<TransferOutput> {
-    return { id: crypto.randomUUID(), status: TransferStatus.CREATED, data: {} }
-  }
-
   async createPayout(_input: CreatePayoutInput): Promise<PayoutOutput> {
+    return { id: crypto.randomUUID(), status: PayoutStatus.PAID, data: {} }
+  }
+
+  async reversePayout(_input: ReversePayoutInput): Promise<PayoutOutput> {
     return { id: crypto.randomUUID(), status: PayoutStatus.PAID, data: {} }
   }
 

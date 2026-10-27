@@ -84,14 +84,10 @@ declare module "@mercurjs/dashboard-sdk" {
     "payout_accounts.detail.side.before": true
     "payout_accounts.list.after": true
     "payout_accounts.list.before": true
-    "payout_captures.detail.main.after": true
-    "payout_captures.detail.main.before": true
-    "payout_captures.detail.side.after": true
-    "payout_captures.detail.side.before": true
-    "payout_captures.list.after": true
-    "payout_captures.list.before": true
     "payouts.detail.main.after": true
     "payouts.detail.main.before": true
+    "payouts.detail.side.after": true
+    "payouts.detail.side.before": true
     "payouts.list.after": true
     "payouts.list.before": true
     "price-lists.detail.main.after": true
@@ -143,18 +139,10 @@ declare module "@mercurjs/dashboard-sdk" {
     "reservation.list.before": true
     "return-reasons.list.after": true
     "return-reasons.list.before": true
-    "reversals.list.after": true
-    "reversals.list.before": true
     "sales-channels.detail.main.after": true
     "sales-channels.detail.main.before": true
     "sales-channels.list.after": true
     "sales-channels.list.before": true
-    "settlements.detail.main.after": true
-    "settlements.detail.main.before": true
-    "settlements.detail.side.after": true
-    "settlements.detail.side.before": true
-    "settlements.list.after": true
-    "settlements.list.before": true
     "shipping-option-types.detail.main.after": true
     "shipping-option-types.detail.main.before": true
     "shipping-option-types.list.after": true
@@ -179,12 +167,6 @@ declare module "@mercurjs/dashboard-sdk" {
     "tax-regions.province.detail.main.before": true
     "topbar.after": true
     "topbar.before": true
-    "transfers.detail.main.after": true
-    "transfers.detail.main.before": true
-    "transfers.detail.side.after": true
-    "transfers.detail.side.before": true
-    "transfers.list.after": true
-    "transfers.list.before": true
     "users.detail.main.after": true
     "users.detail.main.before": true
     "users.list.after": true
@@ -213,13 +195,11 @@ declare module "@mercurjs/dashboard-sdk" {
     "offers": true
     "orders": true
     "payout-accounts": true
-    "payout-captures": true
     "payouts": true
     "price-lists": true
     "products": true
     "promotions": true
     "reservations": true
-    "reversals": true
     "reviews": true
     "settings/attributes": true
     "settings/commissions": true
@@ -237,9 +217,7 @@ declare module "@mercurjs/dashboard-sdk" {
     "settings/secret-api-keys": true
     "settings/tax-regions": true
     "settings/users": true
-    "settlements": true
     "stores": true
-    "transfers": true
   }
 
   interface NavParentRegistry {

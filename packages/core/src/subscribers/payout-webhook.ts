@@ -11,44 +11,30 @@ type SerializedBuffer = {
   type: "Buffer"
 }
 
-type PayoutWebhookEvent = {
-  provider?: string
-  payload: ProviderWebhookPayload["payload"]
-}
-
 export default async function payoutWebhookHandler({
   event,
   container,
-}: SubscriberArgs<PayoutWebhookEvent | ProviderWebhookPayload["payload"]>) {
+}: SubscriberArgs<ProviderWebhookPayload["payload"]>) {
   const payoutService = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
 
-  // The legacy `/hooks/payout` route emitted the raw payload; the provider
-  // route wraps it with the provider id.
-  const wrapped = event.data as PayoutWebhookEvent
-  const payload = (wrapped.payload ?? event.data) as ProviderWebhookPayload["payload"]
-  const providerId = wrapped.provider ?? payoutService.getDefaultProviderId()
+  const input = event.data
 
-  if ((payload?.rawData as unknown as SerializedBuffer)?.type === "Buffer") {
-    payload.rawData = Buffer.from((payload.rawData as unknown as SerializedBuffer).data)
+  if ((input?.rawData as unknown as SerializedBuffer)?.type === "Buffer") {
+    input.rawData = Buffer.from((input.rawData as unknown as SerializedBuffer).data)
   }
 
   const processedEvent = await payoutService.getWebhookActionAndData({
-    provider_id: providerId,
-    data: payload.data as Record<string, unknown>,
-    rawData: payload.rawData,
-    headers: payload.headers as Record<string, unknown>,
+    data: input.data as Record<string, unknown>,
+    rawData: input.rawData,
+    headers: input.headers as Record<string, unknown>,
   })
-
-  await payoutService.setCheckpoint("last_webhook_at", new Date().toISOString())
 
   if (!processedEvent.data || processedEvent.action === "not_supported") {
     return
   }
 
   const wfEngine = container.resolve(Modules.WORKFLOW_ENGINE)
-  await wfEngine.run(processPayoutForWebhookWorkflowId, {
-    input: { ...processedEvent, provider_id: providerId },
-  })
+  await wfEngine.run(processPayoutForWebhookWorkflowId, { input: processedEvent })
 }
 
 export const config: SubscriberConfig = {

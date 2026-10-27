@@ -129,25 +129,3 @@ export const useRefreshPayoutAccountLink = (
     ...options,
   });
 };
-
-export const useIgnorePayoutAccount = (
-  id: string,
-  options?: UseMutationOptions<
-    PayoutAccountResponse,
-    ClientError,
-    { ignored: boolean }
-  >,
-) => {
-  return useMutation({
-    mutationFn: (payload) =>
-      sdk.admin.payoutAccounts.$id.ignore.mutate({
-        $id: id,
-        ...payload,
-      }) as Promise<PayoutAccountResponse>,
-    onSuccess: async (data, variables, context) => {
-      await invalidate(id);
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
-};

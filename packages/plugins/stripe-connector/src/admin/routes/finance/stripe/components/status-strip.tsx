@@ -1,5 +1,4 @@
 import { Container, Heading, StatusBadge, Text } from "@medusajs/ui"
-import { useNavigate } from "react-router-dom"
 
 import { useStripeStatus } from "../../../../hooks/api/stripe"
 import { formatDate } from "../../../../lib/status"
@@ -19,9 +18,7 @@ const Count = ({ label, value, onClick }: { label: string; value: number; onClic
 )
 
 export const StatusStrip = ({ onJump }: { onJump: (tab: string) => void }) => {
-  const navigate = useNavigate()
   const { data, isPending } = useStripeStatus({ refetchInterval: 30_000 })
-  const providers = data?.providers.filter((p) => p.id !== "pop_system_default") ?? []
   const failed = data?.failed
 
   return (
@@ -30,22 +27,22 @@ export const StatusStrip = ({ onJump }: { onJump: (tab: string) => void }) => {
         <div>
           <Heading>Stripe</Heading>
           <Text size="small" className="text-ui-fg-subtle">
-            Onboarding, captures, transfers, reversals and payouts, run on a fixed schedule.
+            Onboarding, captures, payouts, reversals and settlements, run on a fixed schedule.
           </Text>
         </div>
         {isPending ? (
           <StatusBadge color="grey">Checking</StatusBadge>
-        ) : providers.length ? (
-          <StatusBadge color="green">{providers.map((p) => p.id).join(", ")}</StatusBadge>
+        ) : data?.configured ? (
+          <StatusBadge color="green">Connected</StatusBadge>
         ) : (
-          <StatusBadge color="orange">No Stripe provider registered</StatusBadge>
+          <StatusBadge color="orange">No Stripe API key in the plugin options</StatusBadge>
         )}
       </div>
       <div className="flex flex-wrap items-center gap-x-2 px-3 py-2">
-        <Count label="Captures" value={failed?.captures ?? 0} onClick={() => navigate("/payout-captures")} />
-        <Count label="Transfers" value={failed?.transfers ?? 0} onClick={() => onJump("transfers")} />
-        <Count label="Reversals" value={failed?.reversals ?? 0} onClick={() => onJump("reversals")} />
-        <Count label="Payouts" value={failed?.payouts ?? 0} onClick={() => onJump("settlements")} />
+        <Count label="Captures" value={failed?.captures ?? 0} onClick={() => onJump("captures")} />
+        <Count label="Payouts" value={failed?.payouts ?? 0} onClick={() => onJump("payouts")} />
+        <Count label="Reversals" value={failed?.reversals ?? 0} onClick={() => onJump("payouts")} />
+        <Count label="Settlements" value={(failed?.settlements ?? 0) + (failed?.adjustments ?? 0)} onClick={() => onJump("settlements")} />
         <div className="ml-auto px-3">
           <Text size="xsmall" className="text-ui-fg-subtle">
             Last webhook {formatDate(data?.last_webhook_at ?? null)}

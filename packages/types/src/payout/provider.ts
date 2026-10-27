@@ -4,7 +4,6 @@ import {
   PayoutAccountStatus,
   PayoutStatus,
   PayoutWebhookAction,
-  TransferStatus,
 } from "./common"
 
 export interface PayoutProviderContext {
@@ -36,9 +35,6 @@ export interface CreateAccountInput extends PayoutProviderInput {
     support_phone?: string | null
   }
   metadata?: Record<string, string>
-  settings?: {
-    manual_payouts?: boolean
-  }
 }
 
 export interface AccountOutput extends PayoutProviderOutput {
@@ -82,40 +78,24 @@ export interface LinkOutput extends PayoutProviderOutput {
 
 export interface SourcePaymentRef {
   id: string
-  provider_id: string
   data: Record<string, unknown>
-}
-
-export interface CreateTransferInput extends PayoutProviderInput {
-  account: PayoutProviderAccountRef
-  amount: BigNumberInput
-  currency_code: string
-  source_payment?: SourcePaymentRef | null
-  transfer_group?: string | null
-  metadata?: Record<string, string>
-}
-
-export interface TransferOutput extends PayoutProviderOutput {
-  id: string
-  status: TransferStatus
-}
-
-export interface ReverseTransferInput extends PayoutProviderInput {
-  transfer: { id: string; data: Record<string, unknown> }
-  amount: BigNumberInput
-  currency_code: string
-  metadata?: Record<string, string>
-}
-
-export interface CreateAccountDebitInput extends PayoutProviderInput {
-  account: PayoutProviderAccountRef
-  amount: BigNumberInput
-  currency_code: string
-  metadata?: Record<string, string>
 }
 
 export interface CreatePayoutInput extends PayoutProviderInput {
   account: PayoutProviderAccountRef
+  amount: BigNumberInput
+  currency_code: string
+  /**
+   * The customer payment the funds come from, for providers that tie a
+   * payout to the charge that funded it.
+   */
+  source_payment?: SourcePaymentRef | null
+  group?: string | null
+  metadata?: Record<string, string>
+}
+
+export interface ReversePayoutInput extends PayoutProviderInput {
+  payout: { id: string; data: Record<string, unknown> }
   amount: BigNumberInput
   currency_code: string
   metadata?: Record<string, string>
@@ -135,7 +115,7 @@ export interface PayoutWebhookActionInput {
 export type PayoutWebhookResult = {
   action: PayoutWebhookAction
   data?: {
-    /** The provider's id of the account, transfer or payout the event is about. */
+    /** The provider's id of the account or payout the event is about. */
     id: string
     status_reason?: string
   }
@@ -157,9 +137,7 @@ export interface IPayoutProvider {
   listAccounts?(input: ListAccountsInput): Promise<ListAccountsOutput>
   createOnboarding(input: CreateOnboardingInput): Promise<LinkOutput>
   createLoginLink?(input: CreateLoginLinkInput): Promise<LinkOutput>
-  createTransfer(input: CreateTransferInput): Promise<TransferOutput>
-  reverseTransfer(input: ReverseTransferInput): Promise<TransferOutput>
-  createAccountDebit?(input: CreateAccountDebitInput): Promise<TransferOutput>
   createPayout(input: CreatePayoutInput): Promise<PayoutOutput>
+  reversePayout(input: ReversePayoutInput): Promise<PayoutOutput>
   getWebhookActionAndData(payload: PayoutWebhookActionInput): Promise<PayoutWebhookResult>
 }

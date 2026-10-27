@@ -1,17 +1,8 @@
 import { useTranslation } from "react-i18next"
 
 import { Filter } from "../../../components/table/data-table"
+import { PAYOUT_STATUSES } from "../../../pages/payouts/common/utils"
 import { useSellers } from "../../api/sellers"
-
-const PAYOUT_STATUSES = [
-  "pending",
-  "processing",
-  "paid",
-  "failed",
-  "canceled",
-  "on_hold",
-  "aborted",
-]
 
 export const usePayoutTableFilters = () => {
   const { t } = useTranslation()

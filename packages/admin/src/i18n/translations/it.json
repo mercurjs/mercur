@@ -3618,8 +3618,7 @@
       "paid": "Pagato",
       "processing": "In elaborazione",
       "pending": "In attesa",
-      "failed": "Fallito",
-      "canceled": "Annullato"
+      "failed": "Fallito"
     }
   },
   "marketplace": {

@@ -3613,8 +3613,7 @@
       "paid": "Vyplaceno",
       "processing": "Zpracovává se",
       "pending": "Čeká se",
-      "failed": "Selhalo",
-      "canceled": "Zrušeno"
+      "failed": "Selhalo"
     }
   },
   "marketplace": {

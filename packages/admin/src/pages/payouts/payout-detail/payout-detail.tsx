@@ -1,19 +1,29 @@
-import { ReactNode, Children } from "react"
-import { useParams } from "react-router-dom"
+import { Children, ReactNode } from "react"
+import { useLoaderData, useParams } from "react-router-dom"
 
 import { WidgetZone } from "@mercurjs/dashboard-shared"
-import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
-import { SingleColumnPage } from "../../../components/layout/pages"
+import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
+import { TwoColumnPage } from "../../../components/layout/pages"
 import { usePayout } from "../../../hooks/api/payouts"
 import { PayoutGeneralSection } from "./components/payout-general-section"
+import { PayoutReferencesSection } from "./components/payout-references-section"
+import { PayoutReversalsSection } from "./components/payout-reversals-section"
+import { PayoutStatusAlert } from "./components/payout-status-alert"
+import { payoutLoader } from "./loader"
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
 
-  const { payout, isLoading, isError, error } = usePayout(id!)
+  const initialData = useLoaderData() as Awaited<ReturnType<typeof payoutLoader>>
+
+  const { payout, isLoading, isError, error } = usePayout(id!, undefined, {
+    initialData,
+  })
 
   if (isLoading || !payout) {
-    return <SingleColumnPageSkeleton sections={1} />
+    return (
+      <TwoColumnPageSkeleton mainSections={2} sidebarSections={1} showJSON />
+    )
   }
 
   if (isError) {
@@ -21,18 +31,32 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return Children.count(children) > 0 ? (
-    <SingleColumnPage data={payout} showJSON showMetadata>
+    <TwoColumnPage data={payout} showJSON showMetadata>
       {children}
-    </SingleColumnPage>
+    </TwoColumnPage>
   ) : (
-    <SingleColumnPage data={payout} showJSON showMetadata>
-      <WidgetZone id="payouts.detail.main" data={payout}>
-        <PayoutGeneralSection payout={payout} />
-      </WidgetZone>
-    </SingleColumnPage>
+    <TwoColumnPage data={payout} showJSON showMetadata>
+      <TwoColumnPage.Main>
+        <WidgetZone id="payouts.detail.main" data={payout}>
+          <PayoutStatusAlert payout={payout} />
+          <PayoutGeneralSection payout={payout} />
+          <PayoutReversalsSection payout={payout} />
+        </WidgetZone>
+      </TwoColumnPage.Main>
+      <TwoColumnPage.Sidebar>
+        <WidgetZone id="payouts.detail.side" data={payout}>
+          <PayoutReferencesSection payout={payout} />
+        </WidgetZone>
+      </TwoColumnPage.Sidebar>
+    </TwoColumnPage>
   )
 }
 
 export const PayoutDetailPage = Object.assign(Root, {
-  GeneralSection: PayoutGeneralSection,
+  Main: TwoColumnPage.Main,
+  Sidebar: TwoColumnPage.Sidebar,
+  MainStatusAlert: PayoutStatusAlert,
+  MainGeneralSection: PayoutGeneralSection,
+  MainReversalsSection: PayoutReversalsSection,
+  SidebarReferencesSection: PayoutReferencesSection,
 })

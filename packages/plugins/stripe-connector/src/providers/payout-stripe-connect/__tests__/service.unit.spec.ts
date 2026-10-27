@@ -1,4 +1,4 @@
-import { PayoutAccountStatus, PayoutStatus, TransferStatus } from "@mercurjs/types"
+import { PayoutAccountStatus, PayoutStatus } from "@mercurjs/types"
 
 import { StripeConnectPayoutProviderService } from "../service"
 
@@ -32,9 +32,9 @@ const makeStripe = (calls: Call[]) => {
   }
 }
 
-const build = () => {
+const build = (options: { manualPayouts?: boolean } = {}) => {
   const calls: Call[] = []
-  const service = new StripeConnectPayoutProviderService({}, { apiKey: "sk_test_x", webhookSecret: "whsec_x" })
+  const service = new StripeConnectPayoutProviderService({}, { apiKey: "sk_test_x", webhookSecret: "whsec_x", ...options })
   ;(service as unknown as { stripe_: unknown }).stripe_ = makeStripe(calls)
   return { service, calls }
 }
@@ -48,12 +48,11 @@ describe("StripeConnectPayoutProviderService", () => {
   })
 
   it("creates an express account with a manual payout schedule when asked", async () => {
-    const { service, calls } = build()
+    const { service, calls } = build({ manualPayouts: true })
     const out = await service.createAccount({
       country: "DE",
       business_type: "company",
       metadata: { seller_id: "sel_1" },
-      settings: { manual_payouts: true },
       context: { idempotency_key: "pacc_1" },
     })
     expect(calls[0].method).toBe("accounts.create")
@@ -78,57 +77,43 @@ describe("StripeConnectPayoutProviderService", () => {
     expect(login.url).toContain("login")
   })
 
-  it("transfers with the charge as source_transaction, resolving a PaymentIntent when needed", async () => {
+  it("pays out as a transfer with the charge as source_transaction, resolving a PaymentIntent when needed", async () => {
     const { service, calls } = build()
-    await service.createTransfer({
+    const payout = await service.createPayout({
       account,
       amount: 162,
       currency_code: "eur",
-      source_payment: { id: "pay_1", provider_id: "pp_x", data: { id: "pi_1", latest_charge: "ch_1" } },
-      transfer_group: "order_1",
-      metadata: { transfer_id: "trf_1" },
-      context: { idempotency_key: "trf_1" },
+      source_payment: { id: "pay_1", data: { id: "pi_1", latest_charge: "ch_1" } },
+      group: "order_1",
+      metadata: { payout_id: "pout_1" },
+      context: { idempotency_key: "pout_1" },
     })
+    expect(payout.status).toBe(PayoutStatus.PAID)
     expect(calls[0].method).toBe("charges.retrieve")
     expect(calls[1].method).toBe("transfers.create")
     expect(calls[1].args[0]).toMatchObject({ amount: 16200, currency: "eur", destination: "acct_seller", source_transaction: "ch_1", transfer_group: "order_1" })
 
     calls.length = 0
-    await service.createTransfer({
+    await service.createPayout({
       account,
       amount: 10,
       currency_code: "eur",
-      source_payment: { id: "pay_2", provider_id: "pp_x", data: { id: "pi_1" } },
+      source_payment: { id: "pay_2", data: { id: "pi_1" } },
     })
     expect(calls[0].method).toBe("paymentIntents.retrieve")
     expect(calls[2].args[0]).toMatchObject({ source_transaction: "ch_from_pi" })
   })
 
-  it("reverses, debits and pays out on the connected account", async () => {
+  it("reverses a payout on its transfer", async () => {
     const { service, calls } = build()
-    const reversal = await service.reverseTransfer({ transfer: { id: "tr_1", data: {} }, amount: 54, currency_code: "eur", context: { idempotency_key: "trf_2" } })
+    const reversal = await service.reversePayout({ payout: { id: "tr_1", data: {} }, amount: 54, currency_code: "eur", context: { idempotency_key: "pourev_1" } })
     expect(calls[0].method).toBe("transfers.createReversal")
     expect(calls[0].args[0]).toBe("tr_1")
     expect(calls[0].args[1]).toMatchObject({ amount: 5400 })
-    expect(reversal.status).toBe(TransferStatus.CREATED)
-
-    calls.length = 0
-    await service.createAccountDebit({ account, amount: 29, currency_code: "eur" })
-    expect(calls[0].method).toBe("accounts.retrieve")
-    expect(calls[1].method).toBe("transfers.create")
-    expect(calls[1].args[0]).toMatchObject({ amount: 2900, destination: "acct_platform" })
-    expect(calls[1].args[1]).toMatchObject({ stripeAccount: "acct_seller" })
-
-    calls.length = 0
-    const payout = await service.createPayout({ account, amount: 79, currency_code: "eur", context: { idempotency_key: "pout_1" } })
-    expect(calls[0].method).toBe("balance.retrieve")
-    expect(calls[1].method).toBe("payouts.create")
-    expect(calls[1].args[0]).toMatchObject({ amount: 7900, currency: "eur" })
-    expect(calls[1].args[1]).toMatchObject({ stripeAccount: "acct_seller", idempotencyKey: "pout_1" })
-    expect(payout.status).toBe(PayoutStatus.PROCESSING)
+    expect(reversal.status).toBe(PayoutStatus.PAID)
   })
 
-  it("normalizes account and payout webhooks", async () => {
+  it("normalizes account and transfer webhooks", async () => {
     const { service } = build()
     const hook = (event: unknown) => service.getWebhookActionAndData({ data: {}, rawData: JSON.stringify(event), headers: { "stripe-signature": "sig" } })
 
@@ -141,8 +126,14 @@ describe("StripeConnectPayoutProviderService", () => {
     const restricted = await hook({ type: "account.updated", data: { object: { id: "acct_3", details_submitted: true, charges_enabled: true, payouts_enabled: false, requirements: { currently_due: ["doc"] } } } })
     expect(restricted.action).toBe("account.restricted")
 
-    const failed = await hook({ type: "payout.failed", data: { object: { id: "po_1", failure_code: "account_closed", failure_message: "The bank account has been closed" } } })
-    expect(failed).toEqual({ action: "payout.failed", data: { id: "po_1", status_reason: "account_closed: The bank account has been closed" } })
+    const paid = await hook({ type: "transfer.created", data: { object: { id: "tr_1" } } })
+    expect(paid).toEqual({ action: "payout.paid", data: { id: "tr_1" } })
+
+    const reversed = await hook({ type: "transfer.reversed", data: { object: { id: "tr_1" } } })
+    expect(reversed).toEqual({ action: "payout.reversed", data: { id: "tr_1" } })
+
+    const bank = await hook({ type: "payout.failed", data: { object: { id: "po_1" } } })
+    expect(bank.action).toBe("not_supported")
 
     const other = await hook({ type: "charge.succeeded", data: { object: {} } })
     expect(other.action).toBe("not_supported")

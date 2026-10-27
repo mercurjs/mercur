@@ -11,15 +11,7 @@ import { adminCustomerGroupsMiddlewares } from "./customer-groups/middlewares"
 import { adminOffersMiddlewares } from "./offers/middlewares"
 import { adminOfferConditionsMiddlewares } from "./offer-conditions/middlewares"
 import { adminPayoutsMiddlewares } from "./payouts/middlewares"
-import { adminPayoutProvidersMiddlewares } from "./payout-providers/middlewares"
 import { adminPayoutAccountsMiddlewares } from "./payout-accounts/middlewares"
-import { adminTransfersMiddlewares } from "./transfers/middlewares"
-import { adminSettlementsMiddlewares } from "./settlements/middlewares"
-import { adminPayoutAdjustmentsMiddlewares } from "./payout-adjustments/middlewares"
-import { adminPayoutJobsMiddlewares } from "./payout-jobs/middlewares"
-import { adminPayoutStatusMiddlewares } from "./payout-status/middlewares"
-import { adminPayoutCapturesMiddlewares } from "./payout-captures/middlewares"
-import { adminPayoutNotificationsMiddlewares } from "./payout-notifications/middlewares"
 import { adminSellersMiddlewares } from "./sellers/middlewares"
 import { adminRegionsMiddlewares } from "./regions/middlewares"
 import { adminMembersMiddlewares } from "./members/middlewares"
@@ -65,15 +57,7 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminOffersMiddlewares,
   ...adminOfferConditionsMiddlewares,
   ...adminPayoutsMiddlewares,
-  ...adminPayoutProvidersMiddlewares,
   ...adminPayoutAccountsMiddlewares,
-  ...adminTransfersMiddlewares,
-  ...adminSettlementsMiddlewares,
-  ...adminPayoutAdjustmentsMiddlewares,
-  ...adminPayoutJobsMiddlewares,
-  ...adminPayoutStatusMiddlewares,
-  ...adminPayoutCapturesMiddlewares,
-  ...adminPayoutNotificationsMiddlewares,
   ...adminSellersMiddlewares,
   ...adminRegionsMiddlewares,
   ...adminMembersMiddlewares,

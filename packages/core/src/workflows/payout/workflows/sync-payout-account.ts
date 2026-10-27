@@ -33,7 +33,6 @@ export const syncPayoutAccountWorkflow = createWorkflow(
     const eventData = transform({ account, input }, ({ account, input }) => ({
       id: account.id,
       seller_id: input.seller_id ?? null,
-      provider_id: account.provider_id,
       provider_account_id: account.provider_account_id,
       status: account.status,
       kyc_status: account.kyc_status,

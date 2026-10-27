@@ -3068,12 +3068,18 @@
     "domain": "Payouts",
     "payout": "Payout",
     "noRecords": "No payouts found",
+    "order": "Order",
+    "statusReason": "Reason",
     "status": {
       "pending": "Pending",
+      "on_hold": "On hold",
       "processing": "Processing",
       "paid": "Paid",
       "failed": "Failed",
-      "canceled": "Canceled"
+      "aborted": "Aborted"
+    },
+    "reversals": {
+      "header": "Reversals"
     }
   },
   "reviews": {

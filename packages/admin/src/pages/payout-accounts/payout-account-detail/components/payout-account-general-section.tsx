@@ -1,12 +1,11 @@
-import { ArrowPath, ArrowUpRightOnBox, Link as LinkIcon, XCircle } from "@medusajs/icons"
-import { Badge, Container, Copy, Heading, StatusBadge, toast, usePrompt } from "@medusajs/ui"
+import { ArrowPath, ArrowUpRightOnBox, Link as LinkIcon } from "@medusajs/icons"
+import { Badge, Container, Copy, Heading, StatusBadge, toast } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
 import { SectionRow } from "../../../../components/common/section"
 import {
   AdminPayoutAccount,
-  useIgnorePayoutAccount,
   useRefreshPayoutAccountLink,
   useSyncPayoutAccount,
 } from "../../../../hooks/api/payout-accounts"
@@ -19,12 +18,10 @@ export const PayoutAccountGeneralSection = ({
   account: AdminPayoutAccount
 }) => {
   const { t } = useTranslation()
-  const prompt = usePrompt()
   const { getFullDate } = useDate()
 
   const sync = useSyncPayoutAccount(account.id)
   const refreshLink = useRefreshPayoutAccountLink(account.id)
-  const ignore = useIgnorePayoutAccount(account.id)
 
   const status = getPayoutAccountStatusProps(account.status, t)
   const onboardingUrl =
@@ -47,36 +44,6 @@ export const PayoutAccountGeneralSection = ({
     })
   }
 
-  const handleToggleIgnore = async () => {
-    const ignored = !account.ignored
-
-    if (ignored) {
-      const confirmed = await prompt({
-        title: t("payoutAccounts.ignore.title"),
-        description: t("payoutAccounts.ignore.description"),
-        confirmText: t("actions.confirm"),
-        cancelText: t("actions.cancel"),
-      })
-
-      if (!confirmed) {
-        return
-      }
-    }
-
-    ignore.mutate(
-      { ignored },
-      {
-        onSuccess: () =>
-          toast.success(
-            ignored
-              ? t("payoutAccounts.ignore.successToast")
-              : t("payoutAccounts.unignore.successToast"),
-          ),
-        onError: (error) => toast.error(error.message),
-      },
-    )
-  }
-
   const formatDate = (value: Date | string | null | undefined) =>
     value ? getFullDate({ date: value, includeTime: true }) : "-"
 
@@ -87,11 +54,6 @@ export const PayoutAccountGeneralSection = ({
           {account.seller?.name ?? account.provider_account_id ?? account.id}
         </Heading>
         <div className="flex items-center gap-x-2">
-          {account.ignored && (
-            <StatusBadge color="grey">
-              {t("payoutAccounts.fields.ignored")}
-            </StatusBadge>
-          )}
           <StatusBadge
             color={status.color}
             data-testid="payout-account-general-section-status-badge"
@@ -126,26 +88,10 @@ export const PayoutAccountGeneralSection = ({
                     : []),
                 ],
               },
-              {
-                actions: [
-                  {
-                    label: account.ignored
-                      ? t("payoutAccounts.actions.unignore")
-                      : t("payoutAccounts.actions.ignore"),
-                    icon: <XCircle />,
-                    onClick: handleToggleIgnore,
-                    permission: "payouts:edit",
-                  },
-                ],
-              },
             ]}
           />
         </div>
       </div>
-      <SectionRow
-        title={t("payoutAccounts.fields.provider")}
-        value={<Badge size="2xsmall">{account.provider_id}</Badge>}
-      />
       <SectionRow
         title={t("payoutAccounts.fields.providerAccountId")}
         value={

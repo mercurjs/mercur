@@ -1,47 +1,32 @@
 import {
     EmitEvents,
     InjectManager,
-    InjectTransactionManager,
     MedusaContext,
-    MedusaError,
     MedusaService,
 } from "@medusajs/framework/utils"
 import {
     AccountOutput,
     CreatePayoutAccountDTO,
-    CreatePayoutDTO,
     CreateOnboardingDTO,
-    CreatePayoutJobRunDTO,
+    ListAccountsInput,
+    ListAccountsOutput,
     OnboardingDTO,
     PayoutAccountDTO,
-    PayoutAccountStatus,
     PayoutDTO,
-    PayoutJobRunDTO,
-    PayoutJobRunStatus,
     PayoutModuleOptions,
-    PayoutProviderDTO,
+    PayoutReversalDTO,
     PayoutStatus,
-    SettlementStatus,
     PayoutWebhookActionInput,
     PayoutWebhookResult,
     ResolvedPayoutModuleOptions,
-    TransferDTO,
-    TransferStatus,
-    TransferType,
     resolvePayoutModuleOptions,
 } from "@mercurjs/types"
 import PayoutProviderService from "./provider-service"
 import {
-    Adjustment,
     Onboarding,
     Payout,
     PayoutAccount,
-    PayoutCheckpoint,
-    PayoutJobRun,
-    PayoutNotification,
-    PayoutProviderRecord,
-    Settlement,
-    Transfer,
+    PayoutReversal,
 } from "../models"
 import { Context, DAL, InferEntityType } from "@medusajs/framework/types"
 import { EntityManager } from "@medusajs/framework/mikro-orm/knex"
@@ -54,67 +39,38 @@ type InjectedDependencies = {
 
 const REASON_MAX_LENGTH = 1024
 
+const DISPATCHABLE = [PayoutStatus.PENDING, PayoutStatus.FAILED]
+
 const errorReason = (error: unknown): string => {
     const message = error instanceof Error ? error.message : String(error)
     return message.slice(0, REASON_MAX_LENGTH)
 }
 
+// A provider caches an idempotency key with the request that first used it,
+// so a retry after a refused attempt needs a fresh key.
+const idempotencyKey = (id: string, attempt: number) =>
+    attempt === 1 ? id : `${id}:${attempt}`
+
 export default class PayoutModuleService extends MedusaService({
     Onboarding,
     Payout,
     PayoutAccount,
-    Transfer,
-    Settlement,
-    Adjustment,
-    PayoutCheckpoint,
-    PayoutJobRun,
-    PayoutNotification,
-    PayoutProviderRecord,
+    PayoutReversal,
 }) {
     protected readonly payoutProviderService_: PayoutProviderService
     protected readonly baseRepository_: DAL.RepositoryService
     protected readonly options_: ResolvedPayoutModuleOptions
-    protected readonly rawOptions_: PayoutModuleOptions
 
     constructor({ payoutProviderService, baseRepository }: InjectedDependencies, options: PayoutModuleOptions) {
         // @ts-ignore
         super(...arguments)
         this.payoutProviderService_ = payoutProviderService
         this.baseRepository_ = baseRepository
-        this.rawOptions_ = options ?? {}
         this.options_ = resolvePayoutModuleOptions(options)
     }
 
     getOptions(): ResolvedPayoutModuleOptions {
         return this.options_
-    }
-
-    listProviderIds(): string[] {
-        return this.payoutProviderService_.listProviderIds()
-    }
-
-    getDefaultProviderId(): string {
-        return this.payoutProviderService_.getDefaultProviderId()
-    }
-
-    @InjectManager()
-    async listRegisteredPayoutProviders(
-        @MedusaContext() sharedContext?: Context<EntityManager>
-    ): Promise<PayoutProviderDTO[]> {
-        const registered = this.listProviderIds()
-        const rows = await this.listPayoutProviderRecords({}, {}, sharedContext)
-        const known = new Set(rows.map((row) => row.id))
-        const missing = registered.filter((id) => !known.has(id))
-
-        if (missing.length) {
-            await this.createPayoutProviderRecords(
-                missing.map((id) => ({ id, is_enabled: true })),
-                sharedContext
-            )
-        }
-
-        const all = await this.listPayoutProviderRecords({ id: registered }, {}, sharedContext)
-        return await this.baseRepository_.serialize<PayoutProviderDTO[]>(all)
     }
 
     protected accountRef(account: { provider_account_id?: string | null; data?: Record<string, unknown> | null }) {
@@ -145,16 +101,12 @@ export default class PayoutModuleService extends MedusaService({
         input: CreatePayoutAccountDTO,
         @MedusaContext() sharedContext?: Context<EntityManager>
     ): Promise<PayoutAccountDTO> {
-        const providerId = input.provider_id ?? this.getDefaultProviderId()
-        this.payoutProviderService_.retrieveProvider(providerId)
-
         let payoutAccount: InferEntityType<typeof PayoutAccount> | null = null
         let providerAccount: AccountOutput | null = null
 
         try {
             payoutAccount = await this.createPayoutAccounts(
                 {
-                    provider_id: providerId,
                     data: input.data ?? {},
                     context: input.context as Record<string, unknown>,
                 },
@@ -169,7 +121,6 @@ export default class PayoutModuleService extends MedusaService({
                 this.options_.onboarding.defaultCountry
 
             providerAccount = await this.payoutProviderService_.createAccount({
-                provider_id: providerId,
                 context: {
                     idempotency_key: payoutAccount.id,
                     ...input.context,
@@ -193,9 +144,6 @@ export default class PayoutModuleService extends MedusaService({
                 metadata: {
                     account_id: payoutAccount.id,
                     ...(seller?.id ? { seller_id: seller.id } : {}),
-                },
-                settings: {
-                    manual_payouts: this.options_.settlements.mode === "connector",
                 },
             })
 
@@ -233,21 +181,23 @@ export default class PayoutModuleService extends MedusaService({
         const account = await this.retrievePayoutAccount(accountId, {}, sharedContext)
 
         const providerAccount = await this.payoutProviderService_.retrieveAccount({
-            provider_id: account.provider_id,
             account: this.accountRef(account),
         })
 
-        const fields = this.accountFieldsFromProvider(providerAccount)
         const updated = await this.updatePayoutAccounts(
             {
                 id: accountId,
-                ...fields,
+                ...this.accountFieldsFromProvider(providerAccount),
                 onboarding_token: providerAccount.details_submitted ? null : account.onboarding_token,
             },
             sharedContext
         )
 
         return await this.baseRepository_.serialize<PayoutAccountDTO>(updated)
+    }
+
+    async listProviderAccounts(input: ListAccountsInput): Promise<ListAccountsOutput | null> {
+        return await this.payoutProviderService_.listAccounts(input)
     }
 
     @InjectManager()
@@ -267,7 +217,6 @@ export default class PayoutModuleService extends MedusaService({
             (input.data?.return_url as string | undefined) ?? this.options_.onboarding.returnUrl
 
         const link = await this.payoutProviderService_.createOnboarding({
-            provider_id: payoutAccount.provider_id,
             context: {
                 idempotency_key: input.account_id,
                 ...input.context
@@ -288,18 +237,9 @@ export default class PayoutModuleService extends MedusaService({
             context: input.context as Record<string, unknown>
         }
 
-        let onboarding: InferEntityType<typeof Onboarding>
-        if (!payoutAccount.onboarding) {
-            onboarding = await this.createOnboardings(
-                upsertOnboardingData,
-                sharedContext
-            )
-        } else {
-            onboarding = await this.updateOnboardings(
-                upsertOnboardingData,
-                sharedContext
-            )
-        }
+        const onboarding = payoutAccount.onboarding
+            ? await this.updateOnboardings(upsertOnboardingData, sharedContext)
+            : await this.createOnboardings(upsertOnboardingData, sharedContext)
 
         return await this.baseRepository_.serialize<OnboardingDTO>(onboarding)
     }
@@ -314,7 +254,6 @@ export default class PayoutModuleService extends MedusaService({
         }, sharedContext)
 
         const link = await this.payoutProviderService_.createLoginLink({
-            provider_id: payoutAccount.provider_id,
             account: this.accountRef(payoutAccount),
         })
 
@@ -337,120 +276,9 @@ export default class PayoutModuleService extends MedusaService({
         return await this.baseRepository_.serialize<OnboardingDTO>(onboarding)
     }
 
-    @InjectManager()
-    @EmitEvents()
-    // @ts-ignore
-    async createPayouts(
-        input: CreatePayoutDTO,
-        @MedusaContext() sharedContext?: Context<EntityManager>
-    ): Promise<PayoutDTO> {
-        const { payout, payoutAccount } = await this.createPayouts_(input, sharedContext)
-
-        let updated: InferEntityType<typeof Payout>
-        try {
-            const providerResponse = await this.payoutProviderService_.createPayout({
-                provider_id: payoutAccount.provider_id,
-                account: this.accountRef(payoutAccount),
-                amount: input.amount,
-                currency_code: input.currency_code,
-                context: {
-                    idempotency_key: payout.id,
-                    ...input.context
-                },
-                data: {
-                    ...payoutAccount.data,
-                    ...input.data
-                },
-                metadata: {
-                    payout_id: payout.id,
-                    ...(input.settlement_id ? { settlement_id: input.settlement_id } : {}),
-                },
-            })
-
-            updated = await this.updatePayouts(
-                {
-                    id: payout.id,
-                    data: providerResponse.data,
-                    status: providerResponse.status,
-                    provider_payout_id: providerResponse.id,
-                },
-                sharedContext
-            )
-        } catch (error) {
-            await this.deletePayouts(payout.id, sharedContext).catch(() => null)
-            throw error
-        }
-
-        return await this.baseRepository_.serialize<PayoutDTO>(updated)
-    }
-
-    @InjectTransactionManager()
-    protected async createPayouts_(
-        input: CreatePayoutDTO,
-        @MedusaContext() sharedContext?: Context<EntityManager>
-    ): Promise<{
-        payout: InferEntityType<typeof Payout>
-        payoutAccount: InferEntityType<typeof PayoutAccount>
-    }> {
-        const payoutAccount = await this.retrievePayoutAccount(input.account_id, {
-            select: ['id', 'status', 'data', 'provider_id', 'provider_account_id']
-        }, sharedContext)
-
-        if (payoutAccount.status !== PayoutAccountStatus.ACTIVE) {
-            throw new MedusaError(
-                MedusaError.Types.NOT_ALLOWED,
-                `Account '${input.account_id}' is not active`
-            )
-        }
-
-        const payout = await super.createPayouts(
-            {
-                amount: Number(input.amount),
-                currency_code: input.currency_code,
-                account_id: payoutAccount.id,
-                settlement_id: input.settlement_id ?? null,
-                status: PayoutStatus.PENDING,
-            },
-            sharedContext
-        )
-
-        return { payout, payoutAccount }
-    }
-
     /**
-     * Writes a payout row without calling the provider; the settlement job
-     * dispatches it afterwards (or never, when it is on hold).
-     */
-    @InjectManager()
-    async createPayoutRecord(
-        input: {
-            account_id: string
-            settlement_id?: string | null
-            amount: number
-            currency_code: string
-            status: PayoutStatus
-            status_reason?: string | null
-        },
-        @MedusaContext() sharedContext?: Context<EntityManager>
-    ): Promise<PayoutDTO> {
-        const payout = await super.createPayouts(
-            {
-                account_id: input.account_id,
-                settlement_id: input.settlement_id ?? null,
-                amount: input.amount,
-                currency_code: input.currency_code,
-                status: input.status,
-                status_reason: input.status_reason ?? null,
-            },
-            sharedContext
-        )
-        return await this.baseRepository_.serialize<PayoutDTO>(payout)
-    }
-
-    /**
-     * Sends a pending or retriable payout row to its provider. Unlike
-     * `createPayouts`, a provider error is recorded on the row instead of
-     * removing it, so the settlement job can retry it from the backlog.
+     * Sends a pending or failed payout to the provider. A provider error is
+     * recorded on the row instead of throwing, so the payout can be retried.
      */
     @InjectManager()
     @EmitEvents()
@@ -459,27 +287,31 @@ export default class PayoutModuleService extends MedusaService({
         @MedusaContext() sharedContext?: Context<EntityManager>
     ): Promise<PayoutDTO> {
         const payout = await this.retrievePayout(payoutId, { relations: ["account"] }, sharedContext)
-        const account = payout.account
 
-        if (![PayoutStatus.PENDING, PayoutStatus.FAILED, PayoutStatus.ON_HOLD].includes(payout.status)) {
+        if (!DISPATCHABLE.includes(payout.status)) {
             return await this.baseRepository_.serialize<PayoutDTO>(payout)
         }
 
         const attempt = Number(payout.data?.attempts ?? 0) + 1
         await this.updatePayouts({ id: payout.id, data: { ...(payout.data ?? {}), attempts: attempt } }, sharedContext)
 
+        const source = (payout.data?.source_payment ?? null) as
+            | { id: string; data: Record<string, unknown> }
+            | null
+
         let updated: InferEntityType<typeof Payout>
         try {
             const response = await this.payoutProviderService_.createPayout({
-                provider_id: account.provider_id,
-                account: this.accountRef(account),
+                account: this.accountRef(payout.account),
                 amount: payout.amount,
                 currency_code: payout.currency_code,
-                context: { idempotency_key: attempt === 1 ? payout.id : `${payout.id}:${attempt}` },
+                source_payment: source,
+                group: payout.order_id,
                 metadata: {
                     payout_id: payout.id,
-                    ...(payout.settlement_id ? { settlement_id: payout.settlement_id } : {}),
+                    ...(payout.order_id ? { order_id: payout.order_id } : {}),
                 },
+                context: { idempotency_key: idempotencyKey(payout.id, attempt) },
             })
 
             updated = await this.updatePayouts(
@@ -488,216 +320,87 @@ export default class PayoutModuleService extends MedusaService({
                     status: response.status,
                     provider_payout_id: response.id,
                     status_reason: null,
-                    data: { ...response.data, attempts: attempt },
-                },
-                sharedContext
-            )
-        } catch (error) {
-            updated = await this.updatePayouts(
-                {
-                    id: payout.id,
-                    status: PayoutStatus.FAILED,
-                    status_reason: errorReason(error),
-                },
-                sharedContext
-            )
-        }
-
-        await this.syncSettlementStatus(payout.id, sharedContext)
-
-        return await this.baseRepository_.serialize<PayoutDTO>(updated)
-    }
-
-    /**
-     * A settlement follows its payout: paid out once the payout is paid,
-     * failed while the payout is failed or on hold, open otherwise.
-     */
-    @InjectManager()
-    async syncSettlementStatus(
-        payoutId: string,
-        @MedusaContext() sharedContext?: Context<EntityManager>
-    ): Promise<void> {
-        const payout = await this.retrievePayout(payoutId, {}, sharedContext)
-        if (!payout.settlement_id) {
-            return
-        }
-        const status =
-            payout.status === PayoutStatus.PAID
-                ? SettlementStatus.PAID_OUT
-                : payout.status === PayoutStatus.FAILED || payout.status === PayoutStatus.ON_HOLD
-                  ? SettlementStatus.FAILED
-                  : SettlementStatus.OPEN
-        await this.updateSettlements({ id: payout.settlement_id, status }, sharedContext)
-    }
-
-    @InjectManager()
-    @EmitEvents()
-    async dispatchTransfer(
-        transferId: string,
-        @MedusaContext() sharedContext?: Context<EntityManager>
-    ): Promise<TransferDTO> {
-        const transfer = await this.retrieveTransfer(transferId, { relations: ["account"] }, sharedContext)
-
-        if (transfer.status !== TransferStatus.PENDING) {
-            return await this.baseRepository_.serialize<TransferDTO>(transfer)
-        }
-
-        const account = transfer.account
-        // A provider caches an idempotency key with the request that first
-        // used it, so a retry after a refused attempt needs a fresh key.
-        const attempt = Number(transfer.data?.attempts ?? 0) + 1
-        const idempotencyKey = attempt === 1 ? transfer.id : `${transfer.id}:${attempt}`
-        await this.updateTransfers({ id: transfer.id, data: { ...(transfer.data ?? {}), attempts: attempt } }, sharedContext)
-        const metadata: Record<string, string> = {
-            transfer_id: transfer.id,
-            ...(transfer.order_id ? { order_id: transfer.order_id } : {}),
-            ...(transfer.refund_id ? { refund_id: transfer.refund_id } : {}),
-            ...(transfer.adjustment_id ? { adjustment_id: transfer.adjustment_id } : {}),
-        }
-
-        let updated: InferEntityType<typeof Transfer>
-        try {
-            let response
-            switch (transfer.type) {
-                case TransferType.REFUND_REVERSAL: {
-                    const original = await this.retrieveTransfer(
-                        transfer.reverses_transfer_id as string,
-                        {},
-                        sharedContext
-                    )
-                    response = await this.payoutProviderService_.reverseTransfer({
-                        provider_id: transfer.provider_id,
-                        transfer: {
-                            id: original.provider_transfer_id as string,
-                            data: (original.data ?? {}) as Record<string, unknown>,
-                        },
-                        amount: transfer.amount,
-                        currency_code: transfer.currency_code,
-                        metadata,
-                        context: { idempotency_key: idempotencyKey },
-                    })
-                    break
-                }
-                case TransferType.ADJUSTMENT_DEBIT:
-                    response = await this.payoutProviderService_.createAccountDebit({
-                        provider_id: transfer.provider_id,
-                        account: this.accountRef(account),
-                        amount: transfer.amount,
-                        currency_code: transfer.currency_code,
-                        metadata,
-                        context: { idempotency_key: idempotencyKey },
-                    })
-                    break
-                default: {
-                    const source = (transfer.data?.source_payment ?? null) as
-                        | { id: string; provider_id: string; data: Record<string, unknown> }
-                        | null
-                    response = await this.payoutProviderService_.createTransfer({
-                        provider_id: transfer.provider_id,
-                        account: this.accountRef(account),
-                        amount: transfer.amount,
-                        currency_code: transfer.currency_code,
-                        source_payment: source,
-                        transfer_group: (transfer.data?.transfer_group as string | undefined) ?? null,
-                        metadata,
-                        context: { idempotency_key: idempotencyKey },
-                    })
-                }
-            }
-
-            updated = await this.updateTransfers(
-                {
-                    id: transfer.id,
-                    status: response.status,
-                    provider_transfer_id: response.id,
-                    status_reason: null,
-                    data: { ...(transfer.data ?? {}), attempts: attempt, provider: response.data },
+                    data: { ...(payout.data ?? {}), attempts: attempt, provider: response.data },
                 },
                 sharedContext
             )
         } catch (error) {
             const final = (error as { final?: boolean })?.final === true
-            updated = await this.updateTransfers(
+            updated = await this.updatePayouts(
                 {
-                    id: transfer.id,
-                    status: final ? TransferStatus.ABORTED : TransferStatus.FAILED,
+                    id: payout.id,
+                    status: final ? PayoutStatus.ABORTED : PayoutStatus.FAILED,
                     status_reason: errorReason(error),
                 },
                 sharedContext
             )
         }
 
-        return await this.baseRepository_.serialize<TransferDTO>(updated)
+        return await this.baseRepository_.serialize<PayoutDTO>(updated)
     }
 
     @InjectManager()
-    async getCheckpoint(
-        key: string,
+    @EmitEvents()
+    async dispatchPayoutReversal(
+        reversalId: string,
         @MedusaContext() sharedContext?: Context<EntityManager>
-    ): Promise<string | null> {
-        const [row] = await this.listPayoutCheckpoints({ key }, {}, sharedContext)
-        return row?.value ?? null
-    }
+    ): Promise<PayoutReversalDTO> {
+        const reversal = await this.retrievePayoutReversal(reversalId, { relations: ["payout"] }, sharedContext)
 
-    @InjectManager()
-    async setCheckpoint(
-        key: string,
-        value: string | null,
-        @MedusaContext() sharedContext?: Context<EntityManager>
-    ): Promise<void> {
-        const [row] = await this.listPayoutCheckpoints({ key }, {}, sharedContext)
-        if (row) {
-            await this.updatePayoutCheckpoints({ id: row.id, value }, sharedContext)
-        } else {
-            await this.createPayoutCheckpoints({ key, value }, sharedContext)
+        if (!DISPATCHABLE.includes(reversal.status)) {
+            return await this.baseRepository_.serialize<PayoutReversalDTO>(reversal)
         }
-    }
 
-    @InjectManager()
-    async startJobRun(
-        input: CreatePayoutJobRunDTO,
-        @MedusaContext() sharedContext?: Context<EntityManager>
-    ): Promise<PayoutJobRunDTO> {
-        const run = await this.createPayoutJobRuns(
-            {
-                job: input.job,
-                trigger: input.trigger,
-                status: PayoutJobRunStatus.RUNNING,
-                started_at: new Date(),
-            },
+        const payout = reversal.payout
+        const attempt = Number(reversal.data?.attempts ?? 0) + 1
+        await this.updatePayoutReversals(
+            { id: reversal.id, data: { ...(reversal.data ?? {}), attempts: attempt } },
             sharedContext
         )
-        return await this.baseRepository_.serialize<PayoutJobRunDTO>(run)
+
+        let updated: InferEntityType<typeof PayoutReversal>
+        try {
+            const response = await this.payoutProviderService_.reversePayout({
+                payout: {
+                    id: payout.provider_payout_id as string,
+                    data: ((payout.data?.provider ?? {}) as Record<string, unknown>),
+                },
+                amount: reversal.amount,
+                currency_code: payout.currency_code,
+                metadata: {
+                    payout_id: payout.id,
+                    payout_reversal_id: reversal.id,
+                    ...(reversal.refund_id ? { refund_id: reversal.refund_id } : {}),
+                },
+                context: { idempotency_key: idempotencyKey(reversal.id, attempt) },
+            })
+
+            updated = await this.updatePayoutReversals(
+                {
+                    id: reversal.id,
+                    status: response.status,
+                    provider_reversal_id: response.id,
+                    status_reason: null,
+                    data: { ...(reversal.data ?? {}), attempts: attempt, provider: response.data },
+                },
+                sharedContext
+            )
+        } catch (error) {
+            const final = (error as { final?: boolean })?.final === true
+            updated = await this.updatePayoutReversals(
+                {
+                    id: reversal.id,
+                    status: final ? PayoutStatus.ABORTED : PayoutStatus.FAILED,
+                    status_reason: errorReason(error),
+                },
+                sharedContext
+            )
+        }
+
+        return await this.baseRepository_.serialize<PayoutReversalDTO>(updated)
     }
 
-    @InjectManager()
-    async finishJobRun(
-        runId: string,
-        result: { stats?: Record<string, unknown>; error?: string },
-        @MedusaContext() sharedContext?: Context<EntityManager>
-    ): Promise<PayoutJobRunDTO> {
-        const run = await this.updatePayoutJobRuns(
-            {
-                id: runId,
-                status: result.error ? PayoutJobRunStatus.FAILED : PayoutJobRunStatus.SUCCEEDED,
-                finished_at: new Date(),
-                stats: result.stats ?? null,
-                error: result.error ? result.error.slice(0, REASON_MAX_LENGTH) : null,
-            },
-            sharedContext
-        )
-        return await this.baseRepository_.serialize<PayoutJobRunDTO>(run)
-    }
-
-    async getWebhookActionAndData(
-        input: PayoutWebhookActionInput & { provider_id?: string }
-    ): Promise<PayoutWebhookResult> {
-        const providerId = input.provider_id ?? this.getDefaultProviderId()
-        return await this.payoutProviderService_.getWebhookActionAndData({
-            provider_id: providerId,
-            data: input.data,
-            rawData: input.rawData,
-            headers: input.headers,
-        })
+    async getWebhookActionAndData(input: PayoutWebhookActionInput): Promise<PayoutWebhookResult> {
+        return await this.payoutProviderService_.getWebhookActionAndData(input)
     }
 }

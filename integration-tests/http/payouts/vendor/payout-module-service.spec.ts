@@ -1,6 +1,6 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { MedusaContainer } from "@medusajs/framework/types"
-import { MercurModules, PayoutStatus } from "@mercurjs/types"
+import { MercurModules, PayoutProviderError, PayoutStatus } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createPayoutAccountWorkflow } from "@mercurjs/core/workflows"
 
@@ -8,7 +8,7 @@ jest.setTimeout(120000)
 
 medusaIntegrationTestRunner({
   testSuite: ({ getContainer }) => {
-    describe("Payout module - createPayouts", () => {
+    describe("Payout module - dispatchPayout", () => {
       let appContainer: MedusaContainer
       let payoutService: any
       let providerService: any
@@ -35,91 +35,101 @@ medusaIntegrationTestRunner({
         jest.restoreAllMocks()
       })
 
-      it("inserts the row before calling the provider and passes its id as idempotency_key", async () => {
-        let visibleDuringProviderCall: any[] = []
-        let receivedInput: any
-
-        jest
-          .spyOn(providerService, "createPayout")
-          .mockImplementation(async (input: any) => {
-            receivedInput = input
-            visibleDuringProviderCall = await payoutService.listPayouts({
-              account_id: accountId,
-            })
-            return { status: PayoutStatus.PAID, data: { transfer_id: "tr_1" } }
-          })
-
-        const payout = await payoutService.createPayouts({
+      const createPending = () =>
+        payoutService.createPayouts({
           account_id: accountId,
+          order_id: "order_1",
           amount: 1000,
           currency_code: "usd",
-          data: { order_id: "order_1" },
+          data: { source_payment: { id: "pay_1", data: { id: "pi_1" } } },
         })
 
-        expect(visibleDuringProviderCall).toHaveLength(1)
-        expect(visibleDuringProviderCall[0].id).toEqual(payout.id)
-        expect(visibleDuringProviderCall[0].status).toEqual(PayoutStatus.PENDING)
+      it("sends the payout with its id as idempotency key and the source payment", async () => {
+        let receivedInput: any
+        jest.spyOn(providerService, "createPayout").mockImplementation(async (input: any) => {
+          receivedInput = input
+          return { id: "tr_1", status: PayoutStatus.PAID, data: { id: "tr_1" } }
+        })
 
-        expect(receivedInput.context).toEqual({ idempotency_key: payout.id })
-        expect(receivedInput.data).toMatchObject({ order_id: "order_1" })
+        const pending = await createPending()
+        const payout = await payoutService.dispatchPayout(pending.id)
+
+        expect(receivedInput.context).toEqual({ idempotency_key: pending.id })
+        expect(receivedInput.source_payment).toEqual({ id: "pay_1", data: { id: "pi_1" } })
+        expect(receivedInput.group).toEqual("order_1")
+        expect(receivedInput.metadata).toEqual({ payout_id: pending.id, order_id: "order_1" })
 
         expect(payout.status).toEqual(PayoutStatus.PAID)
-        expect(payout.data).toEqual({ transfer_id: "tr_1" })
+        expect(payout.provider_payout_id).toEqual("tr_1")
+        expect(payout.data).toMatchObject({ attempts: 1, provider: { id: "tr_1" } })
       })
 
-      it("keeps the caller's idempotency_key when one is passed", async () => {
+      it("records a provider error on the row and retries with a fresh key", async () => {
+        const spy = jest
+          .spyOn(providerService, "createPayout")
+          .mockRejectedValueOnce(new Error("provider down"))
+          .mockResolvedValueOnce({ id: "tr_2", status: PayoutStatus.PAID, data: {} })
+
+        const pending = await createPending()
+
+        const failed = await payoutService.dispatchPayout(pending.id)
+        expect(failed.status).toEqual(PayoutStatus.FAILED)
+        expect(failed.status_reason).toEqual("provider down")
+
+        const paid = await payoutService.dispatchPayout(pending.id)
+        expect(paid.status).toEqual(PayoutStatus.PAID)
+        expect(spy.mock.calls[1][0].context).toEqual({ idempotency_key: `${pending.id}:2` })
+      })
+
+      it("aborts the payout on a final provider error", async () => {
+        jest
+          .spyOn(providerService, "createPayout")
+          .mockRejectedValue(new PayoutProviderError("account closed", { final: true }))
+
+        const pending = await createPending()
+        const payout = await payoutService.dispatchPayout(pending.id)
+
+        expect(payout.status).toEqual(PayoutStatus.ABORTED)
+        expect(payout.status_reason).toEqual("account closed")
+      })
+
+      it("leaves a paid payout alone", async () => {
+        const spy = jest.spyOn(providerService, "createPayout")
+
+        const pending = await createPending()
+        await payoutService.updatePayouts({ id: pending.id, status: PayoutStatus.PAID })
+        const payout = await payoutService.dispatchPayout(pending.id)
+
+        expect(payout.status).toEqual(PayoutStatus.PAID)
+        expect(spy).not.toHaveBeenCalled()
+      })
+
+      it("reverses against the provider payout", async () => {
         let receivedInput: any
-        jest
-          .spyOn(providerService, "createPayout")
-          .mockImplementation(async (input: any) => {
-            receivedInput = input
-            return { status: PayoutStatus.PAID, data: {} }
-          })
-
-        await payoutService.createPayouts({
-          account_id: accountId,
-          amount: 1000,
-          currency_code: "usd",
-          context: { idempotency_key: "order_abc" },
+        jest.spyOn(providerService, "createPayout").mockResolvedValue({
+          id: "tr_1",
+          status: PayoutStatus.PAID,
+          data: { id: "tr_1" },
+        })
+        jest.spyOn(providerService, "reversePayout").mockImplementation(async (input: any) => {
+          receivedInput = input
+          return { id: "trr_1", status: PayoutStatus.PAID, data: {} }
         })
 
-        expect(receivedInput.context.idempotency_key).toEqual("order_abc")
-      })
-
-      it("leaves no payout row and rethrows when the provider fails", async () => {
-        jest
-          .spyOn(providerService, "createPayout")
-          .mockRejectedValue(new Error("provider down"))
-
-        await expect(
-          payoutService.createPayouts({
-            account_id: accountId,
-            amount: 1000,
-            currency_code: "usd",
-          })
-        ).rejects.toThrow("provider down")
-
-        const payouts = await payoutService.listPayouts(
-          { account_id: accountId },
-          { withDeleted: true }
-        )
-        expect(payouts).toHaveLength(0)
-      })
-
-      it("persists the processing status", async () => {
-        const payout = await payoutService.createPayouts({
-          account_id: accountId,
-          amount: 1000,
-          currency_code: "usd",
+        const payout = await payoutService.dispatchPayout((await createPending()).id)
+        const pendingReversal = await payoutService.createPayoutReversals({
+          payout_id: payout.id,
+          refund_id: "ref_1",
+          amount: 400,
         })
+        const reversal = await payoutService.dispatchPayoutReversal(pendingReversal.id)
 
-        await payoutService.updatePayouts({
-          id: payout.id,
-          status: PayoutStatus.PROCESSING,
-        })
-
-        const updated = await payoutService.retrievePayout(payout.id)
-        expect(updated.status).toEqual(PayoutStatus.PROCESSING)
+        expect(receivedInput.payout).toEqual({ id: "tr_1", data: { id: "tr_1" } })
+        expect(Number(receivedInput.amount)).toEqual(400)
+        expect(receivedInput.currency_code).toEqual("usd")
+        expect(receivedInput.context).toEqual({ idempotency_key: pendingReversal.id })
+        expect(reversal.status).toEqual(PayoutStatus.PAID)
+        expect(reversal.provider_reversal_id).toEqual("trr_1")
       })
     })
   },

@@ -3,15 +3,15 @@ import type { DetailWidgetProps } from "@medusajs/framework/types"
 import { Container, Heading, StatusBadge, Text } from "@medusajs/ui"
 import { SectionRow, Skeleton } from "@mercurjs/dashboard-shared"
 
-import { useStripeAccounts, useStripeSettlements, useStripeTransfers } from "../hooks/api/stripe"
+import { useStripeAccounts, useStripePayouts, useStripeSettlements } from "../hooks/api/stripe"
 import { SettingsProviders } from "../providers/settings-providers"
-import type { PayoutAccountRow } from "../lib/client"
+import { isIgnored, type PayoutAccountRow } from "../lib/client"
 import { ACCOUNT_STATUS_COLOR, KYC_STATUS_COLOR, KYC_STATUS_LABEL, formatAmount, formatDate } from "../lib/status"
 
 const Body = ({ sellerId }: { sellerId: string }) => {
   const accounts = useStripeAccounts({ limit: 1, offset: 0, seller_id: sellerId })
   const account = accounts.data?.payout_accounts?.[0] as PayoutAccountRow | undefined
-  const transfers = useStripeTransfers({ limit: 5, offset: 0, account_id: account?.id ?? "none" }, { enabled: !!account })
+  const payouts = useStripePayouts({ limit: 5, offset: 0, account_id: account?.id ?? "none", order: "-created_at" }, { enabled: !!account })
   const settlements = useStripeSettlements({ limit: 5, offset: 0, account_id: account?.id ?? "none" }, { enabled: !!account })
 
   if (accounts.isPending) {
@@ -47,25 +47,25 @@ const Body = ({ sellerId }: { sellerId: string }) => {
         <SectionRow title="Payouts enabled" value={account.payouts_enabled ? "Yes" : "No"} />
         <SectionRow title="Charges enabled" value={account.charges_enabled ? "Yes" : "No"} />
         <SectionRow title="Disabled reason" value={account.disabled_reason ?? "-"} />
-        <SectionRow title="Ignored" value={account.ignored ? "Yes" : "No"} />
+        <SectionRow title="Ignored" value={isIgnored(account) ? "Yes" : "No"} />
         <SectionRow title="Current link" value={url ? <a href={url} target="_blank" rel="noreferrer" className="text-ui-fg-interactive">{String(account.onboarding?.data?.kind ?? "link")}</a> : "-"} />
         <SectionRow title="Last synced" value={formatDate(account.last_synced_at)} />
       </Container>
       <Container className="divide-y p-0">
         <div className="px-6 py-4">
-          <Heading>Latest transfers</Heading>
+          <Heading>Latest payouts</Heading>
         </div>
-        {(transfers.data?.transfers ?? []).map((t) => (
-          <SectionRow key={t.id} title={`${t.type} · ${formatDate(t.created_at)}`} value={`${formatAmount(t.amount, t.currency_code)} · ${t.status}${t.status_reason ? ` · ${t.status_reason}` : ""}`} />
+        {(payouts.data?.payouts ?? []).map((p) => (
+          <SectionRow key={p.id} title={formatDate(p.created_at)} value={`${formatAmount(p.amount, p.currency_code)} · ${p.status}${p.status_reason ? ` · ${p.status_reason}` : ""}`} />
         ))}
-        {!transfers.data?.transfers?.length ? <SectionRow title="No transfers" value="-" /> : null}
+        {!payouts.data?.payouts?.length ? <SectionRow title="No payouts" value="-" /> : null}
       </Container>
       <Container className="divide-y p-0">
         <div className="px-6 py-4">
           <Heading>Latest settlements</Heading>
         </div>
         {(settlements.data?.settlements ?? []).map((s) => (
-          <SectionRow key={s.id} title={formatDate(s.period_end)} value={`${formatAmount(s.amount, s.currency_code)} · ${s.status}${s.payout ? ` · payout ${s.payout.status}` : ""}`} />
+          <SectionRow key={s.id} title={formatDate(s.period_end)} value={`${formatAmount(s.amount, s.currency_code)} · ${s.status}${s.payout_status ? ` · bank payout ${s.payout_status}` : ""}`} />
         ))}
         {!settlements.data?.settlements?.length ? <SectionRow title="No settlements" value="-" /> : null}
       </Container>

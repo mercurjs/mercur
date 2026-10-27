@@ -14,6 +14,11 @@
   ],
   "exports": {
     "./package.json": "./package.json",
+    "./.medusa/server/src/modules/*": "./.medusa/server/src/modules/*/index.js",
+    "./modules/*": {
+      "types": "./.medusa/server/src/modules/*/index.d.ts",
+      "default": "./.medusa/server/src/modules/*/index.js"
+    },
     "./types": "./.medusa/server/src/types/index.js",
     "./providers/*": {
       "types": "./.medusa/server/src/providers/*/index.d.ts",

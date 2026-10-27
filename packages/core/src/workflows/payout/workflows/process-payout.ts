@@ -2,42 +2,45 @@ import {
   WorkflowResponse,
   createWorkflow,
   transform,
-  when,
 } from "@medusajs/framework/workflows-sdk"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
-import { PayoutModuleEvents, PayoutStatus } from "@mercurjs/types"
+import { PayoutDTO, PayoutModuleEvents, PayoutStatus } from "@mercurjs/types"
 
-import { dispatchPayoutStep } from "../steps/dispatch-payout"
+import { dispatchPayoutsStep } from "../steps/dispatch-payout"
 
 export type ProcessPayoutWorkflowInput = {
-  payout_id: string
+  payout_ids: string[]
 }
 
 export const processPayoutWorkflowId = "process-payout"
 
+export const failedPayoutEvents = (payouts: PayoutDTO[]) =>
+  payouts
+    .filter((payout) => payout.status === PayoutStatus.FAILED)
+    .map((payout) => ({
+      id: payout.id,
+      account_id: payout.account_id,
+      order_id: payout.order_id,
+      amount: payout.amount,
+      currency_code: payout.currency_code,
+      status: payout.status,
+      status_reason: payout.status_reason,
+      provider_payout_id: payout.provider_payout_id,
+    }))
+
+/**
+ * Sends pending or failed payouts to the provider. This is the retry path:
+ * a payout that is paid, processing or aborted is returned unchanged.
+ */
 export const processPayoutWorkflow = createWorkflow(
   processPayoutWorkflowId,
   function (input: ProcessPayoutWorkflowInput) {
-    const payout = dispatchPayoutStep({ payout_id: input.payout_id })
+    const payouts = dispatchPayoutsStep({ payout_ids: input.payout_ids })
 
-    const failure = transform({ payout }, ({ payout }) => ({
-      failed: payout.status === PayoutStatus.FAILED,
-      data: {
-        id: payout.id,
-        account_id: payout.account_id,
-        settlement_id: payout.settlement_id,
-        amount: payout.amount,
-        currency_code: payout.currency_code,
-        status: payout.status,
-        status_reason: payout.status_reason,
-        provider_payout_id: payout.provider_payout_id,
-      },
-    }))
+    const failed = transform({ payouts }, ({ payouts }) => failedPayoutEvents(payouts))
 
-    when(failure, ({ failed }) => failed).then(() => {
-      emitEventStep({ eventName: PayoutModuleEvents.PAYOUT_FAILED, data: failure.data })
-    })
+    emitEventStep({ eventName: PayoutModuleEvents.PAYOUT_FAILED, data: failed })
 
-    return new WorkflowResponse(payout)
+    return new WorkflowResponse(payouts)
   }
 )

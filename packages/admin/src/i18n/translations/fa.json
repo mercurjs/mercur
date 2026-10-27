@@ -3617,8 +3617,7 @@
       "paid": "پرداخت‌شده",
       "processing": "در حال پردازش",
       "pending": "در انتظار",
-      "failed": "ناموفق",
-      "canceled": "لغو شده"
+      "failed": "ناموفق"
     }
   },
   "marketplace": {

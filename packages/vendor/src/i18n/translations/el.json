@@ -3868,8 +3868,7 @@
       "pending": "Σε εκκρεμότητα",
       "processing": "Σε επεξεργασία",
       "paid": "Πληρώθηκε",
-      "failed": "Απέτυχε",
-      "canceled": "Ακυρώθηκε"
+      "failed": "Απέτυχε"
     }
   },
   "translations": {

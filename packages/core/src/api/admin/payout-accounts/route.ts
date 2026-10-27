@@ -49,7 +49,6 @@ const mapExistingAccountStep = createStep(
     }
 
     const account = await service.createPayoutAccounts({
-      provider_id: input.provider_id,
       provider_account_id: input.provider_account_id,
       data: { id: input.provider_account_id },
     })

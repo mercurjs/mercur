@@ -3868,8 +3868,7 @@
       "pending": "Laukia",
       "processing": "Apdorojama",
       "paid": "Apmokėta",
-      "failed": "Nepavyko",
-      "canceled": "Atšauktas"
+      "failed": "Nepavyko"
     }
   },
   "translations": {

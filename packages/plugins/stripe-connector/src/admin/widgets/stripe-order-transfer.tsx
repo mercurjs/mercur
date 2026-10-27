@@ -3,44 +3,76 @@ import type { DetailWidgetProps } from "@medusajs/framework/types"
 import { Button, Container, Heading, StatusBadge, Text, toast } from "@medusajs/ui"
 import { SectionRow } from "@mercurjs/dashboard-shared"
 
-import { useRetryTransfer, useStripeTransfers } from "../hooks/api/stripe"
+import { useRetryPayout, useStripePayouts } from "../hooks/api/stripe"
 import { useActionBlocker } from "../hooks/use-action-blocker"
 import { SettingsProviders } from "../providers/settings-providers"
-import { TRANSFER_STATUS_COLOR, TRANSFER_STATUS_LABEL, formatAmount } from "../lib/status"
+import { PAYOUT_STATUS_COLOR, PAYOUT_STATUS_LABEL, formatAmount } from "../lib/status"
+
+type Line = {
+  id: string
+  title: string
+  amount: unknown
+  currency_code: string
+  status: string
+  status_reason: string | null
+  provider_id: string | null
+  payout_id: string
+}
 
 const Body = ({ orderId }: { orderId: string }) => {
-  const { data, isPending } = useStripeTransfers({ limit: 20, offset: 0, order_id: orderId })
-  const retry = useRetryTransfer()
+  const { data, isPending } = useStripePayouts({ limit: 20, offset: 0, order_id: orderId })
+  const retry = useRetryPayout()
   const blocker = useActionBlocker("payouts", "edit")
-  const rows = data?.transfers ?? []
+  const rows: Line[] = (data?.payouts ?? []).flatMap((payout) => [
+    {
+      id: payout.id,
+      title: "Payout",
+      amount: payout.amount,
+      currency_code: payout.currency_code,
+      status: payout.status,
+      status_reason: payout.status_reason,
+      provider_id: payout.provider_payout_id,
+      payout_id: payout.id,
+    },
+    ...(payout.reversals ?? []).map((reversal) => ({
+      id: reversal.id,
+      title: "Reversal",
+      amount: reversal.amount,
+      currency_code: payout.currency_code,
+      status: reversal.status,
+      status_reason: reversal.status_reason,
+      provider_id: reversal.provider_reversal_id,
+      payout_id: payout.id,
+    })),
+  ])
 
   return (
     <Container className="divide-y p-0" data-testid="stripe-order-transfers">
       <div className="px-6 py-4">
-        <Heading>Stripe transfers</Heading>
+        <Heading>Stripe payouts</Heading>
         <Text size="small" className="text-ui-fg-subtle">
           What moved to the seller for this order, and what came back.
         </Text>
       </div>
       {isPending ? <SectionRow title="Loading" value="-" /> : null}
-      {!isPending && !rows.length ? <SectionRow title="No transfer yet" value="Appears within five minutes of fulfillment and capture." /> : null}
+      {!isPending && !rows.length ? <SectionRow title="No payout yet" value="Appears within five minutes of fulfillment and capture." /> : null}
       {rows.map((t) => (
         <SectionRow
           key={t.id}
-          title={t.type === "refund_reversal" ? "Reversal" : t.type === "tax" ? "Tax" : "Transfer"}
+          title={t.title}
           value={
             <span className="flex items-center gap-x-2">
               <span>{formatAmount(t.amount, t.currency_code)}</span>
-              <StatusBadge color={TRANSFER_STATUS_COLOR[t.status] ?? "grey"}>{TRANSFER_STATUS_LABEL[t.status] ?? t.status}</StatusBadge>
+              <StatusBadge color={PAYOUT_STATUS_COLOR[t.status] ?? "grey"}>{PAYOUT_STATUS_LABEL[t.status] ?? t.status}</StatusBadge>
               {t.status_reason ? <span className="text-ui-fg-subtle">{t.status_reason}</span> : null}
-              {t.provider_transfer_id ? <span className="text-ui-fg-subtle">{t.provider_transfer_id}</span> : null}
-              {["failed", "on_hold"].includes(t.status) ? (
+              {t.provider_id ? <span className="text-ui-fg-subtle">{t.provider_id}</span> : null}
+              {t.title === "Payout" && ["failed", "on_hold"].includes(t.status) ? (
                 <Button
                   size="small"
                   variant="secondary"
                   disabled={blocker.disabled}
                   isLoading={retry.isPending}
-                  onClick={() => retry.mutate(t.id, { onSuccess: () => toast.success("Retried"), onError: (e) => toast.error(e.message) })}
+                  onClick={() => retry.mutate(t.payout_id, { onSuccess: () => toast.success("Retried"), onError: (e) => toast.error(e.message) })}
                 >
                   Retry
                 </Button>

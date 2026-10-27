@@ -7,6 +7,7 @@ import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { usePayout } from "@hooks/api/payouts";
 
 import { PayoutGeneralSection } from "./_components/payout-general-section";
+import { PayoutReversalsSection } from "./_components/payout-reversals-section";
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams();
@@ -14,7 +15,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const { payout, isLoading, isError, error } = usePayout(id!);
 
   if (isLoading || !payout) {
-    return <SingleColumnPageSkeleton sections={1} />;
+    return <SingleColumnPageSkeleton sections={2} />;
   }
 
   if (isError) {
@@ -28,6 +29,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
       ) : (
         <WidgetZone id="payouts.detail.main" data={payout}>
           <PayoutGeneralSection payout={payout} />
+          <PayoutReversalsSection payout={payout} />
         </WidgetZone>
       )}
     </SingleColumnPage>
@@ -36,4 +38,5 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
 export const PayoutDetailPage = Object.assign(Root, {
   GeneralSection: PayoutGeneralSection,
+  ReversalsSection: PayoutReversalsSection,
 });

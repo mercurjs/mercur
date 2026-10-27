@@ -3,10 +3,10 @@ import { SectionRow, SingleColumnPage } from "@mercurjs/dashboard-shared"
 import { useParams } from "react-router-dom"
 
 import { useStripeSettlement } from "../../../../../hooks/api/stripe"
-import { PAYOUT_STATUS_COLOR, PAYOUT_STATUS_LABEL, SETTLEMENT_STATUS_COLOR, SETTLEMENT_STATUS_LABEL, TRANSFER_STATUS_COLOR, TRANSFER_STATUS_LABEL, formatAmount, formatDate } from "../../../../../lib/status"
+import { PAYOUT_STATUS_COLOR, PAYOUT_STATUS_LABEL, SETTLEMENT_STATUS_COLOR, SETTLEMENT_STATUS_LABEL, formatAmount, formatDate } from "../../../../../lib/status"
 import { SettingsProviders } from "../../../../../providers/settings-providers"
 
-const Lines = ({ title, lines, currency }: { title: string; lines: { id: string; amount: unknown; status: string; order_display_id?: number | null; provider_transfer_id?: string | null; reason?: string | null }[]; currency: string }) => (
+const Lines = ({ title, lines, currency }: { title: string; lines: { id: string; amount: unknown; status: string | null; order_display_id?: number | null; provider_id?: string | null; reason?: string | null }[]; currency: string }) => (
   <Container className="divide-y p-0">
     <div className="px-6 py-4">
       <Heading>{title}</Heading>
@@ -19,8 +19,10 @@ const Lines = ({ title, lines, currency }: { title: string; lines: { id: string;
           value={
             <span className="flex items-center gap-x-2">
               <span>{formatAmount(line.amount, currency)}</span>
-              <StatusBadge color={TRANSFER_STATUS_COLOR[line.status] ?? "grey"}>{TRANSFER_STATUS_LABEL[line.status] ?? line.status}</StatusBadge>
-              {line.provider_transfer_id ? <span className="text-ui-fg-subtle">{line.provider_transfer_id}</span> : null}
+              {line.status ? (
+                <StatusBadge color={PAYOUT_STATUS_COLOR[line.status] ?? "grey"}>{PAYOUT_STATUS_LABEL[line.status] ?? line.status}</StatusBadge>
+              ) : null}
+              {line.provider_id ? <span className="text-ui-fg-subtle">{line.provider_id}</span> : null}
             </span>
           }
         />
@@ -51,17 +53,17 @@ const SettlementDetail = () => {
         </div>
         {s ? (
           <>
-            <SectionRow title="Transfers" value={formatAmount(s.transfers_total, s.currency_code)} />
+            <SectionRow title="Payouts" value={formatAmount(s.payouts_total, s.currency_code)} />
             <SectionRow title="Reversals" value={`−${formatAmount(s.reversals_total, s.currency_code)}`} />
             <SectionRow title="Adjustments" value={formatAmount(s.adjustments_total, s.currency_code)} />
             <SectionRow title="Amount" value={formatAmount(s.amount, s.currency_code)} />
             <SectionRow
-              title="Payout"
+              title="Bank payout"
               value={
-                s.payout ? (
+                s.payout_status ? (
                   <span className="flex items-center gap-x-2">
-                    <StatusBadge color={PAYOUT_STATUS_COLOR[s.payout.status] ?? "grey"}>{PAYOUT_STATUS_LABEL[s.payout.status] ?? s.payout.status}</StatusBadge>
-                    <span className="text-ui-fg-subtle">{s.payout.provider_payout_id ?? s.payout.status_reason ?? ""}</span>
+                    <StatusBadge color={PAYOUT_STATUS_COLOR[s.payout_status] ?? "grey"}>{PAYOUT_STATUS_LABEL[s.payout_status] ?? s.payout_status}</StatusBadge>
+                    <span className="text-ui-fg-subtle">{s.provider_payout_id ?? s.status_reason ?? ""}</span>
                   </span>
                 ) : (
                   "None"
@@ -73,9 +75,9 @@ const SettlementDetail = () => {
       </Container>
       {s ? (
         <>
-          <Lines title="Transfers" lines={s.transfers} currency={s.currency_code} />
+          <Lines title="Payouts" lines={s.payouts} currency={s.currency_code} />
           <Lines title="Reversals" lines={s.reversals} currency={s.currency_code} />
-          <Lines title="Adjustments" lines={s.adjustments.map((a) => ({ id: a.id, amount: a.amount, status: a.transfer_status ?? "pending", reason: `${a.type}${a.reason ? ` · ${a.reason}` : ""}` }))} currency={s.currency_code} />
+          <Lines title="Adjustments" lines={s.adjustments.map((a) => ({ id: a.id, amount: a.amount, status: a.status, provider_id: a.provider_transfer_id, reason: `${a.type}${a.reason ? ` · ${a.reason}` : ""}` }))} currency={s.currency_code} />
         </>
       ) : null}
     </SingleColumnPage>

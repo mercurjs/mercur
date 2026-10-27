@@ -233,7 +233,6 @@ export type Routes = {
             $id: typeof import("../src/api/admin/payouts/[id]/route") & {
                 retry: typeof import("../src/api/admin/payouts/[id]/retry/route");
             };
-            run: typeof import("../src/api/admin/payouts/run/route");
         };
         plugins: typeof import("@medusajs/medusa/api/admin/plugins/route");
         priceLists: typeof import("@medusajs/medusa/api/admin/price-lists/route") & {
@@ -522,40 +521,13 @@ export type Routes = {
         };
         payoutAccounts: typeof import("../src/api/admin/payout-accounts/route") & {
             $id: typeof import("../src/api/admin/payout-accounts/[id]/route") & {
-                ignore: typeof import("../src/api/admin/payout-accounts/[id]/ignore/route");
                 refreshLink: typeof import("../src/api/admin/payout-accounts/[id]/refresh-link/route");
                 sync: typeof import("../src/api/admin/payout-accounts/[id]/sync/route");
             };
         };
-        payoutAdjustments: typeof import("../src/api/admin/payout-adjustments/route");
-        payoutCaptures: typeof import("../src/api/admin/payout-captures/route") & {
-            $orderGroupId: typeof import("../src/api/admin/payout-captures/[order_group_id]/route") & {
-                cancel: typeof import("../src/api/admin/payout-captures/[order_group_id]/cancel/route");
-                capture: typeof import("../src/api/admin/payout-captures/[order_group_id]/capture/route");
-            };
-        };
-        payoutJobs: typeof import("../src/api/admin/payout-jobs/route") & {
-            $job: {
-                run: typeof import("../src/api/admin/payout-jobs/[job]/run/route");
-                runs: typeof import("../src/api/admin/payout-jobs/[job]/runs/route");
-            };
-        };
-        payoutNotifications: typeof import("../src/api/admin/payout-notifications/route") & {
-            test: typeof import("../src/api/admin/payout-notifications/test/route");
-        };
-        payoutProviders: typeof import("../src/api/admin/payout-providers/route");
-        payoutStatus: typeof import("../src/api/admin/payout-status/route");
         reviews: typeof import("../src/api/admin/reviews/route") & {
             $id: typeof import("../src/api/admin/reviews/[id]/route") & {
                 respond: typeof import("../src/api/admin/reviews/[id]/respond/route");
-            };
-        };
-        settlements: typeof import("../src/api/admin/settlements/route") & {
-            $id: typeof import("../src/api/admin/settlements/[id]/route");
-        };
-        transfers: typeof import("../src/api/admin/transfers/route") & {
-            $id: typeof import("../src/api/admin/transfers/[id]/route") & {
-                retry: typeof import("../src/api/admin/transfers/[id]/retry/route");
             };
         };
     };
@@ -599,9 +571,7 @@ export type Routes = {
         payment: {
             $provider: typeof import("../src/api/hooks/payment/[provider]/route");
         };
-        payout: typeof import("../src/api/hooks/payout/route") & {
-            $provider: typeof import("../src/api/hooks/payout/[provider]/route");
-        };
+        payout: typeof import("../src/api/hooks/payout/route");
     };
     store: {
         carts: typeof import("@medusajs/medusa/api/store/carts/route") & {
@@ -985,10 +955,6 @@ export type Routes = {
         reviews: typeof import("../src/api/vendor/reviews/route") & {
             $id: typeof import("../src/api/vendor/reviews/[id]/route");
         };
-        settlements: typeof import("../src/api/vendor/settlements/route") & {
-            $id: typeof import("../src/api/vendor/settlements/[id]/route");
-        };
-        transfers: typeof import("../src/api/vendor/transfers/route");
     };
     payout: {
         onboarding: {

@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next"
 import { useMemo } from "react"
 
 import type { Filter } from "../../../components/table/data-table"
+import { PAYOUT_STATUSES } from "../../../pages/payouts/_components/payout-status"
 
 export const usePayoutTableFilters = (): Filter[] => {
   const { t } = useTranslation()
@@ -14,13 +15,10 @@ export const usePayoutTableFilters = (): Filter[] => {
       label: t("fields.status"),
       type: "select",
       multiple: true,
-      options: [
-        { label: t("payouts.status.pending"), value: "pending" },
-        { label: t("payouts.status.processing"), value: "processing" },
-        { label: t("payouts.status.paid"), value: "paid" },
-        { label: t("payouts.status.failed"), value: "failed" },
-        { label: t("payouts.status.canceled"), value: "canceled" },
-      ],
+      options: PAYOUT_STATUSES.map((value) => ({
+        label: t(`payouts.status.${value}`),
+        value,
+      })),
     }
 
     filters.push(statusFilter)

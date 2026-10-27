@@ -7,7 +7,7 @@ import { useMemo, useState } from "react"
 
 import { useAccountAction, useMapAccount, useStripeAccounts } from "../../../../hooks/api/stripe"
 import { useActionBlocker } from "../../../../hooks/use-action-blocker"
-import type { PayoutAccountRow } from "../../../../lib/client"
+import { isIgnored, type PayoutAccountRow } from "../../../../lib/client"
 import { ACCOUNT_STATUS_COLOR, KYC_STATUS_COLOR, KYC_STATUS_LABEL } from "../../../../lib/status"
 import { EntityTable, useListParams } from "./entity-table"
 import { JobCard } from "./job-card"
@@ -16,7 +16,7 @@ const columnHelper = createColumnHelper<PayoutAccountRow>()
 
 const MapAccountDrawer = () => {
   const [open, setOpen] = useState(false)
-  const [form, setForm] = useState({ seller_id: "", provider_id: "pop_stripe-connect_stripe", provider_account_id: "" })
+  const [form, setForm] = useState({ seller_id: "", provider_account_id: "" })
   const mutation = useMapAccount()
   const blocker = useActionBlocker("payouts", "edit")
 
@@ -33,7 +33,7 @@ const MapAccountDrawer = () => {
           <Drawer.Description>Attach a connected account that already exists in Stripe to a seller.</Drawer.Description>
         </Drawer.Header>
         <Drawer.Body className="flex flex-col gap-y-4">
-          {(["seller_id", "provider_id", "provider_account_id"] as const).map((key) => (
+          {(["seller_id", "provider_account_id"] as const).map((key) => (
             <div key={key} className="flex flex-col gap-y-2">
               <Label htmlFor={`map-${key}`}>{key.replace(/_/g, " ")}</Label>
               <Input
@@ -108,7 +108,8 @@ export const AccountsTab = () => {
         header: () => <TextHeader text="Reason" />,
         cell: ({ getValue }) => <TextCell text={getValue() ?? "-"} />,
       }),
-      columnHelper.accessor("ignored", {
+      columnHelper.accessor((row) => isIgnored(row), {
+        id: "ignored",
         header: () => <TextHeader text="Ignored" />,
         cell: ({ getValue }) => <TextCell text={getValue() ? "Yes" : "No"} />,
       }),
@@ -121,6 +122,7 @@ export const AccountsTab = () => {
         cell: ({ row }) => {
           const account = row.original
           const url = (account.onboarding?.data?.url as string | undefined) ?? null
+          const ignored = isIgnored(account)
           return (
             <ActionMenu
               groups={[
@@ -134,9 +136,9 @@ export const AccountsTab = () => {
                 {
                   actions: [
                     {
-                      label: account.ignored ? "Stop ignoring" : "Ignore seller",
+                      label: ignored ? "Stop ignoring" : "Ignore seller",
                       icon: <XMark />,
-                      onClick: () => action.mutate({ id: account.id, action: "ignore", ignored: !account.ignored }),
+                      onClick: () => action.mutate({ id: account.id, action: "ignore", ignored: !ignored }),
                       ...blocker,
                     },
                   ],

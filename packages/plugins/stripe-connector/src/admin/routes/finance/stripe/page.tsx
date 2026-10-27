@@ -7,15 +7,16 @@ import { useEffect, useState } from "react"
 import { SettingsProviders } from "../../../providers/settings-providers"
 import { AccountsTab } from "./components/accounts-tab"
 import { AlertsTab } from "./components/alerts-tab"
+import { CapturesTab } from "./components/captures-tab"
 import { KycTab } from "./components/kyc-tab"
 import { SettlementsTab } from "./components/settlements-tab"
 import { StatusStrip } from "./components/status-strip"
-import { TransfersTab } from "./components/transfers-tab"
+import { PayoutsTab } from "./components/payouts-tab"
 
 const TABS = [
   { id: "onboarding", label: "Onboarding", render: () => <AccountsTab /> },
-  { id: "transfers", label: "Transfers", render: () => <TransfersTab /> },
-  { id: "reversals", label: "Reversals", render: () => <TransfersTab reversal /> },
+  { id: "captures", label: "Captures", render: () => <CapturesTab /> },
+  { id: "payouts", label: "Payouts", render: () => <PayoutsTab /> },
   { id: "settlements", label: "Settlements", render: () => <SettlementsTab /> },
   { id: "alerts", label: "Alerts", render: () => <AlertsTab /> },
   { id: "kyc", label: "KYC", render: () => <KycTab /> },

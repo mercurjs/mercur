@@ -7,7 +7,6 @@ import {
   AdminCreatePayoutAccount,
   AdminGetPayoutAccountParams,
   AdminGetPayoutAccountsParams,
-  AdminIgnorePayoutAccount,
 } from "./validators"
 
 const retrieve = validateAndTransformQuery(AdminGetPayoutAccountParams, adminPayoutAccountQueryConfig.retrieve)
@@ -30,11 +29,6 @@ export const adminPayoutAccountsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/payout-accounts/:id",
     middlewares: [requirePermission("payouts", "view"), retrieve],
-  },
-  {
-    method: ["POST"],
-    matcher: "/admin/payout-accounts/:id/ignore",
-    middlewares: [requirePermission("payouts", "edit"), validateAndTransformBody(AdminIgnorePayoutAccount), retrieve],
   },
   {
     method: ["POST"],

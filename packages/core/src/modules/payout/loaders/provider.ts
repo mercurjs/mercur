@@ -1,4 +1,4 @@
-import { asFunction, asValue, Lifetime } from "@medusajs/framework/awilix"
+import { asFunction, Lifetime } from "@medusajs/framework/awilix"
 import { moduleProviderLoader } from "@medusajs/framework/modules-sdk"
 import {
   LoaderOptions,
@@ -7,10 +7,7 @@ import {
 } from "@medusajs/framework/types"
 import { MedusaError } from "@medusajs/framework/utils"
 
-import {
-  PayoutProviderRegistrationPrefix,
-  PayoutProviderRegistrationKey,
-} from "../services/provider-service"
+import { PayoutProviderRegistrationPrefix } from "../services/provider-service"
 import { SystemPayoutProvider } from "../providers"
 
 const registrationFn = async (klass, container, pluginOptions) => {
@@ -33,8 +30,6 @@ const registrationFn = async (klass, container, pluginOptions) => {
       }
     ),
   })
-
-  container.registerAdd(PayoutProviderRegistrationKey, asValue(key))
 }
 
 export default async ({
@@ -46,11 +41,16 @@ export default async ({
     | ModulesSdkTypes.ModuleServiceInitializeCustomDataLayerOptions
   ) & { providers: ModuleProvider[] }
 >): Promise<void> => {
-  await registrationFn(SystemPayoutProvider, container, { id: "default" })
+  const providers = options?.providers || []
+  if (!providers.length) {
+    return await registrationFn(SystemPayoutProvider, container, {
+      id: "default",
+    })
+  }
 
   await moduleProviderLoader({
     container,
-    providers: options?.providers || [],
+    providers,
     registerServiceFn: registrationFn,
   })
 }
