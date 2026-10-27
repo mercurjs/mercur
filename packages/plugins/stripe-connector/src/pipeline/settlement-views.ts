@@ -3,6 +3,7 @@ import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/util
 
 import { SettlementDTO, SettlementLineType } from "../types/common"
 import { SettlementDetail, SettlementLine, SettlementListItem, SettlementSeller } from "../types/http"
+import { providerIdOf } from "../lib/provider-data"
 import { resolveConnector, resolvePayoutModule } from "../utils/payout-module"
 
 type ListOptions = {
@@ -121,7 +122,7 @@ export async function retrieveSettlement(
       refund_id: null,
       amount: lineBySource.get(sourceId)?.amount ?? 0,
       status: payout?.status ?? null,
-      provider_id: payout?.provider_payout_id ?? null,
+      provider_id: providerIdOf(payout?.data),
     }
   })
 
@@ -133,7 +134,7 @@ export async function retrieveSettlement(
     refund_id: reversal.refund_id,
     amount: lineBySource.get(reversal.id)?.amount ?? reversal.amount,
     status: reversal.status,
-    provider_id: reversal.provider_reversal_id,
+    provider_id: providerIdOf(reversal.data),
   }))
 
   return {

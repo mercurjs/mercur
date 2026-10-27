@@ -73,23 +73,22 @@ export default class PayoutModuleService extends MedusaService({
         return this.options_
     }
 
-    protected accountRef(account: { provider_account_id?: string | null; data?: Record<string, unknown> | null }) {
+    protected accountRef(account: { external_id?: string | null; data?: Record<string, unknown> | null }) {
         return {
-            id: account.provider_account_id ?? ((account.data?.id as string | undefined) ?? ""),
+            id: account.external_id ?? ((account.data?.id as string | undefined) ?? ""),
             data: (account.data ?? {}) as Record<string, unknown>,
         }
     }
 
     protected accountFieldsFromProvider(account: AccountOutput) {
         return {
-            provider_account_id: account.id,
+            external_id: account.id,
             status: deriveAccountStatus(account),
             kyc_status: deriveKycStatus(account.requirements, account.disabled_reason),
             payouts_enabled: account.payouts_enabled,
             charges_enabled: account.charges_enabled,
             details_submitted: account.details_submitted,
             disabled_reason: account.disabled_reason,
-            requirements: account.requirements as unknown as Record<string, unknown>,
             data: account.data,
             last_synced_at: new Date(),
         }
@@ -318,9 +317,8 @@ export default class PayoutModuleService extends MedusaService({
                 {
                     id: payout.id,
                     status: response.status,
-                    provider_payout_id: response.id,
                     status_reason: null,
-                    data: { ...(payout.data ?? {}), attempts: attempt, provider: response.data },
+                    data: { ...(payout.data ?? {}), attempts: attempt, provider: { ...response.data, id: response.id } },
                 },
                 sharedContext
             )
@@ -360,11 +358,9 @@ export default class PayoutModuleService extends MedusaService({
 
         let updated: InferEntityType<typeof PayoutReversal>
         try {
+            const provider = (payout.data?.provider ?? {}) as Record<string, unknown>
             const response = await this.payoutProviderService_.reversePayout({
-                payout: {
-                    id: payout.provider_payout_id as string,
-                    data: ((payout.data?.provider ?? {}) as Record<string, unknown>),
-                },
+                payout: { id: provider.id as string, data: provider },
                 amount: reversal.amount,
                 currency_code: payout.currency_code,
                 metadata: {
@@ -379,9 +375,8 @@ export default class PayoutModuleService extends MedusaService({
                 {
                     id: reversal.id,
                     status: response.status,
-                    provider_reversal_id: response.id,
                     status_reason: null,
-                    data: { ...(reversal.data ?? {}), attempts: attempt, provider: response.data },
+                    data: { ...(reversal.data ?? {}), attempts: attempt, provider: { ...response.data, id: response.id } },
                 },
                 sharedContext
             )

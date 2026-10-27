@@ -8,14 +8,13 @@ const SYNC_AFTER_MS = 30 * 1000
 
 const FIELDS = [
   "id",
-  "provider_account_id",
+  "external_id",
   "status",
   "kyc_status",
   "payouts_enabled",
   "charges_enabled",
   "details_submitted",
   "disabled_reason",
-  "requirements",
   "last_synced_at",
   "created_at",
   "updated_at",

@@ -60,7 +60,6 @@ medusaIntegrationTestRunner({
         expect(receivedInput.metadata).toEqual({ payout_id: pending.id, order_id: "order_1" })
 
         expect(payout.status).toEqual(PayoutStatus.PAID)
-        expect(payout.provider_payout_id).toEqual("tr_1")
         expect(payout.data).toMatchObject({ attempts: 1, provider: { id: "tr_1" } })
       })
 
@@ -129,7 +128,7 @@ medusaIntegrationTestRunner({
         expect(receivedInput.currency_code).toEqual("usd")
         expect(receivedInput.context).toEqual({ idempotency_key: pendingReversal.id })
         expect(reversal.status).toEqual(PayoutStatus.PAID)
-        expect(reversal.provider_reversal_id).toEqual("trr_1")
+        expect(reversal.data.provider.id).toEqual("trr_1")
       })
     })
   },

@@ -4,7 +4,7 @@ import { SectionRow } from "@mercurjs/dashboard-shared"
 
 import { useRefreshMyOnboarding } from "../../../../hooks/api/stripe"
 import type { VendorAccount } from "../../../../lib/client"
-import { ACCOUNT_STATUS_COLOR, KYC_STATUS_COLOR, KYC_STATUS_LABEL, formatDate } from "../../../../lib/status"
+import { ACCOUNT_STATUS_COLOR, KYC_STATUS_COLOR, KYC_STATUS_LABEL, formatDate, stripeRequirementsOf } from "../../../../lib/status"
 
 const Requirements = ({ label, items }: { label: string; items: string[] }) =>
   items.length ? (
@@ -64,14 +64,14 @@ export const StatusCard = ({ account }: { account: VendorAccount }) => {
           ) : null}
         </div>
       </div>
-      <SectionRow title="Account id" value={account.provider_account_id ?? "-"} />
+      <SectionRow title="Account id" value={account.external_id ?? "-"} />
       <SectionRow title="Verification" value={account.kyc_status ? <StatusBadge color={KYC_STATUS_COLOR[account.kyc_status] ?? "grey"}>{KYC_STATUS_LABEL[account.kyc_status]}</StatusBadge> : "Not started"} />
       <SectionRow title="Payouts enabled" value={account.payouts_enabled ? "Yes" : "Not yet"} />
       <SectionRow title="Charges enabled" value={account.charges_enabled ? "Yes" : "Not yet"} />
       {account.disabled_reason ? <SectionRow title="Stripe says" value={account.disabled_reason.replace(/_/g, " ")} /> : null}
-      <Requirements label="Stripe still needs" items={account.requirements?.currently_due ?? []} />
-      <Requirements label="Overdue" items={account.requirements?.past_due ?? []} />
-      <Requirements label="Being verified" items={account.requirements?.pending_verification ?? []} />
+      <Requirements label="Stripe still needs" items={stripeRequirementsOf(account.data).currently_due} />
+      <Requirements label="Overdue" items={stripeRequirementsOf(account.data).past_due} />
+      <Requirements label="Being verified" items={stripeRequirementsOf(account.data).pending_verification} />
       <SectionRow title="Last checked" value={formatDate(account.last_synced_at)} />
     </Container>
   )

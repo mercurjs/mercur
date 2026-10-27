@@ -10,7 +10,6 @@ export const PayoutReversal = model
     amount: model.bigNumber(),
     status: model.enum(PayoutStatus).default(PayoutStatus.PENDING),
     status_reason: model.text().nullable(),
-    provider_reversal_id: model.text().nullable(),
     data: model.json().nullable(),
     payout: model.belongsTo(() => Payout, {
       mappedBy: 'reversals'

@@ -19,7 +19,7 @@ export async function monitorKyc(ctx: JobContext) {
   }
 
   const accounts = await resolvePayoutModule(container).listPayoutAccounts(
-    { provider_account_id: { $ne: null } },
+    { external_id: { $ne: null } },
     { take: null }
   )
   stats.accounts = accounts.length

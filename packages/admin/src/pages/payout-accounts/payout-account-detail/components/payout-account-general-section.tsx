@@ -1,5 +1,5 @@
 import { ArrowPath, ArrowUpRightOnBox, Link as LinkIcon } from "@medusajs/icons"
-import { Badge, Container, Copy, Heading, StatusBadge, toast } from "@medusajs/ui"
+import { Container, Heading, StatusBadge, toast } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
@@ -48,7 +48,7 @@ export const PayoutAccountGeneralSection = ({
     <Container className="divide-y p-0" data-testid="payout-account-general-section">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading data-testid="payout-account-general-section-heading">
-          {account.seller?.name ?? account.provider_account_id ?? account.id}
+          {account.seller?.name ?? account.id}
         </Heading>
         <div className="flex items-center gap-x-2">
           <StatusBadge
@@ -89,23 +89,6 @@ export const PayoutAccountGeneralSection = ({
           />
         </div>
       </div>
-      <SectionRow
-        title={t("payoutAccounts.fields.providerAccountId")}
-        value={
-          account.provider_account_id ? (
-            <Copy
-              asChild
-              content={account.provider_account_id}
-              className="cursor-pointer"
-              data-testid="payout-account-general-section-provider-account-copy"
-            >
-              <Badge size="2xsmall" className="text-ui-tag-neutral-text">
-                {account.provider_account_id}
-              </Badge>
-            </Copy>
-          ) : null
-        }
-      />
       <SectionRow
         title={t("payoutAccounts.fields.lastSyncedAt")}
         value={formatDate(account.last_synced_at)}

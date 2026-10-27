@@ -38,7 +38,15 @@ export const usePayoutTableColumns = () => {
       }),
       columnHelper.accessor("order_id", {
         header: () => <TextHeader text={t("payouts.fields.order")} />,
-        cell: ({ getValue }) => <TextCell text={getValue() ?? undefined} />,
+        cell: ({ getValue, row }) => (
+          <TextCell
+            text={
+              row.original.order?.display_id
+                ? `#${row.original.order.display_id}`
+                : getValue() ?? undefined
+            }
+          />
+        ),
       }),
       columnHelper.accessor("amount", {
         header: () => <TextHeader text={t("fields.amount")} />,

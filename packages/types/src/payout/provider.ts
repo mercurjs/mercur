@@ -115,8 +115,10 @@ export interface PayoutWebhookActionInput {
 export type PayoutWebhookResult = {
   action: PayoutWebhookAction
   data?: {
-    /** The provider's id of the account or payout the event is about. */
+    /** The provider's id of the object the event is about. */
     id: string
+    /** Mercur's payout id, for payout events: providers echo it from the metadata sent with the payout. */
+    payout_id?: string
     status_reason?: string
   }
 }

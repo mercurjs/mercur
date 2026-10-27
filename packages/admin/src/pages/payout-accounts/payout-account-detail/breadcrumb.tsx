@@ -15,7 +15,7 @@ export const PayoutAccountDetailBreadcrumb = (props: UIMatch) => {
 
   return (
     <span>
-      {payout_account.seller?.name ?? payout_account.provider_account_id ?? payout_account.id}
+      {payout_account.seller?.name ?? payout_account.id}
     </span>
   )
 }

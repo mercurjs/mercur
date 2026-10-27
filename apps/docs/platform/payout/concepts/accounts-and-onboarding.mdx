@@ -27,7 +27,7 @@ Inside the module, `createPayoutAccount` runs 3 writes in order:
 
 1. Create the `PayoutAccount` row with your `data` and `context`
 2. Call the provider’s `createAccount` with `data.account_id` and `metadata.account_id` set to the new `pacc` id, and `context.idempotency_key` defaulting to the same id
-3. Store the provider’s account id as `provider_account_id`, its flags and requirements, the derived `status` and `kyc_status`, and its `data`
+3. Store the provider’s account id as `external_id`, its flags, the derived `status` and `kyc_status`, and its `data`
 
 If the provider call throws before an account exists, the module deletes the new row and rethrows. The Stripe Connect provider creates an Express account and returns it as `pending`. The built-in `system` provider returns an `active` account at once.
 
@@ -43,7 +43,7 @@ With the `onboarding.prefill` option, the module also passes the seller’s name
 
 Onboarding is the provider’s setup flow: identity checks, bank details, and anything else the provider needs. Its state lives in the `Onboarding` data model (table `onboarding`, id prefix `onb`), a one-to-one child of the payout account.
 
-`createOnboardingWorkflow` takes an `account_id` and calls the provider’s `createOnboarding` with the account’s `provider_account_id`, a `refresh_url`, and a `return_url`. By default both URLs come from the module’s `onboarding` options: `return_url` is `onboarding.returnUrl`, and `refresh_url` is `<onboarding.refreshBaseUrl>/payout/onboarding/refresh?token=<onboarding_token>`. Pass them in `data` to override:
+`createOnboardingWorkflow` takes an `account_id` and calls the provider’s `createOnboarding` with the account’s `external_id`, a `refresh_url`, and a `return_url`. By default both URLs come from the module’s `onboarding` options: `return_url` is `onboarding.returnUrl`, and `refresh_url` is `<onboarding.refreshBaseUrl>/payout/onboarding/refresh?token=<onboarding_token>`. Pass them in `data` to override:
 
 ```ts
 import { createOnboardingWorkflow } from "@mercurjs/core/workflows"

@@ -7624,15 +7624,11 @@
             },
             "payoutAccount": {
               "type": "string"
-            },
-            "providerPayoutId": {
-              "type": "string"
             }
           },
           "required": [
             "order",
-            "payoutAccount",
-            "providerPayoutId"
+            "payoutAccount"
           ],
           "additionalProperties": false
         },
@@ -7678,17 +7674,21 @@
             "header": {
               "type": "string"
             },
-            "empty": {
+            "refund": {
               "type": "string"
             },
-            "refund": {
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
               "type": "string"
             }
           },
           "required": [
             "header",
-            "empty",
-            "refund"
+            "refund",
+            "noRecordsTitle",
+            "noRecordsMessage"
           ],
           "additionalProperties": false
         },
@@ -7760,9 +7760,6 @@
             "kycStatus": {
               "type": "string"
             },
-            "providerAccountId": {
-              "type": "string"
-            },
             "payoutsEnabled": {
               "type": "string"
             },
@@ -7772,9 +7769,6 @@
             "detailsSubmitted": {
               "type": "string"
             },
-            "disabledReason": {
-              "type": "string"
-            },
             "lastSyncedAt": {
               "type": "string"
             }
@@ -7782,11 +7776,9 @@
           "required": [
             "store",
             "kycStatus",
-            "providerAccountId",
             "payoutsEnabled",
             "chargesEnabled",
             "detailsSubmitted",
-            "disabledReason",
             "lastSyncedAt"
           ],
           "additionalProperties": false
@@ -7883,38 +7875,6 @@
           ],
           "additionalProperties": false
         },
-        "requirements": {
-          "type": "object",
-          "properties": {
-            "header": {
-              "type": "string"
-            },
-            "emptyTitle": {
-              "type": "string"
-            },
-            "emptyMessage": {
-              "type": "string"
-            },
-            "pastDue": {
-              "type": "string"
-            },
-            "currentlyDue": {
-              "type": "string"
-            },
-            "pendingVerification": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "header",
-            "emptyTitle",
-            "emptyMessage",
-            "pastDue",
-            "currentlyDue",
-            "pendingVerification"
-          ],
-          "additionalProperties": false
-        },
         "capabilities": {
           "type": "object",
           "properties": {
@@ -7928,6 +7888,38 @@
           "required": [
             "header",
             "kycUnknown"
+          ],
+          "additionalProperties": false
+        },
+        "disabledReason": {
+          "type": "object",
+          "properties": {
+            "pastDue": {
+              "type": "string"
+            },
+            "pendingVerification": {
+              "type": "string"
+            },
+            "requirements": {
+              "type": "string"
+            },
+            "rejected": {
+              "type": "string"
+            },
+            "underReview": {
+              "type": "string"
+            },
+            "other": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "pastDue",
+            "pendingVerification",
+            "requirements",
+            "rejected",
+            "underReview",
+            "other"
           ],
           "additionalProperties": false
         }
@@ -7945,8 +7937,8 @@
         "actions",
         "sync",
         "refreshLink",
-        "requirements",
-        "capabilities"
+        "capabilities",
+        "disabledReason"
       ],
       "additionalProperties": false
     },

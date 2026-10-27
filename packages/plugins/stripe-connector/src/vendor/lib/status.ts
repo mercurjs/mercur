@@ -84,3 +84,24 @@ export const formatAmount = (amount: unknown, currency: string) => {
     return `${numeric.toFixed(2)} ${currency.toUpperCase()}`
   }
 }
+
+export const providerIdOf = (data: Record<string, unknown> | null | undefined): string | null => {
+  const provider = data?.provider as { id?: unknown } | undefined
+  return typeof provider?.id === "string" ? provider.id : null
+}
+
+export type StripeRequirements = {
+  currently_due: string[]
+  past_due: string[]
+  pending_verification: string[]
+}
+
+/** The connected account Stripe returned, kept on the payout account as `data`. */
+export const stripeRequirementsOf = (data: Record<string, unknown> | null | undefined): StripeRequirements => {
+  const requirements = data?.requirements as Partial<StripeRequirements> | undefined
+  return {
+    currently_due: requirements?.currently_due ?? [],
+    past_due: requirements?.past_due ?? [],
+    pending_verification: requirements?.pending_verification ?? [],
+  }
+}

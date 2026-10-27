@@ -17,7 +17,11 @@ const GENERAL_FIELD_IDS = [
   "updated_at",
 ];
 
-export const PayoutGeneralSection = ({ payout }: { payout: PayoutDTO }) => {
+type VendorPayout = PayoutDTO & {
+  order?: { id: string; display_id: number } | null
+}
+
+export const PayoutGeneralSection = ({ payout }: { payout: VendorPayout }) => {
   const { t } = useTranslation();
 
   const statusText = t(`payouts.status.${payout.status}`, {
@@ -60,7 +64,7 @@ export const PayoutGeneralSection = ({ payout }: { payout: PayoutDTO }) => {
               className="text-ui-fg-interactive txt-compact-small truncate"
               data-testid="payout-general-section-order-link"
             >
-              {payout.order_id}
+              {payout.order?.display_id ? `#${payout.order.display_id}` : payout.order_id}
             </Link>
           ) : (
             <Text size="small" leading="compact">

@@ -17,7 +17,7 @@ const RETRIABLE = [PayoutStatus.PENDING, PayoutStatus.FAILED, PayoutStatus.ON_HO
 const SETTLED_PAYOUT = [PayoutStatus.PAID, PayoutStatus.PROCESSING, PayoutStatus.ABORTED]
 
 const isReady = (account: PayoutAccountDTO | undefined): account is PayoutAccountDTO =>
-  !!account?.payouts_enabled && !!account.provider_account_id
+  !!account?.payouts_enabled && !!account.external_id
 
 export async function sellerIdsByAccount(container: MedusaContainer, accountIds: string[]) {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
@@ -66,7 +66,7 @@ export async function dispatchAdjustments(container: MedusaContainer, connector:
       }
       continue
     }
-    await connector.dispatchAdjustment(adjustment.id, account.provider_account_id as string)
+    await connector.dispatchAdjustment(adjustment.id, account.external_id as string)
     dispatched += 1
   }
 
@@ -89,7 +89,7 @@ export async function retryFailedSettlementPayouts(
     if (!isReady(account)) {
       continue
     }
-    await connector.dispatchSettlementPayout(settlement.id, account.provider_account_id as string)
+    await connector.dispatchSettlementPayout(settlement.id, account.external_id as string)
     retried += 1
   }
 
@@ -270,7 +270,7 @@ export async function buildSettlements(ctx: JobContext, now: Date, accountIds?: 
         continue
       }
 
-      await connector.dispatchSettlementPayout(settlement.id, account.provider_account_id as string)
+      await connector.dispatchSettlementPayout(settlement.id, account.external_id as string)
       counts.payouts += 1
     }
   }

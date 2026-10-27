@@ -20,11 +20,11 @@ export const POST = async (req: AuthenticatedMedusaRequest, res: MedusaResponse<
   }
 
   const account = await resolvePayoutModule(req.scope).retrievePayoutAccount(settlement.account_id)
-  if (!account.payouts_enabled || !account.provider_account_id) {
+  if (!account.payouts_enabled || !account.external_id) {
     throw new MedusaError(MedusaError.Types.NOT_ALLOWED, `Payout account ${account.id} cannot receive payouts yet`)
   }
 
-  await connector.dispatchSettlementPayout(settlement.id, account.provider_account_id)
+  await connector.dispatchSettlementPayout(settlement.id, account.external_id)
 
   res.json({ settlement: await retrieveSettlement(req.scope, settlement.id) })
 }

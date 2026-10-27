@@ -6,7 +6,7 @@ import { SectionRow } from "@mercurjs/dashboard-shared"
 import { useRetryPayout, useStripePayouts } from "../hooks/api/stripe"
 import { useActionBlocker } from "../hooks/use-action-blocker"
 import { SettingsProviders } from "../providers/settings-providers"
-import { PAYOUT_STATUS_COLOR, PAYOUT_STATUS_LABEL, formatAmount } from "../lib/status"
+import { PAYOUT_STATUS_COLOR, PAYOUT_STATUS_LABEL, formatAmount, providerIdOf } from "../lib/status"
 
 type Line = {
   id: string
@@ -31,7 +31,7 @@ const Body = ({ orderId }: { orderId: string }) => {
       currency_code: payout.currency_code,
       status: payout.status,
       status_reason: payout.status_reason,
-      provider_id: payout.provider_payout_id,
+      provider_id: providerIdOf(payout.data),
       payout_id: payout.id,
     },
     ...(payout.reversals ?? []).map((reversal) => ({
@@ -41,7 +41,7 @@ const Body = ({ orderId }: { orderId: string }) => {
       currency_code: payout.currency_code,
       status: reversal.status,
       status_reason: reversal.status_reason,
-      provider_id: reversal.provider_reversal_id,
+      provider_id: providerIdOf(reversal.data),
       payout_id: payout.id,
     })),
   ])

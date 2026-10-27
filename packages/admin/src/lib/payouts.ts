@@ -4,6 +4,7 @@ type PayoutSeller = { id: string; name: string | null; handle: string | null }
 
 export type AdminPayout = PayoutDTO & {
   reversals?: PayoutReversalDTO[]
+  order?: { id: string; display_id: number } | null
   seller?: PayoutSeller | null
   account?: {
     id: string

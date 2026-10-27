@@ -17,7 +17,7 @@ An account’s state is the `status` field on `PayoutAccount`, typed by the `Pay
 | `RESTRICTED` | `restricted` | Details submitted, but the provider disabled something |
 | `REJECTED` | `rejected` | Permanently disabled by the provider |
 
-The account also mirrors the provider’s flags: `payouts_enabled`, `charges_enabled`, `details_submitted`, `disabled_reason`, `requirements`, and a derived `kyc_status` (`pending_submission`, `pending_approval`, `approved`, `refused`). `createOrderPayoutsWorkflow` checks `payouts_enabled` and holds the payout until it’s `true`.
+The account also mirrors the provider’s flags: `payouts_enabled`, `charges_enabled`, `details_submitted`, `disabled_reason`, and a derived `kyc_status` (`pending_submission`, `pending_approval`, `approved`, `refused`). `createOrderPayoutsWorkflow` checks `payouts_enabled` and holds the payout until it’s `true`.
 
 ## How the status is derived
 
@@ -32,7 +32,7 @@ Mercur doesn’t take a status from the webhook body. It asks the provider for t
 
 ## Webhooks refresh the account
 
-The provider’s `getWebhookActionAndData` turns a raw webhook into an action and the **provider’s** account id. `processPayoutForWebhookWorkflow` finds the account by `provider_account_id` and runs `syncPayoutAccountWorkflow`, which:
+The provider’s `getWebhookActionAndData` turns a raw webhook into an action and the **provider’s** account id. `processPayoutForWebhookWorkflow` finds the account by `external_id` and runs `syncPayoutAccountWorkflow`, which:
 
 1. Re-reads the account from the provider and stores the derived status, flags, and `kyc_status`
 2. Swaps the onboarding link for a provider dashboard login link once details are submitted

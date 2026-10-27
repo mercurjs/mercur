@@ -1,6 +1,5 @@
 import { BigNumberInput } from "@medusajs/types"
 import {
-  PayoutAccountRequirements,
   PayoutAccountStatus,
   PayoutKycStatus,
   PayoutStatus,
@@ -31,7 +30,6 @@ export interface UpdatePayoutAccountDTO {
   charges_enabled?: boolean
   details_submitted?: boolean
   disabled_reason?: string | null
-  requirements?: PayoutAccountRequirements | null
   onboarding_token?: string | null
   last_synced_at?: Date | null
   data?: Record<string, unknown>
@@ -54,7 +52,6 @@ export interface UpdatePayoutDTO {
   amount?: BigNumberInput
   status?: PayoutStatus
   status_reason?: string | null
-  provider_payout_id?: string | null
   data?: Record<string, unknown> | null
   metadata?: Record<string, unknown> | null
 }
@@ -73,6 +70,5 @@ export interface UpdatePayoutReversalDTO {
   amount?: BigNumberInput
   status?: PayoutStatus
   status_reason?: string | null
-  provider_reversal_id?: string | null
   data?: Record<string, unknown> | null
 }

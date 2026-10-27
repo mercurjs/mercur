@@ -69,7 +69,7 @@ medusaIntegrationTestRunner({
         await ensureSellerPayoutAccountWorkflow(container).run({ input: { seller_id: seller.id } })
 
         const response = await api
-          .post("/admin/payout-accounts", { seller_id: seller.id, provider_account_id: "acct_x" }, adminHeaders)
+          .post("/admin/payout-accounts", { seller_id: seller.id, external_id: "acct_x" }, adminHeaders)
           .catch((e: any) => e.response)
         expect(response.status).toEqual(409)
       })
@@ -118,7 +118,7 @@ medusaIntegrationTestRunner({
         expect(response.status).toEqual(200)
         expect(response.data.payout.status).toEqual(PayoutStatus.PAID)
         expect(response.data.payout.status_reason).toBeNull()
-        expect(response.data.payout.provider_payout_id).toBeTruthy()
+        expect(response.data.payout.data.provider.id).toBeTruthy()
       })
 
       it("refuses to retry a paid payout", async () => {

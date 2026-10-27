@@ -123,12 +123,12 @@ Sends existing reversals again. Workflow id `process-payout-reversal`. Input `{ 
 
 ## processPayoutForWebhookWorkflow
 
-Applies a parsed provider webhook. Workflow id `process-payout-for-webhook`, exported as `processPayoutForWebhookWorkflowId`. Its input is a `PayoutWebhookResult`: an `action` and an optional `data.id`, the provider’s object id.
+Applies a parsed provider webhook. Workflow id `process-payout-for-webhook`, exported as `processPayoutForWebhookWorkflowId`. Its input is a `PayoutWebhookResult`: an `action` and an optional `data` with `id`, the provider’s object id, and for payout events `payout_id`, Mercur’s payout id.
 
 | Action | Effect |
 | --- | --- |
-| `account.updated`, `account.activated`, `account.restricted`, `account.rejected` | Finds the account by `provider_account_id` and runs `syncPayoutAccountWorkflow` |
-| `payout.paid` | Finds the payout by `provider_payout_id` and sets it to `paid` |
+| `account.updated`, `account.activated`, `account.restricted`, `account.rejected` | Finds the account by `external_id` and runs `syncPayoutAccountWorkflow` |
+| `payout.paid` | Finds the payout by `data.payout_id` and sets it to `paid` |
 | `payout.failed` | Sets the payout to `failed` with `data.status_reason` |
 | `payout.reversed`, `not_supported` | No change |
 

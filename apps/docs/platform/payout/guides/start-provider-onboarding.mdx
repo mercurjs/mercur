@@ -80,7 +80,7 @@ The default `refresh_url` already handles this. It points at core’s public `GE
 
 The Stripe Connect provider uses:
 
-- **The account**: the payout account’s `provider_account_id`, the Stripe `acct_…` id
+- **The account**: the payout account’s `external_id`, the Stripe `acct_…` id
 - **`refresh_url`** and **`return_url`**: from the module’s defaults or your `data`
 
 It requests the Express capabilities first when the account doesn’t have them yet, then creates an `account_onboarding` account link.

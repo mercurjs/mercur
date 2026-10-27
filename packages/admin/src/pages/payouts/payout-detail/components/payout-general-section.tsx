@@ -1,5 +1,5 @@
 import { ArrowPath } from "@medusajs/icons"
-import { Badge, Container, Copy, Heading, StatusBadge } from "@medusajs/ui"
+import { Container, Heading, StatusBadge } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
@@ -53,23 +53,6 @@ export const PayoutGeneralSection = ({ payout }: { payout: AdminPayout }) => {
         </div>
       </div>
       <SectionRow title={t("fields.id")} value={`#${payout.display_id}`} />
-      <SectionRow
-        title={t("payouts.fields.providerPayoutId")}
-        value={
-          payout.provider_payout_id ? (
-            <Copy
-              asChild
-              content={payout.provider_payout_id}
-              className="cursor-pointer"
-              data-testid="payout-general-section-provider-payout-copy"
-            >
-              <Badge size="2xsmall" className="text-ui-tag-neutral-text">
-                {payout.provider_payout_id}
-              </Badge>
-            </Copy>
-          ) : null
-        }
-      />
       <SectionRow
         title={t("fields.createdAt")}
         value={formatDate(payout.created_at)}

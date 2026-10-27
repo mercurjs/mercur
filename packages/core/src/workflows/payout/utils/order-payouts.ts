@@ -392,7 +392,7 @@ export async function upsertPayoutReversals(
         payout: {
           id: payout.id,
           status: payout.status,
-          provider_payout_id: payout.provider_payout_id,
+          provider_payout_id: ((payout.data?.provider as { id?: string } | undefined)?.id) ?? null,
         },
       })
 

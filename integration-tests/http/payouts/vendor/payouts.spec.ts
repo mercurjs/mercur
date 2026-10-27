@@ -405,7 +405,7 @@ medusaIntegrationTestRunner({
           expect(payout.order_id).toEqual(order.id)
           expect(payout.status).toEqual(PayoutStatus.PAID)
           expect(Number(payout.amount)).toEqual(Number(order.total) - commission)
-          expect(payout.provider_payout_id).toBeTruthy()
+          expect(payout.data.provider.id).toBeTruthy()
 
           const payoutsResponse = await api.get(`/vendor/payouts`, sellerHeaders)
           expect(payoutsResponse.status).toEqual(200)

@@ -13,7 +13,6 @@ export const Payout = model
     amount: model.bigNumber(),
     status: model.enum(PayoutStatus).default(PayoutStatus.PENDING),
     status_reason: model.text().nullable(),
-    provider_payout_id: model.text().nullable(),
     data: model.json().nullable(),
     metadata: model.json().nullable(),
     account: model.belongsTo(() => PayoutAccount, {
@@ -42,10 +41,5 @@ export const Payout = model
       on: ['order_id'],
       unique: true,
       where: 'deleted_at IS NULL AND order_id IS NOT NULL'
-    },
-    {
-      name: 'IDX_payout_provider_payout_id',
-      on: ['provider_payout_id'],
-      where: 'deleted_at IS NULL AND provider_payout_id IS NOT NULL'
     }
   ])

@@ -335,9 +335,13 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
         return { action, data: { id: account.id } }
       }
       case "transfer.created":
-        return { action: "payout.paid", data: { id: (event.data.object as Stripe.Transfer).id } }
-      case "transfer.reversed":
-        return { action: "payout.reversed", data: { id: (event.data.object as Stripe.Transfer).id } }
+      case "transfer.reversed": {
+        const transfer = event.data.object as Stripe.Transfer
+        return {
+          action: event.type === "transfer.created" ? "payout.paid" : "payout.reversed",
+          data: { id: transfer.id, payout_id: transfer.metadata?.payout_id },
+        }
+      }
       default:
         return { action: "not_supported" }
     }

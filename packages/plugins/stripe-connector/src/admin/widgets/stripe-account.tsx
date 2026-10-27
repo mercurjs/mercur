@@ -42,7 +42,7 @@ const Body = ({ sellerId }: { sellerId: string }) => {
           <Heading>Stripe account</Heading>
           <StatusBadge color={ACCOUNT_STATUS_COLOR[account.status] ?? "grey"}>{account.status}</StatusBadge>
         </div>
-        <SectionRow title="Account id" value={account.provider_account_id ?? "-"} />
+        <SectionRow title="Account id" value={account.external_id ?? "-"} />
         <SectionRow title="KYC" value={account.kyc_status ? <StatusBadge color={KYC_STATUS_COLOR[account.kyc_status] ?? "grey"}>{KYC_STATUS_LABEL[account.kyc_status]}</StatusBadge> : "-"} />
         <SectionRow title="Payouts enabled" value={account.payouts_enabled ? "Yes" : "No"} />
         <SectionRow title="Charges enabled" value={account.charges_enabled ? "Yes" : "No"} />

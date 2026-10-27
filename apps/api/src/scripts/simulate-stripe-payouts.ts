@@ -16,15 +16,14 @@ import {
   addSellerShippingMethodToCartWorkflow,
   completeCartWithSplitOrdersWorkflow,
 } from "@mercurjs/core/workflows"
-import {
-  processReversals,
-  processSettlements,
-  processTransfers,
-  validateCaptures,
-} from "@mercurjs/core/workflows/payout/pipeline/index"
-import { runPayoutJob } from "@mercurjs/core/workflows/payout/utils/run-payout-job"
-import { MercurModules, PayoutJobTrigger } from "@mercurjs/types"
+import { MercurModules } from "@mercurjs/types"
+import { validateCaptures } from "@mercurjs/stripe-connector-plugin/pipeline/captures"
+import { processReversals } from "@mercurjs/stripe-connector-plugin/pipeline/reversals"
+import { processSettlements } from "@mercurjs/stripe-connector-plugin/pipeline/settlements"
+import { processTransfers } from "@mercurjs/stripe-connector-plugin/pipeline/transfers"
 import { getStripeClient } from "@mercurjs/stripe-connector-plugin/lib/stripe-client"
+import { JobTrigger, STRIPE_CONNECTOR_MODULE } from "@mercurjs/stripe-connector-plugin/types"
+import { runJob } from "@mercurjs/stripe-connector-plugin/utils/run-job"
 
 /**
  * Walks one Sole Society order through the whole Stripe pipeline against the
@@ -44,6 +43,8 @@ const REFUND_SHARE = 0.25
 // Set to an existing order id to skip checkout and fulfilment and re-run the pipeline on it.
 const RESUME_ORDER_ID = process.env.RESUME_ORDER_ID
 const SKIP_REFUND = process.env.SKIP_REFUND === "1"
+
+const providerIdOf = (data: unknown) => (data as { provider?: { id?: string } } | null)?.provider?.id
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -67,14 +68,14 @@ export default async function simulateStripePayouts({ container }: ExecArgs) {
     data: [seller],
   } = await query.graph({
     entity: "seller",
-    fields: ["id", "name", "payout_account.id", "payout_account.status", "payout_account.provider_account_id"],
+    fields: ["id", "name", "payout_account.id", "payout_account.status", "payout_account.external_id"],
     filters: { name: SELLER_NAME },
   })
   if (!seller) throw new Error(`Seller ${SELLER_NAME} not found`)
   if (seller.payout_account?.status !== "active") {
     throw new Error(`${SELLER_NAME}'s payout account is ${seller.payout_account?.status ?? "missing"}; finish onboarding first`)
   }
-  logger.info(`Seller ${seller.name} (${seller.id}) on ${seller.payout_account.provider_account_id}`)
+  logger.info(`Seller ${seller.name} (${seller.id}) on ${seller.payout_account.external_id}`)
 
   const { data: shippingOptions } = await query.graph({
     entity: "shipping_option",
@@ -136,8 +137,8 @@ export default async function simulateStripePayouts({ container }: ExecArgs) {
   const offer = offers.find((o) => o.variant_id && published.has(o.variant_id))
   if (!offer) throw new Error(`${SELLER_NAME} has no offer on a published product`)
 
-  const run = async (job: Parameters<typeof runPayoutJob>[1], fn: Parameters<typeof runPayoutJob>[3]) => {
-    const result = await runPayoutJob(container, job, PayoutJobTrigger.MANUAL, fn)
+  const run = async (job: Parameters<typeof runJob>[1], fn: Parameters<typeof runJob>[3]) => {
+    const result = await runJob(container, job, JobTrigger.MANUAL, fn)
     logger.info(`${job}: ${result?.status} ${JSON.stringify(result?.stats ?? {})}${result?.error ? ` error=${result.error}` : ""}`)
     return result
   }
@@ -269,16 +270,16 @@ export default async function simulateStripePayouts({ container }: ExecArgs) {
   await run("payout-process-settlements", (ctx) => processSettlements(ctx, seller.id))
 
   // 10. summary
-  const transfers = await payoutService.listTransfers({ order_id: order.id }, { order: { created_at: "ASC" } })
-  for (const t of transfers) {
-    logger.info(`transfer ${t.type} ${t.amount} ${t.currency_code} → ${t.status}${t.provider_transfer_id ? ` ${t.provider_transfer_id}` : ""}${t.status_reason ? ` (${t.status_reason})` : ""}`)
-  }
-  const [settlement] = await payoutService.listSettlements({ account_id: seller.payout_account.id }, { order: { period_end: "DESC" }, take: 1 })
-  if (settlement) {
-    const [payout] = await payoutService.listPayouts({ settlement_id: settlement.id })
-    logger.info(`settlement ${settlement.id}: transfers ${settlement.transfers_total} − reversals ${settlement.reversals_total} + adjustments ${settlement.adjustments_total} = ${settlement.amount} ${settlement.currency_code} → ${settlement.status}`)
-    if (payout) {
-      logger.info(`payout ${payout.id}: ${payout.status}${payout.provider_payout_id ? ` ${payout.provider_payout_id}` : ""}${payout.status_reason ? ` (${payout.status_reason})` : ""}`)
+  const payouts = await payoutService.listPayouts({ order_id: order.id }, { relations: ["reversals"] })
+  for (const payout of payouts) {
+    logger.info(`payout ${payout.id} ${payout.amount} ${payout.currency_code} → ${payout.status}${providerIdOf(payout.data) ? ` ${providerIdOf(payout.data)}` : ""}${payout.status_reason ? ` (${payout.status_reason})` : ""}`)
+    for (const reversal of payout.reversals ?? []) {
+      logger.info(`  reversal ${reversal.id} ${reversal.amount} → ${reversal.status}${providerIdOf(reversal.data) ? ` ${providerIdOf(reversal.data)}` : ""}${reversal.status_reason ? ` (${reversal.status_reason})` : ""}`)
     }
+  }
+  const connector = container.resolve(STRIPE_CONNECTOR_MODULE)
+  const [settlement] = await connector.listSettlements({ account_id: seller.payout_account.id }, { order: { period_end: "DESC" }, take: 1 })
+  if (settlement) {
+    logger.info(`settlement ${settlement.id}: payouts ${settlement.payouts_total} − reversals ${settlement.reversals_total} + adjustments ${settlement.adjustments_total} = ${settlement.amount} ${settlement.currency_code} → ${settlement.status}${settlement.provider_payout_id ? ` ${settlement.provider_payout_id}` : ""}${settlement.status_reason ? ` (${settlement.status_reason})` : ""}`)
   }
 }

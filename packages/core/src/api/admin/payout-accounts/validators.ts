@@ -25,6 +25,6 @@ export type AdminCreatePayoutAccountType = z.infer<typeof AdminCreatePayoutAccou
 export const AdminCreatePayoutAccount = z
   .object({
     seller_id: z.string(),
-    provider_account_id: z.string(),
+    external_id: z.string(),
   })
   .strict()

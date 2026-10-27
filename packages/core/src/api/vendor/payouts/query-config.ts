@@ -8,6 +8,8 @@ export const vendorPayoutFields = [
   "updated_at",
   "display_id",
   "order_id",
+  "order.id",
+  "order.display_id",
   "status_reason",
   "reversals.id",
   "reversals.amount",

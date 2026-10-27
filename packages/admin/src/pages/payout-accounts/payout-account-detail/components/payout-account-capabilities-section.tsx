@@ -85,11 +85,6 @@ export const PayoutAccountCapabilitiesSection = ({
           testId="payout-account-capabilities-details"
         />
       </div>
-      {account.disabled_reason && (
-        <Text size="small" className="text-ui-fg-subtle">
-          {t("payoutAccounts.fields.disabledReason")}: {account.disabled_reason}
-        </Text>
-      )}
     </Container>
   )
 }

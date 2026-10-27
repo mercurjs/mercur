@@ -1868,8 +1868,7 @@
     },
     "fields": {
       "order": "Order",
-      "payoutAccount": "Payout account",
-      "providerPayoutId": "Provider payout ID"
+      "payoutAccount": "Payout account"
     },
     "actions": {
       "retry": "Retry payout"
@@ -1882,8 +1881,9 @@
     },
     "reversals": {
       "header": "Reversals",
-      "empty": "Refunds on this order have not taken anything back from the store.",
-      "refund": "Refund {{id}}"
+      "refund": "Refund",
+      "noRecordsTitle": "No reversals",
+      "noRecordsMessage": "Refunds on this order have not taken anything back from the store."
     },
     "references": {
       "header": "References",
@@ -1902,11 +1902,9 @@
     "fields": {
       "store": "Store",
       "kycStatus": "KYC status",
-      "providerAccountId": "Provider account ID",
       "payoutsEnabled": "Payouts",
       "chargesEnabled": "Charges",
       "detailsSubmitted": "Details submitted",
-      "disabledReason": "Disabled reason",
       "lastSyncedAt": "Last synced"
     },
     "status": {
@@ -1932,17 +1930,17 @@
     "refreshLink": {
       "successToast": "A new onboarding link was created."
     },
-    "requirements": {
-      "header": "Requirements",
-      "emptyTitle": "No outstanding requirements",
-      "emptyMessage": "The payout provider has everything it needs from this store.",
-      "pastDue": "Past due",
-      "currentlyDue": "Currently due",
-      "pendingVerification": "Pending verification"
-    },
     "capabilities": {
       "header": "Capabilities",
       "kycUnknown": "Not reported"
+    },
+    "disabledReason": {
+      "pastDue": "Payouts are paused: the payout provider is waiting for overdue information from this store.",
+      "pendingVerification": "Payouts are paused while the payout provider verifies this store's information.",
+      "requirements": "Payouts are paused until this store completes onboarding with the payout provider.",
+      "rejected": "The payout provider rejected this account. Payouts to this store are not possible.",
+      "underReview": "The payout provider is reviewing this account. Payouts are paused until the review ends.",
+      "other": "The payout provider has disabled payouts for this account."
     }
   },
   "draftOrders": {

@@ -100,14 +100,13 @@ export interface PayoutAccountRequirements {
 
 export interface PayoutAccountDTO {
   id: string
-  provider_account_id: string | null
+  external_id: string | null
   status: PayoutAccountStatus
   kyc_status: PayoutKycStatus | null
   payouts_enabled: boolean
   charges_enabled: boolean
   details_submitted: boolean
   disabled_reason: string | null
-  requirements: PayoutAccountRequirements | null
   onboarding_token: string | null
   last_synced_at: Date | null
   data: Record<string, unknown>
@@ -130,7 +129,6 @@ export interface PayoutDTO {
   display_id: number
   account_id: string
   order_id: string | null
-  provider_payout_id: string | null
   amount: BigNumberInput
   currency_code: string
   status: PayoutStatus
@@ -146,7 +144,6 @@ export interface PayoutReversalDTO {
   id: string
   payout_id: string
   refund_id: string | null
-  provider_reversal_id: string | null
   amount: BigNumberInput
   status: PayoutStatus
   status_reason: string | null

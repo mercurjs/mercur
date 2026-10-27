@@ -11,8 +11,8 @@ The Payout module’s events are named in `PayoutModuleEvents` from `@mercurjs/t
 | Member | Name | Emitted by | Payload |
 | --- | --- | --- | --- |
 | `WEBHOOK_RECEIVED` | `payout.webhook_received` | `POST /hooks/payout` | `{ data, rawData, headers }` |
-| `ACCOUNT_UPDATED` | `payout_account.updated` | `syncPayoutAccountWorkflow` | `{ id, seller_id, provider_account_id, status, kyc_status, payouts_enabled, charges_enabled, disabled_reason }` |
-| `PAYOUT_FAILED` | `payout.failed` | `createOrderPayoutsWorkflow`, `processPayoutWorkflow` | `{ id, account_id, order_id, amount, currency_code, status, status_reason, provider_payout_id }` |
+| `ACCOUNT_UPDATED` | `payout_account.updated` | `syncPayoutAccountWorkflow` | `{ id, seller_id, external_id, status, kyc_status, payouts_enabled, charges_enabled, disabled_reason }` |
+| `PAYOUT_FAILED` | `payout.failed` | `createOrderPayoutsWorkflow`, `processPayoutWorkflow` | `{ id, account_id, order_id, amount, currency_code, status, status_reason }` |
 | `PAYOUT_REVERSAL_FAILED` | `payout.reversal_failed` | `createPayoutReversalsWorkflow`, `processPayoutReversalWorkflow` | `{ id, payout_id, refund_id, amount, status, status_reason }` |
 
 `payout.failed` and `payout.reversal_failed` are emitted once per row that the provider refused in that run. A row the provider refused for good is `aborted` and emits nothing.

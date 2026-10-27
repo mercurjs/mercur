@@ -25,7 +25,6 @@ export const failedPayoutEvents = (payouts: PayoutDTO[]) =>
       currency_code: payout.currency_code,
       status: payout.status,
       status_reason: payout.status_reason,
-      provider_payout_id: payout.provider_payout_id,
     }))
 
 /**

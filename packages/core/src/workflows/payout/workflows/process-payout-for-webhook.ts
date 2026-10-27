@@ -43,7 +43,7 @@ const resolveWebhookTargetStep = createStep(
 
     if (input.action.startsWith("account.")) {
       const [account] = await service.listPayoutAccounts({
-        provider_account_id: providerObjectId,
+        external_id: providerObjectId,
       })
       if (account) {
         resolved.account_id = account.id
@@ -57,7 +57,8 @@ const resolveWebhookTargetStep = createStep(
         resolved.seller_id = link?.seller_id ?? null
       }
     } else if (input.action.startsWith("payout.")) {
-      const [payout] = await service.listPayouts({ provider_payout_id: providerObjectId })
+      const payoutId = input.data?.payout_id
+      const [payout] = payoutId ? await service.listPayouts({ id: payoutId }) : []
       resolved.payout_id = payout?.id ?? null
     }
 

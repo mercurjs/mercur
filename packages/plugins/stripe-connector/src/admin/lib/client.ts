@@ -6,8 +6,8 @@ import type {
   AdminAdjustmentResponse,
   AdminPayoutAccountListResponse,
   AdminPayoutAccountResponse,
-  AdminPayoutCapture,
   AdminPayoutCaptureListResponse,
+  AdminPayoutCaptureResponse,
   AdminPayoutJobListResponse,
   AdminPayoutJobRunListResponse,
   AdminPayoutJobRunResponse,
@@ -27,7 +27,7 @@ export type {
   AdminSettlementListResponse,
 } from "../../types/http"
 
-type ListQuery = Record<string, unknown> & { limit?: number; offset?: number }
+export type ListQuery = Record<string, unknown> & { limit?: number; offset?: number }
 type Route<Input, Output> = (req: { validatedBody: Input }, res: MedusaResponse<Output>) => Promise<void>
 type Empty = { fields?: string }
 
@@ -47,6 +47,13 @@ export type AdjustmentRow = AdminAdjustmentListResponse["adjustments"][number]
 export type JobRunRow = AdminPayoutJobRunListResponse["runs"][number]
 export type NotificationRow = AdminPayoutNotificationListResponse["notifications"][number]
 
+export type SellerListResponse = {
+  sellers: { id: string; name: string }[]
+  count: number
+  offset: number
+  limit: number
+}
+
 export const PAYOUT_IGNORED_KEY = "payout_ignored"
 
 export const isIgnored = (account: PayoutAccountRow) =>
@@ -54,9 +61,12 @@ export const isIgnored = (account: PayoutAccountRow) =>
 
 type Routes = {
   admin: {
+    sellers: {
+      GET: Route<ListQuery, SellerListResponse>
+    }
     "payout-accounts": {
       GET: Route<ListQuery, AdminPayoutAccountListResponse>
-      POST: Route<{ seller_id: string; provider_account_id: string }, AdminPayoutAccountResponse>
+      POST: Route<{ seller_id: string; external_id: string }, AdminPayoutAccountResponse>
       $id: {
         GET: Route<Empty, AdminPayoutAccountResponse>
         "refresh-link": { POST: Route<Empty, AdminPayoutAccountResponse> }
@@ -82,7 +92,7 @@ type Routes = {
       adjustments: {
         GET: Route<ListQuery, AdminAdjustmentListResponse>
         POST: Route<
-          { seller_id?: string; account_id?: string; type: string; amount: number; currency_code: string; reason?: string | null },
+          { seller_id: string; type: string; amount: number; currency_code: string; reason?: string | null },
           AdminAdjustmentResponse
         >
       }
@@ -90,14 +100,14 @@ type Routes = {
         GET: Route<Empty, AdminPayoutJobListResponse>
         $job: {
           runs: { GET: Route<ListQuery, AdminPayoutJobRunListResponse> }
-          run: { POST: Route<{ seller_id?: string; order_id?: string; order_group_id?: string }, AdminPayoutJobRunResponse> }
+          run: { POST: Route<Empty, AdminPayoutJobRunResponse> }
         }
       }
       captures: {
         GET: Route<ListQuery, AdminPayoutCaptureListResponse>
         $order_group_id: {
-          capture: { POST: Route<Empty, { capture: AdminPayoutCapture }> }
-          cancel: { POST: Route<Empty, { capture: AdminPayoutCapture }> }
+          capture: { POST: Route<Empty, AdminPayoutCaptureResponse> }
+          cancel: { POST: Route<Empty, AdminPayoutCaptureResponse> }
         }
       }
       notifications: {

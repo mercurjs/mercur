@@ -84,3 +84,68 @@ export const formatAmount = (amount: unknown, currency: string) => {
     return `${numeric.toFixed(2)} ${currency.toUpperCase()}`
   }
 }
+
+export const providerIdOf = (data: Record<string, unknown> | null | undefined): string | null => {
+  const provider = data?.provider as { id?: unknown } | undefined
+  return typeof provider?.id === "string" ? provider.id : null
+}
+
+export type StripeRequirements = {
+  currently_due: string[]
+  past_due: string[]
+  pending_verification: string[]
+}
+
+/** The connected account Stripe returned, kept on the payout account as `data`. */
+export const stripeRequirementsOf = (data: Record<string, unknown> | null | undefined): StripeRequirements => {
+  const requirements = data?.requirements as Partial<StripeRequirements> | undefined
+  return {
+    currently_due: requirements?.currently_due ?? [],
+    past_due: requirements?.past_due ?? [],
+    pending_verification: requirements?.pending_verification ?? [],
+  }
+}
+
+export const JOB_RUN_STATUS_COLOR: Record<string, BadgeColor> = {
+  running: "blue",
+  succeeded: "green",
+  failed: "red",
+}
+
+export const JOB_RUN_STATUS_LABEL: Record<string, string> = {
+  running: "Running",
+  succeeded: "Succeeded",
+  failed: "Failed",
+}
+
+export const JOB_TRIGGER_LABEL: Record<string, string> = {
+  schedule: "Schedule",
+  manual: "Manual",
+  subscriber: "Event",
+}
+
+export const ADJUSTMENT_TYPE_LABEL: Record<string, string> = {
+  subscription: "Subscription",
+  extra_invoice: "Extra invoice",
+  extra_credit: "Extra credit",
+}
+
+export const ACCOUNT_STATUS_LABEL: Record<string, string> = {
+  pending: "Pending",
+  active: "Active",
+  restricted: "Restricted",
+  rejected: "Rejected",
+}
+
+export const RETRYABLE_STATUSES = ["failed", "on_hold", "pending"]
+
+export const statusProps = (
+  status: string | null | undefined,
+  colors: Record<string, BadgeColor>,
+  labels: Record<string, string>
+): { color: BadgeColor; label: string } => ({
+  color: (status && colors[status]) || "grey",
+  label: (status && labels[status]) || status || "-",
+})
+
+export const toNumber = (amount: unknown) => Number(amount ?? 0)

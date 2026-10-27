@@ -44,7 +44,7 @@ These methods call the payout provider as part of the write.
 createPayoutAccount(input: CreatePayoutAccountDTO): Promise<PayoutAccountDTO>
 ```
 
-Creates the row, calls the provider’s `createAccount` with `data.account_id` and `metadata.account_id` set to the new id, then stores `provider_account_id`, the flags, requirements, the derived `status` and `kyc_status`, and the provider’s `data`. Deletes the row if the provider throws. `input` takes optional `data`, `context`, and `seller` (used when `onboarding.prefill` is on).
+Creates the row, calls the provider’s `createAccount` with `data.account_id` and `metadata.account_id` set to the new id, then stores `external_id`, the flags, the derived `status` and `kyc_status`, and the provider’s `data`. Deletes the row if the provider throws. `input` takes optional `data`, `context`, and `seller` (used when `onboarding.prefill` is on).
 
 ### syncPayoutAccount
 
@@ -84,7 +84,7 @@ Sends a `pending` or `failed` payout with the provider’s `createPayout`, passi
 dispatchPayoutReversal(reversalId: string): Promise<PayoutReversalDTO>
 ```
 
-Sends a `pending` or `failed` reversal with the provider’s `reversePayout`, against the payout’s `provider_payout_id`. Records errors the same way as `dispatchPayout`.
+Sends a `pending` or `failed` reversal with the provider’s `reversePayout`, against the provider id kept in the payout’s `data.provider.id`. Records errors the same way as `dispatchPayout`.
 
 ### listProviderAccounts
 
