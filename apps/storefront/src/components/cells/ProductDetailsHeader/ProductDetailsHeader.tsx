@@ -19,6 +19,8 @@ import { CompareOffersModal } from "@/components/organisms/CompareOffersModal/Co
 import { SellerDTO } from "@mercurjs/types"
 import { toast } from "@/lib/helpers/toast"
 import { useCartContext } from "@/components/providers"
+import { useCartDrawer } from "@/components/providers/Cart/drawer"
+import { MinusThinIcon, PlusIcon } from "@/icons"
 
 const optionsAsKeymap = (
   variantOptions: HttpTypes.StoreProductVariant["options"]
@@ -51,7 +53,9 @@ export const ProductDetailsHeader = ({
 }) => {
   const { addToCart, cart, isAddingItem } = useCartContext()
   const { allSearchParams } = useGetAllSearchParams()
+  const { openDrawer } = useCartDrawer()
   const [isCompareOpen, setIsCompareOpen] = useState(false)
+  const [quantity, setQuantity] = useState(1)
 
   const { cheapestVariant, cheapestPrice } = getProductPrice({
     product,
@@ -107,6 +111,9 @@ export const ProductDetailsHeader = ({
   const isAddToCartDisabled =
     !hasOffer || !offerStock || isStockMaxLimitReached
 
+  const maxQuantity = Math.max(1, Math.min(99, offerStock - quantityInCart))
+  const selectedQuantity = Math.min(quantity, maxQuantity)
+
   const handleAddToCart = async () => {
     if (!winnerOffer || isAddToCartDisabled) return
 
@@ -117,20 +124,23 @@ export const ProductDetailsHeader = ({
     const storeCartLineItem = {
       thumbnail: product.thumbnail || "",
       product_title: product.title,
-      quantity: 1,
-      subtotal,
-      total,
-      tax_total: total - subtotal,
+      quantity: selectedQuantity,
+      subtotal: subtotal * selectedQuantity,
+      total: total * selectedQuantity,
+      tax_total: (total - subtotal) * selectedQuantity,
       variant_id: variantId,
       product_id: product.id,
       variant: product.variants?.find(({ id }) => id === variantId),
       metadata: { offer_id: winnerOffer.id },
     }
 
+    openDrawer()
+    setQuantity(1)
+
     try {
       await addToCart({
         offerId: winnerOffer.id,
-        quantity: 1,
+        quantity: selectedQuantity,
         countryCode: locale,
         optimisticItem: { item: storeCartLineItem, currencyCode: offerCurrency },
       })
@@ -167,11 +177,47 @@ export const ProductDetailsHeader = ({
       {hasAnyPrice && (
         <ProductVariants product={product} selectedVariant={selectedVariant} />
       )}
+      <div className="mb-4 flex gap-2">
+        <div
+          aria-label="Item quantity"
+          role="group"
+          className="flex shrink-0 items-center rounded-sm border"
+          data-testid="product-quantity-picker"
+        >
+          <button
+            type="button"
+            aria-label="Decrease quantity"
+            className="flex h-full w-10 cursor-pointer items-center justify-center disabled:cursor-not-allowed disabled:opacity-40"
+            disabled={isAddToCartDisabled || selectedQuantity <= 1}
+            onClick={() => setQuantity(Math.max(1, selectedQuantity - 1))}
+            data-testid="product-quantity-decrease"
+          >
+            <MinusThinIcon size={16} />
+          </button>
+          <span
+            aria-live="polite"
+            role="status"
+            className="label-md w-8 text-center tabular-nums"
+            data-testid="product-quantity-value"
+          >
+            {selectedQuantity}
+          </span>
+          <button
+            type="button"
+            aria-label="Increase quantity"
+            className="flex h-full w-10 cursor-pointer items-center justify-center disabled:cursor-not-allowed disabled:opacity-40"
+            disabled={isAddToCartDisabled || selectedQuantity >= maxQuantity}
+            onClick={() => setQuantity(Math.min(maxQuantity, selectedQuantity + 1))}
+            data-testid="product-quantity-increase"
+          >
+            <PlusIcon size={16} />
+          </button>
+        </div>
       <Button
         onClick={handleAddToCart}
         disabled={isAddToCartDisabled}
         loading={isAddingItem}
-        className="w-full uppercase mb-4 py-3 flex justify-center"
+        className="w-full uppercase py-3 flex justify-center"
         size="large"
         data-testid="product-add-to-cart-button"
       >
@@ -181,6 +227,7 @@ export const ProductDetailsHeader = ({
           ? "ADD TO CART"
           : "OUT OF STOCK"}
       </Button>
+      </div>
       {otherOffersCount > 0 && (
         <Button
           variant="tonal"

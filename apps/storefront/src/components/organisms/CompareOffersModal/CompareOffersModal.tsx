@@ -1,11 +1,10 @@
 "use client"
 
-import { useState } from "react"
-
 import { Badge, Button } from "@/components/atoms"
 import { SellerAvatar } from "@/components/cells/SellerAvatar/SellerAvatar"
 import { Modal } from "@/components/molecules/Modal/Modal"
 import { useCartContext } from "@/components/providers"
+import { useCartDrawer } from "@/components/providers/Cart/drawer"
 import { convertToLocale } from "@/lib/helpers/money"
 import { toast } from "@/lib/helpers/toast"
 import {
@@ -28,22 +27,42 @@ export const CompareOffersModal = ({
   onClose: () => void
 }) => {
   const { addToCart } = useCartContext()
-  const [addingId, setAddingId] = useState<string | null>(null)
+  const { openDrawer } = useCartDrawer()
 
   const ranked = rankOffers(offers)
 
   const handleAdd = async (offer: StoreOffer) => {
-    setAddingId(offer.id)
+    const total = getOfferAmount(offer) ?? 0
+    const subtotal = offer.calculated_price?.calculated_amount_without_tax ?? total
+
+    onClose()
+    openDrawer()
+
     try {
-      await addToCart({ offerId: offer.id, quantity: 1, countryCode: locale })
-      toast.success({ title: "Added to cart" })
+      await addToCart({
+        offerId: offer.id,
+        quantity: 1,
+        countryCode: locale,
+        optimisticItem: {
+          currencyCode: offer.calculated_price?.currency_code || "eur",
+          item: {
+            thumbnail: offer.product?.thumbnail || "",
+            product_title: offer.product?.title,
+            quantity: 1,
+            subtotal,
+            total,
+            tax_total: total - subtotal,
+            variant_id: offer.variant_id,
+            product_id: offer.product_id,
+            metadata: { offer_id: offer.id },
+          },
+        },
+      })
     } catch (error) {
       toast.error({
         title: "Error adding to cart",
         description: "This offer does not have the required inventory",
       })
-    } finally {
-      setAddingId(null)
     }
   }
 
@@ -107,8 +126,7 @@ export const CompareOffersModal = ({
                 <Button
                   size="small"
                   onClick={() => handleAdd(offer)}
-                  disabled={!buyable || addingId !== null}
-                  loading={addingId === offer.id}
+                  disabled={!buyable}
                   data-testid="compare-offer-add-to-cart"
                 >
                   Add to cart

@@ -10,7 +10,8 @@ import {
 } from '@/lib/data/cart';
 import { Cart, StoreCartLineItemOptimisticUpdate } from '@/types/cart';
 
-import { CartContext, type CartContextValue } from './context';
+import { CartContext, type CartContextValue, getOfferPendingKey } from './context';
+import { CartDrawerProvider } from './drawer';
 
 interface CartProviderProps extends PropsWithChildren {
   cartPromise: Promise<Cart | null>;
@@ -21,7 +22,9 @@ type OptimisticCartAction =
   | { type: 'update'; lineId: string; quantity: number }
   | { type: 'remove'; lineId: string };
 
-function getItemsSummaryValues(items: StoreCartLineItemOptimisticUpdate[]) {
+type LineItem = StoreCartLineItemOptimisticUpdate;
+
+function getItemsSummaryValues(items: LineItem[]) {
   return items.reduce<{ item_subtotal: number; total: number; tax_total: number }>(
     (acc, item) => ({
       item_subtotal: acc.item_subtotal + (item.subtotal || 0),
@@ -32,49 +35,59 @@ function getItemsSummaryValues(items: StoreCartLineItemOptimisticUpdate[]) {
   );
 }
 
+function scaleLine(item: LineItem, quantity: number): LineItem {
+  const current = item.quantity || 0;
+  const ratio = current > 0 ? quantity / current : 0;
+  return {
+    ...item,
+    quantity,
+    subtotal: (item.subtotal || 0) * ratio,
+    total: (item.total || 0) * ratio,
+    tax_total: (item.tax_total || 0) * ratio
+  };
+}
+
+function withItems(cart: Cart | null, items: LineItem[], currencyCode?: string): Cart {
+  return {
+    ...cart,
+    ...getItemsSummaryValues(items),
+    items,
+    ...(currencyCode ? { currency_code: currencyCode } : {})
+  } as Cart;
+}
+
 function applyOptimisticAction(cart: Cart | null, action: OptimisticCartAction): Cart | null {
+  const currentItems = (cart?.items || []) as LineItem[];
+
   if (action.type === 'update') {
-    if (!cart?.items) return cart;
-    return {
-      ...cart,
-      items: cart.items.map(item =>
-        item.id === action.lineId ? { ...item, quantity: action.quantity } : item
-      )
-    };
+    return withItems(
+      cart,
+      currentItems.map(item => (item.id === action.lineId ? scaleLine(item, action.quantity) : item))
+    );
   }
 
   if (action.type === 'remove') {
-    if (!cart?.items) return cart;
-    return { ...cart, items: cart.items.filter(item => item.id !== action.lineId) };
+    return withItems(
+      cart,
+      currentItems.filter(item => item.id !== action.lineId)
+    );
   }
 
   const { item: newItem, currencyCode } = action;
   if (!newItem) return cart;
 
-  const currentItems = (cart?.items || []) as StoreCartLineItemOptimisticUpdate[];
   const offerId = newItem.metadata?.offer_id;
   const existing = currentItems.find(item => item.metadata?.offer_id === offerId);
 
   const items = existing
-    ? currentItems.map(item => {
-        if (item !== existing) return item;
-        const quantity = (item.quantity || 0) + (newItem.quantity || 0);
-        return {
-          ...item,
-          quantity,
-          subtotal: quantity * (newItem.subtotal || 0),
-          total: quantity * (newItem.total || 0),
-          tax_total: quantity * (newItem.tax_total || 0)
-        };
-      })
-    : [...currentItems, newItem];
+    ? currentItems.map(item =>
+        item === existing
+          ? scaleLine(item, (item.quantity || 0) + (newItem.quantity || 0))
+          : item
+      )
+    : [...currentItems, { ...newItem, id: `optimistic:${offerId}` }];
 
-  return {
-    ...cart,
-    ...getItemsSummaryValues(items),
-    items,
-    currency_code: currencyCode
-  } as Cart;
+  return withItems(cart, items, currencyCode);
 }
 
 export function CartProvider({ cartPromise, children }: CartProviderProps) {
@@ -94,6 +107,11 @@ export function CartProvider({ cartPromise, children }: CartProviderProps) {
     cart === undefined ? cart : applyOptimisticAction(cart, action)
   );
 
+  const [pendingKeys, markPending] = useOptimistic<string[], string>([], (keys, key) => [
+    ...keys,
+    key
+  ]);
+
   const [isAddingItem, startAdding] = useTransition();
   const [isUpdatingItem, startUpdating] = useTransition();
   const [isRemovingItem, startRemoving] = useTransition();
@@ -103,6 +121,7 @@ export function CartProvider({ cartPromise, children }: CartProviderProps) {
   const mutate = (
     seededCart: Cart | null,
     optimisticAction: OptimisticCartAction,
+    pendingKey: string,
     mutation: () => Promise<Cart | null>
   ) => {
     if (confirmedCart === undefined) {
@@ -114,6 +133,7 @@ export function CartProvider({ cartPromise, children }: CartProviderProps) {
     return new Promise<void>((resolve, reject) => {
       start(async () => {
         applyOptimistic(optimisticAction);
+        markPending(pendingKey);
 
         try {
           const cart = await mutation();
@@ -139,16 +159,17 @@ export function CartProvider({ cartPromise, children }: CartProviderProps) {
         item: optimisticItem?.item,
         type: 'add'
       },
+      getOfferPendingKey(offerId),
       () => apiAddToCart({ countryCode, offerId, quantity })
     );
 
   const updateCartItem: CartContextValue['updateCartItem'] = (seededCart, lineId, quantity) =>
-    mutate(seededCart, { lineId, quantity, type: 'update' }, () =>
+    mutate(seededCart, { lineId, quantity, type: 'update' }, lineId, () =>
       apiUpdateLineItem({ lineId, quantity })
     );
 
   const removeCartItem: CartContextValue['removeCartItem'] = (seededCart, lineId) =>
-    mutate(seededCart, { lineId, type: 'remove' }, () => apiDeleteLineItem(lineId));
+    mutate(seededCart, { lineId, type: 'remove' }, lineId, () => apiDeleteLineItem(lineId));
 
   return (
     <CartContext.Provider
@@ -159,11 +180,12 @@ export function CartProvider({ cartPromise, children }: CartProviderProps) {
         isRemovingItem,
         isUpdatingItem,
         optimisticCart,
+        pendingKeys,
         removeCartItem,
         updateCartItem
       }}
     >
-      {children}
+      <CartDrawerProvider>{children}</CartDrawerProvider>
     </CartContext.Provider>
   );
 }

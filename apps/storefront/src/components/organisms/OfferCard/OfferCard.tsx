@@ -6,6 +6,7 @@ import { Button } from "@/components/atoms"
 import { toast } from "@/lib/helpers/toast"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { useCartContext } from "@/components/providers"
+import { useCartDrawer } from "@/components/providers/Cart/drawer"
 import { getOfferAmount, getOfferStock, type StoreOffer } from "@/lib/helpers/buybox"
 import { convertToLocale } from "@/lib/helpers/money"
 import { cn } from "@/lib/utils"
@@ -20,6 +21,7 @@ export const OfferCard = ({
   className?: string
 }) => {
   const { addToCart, cart, isAddingItem } = useCartContext()
+  const { openDrawer } = useCartDrawer()
 
   const product = offer.product
   const productName = String(product?.title || "Product")
@@ -44,6 +46,8 @@ export const OfferCard = ({
     const total = amount as number
     const subtotal =
       offer.calculated_price?.calculated_amount_without_tax ?? total
+
+    openDrawer()
 
     try {
       await addToCart({

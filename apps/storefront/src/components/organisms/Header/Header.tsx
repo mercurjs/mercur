@@ -2,7 +2,7 @@ import Image from "next/image"
 import { Suspense } from "react"
 import { HttpTypes } from "@medusajs/types"
 
-import { CartDropdown, MobileNavbar, Navbar } from "@/components/cells"
+import { CartButton, MobileNavbar, Navbar } from "@/components/cells"
 import { CartIcon } from "@/icons"
 import { UserDropdown } from "@/components/cells/UserDropdown/UserDropdown"
 import CountrySelector from "@/components/molecules/CountrySelector/CountrySelector"
@@ -55,12 +55,12 @@ export const Header = async ({ locale } : {
           <UserDropdown isLoggedIn={isLoggedIn} />
           <Suspense
             fallback={
-              <LocalizedClientLink href="/cart" aria-label="Go to cart">
+              <LocalizedClientLink href="/cart" aria-label="Go to cart" className="flex">
                 <CartIcon size={20} />
               </LocalizedClientLink>
             }
           >
-            <CartDropdown />
+            <CartButton />
           </Suspense>
         </div>
       </div>
