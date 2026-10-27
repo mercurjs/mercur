@@ -27,6 +27,11 @@ import { StoreRequestSection } from "./store-request-section";
 import { StoreOrdersSection } from "./store-orders-section";
 import { StoreOffersSection } from "./store-offers-section";
 import {
+  StoreShippingOptionsSection,
+  StoreShippingSection,
+  StoreStockLocationsSection,
+} from "./store-shipping-section";
+import {
   StoreDetailHeader,
   StoreDetailTitle,
   StoreDetailActions,
@@ -136,6 +141,15 @@ const Root = ({ children }: { children?: ReactNode }) => {
           },
         ]
       : []),
+    ...(can("shipping_options")
+      ? [
+          {
+            id: "shipping",
+            label: t("stores.shipping.domain"),
+            content: <StoreShippingSection sellerId={seller.id} />,
+          },
+        ]
+      : []),
     ...(can("members")
       ? [
           {
@@ -197,6 +211,9 @@ export const StoreDetailPage = Object.assign(Root, {
   SidebarAddressSection: StoreAddressSection,
   SidebarRegionsSection: StoreRegionsSection,
   SidebarMembersSection: StoreMembersSection,
+  MainShippingSection: StoreShippingSection,
+  MainShippingOptionsSection: StoreShippingOptionsSection,
+  MainStockLocationsSection: StoreStockLocationsSection,
   Header: StoreDetailHeader,
   HeaderTitle: StoreDetailTitle,
   HeaderActions: StoreDetailActions,

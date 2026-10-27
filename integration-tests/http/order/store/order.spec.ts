@@ -11,6 +11,10 @@ import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { createCustomerUser } from "../../../helpers/create-customer-user"
 import { generatePublishableKey, generateStoreHeaders } from "../../../helpers/create-admin-user"
 import { createVendorProduct } from "../../../helpers/create-product"
+import {
+    createScopedAdminHeaders,
+    createShippingRuleAndEnable,
+} from "../../../helpers/shipping-rules"
 
 jest.setTimeout(120000)
 
@@ -126,61 +130,29 @@ medusaIntegrationTestRunner({
                 const shippingPrerequisites1 = await createShippingPrerequisites(seller1Headers, "seller1")
 
                 // Create shipping option for seller 1
-                const shippingOption1Response = await api.post(
-                    `/vendor/shipping-options`,
-                    {
-                        name: "Seller 1 Shipping",
-                        service_zone_id: shippingPrerequisites1.serviceZone.id,
-                        shipping_profile_id: shippingPrerequisites1.shippingProfile.id,
-                        provider_id: "manual_manual",
-                        price_type: "flat",
-                        type: {
-                            label: "Standard",
-                            description: "Standard shipping",
-                            code: "standard",
-                        },
-                        prices: [{ currency_code: "usd", amount: 500 }],
-                        rules: [
-                            {
-                                attribute: "enabled_in_store",
-                                value: "true",
-                                operator: "eq",
-                            },
-                        ],
-                    },
-                    seller1Headers
-                )
-                _shippingOption1 = shippingOption1Response.data.shipping_option
+                const shippingOption1Response = await createShippingRuleAndEnable(api, {
+                    adminHeaders: await createScopedAdminHeaders(appContainer),
+                    sellerHeaders: seller1Headers,
+                    stockLocationId: shippingPrerequisites1.stockLocation.id,
+                    shippingProfileId: shippingPrerequisites1.shippingProfile.id,
+                    countryCodes: ["us"],
+                    prices: [{ currency_code: "usd", amount: 500 }],
+                })
+                _shippingOption1 = shippingOption1Response.shippingOption
 
                 // Create shipping prerequisites for seller 2
                 const shippingPrerequisites2 = await createShippingPrerequisites(seller2Headers, "seller2")
 
                 // Create shipping option for seller 2
-                const shippingOption2Response = await api.post(
-                    `/vendor/shipping-options`,
-                    {
-                        name: "Seller 2 Shipping",
-                        service_zone_id: shippingPrerequisites2.serviceZone.id,
-                        shipping_profile_id: shippingPrerequisites2.shippingProfile.id,
-                        provider_id: "manual_manual",
-                        price_type: "flat",
-                        type: {
-                            label: "Standard",
-                            description: "Standard shipping",
-                            code: "standard",
-                        },
-                        prices: [{ currency_code: "usd", amount: 600 }],
-                        rules: [
-                            {
-                                attribute: "enabled_in_store",
-                                value: "true",
-                                operator: "eq",
-                            },
-                        ],
-                    },
-                    seller2Headers
-                )
-                _shippingOption2 = shippingOption2Response.data.shipping_option
+                const shippingOption2Response = await createShippingRuleAndEnable(api, {
+                    adminHeaders: await createScopedAdminHeaders(appContainer),
+                    sellerHeaders: seller2Headers,
+                    stockLocationId: shippingPrerequisites2.stockLocation.id,
+                    shippingProfileId: shippingPrerequisites2.shippingProfile.id,
+                    countryCodes: ["us"],
+                    prices: [{ currency_code: "usd", amount: 600 }],
+                })
+                _shippingOption2 = shippingOption2Response.shippingOption
 
                 // Create offer for seller 1
                 const offer1Response = await api.post(
@@ -250,46 +222,11 @@ medusaIntegrationTestRunner({
                 )
                 const stockLocation = locationResponse.data.stock_location
 
-                // Create fulfillment set
-                await api.post(
-                    `/vendor/stock-locations/${stockLocation.id}/fulfillment-sets`,
-                    {
-                        name: `Fulfillment Set${uniqueSuffix}`,
-                        type: "shipping",
-                    },
-                    headers
-                )
-
-                const updatedLocation = await api.get(
-                    `/vendor/stock-locations/${stockLocation.id}?fields=*fulfillment_sets`,
-                    headers
-                )
-                const fulfillmentSet = updatedLocation.data.stock_location.fulfillment_sets[0]
-
-                // Create service zone
-                const serviceZoneResponse = await api.post(
-                    `/vendor/fulfillment-sets/${fulfillmentSet.id}/service-zones`,
-                    {
-                        name: `Service Zone${uniqueSuffix}`,
-                        geo_zones: [{ type: "country", country_code: "us" }],
-                    },
-                    headers
-                )
-                const serviceZone = serviceZoneResponse.data.fulfillment_set.service_zones.find(
-                    (z: any) => z.name === `Service Zone${uniqueSuffix}`
-                )
-
                 // Create shipping profile
                 const shippingProfile = await createShippingProfile(appContainer, {
                     name: `Shipping Profile${uniqueSuffix}`,
                 })
 
-                // Add fulfillment provider
-                await api.post(
-                    `/vendor/stock-locations/${stockLocation.id}/fulfillment-providers`,
-                    { add: ["manual_manual"] },
-                    headers
-                )
 
                 // Link stock location to sales channel
                 await api.post(
@@ -300,8 +237,6 @@ medusaIntegrationTestRunner({
 
                 return {
                     stockLocation,
-                    fulfillmentSet,
-                    serviceZone,
                     shippingProfile,
                 }
             }

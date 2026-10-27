@@ -255,6 +255,7 @@ export type Routes = {
             $id: typeof import("../src/api/admin/product-categories/[id]/route") & {
                 products: typeof import("../src/api/admin/product-categories/[id]/products/route");
                 sellers: typeof import("../src/api/admin/product-categories/[id]/sellers/route");
+                shippingProfile: typeof import("../src/api/admin/product-categories/[id]/shipping-profile/route");
             };
         };
         productChanges: {
@@ -522,6 +523,16 @@ export type Routes = {
                 respond: typeof import("../src/api/admin/reviews/[id]/respond/route");
             };
         };
+        shippingMethods: typeof import("../src/api/admin/shipping-methods/route") & {
+            $id: typeof import("../src/api/admin/shipping-methods/[id]/route");
+        };
+        shippingRules: typeof import("../src/api/admin/shipping-rules/route") & {
+            $id: typeof import("../src/api/admin/shipping-rules/[id]/route");
+            batch: typeof import("../src/api/admin/shipping-rules/batch/route");
+        };
+        shippingZones: typeof import("../src/api/admin/shipping-zones/route") & {
+            $id: typeof import("../src/api/admin/shipping-zones/[id]/route");
+        };
     };
     auth: {
         $actorType: {
@@ -728,8 +739,8 @@ export type Routes = {
         featureFlags: typeof import("../src/api/vendor/feature-flags/route");
         fulfillmentProviders: typeof import("../src/api/vendor/fulfillment-providers/route");
         fulfillmentSets: {
-            $id: typeof import("../src/api/vendor/fulfillment-sets/[id]/route") & {
-                serviceZones: typeof import("../src/api/vendor/fulfillment-sets/[id]/service-zones/route") & {
+            $id: typeof import("@mercurjs/core/api/vendor/fulfillment-sets/[id]/route") & {
+                serviceZones: typeof import("@mercurjs/core/api/vendor/fulfillment-sets/[id]/service-zones/route") & {
                     $zoneId: typeof import("../src/api/vendor/fulfillment-sets/[id]/service-zones/[zone_id]/route");
                 };
             };
@@ -933,8 +944,8 @@ export type Routes = {
         };
         stockLocations: typeof import("../src/api/vendor/stock-locations/route") & {
             $id: typeof import("../src/api/vendor/stock-locations/[id]/route") & {
-                fulfillmentProviders: typeof import("../src/api/vendor/stock-locations/[id]/fulfillment-providers/route");
-                fulfillmentSets: typeof import("../src/api/vendor/stock-locations/[id]/fulfillment-sets/route");
+                fulfillmentProviders: typeof import("@mercurjs/core/api/vendor/stock-locations/[id]/fulfillment-providers/route");
+                fulfillmentSets: typeof import("@mercurjs/core/api/vendor/stock-locations/[id]/fulfillment-sets/route");
                 salesChannels: typeof import("../src/api/vendor/stock-locations/[id]/sales-channels/route");
             };
         };
@@ -945,6 +956,11 @@ export type Routes = {
         };
         reviews: typeof import("../src/api/vendor/reviews/route") & {
             $id: typeof import("../src/api/vendor/reviews/[id]/route");
+        };
+        shippingRules: typeof import("../src/api/vendor/shipping-rules/route") & {
+            $id: {
+                enable: typeof import("../src/api/vendor/shipping-rules/[id]/enable/route");
+            };
         };
     };
 };

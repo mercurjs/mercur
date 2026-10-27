@@ -2,13 +2,11 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import {
+  ContainerRegistrationKeys,
+  MedusaError,
+} from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
-
-import { createSellerShippingOptionsWorkflow } from "../../../workflows/shipping-option"
-import { refetchShippingOption } from "./helpers"
-import { validateSellerRegionPrices } from "../regions/helpers"
-import { VendorCreateShippingOptionType } from "./validators"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -32,29 +30,11 @@ export const GET = async (
 }
 
 export const POST = async (
-  req: AuthenticatedMedusaRequest<VendorCreateShippingOptionType>,
-  res: MedusaResponse<HttpTypes.VendorShippingOptionResponse>
+  _req: AuthenticatedMedusaRequest,
+  _res: MedusaResponse<HttpTypes.VendorShippingOptionResponse>
 ) => {
-  const sellerId = req.seller_context!.seller_id
-
-  await validateSellerRegionPrices(
-    req.scope,
-    sellerId,
-    req.validatedBody.prices ?? []
+  throw new MedusaError(
+    MedusaError.Types.NOT_ALLOWED,
+    "Shipping options are created from the marketplace's shipping rules. Use POST /vendor/shipping-rules/:id/enable"
   )
-
-  const { result } = await createSellerShippingOptionsWorkflow(req.scope).run({
-    input: {
-      seller_id: sellerId,
-      shipping_options: [req.validatedBody],
-    },
-  })
-
-  const shippingOption = await refetchShippingOption(
-    req.scope,
-    result[0].id,
-    req.queryConfig.fields
-  )
-
-  res.status(201).json({ shipping_option: shippingOption })
 }

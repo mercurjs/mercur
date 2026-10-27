@@ -74,7 +74,7 @@ const CreateOffer = z
   .object({
     sku: z.string().min(1),
     variant_id: z.string(),
-    shipping_profile_id: z.string().min(1),
+    shipping_profile_id: z.string().min(1).optional(),
     inventory_items: z.array(VendorOfferInventoryItem).min(1),
     prices: z.array(VendorOfferPrice).min(1),
     ean: z.string().min(1).nullish(),
@@ -140,7 +140,7 @@ const VendorCreateOffersBatchItem = z
   .object({
     sku: z.string().min(1),
     variant_id: z.string(),
-    shipping_profile_id: z.string().min(1),
+    shipping_profile_id: z.string().min(1).optional(),
     prices: z.array(VendorOfferPrice).min(1),
     inventory_items: z.array(VendorOfferInventoryItem).min(1),
     ean: z.string().min(1).nullish(),

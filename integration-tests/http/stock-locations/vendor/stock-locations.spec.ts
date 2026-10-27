@@ -463,117 +463,32 @@ medusaIntegrationTestRunner({
                 })
             })
 
-            describe("POST /vendor/stock-locations/:id/fulfillment-sets", () => {
-                it("should create a fulfillment set for stock location", async () => {
-                    const createResponse = await api.post(
-                        `/vendor/stock-locations`,
-                        { name: "Fulfillment Set Location" },
-                        seller1Headers
-                    )
-
-                    const locationId = createResponse.data.stock_location.id
-
-                    const response = await api.post(
-                        `/vendor/stock-locations/${locationId}/fulfillment-sets`,
-                        {
-                            name: "Default Fulfillment Set",
-                            type: "pickup",
-                        },
-                        seller1Headers
-                    )
-
-                    expect(response.status).toEqual(200)
-                    expect(response.data.stock_location).toBeDefined()
-                })
-
-                it("should create shipping fulfillment set", async () => {
-                    const createResponse = await api.post(
-                        `/vendor/stock-locations`,
-                        { name: "Shipping Fulfillment Location" },
-                        seller1Headers
-                    )
-
-                    const locationId = createResponse.data.stock_location.id
-
-                    const response = await api.post(
-                        `/vendor/stock-locations/${locationId}/fulfillment-sets`,
-                        {
-                            name: "Shipping Set",
-                            type: "shipping",
-                        },
-                        seller1Headers
-                    )
-
-                    expect(response.status).toEqual(200)
-                    expect(response.data.stock_location).toBeDefined()
-                })
-
-                it("should not allow seller to create fulfillment set on another seller's location", async () => {
-                    const createResponse = await api.post(
-                        `/vendor/stock-locations`,
-                        { name: "Seller 1 Fulfillment Location" },
-                        seller1Headers
-                    )
-
-                    const locationId = createResponse.data.stock_location.id
-
-                    const response = await api
-                        .post(
-                            `/vendor/stock-locations/${locationId}/fulfillment-sets`,
-                            {
-                                name: "Unauthorized Set",
-                                type: "pickup",
-                            },
-                            seller2Headers
-                        )
-                        .catch((e) => e.response)
-
-                    expect(response.status).toEqual(404)
-                })
-
-                it("should fail to create fulfillment set without name", async () => {
-                    const createResponse = await api.post(
-                        `/vendor/stock-locations`,
-                        { name: "No Name Set Location" },
-                        seller1Headers
-                    )
-
-                    const locationId = createResponse.data.stock_location.id
-
-                    const response = await api
-                        .post(
-                            `/vendor/stock-locations/${locationId}/fulfillment-sets`,
-                            {
-                                type: "pickup",
-                            },
+            describe("shipping setup endpoints", () => {
+                it.each([
+                    ["fulfillment-sets", { name: "Shipping Set", type: "shipping" }],
+                    ["fulfillment-providers", { add: ["manual_manual"] }],
+                ])(
+                    "does not expose POST /vendor/stock-locations/:id/%s",
+                    async (path, body) => {
+                        const createResponse = await api.post(
+                            `/vendor/stock-locations`,
+                            { name: `Removed ${path} Location` },
                             seller1Headers
                         )
-                        .catch((e) => e.response)
 
-                    expect(response.status).toEqual(400)
-                })
+                        const locationId = createResponse.data.stock_location.id
 
-                it("should fail to create fulfillment set without type", async () => {
-                    const createResponse = await api.post(
-                        `/vendor/stock-locations`,
-                        { name: "No Type Set Location" },
-                        seller1Headers
-                    )
+                        const response = await api
+                            .post(
+                                `/vendor/stock-locations/${locationId}/${path}`,
+                                body,
+                                seller1Headers
+                            )
+                            .catch((e) => e.response)
 
-                    const locationId = createResponse.data.stock_location.id
-
-                    const response = await api
-                        .post(
-                            `/vendor/stock-locations/${locationId}/fulfillment-sets`,
-                            {
-                                name: "Missing Type Set",
-                            },
-                            seller1Headers
-                        )
-                        .catch((e) => e.response)
-
-                    expect(response.status).toEqual(400)
-                })
+                        expect(response.status).toEqual(404)
+                    }
+                )
             })
 
             describe("POST /vendor/stock-locations/:id/sales-channels", () => {
@@ -591,30 +506,6 @@ medusaIntegrationTestRunner({
                             `/vendor/stock-locations/${locationId}/sales-channels`,
                             {
                                 add: ["sc_test"],
-                            },
-                            seller2Headers
-                        )
-                        .catch((e) => e.response)
-
-                    expect(response.status).toEqual(404)
-                })
-            })
-
-            describe("POST /vendor/stock-locations/:id/fulfillment-providers", () => {
-                it("should not allow seller to link fulfillment providers to another seller's location", async () => {
-                    const createResponse = await api.post(
-                        `/vendor/stock-locations`,
-                        { name: "Seller 1 Provider Location" },
-                        seller1Headers
-                    )
-
-                    const locationId = createResponse.data.stock_location.id
-
-                    const response = await api
-                        .post(
-                            `/vendor/stock-locations/${locationId}/fulfillment-providers`,
-                            {
-                                add: ["fp_test"],
                             },
                             seller2Headers
                         )

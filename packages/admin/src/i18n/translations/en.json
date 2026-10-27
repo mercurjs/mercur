@@ -1081,6 +1081,17 @@
       "new": {
         "label": "New"
       }
+    },
+    "shippingProfile": {
+      "header": "Shipping",
+      "action": "Edit default shipping profile",
+      "label": "Default shipping profile",
+      "hint": "Offers in this category that don't have a shipping profile inherit this one.",
+      "edit": {
+        "header": "Edit Default Shipping Profile",
+        "description": "Choose the shipping profile that offers in this category inherit by default.",
+        "successToast": "Default shipping profile was successfully updated."
+      }
     }
   },
   "inventory": {
@@ -1966,6 +1977,18 @@
       "shippingOptionTypes": {
         "label": "Shipping Option Types",
         "description": "Group shipping options by types"
+      },
+      "shippingZones": {
+        "label": "Shipping Zones",
+        "description": "Group countries for shipping rules"
+      },
+      "shippingMethods": {
+        "label": "Shipping Methods",
+        "description": "Define the methods sellers can offer"
+      },
+      "shippingRules": {
+        "label": "Shipping Rules",
+        "description": "Govern methods per zone and profile"
       }
     },
     "salesChannels": {
@@ -3783,6 +3806,149 @@
       "description": "Description"
     }
   },
+  "shippingZones": {
+    "domain": "Shipping Zones",
+    "subtitle": "Group countries into zones that shipping rules apply to.",
+    "create": {
+      "header": "Create Shipping Zone",
+      "hint": "Create a zone of countries to configure shipping rules for.",
+      "successToast": "Shipping zone {{name}} was successfully created."
+    },
+    "edit": {
+      "header": "Edit Shipping Zone",
+      "successToast": "Shipping zone {{name}} was successfully updated."
+    },
+    "delete": {
+      "confirmation": "You are about to delete the shipping zone \"{{name}}\" and its shipping rules. This action cannot be undone.",
+      "successToast": "Shipping zone \"{{name}}\" was successfully deleted."
+    },
+    "fields": {
+      "name": "Name",
+      "code": "Code",
+      "codeHint": "Unique identifier of the zone. It cannot be changed later.",
+      "countries": "Countries",
+      "countriesPlaceholder": "Select countries",
+      "active": "Active",
+      "activeHint": "Inactive zones are not offered to sellers."
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    }
+  },
+  "shippingMethods": {
+    "domain": "Shipping Methods",
+    "subtitle": "Define the shipping methods sellers can offer.",
+    "create": {
+      "header": "Create Shipping Method",
+      "hint": "Create a shipping method backed by a fulfillment provider.",
+      "successToast": "Shipping method {{name}} was successfully created."
+    },
+    "edit": {
+      "header": "Edit Shipping Method",
+      "successToast": "Shipping method {{name}} was successfully updated."
+    },
+    "delete": {
+      "confirmation": "You are about to delete the shipping method \"{{name}}\" and its shipping rules. This action cannot be undone.",
+      "successToast": "Shipping method \"{{name}}\" was successfully deleted."
+    },
+    "fields": {
+      "name": "Name",
+      "code": "Code",
+      "codeHint": "Unique identifier of the method. It cannot be changed later.",
+      "description": "Description",
+      "provider": "Fulfillment provider",
+      "providerPlaceholder": "Select a fulfillment provider",
+      "optionType": "Shipping option type",
+      "optionTypePlaceholder": "Select a shipping option type",
+      "immutableHint": "The fulfillment provider and shipping option type cannot be changed after creation.",
+      "active": "Active",
+      "activeHint": "Inactive methods are not offered to sellers."
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    }
+  },
+  "shippingRules": {
+    "domain": "Shipping Rules",
+    "subtitle": "Decide which shipping methods sellers must, may or cannot offer for each zone and shipping profile.",
+    "zone": "Shipping zone",
+    "zonePlaceholder": "Select a shipping zone",
+    "noZones": {
+      "title": "No shipping zones",
+      "message": "Create a shipping zone before configuring shipping rules.",
+      "action": "Create shipping zone"
+    },
+    "noMethods": {
+      "title": "No shipping methods",
+      "message": "Create a shipping method before configuring shipping rules.",
+      "action": "Create shipping method"
+    },
+    "noProfiles": {
+      "title": "No shipping profiles",
+      "message": "Create a shipping profile before configuring shipping rules.",
+      "action": "Create shipping profile"
+    },
+    "columns": {
+      "zone": "Zone",
+      "method": "Method",
+      "profile": "Shipping profile",
+      "requirement": "Requirement",
+      "price": "Default price",
+      "sellerCanEditPrice": "Seller can edit price",
+      "transit": "Transit"
+    },
+    "requirement": {
+      "mandatory": "Mandatory",
+      "optional": "Optional",
+      "not_supported": "Not supported",
+      "notConfigured": "Not configured"
+    },
+    "priceType": {
+      "flat": "Flat rate",
+      "calculated": "Calculated"
+    },
+    "transit": {
+      "range": "{{min}}–{{max}} days",
+      "min": "From {{min}} days",
+      "max": "Up to {{max}} days"
+    },
+    "edit": {
+      "header": "Configure Shipping Rule",
+      "description": "{{method}} for {{profile}} in {{zone}}",
+      "successToast": "Shipping rule was successfully saved."
+    },
+    "delete": {
+      "confirmation": "You are about to remove the shipping rule for {{method}} and {{profile}} in {{zone}}. This action cannot be undone.",
+      "successToast": "Shipping rule was successfully removed."
+    },
+    "fields": {
+      "requirement": "Requirement",
+      "requirementHint": "Mandatory methods must be offered by every seller, optional methods may be offered, and unsupported methods cannot be offered.",
+      "priceType": "Price type",
+      "prices": "Default prices",
+      "pricesHint": "Prices sellers inherit for this method.",
+      "sellerCanEditPrice": "Seller can edit price",
+      "sellerCanEditPriceHint": "Allow sellers to override the default prices.",
+      "transitMinDays": "Minimum transit days",
+      "transitMaxDays": "Maximum transit days",
+      "sellerCanEditTransit": "Seller can edit transit time",
+      "sellerCanEditTransitHint": "Allow sellers to override the transit time."
+    },
+    "validation": {
+      "transitRange": "Maximum transit days must be greater than or equal to minimum transit days."
+    },
+    "actions": {
+      "configure": "Configure",
+      "remove": "Remove",
+      "manage": "Manage rules"
+    },
+    "profileSection": {
+      "title": "Shipping Rules",
+      "empty": "No shipping rules are configured for this shipping profile yet."
+    }
+  },
   "productTypes": {
     "domain": "Product Types",
     "subtitle": "Organize your products into types.",
@@ -4129,6 +4295,13 @@
       },
       "orders": {
         "title": "No orders yet"
+      },
+      "shippingOptions": {
+        "title": "No shipping options yet",
+        "message": "Shipping options created by this store will appear here."
+      },
+      "stockLocations": {
+        "title": "This store has no stock locations yet."
       }
     },
     "fields": {
@@ -4284,6 +4457,25 @@
       },
       "hint": "Assigned regions decide which currencies this store can price in. The default region is assigned on creation.",
       "lastRegion": "A store must stay assigned to at least one region."
+    },
+    "shipping": {
+      "domain": "Shipping",
+      "shippingOptions": {
+        "header": "Shipping options"
+      },
+      "stockLocations": {
+        "header": "Stock locations"
+      },
+      "columns": {
+        "stockLocation": "Stock location",
+        "serviceZone": "Service zone",
+        "shippingProfile": "Shipping profile",
+        "provider": "Provider",
+        "price": "Price"
+      },
+      "actions": {
+        "editPrices": "Edit prices"
+      }
     }
   },
   "messages": {

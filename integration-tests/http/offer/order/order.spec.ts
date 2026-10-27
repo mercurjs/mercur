@@ -17,6 +17,10 @@ import {
     generatePublishableKey,
     generateStoreHeaders,
 } from "../../../helpers/create-admin-user"
+import {
+    createScopedAdminHeaders,
+    createShippingRuleAndEnable,
+} from "../../../helpers/shipping-rules"
 
 const approveSeller = async (
     container: MedusaContainer,
@@ -64,71 +68,24 @@ medusaIntegrationTestRunner({
                     )
                 ).data.stock_location
 
-                // Fulfillment set + service zone for shipping options
-                await api.post(
-                    `/vendor/stock-locations/${stockLocation.id}/fulfillment-sets`,
-                    { name: `FS${uniqueSuffix}`, type: "shipping" },
-                    headers
-                )
-                const fulfillmentSet = (
-                    await api.get(
-                        `/vendor/stock-locations/${stockLocation.id}?fields=*fulfillment_sets`,
-                        headers
-                    )
-                ).data.stock_location.fulfillment_sets[0]
-                const serviceZone = (
-                    await api.post(
-                        `/vendor/fulfillment-sets/${fulfillmentSet.id}/service-zones`,
-                        {
-                            name: `SZ${uniqueSuffix}`,
-                            geo_zones: [
-                                { type: "country", country_code: "us" },
-                            ],
-                        },
-                        headers
-                    )
-                ).data.fulfillment_set.service_zones.find(
-                    (z: any) => z.name === `SZ${uniqueSuffix}`
-                )
                 const shippingProfile = await createShippingProfile(appContainer, {
                     name: `SP${uniqueSuffix}`,
                 })
 
-                await api.post(
-                    `/vendor/stock-locations/${stockLocation.id}/fulfillment-providers`,
-                    { add: ["manual_manual"] },
-                    headers
-                )
                 await api.post(
                     `/vendor/stock-locations/${stockLocation.id}/sales-channels`,
                     { add: [salesChannel.id] },
                     headers
                 )
 
-                await api.post(
-                    `/vendor/shipping-options`,
-                    {
-                        name: `Ship${uniqueSuffix}`,
-                        service_zone_id: serviceZone.id,
-                        shipping_profile_id: shippingProfile.id,
-                        provider_id: "manual_manual",
-                        price_type: "flat",
-                        type: {
-                            label: "Standard",
-                            description: "Standard shipping",
-                            code: "standard",
-                        },
-                        prices: [{ currency_code: "usd", amount: 500 }],
-                        rules: [
-                            {
-                                attribute: "enabled_in_store",
-                                value: "true",
-                                operator: "eq",
-                            },
-                        ],
-                    },
-                    headers
-                )
+                await createShippingRuleAndEnable(api, {
+                    adminHeaders: await createScopedAdminHeaders(appContainer),
+                    sellerHeaders: headers,
+                    stockLocationId: stockLocation.id,
+                    shippingProfileId: shippingProfile.id,
+                    countryCodes: ["us"],
+                    prices: [{ currency_code: "usd", amount: 500 }],
+                })
 
                 const product =
                     opts.existingProduct ??

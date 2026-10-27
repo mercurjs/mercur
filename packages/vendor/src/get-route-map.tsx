@@ -1458,46 +1458,16 @@ export function getRouteMap({
                               import("./pages/settings/locations/[location_id]/sales-channels"),
                           },
                           {
-                            path: "fulfillment-providers",
-                            handle: { permissions: ["stock_locations:edit", "fulfillment_sets:view"] },
-                            lazy: () =>
-                              import("./pages/settings/locations/[location_id]/fulfillment-providers"),
-                          },
-                          {
-                            path: "fulfillment-set/:fset_id/service-zones/create",
-                            handle: { permissions: "fulfillment_sets:edit" },
-                            lazy: () =>
-                              import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zones/create"),
-                          },
-                          {
-                            path: "fulfillment-set/:fset_id/service-zone/:zone_id/edit",
-                            handle: { permissions: "fulfillment_sets:edit" },
-                            lazy: () =>
-                              import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/edit"),
-                          },
-                          {
-                            path: "fulfillment-set/:fset_id/service-zone/:zone_id/areas",
-                            handle: { permissions: "fulfillment_sets:edit" },
-                            lazy: () =>
-                              import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/areas"),
-                          },
-                          {
-                            path: "fulfillment-set/:fset_id/service-zone/:zone_id/shipping-option/create",
+                            path: "shipping-rules/:rule_id/enable",
                             handle: { permissions: "shipping_options:edit" },
                             lazy: () =>
-                              import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/shipping-option/create"),
+                              import("./pages/settings/locations/[location_id]/shipping-rules/[rule_id]/enable"),
                           },
                           {
-                            path: "fulfillment-set/:fset_id/service-zone/:zone_id/shipping-option/:so_id/edit",
+                            path: "shipping-options/:so_id/edit",
                             handle: { permissions: "shipping_options:edit" },
                             lazy: () =>
-                              import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/shipping-option/[so_id]/edit"),
-                          },
-                          {
-                            path: "fulfillment-set/:fset_id/service-zone/:zone_id/shipping-option/:so_id/pricing",
-                            handle: { permissions: "shipping_options:edit" },
-                            lazy: () =>
-                              import("./pages/settings/locations/[location_id]/fulfillment-set/[fset_id]/service-zone/[zone_id]/shipping-option/[so_id]/pricing"),
+                              import("./pages/settings/locations/[location_id]/shipping-options/[so_id]/edit"),
                           },
                         ],
                       },

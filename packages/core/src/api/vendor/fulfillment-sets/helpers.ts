@@ -46,21 +46,3 @@ export const validateSellerFulfillmentSet = async (
     )
   }
 }
-
-export const refetchFulfillmentSet = async (
-  scope: MedusaContainer,
-  fulfillmentSetId: string,
-  fields: string[]
-) => {
-  const query = scope.resolve(ContainerRegistrationKeys.QUERY)
-
-  const {
-    data: [fulfillmentSet],
-  } = await query.graph({
-    entity: "fulfillment_set",
-    filters: { id: fulfillmentSetId },
-    fields,
-  })
-
-  return fulfillmentSet
-}

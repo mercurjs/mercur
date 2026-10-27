@@ -1,10 +1,11 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { PermissionGuard, WidgetZone } from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { useShippingProfile } from "../../../hooks/api/shipping-profiles"
 import { ShippingProfileGeneralSection } from "./components/shipping-profile-general-section"
+import { ShippingProfileRulesSection } from "./components/shipping-profile-rules-section"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { shippingProfileLoader } from "./loader"
@@ -38,6 +39,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
     <SingleColumnPage showMetadata showJSON data={shipping_profile}>
       <WidgetZone id="shipping-profiles.detail.main" data={shipping_profile}>
         <ShippingProfileGeneralSection profile={shipping_profile} />
+        <PermissionGuard permission="shipping_rules:view">
+          <ShippingProfileRulesSection profileId={shipping_profile.id} />
+        </PermissionGuard>
       </WidgetZone>
     </SingleColumnPage>
   )
@@ -45,4 +49,5 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
 export const ShippingProfileDetailPage = Object.assign(Root, {
   GeneralSection: ShippingProfileGeneralSection,
+  RulesSection: ShippingProfileRulesSection,
 })

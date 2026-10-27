@@ -1275,7 +1275,8 @@
       "store": "Store",
       "leadtime": "Lead time",
       "leadtimeHint": "Business days you need before you ship this offer. Leave empty to use your store default.",
-      "storeDefault": "Store default"
+      "storeDefault": "Store default",
+      "shippingProfileDefault": "Default from category"
     },
     "status": {
       "published": "Published",
@@ -3533,6 +3534,75 @@
       "create": "Location created successfully",
       "update": "Location updated successfully",
       "removeChannel": "Sales channel removed successfully"
+    }
+  },
+  "shippingMethods": {
+    "header": "Shipping methods",
+    "description": "The marketplace defines the shipping methods you can offer. Enable the ones you ship from this location.",
+    "noRecords": "The marketplace hasn't set up any shipping methods for your shipping profiles yet.",
+    "zoneCountries_one": "{{count}} country",
+    "zoneCountries_other": "{{count}} countries",
+    "requirement": {
+      "mandatory": "Mandatory",
+      "optional": "Optional"
+    },
+    "status": {
+      "enabled": "Enabled",
+      "notEnabled": "Not enabled"
+    },
+    "fields": {
+      "prices": "Prices",
+      "transit": "Transit time",
+      "transitMinDays": "Minimum days",
+      "transitMaxDays": "Maximum days"
+    },
+    "transit": {
+      "range": "{{min}}–{{max}} days",
+      "min": "From {{min}} days",
+      "max": "Up to {{max}} days"
+    },
+    "price": {
+      "calculated": "Calculated at checkout",
+      "none": "No price set"
+    },
+    "setByMarketplace": "Set by the marketplace",
+    "actions": {
+      "enable": "Enable",
+      "edit": "Edit price and transit",
+      "disable": "Disable"
+    },
+    "missingMandatory": {
+      "title": "Required shipping methods are not enabled",
+      "description": "Enable these shipping methods on at least one location before listing offers in their shipping profiles: {{methods}}"
+    },
+    "enable": {
+      "header": "Enable shipping method",
+      "description": "Offer {{name}} to customers for items shipped from this location.",
+      "successToast": "{{name}} was enabled"
+    },
+    "edit": {
+      "header": "Edit shipping method",
+      "description": "Update the price and transit time of {{name}} for this location.",
+      "successToast": "{{name}} was updated"
+    },
+    "disable": {
+      "confirmation": "You are about to disable {{name}} for this location. Customers won't be able to choose it for items shipped from here.",
+      "successToast": "{{name}} was disabled"
+    },
+    "validation": {
+      "priceRequired": "Enter a price",
+      "transitRange": "Minimum days can't be greater than maximum days"
+    },
+    "legacy": {
+      "header": "Legacy shipping options",
+      "description": "These options were created before the marketplace managed shipping. They still work at checkout. Switch to a marketplace shipping method when you can.",
+      "badge": "Legacy",
+      "editPrice": "Edit price",
+      "deleteConfirmation": "You are about to delete the shipping option {{name}}. This action cannot be undone.",
+      "deleteSuccessToast": "Shipping option {{name}} was deleted",
+      "editHeader": "Edit shipping option price",
+      "editDescription": "Update the price of {{name}}.",
+      "editSuccessToast": "Shipping option {{name}} was updated"
     }
   },
   "reservations": {

@@ -22,7 +22,7 @@ import {
 export interface VendorCreateOfferReq {
   sku: string
   variant_id: string
-  shipping_profile_id: string
+  shipping_profile_id?: string
   inventory_items: CreateOfferInventoryItemDTO[]
   prices: CreateOfferPriceDTO[]
   condition_id?: string | null

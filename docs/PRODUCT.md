@@ -62,8 +62,13 @@ The product has three audiences:
 - Bulk product CSV import / export.
 
 ### Shipping & Fulfillment
-- Vendor-configured shipping profiles, options, and option types.
-- Vendor-level fulfillment sets and fulfillment providers.
+- **Operator-governed shipping.** The operator defines shipping profiles (the size/handling class an offer belongs to), **shipping zones** (countries/provinces), and **shipping methods** (a fulfillment provider + shipping option type). Sellers never pick a provider.
+- **Shipping rules** form a zone × method × profile matrix. Each rule is `mandatory`, `optional` or `not_supported`, carries default prices, and says whether sellers may change the price or the transit time.
+- Sellers enable a rule for one of their stock locations. The system creates the fulfillment set, a service zone mirroring the operator zone, the provider link and the shipping option. Zone geography changes propagate to every enabled service zone.
+- **Mandatory rules gate offers.** A seller cannot create an offer in a profile, or move one into it, until every mandatory rule for that profile, in zones reaching the seller's region countries, is enabled. A seller cannot remove its last option for a mandatory rule.
+- **Category default shipping profile.** Offers created without a profile inherit the nearest category's default profile, then the store default.
+- **Delivery estimates.** Transit time (min–max business days) lives on the rule and may be overridden by the seller when allowed. The Store API returns an estimated delivery window per shipping option (lead time to ship + transit, skipping weekends and seller closures), and each seller order stores `metadata.expected_delivery` (`shipping_deadline`, `earliest`, `latest`).
+- Shipping options created before rules existed keep working at checkout as legacy options.
 - Region- and tax-region-aware rate calculation through the Store API.
 
 ### Promotions & Campaigns
@@ -93,7 +98,7 @@ The product has three audiences:
 - Manage all sellers (list, detail, approvals, professional and payment details, deactivation).
 - Configure commission rates and platform-wide rules.
 - Monitor all payouts across the marketplace.
-- Marketplace configuration: currencies, sales channels, regions, tax regions, locations.
+- Marketplace configuration: currencies, sales channels, regions, tax regions, locations, and shipping governance (shipping zones, methods, rules, category default shipping profiles).
 - Platform-wide catalog configuration: attributes, product types, tags, categories, collections, price lists.
 - Admin user, role, and API key management.
 - View every order, fulfillment, and return across sellers.
@@ -102,7 +107,7 @@ The product has three audiences:
 - Manage offers against master products (SKU, price, inventory, shipping); submit product edits through the change-request pipeline and track their approval status.
 - Manage variants, collections, categories, tags, types, and attributes.
 - View, fulfill, and refund orders; process returns.
-- Configure shipping profiles, fulfillment, and return reasons.
+- Enable the marketplace's shipping methods per stock location (setting prices and transit times where the marketplace allows), and configure return reasons.
 - Create promotions and campaigns scoped to their catalog.
 - Manage customers and customer groups.
 - Track payouts, configure payout accounts, complete provider onboarding.

@@ -238,7 +238,7 @@ const useColumns = ({
             <DataGrid.SelectCell
               context={context}
               options={shippingProfileOptions}
-              placeholder=""
+              placeholder={t("offers.fields.shippingProfileDefault")}
             />
           ),
       }),

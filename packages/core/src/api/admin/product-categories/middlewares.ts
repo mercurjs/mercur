@@ -12,6 +12,7 @@ import {
   AdminCreateProductCategory,
   AdminProductCategoriesParams,
   AdminProductCategoryParams,
+  AdminSetCategoryShippingProfile,
   AdminUpdateProductCategory,
 } from "./validators"
 import { withOriginalMiddlewares } from "../../../utils/disable-medusa-middlewares"
@@ -83,6 +84,18 @@ const overrides: MiddlewareRoute[] = [
     middlewares: [
       requirePermission("product_categories", "edit"),
       validateAndTransformBody(AdminBatchLinkSellersToCategory)],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/product-categories/:id/shipping-profile",
+    middlewares: [
+      requirePermission("product_categories", "edit"),
+      validateAndTransformBody(AdminSetCategoryShippingProfile),
+      validateAndTransformQuery(
+        AdminProductCategoryParams,
+        adminProductCategoryQueryConfig.retrieve
+      ),
+    ],
   },
 ]
 

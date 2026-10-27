@@ -332,6 +332,12 @@ export function getRouteMap({
                               import("./pages/categories/category-organize"),
                           },
                           {
+                            path: "shipping-profile",
+                            handle: { permissions: "product_categories:edit" },
+                            lazy: () =>
+                              import("./pages/categories/category-shipping-profile"),
+                          },
+                          {
                             path: "metadata/edit",
                             handle: { permissions: "product_categories:edit" },
                             lazy: () =>
@@ -1753,6 +1759,90 @@ export function getRouteMap({
                                   import("./pages/shipping-option-types/shipping-option-type-edit"),
                               },
                             ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    path: "shipping-zones",
+                    errorElement: <ErrorBoundary />,
+                    element: <Outlet />,
+                    handle: {
+                      breadcrumb: () => t("shippingZones.domain"),
+                      permissions: "shipping_rules:view",
+                    },
+                    children: [
+                      {
+                        path: "",
+                        lazy: () =>
+                          import("./pages/shipping-zones/shipping-zone-list"),
+                        children: [
+                          {
+                            path: "create",
+                            handle: { permissions: "shipping_rules:edit" },
+                            lazy: () =>
+                              import("./pages/shipping-zones/shipping-zone-create"),
+                          },
+                          {
+                            path: ":id/edit",
+                            handle: { permissions: "shipping_rules:edit" },
+                            lazy: () =>
+                              import("./pages/shipping-zones/shipping-zone-edit"),
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    path: "shipping-methods",
+                    errorElement: <ErrorBoundary />,
+                    element: <Outlet />,
+                    handle: {
+                      breadcrumb: () => t("shippingMethods.domain"),
+                      permissions: "shipping_rules:view",
+                    },
+                    children: [
+                      {
+                        path: "",
+                        lazy: () =>
+                          import("./pages/shipping-methods/shipping-method-list"),
+                        children: [
+                          {
+                            path: "create",
+                            handle: { permissions: "shipping_rules:edit" },
+                            lazy: () =>
+                              import("./pages/shipping-methods/shipping-method-create"),
+                          },
+                          {
+                            path: ":id/edit",
+                            handle: { permissions: "shipping_rules:edit" },
+                            lazy: () =>
+                              import("./pages/shipping-methods/shipping-method-edit"),
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    path: "shipping-rules",
+                    errorElement: <ErrorBoundary />,
+                    element: <Outlet />,
+                    handle: {
+                      breadcrumb: () => t("shippingRules.domain"),
+                      permissions: "shipping_rules:view",
+                    },
+                    children: [
+                      {
+                        path: "",
+                        lazy: () =>
+                          import("./pages/shipping-rules/shipping-rule-list"),
+                        children: [
+                          {
+                            path: "configure",
+                            handle: { permissions: "shipping_rules:edit" },
+                            lazy: () =>
+                              import("./pages/shipping-rules/shipping-rule-configure"),
                           },
                         ],
                       },

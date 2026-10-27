@@ -19,6 +19,8 @@ export const adminProductCategoryFields = [
   "media_images.is_thumbnail",
   "media_images.is_banner",
   "media_images.rank",
+  "default_shipping_profile.id",
+  "default_shipping_profile.name",
 ]
 
 export const adminProductCategoryQueryConfig = {

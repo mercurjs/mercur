@@ -14,7 +14,6 @@ import {
   vendorShippingOptionRuleQueryConfig,
 } from "./query-config"
 import {
-  VendorCreateShippingOption,
   VendorCreateShippingOptionRule,
   VendorGetShippingOptionParams,
   VendorGetShippingOptionRuleParams,
@@ -53,14 +52,7 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["POST"],
     matcher: "/vendor/shipping-options",
-    middlewares: [
-      requirePermission("shipping_options", "edit"),
-      validateAndTransformBody(VendorCreateShippingOption),
-      validateAndTransformQuery(
-        VendorGetShippingOptionParams,
-        vendorShippingOptionQueryConfig.retrieve
-      ),
-    ],
+    middlewares: [requirePermission("shipping_options", "edit")],
   },
   {
     method: ["GET"],

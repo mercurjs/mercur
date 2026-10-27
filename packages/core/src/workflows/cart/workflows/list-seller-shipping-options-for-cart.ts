@@ -13,7 +13,42 @@ import {
 } from "@medusajs/medusa/core-flows"
 import { deduplicate, filterObjectByKeys, isDefined } from "@medusajs/framework/utils"
 import { cartFieldsForPricingContext, pricingContextResult, shippingOptionsContextResult } from "../utils"
-import { SellerDTO } from "@mercurjs/types"
+import {
+    computeExpectedDelivery,
+    getMarketplaceDefaultLeadtime,
+    resolveLeadtimeToShip,
+    resolveTransitDays,
+    SellerDTO,
+    ShippingRuleRequirement,
+} from "@mercurjs/types"
+
+type DeliverySeller = {
+    id: string
+    default_leadtime_to_ship: number | null
+    closed_from: string | null
+    closed_to: string | null
+}
+
+type DeliveryCartItem = {
+    offer?: { seller_id?: string | null; leadtime_to_ship?: number | null } | null
+}
+
+type GovernedShippingOption = {
+    metadata: Record<string, unknown> | null
+    seller?: { id: string } | null
+    calculated_price?: {
+        calculated_amount?: number | null
+        is_calculated_price_tax_inclusive?: boolean
+    } | null
+    service_zone: { fulfillment_set: { location: { id: string } } }
+    shipping_rule?: {
+        requirement: string
+        transit_min_days: number | null
+        transit_max_days: number | null
+        shipping_zone?: { is_active: boolean } | null
+        shipping_method?: { is_active: boolean } | null
+    } | null
+}
 
 export type ListSellerShippingOptionsForCartWorkflowInput = {
     cart_id: string
@@ -38,6 +73,7 @@ export const listSellerShippingOptionsForCartWorkflow = createWorkflow(
                 "items.offer.inventory_items.id",
                 "items.offer.inventory_items.requires_shipping",
                 "items.offer.inventory_items.location_levels.*",
+                "items.offer.leadtime_to_ship",
             ],
             options: { throwIfKeyNotFound: true },
         }).config({ name: "get-cart" })
@@ -231,8 +267,27 @@ export const listSellerShippingOptionsForCartWorkflow = createWorkflow(
                 'seller.id',
                 'seller.name',
                 'seller.handle',
+                "metadata",
+                "shipping_rule.id",
+                "shipping_rule.requirement",
+                "shipping_rule.transit_min_days",
+                "shipping_rule.transit_max_days",
+                "shipping_rule.shipping_zone.is_active",
+                "shipping_rule.shipping_method.is_active",
             ])
         })
+
+        const { data: sellers } = useQueryGraphStep({
+            entity: "seller",
+            filters: { id: cartSellers },
+            fields: ["id", "default_leadtime_to_ship", "closed_from", "closed_to"],
+        }).config({ name: "get-cart-sellers-delivery" })
+
+        const { data: stores } = useQueryGraphStep({
+            entity: "store",
+            fields: ["id", "metadata"],
+            options: { cache: { enable: true } },
+        }).config({ name: "get-store-delivery-defaults" })
 
         const shippingOptions = useRemoteQueryStep({
             entry_point: "shipping_options",
@@ -241,9 +296,63 @@ export const listSellerShippingOptionsForCartWorkflow = createWorkflow(
         }).config({ name: "shipping-options-query" })
 
         const shippingOptionsWithPrice = transform(
-            { shippingOptions, cart },
-            ({ shippingOptions, cart }) =>
-                shippingOptions.map((shippingOption) => {
+            { shippingOptions, cart, sellers, stores },
+            ({ shippingOptions, cart, sellers, stores }) => {
+                const now = new Date()
+                const marketplaceLeadtime = getMarketplaceDefaultLeadtime(
+                    stores[0]?.metadata
+                )
+                const sellerById = new Map(
+                    (sellers as unknown as DeliverySeller[]).map((seller) => [seller.id, seller])
+                )
+                const leadtimeBySeller = new Map<string, number | null>()
+                for (const item of cart.items as unknown as DeliveryCartItem[]) {
+                    const sellerId = item.offer?.seller_id
+                    if (!sellerId) {
+                        continue
+                    }
+                    const leadtime = resolveLeadtimeToShip(
+                        item.offer?.leadtime_to_ship,
+                        sellerById.get(sellerId)?.default_leadtime_to_ship,
+                        marketplaceLeadtime
+                    )
+                    const current = leadtimeBySeller.get(sellerId)
+                    leadtimeBySeller.set(
+                        sellerId,
+                        leadtime === null
+                            ? current ?? null
+                            : Math.max(current ?? 0, leadtime)
+                    )
+                }
+
+                return (shippingOptions as unknown as GovernedShippingOption[])
+                    .filter((shippingOption) => {
+                        const rule = shippingOption.shipping_rule
+                        if (!rule) {
+                            return true
+                        }
+                        return (
+                            rule.requirement !== ShippingRuleRequirement.NOT_SUPPORTED &&
+                            rule.shipping_zone?.is_active !== false &&
+                            rule.shipping_method?.is_active !== false
+                        )
+                    })
+                    .map((shippingOption) => {
+                    const sellerId = shippingOption.seller?.id
+                    const transit = resolveTransitDays(
+                        shippingOption.metadata,
+                        shippingOption.shipping_rule
+                    )
+                    const estimated_delivery =
+                        sellerId && (transit.min !== null || transit.max !== null)
+                            ? computeExpectedDelivery({
+                                  start: now,
+                                  leadtimeDays: leadtimeBySeller.get(sellerId) ?? null,
+                                  transitMinDays: transit.min,
+                                  transitMaxDays: transit.max,
+                                  closure: sellerById.get(sellerId),
+                              })
+                            : null
                     const price = shippingOption.calculated_price
 
                     const locationId =
@@ -280,8 +389,10 @@ export const listSellerShippingOptionsForCartWorkflow = createWorkflow(
                         is_tax_inclusive: !!price?.is_calculated_price_tax_inclusive,
                         insufficient_inventory:
                             itemsAtLocationWithoutAvailableQuantity.length > 0,
+                        estimated_delivery,
                     }
-                })
+                }) as unknown as ShippingOptionDTO[]
+            }
         )
 
         const translatedShippingOptions = getTranslatedShippingOptionsStep({

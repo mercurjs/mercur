@@ -12,6 +12,7 @@ import {
 import { sdk } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
+import { shippingRulesQueryKeys } from "./shipping-rules";
 import { stockLocationsQueryKeys } from "./stock-locations";
 
 const SHIPPING_OPTIONS_QUERY_KEY = "shipping_options" as const;
@@ -63,28 +64,6 @@ export const useShippingOptions = (
   return { ...data, ...rest };
 };
 
-export const useCreateShippingOptions = (
-  options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.shippingOptions.mutate>,
-    ClientError,
-    InferClientInput<typeof sdk.vendor.shippingOptions.mutate>
-  >
-) => {
-  return useMutation({
-    mutationFn: (payload) => sdk.vendor.shippingOptions.mutate(payload),
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: stockLocationsQueryKeys.all,
-      });
-      queryClient.invalidateQueries({
-        queryKey: shippingOptionsQueryKeys.all,
-      });
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
-};
-
 export const useUpdateShippingOptions = (
   id: string,
   options?: UseMutationOptions<
@@ -102,6 +81,9 @@ export const useUpdateShippingOptions = (
       });
       queryClient.invalidateQueries({
         queryKey: shippingOptionsQueryKeys.all,
+      });
+      queryClient.invalidateQueries({
+        queryKey: shippingRulesQueryKeys.all,
       });
       options?.onSuccess?.(data, variables, context);
     },
@@ -125,6 +107,9 @@ export const useDeleteShippingOption = (
       });
       queryClient.invalidateQueries({
         queryKey: shippingOptionsQueryKeys.all,
+      });
+      queryClient.invalidateQueries({
+        queryKey: shippingRulesQueryKeys.all,
       });
 
       options?.onSuccess?.(data, variables, context);

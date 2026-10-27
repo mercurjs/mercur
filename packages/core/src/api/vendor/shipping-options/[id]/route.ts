@@ -1,15 +1,15 @@
 import {
-  deleteShippingOptionsWorkflow,
-  updateShippingOptionsWorkflow,
-} from "@medusajs/core-flows"
-import { FulfillmentWorkflow } from "@medusajs/framework/types"
-import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { MedusaError } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
+import {
+  deleteSellerShippingOptionsWorkflow,
+  updateSellerShippingOptionWorkflow,
+  UpdateSellerShippingOptionWorkflowInput,
+} from "../../../../workflows/shipping-rule"
 import { refetchShippingOption, validateSellerShippingOption } from "../helpers"
 import { validateSellerRegionPrices } from "../../regions/helpers"
 import { VendorUpdateShippingOptionType } from "../validators"
@@ -54,16 +54,11 @@ export const POST = async (
     shippingOptionPayload.prices ?? []
   )
 
-  const workflow = updateShippingOptionsWorkflow(req.scope)
-
-  const workflowInput: FulfillmentWorkflow.UpdateShippingOptionsWorkflowInput =
-    {
+  const { result } = await updateSellerShippingOptionWorkflow(req.scope).run({
+    input: {
       id: req.params.id,
-      ...shippingOptionPayload,
-    }
-
-  const { result } = await workflow.run({
-    input: [workflowInput],
+      update: shippingOptionPayload as UpdateSellerShippingOptionWorkflowInput["update"],
+    },
   })
 
   const shippingOption = await refetchShippingOption(
@@ -84,10 +79,8 @@ export const DELETE = async (
 
   await validateSellerShippingOption(req.scope, sellerId, shippingOptionId)
 
-  const workflow = deleteShippingOptionsWorkflow(req.scope)
-
-  await workflow.run({
-    input: { ids: [shippingOptionId] },
+  await deleteSellerShippingOptionsWorkflow(req.scope).run({
+    input: { seller_id: sellerId, ids: [shippingOptionId] },
   })
 
   res

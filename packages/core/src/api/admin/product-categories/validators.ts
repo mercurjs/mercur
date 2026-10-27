@@ -108,6 +108,15 @@ export const AdminBatchLinkProductsToCategory = z.object({
 export type AdminBatchLinkSellersToCategoryType = z.infer<
   typeof AdminBatchLinkSellersToCategory
 >
+export type AdminSetCategoryShippingProfileType = z.infer<
+  typeof AdminSetCategoryShippingProfile
+>
+export const AdminSetCategoryShippingProfile = z
+  .object({
+    shipping_profile_id: z.string().min(1).nullable(),
+  })
+  .strict()
+
 export const AdminBatchLinkSellersToCategory = z.object({
   add: z.array(z.string()).optional(),
   remove: z.array(z.string()).optional(),

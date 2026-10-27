@@ -135,6 +135,8 @@ declare module "@mercurjs/dashboard-sdk" {
     "sales-channels.detail.main.before": true
     "sales-channels.list.after": true
     "sales-channels.list.before": true
+    "shipping-methods.list.after": true
+    "shipping-methods.list.before": true
     "shipping-option-types.detail.main.after": true
     "shipping-option-types.detail.main.before": true
     "shipping-option-types.list.after": true
@@ -143,6 +145,10 @@ declare module "@mercurjs/dashboard-sdk" {
     "shipping-profiles.detail.main.before": true
     "shipping-profiles.list.after": true
     "shipping-profiles.list.before": true
+    "shipping-rules.list.after": true
+    "shipping-rules.list.before": true
+    "shipping-zones.list.after": true
+    "shipping-zones.list.before": true
     "stores.detail.main.after": true
     "stores.detail.main.before": true
     "stores.detail.side.after": true
@@ -350,7 +356,7 @@ declare module "@mercurjs/dashboard-sdk" {
       formZones: "create" | "edit"
       formTabs: { "create": "details" | "users" }
       formFieldIds: never
-      displayZones: "address" | "company-details" | "configuration" | "general" | "members" | "offers" | "orders" | "payment-details" | "regions" | "requests"
+      displayZones: "address" | "company-details" | "configuration" | "general" | "members" | "offers" | "orders" | "payment-details" | "regions" | "requests" | "shipping"
       displayFieldIds: "currency_code" | "description" | "email" | "handle" | "phone" | "website_url"
       listZones: "list"
       listColumnIds: "created_at" | "email" | "is_premium" | "name" | "status"

@@ -296,25 +296,24 @@ medusaIntegrationTestRunner({
                     expect(r2.status).toEqual(201)
                 })
 
-                it("should reject create when shipping_profile_id is missing", async () => {
+                it("should fall back to the default shipping profile when shipping_profile_id is missing", async () => {
                     const deps = await seedSellerOfferDeps(seller1Headers)
 
-                    const response = await api
-                        .post(
-                            `/vendor/offers`,
-                            {
-                                sku: "NO-SHIPPING-PROFILE",
-                                variant_id: deps.variant_id,
-                                inventory_items: [{}],
-                                prices: [
-                                    { amount: 2000, currency_code: "usd" },
-                                ],
-                            },
-                            seller1Headers
-                        )
-                        .catch((e) => e.response)
+                    const response = await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "NO-SHIPPING-PROFILE",
+                            variant_id: deps.variant_id,
+                            inventory_items: [{}],
+                            prices: [{ amount: 2000, currency_code: "usd" }],
+                        },
+                        seller1Headers
+                    )
 
-                    expect(response.status).toEqual(400)
+                    expect(response.status).toEqual(201)
+                    expect(response.data.offer.shipping_profile_id).toEqual(
+                        expect.stringMatching(/^sp_/)
+                    )
                 })
 
                 it("should reject create when shipping_profile_id is an empty string", async () => {

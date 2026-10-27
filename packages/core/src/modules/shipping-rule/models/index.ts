@@ -1,0 +1,5 @@
+export { default as ShippingZone } from "./shipping-zone"
+export { default as ShippingZoneArea } from "./shipping-zone-area"
+export { default as MarketplaceShippingMethod } from "./shipping-method"
+export { default as ShippingRule } from "./shipping-rule"
+export { default as ShippingRulePrice } from "./shipping-rule-price"

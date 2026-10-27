@@ -166,3 +166,36 @@ export const useUpdateProductCategoryProducts = (
     ...options,
   });
 };
+
+export const useUpdateProductCategoryShippingProfile = (
+  id: string,
+  options?: UseMutationOptions<
+    InferClientOutput<
+      typeof sdk.admin.productCategories.$id.shippingProfile.mutate
+    >,
+    ClientError,
+    Omit<
+      InferClientInput<
+        typeof sdk.admin.productCategories.$id.shippingProfile.mutate
+      >,
+      "$id"
+    >
+  >,
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.admin.productCategories.$id.shippingProfile.mutate({
+        $id: id,
+        ...payload,
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: categoriesQueryKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: categoriesQueryKeys.details(),
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
