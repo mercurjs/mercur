@@ -1,7 +1,11 @@
 import { toast, usePrompt } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
-import { useExtendableTable, mergeListFilters } from "@mercurjs/dashboard-shared";
+import {
+  getListInitialData,
+  mergeListFilters,
+  useExtendableTable,
+} from "@mercurjs/dashboard-shared";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useLoaderData } from "react-router-dom";
@@ -30,7 +34,7 @@ export const ProductListDataTable = () => {
     | Awaited<ReturnType<typeof productListLoader>>
     | undefined;
 
-  const initialData = searchParams.offset ? undefined : loaderData;
+  const initialData = getListInitialData(raw, loaderData);
 
   const { products, count, isLoading, isError, error } = useProducts(
     searchParams,
