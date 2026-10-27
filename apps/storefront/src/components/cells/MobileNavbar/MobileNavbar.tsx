@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 
 import { HttpTypes } from '@medusajs/types';
 
-import { IconButton } from '@/components/atoms';
-import { HeaderCategoryNavbar } from '@/components/molecules';
+import { IconButton } from '@/components/atoms/IconButton/IconButton';
+import { HeaderCategoryNavbar } from '@/components/molecules/HeaderCategoryNavbar/HeaderCategoryNavbar';
 import { CloseIcon, HamburgerMenuIcon } from '@/icons';
 
 import { MobileCategoryNavbar } from './components';

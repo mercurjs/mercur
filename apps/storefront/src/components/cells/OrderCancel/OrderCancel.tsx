@@ -1,7 +1,9 @@
 "use client"
 
-import { Button, Checkbox, Divider } from "@/components/atoms"
-import { Modal } from "@/components/molecules"
+import { Button } from '@/components/atoms/Button/Button';
+import { Checkbox } from '@/components/atoms/Checkbox/Checkbox';
+import { Divider } from '@/components/atoms/Divider/Divider';
+import { Modal } from '@/components/molecules/Modal/Modal';
 import { useState } from "react"
 import Image from "next/image"
 import { convertToLocale } from "@/lib/helpers/money"

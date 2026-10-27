@@ -1,4 +1,4 @@
-import { TabsTrigger } from "@/components/atoms"
+import { TabsTrigger } from '@/components/atoms/TabsTrigger/TabsTrigger';
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 
 export const TabsList = ({

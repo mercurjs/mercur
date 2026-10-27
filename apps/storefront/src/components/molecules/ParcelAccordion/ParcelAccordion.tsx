@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 
-import { Button } from '@/components/atoms';
+import { Button } from '@/components/atoms/Button/Button';
 import LocalizedClientLink from '@/components/molecules/LocalizedLink/LocalizedLink';
 import { convertToLocale } from '@/lib/helpers/money';
 

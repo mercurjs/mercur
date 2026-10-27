@@ -2,7 +2,8 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button, Textarea } from '@/components/atoms';
+import { Button } from '@/components/atoms/Button/Button';
+import { Textarea } from '@/components/atoms/Textarea/Textarea';
 import { SelectField } from '../SelectField/SelectField';
 import { cn } from '@/lib/utils';
 

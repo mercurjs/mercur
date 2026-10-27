@@ -4,9 +4,9 @@ import { useState } from 'react';
 
 import { HttpTypes } from '@medusajs/types';
 
-import { Button } from '@/components/atoms';
+import { Button } from '@/components/atoms/Button/Button';
 import { ChatBox } from '@/components/cells/ChatBox/ChatBox';
-import { Modal } from '@/components/molecules';
+import { Modal } from '@/components/molecules/Modal/Modal';
 import { MessageIcon } from '@/icons';
 import { SellerDTO } from '@mercurjs/types';
 

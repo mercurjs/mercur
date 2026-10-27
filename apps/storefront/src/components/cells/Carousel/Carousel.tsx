@@ -2,7 +2,7 @@
 
 import useEmblaCarousel from "embla-carousel-react"
 
-import { Indicator } from "@/components/atoms"
+import { Indicator } from '@/components/atoms/Indicator/Indicator';
 import { ArrowLeftIcon, ArrowRightIcon } from "@/icons"
 import { useCallback, useEffect, useState } from "react"
 import { EmblaCarouselType } from "embla-carousel"

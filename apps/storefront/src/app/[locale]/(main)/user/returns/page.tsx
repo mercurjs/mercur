@@ -1,9 +1,21 @@
+import { Suspense } from "react"
+import { RouteFallback } from "@/components/molecules/RouteFallback/RouteFallback"
 import { UserNavigation } from '@/components/molecules/UserNavigation/UserNavigation';
 import { OrderReturnRequests } from '@/components/sections/OrderReturnRequests/OrderReturnRequests';
 import { retrieveCustomer } from '@/lib/data/customer';
 import { getReturns, retrieveReturnReasons } from '@/lib/data/orders';
 
-export default async function ReturnsPage({
+export default function ReturnsPage(props: {
+  searchParams: Promise<{ page: string; return: string }>;
+}) {
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <ReturnsPageContent {...props} />
+    </Suspense>
+  )
+}
+
+async function ReturnsPageContent({
   searchParams
 }: {
   searchParams: Promise<{ page: string; return: string }>;

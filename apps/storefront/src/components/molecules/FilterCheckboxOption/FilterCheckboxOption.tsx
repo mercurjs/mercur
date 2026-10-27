@@ -1,4 +1,4 @@
-import { Checkbox } from '@/components/atoms';
+import { Checkbox } from '@/components/atoms/Checkbox/Checkbox';
 import { cn } from '@/lib/utils';
 
 export const FilterCheckboxOption = ({

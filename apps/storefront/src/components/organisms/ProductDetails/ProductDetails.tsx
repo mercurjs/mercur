@@ -1,11 +1,9 @@
-import {
-  ProductDetailsFooter,
-  ProductDetailsHeader,
-  ProductDetailsSeller,
-  ProductDetailsShipping,
-  ProductPageDetails,
-  ProductAdditionalAttributes,
-} from "@/components/cells"
+import { ProductDetailsFooter } from '@/components/cells/ProductDetailsFooter/ProductDetailsFooter';
+import { ProductDetailsHeader } from '@/components/cells/ProductDetailsHeader/ProductDetailsHeader';
+import { ProductDetailsSeller } from '@/components/cells/ProductDetailsSeller/ProductDetailsSeller';
+import { ProductDetailsShipping } from '@/components/cells/ProductDetailsShipping/ProductDetailsShipping';
+import { ProductPageDetails } from '@/components/cells/ProductPageDetails/ProductPageDetails';
+import { ProductAdditionalAttributes } from '@/components/cells/ProductAdditionalAttributes/ProductAdditionalAttributes';
 
 import {
   getBuyboxWinner,

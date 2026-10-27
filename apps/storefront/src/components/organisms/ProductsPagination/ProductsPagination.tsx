@@ -1,5 +1,5 @@
 'use client';
-import { Pagination } from '@/components/cells';
+import { Pagination } from '@/components/cells/Pagination/Pagination';
 import { usePagination } from '@/hooks/usePagination';
 
 export const ProductsPagination = ({

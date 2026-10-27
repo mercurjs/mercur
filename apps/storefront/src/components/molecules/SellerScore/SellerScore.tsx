@@ -1,4 +1,4 @@
-import { StarRating } from "@/components/atoms"
+import { StarRating } from '@/components/atoms/StarRating/StarRating';
 
 export const SellerScore = ({
   rate,

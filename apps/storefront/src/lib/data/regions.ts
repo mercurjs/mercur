@@ -1,50 +1,41 @@
-'use server';
-
 import { HttpTypes } from '@medusajs/types';
+import { cacheLife, cacheTag } from 'next/cache';
 
 import medusaError from '@/lib/helpers/medusa-error';
 
 import { sdk } from '../client';
-import { getCacheOptions } from './cookies';
+import { CACHE_TAGS, cacheFailedRead } from './cache-tags';
 
-export const listRegions = async () => {
-  const next = {
-    ...(await getCacheOptions('regions')),
-    revalidate: 3600,
-  };
+export const listRegions = async (): Promise<HttpTypes.StoreRegion[]> => {
+  'use cache';
+  cacheLife('hours');
+  cacheTag(CACHE_TAGS.regions);
 
   return sdk.store.regions
-    .query({ fetchOptions: { next, cache: 'force-cache' } })
+    .query({ fetchOptions: { cache: 'no-store' } })
     .then(({ regions }) => regions)
-    .catch(medusaError);
+    .catch(() => {
+      cacheFailedRead();
+      return [] as HttpTypes.StoreRegion[];
+    });
 };
 
 export const retrieveRegion = async (id: string) => {
-  const next = {
-    ...(await getCacheOptions(['regions', id].join('-'))),
-    revalidate: 3600,
-  };
+  'use cache';
+  cacheLife('hours');
+  cacheTag(CACHE_TAGS.regions);
 
   return sdk.store.regions.$id
-    .query({ $id: id, fetchOptions: { next, cache: 'force-cache' } })
+    .query({ $id: id, fetchOptions: { cache: 'no-store' } })
     .then(({ region }) => region)
     .catch(medusaError);
 };
 
-const regionMap = new Map<string, HttpTypes.StoreRegion>();
-
 export const getRegion = async (countryCode: string) => {
   try {
-    if (regionMap.has(countryCode)) {
-      return regionMap.get(countryCode);
-    }
-
     const regions = await listRegions();
 
-    if (!regions) {
-      return null;
-    }
-
+    const regionMap = new Map<string, HttpTypes.StoreRegion>();
     regions.forEach(region => {
       region.countries?.forEach(c => {
         regionMap.set(c?.iso_2 ?? '', region);
@@ -55,4 +46,11 @@ export const getRegion = async (countryCode: string) => {
   } catch (e) {
     return null;
   }
+};
+
+export const listCountryCodes = async (): Promise<string[]> => {
+  const regions = await listRegions().catch(() => [] as HttpTypes.StoreRegion[]);
+  return regions.flatMap(region =>
+    (region.countries ?? []).map(country => country.iso_2).filter((code): code is string => !!code)
+  );
 };

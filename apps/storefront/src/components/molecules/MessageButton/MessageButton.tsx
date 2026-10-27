@@ -1,6 +1,6 @@
 "use client"
 
-import { Badge } from "@/components/atoms"
+import { Badge } from '@/components/atoms/Badge/Badge';
 import { MessageIcon } from "@/icons"
 import LocalizedClientLink from "../LocalizedLink/LocalizedLink"
 import { useUnreads } from "@talkjs/react"

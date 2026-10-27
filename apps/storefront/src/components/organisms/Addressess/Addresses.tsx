@@ -1,6 +1,8 @@
 "use client"
-import { Button, Card } from "@/components/atoms"
-import { AddressForm, Modal } from "@/components/molecules"
+import { Button } from '@/components/atoms/Button/Button';
+import { Card } from '@/components/atoms/Card/Card';
+import { AddressForm } from '@/components/molecules/AddressForm/AddressForm';
+import { Modal } from '@/components/molecules/Modal/Modal';
 import { emptyDefaultAddressValues } from "@/components/molecules/AddressForm/AddressForm"
 import { AddressFormData } from "@/components/molecules/AddressForm/schema"
 import { deleteCustomerAddress } from "@/lib/data/customer"

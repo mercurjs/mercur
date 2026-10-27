@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import { ProductCard } from "@/components/organisms"
+import { ProductCard } from '@/components/organisms/ProductCard/ProductCard';
 
 interface Props {
   products: HttpTypes.StoreProduct[]

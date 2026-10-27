@@ -10,9 +10,10 @@ import {
 import { Fragment, useEffect, useMemo, useState } from "react"
 import ReactCountryFlag from "react-country-flag"
 
-import { useParams, usePathname, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { HttpTypes } from "@medusajs/types"
 
+import { useLocale } from "@/components/providers/Locale/LocaleProvider"
 import { updateRegionWithValidation } from "@/lib/data/cart"
 import { Label } from "@medusajs/ui"
 import { toast } from "@/lib/helpers/toast"
@@ -33,9 +34,8 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
     | undefined
   >(undefined)
 
-  const { locale: countryCode } = useParams()
+  const countryCode = useLocale()
   const router = useRouter()
-  const currentPath = usePathname().split(`/${countryCode}`)[1]
 
   const options = useMemo(() => {
     return regions
@@ -59,6 +59,7 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
 
   const handleChange = async (option: CountryOption) => {
     try {
+      const currentPath = window.location.pathname.split(`/${countryCode}`)[1] ?? ""
       const result = await updateRegionWithValidation(option.country, currentPath)
       
       if (result.removedItems.length > 0) {

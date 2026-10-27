@@ -1,5 +1,5 @@
 "use client"
-import { Chip } from "@/components/atoms"
+import { Chip } from '@/components/atoms/Chip/Chip';
 import useFilters from "@/hooks/useFilters"
 import { CloseIcon } from "@/icons"
 

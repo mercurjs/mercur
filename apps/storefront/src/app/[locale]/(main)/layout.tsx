@@ -1,47 +1,12 @@
-import { redirect } from 'next/navigation';
+import { Footer } from '@/components/organisms/Footer/Footer';
+import { Header } from '@/components/organisms/Header/Header';
 
-import { Footer, Header } from '@/components/organisms';
-import { TalkJsProvider } from '@/components/providers';
-import { retrieveCustomer } from '@/lib/data/customer';
-import { checkRegion } from '@/lib/helpers/check-region';
-
-export default async function RootLayout({
-  children,
-  params
-}: Readonly<{
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
-}>) {
-  const APP_ID = process.env.NEXT_PUBLIC_TALKJS_APP_ID;
-  const { locale } = await params;
-
-  const [user, regionCheck] = await Promise.all([retrieveCustomer(), checkRegion(locale)]);
-
-  if (!regionCheck) {
-    return redirect('/');
-  }
-
-  if (!APP_ID || !user || !user.id || !user.email)
-    return (
-      <>
-        <Header locale={locale} />
-        {children}
-        <Footer />
-      </>
-    );
-
-  const userName = [user.first_name, user.last_name].filter(Boolean).join(' ') || 'User';
-
+export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
-    <TalkJsProvider
-      appId={APP_ID}
-      userId={user.id}
-      userName={userName}
-      userEmail={user.email}
-    >
-      <Header locale={locale} />
+    <>
+      <Header />
       {children}
       <Footer />
-    </TalkJsProvider>
+    </>
   );
 }

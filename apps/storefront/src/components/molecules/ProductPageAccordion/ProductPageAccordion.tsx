@@ -1,5 +1,5 @@
 'use client';
-import { Card } from '@/components/atoms';
+import { Card } from '@/components/atoms/Card/Card';
 import { MinusThinIcon } from '@/icons';
 import { cn } from '@/lib/utils';
 import { useEffect, useRef, useState } from 'react';

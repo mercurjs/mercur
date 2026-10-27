@@ -1,6 +1,7 @@
 import { HttpTypes } from '@medusajs/types';
 
-import { CartItemsHeader, CartItemsProducts } from '@/components/cells';
+import { CartItemsHeader } from '@/components/cells/CartItemsHeader/CartItemsHeader';
+import { CartItemsProducts } from '@/components/cells/CartItemsProducts/CartItemsProducts';
 
 export const CartItems = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
   if (!cart) return null;

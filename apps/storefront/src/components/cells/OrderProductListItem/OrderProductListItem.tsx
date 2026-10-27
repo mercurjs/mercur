@@ -2,7 +2,7 @@ import { Fragment } from 'react';
 
 import Image from 'next/image';
 
-import { Divider } from '@/components/atoms';
+import { Divider } from '@/components/atoms/Divider/Divider';
 import LocalizedClientLink from '@/components/molecules/LocalizedLink/LocalizedLink';
 import { convertToLocale } from '@/lib/helpers/money';
 import { cn } from '@/lib/utils';

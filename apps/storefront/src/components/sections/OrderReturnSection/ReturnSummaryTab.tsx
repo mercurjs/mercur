@@ -1,4 +1,5 @@
-import { Button, Card } from "@/components/atoms"
+import { Button } from '@/components/atoms/Button/Button';
+import { Card } from '@/components/atoms/Card/Card';
 import { convertToLocale } from "@/lib/helpers/money"
 import Image from "next/image"
 

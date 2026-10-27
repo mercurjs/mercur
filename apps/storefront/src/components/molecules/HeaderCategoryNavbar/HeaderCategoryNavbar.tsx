@@ -2,12 +2,13 @@
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/atoms"
-import { useParams } from "next/navigation"
+import { Button } from '@/components/atoms/Button/Button';
+import { ActiveCategory } from "@/components/molecules/ActiveCategory/ActiveCategory"
 import { useMemo } from "react"
 import { getActiveParentHandle } from "@/lib/helpers/category-utils"
 
-export const HeaderCategoryNavbar = ({
+const HeaderCategoryNavbarView = ({
+  category,
   parentCategories,
   categories,
   onClose,
@@ -15,9 +16,7 @@ export const HeaderCategoryNavbar = ({
   parentCategories: HttpTypes.StoreProductCategory[]
   categories: HttpTypes.StoreProductCategory[]
   onClose?: (state: boolean) => void
-}) => {
-  const { category } = useParams<{ category?: string }>()
-
+} & { category?: string }) => {
   const activeParentHandle = useMemo(
     () => getActiveParentHandle(category, categories, parentCategories),
     [category, categories, parentCategories]
@@ -47,3 +46,13 @@ export const HeaderCategoryNavbar = ({
     </nav>
   )
 }
+
+export const HeaderCategoryNavbar = (props: {
+  parentCategories: HttpTypes.StoreProductCategory[]
+  categories: HttpTypes.StoreProductCategory[]
+  onClose?: (state: boolean) => void
+}) => (
+  <ActiveCategory fallback={<HeaderCategoryNavbarView {...props} />}>
+    {(category) => <HeaderCategoryNavbarView {...props} category={category} />}
+  </ActiveCategory>
+)

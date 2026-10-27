@@ -1,7 +1,8 @@
 import { Suspense } from "react"
 import { ProductListingSkeleton } from "../ProductListingSkeleton/ProductListingSkeleton"
-import { SellerOffersListing } from "@/components/sections"
-import { TabsContent, TabsList } from "@/components/molecules"
+import { SellerOffersListing } from '@/components/sections/SellerOffersListing/SellerOffersListing';
+import { TabsContent } from '@/components/molecules/TabsContent/TabsContent';
+import { TabsList } from '@/components/molecules/TabsList/TabsList';
 
 export const SellerTabs = ({
   tab,

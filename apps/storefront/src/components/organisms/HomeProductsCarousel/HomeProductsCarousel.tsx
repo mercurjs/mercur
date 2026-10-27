@@ -1,4 +1,4 @@
-import { Carousel } from "@/components/cells"
+import { CustomCarousel as Carousel } from '@/components/cells/Carousel/Carousel';
 import { ProductCard } from "../ProductCard/ProductCard"
 import { listProducts } from "@/lib/data/products"
 import { Product } from "@/types/product"

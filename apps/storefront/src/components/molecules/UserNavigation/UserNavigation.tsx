@@ -1,11 +1,9 @@
 "use client"
-import {
-  Badge,
-  Card,
-  Divider,
-  LogoutButton,
-  NavigationItem,
-} from "@/components/atoms"
+import { Badge } from '@/components/atoms/Badge/Badge';
+import { Card } from '@/components/atoms/Card/Card';
+import { Divider } from '@/components/atoms/Divider/Divider';
+import { LogoutButton } from '@/components/atoms/LogoutButton/LogoutButton';
+import { NavigationItem } from '@/components/atoms/NavigationItem/NavigationItem';
 import { useUnreads } from "@talkjs/react"
 import { usePathname } from "next/navigation"
 

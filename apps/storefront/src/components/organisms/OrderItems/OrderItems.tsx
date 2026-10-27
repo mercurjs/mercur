@@ -1,4 +1,4 @@
-import { Divider } from "@/components/atoms"
+import { Divider } from '@/components/atoms/Divider/Divider';
 import { HttpTypes } from "@medusajs/types"
 import { Table } from "@medusajs/ui"
 import { Item } from "./Item"

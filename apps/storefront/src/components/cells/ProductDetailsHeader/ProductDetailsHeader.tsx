@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/atoms"
+import { Button } from '@/components/atoms/Button/Button';
 import { HttpTypes } from "@medusajs/types"
-import { ProductVariants } from "@/components/molecules"
+import { ProductVariants } from '@/components/molecules/ProductVariants/ProductVariants';
 import useGetAllSearchParams from "@/hooks/useGetAllSearchParams"
 import { getProductPrice } from "@/lib/helpers/get-product-price"
 import { convertToLocale } from "@/lib/helpers/money"

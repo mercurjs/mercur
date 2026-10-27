@@ -5,7 +5,7 @@ import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/re
 import { HttpTypes } from "@medusajs/types"
 import Image from "next/image"
 
-import { Button } from "@/components/atoms"
+import { Button } from '@/components/atoms/Button/Button';
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { DeleteCartItemButton } from "@/components/molecules/DeleteCartItemButton/DeleteCartItemButton"
 import { UpdateCartItemButton } from "@/components/molecules/UpdateCartItemButton/UpdateCartItemButton"

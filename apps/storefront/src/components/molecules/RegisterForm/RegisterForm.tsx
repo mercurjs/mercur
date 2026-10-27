@@ -6,9 +6,9 @@ import {
   useForm,
   useFormContext,
 } from "react-hook-form"
-import { Button } from "@/components/atoms"
+import { Button } from '@/components/atoms/Button/Button';
 import { zodResolver } from "@hookform/resolvers/zod"
-import { LabeledInput } from "@/components/cells"
+import { LabeledInput } from '@/components/cells/LabeledInput/LabeledInput';
 import { registerFormSchema, RegisterFormData } from "./schema"
 import { signup } from "@/lib/data/customer"
 import { useState } from "react"

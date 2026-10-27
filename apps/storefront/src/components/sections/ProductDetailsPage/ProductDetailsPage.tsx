@@ -1,4 +1,5 @@
-import { ProductDetails, ProductGallery } from "@/components/organisms"
+import { ProductDetails } from '@/components/organisms/ProductDetails/ProductDetails';
+import { ProductGallery } from '@/components/organisms/ProductGallery/ProductGallery';
 import { listProducts } from "@/lib/data/products"
 import { listOffers } from "@/lib/data/offers"
 import { retrieveCustomer } from "@/lib/data/customer"
