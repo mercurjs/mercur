@@ -18,6 +18,8 @@ export const CACHE_TAGS = {
   collection: (handle: string) => `collection-${handle}`,
   categories: 'categories',
   category: (handle: string) => `category-${handle}`,
+  sellers: 'sellers',
+  seller: (handle: string) => `seller-${handle}`,
 } as const;
 
 /**

@@ -1,4 +1,7 @@
+import { Suspense } from "react"
+
 import { ProductDetailsPage } from "@/components/sections"
+import { ProductDetailsPageSkeleton } from "@/components/sections/ProductDetailsPage/ProductDetailsPage"
 import { listProducts } from "@/lib/data/products"
 import { generateProductMetadata } from "@/lib/helpers/seo"
 import type { Metadata } from "next"
@@ -27,7 +30,9 @@ export default async function ProductPage({
 
   return (
     <main className="container">
-      <ProductDetailsPage handle={handle} locale={locale} />
+      <Suspense key={handle} fallback={<ProductDetailsPageSkeleton />}>
+        <ProductDetailsPage handle={handle} locale={locale} />
+      </Suspense>
     </main>
   )
 }

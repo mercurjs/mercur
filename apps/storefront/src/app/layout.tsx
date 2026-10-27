@@ -22,12 +22,12 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000')
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cart = await retrieveCart();
+  const cartPromise = retrieveCart();
 
   // default lang updated by HtmlLangSetter
   const htmlLang = 'en';
@@ -87,7 +87,7 @@ export default async function RootLayout({
       </Head>
       <body className="relative bg-primary text-secondary antialiased">
         <HtmlLangSetter />
-        <Providers cart={cart}>{children}</Providers>
+        <Providers cartPromise={cartPromise}>{children}</Providers>
         <Toaster position="top-right" />
       </body>
     </html>

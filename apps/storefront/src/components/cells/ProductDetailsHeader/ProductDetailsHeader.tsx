@@ -49,7 +49,7 @@ export const ProductDetailsHeader = ({
   offers?: StoreOffer[]
   seller?: SellerDTO
 }) => {
-  const { addToCart, onAddToCart, cart, isAddingItem } = useCartContext()
+  const { addToCart, cart, isAddingItem } = useCartContext()
   const { allSearchParams } = useGetAllSearchParams()
   const [isCompareOpen, setIsCompareOpen] = useState(false)
 
@@ -127,13 +127,12 @@ export const ProductDetailsHeader = ({
       metadata: { offer_id: winnerOffer.id },
     }
 
-    onAddToCart(storeCartLineItem, offerCurrency)
-
     try {
       await addToCart({
         offerId: winnerOffer.id,
         quantity: 1,
         countryCode: locale,
+        optimisticItem: { item: storeCartLineItem, currencyCode: offerCurrency },
       })
     } catch (error) {
       toast.error({

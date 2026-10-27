@@ -19,7 +19,7 @@ export const OfferCard = ({
   locale: string
   className?: string
 }) => {
-  const { addToCart, onAddToCart, cart, isAddingItem } = useCartContext()
+  const { addToCart, cart, isAddingItem } = useCartContext()
 
   const product = offer.product
   const productName = String(product?.title || "Product")
@@ -45,23 +45,26 @@ export const OfferCard = ({
     const subtotal =
       offer.calculated_price?.calculated_amount_without_tax ?? total
 
-    onAddToCart(
-      {
-        thumbnail: product?.thumbnail || "",
-        product_title: product?.title,
-        quantity: 1,
-        subtotal,
-        total,
-        tax_total: total - subtotal,
-        variant_id: offer.variant_id,
-        product_id: offer.product_id,
-        metadata: { offer_id: offer.id },
-      },
-      currency
-    )
-
     try {
-      await addToCart({ offerId: offer.id, quantity: 1, countryCode: locale })
+      await addToCart({
+        offerId: offer.id,
+        quantity: 1,
+        countryCode: locale,
+        optimisticItem: {
+          currencyCode: currency,
+          item: {
+            thumbnail: product?.thumbnail || "",
+            product_title: product?.title,
+            quantity: 1,
+            subtotal,
+            total,
+            tax_total: total - subtotal,
+            variant_id: offer.variant_id,
+            product_id: offer.product_id,
+            metadata: { offer_id: offer.id },
+          },
+        },
+      })
     } catch (error) {
       toast.error({
         title: "Error adding to cart",

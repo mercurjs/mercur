@@ -66,9 +66,6 @@ export async function getOrSetCart(countryCode: string) {
     cart = cartResp.cart;
 
     await setCartId(cart.id);
-
-    const cartCacheTag = await getCacheTag('carts');
-    revalidateTag(cartCacheTag);
   }
 
   if (cart && cart?.region_id !== region.id) {
@@ -77,8 +74,6 @@ export async function getOrSetCart(countryCode: string) {
       region_id: region.id,
       fetchOptions: { headers }
     });
-    const cartCacheTag = await getCacheTag('carts');
-    revalidateTag(cartCacheTag);
   }
 
   return cart;
@@ -105,6 +100,9 @@ export async function updateCart(data: HttpTypes.StoreUpdateCart) {
     .catch(medusaError);
 }
 
+// Line-item actions return the refreshed cart instead of revalidating: carts are
+// never in the data cache, and a revalidate inside a Server Action re-renders the
+// whole current route on every quantity change.
 export async function addToCart({
   offerId,
   quantity,
@@ -143,11 +141,7 @@ export async function addToCart({
         quantity: currentItem.quantity + quantity,
         fetchOptions: { headers }
       })
-      .catch(medusaError)
-      .finally(async () => {
-        const cartCacheTag = await getCacheTag('carts');
-        revalidateTag(cartCacheTag);
-      });
+      .catch(medusaError);
   } else {
     await (sdk.store.carts.$id.lineItems
       .mutate({
@@ -156,16 +150,10 @@ export async function addToCart({
         quantity,
         fetchOptions: { headers }
       } as never) as unknown as Promise<{ cart: HttpTypes.StoreCart }>)
-      .then(async () => {
-        const cartCacheTag = await getCacheTag('carts');
-        revalidateTag(cartCacheTag);
-      })
-      .catch(medusaError)
-      .finally(async () => {
-        const cartCacheTag = await getCacheTag('carts');
-        revalidateTag(cartCacheTag);
-      });
+      .catch(medusaError);
   }
+
+  return retrieveCart(cart.id);
 }
 
 export async function updateLineItem({ lineId, quantity }: { lineId: string; quantity: number }) {
@@ -183,17 +171,16 @@ export async function updateLineItem({ lineId, quantity }: { lineId: string; qua
     ...(await getAuthHeaders())
   };
 
-  const res = await sdk.store.carts.$id.lineItems.$lineId.mutate({
-    $id: cartId,
-    $lineId: lineId,
-    quantity,
-    fetchOptions: { headers }
-  });
+  await sdk.store.carts.$id.lineItems.$lineId
+    .mutate({
+      $id: cartId,
+      $lineId: lineId,
+      quantity,
+      fetchOptions: { headers }
+    })
+    .catch(medusaError);
 
-  const cartCacheTag = await getCacheTag('carts');
-  await revalidateTag(cartCacheTag);
-
-  return res;
+  return retrieveCart(cartId);
 }
 
 export async function deleteLineItem(lineId: string) {
@@ -213,11 +200,9 @@ export async function deleteLineItem(lineId: string) {
 
   await sdk.store.carts.$id.lineItems.$lineId
     .delete({ $id: cartId, $lineId: lineId, fetchOptions: { headers } })
-    .then(async () => {
-      const cartCacheTag = await getCacheTag('carts');
-      await revalidateTag(cartCacheTag);
-    })
     .catch(medusaError);
+
+  return retrieveCart(cartId);
 }
 
 export async function setShippingMethod({

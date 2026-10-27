@@ -2,8 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { useRouter } from 'next/navigation';
-
 import { Button } from '@/components/atoms';
 import { useCartContext } from '@/components/providers';
 import { toast } from '@/lib/helpers/toast';
@@ -18,7 +16,6 @@ export const UpdateCartItemButton = ({
   const { updateCartItem, isUpdatingItem } = useCartContext();
   const [pendingQuantity, setPendingQuantity] = useState(quantity);
   const debounceTimerRef = useRef<NodeJS.Timeout>(null);
-  const router = useRouter();
 
   useEffect(() => {
     setPendingQuantity(quantity);
@@ -44,7 +41,6 @@ export const UpdateCartItemButton = ({
     debounceTimerRef.current = setTimeout(async () => {
       try {
         await updateCartItem(lineItemId, newQuantity);
-        router.refresh();
       } catch (error: unknown) {
         setPendingQuantity(quantity);
         const errorMessage =
