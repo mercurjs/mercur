@@ -17,7 +17,7 @@ import {
 
 export const retrieveCustomer = async (): Promise<HttpTypes.StoreCustomer | null> => {
   const authHeaders = await getAuthHeaders();
-  if (!authHeaders) return null;
+  if (!('authorization' in authHeaders)) return null;
 
   const headers = {
     ...authHeaders

@@ -12,7 +12,7 @@ export const DeleteCartItemButton = ({
   id: string
   disabled?: boolean
 }) => {
-  const { removeCartItem, isRemovingItem } = useCartContext()
+  const { removeCartItem } = useCartContext()
 
   const handleDelete = async (id: string) => {
     try {
@@ -25,16 +25,16 @@ export const DeleteCartItemButton = ({
     }
   }
 
-  const isBtnDisabled = isRemovingItem || disabled || !id
+  const isBtnDisabled = disabled || !id || id.startsWith("optimistic:")
 
   return (
     <Button
       variant="text"
-      className="w-10 h-10 flex items-center justify-center p-0"
+      className="w-10 h-10 flex items-center justify-center p-0 disabled:bg-transparent disabled:opacity-40"
       onClick={() => handleDelete(id)}
-      loading={isRemovingItem}
       disabled={isBtnDisabled}
       aria-label="Remove item from cart"
+      data-testid="cart-item-remove"
     >
       <BinIcon size={20} />
     </Button>

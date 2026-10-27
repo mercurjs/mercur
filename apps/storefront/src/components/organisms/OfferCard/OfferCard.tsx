@@ -6,6 +6,7 @@ import { Button } from "@/components/atoms"
 import { toast } from "@/lib/helpers/toast"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { useCartContext } from "@/components/providers"
+import { useCartDrawer } from "@/components/providers/Cart/drawer"
 import { getOfferAmount, getOfferStock, type StoreOffer } from "@/lib/helpers/buybox"
 import { convertToLocale } from "@/lib/helpers/money"
 import { cn } from "@/lib/utils"
@@ -19,7 +20,8 @@ export const OfferCard = ({
   locale: string
   className?: string
 }) => {
-  const { addToCart, onAddToCart, cart, isAddingItem } = useCartContext()
+  const { addToCart, cart, isAddingItem } = useCartContext()
+  const { openDrawer } = useCartDrawer()
 
   const product = offer.product
   const productName = String(product?.title || "Product")
@@ -45,23 +47,28 @@ export const OfferCard = ({
     const subtotal =
       offer.calculated_price?.calculated_amount_without_tax ?? total
 
-    onAddToCart(
-      {
-        thumbnail: product?.thumbnail || "",
-        product_title: product?.title,
-        quantity: 1,
-        subtotal,
-        total,
-        tax_total: total - subtotal,
-        variant_id: offer.variant_id,
-        product_id: offer.product_id,
-        metadata: { offer_id: offer.id },
-      },
-      currency
-    )
+    openDrawer()
 
     try {
-      await addToCart({ offerId: offer.id, quantity: 1, countryCode: locale })
+      await addToCart({
+        offerId: offer.id,
+        quantity: 1,
+        countryCode: locale,
+        optimisticItem: {
+          currencyCode: currency,
+          item: {
+            thumbnail: product?.thumbnail || "",
+            product_title: product?.title,
+            quantity: 1,
+            subtotal,
+            total,
+            tax_total: total - subtotal,
+            variant_id: offer.variant_id,
+            product_id: offer.product_id,
+            metadata: { offer_id: offer.id },
+          },
+        },
+      })
     } catch (error) {
       toast.error({
         title: "Error adding to cart",

@@ -1,6 +1,6 @@
 'use client';
 
-import { PropsWithChildren, useCallback, useEffect, useState } from 'react';
+import { PropsWithChildren, useOptimistic, useState, useTransition } from 'react';
 
 import {
   addToCart as apiAddToCart,
@@ -10,190 +10,182 @@ import {
 } from '@/lib/data/cart';
 import { Cart, StoreCartLineItemOptimisticUpdate } from '@/types/cart';
 
-import { CartContext } from './context';
+import { CartContext, type CartContextValue, getOfferPendingKey } from './context';
+import { CartDrawerProvider } from './drawer';
 
 interface CartProviderProps extends PropsWithChildren {
-  cart: Cart | null;
+  cartPromise: Promise<Cart | null>;
 }
 
-export function CartProvider({ cart, children }: CartProviderProps) {
-  const [cartState, setCartState] = useState(cart);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isAddingItem, setIsAddingItem] = useState(false);
-  const [isUpdatingItem, setIsUpdatingItem] = useState(false);
-  const [isRemovingItem, setIsRemovingItem] = useState(false);
+type OptimisticCartAction =
+  | { type: 'add'; item?: StoreCartLineItemOptimisticUpdate; currencyCode: string }
+  | { type: 'update'; lineId: string; quantity: number }
+  | { type: 'remove'; lineId: string };
 
-  useEffect(() => {
-    setCartState(cart);
-  }, [cart]);
+type LineItem = StoreCartLineItemOptimisticUpdate;
 
-  const refreshCart = useCallback(async () => {
-    try {
-      const cartData = await retrieveCart();
-      setCartState(cartData);
-      return cartData;
-    } catch (error) {
-      console.error('Error fetching cart:', error);
-      return null;
-    }
-  }, []);
+function getItemsSummaryValues(items: LineItem[]) {
+  return items.reduce<{ item_subtotal: number; total: number; tax_total: number }>(
+    (acc, item) => ({
+      item_subtotal: acc.item_subtotal + (item.subtotal || 0),
+      total: acc.total + (item.total || 0),
+      tax_total: acc.tax_total + (item.tax_total || 0)
+    }),
+    { item_subtotal: 0, total: 0, tax_total: 0 }
+  );
+}
 
-  function handleAddToCart(newItem: StoreCartLineItemOptimisticUpdate, currency_code: string) {
-    setCartState(prev => {
-      const currentItems = prev?.items || [];
-      const isNewItemInCart = currentItems.find(
-        ({ variant_id }) => variant_id === newItem.variant_id
-      );
-
-      if (isNewItemInCart) {
-        const updatedItems = currentItems.map(currentItem => {
-          if (currentItem.variant_id !== newItem.variant_id) {
-            return currentItem;
-          }
-
-          const newQuantity = currentItem.quantity + (newItem?.quantity || 0);
-          return {
-            ...currentItem,
-            quantity: newQuantity,
-            subtotal: newQuantity * (newItem?.subtotal || 0),
-            total: newQuantity * (newItem?.total || 0),
-            tax_total: newQuantity * (newItem?.tax_total || 0)
-          };
-        }) as StoreCartLineItemOptimisticUpdate[];
-
-        const { item_subtotal, total, tax_total } = getItemsSummaryValues(updatedItems);
-
-        return {
-          ...prev,
-          items: updatedItems,
-          item_subtotal,
-          total,
-          tax_total,
-          currency_code
-        } as Cart;
-      }
-
-      const updatedItems = [...currentItems, newItem] as StoreCartLineItemOptimisticUpdate[];
-
-      const { item_subtotal, total, tax_total } = getItemsSummaryValues(updatedItems);
-
-      return {
-        ...prev,
-        items: updatedItems,
-        item_subtotal,
-        total,
-        tax_total,
-        currency_code
-      } as Cart;
-    });
-  }
-
-  const updateCartItem = async (lineId: string, quantity: number) => {
-    if (!cartState?.items) return;
-
-    setIsUpdatingItem(true);
-    setIsUpdating(true);
-
-    const optimisticCart = {
-      ...cartState,
-      items: cartState.items.map(item => (item.id === lineId ? { ...item, quantity } : item))
-    };
-
-    setCartState(optimisticCart);
-
-    try {
-      await apiUpdateLineItem({ lineId, quantity });
-      await refreshCart();
-    } catch (error) {
-      console.error('Error updating item quantity:', error);
-      await refreshCart();
-    } finally {
-      setIsUpdatingItem(false);
-      setIsUpdating(false);
-    }
-  };
-
-  const addToCart = async ({
-    offerId,
+function scaleLine(item: LineItem, quantity: number): LineItem {
+  const current = item.quantity || 0;
+  const ratio = current > 0 ? quantity / current : 0;
+  return {
+    ...item,
     quantity,
-    countryCode
-  }: {
-    offerId: string;
-    quantity: number;
-    countryCode: string;
-  }) => {
-    setIsAddingItem(true);
-    setIsUpdating(true);
-
-    try {
-      await apiAddToCart({
-        offerId,
-        quantity,
-        countryCode
-      });
-      await refreshCart();
-    } catch (error) {
-      console.error('Error adding product to cart:', error);
-      await refreshCart();
-      throw error;
-    } finally {
-      setIsAddingItem(false);
-      setIsUpdating(false);
-    }
+    subtotal: (item.subtotal || 0) * ratio,
+    total: (item.total || 0) * ratio,
+    tax_total: (item.tax_total || 0) * ratio
   };
+}
 
-  const removeCartItem = async (lineId: string) => {
-    if (!cartState?.items) return;
+function withItems(cart: Cart | null, items: LineItem[], currencyCode?: string): Cart {
+  return {
+    ...cart,
+    ...getItemsSummaryValues(items),
+    items,
+    ...(currencyCode ? { currency_code: currencyCode } : {})
+  } as Cart;
+}
 
-    setIsRemovingItem(true);
-    setIsUpdating(true);
+function applyOptimisticAction(cart: Cart | null, action: OptimisticCartAction): Cart | null {
+  const currentItems = (cart?.items || []) as LineItem[];
 
-    const optimisticCart = {
-      ...cartState,
-      items: cartState.items.filter(item => item.id !== lineId)
-    };
-
-    setCartState(optimisticCart);
-
-    try {
-      await apiDeleteLineItem(lineId);
-      await refreshCart();
-    } catch (error) {
-      console.error('Error removing item from cart:', error);
-      await refreshCart();
-    } finally {
-      setIsRemovingItem(false);
-      setIsUpdating(false);
-    }
-  };
-
-  function getItemsSummaryValues(items: StoreCartLineItemOptimisticUpdate[]) {
-    return items.reduce(
-      (acc, item) => ({
-        item_subtotal: (acc.item_subtotal || 0) + (item.subtotal || 0),
-        total: (acc.total || 0) + (item.total || 0),
-        tax_total: (acc.tax_total || 0) + (item.tax_total || 0)
-      }),
-      { item_subtotal: 0, total: 0, tax_total: 0 }
+  if (action.type === 'update') {
+    return withItems(
+      cart,
+      currentItems.map(item => (item.id === action.lineId ? scaleLine(item, action.quantity) : item))
     );
   }
+
+  if (action.type === 'remove') {
+    return withItems(
+      cart,
+      currentItems.filter(item => item.id !== action.lineId)
+    );
+  }
+
+  const { item: newItem, currencyCode } = action;
+  if (!newItem) return cart;
+
+  const offerId = newItem.metadata?.offer_id;
+  const existing = currentItems.find(item => item.metadata?.offer_id === offerId);
+
+  const items = existing
+    ? currentItems.map(item =>
+        item === existing
+          ? scaleLine(item, (item.quantity || 0) + (newItem.quantity || 0))
+          : item
+      )
+    : [...currentItems, { ...newItem, id: `optimistic:${offerId}` }];
+
+  return withItems(cart, items, currencyCode);
+}
+
+export function CartProvider({ cartPromise, children }: CartProviderProps) {
+  const [seed, setSeed] = useState(cartPromise);
+  // undefined = no mutation yet: read the streamed seed, which a revalidated layout replaces.
+  const [confirmedCart, setConfirmedCart] = useState<Cart | null | undefined>(undefined);
+
+  if (seed !== cartPromise) {
+    setSeed(cartPromise);
+    setConfirmedCart(undefined);
+  }
+
+  const [optimisticCart, applyOptimistic] = useOptimistic<
+    Cart | null | undefined,
+    OptimisticCartAction
+  >(confirmedCart, (cart, action) =>
+    cart === undefined ? cart : applyOptimisticAction(cart, action)
+  );
+
+  const [pendingKeys, markPending] = useOptimistic<string[], string>([], (keys, key) => [
+    ...keys,
+    key
+  ]);
+
+  const [isAddingItem, startAdding] = useTransition();
+  const [isUpdatingItem, startUpdating] = useTransition();
+  const [isRemovingItem, startRemoving] = useTransition();
+
+  const transitions = { add: startAdding, remove: startRemoving, update: startUpdating };
+
+  const mutate = (
+    seededCart: Cart | null,
+    optimisticAction: OptimisticCartAction,
+    pendingKey: string,
+    mutation: () => Promise<Cart | null>
+  ) => {
+    if (confirmedCart === undefined) {
+      setConfirmedCart(seededCart);
+    }
+
+    const start = transitions[optimisticAction.type];
+
+    return new Promise<void>((resolve, reject) => {
+      start(async () => {
+        applyOptimistic(optimisticAction);
+        markPending(pendingKey);
+
+        try {
+          const cart = await mutation();
+          start(() => setConfirmedCart(cart));
+          resolve();
+        } catch (error) {
+          const cart = await retrieveCart().catch(() => null);
+          start(() => setConfirmedCart(cart));
+          reject(error);
+        }
+      });
+    });
+  };
+
+  const addToCart: CartContextValue['addToCart'] = (
+    seededCart,
+    { offerId, optimisticItem, quantity, countryCode }
+  ) =>
+    mutate(
+      seededCart,
+      {
+        currencyCode: optimisticItem?.currencyCode || seededCart?.currency_code || '',
+        item: optimisticItem?.item,
+        type: 'add'
+      },
+      getOfferPendingKey(offerId),
+      () => apiAddToCart({ countryCode, offerId, quantity })
+    );
+
+  const updateCartItem: CartContextValue['updateCartItem'] = (seededCart, lineId, quantity) =>
+    mutate(seededCart, { lineId, quantity, type: 'update' }, lineId, () =>
+      apiUpdateLineItem({ lineId, quantity })
+    );
+
+  const removeCartItem: CartContextValue['removeCartItem'] = (seededCart, lineId) =>
+    mutate(seededCart, { lineId, type: 'remove' }, lineId, () => apiDeleteLineItem(lineId));
 
   return (
     <CartContext.Provider
       value={{
-        cart: cartState,
-        onAddToCart: handleAddToCart,
         addToCart,
-        removeCartItem,
-        updateCartItem,
-        refreshCart,
-        isUpdating,
+        cartPromise: seed,
         isAddingItem,
+        isRemovingItem,
         isUpdatingItem,
-        isRemovingItem
+        optimisticCart,
+        pendingKeys,
+        removeCartItem,
+        updateCartItem
       }}
     >
-      {children}
+      <CartDrawerProvider>{children}</CartDrawerProvider>
     </CartContext.Provider>
   );
 }

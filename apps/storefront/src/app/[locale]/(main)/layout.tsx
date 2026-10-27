@@ -15,8 +15,7 @@ export default async function RootLayout({
   const APP_ID = process.env.NEXT_PUBLIC_TALKJS_APP_ID;
   const { locale } = await params;
 
-  const user = await retrieveCustomer();
-  const regionCheck = await checkRegion(locale);
+  const [user, regionCheck] = await Promise.all([retrieveCustomer(), checkRegion(locale)]);
 
   if (!regionCheck) {
     return redirect('/');

@@ -7,7 +7,6 @@ import {
   ProductAdditionalAttributes,
 } from "@/components/cells"
 
-import { retrieveCustomer } from "@/lib/data/customer"
 import {
   getBuyboxWinner,
   rankOffers,
@@ -16,19 +15,19 @@ import {
 import { AdditionalAttributeProps } from "@/types/product"
 import { HttpTypes } from "@medusajs/types"
 
-export const ProductDetails = async ({
+export const ProductDetails = ({
   product,
   locale,
   offers = [],
+  user,
 }: {
   product: HttpTypes.StoreProduct & {
     attribute_values?: AdditionalAttributeProps[]
   }
   locale: string
   offers?: StoreOffer[]
+  user: HttpTypes.StoreCustomer | null
 }) => {
-  const user = await retrieveCustomer()
-
   // Master products have no seller; the seller shown comes from the buybox
   // winning offer.
   const seller = getBuyboxWinner(rankOffers(offers))?.seller

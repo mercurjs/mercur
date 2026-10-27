@@ -1,7 +1,7 @@
 import { ActiveFilterElement } from './ActiveFilterElement/ActiveFilterElement';
 import { BrandFilter } from './BrandFilter/BrandFilter';
 import { CustomCarousel as Carousel } from './Carousel/Carousel';
-import { CartDropdown } from './CartDropdown/CartDropdown';
+import { CartButton } from './CartButton/CartButton';
 import { CartItemsFooter } from './CartItemsFooter/CartItemsFooter';
 import { CartItemsHeader } from './CartItemsHeader/CartItemsHeader';
 import { CartItemsProducts } from './CartItemsProducts/CartItemsProducts';
@@ -54,7 +54,7 @@ export {
   CartItemsFooter,
   CartItemsProducts,
   HeadingCategories,
-  CartDropdown,
+  CartButton,
   LabeledInput,
   OrderAddresses,
   OrderProductListItem,

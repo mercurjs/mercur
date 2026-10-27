@@ -75,9 +75,10 @@ export default async function SellerPage({
   const { handle, locale } = await params
   const { page } = await searchParams
 
-  const seller = (await getSellerByHandle(handle)) as SellerDTO
-
-  const user = await retrieveCustomer()
+  const [seller, user] = (await Promise.all([
+    getSellerByHandle(handle),
+    retrieveCustomer(),
+  ])) as [SellerDTO, Awaited<ReturnType<typeof retrieveCustomer>>]
 
   const tab = "offers"
 
