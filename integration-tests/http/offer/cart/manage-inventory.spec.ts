@@ -5,6 +5,7 @@ import {
     MedusaContainer,
 } from "@medusajs/framework/types"
 import { Modules } from "@medusajs/framework/utils"
+import { addToCartWorkflow } from "@medusajs/medusa/core-flows"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import {
@@ -100,7 +101,62 @@ medusaIntegrationTestRunner({
                     )
                 ).data.offer
 
-                return { headers, sellerId: seller.id, offer, product }
+                return {
+                    headers,
+                    sellerId: seller.id,
+                    offer,
+                    product,
+                    shippingProfile,
+                    stockLocation,
+                }
+            }
+
+            const seedSharedItemOffers = async (name: string) => {
+                const base = await seedSellerOffer({
+                    email: `${name.toLowerCase()}@test.com`,
+                    name,
+                    offerPrice: 100,
+                    inventory_items: [{ stocked: 100, required_quantity: 1 }],
+                })
+                const sharedItemId = base.offer.inventory_items[0].id
+
+                const pack = (
+                    await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: `${name}-PACK-${Date.now()}`,
+                            variant_id: base.product.variants[0].id,
+                            shipping_profile_id: base.shippingProfile.id,
+                            inventory_items: [
+                                {
+                                    title: `${name} pack placeholder`,
+                                    required_quantity: 1,
+                                    stock_levels: [
+                                        {
+                                            location_id: base.stockLocation.id,
+                                            stocked_quantity: 0,
+                                        },
+                                    ],
+                                },
+                            ],
+                            prices: [{ amount: 1200, currency_code: "usd" }],
+                        },
+                        base.headers
+                    )
+                ).data.offer
+
+                await api.post(
+                    `/vendor/offers/${pack.id}/inventory-items/batch`,
+                    {
+                        create: [
+                            { inventory_item_id: sharedItemId, required_quantity: 12 },
+                        ],
+                        delete: [pack.inventory_items[0].id],
+                    },
+                    base.headers
+                )
+
+                return { unit: base.offer, pack }
             }
 
             const createCart = async () => {
@@ -254,6 +310,90 @@ medusaIntegrationTestRunner({
                 const res = await addLine(cart.id, offer.id, 2)
 
                 expect(res.status).toEqual(200)
+            })
+
+            it("rejects an add that pushes the merged line past stock", async () => {
+                const { offer } = await seedSellerOffer({
+                    email: "merged@test.com",
+                    name: "Merged",
+                    offerPrice: 1200,
+                    inventory_items: [{ stocked: 100, required_quantity: 12 }],
+                })
+
+                const cart = await createCart()
+                const first = await addLine(cart.id, offer.id, 2)
+                expect(first.status).toEqual(200)
+
+                const second = await addLine(cart.id, offer.id, 7)
+                expect(second.status).toBeGreaterThanOrEqual(400)
+                expect(second.status).toBeLessThan(500)
+
+                const fits = await addLine(cart.id, offer.id, 6)
+                expect(fits.status).toEqual(200)
+                expect(fits.data.cart.items[0].quantity).toEqual(8)
+            })
+
+            it("counts other offers drawing on the same inventory item when adding", async () => {
+                const { unit, pack } = await seedSharedItemOffers("SharedAdd")
+
+                const cart = await createCart()
+                expect((await addLine(cart.id, unit.id, 90)).status).toEqual(200)
+
+                const res = await addLine(cart.id, pack.id, 1)
+                expect(res.status).toBeGreaterThanOrEqual(400)
+                expect(res.status).toBeLessThan(500)
+            })
+
+            it("sums items sharing an inventory item within a single add", async () => {
+                const { unit, pack } = await seedSharedItemOffers("SharedBatch")
+
+                const cart = await createCart()
+                const { errors } = await addToCartWorkflow(appContainer).run({
+                    input: {
+                        cart_id: cart.id,
+                        items: [
+                            {
+                                variant_id: unit.variant_id,
+                                quantity: 60,
+                                offer_id: unit.id,
+                                metadata: { offer_id: unit.id },
+                            },
+                            {
+                                variant_id: pack.variant_id,
+                                quantity: 4,
+                                offer_id: pack.id,
+                                metadata: { offer_id: pack.id },
+                            },
+                        ],
+                    },
+                    throwOnError: false,
+                })
+
+                expect(errors.length).toBeGreaterThan(0)
+            })
+
+            it("counts other offers drawing on the same inventory item when updating", async () => {
+                const { unit, pack } = await seedSharedItemOffers("SharedUpdate")
+
+                const cart = await createCart()
+                expect((await addLine(cart.id, unit.id, 80)).status).toEqual(200)
+                const added = await addLine(cart.id, pack.id, 1)
+                expect(added.status).toEqual(200)
+
+                const packLine = added.data.cart.items.find(
+                    (i: { metadata?: { offer_id?: string } }) =>
+                        i.metadata?.offer_id === pack.id
+                )
+                const res = await api
+                    .post(
+                        `/store/carts/${cart.id}/line-items/${packLine.id}`,
+                        { quantity: 2 },
+                        storeHeaders
+                    )
+                    .catch((e) => e.response)
+
+                expect(res.status).toBeGreaterThanOrEqual(400)
+                expect(res.status).toBeLessThan(500)
             })
 
             it("persists and returns the offer inventory flags", async () => {
