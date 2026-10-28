@@ -9,6 +9,7 @@
 ## Skills
 
 - **Design → code (Figma)**: when the task is turning a Figma design into dashboard UI code — the user shares a `figma.com` URL, selects a Figma node, or asks to "convert / implement / build this design / screen / mockup" in `packages/admin` or `packages/vendor` — load the `figma-ui` skill at `.claude/skills/figma-ui/SKILL.md` first. It reads the design from the Figma MCP (`get_screenshot` as the source of truth, `get_metadata` for structure) and maps it onto the design-system conventions in its `references/` (`components.md`, `spacing.md`, `patterns.md`) before writing JSX. Gate: `bun run lint` + `bun run build` stay green.
+- **Review (`/mercur-review`)**: before opening a PR, or when asked to review / QA a change or make it "match Medusa", load `.claude/skills/mercur-review/SKILL.md`. It runs independent reviewer agents (Medusa patterns, dashboard patterns, technical QA, security, taste) against `references/`, triages findings into actionable / nit / ambiguous, fixes the actionable ones, verifies them by running checks, and loops up to 3 rounds.
 
 ## Project Overview
 
