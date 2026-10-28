@@ -20,10 +20,10 @@ Mercur ships the route, the subscriber, and the workflow. You point the provider
 
 <Steps>
   <Step title="Point the provider at /hooks/payout">
-    In production, add a Stripe webhook endpoint for events on connected accounts, with the URL `https://your_backend_url/hooks/payout` and the `account.updated`, `transfer.created`, and `transfer.reversed` events. Locally, forward Connect events with the Stripe CLI:
+    In production, add a Stripe webhook endpoint for events on connected accounts, with the URL `https://your_backend_url/hooks/payout` and the `account.updated` event. The Stripe connector plugin also needs the bank `payout.*` events, see [its webhooks](/resources/integrations/stripe-connect/configuration#webhooks). Locally, forward Connect events with the Stripe CLI:
 
     ```bash
-    stripe listen --events account.updated,transfer.created,transfer.reversed \
+    stripe listen --events account.updated,payout.paid,payout.failed,payout.canceled,payout.updated \
       --forward-connect-to localhost:9000/hooks/payout
     ```
 

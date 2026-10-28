@@ -1,4 +1,4 @@
-import { Context, DAL } from "@medusajs/framework/types"
+import { BigNumberInput, Context, DAL } from "@medusajs/framework/types"
 import { SqlEntityManager } from "@medusajs/framework/mikro-orm/postgresql"
 import {
   InjectManager,
@@ -11,6 +11,7 @@ import { PayoutStatus } from "@mercurjs/types"
 import Stripe from "stripe"
 
 import { getSmallestUnit } from "../../lib/amounts"
+import { landedOfOutgoingTransfer, landedOfTransfer } from "../../lib/landed"
 import { getStripeClient } from "../../lib/stripe-client"
 import { isDefinitiveStripeRefusal } from "../../lib/stripe-errors"
 import {
@@ -18,6 +19,7 @@ import {
   AdjustmentType,
   CaptureDTO,
   ConnectorCheckpointDTO,
+  INSUFFICIENT_BALANCE_REASON,
   ConnectorNotificationDTO,
   JobRunDTO,
   JobRunStatus,
@@ -78,7 +80,6 @@ export default class StripeConnectorModuleService extends MedusaService<{
 }) {
   protected static readonly STATUS_REASON_MAX_LENGTH = 1024
   protected static readonly PROCESSABLE_STATUSES = [PayoutStatus.PENDING, PayoutStatus.FAILED, PayoutStatus.ON_HOLD]
-  static readonly INSUFFICIENT_BALANCE_REASON = "insufficient_available_balance"
 
   protected readonly baseRepository_: DAL.RepositoryService
   protected readonly options_: ResolvedStripeConnectorOptions
@@ -190,6 +191,34 @@ export default class StripeConnectorModuleService extends MedusaService<{
     }
     const ids = await this.createSettlementsWithLines_(data, sharedContext)
     return await this.listSettlements({ id: ids }, { take: null }, sharedContext)
+  }
+
+  /**
+   * Captures part of an authorized PaymentIntent. Medusa's Stripe provider
+   * always captures the whole intent, which would charge the customer for
+   * orders canceled before the capture.
+   */
+  async capturePaymentIntent(
+    captureId: string,
+    paymentIntentId: string,
+    amount: BigNumberInput,
+    currencyCode: string
+  ): Promise<void> {
+    const amountToCapture = getSmallestUnit(amount, currencyCode)
+    try {
+      // The amount is in the key: Stripe refuses a key reused with other parameters.
+      await this.stripe_().paymentIntents.capture(
+        paymentIntentId,
+        { amount_to_capture: amountToCapture },
+        { idempotencyKey: `capture-${captureId}-${amountToCapture}` }
+      )
+    } catch (error) {
+      const stripeError = error as Stripe.errors.StripeError
+      if (stripeError.code === "payment_intent_unexpected_state" && stripeError.payment_intent?.status === "succeeded") {
+        return
+      }
+      throw error
+    }
   }
 
   /**
@@ -348,6 +377,7 @@ export default class StripeConnectorModuleService extends MedusaService<{
         status: outcome.status,
         status_reason: outcome.status_reason,
         ...(outcome.provider_id ? { provider_transfer_id: outcome.provider_id } : {}),
+        ...(outcome.data ? { data: { ...(adjustment.data ?? {}), ...outcome.data } } : {}),
       },
       sharedContext
     )
@@ -410,7 +440,11 @@ export default class StripeConnectorModuleService extends MedusaService<{
           { idempotencyKey, stripeAccount: stripeAccountId }
         )
       }
-      return { status: PayoutStatus.PAID, status_reason: null, provider_id: transfer.id }
+      const landed =
+        adjustment.type === AdjustmentType.EXTRA_CREDIT
+          ? await landedOfTransfer(stripe, transfer, stripeAccountId)
+          : await landedOfOutgoingTransfer(stripe, transfer, stripeAccountId)
+      return { status: PayoutStatus.PAID, status_reason: null, provider_id: transfer.id, ...(landed ? { data: landed } : {}) }
     } catch (error) {
       return this.outcomeFromError_(error)
     }
@@ -421,18 +455,18 @@ export default class StripeConnectorModuleService extends MedusaService<{
     stripeAccountId: string,
     attempt: number
   ): Promise<ProviderOutcome | string> {
-    const currency = settlement.currency_code.toLowerCase()
+    const currency = (settlement.payout_currency_code ?? settlement.currency_code).toLowerCase()
 
     try {
       const stripe = this.stripe_()
-      const requested = getSmallestUnit(settlement.amount, settlement.currency_code)
+      const requested = getSmallestUnit(settlement.payout_amount ?? settlement.amount, currency)
       const balance = await stripe.balance.retrieve({}, { stripeAccount: stripeAccountId })
       const available = balance.available.find((entry) => entry.currency === currency)?.amount ?? 0
 
       if (available < requested) {
         return {
           status: PayoutStatus.ON_HOLD,
-          status_reason: StripeConnectorModuleService.INSUFFICIENT_BALANCE_REASON,
+          status_reason: INSUFFICIENT_BALANCE_REASON,
         }
       }
 

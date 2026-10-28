@@ -1,3 +1,4 @@
+import { getStylizedAmount } from "@mercurjs/dashboard-shared"
 import cronstrue from "cronstrue"
 
 export type BadgeColor = "green" | "red" | "orange" | "grey" | "blue" | "purple"
@@ -177,6 +178,18 @@ export const statusProps = (
 })
 
 export const toNumber = (amount: unknown) => Number(amount ?? 0)
+
+/** The bank payout: what landed on the connected balance, else the net amount. */
+export const formatSettlementPayout = (settlement: {
+  amount: unknown
+  currency_code: string
+  payout_amount?: unknown
+  payout_currency_code?: string | null
+}) =>
+  getStylizedAmount(
+    toNumber(settlement.payout_amount ?? settlement.amount),
+    settlement.payout_currency_code ?? settlement.currency_code
+  )
 
 // Stripe's `requirements.disabled_reason` values:
 // https://docs.stripe.com/api/accounts/object#account_object-requirements-disabled_reason

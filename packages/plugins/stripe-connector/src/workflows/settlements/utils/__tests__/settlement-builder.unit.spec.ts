@@ -35,6 +35,43 @@ describe("buildSettlement", () => {
     expect(totals.payout_status).toBe(PayoutStatus.PENDING)
   })
 
+  it("pays out what the lines landed on the connected balance", () => {
+    const landed = (l: ReturnType<typeof line>, landed_amount: number, landed_currency = "pln") => ({ ...l, landed_amount, landed_currency })
+    const totals = buildSettlement(
+      [
+        landed(line("p1", SettlementLineType.PAYOUT, 162), 694.2),
+        landed(line("r1", SettlementLineType.REVERSAL, 54), 231.4),
+        landed(line("a1", SettlementLineType.ADJUSTMENT_DEBIT, 29), 124.3),
+        landed(line("a2", SettlementLineType.ADJUSTMENT_CREDIT, 5), 21.4),
+      ],
+      periodEnd,
+      account
+    )
+    expect(Number(totals.amount)).toBe(84)
+    expect(totals.payout_currency_code).toBe("pln")
+    expect(Number(totals.payout_amount)).toBeCloseTo(359.9, 6)
+  })
+
+  it("pays out in the settlement currency when a line has no landed amount or they differ", () => {
+    const missing = buildSettlement(
+      [{ ...line("p1", SettlementLineType.PAYOUT, 162), landed_amount: 694.2, landed_currency: "pln" }, line("p2", SettlementLineType.PAYOUT, 10)],
+      periodEnd,
+      account
+    )
+    expect(missing.payout_currency_code).toBeNull()
+    expect(missing.payout_amount).toBeNull()
+
+    const mixed = buildSettlement(
+      [
+        { ...line("p1", SettlementLineType.PAYOUT, 162), landed_amount: 694.2, landed_currency: "pln" },
+        { ...line("p2", SettlementLineType.PAYOUT, 10), landed_amount: 10.8, landed_currency: "usd" },
+      ],
+      periodEnd,
+      account
+    )
+    expect(mixed.payout_currency_code).toBeNull()
+  })
+
   it("aborts a non-positive window", () => {
     const totals = buildSettlement(
       [line("p1", SettlementLineType.PAYOUT, 10), line("r1", SettlementLineType.REVERSAL, 10)],

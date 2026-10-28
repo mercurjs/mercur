@@ -21,7 +21,7 @@ The core plugin gives you every piece that talks to the provider or writes payou
 
 No scheduled job or subscriber in core calls `createOrderPayoutsWorkflow` or `createPayoutReversalsWorkflow`. Core has no `jobs` directory.
 
-The Stripe connector plugin owns the schedule. It ships seven jobs, `payout-sync-onboarding`, `payout-validate-captures`, `payout-process-transfers`, `payout-process-reversals`, `payout-process-settlements`, `payout-alert-failed-operations`, and `payout-monitor-kyc`, plus subscribers that run a payout pass on fulfillment, cancellation, payment capture, and refunds. It also owns settlements, operator adjustments, job runs, checkpoints, and the operator notification log, in its own `stripe_connector` module. See [Stripe Connect](/resources/integrations/stripe-connect).
+The Stripe connector plugin owns the schedule. It ships seven jobs, `payout-sync-onboarding`, `payout-validate-captures`, `payout-process-transfers`, `payout-process-reversals`, `payout-process-settlements`, `payout-alert-failed-operations`, and `payout-monitor-kyc`, plus subscribers that run a payout pass on fulfillment, cancellation, payment capture, and refunds. It also owns settlements, operator adjustments, job runs, checkpoints, and the operator notification log, in its own `stripe_connector` module. See [Stripe Connect](/resources/integrations/stripe-connect/overview).
 
 If you build on another provider, schedule the workflows from your own job or subscriber.
 
@@ -110,7 +110,7 @@ Write a provider as a class that implements `IPayoutProvider` and has a static `
 - `{ code: PayoutProviderErrorCode.FINAL }` (or `{ final: true }`) when a retry can’t succeed. The row is `aborted`.
 - Anything else, including a plain `Error` from a timeout, counts as an unknown outcome. The row is `failed` and the retry reuses the idempotency key, so a payout the provider did make isn’t made twice.
 
-When you register no provider, the module loads `system`. It returns `active` accounts and `paid` payouts without moving money, which suits local development and tests. Register Stripe Connect in `medusa-config.ts` with the [Stripe Connect integration](/resources/integrations/stripe-connect).
+When you register no provider, the module loads `system`. It returns `active` accounts and `paid` payouts without moving money, which suits local development and tests. Register Stripe Connect in `medusa-config.ts` with the [Stripe Connect integration](/resources/integrations/stripe-connect/overview).
 
 ## Related
 

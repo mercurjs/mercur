@@ -93,6 +93,11 @@ describe("decideOrderPayout", () => {
     expect(decision.status_detail).toBe("Amount must be positive, input was: 0")
   })
 
+  it("rounds the payout to the currency precision", () => {
+    const decision = decideOrderPayout({ ...base, order: order({ total: 265.5 }), commission_total: 18.375 })
+    expect(Number(decision.amount)).toBe(247.13)
+  })
+
   it("is pending for total minus commission", () => {
     const decision = decideOrderPayout(base)
     expect(decision.status).toBe(PayoutStatus.PENDING)
@@ -124,6 +129,19 @@ describe("decideReversal", () => {
     })
     expect(decision.status).toBe(PayoutStatus.PENDING)
     expect(Number(decision.amount)).toBe(54)
+  })
+
+  it("rounds the reversal to the currency precision", () => {
+    const decision = decideReversal({
+      refund_id: "ref_1",
+      refund_amount: 60.05,
+      refund_canceled: false,
+      order_total: 180,
+      commission_total: 18,
+      currency_code: "eur",
+      payout,
+    })
+    expect(Number(decision.amount)).toBe(54.05)
   })
 
   it("holds until the order payout is paid", () => {

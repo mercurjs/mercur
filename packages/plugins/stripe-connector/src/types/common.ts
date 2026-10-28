@@ -59,9 +59,12 @@ export const PAYOUT_JOB_SCHEDULES: Record<PayoutJobName, string> = {
 
 export const StripeConnectorEvents = {
   SETTLEMENT_CREATED: "stripe_connector.settlement_created",
+  SETTLEMENT_PAYOUT_FAILED: "stripe_connector.settlement_payout_failed",
 } as const
 
 export const PAYOUT_IGNORED_KEY = "payout_ignored"
+
+export const INSUFFICIENT_BALANCE_REASON = "insufficient_available_balance"
 
 export enum CaptureStatus {
   /** Some orders of the group are not decided yet. */
@@ -179,6 +182,9 @@ export interface SettlementDTO {
   reversals_total: BigNumberInput
   adjustments_total: BigNumberInput
   amount: BigNumberInput
+  /** The bank payout in what actually landed on the connected balance; null pays `amount` in `currency_code`. */
+  payout_amount: BigNumberInput | null
+  payout_currency_code: string | null
   status: SettlementStatus
   payout_status: PayoutStatus | null
   provider_payout_id: string | null

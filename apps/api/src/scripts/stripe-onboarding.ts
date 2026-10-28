@@ -3,6 +3,8 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { createOnboardingWorkflow, createPayoutAccountWorkflow } from "@mercurjs/core/workflows"
 import { MercurModules } from "@mercurjs/types"
 
+import { requireStripeTestKey } from "./utils/stripe-test-key"
+
 /**
  * Prints a fresh Stripe onboarding link for a seller (creating the Express
  * account if the seller has none) and then follows the payout account while
@@ -20,6 +22,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 type Requirements = { currently_due?: string[]; past_due?: string[]; pending_verification?: string[] } | null
 
 export default async function stripeOnboarding({ container }: ExecArgs) {
+  requireStripeTestKey()
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const payoutService = container.resolve(MercurModules.PAYOUT)

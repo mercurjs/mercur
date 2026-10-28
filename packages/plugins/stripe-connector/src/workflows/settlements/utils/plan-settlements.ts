@@ -37,6 +37,8 @@ export type PlannedSettlement = {
   reversals_total: number
   adjustments_total: number
   amount: number
+  payout_amount: number | null
+  payout_currency_code: string | null
   status: SettlementStatus
   payout_status: PayoutStatus | null
   status_reason: string | null
@@ -150,6 +152,8 @@ export function planSettlements(sources: SettlementSource[], now: Date, mode: "p
         reversals_total: Number(totals.reversals_total),
         adjustments_total: Number(totals.adjustments_total),
         amount: Number(totals.amount),
+        payout_amount: totals.payout_amount == null ? null : Number(totals.payout_amount),
+        payout_currency_code: totals.payout_currency_code,
         status,
         payout_status: payoutStatus,
         status_reason: totals.payout_reason,

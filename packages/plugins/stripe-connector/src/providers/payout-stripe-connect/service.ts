@@ -23,6 +23,7 @@ import {
 import Stripe from "stripe"
 
 import { getAmountFromSmallestUnit, getSmallestUnit } from "../../lib/amounts"
+import { landedOfReversal, landedOfTransfer } from "../../lib/landed"
 import { getStripeClient } from "../../lib/stripe-client"
 import { toPayoutProviderError } from "../../lib/stripe-errors"
 import { StripeConnectPayoutProviderOptions } from "../../types"
@@ -269,7 +270,9 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
           currency: settled.currency,
           destination: input.account.id,
           source_transaction: sourceTransaction,
-          transfer_group: input.group ?? undefined,
+          // Stripe takes the group from the source charge and refuses a
+          // second one, so it is only set when there is no charge.
+          ...(sourceTransaction ? {} : { transfer_group: input.group ?? undefined }),
           metadata: {
             ...input.metadata,
             requested_amount: String(input.amount),
@@ -278,6 +281,7 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
         },
         { idempotencyKey: input.context?.idempotency_key }
       )
+      const landed = await landedOfTransfer(this.stripe_, transfer, input.account.id)
 
       return {
         id: transfer.id,
@@ -287,6 +291,7 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
           requested_amount: String(input.amount),
           requested_currency: input.currency_code,
           settled_rate: settled.rate,
+          ...landed,
         },
       }
     } catch (error) {
@@ -325,14 +330,17 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
 
   async reversePayout(input: ReversePayoutInput): Promise<PayoutOutput> {
     try {
+      const transfer = await this.stripe_.transfers.retrieve(input.payout.id)
+      const landedOnSeller = (reversal: Stripe.TransferReversal) =>
+        typeof transfer.destination === "string" ? landedOfReversal(this.stripe_, reversal, transfer.destination) : null
+
       // A retry of a reversal that went through would see a smaller remainder
       // and resend different parameters under the same idempotency key.
       const existing = await this.findReversal(input.payout.id, input.metadata?.payout_reversal_id)
       if (existing) {
-        return { id: existing.id, status: PayoutStatus.PAID, data: asRecord(existing) }
+        return { id: existing.id, status: PayoutStatus.PAID, data: { ...asRecord(existing), ...(await landedOnSeller(existing)) } }
       }
 
-      const transfer = await this.stripe_.transfers.retrieve(input.payout.id)
       const remaining = transfer.amount - transfer.amount_reversed
       if (remaining <= 0) {
         throw new PayoutProviderError(`Transfer ${transfer.id} is already fully reversed`, { final: true })
@@ -346,8 +354,7 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
         },
         { idempotencyKey: input.context?.idempotency_key }
       )
-
-      return { id: reversal.id, status: PayoutStatus.PAID, data: asRecord(reversal) }
+      return { id: reversal.id, status: PayoutStatus.PAID, data: { ...asRecord(reversal), ...(await landedOnSeller(reversal)) } }
     } catch (error) {
       throw toPayoutProviderError(error)
     }

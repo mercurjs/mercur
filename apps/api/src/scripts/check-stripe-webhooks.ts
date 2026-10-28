@@ -4,6 +4,8 @@ import { MercurModules, PayoutStatus } from "@mercurjs/types"
 import { getStripeClient } from "@mercurjs/stripe-connector-plugin/lib/stripe-client"
 import { STRIPE_CONNECTOR_MODULE } from "@mercurjs/stripe-connector-plugin/types"
 
+import { requireStripeTestKey } from "./utils/stripe-test-key"
+
 /**
  * Proves the webhooks forwarded by scripts/stripe-listen.sh are verified and
  * processed, not just answered: the hook routes reply 200 before the
@@ -37,9 +39,7 @@ export default async function checkStripeWebhooks({ container }: ExecArgs) {
   const payoutService = container.resolve(MercurModules.PAYOUT)
   const connector = container.resolve(STRIPE_CONNECTOR_MODULE)
 
-  const apiKey = process.env.STRIPE_SECRET_KEY
-  if (!apiKey) throw new Error("STRIPE_SECRET_KEY is not set")
-  const stripe = getStripeClient(apiKey)
+  const stripe = getStripeClient(requireStripeTestKey())
 
   const {
     data: [seller],

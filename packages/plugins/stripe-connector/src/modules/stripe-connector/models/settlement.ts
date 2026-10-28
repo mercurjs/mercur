@@ -16,6 +16,8 @@ export const Settlement = model
     reversals_total: model.bigNumber(),
     adjustments_total: model.bigNumber(),
     amount: model.bigNumber(),
+    payout_amount: model.bigNumber().nullable(),
+    payout_currency_code: model.text().nullable(),
     status: model.enum(SettlementStatus).default(SettlementStatus.OPEN),
     payout_status: model.enum(PayoutStatus).nullable(),
     provider_payout_id: model.text().nullable(),

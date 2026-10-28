@@ -27,8 +27,6 @@ import { SettingsProviders } from "../../../providers/settings-providers"
 
 const PAYOUT_EVENTS = [
   "account.updated",
-  "transfer.created",
-  "transfer.reversed",
   "payout.paid",
   "payout.failed",
   "payout.canceled",

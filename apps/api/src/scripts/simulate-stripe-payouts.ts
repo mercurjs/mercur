@@ -23,6 +23,8 @@ import { AdjustmentType, JobTrigger, STRIPE_CONNECTOR_MODULE } from "@mercurjs/s
 import { runJob } from "@mercurjs/stripe-connector-plugin/utils/run-job"
 import { jobWorkflow } from "@mercurjs/stripe-connector-plugin/workflows/jobs"
 
+import { requireStripeTestKey } from "./utils/stripe-test-key"
+
 /**
  * Walks one Sole Society order through the whole Stripe pipeline against the
  * sandbox: Stripe-authorized checkout, fulfilment, capture, transfer, a
@@ -33,7 +35,7 @@ import { jobWorkflow } from "@mercurjs/stripe-connector-plugin/workflows/jobs"
  * forwarding webhooks (the cart is completed by the payment webhook):
  *   bun --cwd apps/api run stripe:simulate
  */
-const SELLER_NAME = "Sole Society"
+const SELLER_NAME = process.env.SELLER_NAME ?? "Sole Society"
 const SHIPPING_OPTION_NAME = "Standard Shipping"
 const PAYMENT_PROVIDER_ID = "pp_stripe-connector_stripe"
 // Test card whose funds skip the pending balance, so the payout has money to move.
@@ -44,6 +46,7 @@ const RESUME_ORDER_ID = process.env.RESUME_ORDER_ID
 const SKIP_REFUND = process.env.SKIP_REFUND === "1"
 const DIRECT_CHECKOUT = process.env.DIRECT_CHECKOUT === "1"
 const SKIP_ADJUSTMENTS = process.env.SKIP_ADJUSTMENTS === "1"
+const CURRENCY = process.env.CURRENCY?.toLowerCase()
 
 const providerIdOf = (data: unknown) => (data as { provider?: { id?: string } } | null)?.provider?.id
 
@@ -58,11 +61,7 @@ export default async function simulateStripePayouts({ container }: ExecArgs) {
   const fulfillmentModule = container.resolve(Modules.FULFILLMENT)
   const payoutService = container.resolve(MercurModules.PAYOUT)
 
-  const apiKey = process.env.STRIPE_SECRET_KEY
-  if (!apiKey) {
-    throw new Error("STRIPE_SECRET_KEY is not set")
-  }
-  const stripe = getStripeClient(apiKey)
+  const stripe = getStripeClient(requireStripeTestKey())
 
   // 1. seller, account, shipping option
   const {
@@ -94,7 +93,9 @@ export default async function simulateStripePayouts({ container }: ExecArgs) {
 
   // 2. region covering one of those countries, with the Stripe provider enabled
   const regions = await regionModule.listRegions({}, { relations: ["countries", "payment_providers"] })
-  let region = regions.find((r) => r.countries?.some((c) => c.iso_2 && optionCountries.has(c.iso_2.toLowerCase())))
+  let region = regions.find(
+    (r) => (!CURRENCY || r.currency_code === CURRENCY) && r.countries?.some((c) => c.iso_2 && optionCountries.has(c.iso_2.toLowerCase()))
+  )
   if (!region) throw new Error("No region covers the shipping option's countries")
   const country = region.countries!.find((c) => c.iso_2 && optionCountries.has(c.iso_2.toLowerCase()))!.iso_2!.toLowerCase()
 

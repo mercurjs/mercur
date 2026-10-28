@@ -1,3 +1,4 @@
+export * from "./capture-stripe-payment-intent"
 export * from "./create-stripe-captures"
 export * from "./load-capture-sources"
 export * from "./update-stripe-captures"

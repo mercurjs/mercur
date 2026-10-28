@@ -8,6 +8,7 @@ import {
   RETRYABLE_STATUSES,
   SETTLEMENT_STATUS_COLOR,
   SETTLEMENT_STATUS_LABEL,
+  formatSettlementPayout,
   statusProps,
   toNumber,
 } from "../../../../../../lib/status"
@@ -24,7 +25,7 @@ export const SettlementGeneralSection = ({ settlement }: { settlement: Settlemen
   const handleRetry = async () => {
     const confirmed = await prompt({
       title: "Retry bank payout?",
-      description: `Stripe will be asked again to pay ${amount(settlement.amount)} to the store's bank account.`,
+      description: `Stripe will be asked again to pay ${formatSettlementPayout(settlement)} to the store's bank account.`,
       confirmText: "Retry",
       cancelText: "Cancel",
     })

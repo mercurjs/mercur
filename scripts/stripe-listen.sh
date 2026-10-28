@@ -20,6 +20,7 @@ command -v stripe >/dev/null || { echo "Install the Stripe CLI: brew install str
 # Listen on the account the API charges, not whichever one `stripe login` picked.
 API_KEY="$(grep -E '^STRIPE_SECRET_KEY=' "$ENV_FILE" | tail -1 | cut -d= -f2- | tr -d "\"'" || true)"
 [ -n "$API_KEY" ] || { echo "Set STRIPE_SECRET_KEY in apps/api/.env"; exit 1; }
+case "$API_KEY" in sk_test_* | rk_test_*) ;; *) echo "Refusing to listen with a live Stripe key"; exit 1 ;; esac
 export STRIPE_API_KEY="$API_KEY"
 
 # The CLI signs every forwarded event with one secret per account, so both
@@ -42,6 +43,8 @@ if [ "$changed" = 1 ]; then
   echo "Updated the webhook secrets in apps/api/.env (previous file in .env.bak) -- restart the API so it verifies with them."
 fi
 
+# The logs carry the webhook signing secret.
+umask 077
 mkdir -p "$LOG_DIR"
 trap 'kill 0' EXIT INT TERM
 

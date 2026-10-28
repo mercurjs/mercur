@@ -8,6 +8,8 @@ const settlementFields = [
   "reversals_total",
   "adjustments_total",
   "amount",
+  "payout_amount",
+  "payout_currency_code",
   "status",
   "payout_status",
   "provider_payout_id",

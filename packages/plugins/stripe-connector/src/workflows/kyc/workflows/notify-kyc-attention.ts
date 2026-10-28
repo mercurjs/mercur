@@ -1,7 +1,7 @@
 import { WorkflowResponse, createWorkflow, transform, when } from "@medusajs/framework/workflows-sdk"
-import { sendNotificationsStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
+import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
 
-import { resolveAlertingStep } from "../../common/steps"
+import { resolveAlertingStep, sendOperatorEmailsStep } from "../../common/steps"
 import { KycAttention, kycAttentionNotifications, needsKycAttention } from "../utils/kyc-attention"
 
 export type NotifyKycAttentionWorkflowInput = {
@@ -39,14 +39,12 @@ export const notifyKycAttentionWorkflow = createWorkflow(
       kycAttentionNotifications(attention, alerting)
     )
 
-    when("kyc-attention-to-mail", { notifications }, ({ notifications }) => notifications.length > 0).then(() => {
-      sendNotificationsStep(notifications)
-    })
+    const sent = sendOperatorEmailsStep(notifications)
 
     return new WorkflowResponse(
-      transform({ attention, notifications }, ({ attention, notifications }) => ({
+      transform({ attention, sent }, ({ attention, sent }) => ({
         attention: attention.length,
-        sent: notifications.length,
+        sent,
       }))
     )
   }

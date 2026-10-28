@@ -1,8 +1,10 @@
 import { WorkflowResponse, createWorkflow, transform } from "@medusajs/framework/workflows-sdk"
-import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+import { emitEventStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
 
+import { StripeConnectorEvents } from "../../../types/common"
 import { createSettlementPayoutStep, validateSettlementPayoutRetryStep } from "../steps"
 import { ValidateSettlementPayoutRetryStepInput } from "../steps/validate-settlement-payout-retry"
+import { isSettlementPayoutUnpaid } from "../utils/settlement-payout"
 
 export type RetrySettlementPayoutWorkflowInput = {
   id: string
@@ -40,6 +42,13 @@ export const retrySettlementPayoutWorkflow = createWorkflow(
         stripe_account_id: validated.settlement.payout_account?.external_id as string,
       }))
     )
+
+    emitEventStep({
+      eventName: StripeConnectorEvents.SETTLEMENT_PAYOUT_FAILED,
+      data: transform({ updated }, ({ updated }) =>
+        isSettlementPayoutUnpaid(updated) ? [{ id: updated.id }] : []
+      ),
+    })
 
     return new WorkflowResponse(updated)
   }

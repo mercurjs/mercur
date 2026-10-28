@@ -1,6 +1,7 @@
-import { WorkflowResponse, createWorkflow, when } from "@medusajs/framework/workflows-sdk"
+import { WorkflowResponse, createWorkflow, transform, when } from "@medusajs/framework/workflows-sdk"
 
-import { mailNotificationEndpointDownStep, postOperatorNotificationStep } from "../steps"
+import { sendOperatorEmailsStep, setCheckpointsStep } from "../../common/steps"
+import { ENDPOINT_DOWN_CHECKPOINT, postOperatorNotificationStep, resolveEndpointDownMailStep } from "../steps"
 
 export type NotifyOperatorWorkflowInput = {
   type: string
@@ -15,8 +16,18 @@ export const notifyOperatorWorkflow = createWorkflow(
   function (input: NotifyOperatorWorkflowInput) {
     const posted = postOperatorNotificationStep(input)
 
-    when("operator-endpoint-down", { posted }, ({ posted }) => !!posted.notification && !posted.delivered).then(() => {
-      mailNotificationEndpointDownStep({ error: posted.error })
+    const mail = resolveEndpointDownMailStep(
+      transform({ posted }, ({ posted }) => ({
+        down: !!posted.notification && !posted.delivered,
+        error: posted.error,
+      }))
+    )
+    const sent = sendOperatorEmailsStep(mail)
+
+    when("endpoint-down-mailed", { sent }, ({ sent }) => sent > 0).then(() => {
+      setCheckpointsStep(
+        transform({ sent }, () => [{ key: ENDPOINT_DOWN_CHECKPOINT, value: new Date().toISOString() }])
+      )
     })
 
     return new WorkflowResponse(posted.notification)

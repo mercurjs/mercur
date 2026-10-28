@@ -9,6 +9,8 @@ export type SettlementSourceLine = {
   type: SettlementLineType
   amount: BigNumberInput
   paid_at: Date | string
+  landed_amount?: number | null
+  landed_currency?: string | null
 }
 
 export type SettlementTotals = {
@@ -16,10 +18,38 @@ export type SettlementTotals = {
   reversals_total: BigNumberInput
   adjustments_total: BigNumberInput
   amount: BigNumberInput
+  payout_amount: BigNumberInput | null
+  payout_currency_code: string | null
   lines: SettlementSourceLine[]
   status: SettlementStatus
   payout_status: PayoutStatus | null
   payout_reason: string | null
+}
+
+const SIGN: Record<SettlementLineType, 1 | -1> = {
+  [SettlementLineType.PAYOUT]: 1,
+  [SettlementLineType.REVERSAL]: -1,
+  [SettlementLineType.ADJUSTMENT_CREDIT]: 1,
+  [SettlementLineType.ADJUSTMENT_DEBIT]: -1,
+}
+
+/**
+ * The bank payout, in what the lines actually added to the connected balance.
+ * Stripe converts transfers into a currency the account holds, so it can
+ * differ from the settlement currency. Without a landed amount on every line,
+ * or with more than one landed currency, it stays in the settlement currency.
+ */
+function landedPayout(lines: SettlementSourceLine[]): { payout_amount: BigNumberInput | null; payout_currency_code: string | null } {
+  const currencies = new Set(lines.map((line) => (line.landed_amount == null ? null : line.landed_currency ?? null)))
+  const [currency] = currencies
+  if (!lines.length || currencies.size !== 1 || !currency) {
+    return { payout_amount: null, payout_currency_code: null }
+  }
+  const sum = lines.reduce<BigNumberInput>(
+    (acc, line) => MathBN.add(acc, MathBN.mult(line.landed_amount as number, SIGN[line.type])),
+    0
+  )
+  return MathBN.gt(sum, 0) ? { payout_amount: sum, payout_currency_code: currency } : { payout_amount: null, payout_currency_code: null }
 }
 
 /**
@@ -64,6 +94,7 @@ export function buildSettlement(
     reversals_total: reversals,
     adjustments_total: adjustments,
     amount,
+    ...landedPayout(included),
     lines: included,
   }
 

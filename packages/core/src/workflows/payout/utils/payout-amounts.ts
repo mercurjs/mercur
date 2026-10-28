@@ -8,6 +8,7 @@ import {
   PayoutStatusReasonCode,
 } from "@mercurjs/types"
 
+import { getCurrencyDecimalDigits } from "../../payment/utils/split-order-payment"
 import {
   FulfillableOrder,
   ORDER_FULFILLMENT_FIELDS,
@@ -90,6 +91,7 @@ export const PAYOUT_ORDER_FIELDS = [
 export const REVERSAL_ORDER_FIELDS = [
   "id",
   "total",
+  "currency_code",
   "credit_lines.amount",
   "items.id",
   "shipping_methods.id",
@@ -120,10 +122,12 @@ const abort = (reason: PayoutStatusReasonCode, detail: string | null = null): Pa
   amount: 0,
 })
 
-const ready = (amount: BigNumberInput): PayoutDecision =>
-  MathBN.lte(amount, 0)
+const ready = (amount: BigNumberInput, currencyCode?: string | null): PayoutDecision => {
+  const rounded = MathBN.convert(amount, getCurrencyDecimalDigits(currencyCode))
+  return MathBN.lte(rounded, 0)
     ? abort(PayoutStatusReason.INVALID_AMOUNT, `Amount must be positive, input was: ${MathBN.convert(amount).toString()}`)
-    : { status: PayoutStatus.PENDING, status_reason: null, status_detail: null, amount }
+    : { status: PayoutStatus.PENDING, status_reason: null, status_detail: null, amount: rounded }
+}
 
 const countBy = (statuses: string[]) =>
   statuses.reduce<Record<string, number>>((counts, status) => {
@@ -194,7 +198,14 @@ export function commissionLineFilters(orders: Pick<PayoutOrder, "items" | "shipp
  * Order of checks: canceled, account, fulfilled, paid, amount.
  */
 export function decideOrderPayout(input: {
-  order: { seller_id: string; status: string; canceled_at?: Date | string | null; fulfillment_status: string | null; total: BigNumberInput }
+  order: {
+    seller_id: string
+    status: string
+    canceled_at?: Date | string | null
+    fulfillment_status: string | null
+    total: BigNumberInput
+    currency_code?: string | null
+  }
   account: { id: string; payouts_enabled: boolean } | null
   payment: PaymentState
   commission_total: BigNumberInput
@@ -230,7 +241,7 @@ export function decideOrderPayout(input: {
     return hold(PayoutStatusReason.PAYMENT_NOT_READY, `Payment ${payment.id} is not ready yet, status is authorized`)
   }
 
-  return ready(MathBN.sub(order.total, input.commission_total))
+  return ready(MathBN.sub(order.total, input.commission_total), order.currency_code)
 }
 
 /**
@@ -243,6 +254,7 @@ export function decideReversal(input: {
   refund_canceled: boolean
   order_total: BigNumberInput
   commission_total: BigNumberInput
+  currency_code?: string | null
   payout: { id: string; status: PayoutStatus; provider_payout_id: string | null } | null
 }): PayoutDecision {
   const payout = input.payout
@@ -261,7 +273,7 @@ export function decideReversal(input: {
     ? MathBN.div(MathBN.mult(input.commission_total, input.refund_amount), input.order_total)
     : 0
 
-  return ready(MathBN.sub(input.refund_amount, share))
+  return ready(MathBN.sub(input.refund_amount, share), input.currency_code)
 }
 
 export type OrderPayoutsPlan = {
@@ -323,6 +335,7 @@ export function planOrderPayouts(input: {
         canceled_at: order.canceled_at,
         fulfillment_status: deriveFulfillmentStatus(order),
         total: net,
+        currency_code: order.currency_code,
       },
       account,
       payment,
@@ -437,6 +450,7 @@ export function planPayoutReversals(input: {
         refund_canceled: false,
         order_total: grossTotalOf(order),
         commission_total: commissions.get(order.id) ?? 0,
+        currency_code: order.currency_code,
         payout: {
           id: payout.id,
           status: payout.status,

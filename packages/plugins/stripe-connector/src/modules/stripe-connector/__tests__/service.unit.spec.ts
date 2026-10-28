@@ -1,6 +1,13 @@
 import { PayoutStatus } from "@mercurjs/types"
 
-import { AdjustmentDTO, AdjustmentType, SettlementDTO, SettlementStatus, resolveStripeConnectorOptions } from "../../../types/common"
+import {
+  AdjustmentDTO,
+  AdjustmentType,
+  INSUFFICIENT_BALANCE_REASON,
+  SettlementDTO,
+  SettlementStatus,
+  resolveStripeConnectorOptions,
+} from "../../../types/common"
 import StripeConnectorModuleService from "../service"
 
 type Call = { method: string; args: unknown[] }
@@ -87,7 +94,7 @@ describe("StripeConnectorModuleService", () => {
       expect(calls.some((call) => call.method === "payouts.create")).toBe(false)
       expect(outcome).toEqual({
         status: PayoutStatus.ON_HOLD,
-        status_reason: StripeConnectorModuleService.INSUFFICIENT_BALANCE_REASON,
+        status_reason: INSUFFICIENT_BALANCE_REASON,
       })
     })
 

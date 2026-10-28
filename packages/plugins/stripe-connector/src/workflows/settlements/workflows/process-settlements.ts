@@ -84,13 +84,20 @@ export const processSettlementsWorkflow = createWorkflow(
       ),
     })
 
+    emitEventStep({
+      eventName: StripeConnectorEvents.SETTLEMENT_PAYOUT_FAILED,
+      data: transform({ payoutsRetried, processed }, ({ payoutsRetried, processed }) =>
+        [...payoutsRetried.failed_ids, ...processed.failed_ids].map((id) => ({ id }))
+      ),
+    }).config({ name: "emit-settlement-payout-failed" })
+
     const stats = transform(
       { plan, adjustmentsProcessed, payoutsRetried, processed },
       ({ plan, adjustmentsProcessed, payoutsRetried, processed }): JobStats => ({
         ...plan.counts,
         adjustments_processed: adjustmentsProcessed,
-        payouts_retried: payoutsRetried,
-        payouts: processed,
+        payouts_retried: payoutsRetried.sent,
+        payouts: processed.sent,
       })
     )
 

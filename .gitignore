@@ -45,7 +45,8 @@ packages/modules/*
 # Local spec tracker (not versioned)
 docs/specs/
 
-# stripe-listen.sh logs
+# scripts/stripe-listen.sh logs and .env backup
 .stripe/
+.env.bak
 
 .playwright-mcp/

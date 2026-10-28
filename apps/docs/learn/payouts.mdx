@@ -56,7 +56,7 @@ Otherwise the payout is `on_hold` with a reason, and the next run re-decides it;
 
 `@mercurjs/core` ships the workflows, not a schedule. Something has to call `createOrderPayoutsWorkflow` and `createPayoutReversalsWorkflow`:
 
-- **With the Stripe connector plugin**, its jobs do it: they capture the cart payment once every seller order is decided, pay out fulfilled and captured orders every five minutes, reverse refunds, net a nightly settlement per seller, and send it to the seller's bank. Subscribers on fulfillment, cancellation, capture, and refunds run the passes right away. See [Stripe Connect](/resources/integrations/stripe-connect).
+- **With the Stripe connector plugin**, its jobs do it: they capture the cart payment once every seller order is decided, pay out fulfilled and captured orders every five minutes, reverse refunds, net a nightly settlement per seller, and send it to the seller's bank. Subscribers on fulfillment, cancellation, capture, and refunds run the passes right away. See [Stripe Connect](/resources/integrations/stripe-connect/overview).
 - **With another provider**, call the workflows from your own job or subscriber. They're safe to run repeatedly: an order already paid is never paid again.
 
 ### Webhook handling

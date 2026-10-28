@@ -1,0 +1,203 @@
+---
+title: "Stripe Connect reference"
+sidebarTitle: "Reference"
+description: "Scheduled jobs, subscribers, webhook events, admin and vendor routes, events, statuses and reasons, notification signatures and the tables the Stripe connector plugin adds."
+---
+
+## Scheduled jobs
+
+All times are UTC. Every job writes a [job run](/resources/integrations/stripe-connect/architecture#job-runs-and-checkpoints), and only one run of a job is active at a time.
+
+| Job | Admin label | Schedule | Cron | Does | Turned off by |
+| --- | --- | --- | --- | --- | --- |
+| `payout-sync-onboarding` | Onboarding | Every minute | `* * * * *` | Creates an Express account and an onboarding link for sellers created or updated since the checkpoint | `onboarding.enabled: false` |
+| `payout-validate-captures` | Captures | Every 5 minutes | `0-59/5 * * * *` | Captures or cancels every order group whose orders are decided, or whose authorization is about to expire | |
+| `payout-process-transfers` | Payouts | Every 5 minutes, at minute 1 | `1-59/5 * * * *` | Re-decides failed and held payouts, then pays newly fulfilled and captured orders | `transfers.enabled: false` |
+| `payout-process-reversals` | Reversals | Every 5 minutes, at minute 2 | `2-59/5 * * * *` | Reverses the seller's share of every refund made after its payout | `reversals.enabled: false` |
+| `payout-process-settlements` | Settlements | Daily at 01:03 | `3 1 * * *` | Sends pending adjustments, retries failed bank payouts, builds settlements and pays them out | `settlements.enabled: false` |
+| `payout-alert-failed-operations` | Alerts | Daily at 08:04 | `4 8 * * *` | Emails the technical contact everything still failed | No `alerting.technicalEmail` |
+| `payout-monitor-kyc` | KYC | Every 6 hours | `0 */6 * * *` | Re-reads every account from Stripe and emails accounts that need KYC attention | Off unless `kycMonitor.enabled: true` |
+
+The jobs are staggered by a minute so captures land before the payout run that pays them.
+
+## Subscribers
+
+| Event | Runs |
+| --- | --- |
+| `order_group.created` | Opens the order group's capture |
+| `order.fulfillment_created`, `order.canceled` | Refreshes the capture, then the order's payout pass, recorded as a `payout-process-transfers` run |
+| `payment.captured` | The payout pass for the captured orders |
+| `refundPaymentWorkflow` hook `paymentRefunded` | The reversal pass for the order, recorded as a `payout-process-reversals` run |
+| `payout_account.updated` | Queues the seller's orders that were waiting for an active account |
+| `payout.webhook_received` | Applies Stripe bank `payout.*` events to settlements |
+| `payout.failed`, `payout.reversal_failed`, `stripe_connector.settlement_payout_failed` | Posts the failure to `notifications.url`, once per failure, when it is set |
+
+## Webhook events
+
+### Platform account
+
+`POST /hooks/payment/pp_stripe-connector_stripe`, verified with the payment provider's `webhookSecret`. Handled by Medusa's payment module.
+
+| Event | Effect |
+| --- | --- |
+| `payment_intent.amount_capturable_updated` | The payment is authorized |
+| `payment_intent.succeeded` | The payment is captured |
+| `payment_intent.payment_failed` | The payment failed |
+| `payment_intent.canceled` | The authorization was canceled |
+| `charge.refunded` | A refund completed |
+
+### Connected accounts
+
+`POST /hooks/payout`, verified with the payout provider's `webhookSecret`. Core's payout webhook subscriber and the plugin's subscriber both read it.
+
+| Event | Effect |
+| --- | --- |
+| `account.updated` | Syncs the payout account. Mercur records it as `account.activated`, `account.restricted`, `account.rejected` or `account.updated` |
+| `payout.paid` | The settlement's bank payout is paid. The settlement becomes `paid_out` |
+| `payout.failed`, `payout.canceled` | The bank payout failed. The settlement becomes `failed` and is retried on the next run |
+| `payout.updated` | Updates the bank payout's status |
+
+Every verified event also updates **Last webhook** on **Settings → Stripe**.
+
+## Admin routes
+
+All routes need an authenticated admin user. `GET` routes need `payouts:view`, the others `payouts:edit`.
+
+| Method | Path | Does |
+| --- | --- | --- |
+| `GET` | `/admin/stripe/status` | Whether the plugin is configured, its options without secrets, the jobs, failing counts and the last webhook time |
+| `GET` | `/admin/stripe/jobs` | Every job with its schedule, checkpoint, last run, next run and failing items |
+| `GET` | `/admin/stripe/jobs/:job/runs` | A job's run history |
+| `POST` | `/admin/stripe/jobs/:job/run` | Runs a job now |
+| `GET` | `/admin/stripe/captures` | Lists captures. Filter by `status` and `expires_at` |
+| `GET` | `/admin/stripe/captures/:order_group_id` | One order group's capture |
+| `POST` | `/admin/stripe/captures/:order_group_id/capture` | Captures it now |
+| `POST` | `/admin/stripe/captures/:order_group_id/cancel` | Cancels the authorization |
+| `GET` | `/admin/stripe/settlements` | Lists settlements. Filter by `status`, `payout_status` and `period_end` |
+| `GET` | `/admin/stripe/settlements/:id` | One settlement with its lines |
+| `POST` | `/admin/stripe/settlements/:id/retry` | Retries the settlement's bank payout |
+| `GET` | `/admin/stripe/adjustments` | Lists adjustments. Filter by `type` and `status` |
+| `POST` | `/admin/stripe/adjustments` | Creates an adjustment: `seller_id`, `type`, `amount`, `currency_code`, optional `reason` |
+| `POST` | `/admin/stripe/accounts/:id/ignore` | Ignores a store's payouts, or stops ignoring them: `{ "ignored": true }` |
+| `GET` | `/admin/stripe/notifications` | The notification delivery log |
+| `POST` | `/admin/stripe/notifications/test` | Sends a test notification |
+
+Payout accounts, payouts and their retries use core's routes under `/admin/payout-accounts` and `/admin/payouts`. See the [Payout module](/platform/payout/overview).
+
+## Vendor routes
+
+Scoped to the authenticated seller, with `payouts:view`.
+
+| Method | Path | Does |
+| --- | --- | --- |
+| `GET` | `/vendor/stripe/settlements` | The seller's settlements |
+| `GET` | `/vendor/stripe/settlements/:id` | One of the seller's settlements with its lines |
+
+The seller's payout account and onboarding use core's `/vendor/payout-accounts` routes.
+
+## Events
+
+| Event | Emitted by | Data |
+| --- | --- | --- |
+| `stripe_connector.settlement_created` | The settlement job, once per settlement | `{ id, account_id, seller_id, currency_code, amount }` |
+| `stripe_connector.settlement_payout_failed` | The settlement job, a bank payout retry, or a `payout.failed` / `payout.canceled` webhook, once per failed bank payout | `{ id }` |
+
+Core's payout module emits `payout_account.updated`, `payout.failed`, `payout.reversal_failed` and `payout.webhook_received`.
+
+## Payout statuses
+
+Payouts, reversals, adjustments and settlement bank payouts share core's status machine.
+
+| Status | Meaning |
+| --- | --- |
+| `pending` | Decided, not sent yet |
+| `on_hold` | Waiting for the order, the payment or the account. Decided again on every run |
+| `processing` | Sent to Stripe. Final once Stripe answers |
+| `paid` | Stripe accepted it |
+| `failed` | Stripe refused it. Retried on every run |
+| `aborted` | Nothing to pay, for good |
+
+### Reasons
+
+Each held, failed or aborted record carries a stable `status_reason`:
+
+| Reason | Shown as |
+| --- | --- |
+| `account_not_ready` | The store's payout account cannot receive payouts yet |
+| `account_payouts_disabled` | Payouts are disabled on the store's payout account |
+| `order_not_ready` | The order is not fulfilled yet |
+| `order_aborted` | The order was canceled |
+| `payment_not_ready` | The order's payment is not captured yet |
+| `payment_failed` | The order's payment failed |
+| `payment_canceled` | The order's payment was canceled |
+| `payment_refunded` | The order's payment was refunded in full |
+| `payout_not_ready` | The payout for this order has not been sent yet |
+| `refund_aborted` | The refund was canceled |
+| `refund_absorbed` | The refund was deducted before the payout was sent |
+| `invalid_amount` | The amount to pay out is not valid |
+| `provider_error` | Stripe returned an error. Stripe's message is kept on the record |
+| `insufficient_available_balance` | Settlements only: the connected account's available balance doesn't cover the bank payout yet |
+
+## Notification types
+
+| Type | Payload |
+| --- | --- |
+| `payout.failed` | `id`, `display_id`, `order_id`, `account_id`, `seller_id`, `amount`, `currency_code`, `status_reason`, `status_detail` |
+| `payout_reversal.failed` | `id`, `payout_id`, `refund_id`, `order_id`, `account_id`, `seller_id`, `amount`, `currency_code`, `status_reason`, `status_detail` |
+| `settlement.payout_failed` | `id`, `display_id`, `account_id`, `seller_id`, `amount`, `currency_code`, `period_start`, `period_end`, `provider_payout_id`, `status_reason` |
+| `test` | `sent_at`, `actor_id` |
+
+Every request body is `{ "type": "...", "payload": { ... } }`.
+
+## Notification signatures
+
+With `notifications.secret` set, every notification carries:
+
+```
+x-mercur-signature: sha256=<hex>
+```
+
+where `<hex>` is the HMAC-SHA256 of the raw request body with your secret, hex-encoded. Verify it against the raw body, before parsing:
+
+```ts
+import { createHmac, timingSafeEqual } from "crypto"
+
+export function isMercurSignatureValid(rawBody: string, header: string | undefined, secret: string) {
+  const expected = `sha256=${createHmac("sha256", secret).update(rawBody).digest("hex")}`
+  return !!header && header.length === expected.length && timingSafeEqual(Buffer.from(header), Buffer.from(expected))
+}
+```
+
+## Tables
+
+The plugin's `stripe_connector` module adds:
+
+| Table | Holds |
+| --- | --- |
+| `stripe_capture` | One row per order group: authorized and capturable amounts, orders decided, expiry and status |
+| `stripe_settlement` | One row per seller, currency and period: the totals, the net amount, the status and the Stripe bank payout |
+| `stripe_settlement_line` | Each payout, reversal or adjustment a settlement nets |
+| `stripe_adjustment` | Operator adjustments with their Stripe transfer |
+| `connector_job_run` | Every job run with its trigger, status and counts |
+| `connector_checkpoint` | Each job's checkpoint and the last webhook time |
+| `connector_notification` | Every notification delivery with its attempts and response |
+
+### Links
+
+| From | To |
+| --- | --- |
+| `stripe_capture.order_group_id` | Order group |
+| `stripe_settlement.account_id` | Payout account |
+| `stripe_settlement_line.payout_id` | Payout |
+| `stripe_settlement_line.payout_reversal_id` | Payout reversal |
+| `stripe_adjustment.account_id` | Payout account |
+
+The links are read-only, so traverse them from the plugin's side. For example, a seller's settlements with their store and the orders behind each payout:
+
+```ts
+const { data: settlements } = await query.graph({
+  entity: "settlement",
+  fields: ["*", "payout_account.seller.name", "lines.*", "lines.payout.order.display_id"],
+  filters: { account_id: payoutAccountId },
+})
+```

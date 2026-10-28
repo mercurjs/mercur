@@ -31,6 +31,7 @@ const makeStripe = (calls: Call[]) => {
       },
     },
     payouts: { create: record("payouts.create", { id: "po_1", status: "pending" }) },
+    refunds: { retrieve: record("refunds.retrieve", { id: "pyr_1", balance_transaction: { currency: "pln", net: -6900 } }) },
     charges: { retrieve: record("charges.retrieve", { id: "ch_1", amount: 25800, currency: "eur", balance_transaction: { currency: "eur", amount: 25800 } }) },
     balance: { retrieve: record("balance.retrieve", { available: [{ currency: "eur", amount: 100000 }] }) },
     paymentIntents: { retrieve: record("paymentIntents.retrieve", { id: "pi_1", status: "succeeded", latest_charge: "ch_from_pi" }) },
@@ -97,7 +98,8 @@ describe("StripeConnectPayoutProviderService", () => {
     expect(payout.status).toBe(PayoutStatus.PAID)
     expect(calls[0].method).toBe("charges.retrieve")
     expect(calls[1].method).toBe("transfers.create")
-    expect(calls[1].args[0]).toMatchObject({ amount: 16200, currency: "eur", destination: "acct_seller", source_transaction: "ch_1", transfer_group: "order_1" })
+    expect(calls[1].args[0]).toMatchObject({ amount: 16200, currency: "eur", destination: "acct_seller", source_transaction: "ch_1" })
+    expect(calls[1].args[0]).not.toHaveProperty("transfer_group")
 
     calls.length = 0
     await service.createPayout({
@@ -108,6 +110,36 @@ describe("StripeConnectPayoutProviderService", () => {
     })
     expect(calls[0].method).toBe("paymentIntents.retrieve")
     expect(calls[2].args[0]).toMatchObject({ source_transaction: "ch_from_pi" })
+  })
+
+  it("records what the transfer and its reversal moved on the connected balance", async () => {
+    const { service, calls } = build()
+    const stripe = (service as unknown as { stripe_: ReturnType<typeof makeStripe> }).stripe_
+    stripe.transfers.create = (...args: unknown[]) => {
+      calls.push({ method: "transfers.create", args })
+      return Promise.resolve({ id: "tr_1", destination_payment: "py_1" })
+    }
+    stripe.charges.retrieve = (...args: unknown[]) => {
+      calls.push({ method: "charges.retrieve", args })
+      return Promise.resolve(
+        args[0] === "py_1"
+          ? { id: "py_1", balance_transaction: { currency: "pln", net: 69400 } }
+          : { id: "ch_1", amount: 16200, currency: "eur", balance_transaction: { currency: "eur", amount: 16200 } }
+      )
+    }
+    const payout = await service.createPayout({
+      account,
+      amount: 162,
+      currency_code: "eur",
+      source_payment: { id: "pay_1", data: { id: "pi_1", latest_charge: "ch_1" } },
+    })
+    expect(payout.data).toMatchObject({ landed_amount: 694, landed_currency: "pln" })
+    expect(calls.find((c) => c.args[0] === "py_1")?.args[2]).toEqual({ stripeAccount: "acct_seller" })
+
+    stripe.transfers.retrieve = () => Promise.resolve({ id: "tr_1", amount: 16200, amount_reversed: 0, destination: "acct_seller" })
+    stripe.transfers.createReversal = () => Promise.resolve({ id: "trr_1", destination_payment_refund: "pyr_1" })
+    const reversal = await service.reversePayout({ payout: { id: "tr_1", data: {} }, amount: 16.2, currency_code: "eur" })
+    expect(reversal.data).toMatchObject({ landed_amount: 69, landed_currency: "pln" })
   })
 
   it("converts a cross-currency payout at the captured amount's rate", async () => {

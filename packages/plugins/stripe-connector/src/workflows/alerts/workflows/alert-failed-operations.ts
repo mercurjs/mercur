@@ -1,10 +1,10 @@
-import { WorkflowResponse, createWorkflow, transform, when } from "@medusajs/framework/workflows-sdk"
-import { sendNotificationsStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
+import { WorkflowResponse, createWorkflow, transform } from "@medusajs/framework/workflows-sdk"
+import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
 import { PayoutStatus } from "@mercurjs/types"
 
 import { CaptureStatus } from "../../../types/common"
 import { JobStats } from "../../../utils/run-job"
-import { resolveAlertingStep } from "../../common/steps"
+import { resolveAlertingStep, sendOperatorEmailsStep } from "../../common/steps"
 import { FailedOperations, countFailedOperations, failedOperationsNotifications } from "../utils/failed-operations"
 
 export const alertFailedOperationsWorkflowId = "alert-stripe-failed-operations"
@@ -60,18 +60,16 @@ export const alertFailedOperationsWorkflow = createWorkflow(alertFailedOperation
     failedOperationsNotifications(failed, alerting)
   )
 
-  when("failed-operations-to-mail", { notifications }, ({ notifications }) => notifications.length > 0).then(() => {
-    sendNotificationsStep(notifications)
-  })
+  const sent = sendOperatorEmailsStep(notifications)
 
-  const stats = transform({ failed, notifications }, ({ failed, notifications }): JobStats => ({
+  const stats = transform({ failed, sent }, ({ failed, sent }): JobStats => ({
     captures: failed.captures.length,
     payouts: failed.payouts.length,
     reversals: failed.reversals.length,
     settlements: failed.settlements.length,
     adjustments: failed.adjustments.length,
     total: countFailedOperations(failed),
-    sent: notifications.length,
+    sent,
   }))
 
   return new WorkflowResponse(stats)

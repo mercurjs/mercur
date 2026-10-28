@@ -135,11 +135,11 @@ Register the Stripe connector plugin's payout provider on the payout module. A m
 | `accountValidation.noOutstandingRequirements` | `boolean` | `true` | Treat pending Stripe requirements as `restricted` |
 | `accountValidation.requiredCapabilities` | `string[]` | `[]` | Stripe capabilities that must be `active` |
 
-The payout module itself accepts only `onboarding` options (`returnUrl`, `refreshBaseUrl`, `prefill`, `defaultCountry`). Scheduling options (`capture`, `transfers`, `reversals`, `settlements`, `notifications`, `alerting`, `kycMonitor`) belong to the Stripe connector plugin's entry under `plugins`. See the [Stripe Connect integration](/resources/integrations/stripe-connect).
+The payout module itself accepts only `onboarding` options (`returnUrl`, `refreshBaseUrl`, `prefill`, `defaultCountry`). Scheduling options (`capture`, `transfers`, `reversals`, `settlements`, `notifications`, `alerting`, `kycMonitor`) belong to the Stripe connector plugin's entry under `plugins`. See the [Stripe Connect integration](/resources/integrations/stripe-connect/configuration).
 
 ## Next steps
 
 <CardGroup cols={2}>
   <Card title="Installation" href="/learn/introduction" />
-  <Card title="Stripe Connect integration" href="/rc/resources/integrations/stripe-connect" />
+  <Card title="Stripe Connect integration" href="/rc/resources/integrations/stripe-connect/configuration" />
 </CardGroup>

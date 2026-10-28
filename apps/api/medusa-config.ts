@@ -32,6 +32,10 @@ module.exports = withMercur({
           technicalEmail: process.env.PAYOUT_ALERT_EMAIL,
           from: process.env.PAYOUT_ALERT_FROM,
         },
+        notifications: {
+          url: process.env.STRIPE_NOTIFICATIONS_URL,
+          secret: process.env.STRIPE_NOTIFICATIONS_SECRET,
+        },
       },
     },
   ],

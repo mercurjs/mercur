@@ -3,6 +3,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
 import { PayoutStatus } from "@mercurjs/types"
 
+import { landedOf } from "../../../lib/landed"
 import { AdjustmentType, SettlementLineType } from "../../../types/common"
 import { resolveConnector, resolvePayoutModule } from "../../../utils/payout-module"
 import { SettlementSource, UnsettledLine, unsettledSince } from "../utils/plan-settlements"
@@ -12,6 +13,7 @@ const SETTLED_CHECK_CHUNK = 1000
 type ReversalRow = {
   id: string
   amount: BigNumberInput
+  data: Record<string, unknown> | null
   updated_at: Date | string
   payout?: { currency_code: string } | null
 }
@@ -63,12 +65,12 @@ export const loadSettlementSourcesStep = createStep(
       const [payouts, reversals, adjustments] = await Promise.all([
         payoutModule.listPayouts(
           { account_id: account.id, status: PayoutStatus.PAID, ...window },
-          { take: null, select: ["id", "amount", "currency_code", "updated_at"] }
+          { take: null, select: ["id", "amount", "currency_code", "data", "updated_at"] }
         ),
         query
           .graph({
             entity: "payout_reversal",
-            fields: ["id", "amount", "updated_at", "payout.currency_code"],
+            fields: ["id", "amount", "data", "updated_at", "payout.currency_code"],
             filters: { status: PayoutStatus.PAID, payout: { account_id: account.id }, ...window },
           })
           .then(({ data }) => data as unknown as ReversalRow[]),
@@ -82,6 +84,7 @@ export const loadSettlementSourcesStep = createStep(
           amount: p.amount,
           paid_at: p.updated_at,
           currency_code: p.currency_code,
+          ...landedOf(p.data),
         })),
         ...reversals.flatMap((r) =>
           r.payout
@@ -92,6 +95,7 @@ export const loadSettlementSourcesStep = createStep(
                   amount: r.amount,
                   paid_at: r.updated_at,
                   currency_code: r.payout.currency_code,
+                  ...landedOf(r.data),
                 },
               ]
             : []
@@ -105,6 +109,7 @@ export const loadSettlementSourcesStep = createStep(
           amount: a.amount,
           paid_at: a.updated_at,
           currency_code: a.currency_code,
+          ...landedOf(a.data),
         })),
       ]
 

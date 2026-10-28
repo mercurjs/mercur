@@ -94,7 +94,7 @@ Run `medusa db:migrate`, then register two webhooks in the Stripe dashboard:
 | Endpoint | Events |
 | --- | --- |
 | `POST /hooks/payment/pp_stripe-connector_stripe` | `payment_intent.*`, `charge.*` (platform account) |
-| `POST /hooks/payout` | `account.updated`, `transfer.created`, `transfer.reversed`, `payout.paid`, `payout.failed`, `payout.canceled`, `payout.updated` (listen on connected accounts) |
+| `POST /hooks/payout` | `account.updated`, `payout.paid`, `payout.failed`, `payout.canceled`, `payout.updated` (listen on connected accounts) |
 
 ## Schedule
 

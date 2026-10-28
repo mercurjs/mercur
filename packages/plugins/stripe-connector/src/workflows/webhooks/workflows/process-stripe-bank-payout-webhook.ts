@@ -1,6 +1,9 @@
 import { WorkflowResponse, createWorkflow, transform, when } from "@medusajs/framework/workflows-sdk"
+import { emitEventStep } from "@medusajs/medusa/core-flows"
+import { PayoutStatus } from "@mercurjs/types"
 import Stripe from "stripe"
 
+import { StripeConnectorEvents } from "../../../types/common"
 import { setCheckpointsStep } from "../../common/steps"
 import { updateSettlementBankPayoutStep } from "../steps"
 import { BANK_PAYOUT_EVENTS, LAST_WEBHOOK_CHECKPOINT } from "../utils"
@@ -42,6 +45,13 @@ export const processStripeBankPayoutWebhookWorkflow = createWorkflow(
         })
       )
     )
+
+    emitEventStep({
+      eventName: StripeConnectorEvents.SETTLEMENT_PAYOUT_FAILED,
+      data: transform({ settlement }, ({ settlement }) =>
+        settlement?.payout_status === PayoutStatus.FAILED ? [{ id: settlement.id }] : []
+      ),
+    })
 
     return new WorkflowResponse(transform({ settlement }, ({ settlement }) => settlement ?? null))
   }

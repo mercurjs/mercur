@@ -54,7 +54,9 @@ export async function runJob(
     logger.info(`[${job}] job succeeded`)
     return await connector.finishJobRun(jobRun.id, { stats })
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error)
+    // Workflow errors arrive serialized, as plain objects with a message.
+    const raw = (error as { message?: unknown } | null)?.message
+    const message = typeof raw === "string" ? raw : String(error)
     logger.error(`[${job}] failed: ${message}`)
     return await connector.finishJobRun(jobRun.id, { error: message })
   } finally {

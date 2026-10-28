@@ -1,0 +1,93 @@
+---
+title: "Stripe Connect"
+sidebarTitle: "Overview"
+description: "Charge customers once on your platform Stripe account, pay each seller their share of every order, and settle it to their bank, with one Mercur plugin."
+---
+
+The Stripe connector plugin runs a marketplace's money on Stripe. The customer pays once for a cart that spans several sellers. Each seller gets their share of every order they fulfill, minus your commission, in a Stripe Connect account. Their earnings reach their bank on a schedule you control.
+
+You install one package, `@mercurjs/stripe-connector-plugin`, in your Mercur API. It registers a payment provider for checkout, a payout provider for seller accounts, the scheduled jobs that decide when money moves, and the admin and vendor screens to watch it.
+
+## Who owns what
+
+| | Stripe | Mercur core | Stripe connector plugin |
+| --- | --- | --- | --- |
+| Card payment, authorization, capture | ✓ | | Decides when to capture |
+| Connected accounts, KYC, onboarding forms | ✓ | Mirrors the account as a `payout_account` | Creates accounts and links |
+| Seller's share of each order (`payout`) | Moves it as a Transfer | Computes total − commission, keeps the status | Decides when to run |
+| Refunds taken back from the seller (`payout_reversal`) | Moves it as a Transfer reversal | Computes the refunded share | Decides when to run |
+| Bank payout to the seller | Moves it as a Payout | | Nets each period into a settlement |
+| Fees and credits to a seller | Moves them as Transfers | | Adjustments entered by the operator |
+| Alerts, job history, retries | | | ✓ |
+
+The platform account is the **Merchant of Record**. Customers see your statement descriptor, and refunds and disputes land on your account first.
+
+## Two layers of money
+
+Every seller sees money move twice, and the plugin keeps both visible:
+
+1. **Per order.** When an order is fulfilled and its payment captured, the seller's share moves from your platform balance to the seller's Stripe balance. A refund later takes the seller's share of it back.
+2. **Per period.** Every night the plugin nets everything that reached the seller's balance since the last run (payouts, minus reversals, plus or minus adjustments) into one **settlement**, and sends that amount to the seller's bank.
+
+The per-order layer lets sellers and operators trace every order to the cent. The per-period layer gives the seller one bank deposit per period, with a statement that explains it.
+
+## What you get
+
+- **One payment, split per seller**: the cart is authorized once with manual capture, and captured only when every seller order in it is decided, for the authorized amount minus canceled orders
+- **Automatic seller onboarding**: every new seller gets a Stripe Express account and an onboarding link, refreshed when it expires, and a login link once onboarding is done
+- **Payouts on fulfillment**: each fulfilled, captured order pays the seller its total minus commission, net of refunds that landed before it
+- **Refunds taken back**: each later refund reverses the seller's share of it on the original transfer, net of the commission share
+- **Nightly settlements**: one bank payout per seller and currency, held and retried while the balance is short or the account can't receive payouts
+- **Adjustments**: subscription fees, extra invoices and extra credits you enter in the admin, sent on the next settlement run
+- **Operations screens**: settlements, adjustments, captures and every job's run history under **Integrations → Stripe**, with **Run now** and retry actions
+- **Alerts**: a daily email of everything still failed, and KYC monitoring on request
+- **A vendor Stripe page**: account setup, what Stripe still needs from the seller, and their settlements
+
+## Compatibility
+
+| Requirement | Version |
+| --- | --- |
+| Mercur | 2.3.9 and later, with `@mercurjs/stripe-connector-plugin` |
+| Node.js | 22.22 and later |
+| Stripe | An account with Connect enabled, using Express connected accounts |
+
+## Not supported yet
+
+- Standard and Custom connected accounts. The provider creates Express accounts only
+- Separate charges per seller (direct charges or destination charges). The plugin uses one platform charge and separate transfers
+- Billing-cycle calendars for settlements. The settlement job runs nightly, and each settlement covers the time since the previous one
+- More than one payout provider at a time. The payout module takes exactly one
+
+## Get started
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/resources/integrations/stripe-connect/quickstart">
+    Install the plugin, onboard a test seller and pay out a first order.
+  </Card>
+  <Card title="Architecture" icon="sitemap" href="/resources/integrations/stripe-connect/architecture">
+    What core owns, what the plugin adds and how an order's money travels.
+  </Card>
+  <Card title="Configuration" icon="sliders" href="/resources/integrations/stripe-connect/configuration">
+    Every option of the providers, the payout module and the plugin.
+  </Card>
+  <Card title="Reference" icon="book" href="/resources/integrations/stripe-connect/reference">
+    Jobs, webhooks, routes, statuses, reasons and tables.
+  </Card>
+</CardGroup>
+
+## Guides
+
+<CardGroup cols={2}>
+  <Card title="Seller onboarding" icon="user-check" href="/resources/integrations/stripe-connect/seller-onboarding">
+    Express accounts, links, requirements and the vendor Stripe page.
+  </Card>
+  <Card title="Payments and capture" icon="credit-card" href="/resources/integrations/stripe-connect/payments-and-capture">
+    Checkout, the capture decision, cancellations and refunds.
+  </Card>
+  <Card title="Payouts and settlements" icon="building-columns" href="/resources/integrations/stripe-connect/payouts-and-settlements">
+    Per-order payouts, reversals, adjustments and bank payouts.
+  </Card>
+  <Card title="Operations" icon="gauge" href="/resources/integrations/stripe-connect/operations">
+    The admin screens, retries, alerts and notifications.
+  </Card>
+</CardGroup>

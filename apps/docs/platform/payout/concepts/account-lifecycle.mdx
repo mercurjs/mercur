@@ -78,7 +78,7 @@ Each payout and each reversal carries a `PayoutStatus`:
 
 `on_hold` and `failed` payouts are re-decided by the next `createOrderPayoutsWorkflow` run, and operators can retry one, or a `pending` one, with `POST /admin/payouts/:id/retry`. A canceled order’s payout is aborted even when the seller has no usable account yet. `paid`, `processing`, and `aborted` payouts are never sent again.
 
-The Stripe Connect provider returns `paid` as soon as Stripe creates the transfer. A later `transfer.created` webhook maps to `payout.paid`, which changes nothing.
+The Stripe Connect provider returns `paid` as soon as Stripe creates the transfer, so no webhook is needed to confirm it. Transfers are platform-account events and never reach the Connect endpoint.
 
 ## Related
 
