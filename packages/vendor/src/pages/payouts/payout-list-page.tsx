@@ -11,6 +11,7 @@ import {
   PayoutListTitle,
 } from "./_components/payout-list-table";
 import { PayoutAccountSection } from "./_components/payout-account-section";
+import { ActivePayoutOnboardingSection } from "./_components/active-payout-onboarding-section";
 
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
@@ -20,6 +21,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
           children
         ) : (
           <>
+            <ActivePayoutOnboardingSection />
             <PayoutAccountSection />
             <PayoutListTable />
           </>
@@ -30,6 +32,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
 };
 
 export const PayoutListPage = Object.assign(Root, {
+  OnboardingSection: ActivePayoutOnboardingSection,
   AccountSection: PayoutAccountSection,
   Table: PayoutListTable,
   Header: PayoutListHeader,

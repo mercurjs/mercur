@@ -3090,6 +3090,10 @@
       "enabled": "Enabled",
       "notEnabled": "Not enabled yet",
       "linkReady": "A new onboarding link is ready.",
+      "onboardingPanel": {
+        "title": "Onboarding in progress",
+        "description": "Finish setting up your payout details to start getting paid."
+      },
       "fields": {
         "payouts": "Payouts",
         "kycStatus": "KYC status"

@@ -7,6 +7,8 @@ import { ActionMenu, type Action } from "@components/common/action-menu";
 import { SectionRow } from "@components/common/section";
 import { useCreatePayoutOnboarding, useMyPayoutAccount } from "@hooks/api/payout-accounts";
 
+import { isOnboardingPending } from "./active-payout-onboarding-section";
+
 type StatusColor = "green" | "orange" | "red" | "blue" | "grey";
 
 const ACCOUNT_STATUS_COLOR: Record<string, StatusColor> = {
@@ -66,7 +68,7 @@ export const PayoutAccountSection = () => {
   const finishing = !account.details_submitted;
 
   const actions: Action[] = [];
-  if (link?.url) {
+  if (link?.url && !isOnboardingPending(account)) {
     const url = link.url;
     actions.push({
       label: finishing
@@ -93,7 +95,7 @@ export const PayoutAccountSection = () => {
 
   return (
     <div className="flex flex-col gap-y-3">
-      {account.disabled_reason && (
+      {account.disabled_reason && !isOnboardingPending(account) && (
         <Alert
           variant={account.disabled_reason.startsWith("rejected.") ? "error" : "warning"}
           data-testid="payout-account-alert"

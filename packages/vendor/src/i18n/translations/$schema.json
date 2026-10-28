@@ -12350,6 +12350,22 @@
             "linkReady": {
               "type": "string"
             },
+            "onboardingPanel": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "description"
+              ],
+              "additionalProperties": false
+            },
             "fields": {
               "type": "object",
               "properties": {
@@ -12473,6 +12489,7 @@
             "enabled",
             "notEnabled",
             "linkReady",
+            "onboardingPanel",
             "fields",
             "actions",
             "status",
