@@ -78,8 +78,16 @@ declare module "@mercurjs/dashboard-sdk" {
     "orders.detail.side.before": true
     "orders.list.after": true
     "orders.list.before": true
+    "payout_accounts.detail.main.after": true
+    "payout_accounts.detail.main.before": true
+    "payout_accounts.detail.side.after": true
+    "payout_accounts.detail.side.before": true
+    "payout_accounts.list.after": true
+    "payout_accounts.list.before": true
     "payouts.detail.main.after": true
     "payouts.detail.main.before": true
+    "payouts.detail.side.after": true
+    "payouts.detail.side.before": true
     "payouts.list.after": true
     "payouts.list.before": true
     "price-lists.detail.main.after": true
@@ -186,6 +194,7 @@ declare module "@mercurjs/dashboard-sdk" {
     "inventory": true
     "offers": true
     "orders": true
+    "payout-accounts": true
     "payouts": true
     "price-lists": true
     "products": true

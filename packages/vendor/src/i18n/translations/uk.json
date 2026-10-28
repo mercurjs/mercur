@@ -3869,8 +3869,7 @@
       "pending": "Очікує",
       "processing": "Обробляється",
       "paid": "Виплачено",
-      "failed": "Не вдалося",
-      "canceled": "Скасовано"
+      "failed": "Не вдалося"
     }
   },
   "translations": {

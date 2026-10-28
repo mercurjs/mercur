@@ -75,6 +75,8 @@ declare module "@mercurjs/dashboard-sdk" {
     "orders.list.before": true
     "payouts.detail.main.after": true
     "payouts.detail.main.before": true
+    "payouts.detail.side.after": true
+    "payouts.detail.side.before": true
     "payouts.list.after": true
     "payouts.list.before": true
     "price-lists.detail.main.after": true

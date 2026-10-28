@@ -3869,8 +3869,7 @@
       "pending": "En attente",
       "processing": "En cours de traitement",
       "paid": "Payé",
-      "failed": "Échec",
-      "canceled": "Annulé"
+      "failed": "Échec"
     }
   },
   "translations": {

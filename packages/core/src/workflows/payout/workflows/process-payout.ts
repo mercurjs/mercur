@@ -1,0 +1,36 @@
+import {
+  WorkflowResponse,
+  createWorkflow,
+  transform,
+} from "@medusajs/framework/workflows-sdk"
+import { emitEventStep } from "@medusajs/medusa/core-flows"
+import { PayoutDTO, PayoutModuleEvents, PayoutStatus } from "@mercurjs/types"
+
+import { processPayoutsStep } from "../steps"
+
+export type ProcessPayoutWorkflowInput = {
+  payout_ids: string[]
+}
+
+export const processPayoutWorkflowId = "process-payout"
+
+export const failedPayoutEvents = (payouts: PayoutDTO[]) =>
+  payouts.filter((payout) => payout.status === PayoutStatus.FAILED).map((payout) => ({ id: payout.id }))
+
+/**
+ * Sends pending or failed payouts to the provider. A payout that is paid,
+ * processing or aborted is returned unchanged.
+ */
+export const processPayoutWorkflow = createWorkflow(
+  processPayoutWorkflowId,
+  function (input: ProcessPayoutWorkflowInput) {
+    const payouts = processPayoutsStep({ ids: input.payout_ids })
+
+    emitEventStep({
+      eventName: PayoutModuleEvents.PAYOUT_FAILED,
+      data: transform({ payouts }, ({ payouts }) => failedPayoutEvents(payouts)),
+    })
+
+    return new WorkflowResponse(payouts)
+  }
+)

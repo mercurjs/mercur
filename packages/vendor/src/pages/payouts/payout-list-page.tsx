@@ -10,18 +10,30 @@ import {
   PayoutListActions,
   PayoutListTitle,
 } from "./_components/payout-list-table";
+import { PayoutAccountSection } from "./_components/payout-account-section";
+import { ActivePayoutOnboardingSection } from "./_components/active-payout-onboarding-section";
 
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage>
       <WidgetZone id="payouts.list">
-        {Children.count(children) > 0 ? children : <PayoutListTable />}
+        {Children.count(children) > 0 ? (
+          children
+        ) : (
+          <>
+            <ActivePayoutOnboardingSection />
+            <PayoutAccountSection />
+            <PayoutListTable />
+          </>
+        )}
       </WidgetZone>
     </SingleColumnPage>
   );
 };
 
 export const PayoutListPage = Object.assign(Root, {
+  OnboardingSection: ActivePayoutOnboardingSection,
+  AccountSection: PayoutAccountSection,
   Table: PayoutListTable,
   Header: PayoutListHeader,
   HeaderTitle: PayoutListTitle,

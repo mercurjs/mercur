@@ -3613,8 +3613,7 @@
       "paid": "שולם",
       "processing": "בעיבוד",
       "pending": "ממתין",
-      "failed": "נכשל",
-      "canceled": "בוטל"
+      "failed": "נכשל"
     }
   },
   "marketplace": {

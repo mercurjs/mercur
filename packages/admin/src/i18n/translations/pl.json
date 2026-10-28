@@ -1866,8 +1866,7 @@
       "paid": "Opłacone",
       "processing": "Przetwarzane",
       "pending": "Oczekujące",
-      "failed": "Nieudane",
-      "canceled": "Anulowane"
+      "failed": "Nieudane"
     }
   },
   "draftOrders": {

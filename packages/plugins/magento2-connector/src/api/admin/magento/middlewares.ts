@@ -5,10 +5,6 @@ import {
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { requirePermission } from "@mercurjs/core/api/utils/permissions-middleware"
 
-import {
-  AdminCancelExternalPayment,
-  AdminCaptureExternalPayment,
-} from "./order-groups/validators"
 import { AdminRecordExternalRefund } from "./orders/validators"
 import {
   adminMagentoWebhookDeliveryQueryConfig,
@@ -107,22 +103,6 @@ export const adminMagentoMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       requirePermission("integrations", "edit"),
       validateAndTransformBody(AdminRecordExternalRefund),
-    ],
-  },
-  {
-    method: ["POST"],
-    matcher: "/admin/magento/order-groups/:id/payments/capture",
-    middlewares: [
-      requirePermission("integrations", "edit"),
-      validateAndTransformBody(AdminCaptureExternalPayment),
-    ],
-  },
-  {
-    method: ["POST"],
-    matcher: "/admin/magento/order-groups/:id/payments/cancel",
-    middlewares: [
-      requirePermission("integrations", "edit"),
-      validateAndTransformBody(AdminCancelExternalPayment),
     ],
   },
 ]

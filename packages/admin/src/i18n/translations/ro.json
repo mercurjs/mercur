@@ -3617,8 +3617,7 @@
       "paid": "Plătit",
       "processing": "În procesare",
       "pending": "În așteptare",
-      "failed": "A eșuat",
-      "canceled": "Anulat"
+      "failed": "A eșuat"
     }
   },
   "marketplace": {

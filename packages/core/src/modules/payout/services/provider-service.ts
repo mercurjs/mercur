@@ -1,21 +1,24 @@
 import { MedusaError } from "@medusajs/framework/utils"
 import { Constructor } from "@medusajs/framework/types"
 import {
-  IPayoutProvider,
-  CreatePayoutAccountInput,
-  CreatePayoutAccountResponse,
-  CreatePayoutInput,
-  CreatePayoutResponse,
+  AccountOutput,
+  CreateAccountInput,
+  CreateLoginLinkInput,
   CreateOnboardingInput,
-  CreateOnboardingResponse,
+  CreatePayoutInput,
+  DeleteAccountInput,
+  IPayoutProvider,
+  LinkOutput,
+  ListAccountsInput,
+  ListAccountsOutput,
+  PayoutOutput,
   PayoutWebhookActionInput,
   PayoutWebhookResult,
+  RetrieveAccountInput,
+  ReversePayoutInput,
 } from "@mercurjs/types"
 
-export const PayoutProviderIdentifierRegistrationName =
-  "payout_providers_identifier"
-
-export const PayoutProviderRegistrationPrefix = "payout_"
+export const PayoutProviderRegistrationPrefix = "pop_"
 
 type InjectedDependencies = {
   [key: `${typeof PayoutProviderRegistrationPrefix}${string}`]: IPayoutProvider
@@ -25,46 +28,68 @@ export default class PayoutProviderService {
   protected readonly payoutProvider_: IPayoutProvider
 
   constructor(container: InjectedDependencies) {
-    const payoutProviderKeys = Object.keys(container).filter((k) =>
-      k.startsWith(PayoutProviderRegistrationPrefix)
+    const keys = Object.keys(container).filter((key) =>
+      key.startsWith(PayoutProviderRegistrationPrefix)
     )
 
-    if (payoutProviderKeys.length !== 1) {
+    if (keys.length !== 1) {
       throw new MedusaError(
         MedusaError.Types.INVALID_DATA,
         `Payout module should be initialized with exactly one provider`
       )
     }
 
-    this.payoutProvider_ = container[payoutProviderKeys[0]]
+    this.payoutProvider_ = container[keys[0]]
   }
 
   static getRegistrationIdentifier(
     providerClass: Constructor<IPayoutProvider>,
     optionName?: string
   ) {
-    return `${(providerClass as any).identifier}_${optionName}`
+    return `${(providerClass as unknown as { identifier: string }).identifier}_${optionName}`
   }
 
-  async createPayoutAccount(
-    data: CreatePayoutAccountInput
-  ): Promise<CreatePayoutAccountResponse> {
-    return await this.payoutProvider_.createPayoutAccount(data)
+  async createAccount(input: CreateAccountInput): Promise<AccountOutput> {
+    return await this.payoutProvider_.createAccount(input)
   }
 
-  async createPayout(data: CreatePayoutInput): Promise<CreatePayoutResponse> {
-    return await this.payoutProvider_.createPayout(data)
+  async retrieveAccount(input: RetrieveAccountInput): Promise<AccountOutput> {
+    return await this.payoutProvider_.retrieveAccount(input)
   }
 
-  async createOnboarding(
-    input: CreateOnboardingInput
-  ): Promise<CreateOnboardingResponse> {
+  async deleteAccount(input: DeleteAccountInput): Promise<void> {
+    if (this.payoutProvider_.deleteAccount) {
+      await this.payoutProvider_.deleteAccount(input)
+    }
+  }
+
+  async listAccounts(input: ListAccountsInput): Promise<ListAccountsOutput | null> {
+    return this.payoutProvider_.listAccounts
+      ? await this.payoutProvider_.listAccounts(input)
+      : null
+  }
+
+  async createOnboarding(input: CreateOnboardingInput): Promise<LinkOutput> {
     return await this.payoutProvider_.createOnboarding(input)
   }
 
+  async createLoginLink(input: CreateLoginLinkInput): Promise<LinkOutput | null> {
+    return this.payoutProvider_.createLoginLink
+      ? await this.payoutProvider_.createLoginLink(input)
+      : null
+  }
+
+  async createPayout(input: CreatePayoutInput): Promise<PayoutOutput> {
+    return await this.payoutProvider_.createPayout(input)
+  }
+
+  async reversePayout(input: ReversePayoutInput): Promise<PayoutOutput> {
+    return await this.payoutProvider_.reversePayout(input)
+  }
+
   async getWebhookActionAndData(
-    payload: PayoutWebhookActionInput
+    input: PayoutWebhookActionInput
   ): Promise<PayoutWebhookResult> {
-    return await this.payoutProvider_.getWebhookActionAndData(payload)
+    return await this.payoutProvider_.getWebhookActionAndData(input)
   }
 }

@@ -21,11 +21,13 @@ import { StorePaymentDetailsSection } from "./store-payment-details-section";
 import { StoreCompanyDetailsSection } from "./store-company-details-section";
 import { StoreConfigurationSection } from "./store-configuration-section";
 import { StoreAddressSection } from "./store-address-section";
+import { StorePayoutAccountSection } from "./store-payout-account-section";
 import { StoreRegionsSection } from "./store-regions-section";
 import { StoreMembersSection } from "./store-members-section";
 import { StoreRequestSection } from "./store-request-section";
 import { StoreOrdersSection } from "./store-orders-section";
 import { StoreOffersSection } from "./store-offers-section";
+import { PayoutsSection } from "../../../payouts/common/components/payouts-section";
 import {
   StoreDetailHeader,
   StoreDetailTitle,
@@ -136,6 +138,21 @@ const Root = ({ children }: { children?: ReactNode }) => {
           },
         ]
       : []),
+    ...(can("payouts")
+      ? [
+          {
+            id: "payouts",
+            label: t("payouts.domain"),
+            content: (
+              <PayoutsSection
+                scope={{ seller_id: seller.id }}
+                prefix="store-payouts"
+                data-testid="store-payouts-section"
+              />
+            ),
+          },
+        ]
+      : []),
     ...(can("members")
       ? [
           {
@@ -181,6 +198,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
           <StoreRegionsSection seller={seller} />
           <StoreCompanyDetailsSection seller={seller} />
           <StorePaymentDetailsSection seller={seller} />
+          <StorePayoutAccountSection sellerId={seller.id} />
         </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
@@ -195,6 +213,7 @@ export const StoreDetailPage = Object.assign(Root, {
   MainPaymentDetailsSection: StorePaymentDetailsSection,
   MainCompanyDetailsSection: StoreCompanyDetailsSection,
   SidebarAddressSection: StoreAddressSection,
+  SidebarPayoutAccountSection: StorePayoutAccountSection,
   SidebarRegionsSection: StoreRegionsSection,
   SidebarMembersSection: StoreMembersSection,
   Header: StoreDetailHeader,

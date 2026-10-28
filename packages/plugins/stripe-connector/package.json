@@ -1,0 +1,115 @@
+{
+  "name": "@mercurjs/stripe-connector-plugin",
+  "version": "2.3.9-canary.4",
+  "description": "Mercur plugin that connects a marketplace to Stripe: a manual-capture payment provider for the platform account and a Stripe Connect payout provider for seller accounts, transfers, reversals and payouts, with the admin and vendor screens to run them.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mercurjs/mercur",
+    "directory": "packages/plugins/stripe-connector"
+  },
+  "author": "Mercur",
+  "license": "MIT",
+  "files": [
+    ".medusa/server"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    "./.medusa/server/src/modules/*": "./.medusa/server/src/modules/*/index.js",
+    "./modules/*": {
+      "types": "./.medusa/server/src/modules/*/index.d.ts",
+      "default": "./.medusa/server/src/modules/*/index.js"
+    },
+    "./types": "./.medusa/server/src/types/index.js",
+    "./providers/*": {
+      "types": "./.medusa/server/src/providers/*/index.d.ts",
+      "default": "./.medusa/server/src/providers/*/index.js"
+    },
+    "./*": "./.medusa/server/src/*.js",
+    "./admin": {
+      "import": "./.medusa/server/src/admin/index.mjs",
+      "default": "./.medusa/server/src/admin/index.js"
+    },
+    "./vendor": {
+      "import": "./.medusa/server/src/vendor/index.mjs",
+      "default": "./.medusa/server/src/vendor/index.js"
+    }
+  },
+  "keywords": [
+    "medusa-plugin",
+    "medusa-v2",
+    "mercur",
+    "marketplace",
+    "stripe",
+    "stripe-connect"
+  ],
+  "scripts": {
+    "build": "rm -rf .medusa && tsc --declaration --outDir .medusa/server && bun run build:dashboards",
+    "build:dashboards": "bun ./node_modules/@mercurjs/cli/dist/index.js dashboard:build --app admin --src src/admin --out .medusa/server/src/admin/index.mjs && bun ./node_modules/@mercurjs/cli/dist/index.js dashboard:build --app vendor --src src/vendor --out .medusa/server/src/vendor/index.mjs",
+    "typecheck:admin": "tsc -p src/admin/tsconfig.json",
+    "typecheck:vendor": "tsc -p src/vendor/tsconfig.json",
+    "test": "jest --passWithNoTests",
+    "dev": "medusa plugin:develop",
+    "prepublishOnly": "tsc --declaration --outDir .medusa/server && bun run build:dashboards"
+  },
+  "devDependencies": {
+    "@medusajs/cli": "2.22.0",
+    "@medusajs/core-flows": "2.22.0",
+    "@medusajs/framework": "2.22.0",
+    "@medusajs/medusa": "2.22.0",
+    "@medusajs/payment-stripe": "2.22.0",
+    "@medusajs/types": "2.22.0",
+    "@mercurjs/core": "2.3.9-canary.4",
+    "@mercurjs/types": "2.3.9-canary.4",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^26.1.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "5.9.3",
+    "@hookform/resolvers": "5.4.0",
+    "@medusajs/icons": "2.22.0",
+    "@medusajs/ui": "4.2.3",
+    "@mercurjs/cli": "2.3.9-canary.4",
+    "@mercurjs/client": "2.3.9-canary.4",
+    "@mercurjs/dashboard-sdk": "2.3.9-canary.4",
+    "@mercurjs/dashboard-shared": "2.3.9-canary.4",
+    "@tanstack/react-query": "5.64.2",
+    "@tanstack/react-table": "8.21.3",
+    "@types/react": "^18.3.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "7.88.0",
+    "react-router-dom": "7.18.1",
+    "radix-ui": "1.1.2",
+    "i18next": "26.4.2",
+    "react-i18next": "17.0.14"
+  },
+  "peerDependencies": {
+    "@medusajs/core-flows": ">=2.22.0",
+    "@medusajs/framework": ">=2.22.0",
+    "@medusajs/medusa": ">=2.22.0",
+    "@medusajs/payment-stripe": ">=2.22.0",
+    "@mercurjs/core": "*",
+    "@medusajs/icons": ">=2.22.0",
+    "@medusajs/ui": ">=4.1.19",
+    "@mercurjs/client": ">=2.3.9-canary.4",
+    "@mercurjs/dashboard-sdk": ">=2.3.9-canary.4",
+    "@mercurjs/dashboard-shared": ">=2.3.9-canary.4",
+    "@tanstack/react-query": "^5.64.2",
+    "@tanstack/react-table": "^8.20.5",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-hook-form": "^7.49.1",
+    "react-router-dom": "^7.0.0",
+    "@hookform/resolvers": "^5.4.0",
+    "i18next": "26.4.2",
+    "react-i18next": "17.0.14"
+  },
+  "dependencies": {
+    "cronstrue": "3.27.0",
+    "stripe": "^19.1.0",
+    "zod": "4.6.5"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

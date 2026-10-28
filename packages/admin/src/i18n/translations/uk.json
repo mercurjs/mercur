@@ -3618,8 +3618,7 @@
       "paid": "Виплачено",
       "processing": "Обробляється",
       "pending": "Очікує",
-      "failed": "Не вдалося",
-      "canceled": "Скасовано"
+      "failed": "Не вдалося"
     }
   },
   "marketplace": {

@@ -10,20 +10,32 @@ export const usePayoutTableQuery = ({
   pageSize = 20,
 }: UsePayoutTableQueryProps) => {
   const queryObject = useQueryParams(
-    ["offset", "q", "order", "created_at", "updated_at", "status"],
+    [
+      "offset",
+      "q",
+      "order",
+      "created_at",
+      "updated_at",
+      "status",
+      "seller_id",
+      "order_id",
+    ],
     prefix,
   )
 
-  const { offset, q, order, created_at, updated_at, status } = queryObject
+  const { offset, q, order, created_at, updated_at, status, seller_id, order_id } =
+    queryObject
 
   const searchParams: Record<string, string | number | string[] | undefined> = {
     limit: pageSize,
     offset: offset ? Number(offset) : 0,
-    q,
     order: order ?? "-created_at",
     created_at: created_at ? JSON.parse(created_at) : undefined,
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
     status: status?.split(","),
+    seller_id: seller_id?.split(","),
+    order_id: order_id?.split(","),
+    ...(q ? { q } : {}),
   }
 
   return {

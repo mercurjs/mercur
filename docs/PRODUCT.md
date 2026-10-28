@@ -29,10 +29,11 @@ The product has three audiences:
 - Commission visibility for both marketplace operators and individual vendors.
 
 ### Vendor Payouts
-- Pluggable payout provider interface; **Stripe Connect** ships out of the box.
-- Payout account creation and onboarding flows (`create-payout-account`, `create-onboarding`). Each account carries an onboarding record holding provider-specific data (e.g. Stripe Connect links).
+- Single payout provider per marketplace, modelled on Medusa's payment providers: configure exactly one provider on the payout module (the built-in system provider is used when none is configured). Webhooks arrive at `/hooks/payout`. **Stripe Connect** ships in `@mercurjs/stripe-connector-plugin`; any other provider implements `IPayoutProvider` (`createAccount`, `retrieveAccount`, `createOnboarding`, `createPayout`, `reversePayout`, `getWebhookActionAndData`).
+- Payout account creation and onboarding flows (`create-payout-account`, `create-onboarding`, `create-or-refresh-seller-payout-account`). Each account carries an onboarding record holding provider-specific data (e.g. Stripe Connect links).
 - Payout account lifecycle: `PENDING` → `ACTIVE`, then `ACTIVE` ↔ `RESTRICTED` (provider flagged, e.g. missing KYC) or `ACTIVE` → `REJECTED`, driven by provider webhooks.
-- **Automated payout pipeline**: a capture-check job (every 15 min) finds orders ready for capture; a subscriber captures authorized payments; a daily job (1 AM UTC) emits `payout.requested` for eligible orders; a subscriber runs `createPayoutWorkflow` to transfer funds. Tunable in `medusa-config.ts` via `authorizationWindowMs` (7d), `sellerActionWindowMs` (72h), `captureSafetyBufferMs` (24h), `requiredFulfillmentStatus` (`"fulfilled"`).
+- One `payout` per seller order (order total minus commission, net of refunds that landed before it) and one `payout_reversal` per later refund (net of its commission share), mirroring Medusa's `Payment` → `Refund`. Status: `pending`, `on_hold`, `processing`, `paid`, `failed`, `aborted`. `create-order-payouts` puts an order that is not ready (no active account, not fulfilled, payment not captured) on hold and re-decides it on the next call; `create-payout-reversals` takes the refunded share back; `retry-payout` retries a failed or held payout.
+- Core ships no payout schedule. When payouts run is the integration's call: the Stripe connector plugin brings the scheduled jobs (onboarding sync, capture validation, payouts, reversals, settlements, failed-operation alerts, KYC monitoring), settlements, operator adjustments and their admin screens.
 - Webhook processing for provider events (`process-payout-for-webhook`).
 - Vendor-side onboarding status and payout history in the Vendor Portal.
 
@@ -175,7 +176,7 @@ The product has three audiences:
 - **Framework lock**: peer-pinned to `@medusajs/framework` `>=2.22.0` across core and providers (the workspace resolves 2.22.0).
 - **Languages**: TypeScript end-to-end; React 18 for the dashboards.
 - **License**: MIT, open-core. No transaction fees, no commercial lock-in, no hosted vendor required.
-- **Payout providers**: only Stripe Connect ships out of the box; others must be implemented against the provider interface.
+- **Payout providers**: only Stripe Connect ships out of the box (in the Stripe connector plugin); others implement `IPayoutProvider` from `@mercurjs/types`.
 
 ## Distribution Surface
 
@@ -186,5 +187,5 @@ The product has three audiences:
 - `@mercurjs/dashboard-shared` — shared dashboard primitives.
 - `@mercurjs/admin` — admin panel UI package.
 - `@mercurjs/vendor` — vendor portal UI package.
-- `@mercurjs/payout-stripe-connect` — Stripe Connect payout provider.
+- `@mercurjs/stripe-connector-plugin` — Stripe payment provider, Stripe Connect payout provider and the Stripe admin/vendor screens.
 - Templates (`basic`, `plugin`) — starter scaffolds.

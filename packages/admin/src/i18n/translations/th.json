@@ -3618,8 +3618,7 @@
       "paid": "จ่ายแล้ว",
       "processing": "กำลังดำเนินการ",
       "pending": "รอดำเนินการ",
-      "failed": "ล้มเหลว",
-      "canceled": "ยกเลิก"
+      "failed": "ล้มเหลว"
     }
   },
   "marketplace": {

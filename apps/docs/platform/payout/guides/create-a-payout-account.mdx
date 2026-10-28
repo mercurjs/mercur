@@ -12,7 +12,7 @@ You need:
 
 - A seller id, such as `sel_01JD8Q1234567`
 - A payout provider. Without one, the `system` provider creates accounts that are `active` at once
-- For Stripe Connect, `@mercurjs/payout-stripe-connect` registered on the payout module, as in the [Stripe Connect integration](/resources/integrations/stripe-connect)
+- For Stripe Connect, `@mercurjs/stripe-connector-plugin/providers/payout-stripe-connect` registered on the payout module, as in the [Stripe Connect integration](/resources/integrations/stripe-connect/configuration)
 
 ## Create the account
 
@@ -44,10 +44,10 @@ You need:
     }
     ```
 
-    The workflow validates the seller has no account, creates it through the provider, and links it to the seller. The response returns only the id, because `result.data` holds the full provider object.
+    The workflow validates the seller has no account, creates it through the provider, links it to the seller, and publishes the onboarding link. The response returns only the id, because `result.data` holds the full provider object.
   </Step>
   <Step title="Call the route">
-    Send the seller’s country. Stripe Connect requires `country` and throws `"country" is required` without it:
+    Send the seller’s country. The module passes `data.country` to the provider, falling back to the seller’s address and then the `onboarding.defaultCountry` option:
 
     ```bash
     curl -X POST http://localhost:9000/admin/payout-setup/sel_01JD8Q1234567 \
@@ -56,7 +56,7 @@ You need:
       -d '{ "country": "US" }'
     ```
 
-    With Stripe Connect, the new account is `pending` and its `data` holds the Express account Stripe created.
+    With Stripe Connect, the new account is `pending`, `external_id` holds the Stripe `acct_…` id, and `data` holds the Express account Stripe created.
   </Step>
 </Steps>
 
@@ -74,7 +74,9 @@ const { data: [seller] } = await query.graph({
 
 ## What happens when the provider call fails
 
-The module creates the `PayoutAccount` row before it calls the provider. If the provider throws, the module deletes that row and rethrows, so no orphaned account is left. The provider receives the new `pacc` id as `data.account_id` and as the default `context.idempotency_key`. Stripe Connect stores that id in the Stripe account’s `metadata.account_id`, which is how webhooks find the account later.
+The module creates the `PayoutAccount` row before it calls the provider. If the provider throws, the module deletes that row and rethrows, so no orphaned account is left. The provider receives the new `pacc` id as `data.account_id`, `metadata.account_id`, and the default `context.idempotency_key`, so a retried call doesn’t create a second provider account. Webhooks find the account later by its `external_id`.
+
+If you already have an account at the provider, map it instead of creating one: `POST /admin/payout-accounts` with `seller_id` and `external_id` links it to the seller and syncs it from the provider.
 
 ## Next steps
 

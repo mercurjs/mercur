@@ -1,77 +1,66 @@
-import { Container, Heading, StatusBadge, Text } from "@medusajs/ui"
-import { PayoutDTO } from "@mercurjs/types"
+import { ArrowPath } from "@medusajs/icons"
+import { Container, Heading, StatusBadge } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+
+import { ActionMenu } from "../../../../components/common/action-menu"
+import { SectionRow } from "../../../../components/common/section"
+import { AdminPayout } from "../../../../lib/payouts"
+import { useDate } from "../../../../hooks/use-date"
 import { getStylizedAmount } from "../../../../lib/money-amount-helpers"
+import { useRetryPayoutAction } from "../../common/hooks/use-retry-payout-action"
+import { getPayoutStatusProps } from "../../common/utils"
 
-const payoutStatusColor = (status: string) => {
-  switch (status) {
-    case "paid":
-      return "green"
-    case "processing":
-      return "orange"
-    case "pending":
-      return "grey"
-    case "failed":
-    case "canceled":
-      return "red"
-    default:
-      return "grey"
-  }
-}
-
-export const PayoutGeneralSection = ({ payout }: { payout: PayoutDTO }) => {
+export const PayoutGeneralSection = ({ payout }: { payout: AdminPayout }) => {
   const { t } = useTranslation()
+  const { getFullDate } = useDate()
+  const { handleRetry, canRetry } = useRetryPayoutAction(payout)
 
-  const statusText = t(`payouts.status.${payout.status}`, {
-    defaultValue: payout.status.charAt(0).toUpperCase() + payout.status.slice(1),
-  })
+  const status = getPayoutStatusProps(payout.status, t)
+
+  const formatDate = (value: Date | string | null | undefined) =>
+    value ? getFullDate({ date: value, includeTime: true }) : "-"
 
   return (
-    <Container className="divide-y p-0">
+    <Container className="divide-y p-0" data-testid="payout-general-section">
       <div className="flex items-center justify-between px-6 py-4">
-        <Heading>#{payout.display_id}</Heading>
+        <Heading data-testid="payout-general-section-heading">
+          {getStylizedAmount(Number(payout.amount), payout.currency_code)}
+        </Heading>
         <div className="flex items-center gap-x-2">
-          <StatusBadge color={payoutStatusColor(payout.status)}>
-            {statusText}
+          <StatusBadge
+            color={status.color}
+            data-testid="payout-general-section-status-badge"
+          >
+            {status.label}
           </StatusBadge>
+          <ActionMenu
+            data-testid="payout-general-section-action-menu"
+            groups={[
+              {
+                actions: [
+                  {
+                    label: t("payouts.actions.retry"),
+                    icon: <ArrowPath />,
+                    onClick: handleRetry,
+                    permission: "payouts:edit",
+                    disabled: !canRetry,
+                    disabledTooltip: t("payouts.retry.disabledTooltip"),
+                  },
+                ],
+              },
+            ]}
+          />
         </div>
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("fields.amount")}
-        </Text>
-        <Text size="small" leading="compact">
-          {getStylizedAmount(payout.amount as number, payout.currency_code)}
-        </Text>
-      </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("fields.createdAt")}
-        </Text>
-        <Text size="small" leading="compact">
-          {new Date(payout.created_at).toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </Text>
-      </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("fields.updatedAt")}
-        </Text>
-        <Text size="small" leading="compact">
-          {new Date(payout.updated_at).toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </Text>
-      </div>
+      <SectionRow title={t("fields.id")} value={`#${payout.display_id}`} />
+      <SectionRow
+        title={t("fields.createdAt")}
+        value={formatDate(payout.created_at)}
+      />
+      <SectionRow
+        title={t("fields.updatedAt")}
+        value={formatDate(payout.updated_at)}
+      />
     </Container>
   )
 }

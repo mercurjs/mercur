@@ -7587,28 +7587,188 @@
         "status": {
           "type": "object",
           "properties": {
-            "paid": {
+            "pending": {
+              "type": "string"
+            },
+            "on_hold": {
               "type": "string"
             },
             "processing": {
               "type": "string"
             },
-            "pending": {
+            "paid": {
               "type": "string"
             },
             "failed": {
               "type": "string"
             },
-            "canceled": {
+            "aborted": {
               "type": "string"
             }
           },
           "required": [
-            "paid",
-            "processing",
             "pending",
+            "on_hold",
+            "processing",
+            "paid",
             "failed",
-            "canceled"
+            "aborted"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "order": {
+              "type": "string"
+            },
+            "payoutAccount": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "order",
+            "payoutAccount"
+          ],
+          "additionalProperties": false
+        },
+        "actions": {
+          "type": "object",
+          "properties": {
+            "retry": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "retry"
+          ],
+          "additionalProperties": false
+        },
+        "retry": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            },
+            "disabledTooltip": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "successToast",
+            "disabledTooltip"
+          ],
+          "additionalProperties": false
+        },
+        "reversals": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "refund": {
+              "type": "string"
+            },
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "refund",
+            "noRecordsTitle",
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
+        },
+        "references": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "empty": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "empty"
+          ],
+          "additionalProperties": false
+        },
+        "statusReasons": {
+          "type": "object",
+          "properties": {
+            "account_not_ready": {
+              "type": "string"
+            },
+            "account_payouts_disabled": {
+              "type": "string"
+            },
+            "order_not_ready": {
+              "type": "string"
+            },
+            "order_aborted": {
+              "type": "string"
+            },
+            "payment_not_ready": {
+              "type": "string"
+            },
+            "payment_failed": {
+              "type": "string"
+            },
+            "payment_canceled": {
+              "type": "string"
+            },
+            "payment_refunded": {
+              "type": "string"
+            },
+            "payout_not_ready": {
+              "type": "string"
+            },
+            "refund_aborted": {
+              "type": "string"
+            },
+            "refund_absorbed": {
+              "type": "string"
+            },
+            "invalid_amount": {
+              "type": "string"
+            },
+            "provider_error": {
+              "type": "string"
+            },
+            "other": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "account_not_ready",
+            "account_payouts_disabled",
+            "order_not_ready",
+            "order_aborted",
+            "payment_not_ready",
+            "payment_failed",
+            "payment_canceled",
+            "payment_refunded",
+            "payout_not_ready",
+            "refund_aborted",
+            "refund_absorbed",
+            "invalid_amount",
+            "provider_error",
+            "other"
           ],
           "additionalProperties": false
         }
@@ -7616,7 +7776,251 @@
       "required": [
         "domain",
         "list",
-        "status"
+        "status",
+        "fields",
+        "actions",
+        "retry",
+        "reversals",
+        "references",
+        "statusReasons"
+      ],
+      "additionalProperties": false
+    },
+    "payoutAccounts": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "noStore": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "string"
+        },
+        "disabled": {
+          "type": "string"
+        },
+        "list": {
+          "type": "object",
+          "properties": {
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "store": {
+              "type": "string"
+            },
+            "kycStatus": {
+              "type": "string"
+            },
+            "payoutsEnabled": {
+              "type": "string"
+            },
+            "chargesEnabled": {
+              "type": "string"
+            },
+            "detailsSubmitted": {
+              "type": "string"
+            },
+            "lastSyncedAt": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "store",
+            "kycStatus",
+            "payoutsEnabled",
+            "chargesEnabled",
+            "detailsSubmitted",
+            "lastSyncedAt"
+          ],
+          "additionalProperties": false
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "pending": {
+              "type": "string"
+            },
+            "active": {
+              "type": "string"
+            },
+            "restricted": {
+              "type": "string"
+            },
+            "rejected": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "pending",
+            "active",
+            "restricted",
+            "rejected"
+          ],
+          "additionalProperties": false
+        },
+        "kycStatus": {
+          "type": "object",
+          "properties": {
+            "pending_submission": {
+              "type": "string"
+            },
+            "pending_approval": {
+              "type": "string"
+            },
+            "approved": {
+              "type": "string"
+            },
+            "refused": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "pending_submission",
+            "pending_approval",
+            "approved",
+            "refused"
+          ],
+          "additionalProperties": false
+        },
+        "actions": {
+          "type": "object",
+          "properties": {
+            "sync": {
+              "type": "string"
+            },
+            "refreshLink": {
+              "type": "string"
+            },
+            "openLink": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "sync",
+            "refreshLink",
+            "openLink"
+          ],
+          "additionalProperties": false
+        },
+        "sync": {
+          "type": "object",
+          "properties": {
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "refreshLink": {
+          "type": "object",
+          "properties": {
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "capabilities": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "kycUnknown": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "kycUnknown"
+          ],
+          "additionalProperties": false
+        },
+        "storeSection": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "empty": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "empty"
+          ],
+          "additionalProperties": false
+        },
+        "disabledReason": {
+          "type": "object",
+          "properties": {
+            "pastDue": {
+              "type": "string"
+            },
+            "pendingVerification": {
+              "type": "string"
+            },
+            "requirements": {
+              "type": "string"
+            },
+            "rejected": {
+              "type": "string"
+            },
+            "underReview": {
+              "type": "string"
+            },
+            "other": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "pastDue",
+            "pendingVerification",
+            "requirements",
+            "rejected",
+            "underReview",
+            "other"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "domain",
+        "subtitle",
+        "noStore",
+        "enabled",
+        "disabled",
+        "list",
+        "fields",
+        "status",
+        "kycStatus",
+        "actions",
+        "sync",
+        "refreshLink",
+        "capabilities",
+        "storeSection",
+        "disabledReason"
       ],
       "additionalProperties": false
     },
@@ -17103,6 +17507,7 @@
     "customerGroups",
     "orders",
     "payouts",
+    "payoutAccounts",
     "draftOrders",
     "stockLocations",
     "shippingProfile",

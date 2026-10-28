@@ -425,7 +425,20 @@
             "icon": "plug",
             "pages": [
               "resources/integrations/overview",
-              "resources/integrations/stripe-connect",
+              {
+                "group": "Stripe Connect",
+                "pages": [
+                  "resources/integrations/stripe-connect/overview",
+                  "resources/integrations/stripe-connect/quickstart",
+                  "resources/integrations/stripe-connect/architecture",
+                  "resources/integrations/stripe-connect/configuration",
+                  "resources/integrations/stripe-connect/seller-onboarding",
+                  "resources/integrations/stripe-connect/payments-and-capture",
+                  "resources/integrations/stripe-connect/payouts-and-settlements",
+                  "resources/integrations/stripe-connect/operations",
+                  "resources/integrations/stripe-connect/reference"
+                ]
+              },
               {
                 "group": "Magento 2",
                 "pages": [
@@ -866,6 +879,10 @@
   },
   "redirects": [
     {
+      "source": "/resources/integrations/stripe-connect",
+      "destination": "/resources/integrations/stripe-connect/overview"
+    },
+    {
       "source": "/resources/integrations/magento2",
       "destination": "/resources/integrations/magento2/overview"
     },
@@ -1135,15 +1152,15 @@
     },
     {
       "source": "/how-to-guides/stripe-connect-integration",
-      "destination": "/resources/integrations/stripe-connect"
+      "destination": "/resources/integrations/stripe-connect/overview"
     },
     {
       "source": "/rc/how-to-guides/stripe-connect-integration",
-      "destination": "/resources/integrations/stripe-connect"
+      "destination": "/resources/integrations/stripe-connect/overview"
     },
     {
       "source": "/v2/how-to-guides/stripe-connect-integration",
-      "destination": "/resources/integrations/stripe-connect"
+      "destination": "/resources/integrations/stripe-connect/overview"
     },
     {
       "source": "/how-to-guides/medusa-cloud",
@@ -1359,7 +1376,7 @@
     },
     {
       "source": "/integrations/stripe",
-      "destination": "/resources/integrations/stripe-connect"
+      "destination": "/resources/integrations/stripe-connect/overview"
     },
     {
       "source": "/integrations/:slug*",
@@ -1479,7 +1496,7 @@
     },
     {
       "source": "/resources/tutorials/seller-payouts-stripe",
-      "destination": "/resources/integrations/stripe-connect"
+      "destination": "/resources/integrations/stripe-connect/overview"
     },
     {
       "source": "/resources/tutorials/store-setup-checklist",

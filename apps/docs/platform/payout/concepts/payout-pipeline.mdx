@@ -1,71 +1,84 @@
 ---
 title: "How a payout reaches a seller"
 sidebarTitle: "The payout pipeline"
-description: "What Mercur ships for payouts, what you trigger yourself, and how the provider interface fits in."
+description: "What core ships for payouts, what decides when they run, and how the provider interface fits in."
 ---
 
-The payout pipeline is the path from a placed order to money in a seller’s account. Mercur ships the building blocks: the workflows, the webhook route and subscriber, and the provider interface. It doesn’t ship the scheduler that decides when an order is paid out. You choose that moment and call `createPayoutWorkflow` yourself.
+The payout pipeline is the path from a placed order to money in a seller’s account. `@mercurjs/core` ships the building blocks: the workflows that decide and send payouts, the webhook route and subscriber, and the provider interface. It doesn’t ship a scheduler. The Stripe connector plugin brings one, and without it you call the workflows yourself.
 
 ## What ships in `@mercurjs/core`
 
 The core plugin gives you every piece that talks to the provider or writes payout records:
 
-- **Workflows**: `createPayoutAccountWorkflow`, `createOnboardingWorkflow`, `createPayoutWorkflow`, and `processPayoutForWebhookWorkflow`
+- **Account workflows**: `createPayoutAccountWorkflow`, `createOrRefreshSellerPayoutAccountWorkflow`, `createOnboardingWorkflow`, and `syncPayoutAccountWorkflow`
+- **Payout workflows**: `createOrderPayoutsWorkflow`, `createPayoutReversalsWorkflow`, `processPayoutWorkflow`, and `processPayoutReversalWorkflow`
 - **Webhook route**: `POST /hooks/payout` keeps the raw body and emits `payout.webhook_received` with a 5000 ms delay and 3 attempts
 - **Webhook subscriber**: `payout-webhook` parses the event through the provider and runs `processPayoutForWebhookWorkflow`
-- **Providers**: the built-in `system` provider, plus `@mercurjs/payout-stripe-connect` as a separate package
+- **Admin and vendor routes**: payout accounts (`sync`, `refresh-link`, map an existing provider account) and payouts (list, detail, `POST /admin/payouts/:id/retry`)
+- **Providers**: the built-in `system` provider, plus `@mercurjs/stripe-connector-plugin` as a separate package
 
-## What you wire yourself
+## What decides when payouts run
 
-No scheduled job, subscriber, or route in core calls `createPayoutWorkflow`. Core also has no `jobs` directory, so nothing captures authorized payments on a timer.
+No scheduled job or subscriber in core calls `createOrderPayoutsWorkflow` or `createPayoutReversalsWorkflow`. Core has no `jobs` directory.
 
-`@mercurjs/types` exports a `PayoutEvents` enum with `order.capture_requested`, `order.authorization_expired`, and `payout.requested`, but nothing emits these events or subscribes to them. The enum carries a TODO to move them to order events. Treat the names as reserved, not as hooks you can listen to.
+The Stripe connector plugin owns the schedule. It ships seven jobs, `payout-sync-onboarding`, `payout-validate-captures`, `payout-process-transfers`, `payout-process-reversals`, `payout-process-settlements`, `payout-alert-failed-operations`, and `payout-monitor-kyc`, plus subscribers that run a payout pass on fulfillment, cancellation, payment capture, and refunds. It also owns settlements, operator adjustments, job runs, checkpoints, and the operator notification log, in its own `stripe_connector` module. See [Stripe Connect](/resources/integrations/stripe-connect/overview).
 
-The module options also describe a capture and payout schedule. `PayoutModuleOptions` and `PAYOUT_MODULE_OPTION_DEFAULTS` define them, and `getOptions()` returns them with defaults applied, but no core code reads them:
+If you build on another provider, schedule the workflows from your own job or subscriber.
 
-| Option | Default | Intended meaning |
-| --- | --- | --- |
-| `disabled` | `false` | Turn off capture checks and daily payouts |
-| `authorizationWindowMs` | `604800000` (7 days) | How long an authorization stays valid |
-| `sellerActionWindowMs` | `259200000` (72 hours) | How long a seller has to act on an order |
-| `captureSafetyBufferMs` | `86400000` (24 hours) | Margin before authorization expiry |
-| `requiredFulfillmentStatus` | `"fulfilled"` | Minimum fulfillment status for a payout |
+## How createOrderPayoutsWorkflow decides
 
-<Tip>
-  Read these options in your own job with `container.resolve(MercurModules.PAYOUT).getOptions()`. That keeps your schedule configurable from `medusa-config.ts`.
-</Tip>
+`createOrderPayoutsWorkflow` takes `order_ids` and an optional `required_fulfillment_status` (default `fulfilled`). For each order it loads the total, the fulfillments, the seller’s payout account, the payment, and the commission lines, then decides:
 
-## How createPayoutWorkflow computes the amount
+| Check | When it fails |
+| --- | --- |
+| The seller has a payout account with payouts enabled | `on_hold`, `Cannot find payout account for seller …` |
+| The order isn’t canceled | `aborted` |
+| The order reached `required_fulfillment_status` | `on_hold`, `Order is not ready yet, status is …` |
+| The payment exists, isn’t canceled or fully refunded | `on_hold` or `aborted` |
+| The payment is captured | `on_hold`, `Payment … is not ready yet, status is authorized` |
+| Total minus commission is positive | `aborted`, `Amount must be positive, …` |
 
-`createPayoutWorkflow` takes one `order_id` and pays the seller’s share of that order. It runs 4 stages:
+When every check passes, the payout is `pending` and the workflow sends it to the provider in the same run. The amount is the order total minus its commission lines. For an order with a total of 47.00 and 4.70 in commission lines, the payout amount is 42.30.
 
-1. Load the order with `total`, `currency_code`, `seller.payout_account`, items, and shipping methods
-2. Load every `commission_line` for those items and shipping methods, then sum their `amount`
-3. Call `createPayoutStep` with `order.total` minus the commission sum, in the order’s currency
-4. Link the payout to the seller and run the `payoutCreated` hook with `order_id` and `payout_id`
+A refund that lands before the payout is deducted from it, with its share of the commission. The reversal pass then skips that refund.
 
-For an order with a total of 47.00 and 4.70 in commission lines, the payout amount is 42.30. The workflow throws `Seller does not have a payout account` when the seller has none, and the module throws when the account isn’t `active`.
+Each order gets at most one payout, because `order_id` is unique on `payout`. Running the workflow again re-decides payouts that are `on_hold` or `failed` and leaves `paid`, `processing`, and `aborted` ones alone, so it’s safe to call on a timer or from several subscribers.
 
-The provider receives the order id as its idempotency key. With Stripe Connect, the order id also becomes the transfer’s `transfer_group`, and the seller id goes into its metadata.
+```ts
+import { createOrderPayoutsWorkflow } from "@mercurjs/core/workflows"
 
-<Warning>
-  `createPayoutWorkflow` doesn’t check payment capture, fulfillment status, or earlier payouts for the order. Each run creates a new `Payout` row. Put those checks in the code that triggers it.
-</Warning>
+const { result } = await createOrderPayoutsWorkflow(container).run({
+  input: { order_ids: ["order_01JD8Q1234567"] },
+})
+
+// result.counts, e.g. { paid: 1 } or { on_hold: 1 }
+// result.payouts, the payouts sent to the provider in this run
+```
+
+## How reversals work
+
+`createPayoutReversalsWorkflow` takes `order_ids`. For every refund on an order whose payout exists, it writes one `payout_reversal`, the way Medusa keeps a `Refund` under a `Payment`:
+
+- The amount is the refund minus its share of the commission: `refund − commission × refund / order total`
+- The reversal waits `on_hold` until the payout is `paid`
+- A refund already deducted from the payout is skipped
+
+The workflow then calls the provider’s `reversePayout`. Running it again leaves reversals that are already `paid` alone.
 
 ## Trigger payouts from your own code
 
-You decide when an order is ready. This subscriber pays out when Medusa emits `order.fulfillment_created`:
+Without the Stripe connector plugin, decide when an order is ready yourself. This subscriber runs a payout pass when Medusa emits `order.fulfillment_created`:
 
 ```ts title="src/subscribers/payout-on-fulfillment.ts"
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
-import { createPayoutWorkflow } from "@mercurjs/core/workflows"
+import { createOrderPayoutsWorkflow } from "@mercurjs/core/workflows"
 
 export default async function payoutOnFulfillment({
   event,
   container,
 }: SubscriberArgs<{ order_id: string }>) {
-  await createPayoutWorkflow(container).run({
-    input: { order_id: event.data.order_id },
+  await createOrderPayoutsWorkflow(container).run({
+    input: { order_ids: [event.data.order_id] },
   })
 }
 
@@ -74,7 +87,7 @@ export const config: SubscriberConfig = {
 }
 ```
 
-This fires once per fulfillment, so a partially fulfilled order would be paid more than once. Before you ship it, add a guard that skips orders already paid and orders whose payment isn’t captured. A scheduled job in `src/jobs` that scans orders works the same way.
+A partially fulfilled order gets an `on_hold` payout that the next pass re-decides. A payment captured after fulfillment is picked up the same way, so pair the subscriber with a scheduled job that retries `on_hold` and `failed` payouts.
 
 ## The provider interface
 
@@ -82,15 +95,25 @@ Every external call goes through `IPayoutProvider` from `@mercurjs/types`. The m
 
 | Method | Called by | Returns |
 | --- | --- | --- |
-| `createPayoutAccount` | `createPayoutAccount` | Provider `id`, optional `status`, `data` |
-| `createOnboarding` | `createOnboarding` | `data`, such as a Stripe account link |
-| `createPayout` | `createPayouts` | Optional `status`, `data` |
+| `createAccount` | `createPayoutAccount` | An `AccountOutput`: provider `id`, `status`, flags, requirements, `data` |
+| `retrieveAccount` | `syncPayoutAccount` | An `AccountOutput` |
+| `deleteAccount` (optional) | `deletePayoutAccount`, when an account creation rolls back | Nothing |
+| `createOnboarding` | `createOnboarding` | A `LinkOutput`: `url`, `expires_at`, `data` |
+| `createLoginLink` (optional) | `createOnboarding`, once details are submitted | A `LinkOutput` for the provider dashboard |
+| `createPayout` | `processPayout` | A `PayoutOutput`: provider `id`, `status`, `data` |
+| `reversePayout` | `processPayoutReversal` | A `PayoutOutput` |
 | `getWebhookActionAndData` | `getWebhookActionAndData` | A `PayoutWebhookResult` |
 
-When you register no provider, the module loads `system`. It returns `active` accounts and `paid` payouts without moving money, which suits local development and tests. Register Stripe Connect in `medusa-config.ts` with the [Stripe Connect integration](/resources/integrations/stripe-connect).
+Write a provider as a class that implements `IPayoutProvider` and has a static `identifier`; the module registers it under `pop_<identifier>_<id>`. Throw a `PayoutProviderError` from `createPayout` or `reversePayout` to tell the module what happened:
+
+- `{ code: PayoutProviderErrorCode.REFUSED }` when the provider rejected the request and created nothing, such as a validation or balance error. The row is `failed` and the retry gets a new idempotency key.
+- `{ code: PayoutProviderErrorCode.FINAL }` (or `{ final: true }`) when a retry can’t succeed. The row is `aborted`.
+- Anything else, including a plain `Error` from a timeout, counts as an unknown outcome. The row is `failed` and the retry reuses the idempotency key, so a payout the provider did make isn’t made twice.
+
+When you register no provider, the module loads `system`. It returns `active` accounts and `paid` payouts without moving money, which suits local development and tests. Register Stripe Connect in `medusa-config.ts` with the [Stripe Connect integration](/resources/integrations/stripe-connect/overview).
 
 ## Related
 
 - [Account lifecycle](/platform/payout/concepts/account-lifecycle) for the statuses the webhooks set
-- [Workflows reference](/platform/payout/reference/workflows) for the `payoutCreated` hook
+- [Workflows reference](/platform/payout/reference/workflows) for inputs, steps, and the `payoutsCreated` hook
 - [Order commission lines](/platform/commission/concepts/order-commission-lines) for where the commission sum comes from

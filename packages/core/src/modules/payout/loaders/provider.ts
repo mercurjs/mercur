@@ -5,14 +5,22 @@ import {
   ModuleProvider,
   ModulesSdkTypes,
 } from "@medusajs/framework/types"
+import { MedusaError } from "@medusajs/framework/utils"
 
-import {
-  PayoutProviderRegistrationPrefix,
-} from "../services/provider-service"
+import { PayoutProviderRegistrationPrefix } from "../services/provider-service"
 import { SystemPayoutProvider } from "../providers"
 
 const registrationFn = async (klass, container, pluginOptions) => {
-  const key = `${PayoutProviderRegistrationPrefix}${klass.identifier}_${pluginOptions.id}`
+  if (!klass?.identifier) {
+    throw new MedusaError(
+      MedusaError.Types.INVALID_ARGUMENT,
+      `Trying to register a payout provider without a provider identifier.`
+    )
+  }
+
+  const key = `${PayoutProviderRegistrationPrefix}${klass.identifier}${
+    pluginOptions.id ? `_${pluginOptions.id}` : ""
+  }`
 
   container.register({
     [key]: asFunction(
@@ -42,7 +50,7 @@ export default async ({
 
   await moduleProviderLoader({
     container,
-    providers: options?.providers || [],
+    providers,
     registerServiceFn: registrationFn,
   })
 }

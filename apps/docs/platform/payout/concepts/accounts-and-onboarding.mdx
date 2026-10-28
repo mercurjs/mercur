@@ -10,7 +10,7 @@ A payout account is a seller’s connection to the payout provider, and onboardi
 
 A payout account is the record a payout is sent to. It’s the `PayoutAccount` data model (table `payout_account`, id prefix `pacc`), and the `seller_payout_account` link ties it to exactly one seller.
 
-You create one with `createPayoutAccountWorkflow`. The workflow checks the seller has no account yet, asks the module to create the account, and links it to the seller:
+You create one with `createPayoutAccountWorkflow`. The workflow checks the seller has no account yet, asks the module to create the account with the seller's profile, links it to the seller, and publishes the first onboarding link:
 
 ```ts
 import { createPayoutAccountWorkflow } from "@mercurjs/core/workflows"
@@ -26,20 +26,24 @@ const { result } = await createPayoutAccountWorkflow(container).run({
 Inside the module, `createPayoutAccount` runs 3 writes in order:
 
 1. Create the `PayoutAccount` row with your `data` and `context`
-2. Call the provider’s `createPayoutAccount` with `data.account_id` set to the new `pacc` id and `context.idempotency_key` defaulting to the same id
-3. Overwrite the row’s `data` and `status` with what the provider returns
+2. Call the provider’s `createAccount` with `data.account_id` and `metadata.account_id` set to the new `pacc` id, and `context.idempotency_key` defaulting to the same id
+3. Store the provider’s account id as `external_id`, its flags, the derived `status` and `kyc_status`, and its `data`
 
-If the provider call throws, the module deletes the new row and rethrows. The Stripe Connect provider returns `pending` and the full Stripe account object. The built-in `system` provider returns `active` and an empty object.
+If the provider call throws before an account exists, the module deletes the new row and rethrows. The Stripe Connect provider creates an Express account and returns it as `pending`. The built-in `system` provider returns an `active` account at once.
+
+With the `onboarding.prefill` option, the module also passes the seller’s name, website, email, phone, country, and business type, so the provider can prefill its forms. `onboarding.defaultCountry` applies when the seller has no address.
+
+`createOrRefreshSellerPayoutAccountWorkflow` does this for one seller only when needed: it creates the account when it’s missing, and otherwise publishes a fresh onboarding link until the seller has submitted their details. Run it again as often as you like.
 
 <Note>
-  A seller can have only one payout account. `validateSellerPayoutAccountStep` queries `seller_payout_account` and fails with `Seller already has a payout account` when a row exists.
+  A seller can have only one payout account. `validateSellerWithoutPayoutAccountStep` fails with a `409` when the seller already has one.
 </Note>
 
 ## Onboarding
 
 Onboarding is the provider’s setup flow: identity checks, bank details, and anything else the provider needs. Its state lives in the `Onboarding` data model (table `onboarding`, id prefix `onb`), a one-to-one child of the payout account.
 
-`createOnboardingWorkflow` takes an `account_id` and calls the provider’s `createOnboarding`. The module merges the account’s stored `data` with the `data` you pass, so the provider sees both. With Stripe Connect, the account’s `data.id` is the Stripe account id, and you pass `refresh_url` and `return_url`:
+`createOnboardingWorkflow` takes an `account_id` and calls the provider’s `createOnboarding` with the account’s `external_id`, a `refresh_url`, and a `return_url`. By default both URLs come from the module’s `onboarding` options: `return_url` is `onboarding.returnUrl`, and `refresh_url` is `<onboarding.refreshBaseUrl>/payout/onboarding/refresh?token=<onboarding_token>`. Pass them in `data` to override:
 
 ```ts
 import { createOnboardingWorkflow } from "@mercurjs/core/workflows"
@@ -55,7 +59,7 @@ const { result } = await createOnboardingWorkflow(container).run({
 })
 ```
 
-The result’s `data` holds what the provider returned. For Stripe Connect, that’s an account link object, and `data.url` is the hosted onboarding page. The workflow is safe to re-run:
+The result’s `data` holds what the provider returned, plus `url`, `kind` (`onboarding` or `login`), and `expires_at`. For Stripe Connect, `data.url` is the hosted onboarding page. The workflow is safe to re-run:
 
 - **First run**: creates the `Onboarding` record
 - **Later runs**: update the same record with new provider data, which you need when a Stripe link expires
@@ -64,7 +68,7 @@ The result’s `data` holds what the provider returned. For Stripe Connect, that
 
 Every payout record has a `data` JSON field, and accounts and onboarding records also have `context`. They play different roles:
 
-- **`data`**: the provider’s durable payload, such as the Stripe account, the account link, or the transfer
+- **`data`**: the provider’s durable payload, such as the Stripe account, the account link, or the transfer behind a payout
 - **`context`**: per-call hints for the provider, today only `idempotency_key`
 
 The module never interprets `data`. It passes it to the provider and stores what comes back. When you switch providers, the records keep the same shape.

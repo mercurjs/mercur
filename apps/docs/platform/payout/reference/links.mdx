@@ -9,8 +9,8 @@ The Payout module never references other modules directly. 3 module links in `pa
 | Link | Entry name | Cardinality | Created by |
 | --- | --- | --- | --- |
 | Seller ↔ payout account | `seller_payout_account` | One to one | `createPayoutAccountWorkflow` |
-| Payout ↔ seller | `payout_seller` | Many payouts to one seller | `createPayoutWorkflow` |
-| Order ↔ payout | `order_payout` | One order to many payouts | Nothing in core |
+| Payout ↔ seller | `payout_seller` | Many payouts to one seller | `createOrderPayoutsWorkflow` |
+| Order ↔ payout | `order_payout` | One order to its payout | `createOrderPayoutsWorkflow` |
 
 ## Seller and payout account
 
@@ -26,7 +26,7 @@ const { data: [seller] } = await query.graph({
 
 ## Payout and seller
 
-Defined in `payout-seller-link.ts` between `PayoutModule.linkable.payout`, marked `isList: true`, and `SellerModule.linkable.seller`. A seller has many payouts, and each payout has one seller. `createPayoutWorkflow` creates this link right after the payout.
+Defined in `payout-seller-link.ts` between `PayoutModule.linkable.payout`, marked `isList: true`, and `SellerModule.linkable.seller`. A seller has many payouts, and each payout has one seller. `createOrderPayoutsWorkflow` creates this link when it creates a payout.
 
 ```ts
 const { data: payouts } = await query.graph({
@@ -40,27 +40,14 @@ The Vendor API scopes payouts by querying the link table directly, with `entity:
 
 ## Order and payout
 
-Defined in `order-payout-link.ts` between Medusa’s `OrderModule.linkable.order` and `PayoutModule.linkable.payout`, marked `isList: true`. An order can have many payouts.
+Defined in `order-payout-link.ts` between Medusa’s `OrderModule.linkable.order` and `PayoutModule.linkable.payout`, marked `isList: true`. `createOrderPayoutsWorkflow` creates it with the payout. The payout also stores `order_id` in its own unique column, which is what keeps an order from being paid twice; the link is there so you can read across modules with `query.graph`:
 
-<Warning>
-  No workflow in core creates `order_payout` rows, so `order.payouts` is empty by default. To use this link, create it in the `payoutCreated` hook of `createPayoutWorkflow`, which receives `order_id` and `payout_id`.
-</Warning>
-
-```ts title="src/workflows/hooks/link-payout-to-order.ts"
-import { createPayoutWorkflow } from "@mercurjs/core/workflows"
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
-import { MercurModules } from "@mercurjs/types"
-
-createPayoutWorkflow.hooks.payoutCreated(
-  async ({ order_id, payout_id }, { container }) => {
-    const link = container.resolve(ContainerRegistrationKeys.LINK)
-
-    await link.create({
-      [Modules.ORDER]: { order_id },
-      [MercurModules.PAYOUT]: { payout_id },
-    })
-  }
-)
+```ts
+const { data: [order] } = await query.graph({
+  entity: "order",
+  fields: ["id", "payouts.id", "payouts.status", "payouts.reversals.*"],
+  filters: { id: "order_01JD8Q1234567" },
+})
 ```
 
-Once the hook runs, read an order’s payouts with `fields: ["id", "payouts.id", "payouts.status"]` on the `order` entity.
+Reversals aren’t linked to anything: they’re children of their payout, and `refund_id` names the Medusa refund they reverse.

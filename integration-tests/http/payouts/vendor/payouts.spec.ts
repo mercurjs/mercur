@@ -8,20 +8,32 @@ import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import {
   CommissionRateType,
   MercurModules,
+  PayoutStatus,
+  PayoutStatusReason,
 } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createShippingProfile } from "../../../helpers/create-shipping-profile"
-import { generatePublishableKey, generateStoreHeaders } from "../../../helpers/create-admin-user"
+import {
+  adminHeaders,
+  createAdminUser,
+  generatePublishableKey,
+  generateStoreHeaders,
+} from "../../../helpers/create-admin-user"
 import { createVendorProduct } from "../../../helpers/create-product"
-import { createPayoutAccountWorkflow, createPayoutWorkflow } from '@mercurjs/core/workflows'
+import {
+  createOrderPayoutsWorkflow,
+  createPayoutAccountWorkflow,
+  createPayoutReversalsWorkflow,
+} from "@mercurjs/core/workflows"
 
 jest.setTimeout(120000)
 
 medusaIntegrationTestRunner({
-  testSuite: ({ getContainer, api }) => {
+  testSuite: ({ getContainer, api, dbConnection }) => {
     describe("Vendor - Payouts", () => {
       let appContainer: MedusaContainer
       let commissionService: any
+      let payoutService: any
       let query: any
       let seller: any
       let sellerHeaders: any
@@ -35,10 +47,13 @@ medusaIntegrationTestRunner({
       beforeAll(async () => {
         appContainer = getContainer()
         commissionService = appContainer.resolve(MercurModules.COMMISSION)
+        payoutService = appContainer.resolve(MercurModules.PAYOUT)
         query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
       })
 
       beforeEach(async () => {
+        await createAdminUser(dbConnection, adminHeaders, appContainer)
+
         // Create seller
         const sellerResult = await createSellerUser(appContainer, {
           email: "payout-seller@test.com",
@@ -298,38 +313,48 @@ medusaIntegrationTestRunner({
       }
 
       describe("Payout Flow", () => {
-        const getOrderFromGroup = async (orderGroupId: string) => {
-          const { data: [orderGroup] } = await query.graph({
-            entity: "order_group",
-            fields: ["id", "orders.*", "orders.items.*"],
-            filters: { id: orderGroupId },
+        const getOrder = async (orderId: string) => {
+          const {
+            data: [order],
+          } = await query.graph({
+            entity: "order",
+            fields: [
+              "id",
+              "total",
+              "currency_code",
+              "items.id",
+              "payment_collections.payments.id",
+              "payment_collections.payments.captured_at",
+              "cart.payment_collection.payments.id",
+            ],
+            filters: { id: orderId },
           })
-          const order = orderGroup.orders[0]
+          return order
+        }
 
-          const itemIds = (order.items ?? [])
-            .map((item: any) => item.id)
-            .filter(Boolean)
-          if (itemIds.length) {
-            const { data: commissionLines } = await query.graph({
-              entity: "commission_line",
-              fields: [
-                "id",
-                "item_id",
-                "shipping_method_id",
-                "code",
-                "rate",
-                "amount",
-              ],
-              filters: { item_id: itemIds },
-            })
-            for (const item of order.items) {
-              item.commission_lines = commissionLines.filter(
-                (line: any) => line.item_id === item.id
-              )
+        const commissionOf = async (order: any) => {
+          const { data: lines } = await query.graph({
+            entity: "commission_line",
+            fields: ["amount"],
+            filters: { item_id: order.items.map((item: any) => item.id) },
+          })
+          return lines.reduce((acc: number, line: any) => acc + Number(line.amount), 0)
+        }
+
+        // The cart payment is split onto the orders by a subscriber, after
+        // the capture request returns.
+        const eventually = async (assertion: () => Promise<void>) => {
+          const deadline = Date.now() + 15000
+          for (;;) {
+            try {
+              return await assertion()
+            } catch (error) {
+              if (Date.now() > deadline) {
+                throw error
+              }
+              await new Promise((r) => setTimeout(r, 250))
             }
           }
-
-          return order
         }
 
         const placeOrder = async (quantity: number) => {
@@ -341,50 +366,132 @@ medusaIntegrationTestRunner({
           const completeResult = await completeCart(cart.id)
           expect(completeResult.type).toEqual("order_group")
 
-          return getOrderFromGroup(completeResult.order_group.id)
+          const {
+            data: [orderGroup],
+          } = await query.graph({
+            entity: "order_group",
+            fields: ["orders.id"],
+            filters: { id: completeResult.order_group.id },
+          })
+          return getOrder(orderGroup.orders[0].id)
         }
 
-        it("should create a payout for an order and expose it via /vendor/payouts", async () => {
-          const order = await placeOrder(1) // $100 item + $10 shipping
+        const capture = async (order: any) => {
+          await api.post(
+            `/admin/payments/${order.cart.payment_collection.payments[0].id}/capture`,
+            {},
+            adminHeaders
+          )
+          await eventually(async () => {
+            const current = await getOrder(order.id)
+            expect(current.payment_collections[0]?.payments[0]?.captured_at).toBeTruthy()
+          })
+          return getOrder(order.id)
+        }
 
-          expect(order).toBeDefined()
-          expect(order.items).toHaveLength(1)
-
-          // Commission (10% of the $100 item) is recorded on the order item.
-          const commissionLine = order.items[0].commission_lines?.[0]
-          expect(commissionLine).toBeDefined()
-          expect(commissionLine.amount).toEqual(1000) // $10 in cents
-
-          // Create the payout directly from the order.
-          const payoutResult = await createPayoutWorkflow(appContainer).run({
-            input: { order_id: order.id },
+        const payOut = (orderIds: string[]) =>
+          createOrderPayoutsWorkflow(appContainer).run({
+            input: { order_ids: orderIds, required_fulfillment_status: "not_fulfilled" },
           })
 
-          const payout = payoutResult.result
-          expect(payout).toBeDefined()
-          expect(payout.id).toBeDefined()
-          expect(Number(payout.amount)).toBeGreaterThan(0)
-          expect(payout.currency_code).toEqual("usd")
+        it("pays the seller the order total minus commission and exposes it via /vendor/payouts", async () => {
+          const order = await capture(await placeOrder(1))
+          const commission = await commissionOf(order)
+          expect(commission).toEqual(1000)
 
-          // The seller can see the payout on their payouts endpoint.
+          const { result } = await payOut([order.id])
+          expect(result.payouts).toHaveLength(1)
+
+          const payout = result.payouts[0]
+          expect(payout.order_id).toEqual(order.id)
+          expect(payout.status).toEqual(PayoutStatus.PAID)
+          expect(Number(payout.amount)).toEqual(Number(order.total) - commission)
+          expect(payout.data.provider.id).toBeTruthy()
+
           const payoutsResponse = await api.get(`/vendor/payouts`, sellerHeaders)
-
           expect(payoutsResponse.status).toEqual(200)
-          const listed = payoutsResponse.data.payouts.find(
-            (p: any) => p.id === payout.id
-          )
+          const listed = payoutsResponse.data.payouts.find((p: any) => p.id === payout.id)
           expect(listed).toBeDefined()
+          expect(listed.order_id).toEqual(order.id)
           expect(Number(listed.amount)).toEqual(Number(payout.amount))
-          expect(listed.currency_code).toEqual("usd")
+        })
+
+        it("holds the payout until the payment is captured, then pays the same row", async () => {
+          const order = await placeOrder(1)
+
+          await payOut([order.id])
+          const [held] = await payoutService.listPayouts({ order_id: order.id })
+          expect(held.status).toEqual(PayoutStatus.ON_HOLD)
+          expect(held.status_reason).toEqual(PayoutStatusReason.PAYMENT_NOT_READY)
+          expect(held.data.status_detail).toContain("is not ready yet")
+
+          await capture(order)
+          await payOut([order.id])
+
+          const payouts = await payoutService.listPayouts({ order_id: order.id })
+          expect(payouts).toHaveLength(1)
+          expect(payouts[0].id).toEqual(held.id)
+          expect(payouts[0].status).toEqual(PayoutStatus.PAID)
+        })
+
+        it("holds the payout until the order reaches the required fulfillment status", async () => {
+          const order = await capture(await placeOrder(1))
+
+          await createOrderPayoutsWorkflow(appContainer).run({
+            input: { order_ids: [order.id] },
+          })
+
+          const [held] = await payoutService.listPayouts({ order_id: order.id })
+          expect(held.status).toEqual(PayoutStatus.ON_HOLD)
+          expect(held.status_reason).toEqual(PayoutStatusReason.ORDER_NOT_READY)
+          expect(held.data.status_detail).toEqual("Order is not ready yet, status is not_fulfilled")
+        })
+
+        it("does not pay an order out twice", async () => {
+          const order = await capture(await placeOrder(1))
+
+          await payOut([order.id])
+          const { result } = await payOut([order.id])
+
+          expect(result.payouts).toHaveLength(0)
+          expect(await payoutService.listPayouts({ order_id: order.id })).toHaveLength(1)
+        })
+
+        it("reverses the refunded share net of its commission", async () => {
+          const order = await capture(await placeOrder(1))
+          const commission = await commissionOf(order)
+          const { result } = await payOut([order.id])
+          const payout = result.payouts[0]
+
+          await api.post(
+            `/admin/payments/${order.payment_collections[0].payments[0].id}/refund`,
+            { amount: 5500 },
+            adminHeaders
+          )
+
+          const reversals = await createPayoutReversalsWorkflow(appContainer).run({
+            input: { order_ids: [order.id] },
+          })
+          expect(reversals.result.reversals).toHaveLength(1)
+
+          const reversal = reversals.result.reversals[0]
+          expect(reversal.payout_id).toEqual(payout.id)
+          expect(reversal.status).toEqual(PayoutStatus.PAID)
+          expect(reversal.refund_id).toBeTruthy()
+          expect(Number(reversal.amount)).toEqual(5500 - (commission * 5500) / Number(order.total))
+
+          const again = await createPayoutReversalsWorkflow(appContainer).run({
+            input: { order_ids: [order.id] },
+          })
+          expect(again.result.reversals).toHaveLength(0)
+
+          const detail = await api.get(`/vendor/payouts/${payout.id}`, sellerHeaders)
+          expect(detail.data.payout.reversals).toHaveLength(1)
         })
 
         it("should not expose a payout to another seller", async () => {
-          const order = await placeOrder(1)
-          const payout = (
-            await createPayoutWorkflow(appContainer).run({
-              input: { order_id: order.id },
-            })
-          ).result
+          const order = await capture(await placeOrder(1))
+          const payout = (await payOut([order.id])).result.payouts[0]
 
           const other = await createSellerUser(appContainer, {
             email: "other-payout-seller@test.com",
@@ -401,35 +508,21 @@ medusaIntegrationTestRunner({
           expect(asOwner.data.count).toEqual(1)
         })
 
-        it("should reject creating a payout for a non-existent order", async () => {
-          const { errors } = await createPayoutWorkflow(appContainer).run({
-            input: { order_id: "order_does_not_exist" },
-            throwOnError: false,
-          })
-
-          expect(errors.length).toBeGreaterThan(0)
+        it("creates nothing for an order that does not exist", async () => {
+          const { result } = await payOut(["order_does_not_exist"])
+          expect(result.payouts).toHaveLength(0)
+          expect(await payoutService.listPayouts({ order_id: "order_does_not_exist" })).toHaveLength(0)
         })
 
         it("should create separate payouts for multiple orders", async () => {
-          const order1 = await placeOrder(2) // 2 x $100
-          const payout1 = (
-            await createPayoutWorkflow(appContainer).run({
-              input: { order_id: order1.id },
-            })
-          ).result
+          const order1 = await capture(await placeOrder(2))
+          const order2 = await capture(await placeOrder(1))
 
-          const order2 = await placeOrder(1) // 1 x $100
-          const payout2 = (
-            await createPayoutWorkflow(appContainer).run({
-              input: { order_id: order2.id },
-            })
-          ).result
+          const { result } = await payOut([order1.id, order2.id])
+          const payout1 = result.payouts.find((p: any) => p.order_id === order1.id)
+          const payout2 = result.payouts.find((p: any) => p.order_id === order2.id)
 
           expect(payout1.id).not.toEqual(payout2.id)
-          expect(Number(payout1.amount)).toBeGreaterThan(0)
-          expect(Number(payout2.amount)).toBeGreaterThan(0)
-
-          // The larger order should yield the larger payout.
           expect(Number(payout1.amount)).toBeGreaterThan(Number(payout2.amount))
 
           const payoutsResponse = await api.get(`/vendor/payouts`, sellerHeaders)

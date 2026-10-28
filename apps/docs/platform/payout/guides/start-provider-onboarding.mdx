@@ -11,7 +11,7 @@ Create or refresh a seller’s onboarding link from server code, so they can fin
 You need:
 
 - A payout account for the seller, created with [Create a payout account](/platform/payout/guides/create-a-payout-account)
-- For Stripe Connect, a `refresh_url` and a `return_url` in your vendor app
+- `onboarding.returnUrl` and `onboarding.refreshBaseUrl` set on the payout module, or your own `refresh_url` and `return_url`
 
 ## Create the onboarding link
 
@@ -38,7 +38,7 @@ You need:
     ```
   </Step>
   <Step title="Run the workflow from a route">
-    Pass the URLs in `data`. The module merges them with the account’s stored `data`, which carries the Stripe account `id`:
+    The module fills in `refresh_url` and `return_url` from its `onboarding` options. Pass them in `data` only to override those defaults:
 
     ```ts title="src/api/admin/payout-setup/[id]/onboarding/route.ts"
     import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
@@ -66,27 +66,28 @@ You need:
     }
     ```
 
-    For Stripe Connect, `result.data` is the Stripe account link, and `url` is the page you redirect the seller to.
+    `result.data.url` is the page you redirect the seller to. For Stripe Connect, the rest of `result.data` is the Stripe account link.
   </Step>
 </Steps>
 
 ## Refresh an expired link
 
-Stripe account links expire. Call the same route again: the module finds the account’s existing `Onboarding` record and updates its `data` instead of creating a second one. Point `refresh_url` at a page in your vendor app that calls this route, so Stripe can send the seller back for a fresh link.
+Provider onboarding links expire. Call the same route again: the module finds the account’s existing `Onboarding` record and updates its `data` instead of creating a second one.
 
-## Required data for Stripe Connect
+The default `refresh_url` already handles this. It points at core’s public `GET /payout/onboarding/refresh?token=<onboarding_token>` route, which creates a fresh link for the account that owns the token and redirects the seller to it. The module's `createOnboarding` sets the `onboarding_token` before it publishes the first link. Each refresh rotates the token, so a refresh URL works once, and a token older than `onboarding.tokenTtlSeconds` (24 hours by default) is rejected with `400`; the seller then gets a new link from the vendor panel.
 
-The Stripe Connect provider checks 3 values and throws a `MedusaError` of type `INVALID_DATA` when one is missing:
+## Where Stripe Connect reads its inputs
 
-- **`id`**: the Stripe account id, read from the payout account’s stored `data`
-- **`refresh_url`**: where Stripe sends the seller when the link is no longer valid
-- **`return_url`**: where Stripe sends the seller after they leave the flow
+The Stripe Connect provider uses:
 
-Put the URLs in `data`, not `context`. The module forwards `context` to the provider, but Stripe Connect reads the URLs only from `data`.
+- **The account**: the payout account’s `external_id`, the Stripe `acct_…` id
+- **`refresh_url`** and **`return_url`**: from the module’s defaults or your `data`
+
+It requests the Express capabilities first when the account doesn’t have them yet, then creates an `account_onboarding` account link.
 
 ## The account becomes active by webhook
 
-Finishing onboarding doesn’t change the account by itself. Stripe sends `account.updated`, the `payout-webhook` subscriber maps it to an action, and `processPayoutForWebhookWorkflow` sets the status.
+Finishing onboarding doesn’t change the account by itself. Stripe sends `account.updated`, the `payout-webhook` subscriber maps it to an action, and `processPayoutForWebhookWorkflow` re-reads the account from Stripe and stores its new status. Once the seller has submitted their details, the onboarding record switches to a Stripe dashboard login link.
 
 ## Next steps
 

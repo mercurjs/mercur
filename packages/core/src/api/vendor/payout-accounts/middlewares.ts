@@ -8,6 +8,7 @@ import {
 } from "@medusajs/framework"
 
 import {
+  vendorMyPayoutAccountQueryConfig,
   vendorPayoutAccountQueryConfig,
   vendorOnboardingQueryConfig,
 } from "./query-config"
@@ -21,6 +22,17 @@ import {
 const applySellerPayoutAccountLinkFilter = applySellerLinkFilter()
 
 export const vendorPayoutAccountsMiddlewares: MiddlewareRoute[] = [
+  {
+    method: ["GET"],
+    matcher: "/vendor/payout-accounts/me",
+    middlewares: [
+      requirePermission("payout_accounts", "view"),
+      validateAndTransformQuery(
+        VendorGetPayoutAccountParams,
+        vendorMyPayoutAccountQueryConfig.retrieve
+      ),
+    ],
+  },
   {
     method: ["GET"],
     matcher: "/vendor/payout-accounts",

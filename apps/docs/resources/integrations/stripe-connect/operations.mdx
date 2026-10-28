@@ -1,0 +1,102 @@
+---
+title: "Operations"
+sidebarTitle: "Operations"
+description: "The admin screens for running the Stripe connector day to day: settlements, adjustments, captures, job runs, retries, alerts, the notification endpoint and the Stripe settings page."
+---
+
+The plugin adds a **Stripe** item under **Integrations** in the admin sidebar, a **Stripe** page under **Settings**, and Stripe sections on the order and payout account pages. Every screen needs the `payouts:view` permission, and every action needs `payouts:edit`.
+
+## Integrations → Stripe
+
+| Page | Shows | Actions |
+| --- | --- | --- |
+| **Stripe** (Settlements) | Every settlement: store, period end, status and bank payout status. Filter by status, bank payout status or period end. Open one for its totals, its payouts, reversals and adjustments, and its Stripe bank payout | **Retry bank payout** |
+| **Adjustments** | Every adjustment: store, type, amount, reason and status. Filter by type or status | **Create** |
+| **Captures** | Every order group's capture: orders decided, authorized amount, expiry and status. Filter by status or expiry | **Capture now**, **Cancel authorization** |
+| **Jobs** | The seven jobs with their schedule, last run and failing items | **Run now** |
+
+### Jobs
+
+Each job's page shows its schedule in words and as a cron expression, its checkpoint, its next run and how many items are failing, followed by its run history. Each run lists its trigger (schedule, manual or subscriber), its status, when it started and finished, and counts of what it did, such as **Paid**, **On hold** or **Blocked**.
+
+**Run now** starts the job straight away. If a run is already in progress, the new one is skipped, so pressing it twice is harmless.
+
+Use **Run now** after fixing the cause of a failure, for example after a seller completes onboarding or after you top up your platform balance, instead of waiting for the next scheduled run.
+
+## Order and payout account pages
+
+- **Orders**: the **Stripe payouts** section in the sidebar lists the order's payout and every reversal, with amount, status and the reason in plain words. A failed, held or pending payout has **Retry** in its menu.
+- **Payout accounts**: the **Stripe** section shows the Stripe account, Stripe's disabled reason and the outstanding requirements, with **Open in Stripe** and **Ignore store**.
+- **Stores**: the **Payout account** section links to the store's payout account.
+
+## Settings → Stripe
+
+The settings page has three sections:
+
+- **Stripe**: whether the API key is set and when the last webhook arrived. Its menu has **Map existing account** and **Send test notification**
+- **Webhooks**: both endpoint URLs for your deployment and the events each one needs. Copy them into the Stripe Dashboard
+- **Notifications**: the notification endpoint's origin and the last deliveries, with their type, attempts, status and response
+
+If **Last webhook** stays empty after you create a seller account or pay out an order, Stripe isn't reaching your API. Check the endpoint URLs and signing secrets.
+
+## Failures and retries
+
+Nothing in the plugin needs manual cleanup after a failure. Every failed or held record is retried by its job:
+
+| Record | Retried by | When it gives up |
+| --- | --- | --- |
+| Capture | `payout-validate-captures`, every five minutes | When the authorization expires |
+| Payout | `payout-process-transfers`, every five minutes | Never. Aborted payouts aren't retried |
+| Reversal | `payout-process-reversals`, every five minutes | Never |
+| Adjustment | `payout-process-settlements`, nightly | Never |
+| Bank payout | `payout-process-settlements`, nightly | Never |
+
+Stripe errors are split in two. A definitive refusal, such as an invalid account or an amount Stripe won't accept, marks the record **failed** with Stripe's message. After a network error or timeout the outcome is unknown, so the record keeps its idempotency key, and the retry sends the same key again. Stripe either completes the request once or returns the result it already gave. Only a definitive refusal gives the next attempt a fresh key.
+
+## Alerts
+
+Set `alerting.technicalEmail` and `alerting.from` on the plugin, and register an email provider on Medusa's notification module.
+
+| Email | Sent | Lists |
+| --- | --- | --- |
+| Failed operations | Daily at 08:04 UTC, only when something is failed | Captures, payouts, reversals, settlement bank payouts and adjustments that are still failed, with their reason |
+| KYC attention | Every six hours, with `kycMonitor.enabled` | Accounts whose KYC status isn't `approved` |
+| Endpoint down | When a notification can't be delivered, at most every `endpointDownCooldownMinutes` | The delivery error |
+
+## Notification endpoint
+
+Set `notifications.url` to hear about failures as they happen, instead of in the next morning's digest. The endpoint, for example your back-office service or a chat webhook, receives a JSON `POST` for each of these:
+
+| Type | Sent when |
+| --- | --- |
+| `payout.failed` | Stripe refuses a payout's transfer |
+| `payout_reversal.failed` | Stripe refuses a reversal |
+| `settlement.payout_failed` | A settlement's bank payout fails, whether Stripe refuses it or reports it failed or canceled through a webhook |
+| `test` | You choose **Send test notification** |
+
+```json
+{
+  "type": "payout.failed",
+  "payload": {
+    "id": "pout_01...",
+    "display_id": 42,
+    "order_id": "order_01...",
+    "account_id": "pacc_01...",
+    "seller_id": "sel_01...",
+    "amount": 84.5,
+    "currency_code": "eur",
+    "status_reason": "provider_error",
+    "status_detail": "Your destination account needs to have at least one of the following capabilities enabled: transfers"
+  }
+}
+```
+
+A reversal's payload carries `payout_id`, `refund_id`, `order_id`, `account_id`, `seller_id`, `amount`, `currency_code`, `status_reason` and `status_detail`. A settlement's carries `display_id`, `account_id`, `seller_id`, `amount`, `currency_code`, `period_start`, `period_end`, `provider_payout_id` and `status_reason`.
+
+Each failure is sent once. Payouts that keep failing on every retry don't notify again, and they stay in the daily digest until they're resolved. A settlement whose retried bank payout is accepted and later fails again notifies again, because it's a new bank payout.
+
+Each delivery is tried up to four times, after 1, 5 and 25 seconds, and logged under **Settings → Stripe → Notifications**. When every attempt fails and `mailOnEndpointDown` is on, the technical contact gets an email.
+
+Use **Send test notification** to check the endpoint and its signature check. The admin only ever shows the URL's origin, because chat webhook URLs carry their secret in the path.
+
+With `notifications.secret` set, every request carries a signature. See [notification signatures](/resources/integrations/stripe-connect/reference#notification-signatures).

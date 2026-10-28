@@ -3869,8 +3869,7 @@
       "pending": "保留中",
       "processing": "処理中",
       "paid": "支払い済み",
-      "failed": "失敗",
-      "canceled": "キャンセル済み"
+      "failed": "失敗"
     }
   },
   "translations": {

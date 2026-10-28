@@ -1856,14 +1856,111 @@
   "payouts": {
     "domain": "Payouts",
     "list": {
-      "empty": "No payouts found"
+      "empty": "Payouts appear once a fulfilled and paid order is processed."
     },
     "status": {
-      "paid": "Paid",
-      "processing": "Processing",
       "pending": "Pending",
+      "on_hold": "On hold",
+      "processing": "Processing",
+      "paid": "Paid",
       "failed": "Failed",
-      "canceled": "Canceled"
+      "aborted": "Aborted"
+    },
+    "fields": {
+      "order": "Order",
+      "payoutAccount": "Payout account"
+    },
+    "actions": {
+      "retry": "Retry payout"
+    },
+    "retry": {
+      "title": "Retry payout",
+      "description": "The payout is evaluated again and sent to the payout provider once the order is ready.",
+      "successToast": "Payout retried.",
+      "disabledTooltip": "Only pending, failed or on-hold payouts can be retried."
+    },
+    "reversals": {
+      "header": "Reversals",
+      "refund": "Refund",
+      "noRecordsTitle": "No reversals",
+      "noRecordsMessage": "Refunds on this order have not taken anything back from the store."
+    },
+    "references": {
+      "header": "References",
+      "empty": "This payout has no linked records."
+    },
+    "statusReasons": {
+      "account_not_ready": "The store's payout account cannot receive payouts yet.",
+      "account_payouts_disabled": "Payouts are disabled on the store's payout account.",
+      "order_not_ready": "The order is not fulfilled yet.",
+      "order_aborted": "The order was canceled.",
+      "payment_not_ready": "The order's payment is not captured yet.",
+      "payment_failed": "The order's payment failed.",
+      "payment_canceled": "The order's payment was canceled.",
+      "payment_refunded": "The order's payment was refunded in full.",
+      "payout_not_ready": "The payout for this order has not been sent yet.",
+      "refund_aborted": "The refund was canceled.",
+      "refund_absorbed": "The refund was deducted before the payout was sent.",
+      "invalid_amount": "The amount to pay out is not valid.",
+      "provider_error": "The payout provider returned an error.",
+      "other": "This payout needs attention."
+    }
+  },
+  "payoutAccounts": {
+    "domain": "Payout accounts",
+    "subtitle": "Every store's payout account, mirrored from its payout provider.",
+    "noStore": "This account is not linked to a store.",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "list": {
+      "noRecordsMessage": "Payout accounts appear once a store starts onboarding with a payout provider."
+    },
+    "fields": {
+      "store": "Store",
+      "kycStatus": "KYC status",
+      "payoutsEnabled": "Payouts",
+      "chargesEnabled": "Charges",
+      "detailsSubmitted": "Details submitted",
+      "lastSyncedAt": "Last synced"
+    },
+    "status": {
+      "pending": "Pending",
+      "active": "Active",
+      "restricted": "Restricted",
+      "rejected": "Rejected"
+    },
+    "kycStatus": {
+      "pending_submission": "Pending submission",
+      "pending_approval": "Pending approval",
+      "approved": "Approved",
+      "refused": "Refused"
+    },
+    "actions": {
+      "sync": "Sync from provider",
+      "refreshLink": "Refresh onboarding link",
+      "openLink": "Open onboarding link"
+    },
+    "sync": {
+      "successToast": "Account synced from the payout provider."
+    },
+    "refreshLink": {
+      "successToast": "A new onboarding link was created."
+    },
+    "capabilities": {
+      "header": "Capabilities",
+      "kycUnknown": "Not reported"
+    },
+    "storeSection": {
+      "header": "Payout account",
+      "empty": "This store has no payout account yet."
+    },
+    "disabledReason": {
+      "pastDue": "Payouts are paused: the payout provider is waiting for overdue information from this store.",
+      "pendingVerification": "Payouts are paused while the payout provider verifies this store's information.",
+      "requirements": "Payouts are paused until this store completes onboarding with the payout provider.",
+      "rejected": "The payout provider rejected this account. Payouts to this store are not possible.",
+      "underReview": "The payout provider is reviewing this account. Payouts are paused until the review ends.",
+      "other": "The payout provider has disabled payouts for this account."
     }
   },
   "draftOrders": {

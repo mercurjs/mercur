@@ -37,9 +37,6 @@ export const recordExternalRefundWorkflow = createWorkflow(
         "payment_collections.payments.id",
         "payment_collections.payments.provider_id",
         "payment_collections.payments.captured_at",
-        "cart.payment_collection.payments.id",
-        "cart.payment_collection.payments.provider_id",
-        "cart.payment_collection.payments.captured_at",
       ],
       filters: { id: input.order_id },
       options: { throwIfKeyNotFound: true },
@@ -50,7 +47,6 @@ export const recordExternalRefundWorkflow = createWorkflow(
       payments: (orders.data[0]?.payment_collections ?? []).flatMap(
         (pc) => pc?.payments ?? []
       ),
-      cart_payments: orders.data[0]?.cart?.payment_collection?.payments ?? [],
     }))
 
     const paymentId = validateExternalPaymentStep(validationInput)

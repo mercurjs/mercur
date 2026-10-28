@@ -61,7 +61,7 @@ export default {
             ["orderGroupCreated", "completeCartWithSplitOrdersWorkflow"],
             ["offersCreated", "createOffersWorkflow"],
             ["productChangeConfirmed", "confirmProductChangeWorkflow"],
-            ["payoutCreated", "createPayoutWorkflow"],
+            ["payoutsCreated", "createOrderPayoutsWorkflow"],
           ],
         })
       },

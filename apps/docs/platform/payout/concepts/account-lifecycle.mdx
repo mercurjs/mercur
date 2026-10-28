@@ -1,69 +1,84 @@
 ---
 title: "Payout account and payout statuses"
 sidebarTitle: "Account lifecycle"
-description: "The statuses a payout account and a payout move through, and the provider webhooks that move them."
+description: "The statuses a payout account, a payout, and a reversal move through, and the provider webhooks that move them."
 ---
 
-A payout account’s status says whether the seller can receive money, and a payout’s status says where one transfer stands. Neither is set by an operator. The provider decides, sends a webhook, and `processPayoutForWebhookWorkflow` writes the new status. Read this page to know when `createPayoutWorkflow` will accept an account, and what each webhook does.
+A payout account’s status says whether the seller can receive money, and a payout’s status says where one order’s payout stands. Neither is set by an operator. The provider decides, sends a webhook, and Mercur re-reads the provider’s view. Read this page to know when `createOrderPayoutsWorkflow` will pay an account, and what each webhook does.
 
 ## Account statuses
 
-An account’s state is the `status` field on `PayoutAccount`, typed by the `PayoutAccountStatus` enum from `@mercurjs/types`. It defaults to `pending`, and the provider’s `createPayoutAccount` response can overwrite it.
+An account’s state is the `status` field on `PayoutAccount`, typed by the `PayoutAccountStatus` enum from `@mercurjs/types`. It defaults to `pending`.
 
 | Status | Value | Meaning |
 | --- | --- | --- |
-| `PENDING` | `pending` | Created, setup not finished |
-| `ACTIVE` | `active` | Can receive payouts |
-| `RESTRICTED` | `restricted` | Missing information or a compliance issue |
+| `PENDING` | `pending` | Created, details not submitted yet |
+| `ACTIVE` | `active` | Payouts and charges enabled, nothing outstanding |
+| `RESTRICTED` | `restricted` | Details submitted, but the provider disabled something |
 | `REJECTED` | `rejected` | Permanently disabled by the provider |
 
-Only `active` matters to the rest of the module. `createPayouts` throws `Account 'pacc_…' is not active` for any other status, so a payout never starts on a pending, restricted, or rejected account.
+The account also mirrors the provider’s flags: `payouts_enabled`, `charges_enabled`, `details_submitted`, `disabled_reason`, and a derived `kyc_status` (`pending_submission`, `pending_approval`, `approved`, `refused`). `createOrderPayoutsWorkflow` checks `payouts_enabled` and holds the payout until it’s `true`.
 
-## Webhooks set the account status
+## How the status is derived
 
-The provider owns the account status, and a webhook carries each change. The provider’s `getWebhookActionAndData` turns a raw webhook into an action and the `pacc` id it applies to. `processPayoutForWebhookWorkflow` then runs the matching step.
+Mercur doesn’t take a status from the webhook body. It asks the provider for the account with `retrieveAccount` and derives the status from what comes back:
+
+1. `rejected` when the provider says so, or `disabled_reason` starts with `rejected`
+2. `pending` while `details_submitted` is `false`
+3. `active` when payouts and charges are enabled and there’s no `disabled_reason`
+4. `restricted` in every other case
+
+`kyc_status` follows the requirements: anything currently or past due is `pending_submission`, anything pending verification is `pending_approval`, a `rejected.*` disabled reason is `refused`, and an account with nothing outstanding is `approved`.
+
+## Webhooks refresh the account
+
+The provider’s `getWebhookActionAndData` turns a raw webhook into an action and the **provider’s** account id. `processPayoutForWebhookWorkflow` finds the account by `external_id` and runs `syncPayoutAccountWorkflow`, which:
+
+1. Re-reads the account from the provider and stores the derived status, flags, and `kyc_status`
+2. Swaps the onboarding link for a provider dashboard login link once details are submitted
+3. Emits `payout_account.updated` with the account id
 
 <img className="block dark:hidden" src="/images/figures/payout-account-lifecycle-light.svg" alt="A Stripe account.updated webhook behind the process-payout-for-webhook workflow. The workflow maps account.activated to the activate-payout-account step and the Active status, account.restricted to Restricted, account.rejected to Rejected, and not_supported to no change." />
 <img className="hidden dark:block" src="/images/figures/payout-account-lifecycle-dark.svg" alt="A Stripe account.updated webhook behind the process-payout-for-webhook workflow. The workflow maps account.activated to the activate-payout-account step and the Active status, account.restricted to Restricted, account.rejected to Rejected, and not_supported to no change." />
 
-The workflow doesn’t check the current status before it writes. Any action can move an account from any status, so the provider’s view always wins:
+Every `account.*` action runs the same sync, so the provider’s current view always wins, whatever order the webhooks arrive in. You can run the same sync by hand with `POST /admin/payout-accounts/:id/sync`.
 
-| Action | Step | New status |
-| --- | --- | --- |
-| `account.activated` | `activate-payout-account` | `active` |
-| `account.restricted` | `restrict-payout-account` | `restricted` |
-| `account.rejected` | `reject-payout-account` | `rejected` |
-| `not_supported` | none | unchanged |
-
-Each step is `updatePayoutAccountStep`, renamed with `.config({ name })`. It saves the previous status and restores it if the workflow rolls back.
-
-## How Stripe Connect maps account updates
-
-The Stripe Connect provider handles only Stripe’s `account.updated` event, and it reads the `pacc` id from the Stripe account’s `metadata.account_id`. It picks the action in this order:
-
-1. `account.rejected` when `requirements.disabled_reason` starts with `rejected.`
-2. `account.activated` when every enabled `accountValidation` check passes
-3. `account.restricted` in every other case
-
-The default checks are `detailsSubmitted`, `chargesEnabled`, `payoutsEnabled`, and `noOutstandingRequirements`, all `true`, with no `requiredCapabilities`.
-
-<Note>
-  With Stripe Connect, an account can skip `pending` and go to `restricted` first. Stripe sends `account.updated` while the seller is still onboarding, and an account with outstanding requirements maps to `account.restricted`. It becomes `active` on a later update.
-</Note>
+The Stripe Connect provider handles Stripe’s `account.updated` event and reports `account.rejected`, `account.activated`, `account.restricted`, or `account.updated`, depending on the account it receives.
 
 ## Payout statuses
 
-Each payout carries its own `PayoutStatus`. The module creates the row as `pending`, then stores the status the provider’s `createPayout` returns.
+Each payout and each reversal carries a `PayoutStatus`:
 
 | Status | Value | Set by |
 | --- | --- | --- |
-| `PENDING` | `pending` | Row creation |
-| `PROCESSING` | `processing` | A `payout.processing` webhook |
+| `PENDING` | `pending` | Every check passed; the payout is about to be sent |
+| `ON_HOLD` | `on_hold` | A check failed that can still pass later, such as an uncaptured payment |
+| `PROCESSING` | `processing` | The provider accepted the payout but hasn’t settled it |
 | `PAID` | `paid` | The provider response or a `payout.paid` webhook |
-| `FAILED` | `failed` | A `payout.failed` webhook |
-| `CANCELED` | `canceled` | A `payout.canceled` webhook |
+| `FAILED` | `failed` | A provider error, or a `payout.failed` webhook |
+| `ABORTED` | `aborted` | A canceled order or payment, a non-positive amount, or a final provider error |
 
-The Stripe Connect provider returns `paid` as soon as Stripe creates the transfer, and it maps no Stripe event to a `payout.*` action. The `payout.*` branches exist for providers that settle asynchronously.
+`status_reason` holds a stable code that says why a payout or reversal is `on_hold`, `failed`, or `aborted`, from `PayoutStatusReason` in `@mercurjs/types`. The details behind it, such as an id, a status, or the provider’s error message, are in `data.status_detail`, for example `Order is not ready yet, status is not_fulfilled`.
+
+| Code | Status | Meaning |
+| --- | --- | --- |
+| `account_not_ready` | `on_hold` | The seller has no payout account |
+| `account_payouts_disabled` | `on_hold` | The provider hasn’t enabled payouts on the account |
+| `order_not_ready` | `on_hold` | The order isn’t fulfilled far enough yet |
+| `order_aborted` | `aborted` | The order is canceled |
+| `payment_not_ready` | `on_hold` | The payment is missing or not captured yet |
+| `payment_failed` | `aborted` | The payment failed |
+| `payment_canceled` | `aborted` | The payment was canceled |
+| `payment_refunded` | `aborted` | The payment was refunded in full |
+| `payout_not_ready` | `on_hold` | A reversal waits for its payout to be paid |
+| `refund_aborted` | `aborted` | A reversal’s payout was aborted |
+| `refund_absorbed` | `aborted` | The refund was deducted from the payout before it was sent |
+| `invalid_amount` | `aborted` | The amount to send isn’t positive |
+| `provider_error` | `failed`, `aborted` | The provider threw or a `payout.failed` webhook arrived |
+
+`on_hold` and `failed` payouts are re-decided by the next `createOrderPayoutsWorkflow` run, and operators can retry one, or a `pending` one, with `POST /admin/payouts/:id/retry`. A canceled order’s payout is aborted even when the seller has no usable account yet. `paid`, `processing`, and `aborted` payouts are never sent again.
+
+The Stripe Connect provider returns `paid` as soon as Stripe creates the transfer, so no webhook is needed to confirm it. Transfers are platform-account events and never reach the Connect endpoint.
 
 ## Related
 

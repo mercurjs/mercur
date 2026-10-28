@@ -1,0 +1,88 @@
+---
+title: "Seller onboarding"
+sidebarTitle: "Seller onboarding"
+description: "How sellers get a Stripe Express account, finish onboarding, and keep their account able to receive payouts, and what operators see and can do on the way."
+---
+
+Every seller needs a Stripe Express connected account before they can be paid. The plugin creates it, and Stripe hosts the forms where the seller enters their identity and bank details. Mercur mirrors the account as a `payout_account` and keeps it in step through webhooks.
+
+## Account creation
+
+The onboarding job runs every minute. It picks up sellers that are **open** or **pending approval** and were created or updated since its last run. For each seller without a payout account it:
+
+1. Creates an Express account in Stripe, with `manualPayouts` applied when you set it.
+2. Saves it as the seller's `payout_account`, with status `pending`.
+3. Creates an onboarding link and saves it on the account's `onboarding` record.
+
+A seller who signs up before the job runs can also create the account themselves. The vendor **Stripe** page asks for a country and a business type, individual or company, and optionally a business name, website, support email and phone, then creates the account straight away.
+
+Set `onboarding.enabled: false` on the plugin to stop the job from creating accounts. Sellers then create theirs from the vendor Stripe page.
+
+With `onboarding.prefill: true` on the payout module, new accounts start with the seller's country, business type and business profile, so the seller types less in Stripe's form.
+
+## Onboarding links
+
+Stripe's onboarding links expire after a few minutes and can be opened once. Mercur never shows a seller a stale one:
+
+- The vendor **Payouts** page shows the account's status and a **Continue onboarding** action, which always asks for a fresh link.
+- When a seller opens an expired link, Stripe sends them to `<refreshBaseUrl>/payout/onboarding/refresh?token=...`. Mercur checks the account's onboarding token, creates a new link and redirects the seller to it.
+- When onboarding is done, Stripe sends the seller to `onboarding.returnUrl`, usually the vendor Stripe page.
+
+Once the seller has submitted their details, the link becomes a **login link** to their Stripe Express dashboard, where they manage their bank account and see their balance. The vendor Payouts page shows it as **Manage payout details**.
+
+## Account status
+
+Every `account.updated` webhook re-reads the account from Stripe and recomputes its status:
+
+| Status | Meaning |
+| --- | --- |
+| `pending` | The seller hasn't submitted their details yet |
+| `active` | Every check in the payout provider's [`accountValidation`](/resources/integrations/stripe-connect/configuration#account-validation) passes. The seller can be paid |
+| `restricted` | Details were submitted, but a check fails: Stripe needs more information, or disabled charges or payouts |
+| `rejected` | Stripe rejected the account. It can't be paid |
+
+The KYC status is derived from Stripe's requirements on the same read:
+
+| KYC status | When |
+| --- | --- |
+| `pending_submission` | Stripe lists requirements that are currently due or past due |
+| `pending_approval` | Everything is submitted and Stripe is verifying it |
+| `approved` | Nothing is due or pending, and the account isn't disabled |
+| `refused` | Stripe disabled the account with a `rejected.*` reason |
+
+When an account becomes `active`, the seller's orders that were waiting for an account are queued, and the next payout run pays them.
+
+## What sellers see
+
+The vendor **Stripe** page, under **Integrations**, shows:
+
+- The Stripe account id and whether card payments are enabled
+- What Stripe still needs, grouped as **Currently due**, **Past due** and **Pending verification**. Each item is Stripe's requirement name, such as `individual.verification.document`
+- The seller's settlements, with the period, the net amount and the bank payout that paid it
+
+The vendor **Payouts** page shows the account status, whether payouts are enabled, the KYC status, and the onboarding or dashboard action.
+
+## What operators see
+
+Open a payout account in the admin, from **Payouts** or from the store page's **Payout account** section. The **Stripe** section in the sidebar shows the Stripe account id, Stripe's disabled reason in plain words, and the currently due and past due requirements. Its menu has:
+
+- **Open in Stripe**: the connected account in your Stripe Dashboard
+- **Ignore store** / **Stop ignoring**: see [Ignoring a store](#ignoring-a-store)
+
+The payout account's own menu has **Sync from provider**, which re-reads the account from Stripe, and **Refresh onboarding link**, which issues a new onboarding link, or a login link once the seller has submitted their details.
+
+### Map an existing account
+
+If a seller already has a connected account on your platform, for example from an earlier setup, attach it instead of creating a new one. In **Settings → Stripe**, choose **Map existing account**, pick the store and enter the `acct_...` id. Mercur creates the payout account, syncs it from Stripe and opens it.
+
+A store that already has a payout account can't be mapped again.
+
+### Ignoring a store
+
+Ignoring a store keeps its payout account and its onboarding, but the payout job skips its orders. Use it while you investigate a seller, or for a store you settle outside Stripe. Stop ignoring the store and the next payout run picks up the orders that waited.
+
+Ignoring sets `payout_ignored` on the seller's metadata.
+
+## KYC monitoring
+
+Webhooks keep accounts current, but a missed webhook leaves an account stale until its next change. Set `kycMonitor.enabled: true` on the plugin to re-read every account from Stripe every six hours. When any account's KYC status isn't `approved`, the technical contact gets one email listing those accounts with their KYC status and disabled reason.

@@ -1,5 +1,9 @@
 import { PaginatedResponse } from "@medusajs/types"
-import { OnboardingDTO, PayoutAccountDTO, PayoutDTO } from "../payout"
+import {
+  OnboardingDTO,
+  PayoutAccountDTO,
+  PayoutDTO,
+} from "../payout"
 
 export interface VendorPayoutAccountResponse {
   payout_account: PayoutAccountDTO
@@ -20,6 +24,10 @@ export interface VendorPayoutResponse {
 export type VendorPayoutListResponse = PaginatedResponse<{
   payouts: PayoutDTO[]
 }>
+
+export interface VendorPayoutAccountMeResponse {
+  payout_account: (PayoutAccountDTO & { onboarding: OnboardingDTO | null }) | null
+}
 
 export interface AdminPayoutResponse {
   payout: PayoutDTO

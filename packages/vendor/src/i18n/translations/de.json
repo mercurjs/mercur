@@ -3869,8 +3869,7 @@
       "pending": "Ausstehend",
       "processing": "In Bearbeitung",
       "paid": "Bezahlt",
-      "failed": "Fehlgeschlagen",
-      "canceled": "Abgebrochen"
+      "failed": "Fehlgeschlagen"
     }
   },
   "translations": {

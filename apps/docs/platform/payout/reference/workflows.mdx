@@ -1,79 +1,160 @@
 ---
 title: "Payout workflows"
 sidebarTitle: "Workflows"
-description: "The 4 payout workflows and 6 payout steps exported from @mercurjs/core/workflows, with their inputs, steps, and hooks."
+description: "The payout workflows and steps exported from @mercurjs/core/workflows, with their inputs, steps, events, and hooks."
 ---
 
-The Payout module ships 4 workflows in `packages/core/src/workflows/payout`. Import them, and their steps, from `@mercurjs/core/workflows`. None of them emits a custom event. Medusa’s data-model events still fire for the records they write, as listed in [Events](/platform/payout/reference/events).
+The Payout module ships its workflows in `packages/core/src/workflows/payout`. Import them, and their steps, from `@mercurjs/core/workflows`. The events they emit are listed in [Events](/platform/payout/reference/events). Core doesn’t schedule any of them; see [The payout pipeline](/platform/payout/concepts/payout-pipeline).
 
 ## createPayoutAccountWorkflow
 
-Creates a payout account for a seller through the provider and links it to the seller. Workflow id `create-payout-account-for-seller`.
+Creates a payout account for a seller through the provider, links it to the seller and publishes the onboarding link. Workflow id `create-payout-account-workflow`.
 
 | Input | Type | Description |
 | --- | --- | --- |
 | `seller_id` | `string` | Seller to create the account for |
-| `data` | `Record<string, unknown>`, optional | Passed to the provider; Stripe Connect needs `country` |
+| `data` | `Record<string, unknown>`, optional | Passed to the provider; `country` and `business_type` are read from it |
 | `context` | `PayoutProviderContext`, optional | Provider context, such as `idempotency_key` |
 
 Steps, in order:
 
-1. `validate-seller-payout-account`: fails with `Seller already has a payout account` when a `seller_payout_account` row exists
-2. `create-payout-account`: calls the service’s `createPayoutAccount`
-3. `create-remote-links`: links the seller and the account
+1. `use-query-graph-step` (`payout-account-seller-query`): loads the seller's profile and current account
+2. `validate-seller-without-payout-account`: fails with `409` when the seller already has an account
+3. `create-payout-account`: calls the service's `createPayoutAccount` with the seller's profile; on rollback, deletes the account with `deletePayoutAccount`, at the provider too when it supports `deleteAccount`
+4. `create-remote-links`: links the seller and the account
+5. `create-onboarding`: publishes the onboarding link
 
 Returns the `PayoutAccountDTO`. Exposes no hooks.
 
+## createOrRefreshSellerPayoutAccountWorkflow
+
+Makes sure one seller has an account and, until they submit their details, a current onboarding link. Workflow id `create-or-refresh-seller-payout-account`. Safe to run on every seller change.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `seller_id` | `string` | The seller |
+| `data`, `context` | optional | Passed to `createPayoutAccountWorkflow` when the account is created |
+
+It loads the seller, runs `createPayoutAccountWorkflow` when no account exists, and otherwise publishes a fresh onboarding link while the account still needs onboarding, because provider links expire. Returns `{ account_id, onboarding_published }`.
+
+## linkPayoutAccountWorkflow
+
+Attaches an account that already exists at the provider to a seller, behind `POST /admin/payout-accounts`. Workflow id `link-payout-account`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `seller_id` | `string` | The seller |
+| `external_id` | `string` | The account's id at the provider |
+
+It validates that the seller has no account, stores the account without calling the provider (`create-payout-accounts`, deleted on rollback), links it, then runs `syncPayoutAccountWorkflow`. Returns the synced `PayoutAccountDTO`.
+
 ## createOnboardingWorkflow
 
-Creates or updates the onboarding record for a payout account through the provider. Workflow id `create-onboarding`.
+Publishes the next link for a payout account. Workflow id `create-onboarding-workflow`, exported as `createOnboardingWorkflowId`.
 
 | Input | Type | Description |
 | --- | --- | --- |
 | `account_id` | `string` | The `pacc` id |
-| `data` | `Record<string, unknown>`, optional | Merged over the account’s `data`; Stripe Connect needs `refresh_url` and `return_url` |
+| `data` | `Record<string, unknown>`, optional | `refresh_url` and `return_url` override the module defaults |
 | `context` | `PayoutProviderContext`, optional | Provider context, stored on the record |
+| `rotate_token` | `boolean`, optional | Issue a new `onboarding_token` even when the current one is still valid |
 
-It runs one step, `create-onboarding`, and returns the `OnboardingDTO`. Exposes no hooks.
+It runs one step, `create-onboarding`, and returns the `OnboardingDTO`. The service picks an onboarding link or, once details are submitted, a dashboard login link.
 
-## createPayoutWorkflow
+## refreshPayoutAccountLinkWorkflow
 
-Pays the seller’s share of one order through the provider. Workflow id `create-payout`, exported as `createPayoutWorkflowId`.
+Publishes a new link for an account, behind `POST /admin/payout-accounts/:id/refresh-link`. Workflow id `refresh-payout-account-link`. Input `{ id }`; it runs `create-onboarding` and returns the `OnboardingDTO`.
+
+## refreshOnboardingWorkflow
+
+Exchanges an expired onboarding link for a fresh one, behind the public `GET /payout/onboarding/refresh?token=`. Workflow id `refresh-onboarding`. Input `{ token }`; it finds the account by `onboarding_token` and fails (`validate-onboarding-token`) with `404` when none matches, or with `400` when the token is older than the module's `onboarding.tokenTtlSeconds` (24 hours by default). It then runs `create-onboarding` with `rotate_token`, so the used token stops working and the new link's refresh URL carries a new one, and returns `{ url }`.
+
+## syncPayoutAccountWorkflow
+
+Re-reads an account from the provider. Workflow id `sync-payout-account`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `id` | `string` | The `pacc` id |
+
+Steps, in order:
+
+1. `sync-payout-account-step`: calls the service's `syncPayoutAccount`; restores the previous fields on rollback
+2. `create-onboarding`: only when `details_submitted` is `true`, to publish the dashboard login link
+3. Emits `payout_account.updated` with `{ id }`
+
+Returns the `PayoutAccountDTO`.
+
+## createOrderPayoutsWorkflow
+
+Pays each order's seller their share. Workflow id `create-order-payouts`, exported as `createOrderPayoutsWorkflowId`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `order_ids` | `string[]` | Orders to evaluate |
+| `required_fulfillment_status` | `FulfillmentStatus`, optional | How far an order must be fulfilled, default `fulfilled` |
 
 ```ts
-const { result } = await createPayoutWorkflow(container).run({
-  input: { order_id: "order_01JD8Q1234567" },
+const { result } = await createOrderPayoutsWorkflow(container).run({
+  input: { order_ids: ["order_01JD8Q1234567"] },
 })
 ```
 
 Steps, in order:
 
-1. `fetch-order`: loads `total`, `currency_code`, `seller.payout_account`, items, and shipping methods
-2. `fetch-commission-lines`: loads the `commission_line` rows for those items and shipping methods
-3. `create-payout-step`: creates the payout for `total` minus the commission sum, with the order id as `context.idempotency_key`
-4. `create-remote-links`: links the payout to the seller
+1. `use-query-graph-step` (`payout-orders-query`, `existing-payouts-query`, `payout-commission-lines-query`): loads the orders with their fulfillments and payments, their existing payouts, and their commission lines
+2. `create-payouts`: one new payout per order without one; deleted on rollback unless it was already sent
+3. `update-payouts`: re-decides payouts that are `on_hold` or `failed`; restored on rollback unless it was already sent
+4. `create-remote-links`: links new payouts to the seller and the order
+5. `process-payouts`: sends each `pending` payout with the service's `processPayout`
+6. Emits `payout.failed` with `{ id }` for every payout the provider refused
 
-It throws `Seller does not have a payout account` when the seller has none. Returns the `PayoutDTO`.
+Returns `{ counts, payouts }`: the number of payouts per resulting status, such as `{ paid: 2, on_hold: 1 }`, and the payouts sent in this run. Payouts that are already `paid`, `processing`, or `aborted` are skipped.
 
 | Hook | Payload | Use it to |
 | --- | --- | --- |
-| `payoutCreated` | `{ order_id, payout_id }` | Link the payout to the order, notify the seller, or sync a ledger |
+| `payoutsCreated` | `{ order_ids, payouts }` | Notify sellers or sync a ledger |
+
+## createPayoutReversalsWorkflow
+
+Takes refunded shares back. Workflow id `create-payout-reversals`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `order_ids` | `string[]` | Orders whose refunds to evaluate |
+
+It loads the orders' refunds, payouts and commission lines, then creates or re-decides one reversal per refund on an order whose payout exists, net of commission, skipping refunds already deducted from the payout (`create-payout-reversals-step`, `update-payout-reversals`). It sends each pending reversal with `process-payout-reversals` and emits `payout.reversal_failed` for refusals. Returns `{ counts, reversals }`.
+
+## processPayoutWorkflow
+
+Sends existing payouts again. Workflow id `process-payout`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `payout_ids` | `string[]` | Payouts to send |
+
+It runs `process-payouts` and emits `payout.failed` for refusals. Payouts that aren't `pending` or `failed` are returned unchanged.
+
+## retryPayoutWorkflow
+
+Retries one payout, behind `POST /admin/payouts/:id/retry`. Workflow id `retry-payout`. Input `{ id }`. It fails with `400` unless the payout is `failed`, `on_hold` or `pending` (`validate-payout-retry`). A `failed` or `on_hold` order payout runs `createOrderPayoutsWorkflow` for its order, so it is re-decided first. A `pending` payout, and any payout without an order, runs `processPayoutWorkflow` and is sent as is.
+
+## processPayoutReversalWorkflow
+
+Sends existing reversals again. Workflow id `process-payout-reversal`. Input `{ reversal_ids: string[] }`; it runs `process-payout-reversals` and emits `payout.reversal_failed` for refusals.
 
 ## processPayoutForWebhookWorkflow
 
-Applies a parsed provider webhook to an account or a payout. Workflow id `process-payout-for-webhook`, exported as `processPayoutForWebhookWorkflowId`. Its input is a `PayoutWebhookResult`: an `action` and an optional `data.id`.
+Applies a parsed provider webhook. Workflow id `process-payout-for-webhook`, exported as `processPayoutForWebhookWorkflowId`. Its input is a `PayoutWebhookResult`: an `action` and an optional `data` with `id`, the provider's object id, and for payout events `payout_id`, Mercur's payout id.
 
-| Action | Step name | Effect |
-| --- | --- | --- |
-| `account.activated` | `activate-payout-account` | Account `status` to `active` |
-| `account.restricted` | `restrict-payout-account` | Account `status` to `restricted` |
-| `account.rejected` | `reject-payout-account` | Account `status` to `rejected` |
-| `payout.processing` | `processing-payout` | Payout `status` to `processing` |
-| `payout.paid` | `paid-payout` | Payout `status` to `paid` |
-| `payout.failed` | `failed-payout` | Payout `status` to `failed` |
-| `payout.canceled` | `canceled-payout` | Payout `status` to `canceled` |
+| Action | Effect |
+| --- | --- |
+| `account.updated`, `account.activated`, `account.restricted`, `account.rejected` | Finds the account by `external_id` and runs `syncPayoutAccountWorkflow` |
+| `payout.paid` | Finds the payout by `data.payout_id`, sets it to `paid` and stores `data.id` as its `data.provider.id`, which a later reversal needs |
+| `payout.failed` | Sets the payout to `failed` with `status_reason: "provider_error"`, the webhook's `data.status_reason` in `data.status_detail`, and clears `data.idempotency_key` so a retry is a new request |
+| `payout.reversed`, `not_supported` | No change |
 
-Each branch runs only when `data.id` is set. `not_supported` runs no step. Returns nothing and exposes no hooks.
+The status update runs `update-payouts`. Returns nothing.
 
 ## Steps
 
@@ -81,13 +162,20 @@ You can compose these steps into your own workflows:
 
 | Step | Id | Compensation |
 | --- | --- | --- |
-| `validateSellerPayoutAccountStep` | `validate-seller-payout-account` | None |
-| `createPayoutAccountStep` | `create-payout-account` | None |
+| `validateSellerWithoutPayoutAccountStep` | `validate-seller-without-payout-account` | None |
+| `validatePayoutRetryStep` | `validate-payout-retry` | None |
+| `validateOnboardingTokenStep` | `validate-onboarding-token` | None |
+| `createPayoutAccountStep` | `create-payout-account` | Deletes the account, at the provider too when it supports `deleteAccount` |
+| `createPayoutAccountsStep` | `create-payout-accounts` | Deletes the stored accounts; the provider accounts predate the workflow |
+| `syncPayoutAccountStep` | `sync-payout-account-step` | Restores the previous status, flags and data |
 | `createOnboardingStep` | `create-onboarding` | None |
-| `createPayoutStep` | `create-payout-step` | None |
-| `updatePayoutAccountStep` | `update-payout-account-step` | Restores the previous status |
-| `updatePayoutStep` | `update-payout-step` | Restores the previous status |
+| `createPayoutsStep` | `create-payouts` | Deletes the payouts that weren't sent |
+| `updatePayoutsStep` | `update-payouts` | Restores the previous values of payouts that weren't sent |
+| `createPayoutReversalsStep` | `create-payout-reversals-step` | Deletes the reversals that weren't sent |
+| `updatePayoutReversalsStep` | `update-payout-reversals` | Restores the previous values of reversals that weren't sent |
+| `processPayoutsStep` | `process-payouts` | None |
+| `processPayoutReversalsStep` | `process-payout-reversals` | None |
 
 <Note>
-  The create steps have no compensation. If a later step fails, the account, onboarding record, or payout stays, and the provider-side object stays too. The service only deletes a new row when the provider call itself throws.
+  The process steps and `create-onboarding` have no compensation. Money that reached the provider, or a link a seller already received, can't be undone by a rollback; a payout's status, `status_reason`, and `data.attempts` record what happened instead, and the next run picks up where it stopped. For the same reason, the create and update compensations skip a payout or reversal that is `processing` or `paid`, or was attempted after the step ran.
 </Note>

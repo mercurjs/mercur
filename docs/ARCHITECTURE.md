@@ -61,7 +61,7 @@ The Medusa plugin that holds all marketplace business logic. Wired into the API 
 - **Modules** (`src/modules/`): `seller` (registration, profiles, members, order groups), `commission` (rates, rules, calculation), `offer` (seller listings against master products), `payout` (accounts, onboarding, payouts), `product-attribute` (typed attribute catalog), `product-edit` (product change-request pipeline), `order-group`, `media`, `custom-fields`, `inventory-item`, `stock-location`, `shipping-profile`, `shipping-option`, `price-list`, `promotion`, `campaign`.
 - **Workflows** (`src/workflows/`): 22+ workflow groups for seller lifecycle (create / approve / suspend), member invites, commissions, payouts, multi-vendor cart and order split, offers, product change-requests, fulfilment. Workflows support compensation (automatic rollback on failure) and expose hooks as extension points; steps return `StepResponse` and compose into a `WorkflowResponse`.
 - **Modules never reference each other directly** — cross-module communication happens only through **links** and **workflows**. Links are relationships defined separately (e.g. `product-seller-link`, `offer-product-link`, `offer-variant-link`, `order-group-order-link`); dozens of them wire the marketplace layer into the commerce layer.
-- **Scheduled jobs + subscribers**: jobs run on intervals (e.g. payout capture-check every 15 min, daily payouts at 1 AM UTC) and emit events; subscribers listen and fire async side effects (notifications, webhook calls, payout transfers).
+- **Subscribers** (`src/subscribers/`): react to Medusa and Mercur events (order split, payment capture split, payout webhooks). Core ships no scheduled jobs; integrations such as the Stripe connector plugin bring their own.
 - **API routes** (`src/api/`): `admin/*` (marketplace operator), `vendor/*` (seller-scoped), plus hooks, middlewares, query configs, and validators.
 - **Auth/RBAC**: `withMercur()` auto-registers a roles module so vendor scoping works out of the box.
 
@@ -99,8 +99,8 @@ React primitives shared by Admin and Vendor: `TabbedForm`, `DataTable`, `Form`, 
 ### `packages/registry` — blocks registry
 Private workspace holding the canonical block catalogue (team management, reviews, notifications, search integrations, chat, etc.). Backs `mercurjs search` / `mercurjs view` / `mercurjs add`.
 
-### `packages/providers/payout-stripe-connect`
-Stripe Connect implementation for the `payout` module: creates connected accounts per seller and transfers payout balances.
+### `packages/plugins/stripe-connector`
+`@mercurjs/stripe-connector-plugin`: a Medusa payment provider (`pp_stripe-connector_*`, manual capture on the platform account) and a Mercur payout provider (`pop_stripe-connect_*`: Express accounts, onboarding and login links, payouts as Connect transfers, reversals, Connect webhooks). On top of core's payout module it owns the payout operations: the scheduled jobs (onboarding sync, capture validation, payouts, reversals, settlements, failed-operation alerts, KYC monitoring), its own `stripe-connector` module (job runs, checkpoints, notification log, settlements with their bank payout, operator adjustments), the `/admin/stripe/*` and `/vendor/stripe/*` routes, the admin Integrations → Stripe area (Settlements, with Adjustments, Captures and Jobs nested under it), Settings → Stripe (webhooks, notifications, account mapping), widgets on the seller, order and payout-account pages, and the vendor Settings → Stripe page.
 
 ## Apps (starters wired to the packages)
 
@@ -124,7 +124,7 @@ Stripe Connect implementation for the `payout` module: creates connected account
 - **Product Change** — an immutable record in the product change-request pipeline (`product-edit` module). Captures every product edit as typed actions (`UPDATE`, `VARIANT_*`, `ATTRIBUTE_*`, `STATUS_CHANGE`, `PRODUCT_ADD/DELETE`); status `pending` → `confirmed` / `declined` / `canceled` / `requires_action`. Low-risk edits auto-confirm.
 - **Order-Group** — wrapper that lets a single customer cart contain items from multiple sellers. On placement, the cart is split into per-seller orders linked to a parent group. Has a serial `display_id`, read-only `cart_id`, and query-time computed `seller_count` / `total`.
 - **Commission** — fee structure applied during order placement, deducted from payouts. Rules match across `product` / `product_type` / `product_collection` / `product_category` / `seller`; most-specific wins (AND across dimensions, OR within), ties to oldest. Fixed rates support per-currency amounts; only the global rate may include shipping. Arithmetic uses BigNumber.
-- **Payout** — settlement to a seller's connected account (default provider: Stripe Connect). Account lifecycle `PENDING` → `ACTIVE` ↔ `RESTRICTED` / → `REJECTED`, driven by provider webhooks; each account has an onboarding record with provider `data`. Payout transfer is automated via a daily job (1 AM UTC) emitting `payout.requested` + a subscriber running `createPayoutWorkflow`.
+- **Payout** — one provider per marketplace (the system provider when none is configured), shaped like Medusa's payment module. A `payout_account` mirrors the provider account (`external_id`, flags, `kyc_status`, a rotating onboarding token with a TTL) and owns an `onboarding` link record; a `payout` is the seller's share of one order (total − commission, net of earlier refunds) with one status machine (`pending`, `on_hold`, `processing`, `paid`, `failed`, `aborted`) and a stable `status_reason` code; a `payout_reversal` takes a later refund's share back, like `Refund` on `Payment`. Steps and subscribers resolve the module as `IPayoutModuleService` from `@mercurjs/types`. Scheduling, settlements and operator adjustments belong to the integration (the Stripe connector plugin), not core.
 - **Product Attributes** — an operator-managed, typed attribute catalog (`multi_select`, `single_select`, `text`, `unit`, `toggle`). A `multi_select` axis attribute (`is_variant_axis`) maps to a native Medusa `ProductOption` and generates variants; `is_filterable` exposes it as a storefront filter.
 - **Blocks** — feature packages distributed as **source code** (not npm packages): the CLI copies files into the project so you own them. Discovered via `blocks.json`, added with `mercurjs add`, updated via `mercurjs diff` + `--overwrite`.
 
@@ -161,8 +161,11 @@ Storefront cart contains offers from sellers A and B
     -> split items by seller -> create Order per seller
     -> calculate commission lines per seller (rule matching + specificity)
     -> split payment proportionally across seller orders
-    -> credit each seller order to its payout account (after commission)
-    -> later: daily job emits payout.requested -> subscriber transfers via provider
+    -> createOrderPayoutsWorkflow pays each fulfilled, captured order's seller
+       total − commission (core; called by the integration's schedule)
+    -> createPayoutReversalsWorkflow takes refunded shares back
+    -> Stripe connector plugin jobs: validate captures, run the two workflows
+       above, net settlements and pay them out to the seller's bank
 ```
 
 ## Extension Points

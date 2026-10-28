@@ -1061,6 +1061,43 @@ export function getRouteMap({
                 ],
               },
               {
+                path: "/payout-accounts",
+                errorElement: <ErrorBoundary />,
+                handle: {
+                  breadcrumb: () => t("payoutAccounts.domain"),
+                  permissions: "payouts:view",
+                },
+                children: [
+                  {
+                    path: "",
+                    lazy: () => import("./pages/payout-accounts/payout-account-list"),
+                  },
+                  {
+                    path: ":id",
+                    lazy: async () => {
+                      const { Breadcrumb, loader } =
+                        await import("./pages/payout-accounts/payout-account-detail");
+
+                      return {
+                        Component: Outlet,
+                        loader: withPermission(loader, "payouts:view"),
+                        handle: {
+                          breadcrumb: (match: UIMatch) => (
+                            <Breadcrumb {...match} />
+                          ),
+                        },
+                      };
+                    },
+                    children: [
+                      {
+                        path: "",
+                        lazy: () => import("./pages/payout-accounts/payout-account-detail").then(withLoaderPermission("payouts:view")),
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
                 path: "/reservations",
                 errorElement: <ErrorBoundary />,
                 handle: {

@@ -20,10 +20,10 @@ Mercur ships the route, the subscriber, and the workflow. You point the provider
 
 <Steps>
   <Step title="Point the provider at /hooks/payout">
-    In production, add a Stripe webhook endpoint for events on connected accounts, with the URL `https://your_backend_url/hooks/payout` and the `account.updated` event. Locally, forward Connect events with the Stripe CLI:
+    In production, add a Stripe webhook endpoint for events on connected accounts, with the URL `https://your_backend_url/hooks/payout` and the `account.updated` event. The Stripe connector plugin also needs the bank `payout.*` events, see [its webhooks](/resources/integrations/stripe-connect/configuration#webhooks). Locally, forward Connect events with the Stripe CLI:
 
     ```bash
-    stripe listen --events account.updated \
+    stripe listen --events account.updated,payout.paid,payout.failed,payout.canceled,payout.updated \
       --forward-connect-to localhost:9000/hooks/payout
     ```
 
@@ -33,9 +33,13 @@ Mercur ships the route, the subscriber, and the workflow. You point the provider
     The route emits `payout.webhook_received` with the body, raw body, and headers. It delays the event by 5000 ms and retries up to 3 times. The shipped `payout-webhook` subscriber then parses it and runs the workflow:
 
     ```ts title="src/subscribers/payout-webhook.ts (in @mercurjs/core)"
-    const processedEvent = await payoutService.getWebhookActionAndData(input)
+    const processedEvent = await payoutService.getWebhookActionAndData({
+      data: input.data as Record<string, unknown>,
+      rawData: input.rawData,
+      headers: input.headers as Record<string, unknown>,
+    })
 
-    if (!processedEvent.data) {
+    if (!processedEvent.data || processedEvent.action === "not_supported") {
       return
     }
 
@@ -58,13 +62,13 @@ Mercur ships the route, the subscriber, and the workflow. You point the provider
     )
     ```
 
-    The `status` is `active`, `restricted`, or `rejected`, depending on what Stripe reported.
+    The workflow re-read the account from Stripe, so `status`, `payouts_enabled`, `kyc_status`, and `last_synced_at` match Stripe’s current view.
   </Step>
 </Steps>
 
 ## Run the workflow directly
 
-`processPayoutForWebhookWorkflow` takes a `PayoutWebhookResult`, so you can apply a status change without a webhook, for example in a test or a backfill script:
+`processPayoutForWebhookWorkflow` takes a `PayoutWebhookResult`, so you can apply a provider event without a webhook, for example in a test or a backfill script:
 
 ```ts
 import { processPayoutForWebhookWorkflow } from "@mercurjs/core/workflows"
@@ -72,25 +76,25 @@ import { processPayoutForWebhookWorkflow } from "@mercurjs/core/workflows"
 await processPayoutForWebhookWorkflow(container).run({
   input: {
     action: "payout.paid",
-    data: { id: "pout_01JD8Q1234567" },
+    data: { id: "tr_1QxYz" },
   },
 })
 ```
 
-The workflow runs at most one step: the one that matches `action`. An `account.*` action needs a `pacc` id, and a `payout.*` action needs a `pout` id. A missing `data.id` or the `not_supported` action changes nothing.
+`data.id` is the **provider’s** id. An `account.*` action looks the account up by `external_id` and re-syncs it from the provider. `payout.paid` and `payout.failed` carry Mercur’s payout id in `data.payout_id`, which providers echo from the `payout_id` metadata sent with the payout, and set that payout’s status. `payout.paid` also stores `data.id` as the payout’s `data.provider.id`, which a later reversal is sent against; `payout.failed` stores `status_reason: "provider_error"` with the webhook’s `data.status_reason` in `data.status_detail`. Any other action, an unknown id, or a missing `data.id` changes nothing.
 
 ## Map webhooks in your own provider
 
-When you write a provider, `getWebhookActionAndData` decides what each webhook means. Return the action and the Mercur id, not the provider’s id:
+When you write a provider, `getWebhookActionAndData` decides what each webhook means. Return the action and the provider’s own id for the account or payout:
 
 ```ts title="src/providers/acme-payouts/service.ts"
 async getWebhookActionAndData(
   payload: PayoutWebhookActionInput
 ): Promise<PayoutWebhookResult> {
-  const body = payload.data as { type: string; reference: string }
+  const body = payload.data as { type: string; transfer_id: string }
 
   if (body.type === "transfer.settled") {
-    return { action: "payout.paid", data: { id: body.reference } }
+    return { action: "payout.paid", data: { id: body.transfer_id } }
   }
 
   return { action: "not_supported" }
@@ -101,7 +105,7 @@ Verify the provider’s signature here with `payload.rawData` and `payload.heade
 
 ## Emit the event from another route
 
-If your provider must post to a different URL, emit `payout.webhook_received` yourself with the same shape. The shipped subscriber picks it up:
+If your provider must post to a different URL, emit `payout.webhook_received` yourself with the same shape. The shipped subscriber picks it up, and so does any other subscriber on that event, such as the Stripe connector plugin’s handler for bank payout events:
 
 ```ts
 const eventBus = container.resolve(Modules.EVENT_BUS)

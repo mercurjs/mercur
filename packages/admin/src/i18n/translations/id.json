@@ -3613,8 +3613,7 @@
       "paid": "Dibayar",
       "processing": "Sedang diproses",
       "pending": "Tertunda",
-      "failed": "Gagal",
-      "canceled": "Dibatalkan"
+      "failed": "Gagal"
     }
   },
   "marketplace": {
