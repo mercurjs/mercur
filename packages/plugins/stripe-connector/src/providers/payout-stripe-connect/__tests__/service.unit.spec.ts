@@ -1,4 +1,4 @@
-import { PayoutAccountStatus, PayoutStatus } from "@mercurjs/types"
+import { PayoutAccountStatus, PayoutProviderError, PayoutProviderErrorCode, PayoutStatus } from "@mercurjs/types"
 
 import { StripeConnectPayoutProviderService } from "../service"
 
@@ -18,11 +18,17 @@ const makeStripe = (calls: Call[]) => {
       retrieve: record("accounts.retrieve", { id: "acct_platform", details_submitted: true, charges_enabled: true, payouts_enabled: true, requirements: {} }),
       list: record("accounts.list", { data: [], has_more: false }),
       createLoginLink: record("accounts.createLoginLink", { url: "https://connect.stripe.com/express/login" }),
+      del: record("accounts.del", { id: "acct_seller", deleted: true }),
     },
     accountLinks: { create: record("accountLinks.create", { url: "https://connect.stripe.com/setup", expires_at: 1_700_000_000 }) },
     transfers: {
       create: record("transfers.create", { id: "tr_1" }),
       createReversal: record("transfers.createReversal", { id: "trr_1" }),
+      retrieve: record("transfers.retrieve", { id: "tr_1", amount: 16200, amount_reversed: 0 }),
+      listReversals: (...args: unknown[]) => {
+        calls.push({ method: "transfers.listReversals", args })
+        return (async function* (): AsyncGenerator<{ id: string; metadata: Record<string, string> }> {})()
+      },
     },
     payouts: { create: record("payouts.create", { id: "po_1", status: "pending" }) },
     charges: { retrieve: record("charges.retrieve", { id: "ch_1", amount: 25800, currency: "eur", balance_transaction: { currency: "eur", amount: 25800 } }) },
@@ -104,13 +110,98 @@ describe("StripeConnectPayoutProviderService", () => {
     expect(calls[2].args[0]).toMatchObject({ source_transaction: "ch_from_pi" })
   })
 
+  it("converts a cross-currency payout at the captured amount's rate", async () => {
+    const { service, calls } = build()
+    const stripe = (service as unknown as { stripe_: ReturnType<typeof makeStripe> }).stripe_
+    stripe.charges.retrieve = (...args: unknown[]) => {
+      calls.push({ method: "charges.retrieve", args })
+      return Promise.resolve({ id: "ch_1", amount: 20000, amount_captured: 10000, currency: "eur", balance_transaction: { currency: "usd", amount: 11000 } })
+    }
+    await service.createPayout({
+      account,
+      amount: 80,
+      currency_code: "eur",
+      source_payment: { id: "pay_1", data: { id: "pi_1", latest_charge: "ch_1" } },
+    })
+    expect(calls[1].args[0]).toMatchObject({ amount: 8800, currency: "usd" })
+  })
+
   it("reverses a payout on its transfer", async () => {
     const { service, calls } = build()
     const reversal = await service.reversePayout({ payout: { id: "tr_1", data: {} }, amount: 54, currency_code: "eur", context: { idempotency_key: "pourev_1" } })
-    expect(calls[0].method).toBe("transfers.createReversal")
-    expect(calls[0].args[0]).toBe("tr_1")
-    expect(calls[0].args[1]).toMatchObject({ amount: 5400 })
+    const create = calls.find((call) => call.method === "transfers.createReversal")
+    expect(create?.args[0]).toBe("tr_1")
+    expect(create?.args[1]).toMatchObject({ amount: 5400 })
+    expect(create?.args[2]).toEqual({ idempotencyKey: "pourev_1" })
     expect(reversal.status).toBe(PayoutStatus.PAID)
+  })
+
+  it("caps a reversal at what is left on the transfer", async () => {
+    const { service, calls } = build()
+    const stripe = (service as unknown as { stripe_: ReturnType<typeof makeStripe> }).stripe_
+    stripe.transfers.retrieve = () => Promise.resolve({ id: "tr_1", amount: 10000, amount_reversed: 9950 })
+    await service.reversePayout({ payout: { id: "tr_1", data: {} }, amount: 1, currency_code: "eur" })
+    const create = calls.find((call) => call.method === "transfers.createReversal")
+    expect(create?.args[1]).toMatchObject({ amount: 50 })
+  })
+
+  it("refuses to reverse a transfer that is already fully reversed", async () => {
+    const { service, calls } = build()
+    const stripe = (service as unknown as { stripe_: ReturnType<typeof makeStripe> }).stripe_
+    stripe.transfers.retrieve = () => Promise.resolve({ id: "tr_1", amount: 10000, amount_reversed: 10000 })
+    const error = await service
+      .reversePayout({ payout: { id: "tr_1", data: {} }, amount: 1, currency_code: "eur" })
+      .catch((e: unknown) => e)
+    expect(error).toBeInstanceOf(PayoutProviderError)
+    expect((error as PayoutProviderError).final).toBe(true)
+    expect(calls.some((call) => call.method === "transfers.createReversal")).toBe(false)
+  })
+
+  it("returns the reversal a previous attempt already created", async () => {
+    const { service, calls } = build()
+    const stripe = (service as unknown as { stripe_: ReturnType<typeof makeStripe> }).stripe_
+    stripe.transfers.listReversals = () =>
+      (async function* () {
+        yield { id: "trr_other", metadata: { payout_reversal_id: "pourev_0" } }
+        yield { id: "trr_done", metadata: { payout_reversal_id: "pourev_1" } }
+      })()
+    const reversal = await service.reversePayout({
+      payout: { id: "tr_1", data: {} },
+      amount: 54,
+      currency_code: "eur",
+      metadata: { payout_id: "pout_1", payout_reversal_id: "pourev_1" },
+    })
+    expect(reversal.id).toBe("trr_done")
+    expect(calls.some((call) => call.method === "transfers.createReversal")).toBe(false)
+  })
+
+  it("tells a definitive Stripe refusal from an unknown outcome", async () => {
+    const { service } = build()
+    const stripe = (service as unknown as { stripe_: ReturnType<typeof makeStripe> }).stripe_
+    const fail = (error: Record<string, unknown>) => {
+      stripe.transfers.create = () => Promise.reject(Object.assign(new Error("stripe"), error))
+      return service
+        .createPayout({ account, amount: 10, currency_code: "eur" })
+        .then(() => {
+          throw new Error("expected a refusal")
+        })
+        .catch((e: unknown) => e as PayoutProviderError & { type: string })
+    }
+
+    const refused = await fail({ type: "StripeInvalidRequestError", statusCode: 400, code: "balance_insufficient" })
+    expect(refused.code).toBe(PayoutProviderErrorCode.REFUSED)
+    expect(refused.type).toBe("StripeInvalidRequestError")
+
+    expect((await fail({ type: "StripeConnectionError" })).code).toBe(PayoutProviderErrorCode.UNKNOWN)
+    expect((await fail({ type: "StripeAPIError", statusCode: 500 })).code).toBe(PayoutProviderErrorCode.UNKNOWN)
+    expect((await fail({ type: "StripeRateLimitError", statusCode: 429 })).code).toBe(PayoutProviderErrorCode.UNKNOWN)
+    expect((await fail({ type: "StripeInvalidRequestError", statusCode: 409 })).code).toBe(PayoutProviderErrorCode.UNKNOWN)
+  })
+
+  it("deletes a connected account", async () => {
+    const { service, calls } = build()
+    await service.deleteAccount({ account })
+    expect(calls[0]).toEqual({ method: "accounts.del", args: ["acct_seller"] })
   })
 
   it("normalizes account and transfer webhooks", async () => {
@@ -131,6 +222,9 @@ describe("StripeConnectPayoutProviderService", () => {
 
     const reversed = await hook({ type: "transfer.reversed", data: { object: { id: "tr_1" } } })
     expect(reversed).toEqual({ action: "payout.reversed", data: { id: "tr_1" } })
+
+    const foreign = await hook({ type: "transfer.created", account: "acct_other", data: { object: { id: "tr_9", metadata: { payout_id: "pout_1" } } } })
+    expect(foreign.action).toBe("not_supported")
 
     const bank = await hook({ type: "payout.failed", data: { object: { id: "po_1" } } })
     expect(bank.action).toBe("not_supported")

@@ -233,7 +233,7 @@ const CaptureListPage = () => (
         <Container className="divide-y p-0" data-testid="stripe-capture-list-table">
           <div className="flex items-center justify-between px-6 py-4">
             <div>
-              <Heading>Captures</Heading>
+              <Heading data-testid="stripe-captures-heading">Captures</Heading>
               <Text size="small" className="text-ui-fg-subtle">
                 Card payments authorized at checkout and captured once every order in the group is decided.
               </Text>

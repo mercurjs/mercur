@@ -64,8 +64,8 @@ Otherwise the payout is `on_hold` with a reason, and the next run re-decides it;
 The provider posts to `/hooks/payout`. A subscriber listens for `payout.webhook_received`, the provider parses the payload into an action, and `processPayoutForWebhookWorkflow` applies it:
 
 - `account.*` → the account is re-read from the provider, and its status, flags, and KYC status are stored
-- `payout.paid` → the payout is set to `PAID`
-- `payout.failed` → the payout is set to `FAILED`
+- `payout.paid` → the payout is set to `PAID` and keeps the provider's payout id for later reversals
+- `payout.failed` → the payout is set to `FAILED` with `status_reason: "provider_error"`
 
 ## Configuration
 
@@ -77,6 +77,7 @@ The payout module accepts these options in `medusa-config.ts`, plus exactly one 
 | `onboarding.refreshBaseUrl` | - | API origin of the public refresh URL for expired onboarding links |
 | `onboarding.prefill` | `false` | Prefill the provider's forms from the seller's profile |
 | `onboarding.defaultCountry` | - | Country used when the seller has no address |
+| `onboarding.tokenTtlSeconds` | `86400` | How long the token in an onboarding refresh URL stays valid. Each refresh rotates it |
 
 Scheduling options, such as the capture window and the required fulfillment status, belong to the integration that runs the payouts.
 
@@ -125,18 +126,13 @@ curl http://localhost:9000/vendor/payout-accounts/<account-id> \
 
 ### Create payout onboarding (Vendor API)
 
-Initiates provider onboarding (e.g. Stripe Connect account setup). `refresh_url` and `return_url` default to the module's `onboarding` options; pass them in `data` to override:
+Initiates provider onboarding (e.g. Stripe Connect account setup). `refresh_url` and `return_url` come from the module's `onboarding` options:
 
 ```bash
 curl -X POST http://localhost:9000/vendor/payout-accounts/<account-id>/onboarding \
   -H "Authorization: Bearer <seller-token>" \
   -H "Content-Type: application/json" \
-  -d '{
-    "data": {
-      "refresh_url": "https://my-store.com/settings/payouts",
-      "return_url": "https://my-store.com/settings/payouts"
-    }
-  }'
+  -d '{}'
 ```
 
 ### List payouts (Admin API)

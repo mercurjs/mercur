@@ -81,7 +81,7 @@ await processPayoutForWebhookWorkflow(container).run({
 })
 ```
 
-`data.id` is the **provider’s** id. An `account.*` action looks the account up by `external_id` and re-syncs it from the provider. `payout.paid` and `payout.failed` carry Mercur’s payout id in `data.payout_id`, which providers echo from the `payout_id` metadata sent with the payout, and set that payout’s status; `payout.failed` stores `data.status_reason`. Any other action, an unknown id, or a missing `data.id` changes nothing.
+`data.id` is the **provider’s** id. An `account.*` action looks the account up by `external_id` and re-syncs it from the provider. `payout.paid` and `payout.failed` carry Mercur’s payout id in `data.payout_id`, which providers echo from the `payout_id` metadata sent with the payout, and set that payout’s status. `payout.paid` also stores `data.id` as the payout’s `data.provider.id`, which a later reversal is sent against; `payout.failed` stores `status_reason: "provider_error"` with the webhook’s `data.status_reason` in `data.status_detail`. Any other action, an unknown id, or a missing `data.id` changes nothing.
 
 ## Map webhooks in your own provider
 

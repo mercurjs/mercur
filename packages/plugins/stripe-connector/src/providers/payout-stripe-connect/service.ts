@@ -6,6 +6,7 @@ import {
   CreateLoginLinkInput,
   CreateOnboardingInput,
   CreatePayoutInput,
+  DeleteAccountInput,
   IPayoutProvider,
   LinkOutput,
   ListAccountsInput,
@@ -23,6 +24,7 @@ import Stripe from "stripe"
 
 import { getAmountFromSmallestUnit, getSmallestUnit } from "../../lib/amounts"
 import { getStripeClient } from "../../lib/stripe-client"
+import { toPayoutProviderError } from "../../lib/stripe-errors"
 import { StripeConnectPayoutProviderOptions } from "../../types"
 
 const DEFAULT_ACCOUNT_VALIDATION = {
@@ -248,7 +250,7 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
       return { amount: requested, currency, rate: null }
     }
 
-    const rate = balanceTransaction.amount / charge.amount
+    const rate = balanceTransaction.amount / (charge.amount_captured || charge.amount)
     return {
       amount: Math.round(requested * rate),
       currency: balanceTransaction.currency,
@@ -257,59 +259,102 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
   }
 
   async createPayout(input: CreatePayoutInput): Promise<PayoutOutput> {
-    const sourceTransaction = await this.resolveSourceTransaction(input.source_payment)
-    const settled = await this.settleAmount(sourceTransaction, input.amount, input.currency_code)
+    try {
+      const sourceTransaction = await this.resolveSourceTransaction(input.source_payment)
+      const settled = await this.settleAmount(sourceTransaction, input.amount, input.currency_code)
 
-    const transfer = await this.stripe_.transfers.create(
-      {
-        amount: settled.amount,
-        currency: settled.currency,
-        destination: input.account.id,
-        source_transaction: sourceTransaction,
-        transfer_group: input.group ?? undefined,
-        metadata: {
-          ...input.metadata,
+      const transfer = await this.stripe_.transfers.create(
+        {
+          amount: settled.amount,
+          currency: settled.currency,
+          destination: input.account.id,
+          source_transaction: sourceTransaction,
+          transfer_group: input.group ?? undefined,
+          metadata: {
+            ...input.metadata,
+            requested_amount: String(input.amount),
+            requested_currency: input.currency_code,
+          },
+        },
+        { idempotencyKey: input.context?.idempotency_key }
+      )
+
+      return {
+        id: transfer.id,
+        status: PayoutStatus.PAID,
+        data: {
+          ...asRecord(transfer),
           requested_amount: String(input.amount),
           requested_currency: input.currency_code,
+          settled_rate: settled.rate,
         },
-      },
-      { idempotencyKey: input.context?.idempotency_key }
-    )
-
-    return {
-      id: transfer.id,
-      status: PayoutStatus.PAID,
-      data: {
-        ...asRecord(transfer),
-        requested_amount: String(input.amount),
-        requested_currency: input.currency_code,
-        settled_rate: settled.rate,
-      },
+      }
+    } catch (error) {
+      throw toPayoutProviderError(error)
     }
   }
 
-  async reversePayout(input: ReversePayoutInput): Promise<PayoutOutput> {
+  // Reversals are denominated in the transfer's currency; scale the share of
+  // the original request when the transfer settled in another currency.
+  protected reversalAmount(input: ReversePayoutInput): number {
     const transfer = input.payout.data ?? {}
     const requestedAmount = Number(transfer.requested_amount ?? NaN)
     const settledAmount = Number(transfer.amount ?? NaN)
-    // Reversals are denominated in the transfer's currency; scale the share
-    // of the original request when the transfer settled in another currency.
-    const amount =
-      Number.isFinite(requestedAmount) && Number.isFinite(settledAmount) && requestedAmount > 0 &&
+    return Number.isFinite(requestedAmount) &&
+      Number.isFinite(settledAmount) &&
+      requestedAmount > 0 &&
       String(transfer.currency ?? "").toLowerCase() !== input.currency_code.toLowerCase()
-        ? Math.round((settledAmount * Number(input.amount)) / requestedAmount)
-        : getSmallestUnit(input.amount, input.currency_code)
+      ? Math.round((settledAmount * Number(input.amount)) / requestedAmount)
+      : getSmallestUnit(input.amount, input.currency_code)
+  }
 
-    const reversal = await this.stripe_.transfers.createReversal(
-      input.payout.id,
-      {
-        amount,
-        metadata: input.metadata,
-      },
-      { idempotencyKey: input.context?.idempotency_key }
-    )
+  protected async findReversal(
+    transferId: string,
+    reversalId: string | undefined
+  ): Promise<Stripe.TransferReversal | null> {
+    if (!reversalId) {
+      return null
+    }
+    for await (const reversal of this.stripe_.transfers.listReversals(transferId, { limit: 100 })) {
+      if (reversal.metadata?.payout_reversal_id === reversalId) {
+        return reversal
+      }
+    }
+    return null
+  }
 
-    return { id: reversal.id, status: PayoutStatus.PAID, data: asRecord(reversal) }
+  async reversePayout(input: ReversePayoutInput): Promise<PayoutOutput> {
+    try {
+      // A retry of a reversal that went through would see a smaller remainder
+      // and resend different parameters under the same idempotency key.
+      const existing = await this.findReversal(input.payout.id, input.metadata?.payout_reversal_id)
+      if (existing) {
+        return { id: existing.id, status: PayoutStatus.PAID, data: asRecord(existing) }
+      }
+
+      const transfer = await this.stripe_.transfers.retrieve(input.payout.id)
+      const remaining = transfer.amount - transfer.amount_reversed
+      if (remaining <= 0) {
+        throw new PayoutProviderError(`Transfer ${transfer.id} is already fully reversed`, { final: true })
+      }
+
+      const reversal = await this.stripe_.transfers.createReversal(
+        input.payout.id,
+        {
+          amount: Math.min(this.reversalAmount(input), remaining),
+          metadata: input.metadata,
+        },
+        { idempotencyKey: input.context?.idempotency_key }
+      )
+
+      return { id: reversal.id, status: PayoutStatus.PAID, data: asRecord(reversal) }
+    } catch (error) {
+      throw toPayoutProviderError(error)
+    }
+  }
+
+  async deleteAccount(input: DeleteAccountInput): Promise<void> {
+    await this.stripe_.accounts.del(input.account.id)
   }
 
   async getWebhookActionAndData(payload: PayoutWebhookActionInput): Promise<PayoutWebhookResult> {
@@ -336,6 +381,9 @@ export class StripeConnectPayoutProviderService implements IPayoutProvider {
       }
       case "transfer.created":
       case "transfer.reversed": {
+        if (event.account) {
+          return { action: "not_supported" }
+        }
         const transfer = event.data.object as Stripe.Transfer
         return {
           action: event.type === "transfer.created" ? "payout.paid" : "payout.reversed",

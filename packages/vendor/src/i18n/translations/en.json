@@ -3123,6 +3123,22 @@
     "references": {
       "header": "References",
       "empty": "This payout is not linked to an order."
+    },
+    "statusReasons": {
+      "account_not_ready": "Your payout account cannot receive payouts yet.",
+      "account_payouts_disabled": "Payouts are disabled on your payout account.",
+      "order_not_ready": "The order is not fulfilled yet.",
+      "order_aborted": "The order was canceled.",
+      "payment_not_ready": "The order's payment is not captured yet.",
+      "payment_failed": "The order's payment failed.",
+      "payment_canceled": "The order's payment was canceled.",
+      "payment_refunded": "The order's payment was refunded in full.",
+      "payout_not_ready": "The payout for this order has not been sent yet.",
+      "refund_aborted": "The refund was canceled.",
+      "refund_absorbed": "The refund was deducted before the payout was sent.",
+      "invalid_amount": "The amount to pay out is not valid.",
+      "provider_error": "The payout provider returned an error.",
+      "other": "This payout needs attention."
     }
   },
   "reviews": {

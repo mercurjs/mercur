@@ -1,6 +1,6 @@
 import { BigNumberInput } from "@medusajs/framework/types"
 import { MathBN } from "@medusajs/framework/utils"
-import { PayoutStatus, PayoutStatusReason, formatStatusReason } from "@mercurjs/types"
+import { PayoutStatus, PayoutStatusReason } from "@mercurjs/types"
 
 import { SettlementLineType, SettlementStatus } from "../../../types/common"
 
@@ -72,7 +72,7 @@ export function buildSettlement(
       ...totals,
       status: SettlementStatus.ABORTED,
       payout_status: null,
-      payout_reason: formatStatusReason(PayoutStatusReason.INVALID_AMOUNT, MathBN.convert(amount).toString()),
+      payout_reason: PayoutStatusReason.INVALID_AMOUNT,
     }
   }
 
@@ -82,8 +82,8 @@ export function buildSettlement(
       status: SettlementStatus.OPEN,
       payout_status: PayoutStatus.ON_HOLD,
       payout_reason: account
-        ? formatStatusReason(PayoutStatusReason.ACCOUNT_PAYOUTS_DISABLED, account.seller_id)
-        : formatStatusReason(PayoutStatusReason.ACCOUNT_NOT_READY, "unknown"),
+        ? PayoutStatusReason.ACCOUNT_PAYOUTS_DISABLED
+        : PayoutStatusReason.ACCOUNT_NOT_READY,
     }
   }
 

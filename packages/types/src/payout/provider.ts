@@ -123,19 +123,49 @@ export type PayoutWebhookResult = {
   }
 }
 
-export class PayoutProviderError extends Error {
-  readonly final: boolean
+export enum PayoutProviderErrorCode {
+  /**
+   * The outcome is unknown (timeout, network error, provider 5xx): the request
+   * may have gone through, so a retry reuses the same idempotency key.
+   */
+  UNKNOWN = "unknown",
+  /**
+   * The provider rejected the request and created nothing, so a retry is sent
+   * with a new idempotency key.
+   */
+  REFUSED = "refused",
+  /**
+   * The payout can never succeed and is aborted instead of retried.
+   */
+  FINAL = "final",
+}
 
-  constructor(message: string, options?: { final?: boolean }) {
+export class PayoutProviderError extends Error {
+  readonly code: PayoutProviderErrorCode
+
+  constructor(message: string, options?: { code?: PayoutProviderErrorCode; final?: boolean }) {
     super(message)
     this.name = "PayoutProviderError"
-    this.final = options?.final ?? false
+    this.code = options?.code ?? (options?.final ? PayoutProviderErrorCode.FINAL : PayoutProviderErrorCode.UNKNOWN)
   }
+
+  get final(): boolean {
+    return this.code === PayoutProviderErrorCode.FINAL
+  }
+}
+
+export interface DeleteAccountInput extends PayoutProviderInput {
+  account: PayoutProviderAccountRef
 }
 
 export interface IPayoutProvider {
   createAccount(input: CreateAccountInput): Promise<AccountOutput>
   retrieveAccount(input: RetrieveAccountInput): Promise<AccountOutput>
+  /**
+   * Removes an account created by `createAccount`, used to roll back an
+   * account creation. Optional: without it the account stays at the provider.
+   */
+  deleteAccount?(input: DeleteAccountInput): Promise<void>
   listAccounts?(input: ListAccountsInput): Promise<ListAccountsOutput>
   createOnboarding(input: CreateOnboardingInput): Promise<LinkOutput>
   createLoginLink?(input: CreateLoginLinkInput): Promise<LinkOutput>

@@ -3,7 +3,6 @@ export const vendorPayoutFields = [
   "amount",
   "currency_code",
   "status",
-  "data",
   "created_at",
   "updated_at",
   "display_id",
@@ -21,10 +20,12 @@ export const vendorPayoutFields = [
 export const vendorPayoutQueryConfig = {
   list: {
     defaults: vendorPayoutFields,
+    allowed: vendorPayoutFields,
     isList: true,
   },
   retrieve: {
     defaults: vendorPayoutFields,
+    allowed: vendorPayoutFields,
     isList: false,
   },
 }

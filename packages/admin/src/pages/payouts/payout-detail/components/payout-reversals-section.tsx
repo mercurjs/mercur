@@ -13,7 +13,11 @@ import { StatusCell } from "../../../../components/table/table-cells/common/stat
 import { TextCell } from "../../../../components/table/table-cells/common/text-cell"
 import { useDataTable } from "../../../../hooks/use-data-table"
 import { AdminPayout } from "../../../../lib/payouts"
-import { getPayoutStatusProps } from "../../common/utils"
+import {
+  getPayoutStatusDetail,
+  getPayoutStatusProps,
+  getPayoutStatusReasonLabel,
+} from "../../common/utils"
 
 const columnHelper = createColumnHelper<PayoutReversalDTO>()
 
@@ -46,11 +50,18 @@ export const PayoutReversalsSection = ({ payout }: { payout: AdminPayout }) => {
         cell: ({ getValue, row }) => {
           const status = getPayoutStatusProps(getValue(), t)
           const reason = row.original.status_reason
+          const detail = getPayoutStatusDetail(row.original.data)
           return (
             <div className="flex h-full w-full items-center gap-x-2">
               <StatusCell color={status.color}>{status.label}</StatusCell>
               {reason && (
-                <Tooltip content={reason}>
+                <Tooltip
+                  content={
+                    detail
+                      ? `${getPayoutStatusReasonLabel(reason, t)} ${detail}`
+                      : getPayoutStatusReasonLabel(reason, t)
+                  }
+                >
                   <ExclamationCircle
                     className="text-ui-tag-orange-icon shrink-0"
                     data-testid={`payout-reversal-reason-${row.original.id}`}

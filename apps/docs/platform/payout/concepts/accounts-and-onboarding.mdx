@@ -33,7 +33,7 @@ If the provider call throws before an account exists, the module deletes the new
 
 With the `onboarding.prefill` option, the module also passes the seller’s name, website, email, phone, country, and business type, so the provider can prefill its forms. `onboarding.defaultCountry` applies when the seller has no address.
 
-`ensureSellerPayoutAccountWorkflow` does this for one seller only when needed: it creates the account when it’s missing, and otherwise publishes a fresh onboarding link until the seller has submitted their details. Run it again as often as you like.
+`createOrRefreshSellerPayoutAccountWorkflow` does this for one seller only when needed: it creates the account when it’s missing, and otherwise publishes a fresh onboarding link until the seller has submitted their details. Run it again as often as you like.
 
 <Note>
   A seller can have only one payout account. `validateSellerWithoutPayoutAccountStep` fails with a `409` when the seller already has one.

@@ -1,36 +1,65 @@
+import type { ClientError } from "@mercurjs/client"
 import { queryKeysFactory } from "@mercurjs/dashboard-shared"
-import { UseQueryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  UseMutationOptions,
+  UseQueryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query"
 
-import { client } from "../../lib/client"
-import type { VendorSettlementListResponse } from "../../../types/http"
+import { client, type VendorAccount } from "../../lib/client"
+import type {
+  VendorPayoutAccountMeResponse,
+  VendorSettlementListResponse,
+} from "../../../types/http"
 
 export const vendorStripeKeys = queryKeysFactory("vendor_stripe")
+const payoutAccountsQueryKeys = queryKeysFactory("payout_accounts")
 
-export const useMyStripeAccount = () =>
-  useQuery({ queryKey: vendorStripeKeys.detail("me"), queryFn: () => client.vendor["payout-accounts"].me.query({}) })
+export const useMyStripeAccount = (
+  options?: Omit<
+    UseQueryOptions<VendorPayoutAccountMeResponse, ClientError, VendorPayoutAccountMeResponse>,
+    "queryKey" | "queryFn"
+  >
+) => {
+  const { data, ...rest } = useQuery({
+    queryKey: vendorStripeKeys.detail("me"),
+    queryFn: () => client.vendor["payout-accounts"].me.query({}),
+    ...options,
+  })
+
+  return { ...data, ...rest }
+}
 
 export const useMySettlements = (
   query: Record<string, unknown> = {},
-  options?: Omit<UseQueryOptions<VendorSettlementListResponse>, "queryKey" | "queryFn">
-) =>
-  useQuery({
+  options?: Omit<
+    UseQueryOptions<VendorSettlementListResponse, ClientError, VendorSettlementListResponse>,
+    "queryKey" | "queryFn"
+  >
+) => {
+  const { data, ...rest } = useQuery({
     queryKey: vendorStripeKeys.list({ kind: "settlements", ...query }),
     queryFn: () => client.vendor.stripe.settlements.query(query),
     ...options,
   })
 
-export const useCreateMyAccount = () => {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (data: Record<string, unknown>) => client.vendor["payout-accounts"].mutate({ data, context: {} }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: vendorStripeKeys.all }),
-  })
+  return { ...data, ...rest }
 }
 
-export const useRefreshMyOnboarding = () => {
-  const qc = useQueryClient()
+export const useCreateMyAccount = (
+  options?: UseMutationOptions<{ payout_account: VendorAccount }, ClientError, Record<string, unknown>>
+) => {
+  const queryClient = useQueryClient()
+
   return useMutation({
-    mutationFn: (accountId: string) => client.vendor["payout-accounts"].$id.onboarding.mutate({ $id: accountId, data: {} }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: vendorStripeKeys.all }),
+    ...options,
+    mutationFn: (data) => client.vendor["payout-accounts"].mutate({ data, context: {} }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: vendorStripeKeys.all })
+      queryClient.invalidateQueries({ queryKey: payoutAccountsQueryKeys.all })
+      options?.onSuccess?.(data, variables, context)
+    },
   })
 }

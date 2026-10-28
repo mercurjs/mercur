@@ -74,7 +74,7 @@ You need:
 
 Provider onboarding links expire. Call the same route again: the module finds the account’s existing `Onboarding` record and updates its `data` instead of creating a second one.
 
-The default `refresh_url` already handles this. It points at core’s public `GET /payout/onboarding/refresh?token=<onboarding_token>` route, which creates a fresh link for the account that owns the token and redirects the seller to it. The module's `createOnboarding` sets the `onboarding_token` before it publishes the first link.
+The default `refresh_url` already handles this. It points at core’s public `GET /payout/onboarding/refresh?token=<onboarding_token>` route, which creates a fresh link for the account that owns the token and redirects the seller to it. The module's `createOnboarding` sets the `onboarding_token` before it publishes the first link. Each refresh rotates the token, so a refresh URL works once, and a token older than `onboarding.tokenTtlSeconds` (24 hours by default) is rejected with `400`; the seller then gets a new link from the vendor panel.
 
 ## Where Stripe Connect reads its inputs
 

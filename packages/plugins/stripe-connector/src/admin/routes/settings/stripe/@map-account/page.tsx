@@ -70,7 +70,7 @@ const MapAccountForm = () => {
         <RouteDrawer.Footer>
           <div className="flex items-center gap-x-2">
             <RouteDrawer.Close asChild>
-              <Button size="small" variant="secondary">
+              <Button size="small" variant="secondary" data-testid="stripe-map-account-cancel-button">
                 Cancel
               </Button>
             </RouteDrawer.Close>
@@ -89,7 +89,7 @@ const MapAccountPage = () => (
     <RouteDrawer>
       <RouteDrawer.Header>
         <RouteDrawer.Title asChild>
-          <Heading>Map existing account</Heading>
+          <Heading data-testid="stripe-map-account-heading">Map existing account</Heading>
         </RouteDrawer.Title>
         <RouteDrawer.Description className="sr-only">
           Attach a connected account that already exists in Stripe to a store.

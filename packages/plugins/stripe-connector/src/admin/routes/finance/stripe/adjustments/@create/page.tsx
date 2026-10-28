@@ -161,7 +161,7 @@ const CreateAdjustmentForm = () => {
         <RouteDrawer.Footer>
           <div className="flex items-center gap-x-2">
             <RouteDrawer.Close asChild>
-              <Button size="small" variant="secondary">
+              <Button size="small" variant="secondary" data-testid="stripe-adjustment-cancel-button">
                 Cancel
               </Button>
             </RouteDrawer.Close>
@@ -180,7 +180,7 @@ const CreateAdjustmentPage = () => (
     <RouteDrawer>
       <RouteDrawer.Header>
         <RouteDrawer.Title asChild>
-          <Heading>Create adjustment</Heading>
+          <Heading data-testid="stripe-adjustment-create-heading">Create adjustment</Heading>
         </RouteDrawer.Title>
         <RouteDrawer.Description className="sr-only">
           Charge or credit a store on its next settlement.

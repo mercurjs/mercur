@@ -1,52 +1,24 @@
-import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
-import { updateSellersWorkflow } from "@mercurjs/core/workflows"
+import { AuthenticatedMedusaRequest, MedusaResponse, refetchEntity } from "@medusajs/framework/http"
 
-import { PAYOUT_IGNORED_KEY } from "../../../../../../types/common"
 import { AdminPayoutAccountResponse } from "../../../../../../types/http"
+import { ignorePayoutAccountWorkflow } from "../../../../../../workflows/accounts/workflows/ignore-payout-account"
 import { AdminIgnoreAccountType } from "../../../../validators"
 
-/**
- * Ignored sellers keep their payout account, but the transfers job never
- * pays their orders out.
- */
+/** Ignored sellers keep their payout account, but the transfers job never pays their orders out. */
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminIgnoreAccountType>,
   res: MedusaResponse<AdminPayoutAccountResponse>
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  await ignorePayoutAccountWorkflow(req.scope).run({
+    input: { id: req.params.id, ignored: req.validatedBody.ignored },
+  })
 
-  const {
-    data: [account],
-  } = await query.graph({
+  const payout_account = await refetchEntity({
     entity: "payout_account",
-    fields: ["id", "seller.id", "seller.metadata"],
-    filters: { id: req.params.id },
-  })
-  const seller = account?.seller
-  if (!seller) {
-    throw new MedusaError(MedusaError.Types.NOT_FOUND, `Payout account ${req.params.id} has no seller`)
-  }
-
-  await updateSellersWorkflow(req.scope).run({
-    input: {
-      selector: { id: seller.id },
-      update: {
-        metadata: {
-          ...((seller.metadata ?? {}) as Record<string, unknown>),
-          [PAYOUT_IGNORED_KEY]: String(req.validatedBody.ignored),
-        },
-      },
-    },
+    idOrFilter: req.params.id,
+    scope: req.scope,
+    fields: req.queryConfig.fields,
   })
 
-  const {
-    data: [payout_account],
-  } = await query.graph({
-    entity: "payout_account",
-    fields: ["*", "seller.id", "seller.name", "seller.handle", "seller.metadata"],
-    filters: { id: req.params.id },
-  })
-
-  res.json({ payout_account })
+  res.json({ payout_account } as AdminPayoutAccountResponse)
 }

@@ -19,7 +19,6 @@ type Routes = {
     "payout-accounts": {
       POST: Route<{ data?: Record<string, unknown>; context?: Record<string, unknown> }, { payout_account: VendorAccount }>
       me: { GET: Route<Empty, VendorPayoutAccountMeResponse> }
-      $id: { onboarding: { POST: Route<{ data?: Record<string, unknown> }, { onboarding: { id: string; data: Record<string, unknown> | null } }> } }
     }
     payouts: { GET: Route<ListQuery, VendorPayoutListResponse> }
     stripe: {

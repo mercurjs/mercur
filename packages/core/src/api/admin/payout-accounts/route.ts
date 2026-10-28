@@ -11,15 +11,11 @@ export const GET = async (
   res: MedusaResponse<HttpTypes.AdminPayoutAccountListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const { seller_id, ...filters } = req.filterableFields as Record<string, unknown>
-  if (seller_id) {
-    filters.seller = { id: seller_id }
-  }
 
   const { data: payout_accounts, metadata } = await query.graph({
     entity: "payout_account",
     fields: req.queryConfig.fields,
-    filters,
+    filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
   })
 

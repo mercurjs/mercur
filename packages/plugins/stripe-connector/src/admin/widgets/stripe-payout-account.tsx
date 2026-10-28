@@ -26,7 +26,6 @@ const StripeAccountSection = ({ account }: { account: PayoutAccountRow }) => {
   const ignore = useIgnoreStripeAccount(account.id)
 
   const ignored = isIgnored(account)
-  const link = (account.onboarding?.data?.url as string | undefined) ?? null
   const requirements = stripeRequirementsOf(account.data)
 
   const notify = (message: string) => ({
@@ -38,7 +37,9 @@ const StripeAccountSection = ({ account }: { account: PayoutAccountRow }) => {
     <Container className="divide-y p-0" data-testid="stripe-payout-account-section">
       <div className="flex items-center justify-between px-6 py-4">
         <div>
-          <Heading level="h2">Stripe</Heading>
+          <Heading level="h2" data-testid="stripe-payout-account-heading">
+            Stripe
+          </Heading>
           <Text size="small" className="text-ui-fg-subtle">
             Connected account and what Stripe still needs from the store.
           </Text>
@@ -78,18 +79,6 @@ const StripeAccountSection = ({ account }: { account: PayoutAccountRow }) => {
       <SectionRow
         title="Stripe reason"
         value={account.disabled_reason ? disabledReasonLabel(account.disabled_reason) : "-"}
-      />
-      <SectionRow
-        title="Onboarding link"
-        value={
-          link ? (
-            <a href={link} target="_blank" rel="noreferrer" className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover">
-              Open onboarding link
-            </a>
-          ) : (
-            "-"
-          )
-        }
       />
       <SectionRow title="Currently due" value={<Requirements items={requirements.currently_due} />} />
       <SectionRow title="Past due" value={<Requirements items={requirements.past_due} />} />

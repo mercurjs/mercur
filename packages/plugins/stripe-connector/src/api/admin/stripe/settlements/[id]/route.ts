@@ -1,8 +1,8 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 
 import { AdminSettlementResponse } from "../../../../../types/http"
-import { retrieveSettlementDetail } from "../../../../utils/settlements"
+import { refetchSettlement } from "../helpers"
 
 export const GET = async (req: AuthenticatedMedusaRequest, res: MedusaResponse<AdminSettlementResponse>) => {
-  res.json({ settlement: await retrieveSettlementDetail(req.scope, req.params.id) })
+  res.json({ settlement: await refetchSettlement(req.params.id, req.scope, req.queryConfig.fields) })
 }

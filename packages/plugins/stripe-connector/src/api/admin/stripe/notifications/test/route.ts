@@ -1,6 +1,6 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 
-import { notifyOperatorWorkflow } from "../../../../../workflows/notify-operator"
+import { notifyOperatorWorkflow } from "../../../../../workflows/notifications/workflows/notify-operator"
 
 export const POST = async (req: AuthenticatedMedusaRequest, res: MedusaResponse) => {
   const { result } = await notifyOperatorWorkflow(req.scope).run({

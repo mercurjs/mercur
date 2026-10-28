@@ -4,6 +4,7 @@ import {
   CreateLoginLinkInput,
   CreateOnboardingInput,
   CreatePayoutInput,
+  DeleteAccountInput,
   IPayoutProvider,
   LinkOutput,
   ListAccountsInput,
@@ -41,6 +42,7 @@ export abstract class AbstractPayoutProvider<TConfig = Record<string, unknown>>
 
   abstract createAccount(input: CreateAccountInput): Promise<AccountOutput>
   abstract retrieveAccount(input: RetrieveAccountInput): Promise<AccountOutput>
+  deleteAccount?(input: DeleteAccountInput): Promise<void>
   listAccounts?(input: ListAccountsInput): Promise<ListAccountsOutput>
   abstract createOnboarding(input: CreateOnboardingInput): Promise<LinkOutput>
   createLoginLink?(input: CreateLoginLinkInput): Promise<LinkOutput>

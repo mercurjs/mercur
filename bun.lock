@@ -625,6 +625,7 @@
       "name": "@mercurjs/stripe-connector-plugin",
       "version": "2.3.9-canary.4",
       "dependencies": {
+        "cronstrue": "3.27.0",
         "stripe": "^19.1.0",
         "zod": "4.6.5",
       },
@@ -649,11 +650,13 @@
         "@types/jest": "^29.5.14",
         "@types/node": "^26.1.0",
         "@types/react": "^18.3.2",
+        "i18next": "26.4.2",
         "jest": "^29.7.0",
         "radix-ui": "1.1.2",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
         "react-hook-form": "7.88.0",
+        "react-i18next": "17.0.14",
         "react-router-dom": "7.18.1",
         "ts-jest": "^29.2.5",
         "typescript": "5.9.3",
@@ -672,9 +675,11 @@
         "@mercurjs/dashboard-shared": ">=2.3.9-canary.4",
         "@tanstack/react-query": "^5.64.2",
         "@tanstack/react-table": "^8.20.5",
+        "i18next": "26.4.2",
         "react": "^18.0.0",
         "react-dom": "^18.0.0",
         "react-hook-form": "^7.49.1",
+        "react-i18next": "17.0.14",
         "react-router-dom": "^7.0.0",
       },
     },
@@ -2993,6 +2998,8 @@
     "create-require": ["create-require@1.1.1", "", {}, "sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ=="],
 
     "cron-parser": ["cron-parser@4.9.0", "", { "dependencies": { "luxon": "^3.2.1" } }, "sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q=="],
+
+    "cronstrue": ["cronstrue@3.27.0", "", { "bin": { "cronstrue": "bin/cli.js" } }, "sha512-AKhV4ilvx73NmicrZCGASdszUIf2ew0A/6jQQTh4pu3lIUzgWOGjT3Gv3CGIcTQ/p8Qy/tZuCmlaOftj8PXaNg=="],
 
     "cross-fetch": ["cross-fetch@4.1.0", "", { "dependencies": { "node-fetch": "^2.7.0" } }, "sha512-uKm5PU+MHTootlWEY+mZ4vvXoCn4fLQxT9dSc1sXVMSFkINTJVN8cAQROpwcKm8bJ/c7rgZVIBWzH5T78sNZZw=="],
 

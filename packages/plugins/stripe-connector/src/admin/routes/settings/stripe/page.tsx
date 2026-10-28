@@ -3,7 +3,6 @@ import { Container, Heading, StatusBadge, Text, toast } from "@medusajs/ui"
 import {
   ActionMenu,
   DateCell,
-  JsonViewSection,
   SectionRow,
   SingleColumnPage,
   SingleColumnPageSkeleton,
@@ -66,7 +65,7 @@ const StripeGeneralSection = ({ configured, lastWebhookAt, notificationUrl }: St
     <Container className="divide-y p-0" data-testid="stripe-settings-general-section">
       <div className="flex items-center justify-between px-6 py-4">
         <div>
-          <Heading>Stripe</Heading>
+          <Heading data-testid="stripe-settings-general-heading">Stripe</Heading>
           <Text size="small" className="text-ui-fg-subtle">
             Card payments and payouts to stores through Stripe Connect.
           </Text>
@@ -117,7 +116,9 @@ const StripeWebhooksSection = () => {
   return (
     <Container className="divide-y p-0" data-testid="stripe-settings-webhooks-section">
       <div className="px-6 py-4">
-        <Heading level="h2">Webhooks</Heading>
+        <Heading level="h2" data-testid="stripe-settings-webhooks-heading">
+          Webhooks
+        </Heading>
         <Text size="small" className="text-ui-fg-subtle">
           Register both endpoints in the Stripe dashboard.
         </Text>
@@ -192,7 +193,9 @@ const StripeNotificationsSection = ({ url }: { url?: string }) => {
   return (
     <Container className="divide-y p-0" data-testid="stripe-settings-notifications-section">
       <div className="px-6 py-4">
-        <Heading level="h2">Notifications</Heading>
+        <Heading level="h2" data-testid="stripe-settings-notifications-heading">
+          Notifications
+        </Heading>
         <Text size="small" className="text-ui-fg-subtle">
           {url ? `Failed payouts, reversals and settlements are posted to ${url}.` : "No notification URL is set in the plugin options."}
         </Text>
@@ -225,7 +228,7 @@ const StripeSettings = () => {
   const notificationUrl = (options as StripeOptions).notifications?.url
 
   return (
-    <SingleColumnPage hasOutlet data-testid="stripe-settings-page">
+    <SingleColumnPage hasOutlet data={options} showJSON data-testid="stripe-settings-page">
       <WidgetZone id="stripe.settings" data={options}>
         <StripeGeneralSection
           configured={!!configured}
@@ -234,7 +237,6 @@ const StripeSettings = () => {
         />
         <StripeWebhooksSection />
         <StripeNotificationsSection url={notificationUrl} />
-        <JsonViewSection data={options} />
       </WidgetZone>
     </SingleColumnPage>
   )

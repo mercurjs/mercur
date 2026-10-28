@@ -1,16 +1,16 @@
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
-import { MercurModules } from "@mercurjs/types"
+import { CreatePayoutReversalDTO, IPayoutModuleService, MercurModules } from "@mercurjs/types"
 
-import PayoutModuleService from "../../../modules/payout/services/payout-module-service"
+import { sentToProvider } from "../utils/sent-to-provider"
 
-export type CreatePayoutReversalsStepInput = Extract<Parameters<PayoutModuleService["createPayoutReversals"]>[0], unknown[]>
+export type CreatePayoutReversalsStepInput = CreatePayoutReversalDTO[]
 
-export const createPayoutReversalsStepId = "create-payout-reversals"
+export const createPayoutReversalsStepId = "create-payout-reversals-step"
 
 export const createPayoutReversalsStep = createStep(
   createPayoutReversalsStepId,
   async (input: CreatePayoutReversalsStepInput, { container }) => {
-    const service = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
+    const service = container.resolve<IPayoutModuleService>(MercurModules.PAYOUT)
     const reversals = input.length ? await service.createPayoutReversals(input) : []
 
     return new StepResponse(
@@ -23,6 +23,12 @@ export const createPayoutReversalsStep = createStep(
       return
     }
 
-    await container.resolve<PayoutModuleService>(MercurModules.PAYOUT).deletePayoutReversals(ids)
+    const service = container.resolve<IPayoutModuleService>(MercurModules.PAYOUT)
+    const current = await service.listPayoutReversals({ id: ids }, { select: ["id", "status", "data"], take: null })
+    const unsent = current.filter((reversal) => !sentToProvider(reversal)).map((reversal) => reversal.id)
+
+    if (unsent.length) {
+      await service.deletePayoutReversals(unsent)
+    }
   }
 )

@@ -20,6 +20,11 @@ export interface CreatePayoutAccountDTO extends PayoutProviderInput {
 
 export interface CreateOnboardingDTO extends PayoutProviderInput {
   account_id: string
+  /**
+   * Issue a new onboarding token even when the current one is still valid,
+   * so the refresh URL that was just used stops working.
+   */
+  rotate_token?: boolean
 }
 
 export interface UpdatePayoutAccountDTO {
@@ -31,6 +36,7 @@ export interface UpdatePayoutAccountDTO {
   details_submitted?: boolean
   disabled_reason?: string | null
   onboarding_token?: string | null
+  onboarding_token_issued_at?: Date | null
   last_synced_at?: Date | null
   data?: Record<string, unknown>
 }

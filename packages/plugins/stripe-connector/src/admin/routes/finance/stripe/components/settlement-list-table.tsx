@@ -29,7 +29,7 @@ export const SettlementListTable = () => (
   <Container className="divide-y p-0" data-testid="stripe-settlement-list-table">
     <div className="flex items-center justify-between px-6 py-4">
       <div>
-        <Heading>Settlements</Heading>
+        <Heading data-testid="stripe-settlements-heading">Settlements</Heading>
         <Text size="small" className="text-ui-fg-subtle">
           Payouts, reversals and adjustments netted per store and paid to its bank account.
         </Text>
@@ -94,7 +94,7 @@ const useColumns = () =>
         header: () => <TextHeader text="Period end" />,
         cell: ({ getValue }) => <DateCell date={getValue()} />,
       }),
-      columnHelper.accessor((row) => row.seller?.name ?? "", {
+      columnHelper.accessor((row) => row.payout_account?.seller?.name ?? "", {
         id: "seller",
         header: () => <TextHeader text="Store" />,
         cell: ({ getValue }) => <TextCell text={getValue() || "-"} />,

@@ -57,6 +57,11 @@ export interface PayoutModuleOptions {
     refreshBaseUrl?: string
     prefill?: boolean
     defaultCountry?: string
+    /**
+     * How long the token in an onboarding refresh URL stays valid, in seconds.
+     * Defaults to 24 hours.
+     */
+    tokenTtlSeconds?: number
   }
 }
 
@@ -66,6 +71,7 @@ export type ResolvedPayoutModuleOptions = {
     refreshBaseUrl: string
     prefill: boolean
     defaultCountry?: string
+    tokenTtlSeconds: number
   }
 }
 
@@ -77,6 +83,7 @@ export function resolvePayoutModuleOptions(
       returnUrl: "",
       refreshBaseUrl: "",
       prefill: false,
+      tokenTtlSeconds: 24 * 60 * 60,
       ...(options?.onboarding ?? {}),
     },
   }
@@ -108,9 +115,11 @@ export interface PayoutAccountDTO {
   details_submitted: boolean
   disabled_reason: string | null
   onboarding_token: string | null
+  onboarding_token_issued_at: Date | null
   last_synced_at: Date | null
   data: Record<string, unknown>
   context: Record<string, unknown> | null
+  onboarding?: OnboardingDTO | null
   created_at: Date
   updated_at: Date
 }
@@ -135,6 +144,7 @@ export interface PayoutDTO {
   status_reason: string | null
   data: Record<string, unknown> | null
   metadata: Record<string, unknown> | null
+  account?: PayoutAccountDTO
   reversals?: PayoutReversalDTO[]
   created_at: Date
   updated_at: Date
@@ -148,26 +158,29 @@ export interface PayoutReversalDTO {
   status: PayoutStatus
   status_reason: string | null
   data: Record<string, unknown> | null
+  payout?: PayoutDTO
   created_at: Date
   updated_at: Date
 }
 
+/**
+ * Stable codes stored in `status_reason` on payouts and payout reversals.
+ * Ids, statuses and provider messages behind a code go in `data.status_detail`.
+ */
 export const PayoutStatusReason = {
-  ACCOUNT_NOT_READY: "Cannot find payout account for seller %s",
-  ACCOUNT_PAYOUTS_DISABLED: "Payouts are disabled for seller %s",
-  ORDER_NOT_READY: "Order is not ready yet, status is %s",
-  ORDER_ABORTED: "Order cannot be processed, status is %s",
-  PAYMENT_NOT_READY: "Payment %s is not ready yet, status is %s",
-  PAYMENT_FAILED: "Payment %s failed",
-  PAYMENT_CANCELED: "Payment %s has been canceled",
-  PAYMENT_REFUNDED: "Payment %s has been fully refunded",
-  PAYOUT_NOT_READY: "The payout has to be paid before it can be reversed for a refund",
-  REFUND_ABORTED: "Refund %s has been aborted",
-  REFUND_ABSORBED: "Refund %s was deducted from the payout",
-  INVALID_AMOUNT: "Amount must be positive, input was: %s",
+  ACCOUNT_NOT_READY: "account_not_ready",
+  ACCOUNT_PAYOUTS_DISABLED: "account_payouts_disabled",
+  ORDER_NOT_READY: "order_not_ready",
+  ORDER_ABORTED: "order_aborted",
+  PAYMENT_NOT_READY: "payment_not_ready",
+  PAYMENT_FAILED: "payment_failed",
+  PAYMENT_CANCELED: "payment_canceled",
+  PAYMENT_REFUNDED: "payment_refunded",
+  PAYOUT_NOT_READY: "payout_not_ready",
+  REFUND_ABORTED: "refund_aborted",
+  REFUND_ABSORBED: "refund_absorbed",
+  INVALID_AMOUNT: "invalid_amount",
+  PROVIDER_ERROR: "provider_error",
 } as const
 
-export function formatStatusReason(template: string, ...values: unknown[]): string {
-  let i = 0
-  return template.replace(/%s/g, () => String(values[i++] ?? ""))
-}
+export type PayoutStatusReasonCode = (typeof PayoutStatusReason)[keyof typeof PayoutStatusReason]

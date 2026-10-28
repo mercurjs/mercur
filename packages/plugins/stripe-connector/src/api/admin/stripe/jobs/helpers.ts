@@ -5,8 +5,10 @@ import { CaptureStatus, PAYOUT_JOBS, PAYOUT_JOB_SCHEDULES, PayoutJobName } from 
 import { AdminPayoutJob } from "../../../../types/http"
 import { nextCronRun } from "../../../../utils/cron"
 import { resolveConnector, resolvePayoutModule } from "../../../../utils/payout-module"
-import { ONBOARDING_CHECKPOINT } from "../../../../workflows/onboarding/sync-onboarding"
-import { PAYOUTS_CHECKPOINT } from "../../../../workflows/payouts/steps/select-payout-orders"
+import { decodeCursor } from "../../../../workflows/common/utils/cursor"
+import { ONBOARDING_CHECKPOINT } from "../../../../workflows/onboarding/utils/onboarding-sellers"
+import { PAYOUTS_CHECKPOINT } from "../../../../workflows/payouts/utils/payout-orders"
+import { REVERSALS_CHECKPOINT } from "../../../../workflows/reversals/steps/select-reversal-orders"
 
 const COUNT_ONLY = { take: 1, select: ["id"] }
 
@@ -26,7 +28,11 @@ export async function countFailed(container: MedusaContainer) {
 const CHECKPOINT_BY_JOB: Partial<Record<PayoutJobName, string>> = {
   "payout-sync-onboarding": ONBOARDING_CHECKPOINT,
   "payout-process-transfers": PAYOUTS_CHECKPOINT,
+  "payout-process-reversals": REVERSALS_CHECKPOINT,
 }
+
+// Cursor checkpoints keep the row id next to the date; the date is what is shown.
+const checkpointDate = (value: string | null) => decodeCursor(value)?.created_at ?? value
 
 export async function describeJobs(container: MedusaContainer): Promise<AdminPayoutJob[]> {
   const connector = resolveConnector(container)
@@ -58,7 +64,7 @@ export async function describeJobs(container: MedusaContainer): Promise<AdminPay
         job,
         schedule: PAYOUT_JOB_SCHEDULES[job],
         enabled: enabled[job],
-        checkpoint: checkpointKey ? await connector.getCheckpoint(checkpointKey) : null,
+        checkpoint: checkpointKey ? checkpointDate(await connector.getCheckpoint(checkpointKey)) : null,
         last_run: lastRun ?? null,
         next_run_at: enabled[job] ? nextCronRun(PAYOUT_JOB_SCHEDULES[job], new Date()) : null,
         failed_count: failedByJob[job] ?? 0,

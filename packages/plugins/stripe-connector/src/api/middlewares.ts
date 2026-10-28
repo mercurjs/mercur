@@ -7,12 +7,15 @@ import {
   AdminGetAdjustmentsParams,
   AdminGetCaptureParams,
   AdminGetCapturesParams,
+  AdminGetSelectParams,
   AdminGetSettlementsParams,
   AdminIgnoreAccount,
   AdminRunJob,
 } from "./admin/validators"
 import { adminAdjustmentQueryConfig } from "./admin/stripe/adjustments/query-config"
+import { adminStripeAccountQueryConfig } from "./admin/stripe/accounts/query-config"
 import { adminCaptureQueryConfig } from "./admin/stripe/captures/query-config"
+import { adminSettlementQueryConfig, vendorSettlementQueryConfig } from "./admin/stripe/settlements/query-config"
 
 const view = requirePermission("payouts", "view")
 const edit = requirePermission("payouts", "edit")
@@ -51,10 +54,18 @@ const routes: MiddlewareRoute[] = [
   {
     method: ["GET"],
     matcher: "/admin/stripe/settlements",
-    middlewares: [view, validateAndTransformQuery(AdminGetSettlementsParams, { isList: true, defaults: ["id"] })],
+    middlewares: [view, validateAndTransformQuery(AdminGetSettlementsParams, adminSettlementQueryConfig.list)],
   },
-  { method: ["GET"], matcher: "/admin/stripe/settlements/:id", middlewares: [view] },
-  { method: ["POST"], matcher: "/admin/stripe/settlements/:id/retry", middlewares: [edit] },
+  {
+    method: ["GET"],
+    matcher: "/admin/stripe/settlements/:id",
+    middlewares: [view, validateAndTransformQuery(AdminGetSelectParams, adminSettlementQueryConfig.retrieve)],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/stripe/settlements/:id/retry",
+    middlewares: [edit, validateAndTransformQuery(AdminGetSelectParams, adminSettlementQueryConfig.retrieve)],
+  },
   {
     method: ["GET"],
     matcher: "/admin/stripe/adjustments",
@@ -63,19 +74,31 @@ const routes: MiddlewareRoute[] = [
   {
     method: ["POST"],
     matcher: "/admin/stripe/adjustments",
-    middlewares: [edit, validateAndTransformBody(AdminCreateAdjustment)],
+    middlewares: [
+      edit,
+      validateAndTransformBody(AdminCreateAdjustment),
+      validateAndTransformQuery(AdminGetSelectParams, adminAdjustmentQueryConfig.retrieve),
+    ],
   },
   {
     method: ["POST"],
     matcher: "/admin/stripe/accounts/:id/ignore",
-    middlewares: [edit, validateAndTransformBody(AdminIgnoreAccount)],
+    middlewares: [
+      edit,
+      validateAndTransformBody(AdminIgnoreAccount),
+      validateAndTransformQuery(AdminGetSelectParams, adminStripeAccountQueryConfig.retrieve),
+    ],
   },
   {
     method: ["GET"],
     matcher: "/vendor/stripe/settlements",
-    middlewares: [view, validateAndTransformQuery(AdminGetSettlementsParams, { isList: true, defaults: ["id"] })],
+    middlewares: [view, validateAndTransformQuery(AdminGetSettlementsParams, vendorSettlementQueryConfig.list)],
   },
-  { method: ["GET"], matcher: "/vendor/stripe/settlements/:id", middlewares: [view] },
+  {
+    method: ["GET"],
+    matcher: "/vendor/stripe/settlements/:id",
+    middlewares: [view, validateAndTransformQuery(AdminGetSelectParams, vendorSettlementQueryConfig.retrieve)],
+  },
 ]
 
 export default defineMiddlewares({ routes })

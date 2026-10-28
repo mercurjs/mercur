@@ -1,7 +1,8 @@
 import { WorkflowResponse, createWorkflow, transform } from "@medusajs/framework/workflows-sdk"
 
-import { CaptureAction, settleCaptureStep } from "../steps/settle-captures"
-import { syncCapturesStep } from "../steps/sync-captures"
+import { CaptureAction } from "../utils/capture-action"
+import { settleStripeCaptureWorkflow } from "./settle-stripe-capture"
+import { syncCapturesWorkflow } from "./sync-captures"
 
 export type SettleOrderGroupPaymentWorkflowInput = {
   order_group_id: string
@@ -14,9 +15,12 @@ export const settleOrderGroupPaymentWorkflowId = "settle-stripe-order-group-paym
 export const settleOrderGroupPaymentWorkflow = createWorkflow(
   settleOrderGroupPaymentWorkflowId,
   function (input: SettleOrderGroupPaymentWorkflowInput) {
-    const syncInput = transform({ input }, ({ input }) => ({ order_group_ids: [input.order_group_id] }))
-    syncCapturesStep(syncInput)
+    syncCapturesWorkflow.runAsStep({
+      input: transform({ input }, ({ input }) => ({ order_group_ids: [input.order_group_id] })),
+    })
 
-    return new WorkflowResponse(settleCaptureStep(input))
+    const settled = settleStripeCaptureWorkflow.runAsStep({ input })
+
+    return new WorkflowResponse(settled)
   }
 )

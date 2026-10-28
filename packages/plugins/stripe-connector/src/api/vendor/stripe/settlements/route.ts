@@ -1,21 +1,27 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
-import { SettlementListItem, VendorSettlementListResponse } from "../../../../types/http"
-import { listSettlementRows, sellerAccountIds } from "../../../utils/settlements"
+import { VendorSettlement, VendorSettlementListResponse } from "../../../../types/http"
 import { vendorSellerId } from "../../../vendor-seller"
 import { AdminGetSettlementsParamsType } from "../../../admin/validators"
-
-const stripOperatorFields = ({ account_id: _a, ...rest }: SettlementListItem) => rest as SettlementListItem
+import { sellerAccountFilter } from "./helpers"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest<unknown, AdminGetSettlementsParamsType>,
   res: MedusaResponse<VendorSettlementListResponse>
 ) => {
-  const accountIds = await sellerAccountIds(req.scope, vendorSellerId(req))
-  const result = await listSettlementRows(
-    req.scope,
-    { ...req.filterableFields, account_id: accountIds.length ? accountIds : ["none"] },
-    req.queryConfig.pagination
-  )
-  res.json({ ...result, settlements: result.settlements.map(stripOperatorFields) })
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const { data: settlements, metadata } = await query.graph({
+    entity: "settlement",
+    fields: req.queryConfig.fields,
+    filters: { ...req.filterableFields, ...(await sellerAccountFilter(req.scope, vendorSellerId(req))) },
+    pagination: req.queryConfig.pagination,
+  })
+
+  res.json({
+    settlements: settlements as unknown as VendorSettlement[],
+    count: metadata?.count ?? 0,
+    offset: metadata?.skip ?? 0,
+    limit: metadata?.take ?? 0,
+  })
 }

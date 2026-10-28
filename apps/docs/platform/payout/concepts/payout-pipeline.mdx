@@ -10,7 +10,7 @@ The payout pipeline is the path from a placed order to money in a seller’s acc
 
 The core plugin gives you every piece that talks to the provider or writes payout records:
 
-- **Account workflows**: `createPayoutAccountWorkflow`, `ensureSellerPayoutAccountWorkflow`, `createOnboardingWorkflow`, and `syncPayoutAccountWorkflow`
+- **Account workflows**: `createPayoutAccountWorkflow`, `createOrRefreshSellerPayoutAccountWorkflow`, `createOnboardingWorkflow`, and `syncPayoutAccountWorkflow`
 - **Payout workflows**: `createOrderPayoutsWorkflow`, `createPayoutReversalsWorkflow`, `processPayoutWorkflow`, and `processPayoutReversalWorkflow`
 - **Webhook route**: `POST /hooks/payout` keeps the raw body and emits `payout.webhook_received` with a 5000 ms delay and 3 attempts
 - **Webhook subscriber**: `payout-webhook` parses the event through the provider and runs `processPayoutForWebhookWorkflow`
@@ -96,14 +96,19 @@ Every external call goes through `IPayoutProvider` from `@mercurjs/types`. The m
 | Method | Called by | Returns |
 | --- | --- | --- |
 | `createAccount` | `createPayoutAccount` | An `AccountOutput`: provider `id`, `status`, flags, requirements, `data` |
-| `retrieveAccount` | `updatePayoutAccount` | An `AccountOutput` |
+| `retrieveAccount` | `syncPayoutAccount` | An `AccountOutput` |
+| `deleteAccount` (optional) | `deletePayoutAccount`, when an account creation rolls back | Nothing |
 | `createOnboarding` | `createOnboarding` | A `LinkOutput`: `url`, `expires_at`, `data` |
 | `createLoginLink` (optional) | `createOnboarding`, once details are submitted | A `LinkOutput` for the provider dashboard |
 | `createPayout` | `processPayout` | A `PayoutOutput`: provider `id`, `status`, `data` |
 | `reversePayout` | `processPayoutReversal` | A `PayoutOutput` |
 | `getWebhookActionAndData` | `getWebhookActionAndData` | A `PayoutWebhookResult` |
 
-Write a provider as a class that implements `IPayoutProvider` and has a static `identifier`; the module registers it under `pop_<identifier>_<id>`. Throw `PayoutProviderError` with `{ final: true }` from `createPayout` or `reversePayout` when a retry can’t succeed. The module then marks the row `aborted` instead of `failed`.
+Write a provider as a class that implements `IPayoutProvider` and has a static `identifier`; the module registers it under `pop_<identifier>_<id>`. Throw a `PayoutProviderError` from `createPayout` or `reversePayout` to tell the module what happened:
+
+- `{ code: PayoutProviderErrorCode.REFUSED }` when the provider rejected the request and created nothing, such as a validation or balance error. The row is `failed` and the retry gets a new idempotency key.
+- `{ code: PayoutProviderErrorCode.FINAL }` (or `{ final: true }`) when a retry can’t succeed. The row is `aborted`.
+- Anything else, including a plain `Error` from a timeout, counts as an unknown outcome. The row is `failed` and the retry reuses the idempotency key, so a payout the provider did make isn’t made twice.
 
 When you register no provider, the module loads `system`. It returns `active` accounts and `paid` payouts without moving money, which suits local development and tests. Register Stripe Connect in `medusa-config.ts` with the [Stripe Connect integration](/resources/integrations/stripe-connect).
 

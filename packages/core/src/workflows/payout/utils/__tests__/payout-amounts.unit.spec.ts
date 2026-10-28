@@ -1,7 +1,8 @@
-import { PayoutStatus } from "@mercurjs/types"
+import { PayoutStatus, PayoutStatusReason } from "@mercurjs/types"
 
 import { fulfillmentReached } from "../fulfillment-status"
 import { decideOrderPayout, decideReversal } from "../payout-amounts"
+import { sentToProvider } from "../sent-to-provider"
 
 const order = (overrides: Partial<Parameters<typeof decideOrderPayout>[0]["order"]> = {}) => ({
   id: "order_1",
@@ -36,30 +37,48 @@ describe("decideOrderPayout", () => {
   it("holds when the seller has no account", () => {
     const decision = decideOrderPayout({ ...base, account: null })
     expect(decision.status).toBe(PayoutStatus.ON_HOLD)
-    expect(decision.status_reason).toBe("Cannot find payout account for seller sel_1")
+    expect(decision.status_reason).toBe(PayoutStatusReason.ACCOUNT_NOT_READY)
+    expect(decision.status_detail).toBe("Cannot find payout account for seller sel_1")
   })
 
   it("holds when payouts are disabled on the account", () => {
     const decision = decideOrderPayout({ ...base, account: { ...account, payouts_enabled: false } })
     expect(decision.status).toBe(PayoutStatus.ON_HOLD)
+    expect(decision.status_reason).toBe(PayoutStatusReason.ACCOUNT_PAYOUTS_DISABLED)
   })
 
   it("aborts a canceled order", () => {
     const decision = decideOrderPayout({ ...base, order: order({ status: "canceled" }) })
     expect(decision.status).toBe(PayoutStatus.ABORTED)
-    expect(decision.status_reason).toBe("Order cannot be processed, status is canceled")
+    expect(decision.status_reason).toBe(PayoutStatusReason.ORDER_ABORTED)
+    expect(decision.status_detail).toBe("Order cannot be processed, status is canceled")
+  })
+
+  it("aborts a canceled order even when the seller has no usable account", () => {
+    expect(decideOrderPayout({ ...base, account: null, order: order({ status: "canceled" }) }).status).toBe(
+      PayoutStatus.ABORTED
+    )
+    expect(
+      decideOrderPayout({
+        ...base,
+        account: { ...account, payouts_enabled: false },
+        order: order({ canceled_at: new Date() }),
+      }).status
+    ).toBe(PayoutStatus.ABORTED)
   })
 
   it("holds an order below the required fulfillment status", () => {
     const decision = decideOrderPayout({ ...base, order: order({ fulfillment_status: "partially_fulfilled" }) })
     expect(decision.status).toBe(PayoutStatus.ON_HOLD)
-    expect(decision.status_reason).toBe("Order is not ready yet, status is partially_fulfilled")
+    expect(decision.status_reason).toBe(PayoutStatusReason.ORDER_NOT_READY)
+    expect(decision.status_detail).toBe("Order is not ready yet, status is partially_fulfilled")
   })
 
   it("holds an authorized but uncaptured payment", () => {
     const decision = decideOrderPayout({ ...base, payment: { ...payment, captured: false } })
     expect(decision.status).toBe(PayoutStatus.ON_HOLD)
-    expect(decision.status_reason).toBe("Payment pay_1 is not ready yet, status is authorized")
+    expect(decision.status_reason).toBe(PayoutStatusReason.PAYMENT_NOT_READY)
+    expect(decision.status_detail).toBe("Payment pay_1 is not ready yet, status is authorized")
   })
 
   it("aborts a canceled or fully refunded payment", () => {
@@ -70,12 +89,14 @@ describe("decideOrderPayout", () => {
   it("aborts when total minus commission is not positive", () => {
     const decision = decideOrderPayout({ ...base, commission_total: 180 })
     expect(decision.status).toBe(PayoutStatus.ABORTED)
-    expect(decision.status_reason).toBe("Amount must be positive, input was: 0")
+    expect(decision.status_reason).toBe(PayoutStatusReason.INVALID_AMOUNT)
+    expect(decision.status_detail).toBe("Amount must be positive, input was: 0")
   })
 
   it("is pending for total minus commission", () => {
     const decision = decideOrderPayout(base)
     expect(decision.status).toBe(PayoutStatus.PENDING)
+    expect(decision.status_reason).toBeNull()
     expect(Number(decision.amount)).toBe(162)
   })
 
@@ -115,6 +136,7 @@ describe("decideReversal", () => {
       payout: { ...payout, status: PayoutStatus.ON_HOLD, provider_payout_id: null },
     })
     expect(decision.status).toBe(PayoutStatus.ON_HOLD)
+    expect(decision.status_reason).toBe(PayoutStatusReason.PAYOUT_NOT_READY)
   })
 
   it("aborts when the order payout was aborted", () => {
@@ -127,6 +149,24 @@ describe("decideReversal", () => {
       payout: { ...payout, status: PayoutStatus.ABORTED },
     })
     expect(decision.status).toBe(PayoutStatus.ABORTED)
-    expect(decision.status_reason).toBe("Refund ref_1 has been aborted")
+    expect(decision.status_reason).toBe(PayoutStatusReason.REFUND_ABORTED)
+    expect(decision.status_detail).toBe("Refund ref_1 has been aborted")
+  })
+})
+
+describe("sentToProvider", () => {
+  it("counts a processing or paid row as sent", () => {
+    expect(sentToProvider({ status: PayoutStatus.PROCESSING })).toBe(true)
+    expect(sentToProvider({ status: PayoutStatus.PAID })).toBe(true)
+  })
+
+  it("counts a failed row as sent when it was attempted after the snapshot", () => {
+    expect(sentToProvider({ status: PayoutStatus.FAILED, data: { attempts: 1 } })).toBe(true)
+    expect(sentToProvider({ status: PayoutStatus.FAILED, data: { attempts: 2 } }, { data: { attempts: 1 } })).toBe(true)
+  })
+
+  it("leaves a row that never reached the provider restorable", () => {
+    expect(sentToProvider({ status: PayoutStatus.PENDING, data: {} })).toBe(false)
+    expect(sentToProvider({ status: PayoutStatus.ON_HOLD, data: { attempts: 1 } }, { data: { attempts: 1 } })).toBe(false)
   })
 })

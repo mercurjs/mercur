@@ -1,13 +1,17 @@
-import { WorkflowResponse, createWorkflow, transform } from "@medusajs/framework/workflows-sdk"
-import { emitEventStep } from "@medusajs/medusa/core-flows"
+import { WorkflowResponse, createWorkflow, transform, when } from "@medusajs/framework/workflows-sdk"
+import { emitEventStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
 
 import { StripeConnectorEvents } from "../../../types/common"
-import { createSettlementsStep } from "../steps/create-settlements"
-import { dispatchAdjustmentsStep } from "../steps/dispatch-adjustments"
-import { dispatchSettlementPayoutsStep } from "../steps/dispatch-settlement-payouts"
-import { retrySettlementPayoutsStep } from "../steps/retry-settlement-payouts"
-import { selectSettlementAccountsStep } from "../steps/select-settlement-accounts"
 import { JobStats } from "../../../utils/run-job"
+import {
+  createSettlementsStep,
+  loadSettlementSourcesStep,
+  processAdjustmentsStep,
+  processSettlementPayoutsStep,
+  retrySettlementPayoutsStep,
+} from "../steps"
+import { LoadSettlementSourcesStepInput } from "../steps/load-settlement-sources"
+import { planSettlements } from "../utils/plan-settlements"
 
 export type ProcessSettlementsWorkflowInput = {
   seller_id?: string
@@ -23,37 +27,70 @@ export const processSettlementsWorkflowId = "process-stripe-settlements"
 export const processSettlementsWorkflow = createWorkflow(
   processSettlementsWorkflowId,
   function (input: ProcessSettlementsWorkflowInput) {
-    const accountIds = selectSettlementAccountsStep({ seller_id: input.seller_id })
+    const sellerLinks = when("settlements-of-one-seller", { input }, ({ input }) => !!input.seller_id).then(() => {
+      const { data } = useQueryGraphStep({
+        entity: "seller_payout_account",
+        fields: ["payout_account_id"],
+        filters: { seller_id: input.seller_id },
+      }).config({ name: "settlement-seller-accounts-query" })
+      return data
+    })
 
-    const adjustmentsDispatched = dispatchAdjustmentsStep()
+    const accountIds = transform({ input, sellerLinks }, ({ input, sellerLinks }) =>
+      input.seller_id ? (sellerLinks ?? []).map((link) => link.payout_account_id as string) : null
+    )
+
+    const accounts = when("settlement-accounts", { accountIds }, ({ accountIds }) => !accountIds || accountIds.length > 0).then(
+      () => {
+        const { data } = useQueryGraphStep({
+          entity: "payout_account",
+          fields: ["id", "external_id", "payouts_enabled", "created_at", "seller.id"],
+          filters: transform({ accountIds }, ({ accountIds }) => (accountIds ? { id: accountIds } : {})),
+        }).config({ name: "settlement-accounts-query" })
+        return data
+      }
+    )
+
+    const adjustmentsProcessed = processAdjustmentsStep()
     const payoutsRetried = retrySettlementPayoutsStep({ account_ids: accountIds })
 
-    const createInput = transform({ input, accountIds }, ({ input, accountIds }) => ({
-      account_ids: accountIds,
-      now: input.now ?? new Date(),
-    }))
-    const created = createSettlementsStep(createInput)
-
-    const dispatched = dispatchSettlementPayoutsStep({ settlements: created.settlements })
-
-    const events = transform({ created }, ({ created }) =>
-      created.settlements.map((settlement) => ({
-        id: settlement.id,
-        account_id: settlement.account_id,
-        seller_id: settlement.seller_id,
-        currency_code: settlement.currency_code,
-        amount: settlement.amount,
+    const loaded = loadSettlementSourcesStep(
+      transform({ accounts }, ({ accounts }): LoadSettlementSourcesStepInput => ({
+        accounts: (accounts ?? []) as unknown as LoadSettlementSourcesStepInput["accounts"],
       }))
     )
-    emitEventStep({ eventName: StripeConnectorEvents.SETTLEMENT_CREATED, data: events })
+
+    const plan = transform({ input, loaded }, ({ input, loaded }) =>
+      planSettlements(
+        loaded.sources,
+        new Date(Math.max(new Date(input.now ?? Date.now()).getTime(), Date.now())),
+        loaded.mode
+      )
+    )
+
+    const created = createSettlementsStep(plan.settlements)
+    const processed = processSettlementPayoutsStep({ settlements: created })
+
+    emitEventStep({
+      eventName: StripeConnectorEvents.SETTLEMENT_CREATED,
+      data: transform({ created }, ({ created }) =>
+        created.map((settlement) => ({
+          id: settlement.id,
+          account_id: settlement.account_id,
+          seller_id: settlement.seller_id,
+          currency_code: settlement.currency_code,
+          amount: settlement.amount,
+        }))
+      ),
+    })
 
     const stats = transform(
-      { created, adjustmentsDispatched, payoutsRetried, dispatched },
-      ({ created, adjustmentsDispatched, payoutsRetried, dispatched }): JobStats => ({
-        ...created.counts,
-        adjustments_dispatched: adjustmentsDispatched,
+      { plan, adjustmentsProcessed, payoutsRetried, processed },
+      ({ plan, adjustmentsProcessed, payoutsRetried, processed }): JobStats => ({
+        ...plan.counts,
+        adjustments_processed: adjustmentsProcessed,
         payouts_retried: payoutsRetried,
-        payouts: dispatched,
+        payouts: processed,
       })
     )
 

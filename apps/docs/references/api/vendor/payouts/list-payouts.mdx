@@ -21,7 +21,7 @@ Returns the payouts belonging to the current seller.
 </ParamField>
 
 <ParamField query="fields" type="string">
-  Comma-separated fields to include in the response.
+  Comma-separated fields to include in the response. Only the fields returned by default can be selected; any other field, including linked relations, is ignored.
 </ParamField>
 
 <ParamField query="status" type="string | string[]">
@@ -44,8 +44,8 @@ Returns the payouts belonging to the current seller.
     <ResponseField name="display_id" type="number">Human-readable payout number.</ResponseField>
     <ResponseField name="amount" type="number">The payout amount.</ResponseField>
     <ResponseField name="currency_code" type="string">The payout currency.</ResponseField>
-    <ResponseField name="status" type="enum">One of `pending`, `processing`, `paid`, `failed`, `canceled`.</ResponseField>
-    <ResponseField name="data" type="object">Provider-specific data.</ResponseField>
+    <ResponseField name="status" type="enum">One of `pending`, `on_hold`, `processing`, `paid`, `failed`, `aborted`.</ResponseField>
+    <ResponseField name="status_reason" type="string | null">A `PayoutStatusReason` code, such as `order_not_ready`, saying why the payout is `on_hold`, `failed` or `aborted`.</ResponseField>
     <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
     <ResponseField name="updated_at" type="string">Update timestamp.</ResponseField>
   </Expandable>

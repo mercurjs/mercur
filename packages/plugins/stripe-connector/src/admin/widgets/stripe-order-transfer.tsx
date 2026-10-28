@@ -11,6 +11,8 @@ import {
   PAYOUT_STATUS_COLOR,
   PAYOUT_STATUS_LABEL,
   RETRYABLE_STATUSES,
+  payoutStatusDetail,
+  payoutStatusReasonLabel,
   statusProps,
   toNumber,
 } from "../lib/status"
@@ -25,6 +27,7 @@ type Line = {
   currency_code: string
   status: string
   status_reason: string | null
+  status_detail: string | null
   retry_id: string | null
 }
 
@@ -39,6 +42,7 @@ const toLines = (payouts: PayoutRow[]): Line[] =>
       currency_code: payout.currency_code,
       status: payout.status,
       status_reason: payout.status_reason,
+      status_detail: payoutStatusDetail(payout.data),
       retry_id: RETRYABLE_STATUSES.includes(payout.status) ? payout.id : null,
     },
     ...(payout.reversals ?? []).map((reversal) => ({
@@ -50,6 +54,7 @@ const toLines = (payouts: PayoutRow[]): Line[] =>
       currency_code: payout.currency_code,
       status: reversal.status,
       status_reason: reversal.status_reason,
+      status_detail: payoutStatusDetail(reversal.data),
       retry_id: null,
     })),
   ])
@@ -117,9 +122,16 @@ const LineRow = ({ line }: { line: Line }) => {
         </div>
       </div>
       {line.status_reason ? (
-        <Text size="small" leading="compact" className="text-ui-fg-subtle break-words">
-          {line.status_reason}
-        </Text>
+        <div className="flex flex-col gap-y-1">
+          <Text size="small" leading="compact" className="text-ui-fg-subtle break-words">
+            {payoutStatusReasonLabel(line.status_reason)}
+          </Text>
+          {line.status_detail ? (
+            <Text size="xsmall" leading="compact" className="text-ui-fg-muted break-words">
+              {line.status_detail}
+            </Text>
+          ) : null}
+        </div>
       ) : null}
     </div>
   )
@@ -137,7 +149,9 @@ const Body = ({ orderId }: { orderId: string }) => {
   return (
     <Container className="divide-y p-0" data-testid="stripe-order-transfers">
       <div className="flex items-center justify-between px-6 py-4">
-        <Heading level="h2">Stripe payouts</Heading>
+        <Heading level="h2" data-testid="stripe-order-transfers-heading">
+          Stripe payouts
+        </Heading>
       </div>
       {lines.length ? (
         lines.map((line) => <LineRow key={line.id} line={line} />)

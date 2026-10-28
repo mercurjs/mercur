@@ -1,5 +1,5 @@
 import { requirePermission } from "../../utils"
-import { MiddlewareRoute } from "@medusajs/framework/http"
+import { MiddlewareRoute, maybeApplyLinkFilter } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
 import { adminPayoutQueryConfig } from "./query-config"
@@ -23,6 +23,12 @@ export const adminPayoutsMiddlewares: MiddlewareRoute[] = [
         AdminGetPayoutsParams,
         adminPayoutQueryConfig.list
       ),
+      maybeApplyLinkFilter({
+        entryPoint: "seller_payout_account",
+        resourceId: "payout_account_id",
+        filterableField: "seller_id",
+        filterByField: "account_id",
+      }),
     ],
   },
   {

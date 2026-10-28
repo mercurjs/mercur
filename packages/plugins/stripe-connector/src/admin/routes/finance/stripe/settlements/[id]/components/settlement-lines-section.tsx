@@ -1,6 +1,14 @@
-import { Container, Heading, StatusBadge, Text } from "@medusajs/ui"
-import { getStylizedAmount } from "@mercurjs/dashboard-shared"
-import { Link } from "react-router-dom"
+import { Container, Heading } from "@medusajs/ui"
+import {
+  MoneyAmountCell,
+  StatusCell,
+  TextCell,
+  TextHeader,
+  _DataTable,
+  useDataTable,
+} from "@mercurjs/dashboard-shared"
+import { createColumnHelper } from "@tanstack/react-table"
+import { useMemo } from "react"
 
 import {
   ADJUSTMENT_TYPE_LABEL,
@@ -10,7 +18,7 @@ import {
   toNumber,
 } from "../../../../../../lib/status"
 
-type Line = {
+export type SettlementLine = {
   id: string
   amount: unknown
   status: string | null
@@ -24,67 +32,89 @@ type Line = {
 type SettlementLinesSectionProps = {
   title: string
   currencyCode: string
-  lines: Line[]
+  lines: SettlementLine[]
+  emptyMessage: string
   testId: string
 }
 
-export const SettlementLinesSection = ({ title, currencyCode, lines, testId }: SettlementLinesSectionProps) => (
-  <Container className="divide-y p-0" data-testid={testId}>
-    <div className="flex items-center justify-between px-6 py-4">
-      <Heading level="h2">{title}</Heading>
-      <Text size="small" className="text-ui-fg-subtle">
-        {lines.length}
-      </Text>
-    </div>
-    {lines.length ? (
-      lines.map((line) => <LineRow key={line.id} line={line} currencyCode={currencyCode} />)
-    ) : (
-      <div className="px-6 py-4">
-        <Text size="small" className="text-ui-fg-muted">
-          None in this period
-        </Text>
-      </div>
-    )}
-  </Container>
-)
+const columnHelper = createColumnHelper<SettlementLine>()
 
-const LineRow = ({ line, currencyCode }: { line: Line; currencyCode: string }) => {
-  const status = line.status ? statusProps(line.status, PAYOUT_STATUS_COLOR, PAYOUT_STATUS_LABEL) : null
-
-  return (
-    <div className="text-ui-fg-subtle grid grid-cols-[1fr_auto_auto] items-center gap-x-4 px-6 py-4">
-      <div className="flex min-w-0 flex-col">
-        <LineTitle line={line} />
-        {line.reference || line.reason ? (
-          <Text size="small" leading="compact" className="text-ui-fg-muted truncate">
-            {line.reason ?? line.reference}
-          </Text>
-        ) : null}
-      </div>
-      {status ? (
-        <StatusBadge color={status.color}>{status.label}</StatusBadge>
-      ) : (
-        <span />
-      )}
-      <Text size="small" leading="compact" className="text-right">
-        {getStylizedAmount(toNumber(line.amount), currencyCode)}
-      </Text>
-    </div>
+const useColumns = (currencyCode: string) =>
+  useMemo(
+    () => [
+      columnHelper.accessor("id", {
+        header: () => <TextHeader text="Reference" />,
+        cell: ({ row }) => {
+          const line = row.original
+          if (line.order_id) {
+            return <TextCell text={`Order #${line.order_display_id ?? line.order_id}`} />
+          }
+          return <TextCell text={line.type ? ADJUSTMENT_TYPE_LABEL[line.type] ?? line.type : line.id} />
+        },
+      }),
+      columnHelper.accessor((row) => row.reason ?? row.reference ?? "", {
+        id: "details",
+        header: () => <TextHeader text="Details" />,
+        cell: ({ getValue }) => <TextCell text={getValue() || "-"} />,
+      }),
+      columnHelper.accessor("status", {
+        header: () => <TextHeader text="Status" />,
+        cell: ({ getValue }) => {
+          if (!getValue()) {
+            return <TextCell text="-" />
+          }
+          const { color, label } = statusProps(getValue(), PAYOUT_STATUS_COLOR, PAYOUT_STATUS_LABEL)
+          return <StatusCell color={color}>{label}</StatusCell>
+        },
+      }),
+      columnHelper.accessor("amount", {
+        header: () => (
+          <div className="flex h-full w-full items-center justify-end">
+            <span className="truncate">Amount</span>
+          </div>
+        ),
+        cell: ({ getValue }) => (
+          <MoneyAmountCell amount={toNumber(getValue())} currencyCode={currencyCode} align="right" />
+        ),
+      }),
+    ],
+    [currencyCode]
   )
-}
 
-const LineTitle = ({ line }: { line: Line }) => {
-  if (line.order_id) {
-    return (
-      <Link to={`/orders/${line.order_id}`} className="txt-compact-small-plus text-ui-fg-interactive hover:text-ui-fg-interactive-hover">
-        Order #{line.order_display_id ?? line.order_id}
-      </Link>
-    )
-  }
+export const SettlementLinesSection = ({
+  title,
+  currencyCode,
+  lines,
+  emptyMessage,
+  testId,
+}: SettlementLinesSectionProps) => {
+  const columns = useColumns(currencyCode)
+
+  const { table } = useDataTable({
+    data: lines,
+    columns,
+    count: lines.length,
+    getRowId: (row) => row.id,
+    pageSize: Math.max(lines.length, 1),
+  })
 
   return (
-    <Text size="small" leading="compact" weight="plus" className="text-ui-fg-base">
-      {line.type ? ADJUSTMENT_TYPE_LABEL[line.type] ?? line.type : line.id}
-    </Text>
+    <Container className="divide-y p-0" data-testid={testId}>
+      <div className="flex items-center justify-between px-6 py-4">
+        <Heading level="h2" data-testid={`${testId}-heading`}>
+          {title}
+        </Heading>
+      </div>
+      <_DataTable
+        table={table}
+        columns={columns}
+        count={lines.length}
+        pageSize={Math.max(lines.length, 1)}
+        navigateTo={
+          lines.every((line) => line.order_id) ? (row) => `/orders/${row.original.order_id}` : undefined
+        }
+        noRecords={{ message: emptyMessage }}
+      />
+    </Container>
   )
 }

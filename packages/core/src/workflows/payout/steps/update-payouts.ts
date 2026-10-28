@@ -1,16 +1,16 @@
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
-import { MercurModules } from "@mercurjs/types"
+import { IPayoutModuleService, MercurModules, UpdatePayoutDTO } from "@mercurjs/types"
 
-import PayoutModuleService from "../../../modules/payout/services/payout-module-service"
+import { sentToProvider } from "../utils/sent-to-provider"
 
-export type UpdatePayoutsStepInput = Extract<Parameters<PayoutModuleService["updatePayouts"]>[0], unknown[]>
+export type UpdatePayoutsStepInput = UpdatePayoutDTO[]
 
 export const updatePayoutsStepId = "update-payouts"
 
 export const updatePayoutsStep = createStep(
   updatePayoutsStepId,
   async (input: UpdatePayoutsStepInput, { container }) => {
-    const service = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
+    const service = container.resolve<IPayoutModuleService>(MercurModules.PAYOUT)
     const previous = input.length ? await service.listPayouts({ id: input.map((payout) => payout.id) }, { take: null }) : []
     const payouts = input.length ? await service.updatePayouts(input) : []
 
@@ -31,6 +31,19 @@ export const updatePayoutsStep = createStep(
       return
     }
 
-    await container.resolve<PayoutModuleService>(MercurModules.PAYOUT).updatePayouts(previous)
+    const service = container.resolve<IPayoutModuleService>(MercurModules.PAYOUT)
+    const current = new Map(
+      (
+        await service.listPayouts({ id: previous.map((payout) => payout.id) }, { select: ["id", "status", "data"], take: null })
+      ).map((payout) => [payout.id, payout])
+    )
+    const restorable = previous.filter((payout) => {
+      const now = current.get(payout.id)
+      return now && !sentToProvider(now, payout)
+    })
+
+    if (restorable.length) {
+      await service.updatePayouts(restorable)
+    }
   }
 )

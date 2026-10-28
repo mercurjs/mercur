@@ -1,9 +1,8 @@
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 import { ProviderWebhookPayload } from "@medusajs/framework/types"
 import { Modules } from "@medusajs/framework/utils"
-import { MercurModules, PayoutModuleEvents } from "@mercurjs/types"
+import { IPayoutModuleService, MercurModules, PayoutModuleEvents } from "@mercurjs/types"
 
-import PayoutModuleService from "../modules/payout/services/payout-module-service"
 import { processPayoutForWebhookWorkflowId } from "../workflows/payout"
 
 type SerializedBuffer = {
@@ -15,7 +14,7 @@ export default async function payoutWebhookHandler({
   event,
   container,
 }: SubscriberArgs<ProviderWebhookPayload["payload"]>) {
-  const payoutService = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
+  const payoutService = container.resolve<IPayoutModuleService>(MercurModules.PAYOUT)
 
   const input = event.data
 

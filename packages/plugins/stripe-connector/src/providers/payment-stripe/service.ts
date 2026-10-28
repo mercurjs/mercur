@@ -59,6 +59,7 @@ export class StripeConnectorPaymentProviderService extends StripeBase {
       ...input,
       data: {
         ...input.data,
+        capture_method: "manual",
         metadata,
         ...(cartId ? { transfer_group: cartId } : {}),
       },

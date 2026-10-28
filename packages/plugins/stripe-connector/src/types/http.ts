@@ -1,7 +1,15 @@
 import type { BigNumberInput, PaginatedResponse } from "@medusajs/types"
-import type { HttpTypes } from "@mercurjs/types"
+import type { HttpTypes, PayoutStatus } from "@mercurjs/types"
 
-import type { AdjustmentDTO, CaptureDTO, JobRunDTO, PayoutJobName, SettlementDTO } from "./common"
+import type {
+  AdjustmentDTO,
+  AdjustmentType,
+  CaptureDTO,
+  JobRunDTO,
+  PayoutJobName,
+  SettlementDTO,
+  SettlementLineType,
+} from "./common"
 
 export type AdminPayoutAccountListResponse = HttpTypes.AdminPayoutAccountListResponse
 export type AdminPayoutAccountResponse = HttpTypes.AdminPayoutAccountResponse
@@ -16,51 +24,57 @@ export interface SettlementSeller {
   handle: string
 }
 
-export interface SettlementListItem extends SettlementDTO {
-  seller: SettlementSeller | null
-  payout_count: number
-  reversal_count: number
-  adjustment_count: number
-}
+type SettlementOrderRef = { order_id: string | null; order?: { display_id: number } | null }
 
-export interface SettlementLine {
+export interface SettlementLineDetail {
   id: string
-  type: string
-  source_id: string
-  order_id: string | null
-  order_display_id: number | null
-  refund_id: string | null
+  type: SettlementLineType
   amount: BigNumberInput
-  status: string | null
-  provider_id: string | null
+  payout_id: string | null
+  payout_reversal_id: string | null
+  adjustment_id: string | null
+  payout?: (SettlementOrderRef & { id: string; status: PayoutStatus; data: Record<string, unknown> | null }) | null
+  payout_reversal?: {
+    id: string
+    status: PayoutStatus
+    refund_id: string | null
+    data: Record<string, unknown> | null
+    payout?: SettlementOrderRef | null
+  } | null
+  adjustment?: {
+    id: string
+    type: AdjustmentType
+    amount: BigNumberInput
+    reason: string | null
+    created_by?: string | null
+    status: PayoutStatus
+    provider_transfer_id: string | null
+  } | null
 }
 
-export interface SettlementAdjustmentLine {
-  id: string
-  type: string
-  amount: BigNumberInput
-  reason: string | null
-  created_by: string | null
-  status: string
-  provider_transfer_id: string | null
+export interface AdminSettlement extends Omit<SettlementDTO, "data"> {
+  data?: Record<string, unknown> | null
+  payout_account?: { id: string; seller?: SettlementSeller | null } | null
+  lines?: SettlementLineDetail[]
 }
 
-export interface SettlementDetail extends SettlementListItem {
-  payouts: SettlementLine[]
-  reversals: SettlementLine[]
-  adjustments: SettlementAdjustmentLine[]
-}
+export type VendorSettlement = Omit<AdminSettlement, "account_id" | "data" | "payout_account">
 
 export type AdminSettlementListResponse = PaginatedResponse<{
-  settlements: SettlementListItem[]
+  settlements: AdminSettlement[]
 }>
 
 export interface AdminSettlementResponse {
-  settlement: SettlementDetail
+  settlement: AdminSettlement
 }
 
-export type VendorSettlementListResponse = AdminSettlementListResponse
-export type VendorSettlementResponse = AdminSettlementResponse
+export type VendorSettlementListResponse = PaginatedResponse<{
+  settlements: VendorSettlement[]
+}>
+
+export interface VendorSettlementResponse {
+  settlement: VendorSettlement
+}
 
 export interface AdminAdjustmentResponse {
   adjustment: AdjustmentDTO

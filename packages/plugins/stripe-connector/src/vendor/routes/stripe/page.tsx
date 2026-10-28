@@ -1,34 +1,29 @@
-import { Container } from "@medusajs/ui"
-import { SingleColumnPage, Skeleton, WidgetZone } from "@mercurjs/dashboard-shared"
+import { SingleColumnPage, SingleColumnPageSkeleton, WidgetZone } from "@mercurjs/dashboard-shared"
 import { defineRouteConfig } from "@mercurjs/dashboard-sdk"
 
 import { StripeIcon } from "../../components/stripe-icon"
 import { useMyStripeAccount } from "../../hooks/api/stripe"
 import { SettingsProviders } from "../../providers/settings-providers"
 import { SetupForm } from "./components/setup-form"
-import { StatementsSection } from "./components/statements-section"
+import { SettlementsSection } from "./components/settlements-section"
 import { StripeAccountSection } from "./components/stripe-account-section"
 
 const StripeVendor = () => {
-  const { data, isPending, isError, error } = useMyStripeAccount()
+  const { payout_account, isPending, isError, error } = useMyStripeAccount()
   if (isError) throw error
 
   if (isPending) {
-    return (
-      <Container className="p-6">
-        <Skeleton className="h-7 w-48" />
-      </Container>
-    )
+    return <SingleColumnPageSkeleton sections={2} />
   }
 
-  if (!data?.payout_account) {
+  if (!payout_account) {
     return <SetupForm />
   }
 
   return (
     <>
-      <StripeAccountSection account={data.payout_account} />
-      <StatementsSection />
+      <StripeAccountSection account={payout_account} />
+      <SettlementsSection />
     </>
   )
 }

@@ -12,6 +12,9 @@ export const AdminRunJob = z
   })
   .strict()
 
+export type AdminGetSelectParamsType = z.infer<typeof AdminGetSelectParams>
+export const AdminGetSelectParams = createSelectParams()
+
 export type AdminGetCaptureParamsType = z.infer<typeof AdminGetCaptureParams>
 export const AdminGetCaptureParams = createSelectParams()
 

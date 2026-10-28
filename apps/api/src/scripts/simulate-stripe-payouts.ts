@@ -15,10 +15,11 @@ import {
 import {
   addSellerShippingMethodToCartWorkflow,
   completeCartWithSplitOrdersWorkflow,
+  splitCapturedCartPaymentWorkflow,
 } from "@mercurjs/core/workflows"
 import { MercurModules } from "@mercurjs/types"
 import { getStripeClient } from "@mercurjs/stripe-connector-plugin/lib/stripe-client"
-import { JobTrigger, STRIPE_CONNECTOR_MODULE } from "@mercurjs/stripe-connector-plugin/types"
+import { AdjustmentType, JobTrigger, STRIPE_CONNECTOR_MODULE } from "@mercurjs/stripe-connector-plugin/types"
 import { runJob } from "@mercurjs/stripe-connector-plugin/utils/run-job"
 import { jobWorkflow } from "@mercurjs/stripe-connector-plugin/workflows/jobs"
 
@@ -28,8 +29,9 @@ import { jobWorkflow } from "@mercurjs/stripe-connector-plugin/workflows/jobs"
  * partial refund with its reversal, and a settlement that pays the seller
  * out. The connected account must already be active.
  *
- * Run (with the API running on the same database and Redis):
- *   bun --cwd apps/api run medusa exec ./src/scripts/simulate-stripe-payouts.ts
+ * Run with the API on the same database and Redis, and scripts/stripe-listen.sh
+ * forwarding webhooks (the cart is completed by the payment webhook):
+ *   bun --cwd apps/api run stripe:simulate
  */
 const SELLER_NAME = "Sole Society"
 const SHIPPING_OPTION_NAME = "Standard Shipping"
@@ -40,6 +42,8 @@ const REFUND_SHARE = 0.25
 // Set to an existing order id to skip checkout and fulfilment and re-run the pipeline on it.
 const RESUME_ORDER_ID = process.env.RESUME_ORDER_ID
 const SKIP_REFUND = process.env.SKIP_REFUND === "1"
+const DIRECT_CHECKOUT = process.env.DIRECT_CHECKOUT === "1"
+const SKIP_ADJUSTMENTS = process.env.SKIP_ADJUSTMENTS === "1"
 
 const providerIdOf = (data: unknown) => (data as { provider?: { id?: string } } | null)?.provider?.id
 
@@ -201,12 +205,33 @@ export default async function simulateStripePayouts({ container }: ExecArgs) {
   })
   logger.info(`Confirmed ${intentId} with ${TEST_PAYMENT_METHOD} (authorized, not captured)`)
 
-  const { result: completion, errors } = await completeCartWithSplitOrdersWorkflow(container).run({
-    input: { cart_id: cart.id },
-    throwOnError: false,
-  })
-  if (errors?.length) throw errors[0].error
-  const orderGroupId = completion?.order_group_id
+  let orderGroupId: string | undefined
+  if (DIRECT_CHECKOUT) {
+    const { result: completion, errors } = await completeCartWithSplitOrdersWorkflow(container).run({
+      input: { cart_id: cart.id },
+      throwOnError: false,
+    })
+    if (errors?.length) throw errors[0].error
+    orderGroupId = completion?.order_group_id
+  } else {
+    // A storefront that drops the customer mid-redirect relies on
+    // payment_intent.amount_capturable_updated to complete the cart.
+    // The order group is written midway through completion; completed_at
+    // marks the end, after which capturing cannot race checkout's own split.
+    for (let attempt = 0; attempt < 30 && !orderGroupId; attempt++) {
+      await sleep(2000)
+      const {
+        data: [completed],
+      } = await query.graph({ entity: "cart", fields: ["completed_at"], filters: { id: cart.id } })
+      if (!completed?.completed_at) continue
+      const { data: groups } = await query.graph({ entity: "order_group", fields: ["id"], filters: { cart_id: cart.id } })
+      orderGroupId = groups[0]?.id
+    }
+    if (!orderGroupId) {
+      throw new Error("The payment webhook did not complete the cart; is scripts/stripe-listen.sh running? (DIRECT_CHECKOUT=1 skips it)")
+    }
+    logger.info(`Cart ${cart.id} completed by the payment webhook`)
+  }
   const {
     data: [group],
   } = await query.graph({
@@ -234,9 +259,7 @@ export default async function simulateStripePayouts({ container }: ExecArgs) {
   await run("payout-validate-captures", { order_group_id: groupId })
 
   // The captured cart payment is split into per-order payments by a subscriber.
-  let orderPaymentId: string | null = null
-  for (let attempt = 0; attempt < 20 && !orderPaymentId; attempt++) {
-    await sleep(1500)
+  const capturedOrderPayment = async () => {
     const {
       data: [fresh],
     } = await query.graph({
@@ -244,10 +267,20 @@ export default async function simulateStripePayouts({ container }: ExecArgs) {
       fields: ["id", "payment_collections.payments.id", "payment_collections.payments.captured_at"],
       filters: { id: order.id },
     })
-    const payment = (fresh?.payment_collections ?? []).flatMap((c) => c.payments ?? []).find((p) => p.captured_at)
-    orderPaymentId = payment?.id ?? null
+    return (fresh?.payment_collections ?? []).flatMap((c) => c?.payments ?? []).find((p) => p?.captured_at)?.id ?? null
   }
-  if (!orderPaymentId) throw new Error("Order payment was not captured and split in time")
+  let orderPaymentId: string | null = null
+  for (let attempt = 0; attempt < 20 && !orderPaymentId; attempt++) {
+    await sleep(1500)
+    orderPaymentId = await capturedOrderPayment()
+  }
+  if (!orderPaymentId) {
+    const { data: carts } = await query.graph({ entity: "order_cart", fields: ["cart_id"], filters: { order_id: order.id } })
+    logger.warn(`The payment.captured subscriber did not split cart ${carts[0]?.cart_id}'s payment; splitting it here`)
+    await splitCapturedCartPaymentWorkflow(container).run({ input: { cart_id: carts[0].cart_id } })
+    orderPaymentId = await capturedOrderPayment()
+  }
+  if (!orderPaymentId) throw new Error("Order payment was not captured and split")
   logger.info(`Order payment ${orderPaymentId} captured`)
 
   // 7. transfer
@@ -263,10 +296,20 @@ export default async function simulateStripePayouts({ container }: ExecArgs) {
   }
   await run("payout-process-reversals", { order_id: order.id })
 
-  // 9. settlement + payout
+  // 9. operator adjustments, netted by the settlement
+  const connector = container.resolve(STRIPE_CONNECTOR_MODULE)
+  if (!SKIP_ADJUSTMENTS) {
+    await connector.createAdjustments([
+      { account_id: seller.payout_account.id, type: AdjustmentType.EXTRA_CREDIT, amount: 15, currency_code: region.currency_code, reason: "Simulated goodwill credit" },
+      { account_id: seller.payout_account.id, type: AdjustmentType.EXTRA_INVOICE, amount: 5, currency_code: region.currency_code, reason: "Simulated listing fee" },
+    ])
+    logger.info(`Added a 15 ${region.currency_code} credit and a 5 ${region.currency_code} invoice`)
+  }
+
+  // 10. settlement + payout
   await run("payout-process-settlements", { seller_id: seller.id })
 
-  // 10. summary
+  // 11. summary
   const payouts = await payoutService.listPayouts({ order_id: order.id }, { relations: ["reversals"] })
   for (const payout of payouts) {
     logger.info(`payout ${payout.id} ${payout.amount} ${payout.currency_code} → ${payout.status}${providerIdOf(payout.data) ? ` ${providerIdOf(payout.data)}` : ""}${payout.status_reason ? ` (${payout.status_reason})` : ""}`)
@@ -274,7 +317,9 @@ export default async function simulateStripePayouts({ container }: ExecArgs) {
       logger.info(`  reversal ${reversal.id} ${reversal.amount} → ${reversal.status}${providerIdOf(reversal.data) ? ` ${providerIdOf(reversal.data)}` : ""}${reversal.status_reason ? ` (${reversal.status_reason})` : ""}`)
     }
   }
-  const connector = container.resolve(STRIPE_CONNECTOR_MODULE)
+  for (const adjustment of await connector.listAdjustments({ account_id: seller.payout_account.id }, { order: { created_at: "DESC" }, take: 2 })) {
+    logger.info(`adjustment ${adjustment.id} ${adjustment.type} ${adjustment.amount} → ${adjustment.status}${adjustment.provider_transfer_id ? ` ${adjustment.provider_transfer_id}` : ""}${adjustment.status_reason ? ` (${adjustment.status_reason})` : ""}`)
+  }
   const [settlement] = await connector.listSettlements({ account_id: seller.payout_account.id }, { order: { period_end: "DESC" }, take: 1 })
   if (settlement) {
     logger.info(`settlement ${settlement.id}: payouts ${settlement.payouts_total} − reversals ${settlement.reversals_total} + adjustments ${settlement.adjustments_total} = ${settlement.amount} ${settlement.currency_code} → ${settlement.status}${settlement.provider_payout_id ? ` ${settlement.provider_payout_id}` : ""}${settlement.status_reason ? ` (${settlement.status_reason})` : ""}`)

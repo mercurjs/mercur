@@ -2,6 +2,7 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/
 
 import { AdminPayoutNotificationListResponse } from "../../../../types/http"
 import { resolveConnector } from "../../../../utils/payout-module"
+import { redactUrl } from "../../../../workflows/notifications/utils/notification-signature"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -17,7 +18,7 @@ export const GET = async (
     notifications: rows.map((row) => ({
       id: row.id,
       type: row.type,
-      url: row.url,
+      url: redactUrl(row.url) ?? "",
       attempts: row.attempts,
       response_status: row.response_status,
       error: row.error,

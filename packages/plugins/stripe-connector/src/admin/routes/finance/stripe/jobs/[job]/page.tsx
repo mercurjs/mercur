@@ -28,6 +28,8 @@ import {
   JOB_RUN_STATUS_COLOR,
   JOB_RUN_STATUS_LABEL,
   JOB_TRIGGER_LABEL,
+  describeSchedule,
+  formatJobStats,
   statusProps,
 } from "../../../../../lib/status"
 import { SettingsProviders } from "../../../../../providers/settings-providers"
@@ -44,7 +46,7 @@ const JobGeneralSection = ({ job }: { job: AdminPayoutJob }) => {
     <Container className="divide-y p-0" data-testid="stripe-job-general-section">
       <div className="flex items-center justify-between px-6 py-4">
         <div>
-          <Heading>{JOB_LABEL[job.job] ?? job.job}</Heading>
+          <Heading data-testid="stripe-job-heading">{JOB_LABEL[job.job] ?? job.job}</Heading>
           <Text size="small" className="text-ui-fg-subtle">
             {JOB_DESCRIPTION[job.job]}
           </Text>
@@ -60,8 +62,8 @@ const JobGeneralSection = ({ job }: { job: AdminPayoutJob }) => {
           />
         </div>
       </div>
-      <SectionRow title="Job" value={job.job} />
-      <SectionRow title="Schedule (UTC)" value={job.schedule} />
+      <SectionRow title="Schedule (UTC)" value={describeSchedule(job.schedule)} />
+      <SectionRow title="Cron" value={<code className="txt-compact-small">{job.schedule}</code>} />
       <SectionRow title="Checkpoint" value={formatDate(job.checkpoint)} />
       <SectionRow title="Next run" value={formatDate(job.next_run_at)} />
       <SectionRow title="Failing items" value={String(job.failed_count)} />
@@ -70,13 +72,6 @@ const JobGeneralSection = ({ job }: { job: AdminPayoutJob }) => {
 }
 
 const columnHelper = createColumnHelper<JobRunRow>()
-
-const formatStats = (stats: Record<string, unknown> | null) =>
-  stats
-    ? Object.entries(stats)
-        .map(([key, value]) => `${key.replace(/_/g, " ")}: ${value}`)
-        .join(", ")
-    : "-"
 
 const useRunColumns = () =>
   useMemo(
@@ -107,7 +102,7 @@ const useRunColumns = () =>
           return <TextCell text={`${seconds.toFixed(1)}s`} />
         },
       }),
-      columnHelper.accessor((row) => row.error ?? formatStats(row.stats), {
+      columnHelper.accessor((row) => row.error ?? formatJobStats(row.stats), {
         id: "result",
         header: () => <TextHeader text="Result" />,
         cell: ({ getValue }) => <TextCell text={getValue()} />,
@@ -140,7 +135,9 @@ const JobRunsSection = ({ job }: { job: string }) => {
   return (
     <Container className="divide-y p-0" data-testid="stripe-job-runs-section">
       <div className="flex items-center justify-between px-6 py-4">
-        <Heading level="h2">Runs</Heading>
+        <Heading level="h2" data-testid="stripe-job-runs-heading">
+          Runs
+        </Heading>
       </div>
       <_DataTable
         table={table}

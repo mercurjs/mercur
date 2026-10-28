@@ -13,7 +13,7 @@ import { StatusCell } from "@components/table/table-cells/common/status-cell";
 import { TextCell } from "@components/table/table-cells/common/text-cell";
 import { useDataTable } from "@hooks/use-data-table";
 
-import { payoutStatusColor } from "../../_components/payout-status";
+import { getPayoutStatusReasonLabel, payoutStatusColor } from "../../_components/payout-status";
 
 const columnHelper = createColumnHelper<PayoutReversalDTO>();
 
@@ -48,7 +48,7 @@ export const PayoutReversalsSection = ({ payout }: { payout: PayoutDTO }) => {
                 {t(`payouts.status.${getValue()}`)}
               </StatusCell>
               {reason && (
-                <Tooltip content={reason}>
+                <Tooltip content={getPayoutStatusReasonLabel(reason, t)}>
                   <ExclamationCircle className="text-ui-tag-orange-icon shrink-0" />
                 </Tooltip>
               )}

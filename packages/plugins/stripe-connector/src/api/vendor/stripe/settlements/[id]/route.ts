@@ -1,15 +1,16 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 
-import { SettlementDetail, VendorSettlementResponse } from "../../../../../types/http"
-import { retrieveSettlementDetail, sellerAccountIds } from "../../../../utils/settlements"
+import { VendorSettlementResponse } from "../../../../../types/http"
+import { refetchSettlement } from "../../../../admin/stripe/settlements/helpers"
 import { vendorSellerId } from "../../../../vendor-seller"
+import { sellerAccountFilter } from "../helpers"
 
 export const GET = async (req: AuthenticatedMedusaRequest, res: MedusaResponse<VendorSettlementResponse>) => {
-  const accountIds = await sellerAccountIds(req.scope, vendorSellerId(req))
-  const settlement = await retrieveSettlementDetail(req.scope, req.params.id, {
-    account_id: accountIds.length ? accountIds : ["none"],
-  })
-  const { account_id: _a, ...rest } = settlement
-  rest.adjustments = rest.adjustments.map((line) => ({ ...line, created_by: null }))
-  res.json({ settlement: rest as SettlementDetail })
+  const settlement = await refetchSettlement(
+    req.params.id,
+    req.scope,
+    req.queryConfig.fields,
+    await sellerAccountFilter(req.scope, vendorSellerId(req))
+  )
+  res.json({ settlement })
 }

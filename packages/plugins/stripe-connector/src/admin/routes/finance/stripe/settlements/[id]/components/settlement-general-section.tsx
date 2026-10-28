@@ -42,7 +42,7 @@ export const SettlementGeneralSection = ({ settlement }: { settlement: Settlemen
   return (
     <Container className="divide-y p-0" data-testid="stripe-settlement-general-section">
       <div className="flex items-center justify-between px-6 py-4">
-        <Heading>Settlement #{settlement.display_id}</Heading>
+        <Heading data-testid="stripe-settlement-heading">Settlement #{settlement.display_id}</Heading>
         <div className="flex items-center gap-x-2">
           <StatusBadge color={status.color}>{status.label}</StatusBadge>
           <ActionMenu

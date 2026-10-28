@@ -1,17 +1,19 @@
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
-import { MercurModules } from "@mercurjs/types"
+import { IPayoutModuleService, MercurModules, UpdatePayoutReversalDTO } from "@mercurjs/types"
 
-import PayoutModuleService from "../../../modules/payout/services/payout-module-service"
+import { sentToProvider } from "../utils/sent-to-provider"
 
-export type UpdatePayoutReversalsStepInput = Extract<Parameters<PayoutModuleService["updatePayoutReversals"]>[0], unknown[]>
+export type UpdatePayoutReversalsStepInput = UpdatePayoutReversalDTO[]
 
 export const updatePayoutReversalsStepId = "update-payout-reversals"
 
 export const updatePayoutReversalsStep = createStep(
   updatePayoutReversalsStepId,
   async (input: UpdatePayoutReversalsStepInput, { container }) => {
-    const service = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
-    const previous = input.length ? await service.listPayoutReversals({ id: input.map((reversal) => reversal.id) }, { take: null }) : []
+    const service = container.resolve<IPayoutModuleService>(MercurModules.PAYOUT)
+    const previous = input.length
+      ? await service.listPayoutReversals({ id: input.map((reversal) => reversal.id) }, { take: null })
+      : []
     const reversals = input.length ? await service.updatePayoutReversals(input) : []
 
     return new StepResponse(
@@ -24,6 +26,22 @@ export const updatePayoutReversalsStep = createStep(
       return
     }
 
-    await container.resolve<PayoutModuleService>(MercurModules.PAYOUT).updatePayoutReversals(previous)
+    const service = container.resolve<IPayoutModuleService>(MercurModules.PAYOUT)
+    const current = new Map(
+      (
+        await service.listPayoutReversals(
+          { id: previous.map((reversal) => reversal.id) },
+          { select: ["id", "status", "data"], take: null }
+        )
+      ).map((reversal) => [reversal.id, reversal])
+    )
+    const restorable = previous.filter((reversal) => {
+      const now = current.get(reversal.id)
+      return now && !sentToProvider(now, reversal)
+    })
+
+    if (restorable.length) {
+      await service.updatePayoutReversals(restorable)
+    }
   }
 )

@@ -11,6 +11,7 @@ import {
     CreateAccountInput,
     CreatePayoutAccountDTO,
     CreateOnboardingDTO,
+    IPayoutModuleService,
     OnboardingDTO,
     PayoutAccountDTO,
     PayoutAccountRequirements,
@@ -19,8 +20,10 @@ import {
     PayoutKycStatus,
     PayoutModuleOptions,
     PayoutOutput,
+    PayoutProviderErrorCode,
     PayoutReversalDTO,
     PayoutStatus,
+    PayoutStatusReason,
     PayoutWebhookActionInput,
     PayoutWebhookResult,
     ResolvedPayoutModuleOptions,
@@ -33,7 +36,7 @@ import {
     PayoutAccount,
     PayoutReversal,
 } from "../models"
-import { Context, DAL, InferEntityType } from "@medusajs/framework/types"
+import { Context, DAL } from "@medusajs/framework/types"
 import { SqlEntityManager } from "@medusajs/framework/mikro-orm/postgresql"
 
 type InjectedDependencies = {
@@ -43,14 +46,28 @@ type InjectedDependencies = {
 
 type ProviderAccount = { external_id?: string | null; data?: Record<string, unknown> | null }
 
-export default class PayoutModuleService extends MedusaService({
-    Onboarding,
-    Payout,
-    PayoutAccount,
-    PayoutReversal,
-}) {
+type ProviderResult = {
+    status: PayoutStatus
+    status_reason: string | null
+    data: Record<string, unknown>
+}
+
+export default class PayoutModuleService
+    extends MedusaService<{
+        Onboarding: { dto: OnboardingDTO }
+        Payout: { dto: PayoutDTO }
+        PayoutAccount: { dto: PayoutAccountDTO }
+        PayoutReversal: { dto: PayoutReversalDTO }
+    }>({
+        Onboarding,
+        Payout,
+        PayoutAccount,
+        PayoutReversal,
+    })
+    implements IPayoutModuleService
+{
     protected static readonly PROCESSABLE_STATUSES = [PayoutStatus.PENDING, PayoutStatus.FAILED]
-    protected static readonly STATUS_REASON_MAX_LENGTH = 1024
+    protected static readonly STATUS_DETAIL_MAX_LENGTH = 1024
 
     protected readonly payoutProviderService_: PayoutProviderService
     protected readonly baseRepository_: DAL.RepositoryService
@@ -97,12 +114,9 @@ export default class PayoutModuleService extends MedusaService({
         return await this.baseRepository_.serialize<PayoutAccountDTO>(updated)
     }
 
-    /**
-     * Pulls the account from the provider and stores its flags and KYC status.
-     */
     @InjectManager()
     @EmitEvents()
-    async updatePayoutAccount(
+    async syncPayoutAccount(
         accountId: string,
         @MedusaContext() sharedContext?: Context<SqlEntityManager>
     ): Promise<PayoutAccountDTO> {
@@ -116,7 +130,9 @@ export default class PayoutModuleService extends MedusaService({
             {
                 id: accountId,
                 ...this.accountFieldsFromProvider_(providerAccount),
-                onboarding_token: providerAccount.details_submitted ? null : account.onboarding_token,
+                ...(providerAccount.details_submitted
+                    ? { onboarding_token: null, onboarding_token_issued_at: null }
+                    : {}),
             },
             sharedContext
         )
@@ -124,10 +140,24 @@ export default class PayoutModuleService extends MedusaService({
         return await this.baseRepository_.serialize<PayoutAccountDTO>(updated)
     }
 
-    /**
-     * Publishes the link the seller follows next: an onboarding link until the
-     * provider has their details, a dashboard login link afterwards.
-     */
+    @InjectManager()
+    @EmitEvents()
+    async deletePayoutAccount(
+        accountId: string,
+        @MedusaContext() sharedContext?: Context<SqlEntityManager>
+    ): Promise<void> {
+        const account = await this.retrievePayoutAccount(accountId, { relations: ["onboarding"] }, sharedContext)
+
+        if (account.external_id) {
+            await this.payoutProviderService_.deleteAccount({ account: this.providerAccountRef_(account) })
+        }
+
+        if (account.onboarding) {
+            await this.deleteOnboardings(account.onboarding.id, sharedContext)
+        }
+        await this.deletePayoutAccounts(accountId, sharedContext)
+    }
+
     @InjectManager()
     @EmitEvents()
     async createOnboarding(
@@ -148,13 +178,19 @@ export default class PayoutModuleService extends MedusaService({
         if (loginLink) {
             data = { ...loginLink.data, url: loginLink.url, kind: "login", expires_at: loginLink.expires_at ?? null }
         } else {
-            const token = account.onboarding_token ?? this.generateOnboardingToken_()
-            if (!account.onboarding_token) {
-                await this.updatePayoutAccounts({ id: account.id, onboarding_token: token }, sharedContext)
+            const token =
+                input.rotate_token || !this.isOnboardingTokenValid_(account)
+                    ? this.generateOnboardingToken_()
+                    : (account.onboarding_token as string)
+            if (token !== account.onboarding_token) {
+                await this.updatePayoutAccounts(
+                    { id: account.id, onboarding_token: token, onboarding_token_issued_at: new Date() },
+                    sharedContext
+                )
             }
 
             const link = await this.payoutProviderService_.createOnboarding({
-                context: { idempotency_key: input.account_id, ...input.context },
+                context: { ...input.context, idempotency_key: input.account_id },
                 data: { ...account.data, ...input.data },
                 account: this.providerAccountRef_(account),
                 refresh_url:
@@ -169,7 +205,7 @@ export default class PayoutModuleService extends MedusaService({
             ? await this.updateOnboardings({ id: account.onboarding.id, data }, sharedContext)
             : await this.createOnboardings(
                   {
-                      account: input.account_id,
+                      account_id: input.account_id,
                       data,
                       context: (input.context ?? null) as Record<string, unknown> | null,
                   },
@@ -179,10 +215,6 @@ export default class PayoutModuleService extends MedusaService({
         return await this.baseRepository_.serialize<OnboardingDTO>(onboarding)
     }
 
-    /**
-     * Sends a pending or failed payout to the provider. A provider error is
-     * recorded on the payout instead of thrown, so it can be processed again.
-     */
     @InjectManager()
     @EmitEvents()
     async processPayout(
@@ -194,11 +226,7 @@ export default class PayoutModuleService extends MedusaService({
         if (attempt) {
             const result = await this.processPayoutFromProvider_(payout, attempt)
             await this.updatePayouts(
-                {
-                    id: payout.id,
-                    ...result,
-                    data: { ...(payout.data ?? {}), attempts: attempt, ...(result.data ?? {}) },
-                },
+                { id: payout.id, ...result, data: { ...(payout.data ?? {}), ...attempt, ...result.data } },
                 sharedContext
             )
         }
@@ -218,11 +246,7 @@ export default class PayoutModuleService extends MedusaService({
         if (attempt) {
             const result = await this.processPayoutReversalFromProvider_(reversal, attempt)
             await this.updatePayoutReversals(
-                {
-                    id: reversal.id,
-                    ...result,
-                    data: { ...(reversal.data ?? {}), attempts: attempt, ...(result.data ?? {}) },
-                },
+                { id: reversal.id, ...result, data: { ...(reversal.data ?? {}), ...attempt, ...result.data } },
                 sharedContext
             )
         }
@@ -239,7 +263,7 @@ export default class PayoutModuleService extends MedusaService({
     protected async processPayout_(
         payoutId: string,
         @MedusaContext() sharedContext: Context<SqlEntityManager> = {}
-    ): Promise<{ payout: InferEntityType<typeof Payout>; attempt: number | null }> {
+    ): Promise<{ payout: PayoutDTO; attempt: { attempts: number; idempotency_key: string } | null }> {
         await this.lockRow_("payout", payoutId, sharedContext)
 
         const payout = await this.retrievePayout(payoutId, { relations: ["account"] }, sharedContext)
@@ -247,9 +271,9 @@ export default class PayoutModuleService extends MedusaService({
             return { payout, attempt: null }
         }
 
-        const attempt = Number(payout.data?.attempts ?? 0) + 1
+        const attempt = this.nextAttempt_(payout.id, payout.data)
         await this.updatePayouts(
-            { id: payout.id, status: PayoutStatus.PROCESSING, data: { ...(payout.data ?? {}), attempts: attempt } },
+            { id: payout.id, status: PayoutStatus.PROCESSING, data: { ...(payout.data ?? {}), ...attempt } },
             sharedContext
         )
 
@@ -260,7 +284,7 @@ export default class PayoutModuleService extends MedusaService({
     protected async processPayoutReversal_(
         reversalId: string,
         @MedusaContext() sharedContext: Context<SqlEntityManager> = {}
-    ): Promise<{ reversal: InferEntityType<typeof PayoutReversal>; attempt: number | null }> {
+    ): Promise<{ reversal: PayoutReversalDTO; attempt: { attempts: number; idempotency_key: string } | null }> {
         await this.lockRow_("payout_reversal", reversalId, sharedContext)
 
         const reversal = await this.retrievePayoutReversal(reversalId, { relations: ["payout"] }, sharedContext)
@@ -268,12 +292,12 @@ export default class PayoutModuleService extends MedusaService({
             return { reversal, attempt: null }
         }
 
-        const attempt = Number(reversal.data?.attempts ?? 0) + 1
+        const attempt = this.nextAttempt_(reversal.id, reversal.data)
         await this.updatePayoutReversals(
             {
                 id: reversal.id,
                 status: PayoutStatus.PROCESSING,
-                data: { ...(reversal.data ?? {}), attempts: attempt },
+                data: { ...(reversal.data ?? {}), ...attempt },
             },
             sharedContext
         )
@@ -282,12 +306,15 @@ export default class PayoutModuleService extends MedusaService({
     }
 
     // Runs outside the transaction so the row lock is never held across the provider call.
-    protected async processPayoutFromProvider_(payout: InferEntityType<typeof Payout>, attempt: number) {
+    protected async processPayoutFromProvider_(
+        payout: PayoutDTO,
+        attempt: { idempotency_key: string }
+    ): Promise<ProviderResult> {
         const source = (payout.data?.source_payment ?? null) as { id: string; data: Record<string, unknown> } | null
 
         try {
             const response = await this.payoutProviderService_.createPayout({
-                account: this.providerAccountRef_(payout.account),
+                account: this.providerAccountRef_(payout.account ?? {}),
                 amount: payout.amount,
                 currency_code: payout.currency_code,
                 source_payment: source,
@@ -296,7 +323,7 @@ export default class PayoutModuleService extends MedusaService({
                     payout_id: payout.id,
                     ...(payout.order_id ? { order_id: payout.order_id } : {}),
                 },
-                context: { idempotency_key: this.idempotencyKey_(payout.id, attempt) },
+                context: { idempotency_key: attempt.idempotency_key },
             })
 
             return this.statusFromProvider_(response)
@@ -306,10 +333,10 @@ export default class PayoutModuleService extends MedusaService({
     }
 
     protected async processPayoutReversalFromProvider_(
-        reversal: InferEntityType<typeof PayoutReversal>,
-        attempt: number
-    ) {
-        const payout = reversal.payout
+        reversal: PayoutReversalDTO,
+        attempt: { idempotency_key: string }
+    ): Promise<ProviderResult> {
+        const payout = reversal.payout as PayoutDTO
         const provider = (payout.data?.provider ?? {}) as Record<string, unknown>
 
         try {
@@ -322,7 +349,7 @@ export default class PayoutModuleService extends MedusaService({
                     payout_reversal_id: reversal.id,
                     ...(reversal.refund_id ? { refund_id: reversal.refund_id } : {}),
                 },
-                context: { idempotency_key: this.idempotencyKey_(reversal.id, attempt) },
+                context: { idempotency_key: attempt.idempotency_key },
             })
 
             return this.statusFromProvider_(response)
@@ -346,28 +373,60 @@ export default class PayoutModuleService extends MedusaService({
         await knex(table).where("id", id).forUpdate().select("id")
     }
 
-    protected statusFromProvider_(response: PayoutOutput) {
+    /**
+     * The key of a request whose outcome is unknown is kept, so a retry after a
+     * timeout returns the payout the provider may already have made. Only a
+     * provider refusal clears it, and the next attempt gets a fresh key.
+     */
+    protected nextAttempt_(id: string, data: Record<string, unknown> | null) {
+        const attempts = Number(data?.attempts ?? 0) + 1
+        const kept = data?.idempotency_key as string | null | undefined
+
+        return {
+            attempts,
+            idempotency_key: kept ?? (attempts === 1 ? id : `${id}:${attempts}`),
+        }
+    }
+
+    protected statusFromProvider_(response: PayoutOutput): ProviderResult {
         return {
             status: response.status,
             status_reason: null,
-            data: { provider: { ...response.data, id: response.id } },
+            data: { provider: { ...response.data, id: response.id }, status_detail: null },
         }
     }
 
-    protected statusFromError_(error: unknown) {
+    protected statusFromError_(error: unknown): ProviderResult {
+        const code = this.providerErrorCode_(error)
         const message = error instanceof Error ? error.message : String(error)
 
         return {
-            status: (error as { final?: boolean })?.final === true ? PayoutStatus.ABORTED : PayoutStatus.FAILED,
-            status_reason: message.slice(0, PayoutModuleService.STATUS_REASON_MAX_LENGTH),
-            data: undefined,
+            status: code === PayoutProviderErrorCode.FINAL ? PayoutStatus.ABORTED : PayoutStatus.FAILED,
+            status_reason: PayoutStatusReason.PROVIDER_ERROR,
+            data: {
+                status_detail: message.slice(0, PayoutModuleService.STATUS_DETAIL_MAX_LENGTH),
+                ...(code === PayoutProviderErrorCode.REFUSED ? { idempotency_key: null } : {}),
+            },
         }
     }
 
-    // A provider caches an idempotency key with the request that first used it,
-    // so a retry after a refused attempt needs a fresh key.
-    protected idempotencyKey_(id: string, attempt: number) {
-        return attempt === 1 ? id : `${id}:${attempt}`
+    // Read structurally: the error may come from another copy of @mercurjs/types.
+    protected providerErrorCode_(error: unknown): PayoutProviderErrorCode {
+        const { code, final } = (error ?? {}) as { code?: unknown; final?: unknown }
+        if (final === true || code === PayoutProviderErrorCode.FINAL) {
+            return PayoutProviderErrorCode.FINAL
+        }
+
+        return code === PayoutProviderErrorCode.REFUSED ? PayoutProviderErrorCode.REFUSED : PayoutProviderErrorCode.UNKNOWN
+    }
+
+    protected isOnboardingTokenValid_(account: PayoutAccountDTO) {
+        if (!account.onboarding_token || !account.onboarding_token_issued_at) {
+            return false
+        }
+
+        const issuedAt = new Date(account.onboarding_token_issued_at).getTime()
+        return Date.now() - issuedAt < this.options_.onboarding.tokenTtlSeconds * 1000
     }
 
     protected generateOnboardingToken_() {

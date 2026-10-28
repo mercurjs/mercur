@@ -102,14 +102,16 @@ export interface StripeConnectorPluginOptions {
   settlements?: {
     enabled?: boolean
     /**
-     * `connector` nets each window and sends the bank payout itself (connected
+     * `plugin` nets each window and sends the bank payout itself (connected
      * accounts on a manual payout schedule); `provider` leaves bank payouts to
      * Stripe's automatic schedule and only records the settlement.
      */
-    mode?: "connector" | "provider"
+    mode?: "plugin" | "provider"
   }
   notifications?: {
     url?: string
+    /** Signs each notification body with HMAC-SHA256 in the `x-mercur-signature` header. */
+    secret?: string
     mailOnEndpointDown?: boolean
     endpointDownCooldownMinutes?: number
   }
@@ -128,9 +130,10 @@ export type ResolvedStripeConnectorOptions = {
   }
   transfers: { enabled: boolean; requiredFulfillmentStatus: FulfillmentStatus }
   reversals: { enabled: boolean }
-  settlements: { enabled: boolean; mode: "connector" | "provider" }
+  settlements: { enabled: boolean; mode: "plugin" | "provider" }
   notifications: {
     url?: string
+    secret?: string
     mailOnEndpointDown: boolean
     endpointDownCooldownMinutes: number
   }
@@ -154,7 +157,7 @@ export function resolveStripeConnectorOptions(
     },
     transfers: { enabled: true, requiredFulfillmentStatus: "fulfilled", ...(o.transfers ?? {}) },
     reversals: { enabled: true, ...(o.reversals ?? {}) },
-    settlements: { enabled: true, mode: "connector", ...(o.settlements ?? {}) },
+    settlements: { enabled: true, mode: "plugin", ...(o.settlements ?? {}) },
     notifications: {
       mailOnEndpointDown: true,
       endpointDownCooldownMinutes: 10,
@@ -239,6 +242,14 @@ export interface JobRunDTO {
   finished_at: Date | null
   stats: Record<string, unknown> | null
   error: string | null
+}
+
+export interface ConnectorCheckpointDTO {
+  id: string
+  key: string
+  value: string | null
+  created_at: Date
+  updated_at: Date
 }
 
 export interface ConnectorNotificationDTO {

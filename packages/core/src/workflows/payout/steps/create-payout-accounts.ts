@@ -1,7 +1,5 @@
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
-import { MercurModules } from "@mercurjs/types"
-
-import PayoutModuleService from "../../../modules/payout/services/payout-module-service"
+import { IPayoutModuleService, MercurModules } from "@mercurjs/types"
 
 export type CreatePayoutAccountsStepInput = {
   external_id: string
@@ -12,12 +10,14 @@ export const createPayoutAccountsStepId = "create-payout-accounts"
 
 /**
  * Stores accounts that already exist at the provider, without calling it.
+ * Compensation only removes the stored rows: the provider accounts predate
+ * the workflow.
  */
 export const createPayoutAccountsStep = createStep(
   createPayoutAccountsStepId,
   async (input: CreatePayoutAccountsStepInput, { container }) => {
-    const service = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
-    const accounts = await service.createPayoutAccounts(input)
+    const service = container.resolve<IPayoutModuleService>(MercurModules.PAYOUT)
+    const accounts = input.length ? await service.createPayoutAccounts(input) : []
 
     return new StepResponse(
       accounts,
@@ -29,6 +29,6 @@ export const createPayoutAccountsStep = createStep(
       return
     }
 
-    await container.resolve<PayoutModuleService>(MercurModules.PAYOUT).deletePayoutAccounts(ids)
+    await container.resolve<IPayoutModuleService>(MercurModules.PAYOUT).deletePayoutAccounts(ids)
   }
 )

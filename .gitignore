@@ -44,3 +44,8 @@ packages/modules/*
 
 # Local spec tracker (not versioned)
 docs/specs/
+
+# stripe-listen.sh logs
+.stripe/
+
+.playwright-mcp/

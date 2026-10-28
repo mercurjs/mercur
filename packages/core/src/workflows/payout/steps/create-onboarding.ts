@@ -1,7 +1,5 @@
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
-import { CreateOnboardingDTO, MercurModules } from "@mercurjs/types"
-
-import PayoutModuleService from "../../../modules/payout/services/payout-module-service"
+import { CreateOnboardingDTO, IPayoutModuleService, MercurModules } from "@mercurjs/types"
 
 export const createOnboardingStepId = "create-onboarding"
 
@@ -13,7 +11,7 @@ export const createOnboardingStepId = "create-onboarding"
 export const createOnboardingStep = createStep(
   createOnboardingStepId,
   async (input: CreateOnboardingDTO, { container }) => {
-    const service = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
+    const service = container.resolve<IPayoutModuleService>(MercurModules.PAYOUT)
     const onboarding = await service.createOnboarding(input)
 
     return new StepResponse(onboarding)

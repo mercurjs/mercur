@@ -14,14 +14,16 @@ export type RefreshOnboardingWorkflowOutput = {
 export const refreshOnboardingWorkflowId = "refresh-onboarding"
 
 /**
- * Exchanges an expired onboarding link's token for a fresh link.
+ * Exchanges an expired onboarding link's token for a fresh link. The token
+ * is rotated, so each refresh URL works once and only within the module's
+ * `onboarding.tokenTtlSeconds`.
  */
 export const refreshOnboardingWorkflow = createWorkflow(
   refreshOnboardingWorkflowId,
   function (input: RefreshOnboardingWorkflowInput) {
     const { data: accounts } = useQueryGraphStep({
       entity: "payout_account",
-      fields: ["id"],
+      fields: ["id", "onboarding_token_issued_at"],
       filters: { onboarding_token: input.token },
     }).config({ name: "onboarding-token-account-query" })
 
@@ -30,7 +32,7 @@ export const refreshOnboardingWorkflow = createWorkflow(
     validateOnboardingTokenStep({ account })
 
     const onboarding = createOnboardingStep(
-      transform({ account }, ({ account }) => ({ account_id: (account as { id: string }).id }))
+      transform({ account }, ({ account }) => ({ account_id: (account as { id: string }).id, rotate_token: true }))
     )
 
     return new WorkflowResponse(

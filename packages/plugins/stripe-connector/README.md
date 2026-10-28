@@ -20,7 +20,7 @@ adjustments).
   run history, Settings → Stripe with the webhook URLs, a Stripe section on the
   seller page and a payout widget on the order page.
 - **Vendor** Integrations → Stripe: set-up form, the Stripe account with what
-  Stripe still needs, and statements. The payout account itself (status,
+  Stripe still needs, and settlements. The payout account itself (status,
   onboarding, verification) shows on the core vendor Payouts page.
 
 ## Install
@@ -34,7 +34,7 @@ module.exports = withMercur({
       options: {
         apiKey: process.env.STRIPE_SECRET_KEY,
         webhookSecret: process.env.STRIPE_SELLERS_WEBHOOK_SECRET,
-        settlements: { mode: "connector" },
+        settlements: { mode: "plugin" },
         alerting: { technicalEmail: "ops@example.com", from: "noreply@example.com" },
       },
     },
@@ -79,10 +79,15 @@ module.exports = withMercur({
 })
 ```
 
-`settlements.mode: "connector"` sends each settlement to the seller's bank
+`settlements.mode: "plugin"` sends each settlement to the seller's bank
 from the plugin, so pair it with `manualPayouts: true` on the payout provider.
 With `mode: "provider"` Stripe pays out on its own schedule and settlements are
-only recorded.
+only recorded. A bank payout waits (`on_hold`, `insufficient_available_balance`)
+until the connected account's available balance in the settlement currency
+covers it, and is retried on the next run.
+
+Set `notifications.secret` to sign each operator notification: the body's
+HMAC-SHA256, hex-encoded, is sent as `x-mercur-signature: sha256=<hex>`.
 
 Run `medusa db:migrate`, then register two webhooks in the Stripe dashboard:
 

@@ -2,7 +2,6 @@ import { PlaySolid } from "@medusajs/icons"
 import { Container, Heading, Text } from "@medusajs/ui"
 import {
   ActionMenu,
-  CodeCell,
   DateCell,
   SingleColumnPage,
   StatusCell,
@@ -18,7 +17,13 @@ import { useMemo } from "react"
 
 import { useStripeJobs } from "../../../../hooks/api/stripe"
 import type { AdminPayoutJob } from "../../../../lib/client"
-import { JOB_LABEL, JOB_RUN_STATUS_COLOR, JOB_RUN_STATUS_LABEL, statusProps } from "../../../../lib/status"
+import {
+  JOB_LABEL,
+  JOB_RUN_STATUS_COLOR,
+  JOB_RUN_STATUS_LABEL,
+  describeSchedule,
+  statusProps,
+} from "../../../../lib/status"
 import { SettingsProviders } from "../../../../providers/settings-providers"
 import { useRunJobAction } from "./common/use-run-job-action"
 
@@ -47,7 +52,7 @@ const useColumns = () =>
       }),
       columnHelper.accessor("schedule", {
         header: () => <TextHeader text="Schedule (UTC)" />,
-        cell: ({ getValue }) => <CodeCell code={getValue()} />,
+        cell: ({ getValue }) => <TextCell text={describeSchedule(getValue())} />,
       }),
       columnHelper.accessor((row) => row.last_run?.status ?? null, {
         id: "last_run",
@@ -123,7 +128,7 @@ const JobListPage = () => (
         <Container className="divide-y p-0" data-testid="stripe-job-list-table">
           <div className="flex items-center justify-between px-6 py-4">
             <div>
-              <Heading>Jobs</Heading>
+              <Heading data-testid="stripe-jobs-heading">Jobs</Heading>
               <Text size="small" className="text-ui-fg-subtle">
                 Scheduled jobs that sync accounts and move money through Stripe.
               </Text>

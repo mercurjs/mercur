@@ -15,10 +15,12 @@ export const vendorPayoutAccountFields = [
 export const vendorPayoutAccountQueryConfig = {
   list: {
     defaults: vendorPayoutAccountFields,
+    allowed: vendorPayoutAccountFields,
     isList: true,
   },
   retrieve: {
     defaults: vendorPayoutAccountFields,
+    allowed: vendorPayoutAccountFields,
     isList: false,
   },
 }
@@ -45,6 +47,7 @@ export const vendorMyPayoutAccountFields = [
 export const vendorMyPayoutAccountQueryConfig = {
   retrieve: {
     defaults: vendorMyPayoutAccountFields,
+    allowed: vendorMyPayoutAccountFields,
     isList: false,
   },
 }
@@ -60,6 +63,7 @@ export const vendorOnboardingFields = [
 export const vendorOnboardingQueryConfig = {
   retrieve: {
     defaults: vendorOnboardingFields,
+    allowed: vendorOnboardingFields,
     isList: false,
   },
 }

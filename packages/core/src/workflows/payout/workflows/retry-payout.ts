@@ -1,5 +1,6 @@
 import { WorkflowResponse, createWorkflow, transform, when } from "@medusajs/framework/workflows-sdk"
 import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+import { PayoutStatus } from "@mercurjs/types"
 
 import { validatePayoutRetryStep } from "../steps"
 import { createOrderPayoutsWorkflow } from "./create-order-payouts"
@@ -12,8 +13,9 @@ export type RetryPayoutWorkflowInput = {
 export const retryPayoutWorkflowId = "retry-payout"
 
 /**
- * Retries a failed, held or pending payout. An order payout is re-decided
- * from its order, so one on hold only goes out once the order is ready.
+ * Retries a failed, held or pending payout. A failed or held order payout is
+ * re-decided from its order, so one on hold only goes out once the order is
+ * ready. A pending payout, and any payout without an order, is sent as is.
  */
 export const retryPayoutWorkflow = createWorkflow(retryPayoutWorkflowId, function (input: RetryPayoutWorkflowInput) {
   const { data: payout } = useQueryGraphStep({
@@ -25,13 +27,21 @@ export const retryPayoutWorkflow = createWorkflow(retryPayoutWorkflowId, functio
 
   validatePayoutRetryStep({ payout })
 
-  when("retry-order-payout", { payout }, ({ payout }) => !!payout.order_id).then(() => {
+  when(
+    "redecide-order-payout",
+    { payout },
+    ({ payout }) => !!payout.order_id && payout.status !== PayoutStatus.PENDING
+  ).then(() => {
     createOrderPayoutsWorkflow.runAsStep({
       input: transform({ payout }, ({ payout }) => ({ order_ids: [payout.order_id as string] })),
     })
   })
 
-  when("retry-standalone-payout", { payout }, ({ payout }) => !payout.order_id).then(() => {
+  when(
+    "send-payout",
+    { payout },
+    ({ payout }) => !payout.order_id || payout.status === PayoutStatus.PENDING
+  ).then(() => {
     processPayoutWorkflow.runAsStep({
       input: transform({ payout }, ({ payout }) => ({ payout_ids: [payout.id] })),
     })

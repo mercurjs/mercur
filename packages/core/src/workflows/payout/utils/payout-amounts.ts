@@ -5,7 +5,7 @@ import {
   PayoutReversalDTO,
   PayoutStatus,
   PayoutStatusReason,
-  formatStatusReason,
+  PayoutStatusReasonCode,
 } from "@mercurjs/types"
 
 import {
@@ -57,7 +57,8 @@ export type PaymentState = {
 
 export type PayoutDecision = {
   status: PayoutStatus
-  status_reason: string | null
+  status_reason: PayoutStatusReasonCode | null
+  status_detail: string | null
   amount: BigNumberInput
 }
 
@@ -105,14 +106,24 @@ const sum = (rows: AmountRow[] | null | undefined) =>
 const refundsOf = (order: Pick<PayoutOrder, "payment_collections">) =>
   (order.payment_collections ?? []).flatMap((c) => c.payments ?? []).flatMap((p) => p.refunds ?? [])
 
-const hold = (reason: string): PayoutDecision => ({ status: PayoutStatus.ON_HOLD, status_reason: reason, amount: 0 })
+const hold = (reason: PayoutStatusReasonCode, detail: string | null = null): PayoutDecision => ({
+  status: PayoutStatus.ON_HOLD,
+  status_reason: reason,
+  status_detail: detail,
+  amount: 0,
+})
 
-const abort = (reason: string): PayoutDecision => ({ status: PayoutStatus.ABORTED, status_reason: reason, amount: 0 })
+const abort = (reason: PayoutStatusReasonCode, detail: string | null = null): PayoutDecision => ({
+  status: PayoutStatus.ABORTED,
+  status_reason: reason,
+  status_detail: detail,
+  amount: 0,
+})
 
 const ready = (amount: BigNumberInput): PayoutDecision =>
   MathBN.lte(amount, 0)
-    ? abort(formatStatusReason(PayoutStatusReason.INVALID_AMOUNT, MathBN.convert(amount).toString()))
-    : { status: PayoutStatus.PENDING, status_reason: null, amount }
+    ? abort(PayoutStatusReason.INVALID_AMOUNT, `Amount must be positive, input was: ${MathBN.convert(amount).toString()}`)
+    : { status: PayoutStatus.PENDING, status_reason: null, status_detail: null, amount }
 
 const countBy = (statuses: string[]) =>
   statuses.reduce<Record<string, number>>((counts, status) => {
@@ -180,7 +191,7 @@ export function commissionLineFilters(orders: Pick<PayoutOrder, "items" | "shipp
 }
 
 /**
- * Order of checks: account, canceled, fulfilled, paid, amount.
+ * Order of checks: canceled, account, fulfilled, paid, amount.
  */
 export function decideOrderPayout(input: {
   order: { seller_id: string; status: string; canceled_at?: Date | string | null; fulfillment_status: string | null; total: BigNumberInput }
@@ -191,26 +202,32 @@ export function decideOrderPayout(input: {
 }): PayoutDecision {
   const { order, account, payment } = input
 
-  if (!account?.payouts_enabled) {
-    return hold(formatStatusReason(PayoutStatusReason.ACCOUNT_NOT_READY, order.seller_id))
-  }
   if (order.status === "canceled" || order.canceled_at) {
-    return abort(formatStatusReason(PayoutStatusReason.ORDER_ABORTED, order.status))
+    return abort(PayoutStatusReason.ORDER_ABORTED, `Order cannot be processed, status is ${order.status}`)
+  }
+  if (!account) {
+    return hold(PayoutStatusReason.ACCOUNT_NOT_READY, `Cannot find payout account for seller ${order.seller_id}`)
+  }
+  if (!account.payouts_enabled) {
+    return hold(PayoutStatusReason.ACCOUNT_PAYOUTS_DISABLED, `Payouts are disabled for seller ${order.seller_id}`)
   }
   if (!fulfillmentReached(order.fulfillment_status, input.required_fulfillment_status)) {
-    return hold(formatStatusReason(PayoutStatusReason.ORDER_NOT_READY, order.fulfillment_status ?? "not_fulfilled"))
+    return hold(
+      PayoutStatusReason.ORDER_NOT_READY,
+      `Order is not ready yet, status is ${order.fulfillment_status ?? "not_fulfilled"}`
+    )
   }
   if (!payment) {
-    return hold(formatStatusReason(PayoutStatusReason.PAYMENT_NOT_READY, "none", "missing"))
+    return hold(PayoutStatusReason.PAYMENT_NOT_READY, "Payment is not ready yet, status is missing")
   }
   if (payment.canceled) {
-    return abort(formatStatusReason(PayoutStatusReason.PAYMENT_CANCELED, payment.id))
+    return abort(PayoutStatusReason.PAYMENT_CANCELED, `Payment ${payment.id} has been canceled`)
   }
   if (payment.fully_refunded) {
-    return abort(formatStatusReason(PayoutStatusReason.PAYMENT_REFUNDED, payment.id))
+    return abort(PayoutStatusReason.PAYMENT_REFUNDED, `Payment ${payment.id} has been fully refunded`)
   }
   if (!payment.captured) {
-    return hold(formatStatusReason(PayoutStatusReason.PAYMENT_NOT_READY, payment.id, "authorized"))
+    return hold(PayoutStatusReason.PAYMENT_NOT_READY, `Payment ${payment.id} is not ready yet, status is authorized`)
   }
 
   return ready(MathBN.sub(order.total, input.commission_total))
@@ -231,10 +248,13 @@ export function decideReversal(input: {
   const payout = input.payout
 
   if (input.refund_canceled || payout?.status === PayoutStatus.ABORTED) {
-    return abort(formatStatusReason(PayoutStatusReason.REFUND_ABORTED, input.refund_id))
+    return abort(PayoutStatusReason.REFUND_ABORTED, `Refund ${input.refund_id} has been aborted`)
   }
   if (!payout || payout.status !== PayoutStatus.PAID || !payout.provider_payout_id) {
-    return hold(PayoutStatusReason.PAYOUT_NOT_READY)
+    return hold(
+      PayoutStatusReason.PAYOUT_NOT_READY,
+      "The payout has to be paid before it can be reversed for a refund"
+    )
   }
 
   const share = MathBN.gt(input.order_total, 0)
@@ -313,6 +333,7 @@ export function planOrderPayouts(input: {
 
     const data = {
       source_payment: payment ? { id: payment.id, data: payment.data } : null,
+      status_detail: decision.status_detail,
       absorbed_refund_ids: refunds.map((refund) => refund.id),
     }
 
@@ -355,12 +376,14 @@ export type PayoutReversalsPlan = {
     amount: number
     status: PayoutStatus
     status_reason: string | null
+    data: Record<string, unknown>
   }[]
   update: {
     id: string
     amount: number
     status: PayoutStatus
     status_reason: string | null
+    data: Record<string, unknown>
   }[]
   counts: Record<string, number>
 }
@@ -400,7 +423,8 @@ export function planPayoutReversals(input: {
             id: existing.id,
             amount: 0,
             status: PayoutStatus.ABORTED,
-            status_reason: formatStatusReason(PayoutStatusReason.REFUND_ABSORBED, refund.id),
+            status_reason: PayoutStatusReason.REFUND_ABSORBED,
+            data: { ...(existing.data ?? {}), status_detail: `Refund ${refund.id} was deducted from the payout` },
           })
         }
         statuses.push("absorbed")
@@ -422,9 +446,9 @@ export function planPayoutReversals(input: {
 
       const row = { amount: Number(decision.amount), status: decision.status, status_reason: decision.status_reason }
       if (existing) {
-        plan.update.push({ id: existing.id, ...row })
+        plan.update.push({ id: existing.id, ...row, data: { ...(existing.data ?? {}), status_detail: decision.status_detail } })
       } else {
-        plan.create.push({ payout_id: payout.id, refund_id: refund.id, ...row })
+        plan.create.push({ payout_id: payout.id, refund_id: refund.id, ...row, data: { status_detail: decision.status_detail } })
       }
       statuses.push(decision.status)
     }

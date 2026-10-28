@@ -1,16 +1,16 @@
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
-import { MercurModules } from "@mercurjs/types"
+import { CreatePayoutDTO, IPayoutModuleService, MercurModules } from "@mercurjs/types"
 
-import PayoutModuleService from "../../../modules/payout/services/payout-module-service"
+import { sentToProvider } from "../utils/sent-to-provider"
 
-export type CreatePayoutsStepInput = Extract<Parameters<PayoutModuleService["createPayouts"]>[0], unknown[]>
+export type CreatePayoutsStepInput = CreatePayoutDTO[]
 
 export const createPayoutsStepId = "create-payouts"
 
 export const createPayoutsStep = createStep(
   createPayoutsStepId,
   async (input: CreatePayoutsStepInput, { container }) => {
-    const service = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
+    const service = container.resolve<IPayoutModuleService>(MercurModules.PAYOUT)
     const payouts = input.length ? await service.createPayouts(input) : []
 
     return new StepResponse(
@@ -23,6 +23,12 @@ export const createPayoutsStep = createStep(
       return
     }
 
-    await container.resolve<PayoutModuleService>(MercurModules.PAYOUT).deletePayouts(ids)
+    const service = container.resolve<IPayoutModuleService>(MercurModules.PAYOUT)
+    const current = await service.listPayouts({ id: ids }, { select: ["id", "status", "data"], take: null })
+    const unsent = current.filter((payout) => !sentToProvider(payout)).map((payout) => payout.id)
+
+    if (unsent.length) {
+      await service.deletePayouts(unsent)
+    }
   }
 )

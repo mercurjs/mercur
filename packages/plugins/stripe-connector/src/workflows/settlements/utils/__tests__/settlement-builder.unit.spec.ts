@@ -43,7 +43,7 @@ describe("buildSettlement", () => {
     )
     expect(totals.status).toBe(SettlementStatus.ABORTED)
     expect(totals.payout_status).toBeNull()
-    expect(totals.payout_reason).toBe("Amount must be positive, input was: 0")
+    expect(totals.payout_reason).toBe("invalid_amount")
   })
 
   it("holds the payout when payouts are disabled", () => {
@@ -52,6 +52,6 @@ describe("buildSettlement", () => {
       payouts_enabled: false,
     })
     expect(totals.payout_status).toBe(PayoutStatus.ON_HOLD)
-    expect(totals.payout_reason).toBe("Payouts are disabled for seller sel_1")
+    expect(totals.payout_reason).toBe("account_payouts_disabled")
   })
 })

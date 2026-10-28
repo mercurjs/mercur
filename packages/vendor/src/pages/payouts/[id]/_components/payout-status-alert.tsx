@@ -1,5 +1,8 @@
 import { Alert } from "@medusajs/ui";
 import { PayoutDTO } from "@mercurjs/types";
+import { useTranslation } from "react-i18next";
+
+import { getPayoutStatusReasonLabel } from "../../_components/payout-status";
 
 const variantForStatus = (status: string) => {
   switch (status) {
@@ -14,13 +17,15 @@ const variantForStatus = (status: string) => {
 };
 
 export const PayoutStatusAlert = ({ payout }: { payout: PayoutDTO }) => {
+  const { t } = useTranslation();
+
   if (!payout.status_reason) {
     return null;
   }
 
   return (
     <Alert variant={variantForStatus(payout.status)} data-testid="payout-status-alert">
-      {payout.status_reason}
+      {getPayoutStatusReasonLabel(payout.status_reason, t)}
     </Alert>
   );
 };

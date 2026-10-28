@@ -19,6 +19,9 @@
   ],
   "scripts": {
     "seed": "medusa exec ./src/scripts/seed.ts",
+    "stripe:simulate": "medusa exec ./src/scripts/simulate-stripe-payouts.ts",
+    "stripe:check-webhooks": "medusa exec ./src/scripts/check-stripe-webhooks.ts",
+    "stripe:onboarding": "medusa exec ./src/scripts/stripe-onboarding.ts",
     "start": "medusa start",
     "dev": "medusa develop",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",

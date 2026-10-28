@@ -8,7 +8,7 @@ import {
   TextHeader,
   WidgetZone,
   _DataTable,
-  useCan,
+  PermissionGuard,
   useDataTable,
   type Filter,
 } from "@mercurjs/dashboard-shared"
@@ -31,19 +31,19 @@ import {
 import { SettingsProviders } from "../../../../providers/settings-providers"
 
 const AdjustmentListHeader = () => {
-  const canCreate = useCan("payouts", "edit")
-
   return (
     <div className="flex items-center justify-between px-6 py-4">
       <div>
-        <Heading>Adjustments</Heading>
+        <Heading data-testid="stripe-adjustments-heading">Adjustments</Heading>
         <Text size="small" className="text-ui-fg-subtle">
           Fees and credits applied to a store's next settlement.
         </Text>
       </div>
-      <Button size="small" variant="secondary" asChild disabled={!canCreate} data-testid="stripe-adjustment-create-button">
-        <Link to="create">Create</Link>
-      </Button>
+      <PermissionGuard permission="payouts:edit">
+        <Button size="small" variant="secondary" asChild data-testid="stripe-adjustment-create-button">
+          <Link to="create">Create</Link>
+        </Button>
+      </PermissionGuard>
     </div>
   )
 }

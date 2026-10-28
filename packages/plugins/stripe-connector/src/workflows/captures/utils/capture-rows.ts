@@ -1,11 +1,11 @@
-import { BigNumberInput, MedusaContainer } from "@medusajs/framework/types"
-import { ContainerRegistrationKeys, MathBN } from "@medusajs/framework/utils"
+import { BigNumberInput } from "@medusajs/framework/types"
+import { MathBN } from "@medusajs/framework/utils"
 import {
-  ORDER_FULFILLMENT_FIELDS,
+  FulfillableOrder,
   deriveFulfillmentStatus,
 } from "@mercurjs/core/workflows/payout/utils/fulfillment-status"
 
-import { CaptureStatus, ResolvedStripeConnectorOptions } from "../../../types/common"
+import { CaptureDTO, CaptureStatus, ResolvedStripeConnectorOptions } from "../../../types/common"
 import { CaptureDecision, decideCapture } from "./capture-decision"
 
 type PaymentRow = {
@@ -61,98 +61,39 @@ export function captureStatusFor(payment: PaymentRow, decision: CaptureDecision)
   }
 }
 
+export type CaptureOrderRow = FulfillableOrder & {
+  id: string
+  status: string
+  canceled_at?: Date | string | null
+  total: BigNumberInput
+  metadata?: Record<string, unknown> | null
+}
+
+export type CaptureSources = {
+  collections: CollectionRow[]
+  cart_links: { cart_id: string; payment_collection_id: string }[]
+  groups: { id: string; cart_id: string | null; orders?: { id: string }[] | null }[]
+  orders: CaptureOrderRow[]
+}
+
+export type CaptureDecisionOptions = Pick<ResolvedStripeConnectorOptions, "capture" | "transfers">
+
 /**
  * The capture state of each order group's cart payment, decided the way the
- * capture job acts on it. Without ids it covers every authorized cart
- * payment plus the given open ones, so a payment captured or canceled
- * elsewhere closes its row.
+ * capture job acts on it.
  */
-export async function loadCaptureRows(
-  container: MedusaContainer,
-  options: ResolvedStripeConnectorOptions,
-  scope: { order_group_ids?: string[]; payment_collection_ids?: string[] },
-  now = new Date()
-): Promise<CaptureRowInput[]> {
-  const query = container.resolve(ContainerRegistrationKeys.QUERY)
-
-  let collectionIds: string[]
-  if (scope.order_group_ids) {
-    if (!scope.order_group_ids.length) return []
-    const { data: groups } = await query.graph({
-      entity: "order_group",
-      fields: ["cart_id"],
-      filters: { id: scope.order_group_ids },
-    })
-    const cartIds = groups.map((group) => group.cart_id).filter((id): id is string => !!id)
-    if (!cartIds.length) return []
-    const { data: links } = await query.graph({
-      entity: "cart_payment_collection",
-      fields: ["payment_collection_id"],
-      filters: { cart_id: cartIds },
-    })
-    collectionIds = links.map((link) => link.payment_collection_id)
-  } else {
-    const { data: authorized } = await query.graph({
-      entity: "payment_collection",
-      fields: ["id"],
-      filters: { status: "authorized" },
-    })
-    collectionIds = Array.from(
-      new Set([...authorized.map((c) => c.id), ...(scope.payment_collection_ids ?? [])])
-    )
-  }
-
-  if (!collectionIds.length) return []
-
-  const { data: collections } = await query.graph({
-    entity: "payment_collection",
-    fields: [
-      "id",
-      "currency_code",
-      "payments.id",
-      "payments.amount",
-      "payments.raw_amount",
-      "payments.captured_at",
-      "payments.canceled_at",
-      "payments.created_at",
-      "payments.captures.amount",
-      "payments.captures.raw_amount",
-    ],
-    filters: { id: collectionIds },
-  })
-
-  const { data: cartLinks } = await query.graph({
-    entity: "cart_payment_collection",
-    fields: ["cart_id", "payment_collection_id"],
-    filters: { payment_collection_id: collectionIds },
-  })
-  const cartByCollection = new Map<string, string>(
-    cartLinks.map((link) => [link.payment_collection_id, link.cart_id])
-  )
-  const cartIds = Array.from(new Set(cartByCollection.values()))
-  if (!cartIds.length) return []
-
-  const { data: groups } = await query.graph({
-    entity: "order_group",
-    fields: ["id", "cart_id", "orders.id"],
-    filters: { cart_id: cartIds },
-  })
-
-  // fulfillment_status only resolves with orders at the root of the query.
-  const orderIds = groups.flatMap((group) => (group.orders ?? []).map((order) => order.id))
-  const { data: orders } = orderIds.length
-    ? await query.graph({
-        entity: "order",
-        fields: ["id", "status", "canceled_at", "total", "metadata", ...ORDER_FULFILLMENT_FIELDS],
-        filters: { id: orderIds },
-      })
-    : { data: [] }
-  const orderById = new Map(orders.map((order) => [order.id, order]))
-  const groupByCart = new Map(groups.map((group) => [group.cart_id, group]))
+export function buildCaptureRows(
+  sources: CaptureSources,
+  options: CaptureDecisionOptions,
+  now: Date
+): CaptureRowInput[] {
+  const cartByCollection = new Map(sources.cart_links.map((link) => [link.payment_collection_id, link.cart_id]))
+  const orderById = new Map(sources.orders.map((order) => [order.id, order]))
+  const groupByCart = new Map(sources.groups.map((group) => [group.cart_id, group]))
 
   const rows: CaptureRowInput[] = []
 
-  for (const collection of collections as CollectionRow[]) {
+  for (const collection of sources.collections) {
     const group = groupByCart.get(cartByCollection.get(collection.id) ?? "")
     const payments = collection.payments ?? []
     const payment = payments.find((p) => !p.canceled_at && !isCaptured(p)) ?? payments[0]
@@ -162,15 +103,14 @@ export async function loadCaptureRows(
 
     const groupOrders = (group.orders ?? [])
       .map((ref) => orderById.get(ref.id))
-      .filter((order): order is NonNullable<typeof order> => !!order)
+      .filter((order): order is CaptureOrderRow => !!order)
       .map((order) => ({
         id: order.id,
         status: order.status,
         canceled_at: order.canceled_at ?? null,
-        fulfillment_status: deriveFulfillmentStatus(order as never),
+        fulfillment_status: deriveFulfillmentStatus(order),
         total: order.total,
-        accepted:
-          order.metadata && "accepted" in order.metadata ? !!order.metadata.accepted : null,
+        accepted: order.metadata && "accepted" in order.metadata ? !!order.metadata.accepted : null,
       }))
 
     const authorizedAmount = payment.raw_amount ?? payment.amount
@@ -201,4 +141,36 @@ export async function loadCaptureRows(
   }
 
   return rows
+}
+
+export type CaptureSyncPlan = {
+  create: CaptureRowInput[]
+  update: (CaptureRowInput & { id: string; status_reason: string | null })[]
+}
+
+// A failed attempt stays visible until the payment is captured or canceled,
+// even while the decision still says capture or cancel.
+const keepFailed = (existing: CaptureDTO, next: CaptureStatus) =>
+  existing.status === CaptureStatus.FAILED && (next === CaptureStatus.READY || next === CaptureStatus.CANCELABLE)
+
+export function planCaptureSync(rows: CaptureRowInput[], existing: CaptureDTO[]): CaptureSyncPlan {
+  const byGroup = new Map(existing.map((row) => [row.order_group_id, row]))
+  const plan: CaptureSyncPlan = { create: [], update: [] }
+
+  for (const row of rows) {
+    const current = byGroup.get(row.order_group_id)
+    if (!current) {
+      plan.create.push(row)
+      continue
+    }
+    const status = keepFailed(current, row.status) ? CaptureStatus.FAILED : row.status
+    plan.update.push({
+      ...row,
+      id: current.id,
+      status,
+      status_reason: status === CaptureStatus.FAILED ? current.status_reason : null,
+    })
+  }
+
+  return plan
 }

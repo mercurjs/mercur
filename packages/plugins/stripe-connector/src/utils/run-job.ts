@@ -1,3 +1,5 @@
+import { randomUUID } from "crypto"
+
 import { Logger, MedusaContainer } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 
@@ -26,6 +28,7 @@ export async function runJob(
   const logger = container.resolve<Logger>(ContainerRegistrationKeys.LOGGER)
   const connector = resolveConnector(container)
   const lockKey = `payout:${job}`
+  const ownerId = `${job}:${randomUUID()}`
 
   let locking: Locking | null = null
   try {
@@ -36,7 +39,7 @@ export async function runJob(
 
   if (locking) {
     try {
-      await locking.acquire(lockKey, { expire: LOCK_EXPIRE_SECONDS, ownerId: job })
+      await locking.acquire(lockKey, { expire: LOCK_EXPIRE_SECONDS, ownerId })
     } catch {
       logger.info(`[${job}] skipped, a run is already in progress`)
       return null
@@ -56,7 +59,7 @@ export async function runJob(
     return await connector.finishJobRun(jobRun.id, { error: message })
   } finally {
     if (locking) {
-      await locking.release(lockKey, { ownerId: job }).catch(() => null)
+      await locking.release(lockKey, { ownerId }).catch(() => null)
     }
   }
 }

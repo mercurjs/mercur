@@ -36,7 +36,7 @@ The provider’s `getWebhookActionAndData` turns a raw webhook into an action an
 
 1. Re-reads the account from the provider and stores the derived status, flags, and `kyc_status`
 2. Swaps the onboarding link for a provider dashboard login link once details are submitted
-3. Emits `payout_account.updated` with the account id, the seller id, and the new status and flags
+3. Emits `payout_account.updated` with the account id
 
 <img className="block dark:hidden" src="/images/figures/payout-account-lifecycle-light.svg" alt="A Stripe account.updated webhook behind the process-payout-for-webhook workflow. The workflow maps account.activated to the activate-payout-account step and the Active status, account.restricted to Restricted, account.rejected to Rejected, and not_supported to no change." />
 <img className="hidden dark:block" src="/images/figures/payout-account-lifecycle-dark.svg" alt="A Stripe account.updated webhook behind the process-payout-for-webhook workflow. The workflow maps account.activated to the activate-payout-account step and the Active status, account.restricted to Restricted, account.rejected to Rejected, and not_supported to no change." />
@@ -58,9 +58,25 @@ Each payout and each reversal carries a `PayoutStatus`:
 | `FAILED` | `failed` | A provider error, or a `payout.failed` webhook |
 | `ABORTED` | `aborted` | A canceled order or payment, a non-positive amount, or a final provider error |
 
-`status_reason` says why a payout is `on_hold`, `failed`, or `aborted`, for example `Order is not ready yet, status is not_fulfilled`.
+`status_reason` holds a stable code that says why a payout or reversal is `on_hold`, `failed`, or `aborted`, from `PayoutStatusReason` in `@mercurjs/types`. The details behind it, such as an id, a status, or the provider’s error message, are in `data.status_detail`, for example `Order is not ready yet, status is not_fulfilled`.
 
-`on_hold` and `failed` payouts are re-decided by the next `createOrderPayoutsWorkflow` run, and operators can retry one with `POST /admin/payouts/:id/retry`. `paid`, `processing`, and `aborted` payouts are never sent again.
+| Code | Status | Meaning |
+| --- | --- | --- |
+| `account_not_ready` | `on_hold` | The seller has no payout account |
+| `account_payouts_disabled` | `on_hold` | The provider hasn’t enabled payouts on the account |
+| `order_not_ready` | `on_hold` | The order isn’t fulfilled far enough yet |
+| `order_aborted` | `aborted` | The order is canceled |
+| `payment_not_ready` | `on_hold` | The payment is missing or not captured yet |
+| `payment_failed` | `aborted` | The payment failed |
+| `payment_canceled` | `aborted` | The payment was canceled |
+| `payment_refunded` | `aborted` | The payment was refunded in full |
+| `payout_not_ready` | `on_hold` | A reversal waits for its payout to be paid |
+| `refund_aborted` | `aborted` | A reversal’s payout was aborted |
+| `refund_absorbed` | `aborted` | The refund was deducted from the payout before it was sent |
+| `invalid_amount` | `aborted` | The amount to send isn’t positive |
+| `provider_error` | `failed`, `aborted` | The provider threw or a `payout.failed` webhook arrived |
+
+`on_hold` and `failed` payouts are re-decided by the next `createOrderPayoutsWorkflow` run, and operators can retry one, or a `pending` one, with `POST /admin/payouts/:id/retry`. A canceled order’s payout is aborted even when the seller has no usable account yet. `paid`, `processing`, and `aborted` payouts are never sent again.
 
 The Stripe Connect provider returns `paid` as soon as Stripe creates the transfer. A later `transfer.created` webhook maps to `payout.paid`, which changes nothing.
 

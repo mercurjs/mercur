@@ -6,6 +6,7 @@ import {
   CreateLoginLinkInput,
   CreateOnboardingInput,
   CreatePayoutInput,
+  DeleteAccountInput,
   IPayoutProvider,
   LinkOutput,
   ListAccountsInput,
@@ -54,6 +55,12 @@ export default class PayoutProviderService {
 
   async retrieveAccount(input: RetrieveAccountInput): Promise<AccountOutput> {
     return await this.payoutProvider_.retrieveAccount(input)
+  }
+
+  async deleteAccount(input: DeleteAccountInput): Promise<void> {
+    if (this.payoutProvider_.deleteAccount) {
+      await this.payoutProvider_.deleteAccount(input)
+    }
   }
 
   async listAccounts(input: ListAccountsInput): Promise<ListAccountsOutput | null> {

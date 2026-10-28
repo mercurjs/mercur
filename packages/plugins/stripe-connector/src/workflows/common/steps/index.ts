@@ -1,1 +1,2 @@
-export * from "./set-checkpoint"
+export * from "./resolve-alerting"
+export * from "./set-checkpoints"

@@ -15,6 +15,7 @@ export const PayoutAccount = model
     details_submitted: model.boolean().default(false),
     disabled_reason: model.text().nullable(),
     onboarding_token: model.text().nullable(),
+    onboarding_token_issued_at: model.dateTime().nullable(),
     last_synced_at: model.dateTime().nullable(),
     data: model.json().default({}),
     context: model.json().nullable(),

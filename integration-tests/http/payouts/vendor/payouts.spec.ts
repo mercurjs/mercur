@@ -9,6 +9,7 @@ import {
   CommissionRateType,
   MercurModules,
   PayoutStatus,
+  PayoutStatusReason,
 } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createShippingProfile } from "../../../helpers/create-shipping-profile"
@@ -421,7 +422,8 @@ medusaIntegrationTestRunner({
           await payOut([order.id])
           const [held] = await payoutService.listPayouts({ order_id: order.id })
           expect(held.status).toEqual(PayoutStatus.ON_HOLD)
-          expect(held.status_reason).toContain("is not ready yet")
+          expect(held.status_reason).toEqual(PayoutStatusReason.PAYMENT_NOT_READY)
+          expect(held.data.status_detail).toContain("is not ready yet")
 
           await capture(order)
           await payOut([order.id])
@@ -441,7 +443,8 @@ medusaIntegrationTestRunner({
 
           const [held] = await payoutService.listPayouts({ order_id: order.id })
           expect(held.status).toEqual(PayoutStatus.ON_HOLD)
-          expect(held.status_reason).toEqual("Order is not ready yet, status is not_fulfilled")
+          expect(held.status_reason).toEqual(PayoutStatusReason.ORDER_NOT_READY)
+          expect(held.data.status_detail).toEqual("Order is not ready yet, status is not_fulfilled")
         })
 
         it("does not pay an order out twice", async () => {

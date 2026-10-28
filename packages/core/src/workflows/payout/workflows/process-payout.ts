@@ -15,17 +15,7 @@ export type ProcessPayoutWorkflowInput = {
 export const processPayoutWorkflowId = "process-payout"
 
 export const failedPayoutEvents = (payouts: PayoutDTO[]) =>
-  payouts
-    .filter((payout) => payout.status === PayoutStatus.FAILED)
-    .map((payout) => ({
-      id: payout.id,
-      account_id: payout.account_id,
-      order_id: payout.order_id,
-      amount: payout.amount,
-      currency_code: payout.currency_code,
-      status: payout.status,
-      status_reason: payout.status_reason,
-    }))
+  payouts.filter((payout) => payout.status === PayoutStatus.FAILED).map((payout) => ({ id: payout.id }))
 
 /**
  * Sends pending or failed payouts to the provider. A payout that is paid,

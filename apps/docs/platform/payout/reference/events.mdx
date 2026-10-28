@@ -11,11 +11,11 @@ The Payout module’s events are named in `PayoutModuleEvents` from `@mercurjs/t
 | Member | Name | Emitted by | Payload |
 | --- | --- | --- | --- |
 | `WEBHOOK_RECEIVED` | `payout.webhook_received` | `POST /hooks/payout` | `{ data, rawData, headers }` |
-| `ACCOUNT_UPDATED` | `payout_account.updated` | `syncPayoutAccountWorkflow` | `{ id, seller_id, external_id, status, kyc_status, payouts_enabled, charges_enabled, disabled_reason }` |
-| `PAYOUT_FAILED` | `payout.failed` | `createOrderPayoutsWorkflow`, `processPayoutWorkflow` | `{ id, account_id, order_id, amount, currency_code, status, status_reason }` |
-| `PAYOUT_REVERSAL_FAILED` | `payout.reversal_failed` | `createPayoutReversalsWorkflow`, `processPayoutReversalWorkflow` | `{ id, payout_id, refund_id, amount, status, status_reason }` |
+| `ACCOUNT_UPDATED` | `payout_account.updated` | `syncPayoutAccountWorkflow` | `{ id }` |
+| `PAYOUT_FAILED` | `payout.failed` | `createOrderPayoutsWorkflow`, `processPayoutWorkflow` | `{ id }` |
+| `PAYOUT_REVERSAL_FAILED` | `payout.reversal_failed` | `createPayoutReversalsWorkflow`, `processPayoutReversalWorkflow` | `{ id }` |
 
-`payout.failed` and `payout.reversal_failed` are emitted once per row that the provider refused in that run. A row the provider refused for good is `aborted` and emits nothing.
+Like Medusa’s payment events, the payloads carry only the row’s id; retrieve the account, payout or reversal in the subscriber for anything else. `payout.failed` and `payout.reversal_failed` are emitted once per row that the provider refused in that run. A row the provider refused for good is `aborted` and emits nothing.
 
 ## Webhook event
 
@@ -31,7 +31,7 @@ The `payout-webhook` subscriber, with subscriber id `payout-webhook-handler`, pa
 | --- | --- |
 | `payout.payout-account.created` | `createPayoutAccount` inserts an account |
 | `payout.payout-account.updated` | The provider response is stored, or a sync refreshes the account |
-| `payout.payout-account.deleted` | The provider call fails and the new account is removed |
+| `payout.payout-account.deleted` | The provider call fails and the new account is removed, or a rollback deletes it with `deletePayoutAccount` |
 | `payout.onboarding.created` | `createOnboarding` runs for the first time on an account |
 | `payout.onboarding.updated` | `createOnboarding` runs again on the same account |
 | `payout.payout.created` | `createOrderPayoutsWorkflow` inserts a payout |
@@ -39,25 +39,27 @@ The `payout-webhook` subscriber, with subscriber id `payout-webhook-handler`, pa
 | `payout.payout-reversal.created` | `createPayoutReversalsWorkflow` inserts a reversal |
 | `payout.payout-reversal.updated` | A reversal is re-decided or sent |
 
-An `updated` event doesn’t say which field changed. Subscribe to `payout_account.updated` instead when you need the account’s new status:
+An `updated` event fires for every write. Subscribe to `payout_account.updated` instead when you only care about provider syncs, and read the account’s new status in the subscriber:
 
 ```ts title="src/subscribers/payout-account-updated.ts"
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
-import { PayoutAccountStatus, PayoutModuleEvents } from "@mercurjs/types"
-
-type AccountUpdated = {
-  id: string
-  seller_id: string | null
-  status: PayoutAccountStatus
-}
+import {
+  IPayoutModuleService,
+  MercurModules,
+  PayoutAccountStatus,
+  PayoutModuleEvents,
+} from "@mercurjs/types"
 
 export default async function payoutAccountUpdated({
   event,
   container,
-}: SubscriberArgs<AccountUpdated>) {
-  if (event.data.status === PayoutAccountStatus.RESTRICTED) {
+}: SubscriberArgs<{ id: string }>) {
+  const payoutService = container.resolve<IPayoutModuleService>(MercurModules.PAYOUT)
+  const account = await payoutService.retrievePayoutAccount(event.data.id)
+
+  if (account.status === PayoutAccountStatus.RESTRICTED) {
     const logger = container.resolve("logger")
-    logger.warn(`Payout account ${event.data.id} of seller ${event.data.seller_id} is restricted`)
+    logger.warn(`Payout account ${account.id} is restricted`)
   }
 }
 

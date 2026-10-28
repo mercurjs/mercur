@@ -15,16 +15,7 @@ export type ProcessPayoutReversalWorkflowInput = {
 export const processPayoutReversalWorkflowId = "process-payout-reversal"
 
 export const failedReversalEvents = (reversals: PayoutReversalDTO[]) =>
-  reversals
-    .filter((reversal) => reversal.status === PayoutStatus.FAILED)
-    .map((reversal) => ({
-      id: reversal.id,
-      payout_id: reversal.payout_id,
-      refund_id: reversal.refund_id,
-      amount: reversal.amount,
-      status: reversal.status,
-      status_reason: reversal.status_reason,
-    }))
+  reversals.filter((reversal) => reversal.status === PayoutStatus.FAILED).map((reversal) => ({ id: reversal.id }))
 
 export const processPayoutReversalWorkflow = createWorkflow(
   processPayoutReversalWorkflowId,

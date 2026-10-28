@@ -5,7 +5,9 @@ import {
   PayoutAccountStatus,
   PayoutKycStatus,
   PayoutProviderError,
+  PayoutProviderErrorCode,
   PayoutStatus,
+  PayoutStatusReason,
 } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createPayoutAccountWorkflow } from "@mercurjs/core/workflows"
@@ -69,21 +71,49 @@ medusaIntegrationTestRunner({
         expect(payout.data).toMatchObject({ attempts: 1, provider: { id: "tr_1" } })
       })
 
-      it("records a provider error on the row and retries with a fresh key", async () => {
+      it("keeps the idempotency key after an error with an unknown outcome", async () => {
         const spy = jest
           .spyOn(providerService, "createPayout")
-          .mockRejectedValueOnce(new Error("provider down"))
+          .mockRejectedValueOnce(new Error("socket hang up"))
           .mockResolvedValueOnce({ id: "tr_2", status: PayoutStatus.PAID, data: {} })
 
         const pending = await createPending()
 
         const failed = await payoutService.processPayout(pending.id)
         expect(failed.status).toEqual(PayoutStatus.FAILED)
-        expect(failed.status_reason).toEqual("provider down")
+        expect(failed.status_reason).toEqual(PayoutStatusReason.PROVIDER_ERROR)
+        expect(failed.data.status_detail).toEqual("socket hang up")
 
         const paid = await payoutService.processPayout(pending.id)
         expect(paid.status).toEqual(PayoutStatus.PAID)
-        expect(spy.mock.calls[1][0].context).toEqual({ idempotency_key: `${pending.id}:2` })
+        expect(paid.status_reason).toBeNull()
+        expect(paid.data.status_detail).toBeNull()
+        expect(spy.mock.calls[1][0].context).toEqual({ idempotency_key: pending.id })
+      })
+
+      it("retries with a fresh key after the provider refused the payout", async () => {
+        const spy = jest
+          .spyOn(providerService, "createPayout")
+          .mockRejectedValueOnce(
+            new PayoutProviderError("insufficient funds", { code: PayoutProviderErrorCode.REFUSED })
+          )
+          .mockRejectedValueOnce(new Error("timeout"))
+          .mockResolvedValueOnce({ id: "tr_2", status: PayoutStatus.PAID, data: {} })
+
+        const pending = await createPending()
+
+        const refused = await payoutService.processPayout(pending.id)
+        expect(refused.status).toEqual(PayoutStatus.FAILED)
+        expect(refused.data.status_detail).toEqual("insufficient funds")
+
+        await payoutService.processPayout(pending.id)
+        await payoutService.processPayout(pending.id)
+
+        expect(spy.mock.calls.map((call) => call[0].context.idempotency_key)).toEqual([
+          pending.id,
+          `${pending.id}:2`,
+          `${pending.id}:2`,
+        ])
       })
 
       it("aborts the payout on a final provider error", async () => {
@@ -95,7 +125,8 @@ medusaIntegrationTestRunner({
         const payout = await payoutService.processPayout(pending.id)
 
         expect(payout.status).toEqual(PayoutStatus.ABORTED)
-        expect(payout.status_reason).toEqual("account closed")
+        expect(payout.status_reason).toEqual(PayoutStatusReason.PROVIDER_ERROR)
+        expect(payout.data.status_detail).toEqual("account closed")
       })
 
       it("leaves a paid payout alone", async () => {
@@ -137,7 +168,21 @@ medusaIntegrationTestRunner({
         expect(reversal.data.provider.id).toEqual("trr_1")
       })
 
-      describe("updatePayoutAccount", () => {
+      describe("deletePayoutAccount", () => {
+        it("deletes the account at the provider before the stored row", async () => {
+          const deleteAccount = jest.spyOn(providerService, "deleteAccount").mockResolvedValue(undefined)
+          const account = await payoutService.retrievePayoutAccount(accountId)
+
+          await payoutService.deletePayoutAccount(accountId)
+
+          expect(deleteAccount).toHaveBeenCalledWith({
+            account: { id: account.external_id, data: account.data },
+          })
+          expect(await payoutService.listPayoutAccounts({ id: accountId })).toHaveLength(0)
+        })
+      })
+
+      describe("syncPayoutAccount", () => {
         const providerAccount = (overrides: Record<string, unknown> = {}) => ({
           id: "acct_1",
           status: PayoutAccountStatus.ACTIVE,
@@ -159,7 +204,7 @@ medusaIntegrationTestRunner({
         ])("derives the KYC status from the provider account (%o)", async (overrides, kycStatus) => {
           jest.spyOn(providerService, "retrieveAccount").mockResolvedValue(providerAccount(overrides))
 
-          const account = await payoutService.updatePayoutAccount(accountId)
+          const account = await payoutService.syncPayoutAccount(accountId)
 
           expect(account.kyc_status).toEqual(kycStatus)
         })
@@ -168,16 +213,16 @@ medusaIntegrationTestRunner({
           const retrieve = jest.spyOn(providerService, "retrieveAccount")
 
           retrieve.mockResolvedValueOnce(providerAccount({ details_submitted: false }))
-          expect((await payoutService.updatePayoutAccount(accountId)).status).toEqual(PayoutAccountStatus.PENDING)
+          expect((await payoutService.syncPayoutAccount(accountId)).status).toEqual(PayoutAccountStatus.PENDING)
 
           retrieve.mockResolvedValueOnce(providerAccount({ payouts_enabled: false }))
-          expect((await payoutService.updatePayoutAccount(accountId)).status).toEqual(PayoutAccountStatus.RESTRICTED)
+          expect((await payoutService.syncPayoutAccount(accountId)).status).toEqual(PayoutAccountStatus.RESTRICTED)
 
           retrieve.mockResolvedValueOnce(providerAccount({ disabled_reason: "rejected.terms_of_service" }))
-          expect((await payoutService.updatePayoutAccount(accountId)).status).toEqual(PayoutAccountStatus.REJECTED)
+          expect((await payoutService.syncPayoutAccount(accountId)).status).toEqual(PayoutAccountStatus.REJECTED)
 
           retrieve.mockResolvedValueOnce(providerAccount())
-          expect((await payoutService.updatePayoutAccount(accountId)).status).toEqual(PayoutAccountStatus.ACTIVE)
+          expect((await payoutService.syncPayoutAccount(accountId)).status).toEqual(PayoutAccountStatus.ACTIVE)
         })
       })
     })

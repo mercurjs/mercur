@@ -22,7 +22,8 @@ A seller’s connection to the payout provider. Table `payout_account`, id prefi
 | `charges_enabled` | `boolean` | Mirrors the provider, default `false` |
 | `details_submitted` | `boolean` | Mirrors the provider, default `false` |
 | `disabled_reason` | `text`, nullable | The provider’s reason for disabling the account |
-| `onboarding_token` | `text`, nullable | Secret for the public refresh URL. Unique when set, cleared once details are submitted |
+| `onboarding_token` | `text`, nullable | Secret for the public refresh URL. Unique when set, rotated on every refresh, cleared once details are submitted |
+| `onboarding_token_issued_at` | `dateTime`, nullable | When `onboarding_token` was issued. The refresh URL rejects a token older than `onboarding.tokenTtlSeconds` |
 | `last_synced_at` | `dateTime`, nullable | When the account was last read from the provider |
 | `data` | `json` | The provider’s account object, default `{}`. Provider details such as outstanding requirements live here |
 | `context` | `json`, nullable | Provider context passed at creation |
@@ -61,8 +62,8 @@ The seller’s share of one order, sent to their payout account. Table `payout`,
 | `currency_code` | `text` | Currency of the payout |
 | `amount` | `bigNumber` | Order total minus commission, net of refunds that landed before the payout |
 | `status` | `enum` | `PayoutStatus`, default `pending` |
-| `status_reason` | `text`, nullable | Why the payout is on hold, failed, or aborted |
-| `data` | `json`, nullable | `attempts`, `source_payment`, `absorbed_refund_ids`, and the provider response under `provider`, whose `id` is the provider’s payout id, such as a Stripe transfer id |
+| `status_reason` | `text`, nullable | A `PayoutStatusReason` code saying why the payout is on hold, failed, or aborted |
+| `data` | `json`, nullable | `attempts`, `idempotency_key`, `status_detail` (the details behind `status_reason`), `source_payment`, `absorbed_refund_ids`, and the provider response under `provider`, whose `id` is the provider’s payout id, such as a Stripe transfer id |
 | `metadata` | `json`, nullable | Your own data |
 | `account_id` | `text` | Foreign key to `PayoutAccount` |
 
@@ -87,8 +88,8 @@ One refund’s share taken back from a payout, the way Medusa keeps a `Refund` u
 | `refund_id` | `text`, nullable | The Medusa refund reversed. Unique when set |
 | `amount` | `bigNumber` | The refund minus its share of the commission |
 | `status` | `enum` | `PayoutStatus`, default `pending` |
-| `status_reason` | `text`, nullable | Why the reversal is on hold, failed, or aborted |
-| `data` | `json`, nullable | `attempts` and the provider response under `provider`, whose `id` is the provider’s reversal id |
+| `status_reason` | `text`, nullable | A `PayoutStatusReason` code saying why the reversal is on hold, failed, or aborted |
+| `data` | `json`, nullable | `attempts`, `idempotency_key`, `status_detail`, and the provider response under `provider`, whose `id` is the provider’s reversal id |
 | `payout_id` | `text` | Foreign key to `Payout` |
 
 Relations:

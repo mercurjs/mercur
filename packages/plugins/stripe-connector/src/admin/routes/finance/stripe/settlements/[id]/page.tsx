@@ -2,6 +2,8 @@ import { TwoColumnPage, TwoColumnPageSkeleton, WidgetZone } from "@mercurjs/dash
 import { useParams, type UIMatch } from "react-router-dom"
 
 import { useStripeSettlement } from "../../../../../hooks/api/stripe"
+import { providerIdOf } from "../../../../../../lib/provider-data"
+import { SettlementLineType } from "../../../../../../types/common"
 import { SettingsProviders } from "../../../../../providers/settings-providers"
 import { SettlementDetailBreadcrumb } from "./breadcrumb"
 import { SettlementBankPayoutSection } from "./components/settlement-bank-payout-section"
@@ -22,13 +24,34 @@ const SettlementDetail = () => {
     return <TwoColumnPageSkeleton mainSections={4} sidebarSections={2} showJSON />
   }
 
-  const adjustments = settlement.adjustments.map((adjustment) => ({
-    id: adjustment.id,
-    amount: adjustment.type === "extra_credit" ? adjustment.amount : -Number(adjustment.amount),
-    status: adjustment.status,
-    reference: adjustment.provider_transfer_id,
-    reason: adjustment.reason,
-    type: adjustment.type,
+  const lines = settlement.lines ?? []
+  const ofType = (...types: SettlementLineType[]) => lines.filter((line) => types.includes(line.type))
+
+  const payouts = ofType(SettlementLineType.PAYOUT).map((line) => ({
+    id: line.id,
+    amount: line.amount,
+    status: line.payout?.status ?? null,
+    reference: providerIdOf(line.payout?.data),
+    order_id: line.payout?.order_id ?? null,
+    order_display_id: line.payout?.order?.display_id ?? null,
+  }))
+
+  const reversals = ofType(SettlementLineType.REVERSAL).map((line) => ({
+    id: line.id,
+    amount: -Number(line.amount),
+    status: line.payout_reversal?.status ?? null,
+    reference: providerIdOf(line.payout_reversal?.data),
+    order_id: line.payout_reversal?.payout?.order_id ?? null,
+    order_display_id: line.payout_reversal?.payout?.order?.display_id ?? null,
+  }))
+
+  const adjustments = ofType(SettlementLineType.ADJUSTMENT_CREDIT, SettlementLineType.ADJUSTMENT_DEBIT).map((line) => ({
+    id: line.id,
+    amount: line.type === SettlementLineType.ADJUSTMENT_CREDIT ? line.amount : -Number(line.amount),
+    status: line.adjustment?.status ?? null,
+    reference: line.adjustment?.provider_transfer_id ?? null,
+    reason: line.adjustment?.reason ?? null,
+    type: line.adjustment?.type,
   }))
 
   return (
@@ -40,23 +63,22 @@ const SettlementDetail = () => {
           <SettlementLinesSection
             title="Payouts"
             currencyCode={settlement.currency_code}
-            lines={settlement.payouts.map((line) => ({ ...line, reference: line.provider_id }))}
+            lines={payouts}
+            emptyMessage="No payouts landed in this period."
             testId="stripe-settlement-payouts"
           />
           <SettlementLinesSection
             title="Reversals"
             currencyCode={settlement.currency_code}
-            lines={settlement.reversals.map((line) => ({
-              ...line,
-              amount: -Number(line.amount),
-              reference: line.provider_id,
-            }))}
+            lines={reversals}
+            emptyMessage="No refunds were reversed in this period."
             testId="stripe-settlement-reversals"
           />
           <SettlementLinesSection
             title="Adjustments"
             currencyCode={settlement.currency_code}
             lines={adjustments}
+            emptyMessage="No adjustments were applied in this period."
             testId="stripe-settlement-adjustments"
           />
         </WidgetZone>

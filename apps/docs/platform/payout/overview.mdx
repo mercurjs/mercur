@@ -31,7 +31,7 @@ The Payout module covers a seller’s connection to the provider and the money s
 
 A seller moves from no account to a paid order in 5 steps:
 
-1. Run `createPayoutAccountWorkflow` (or `ensureSellerPayoutAccountWorkflow`) for the seller. The provider creates a connected account.
+1. Run `createPayoutAccountWorkflow` (or `createOrRefreshSellerPayoutAccountWorkflow`) for the seller. The provider creates a connected account.
 2. Run `createOnboardingWorkflow`. The provider returns onboarding data, such as a Stripe onboarding link.
 3. The provider posts webhooks to `/hooks/payout`, and the `payout-webhook` subscriber re-reads the account from the provider and sets it to `pending`, `active`, `restricted`, or `rejected`.
 4. Run `createOrderPayoutsWorkflow` with order ids. It computes each seller’s share and asks the provider to pay it.

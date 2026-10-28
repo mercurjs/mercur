@@ -19,4 +19,5 @@ export const adminAdjustmentFields = [
 
 export const adminAdjustmentQueryConfig = {
   list: { defaults: adminAdjustmentFields, isList: true, defaultLimit: 20 },
+  retrieve: { defaults: adminAdjustmentFields, isList: false },
 }

@@ -1,4 +1,5 @@
-export * from "./cancel-capture-payment"
+export * from "./fail-stripe-capture"
 export * from "./process-captures"
 export * from "./settle-order-group-payment"
+export * from "./settle-stripe-capture"
 export * from "./sync-captures"

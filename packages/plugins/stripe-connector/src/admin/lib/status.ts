@@ -1,3 +1,5 @@
+import cronstrue from "cronstrue"
+
 export type BadgeColor = "green" | "red" | "orange" | "grey" | "blue" | "purple"
 
 export const PAYOUT_STATUS_COLOR: Record<string, BadgeColor> = {
@@ -12,10 +14,35 @@ export const PAYOUT_STATUS_COLOR: Record<string, BadgeColor> = {
 export const PAYOUT_STATUS_LABEL: Record<string, string> = {
   pending: "Pending",
   processing: "Processing",
+  refunds: "Refunds",
   paid: "Paid",
   failed: "Failed",
   on_hold: "On hold",
   aborted: "Aborted",
+}
+
+const PAYOUT_STATUS_REASON_LABEL: Record<string, string> = {
+  account_not_ready: "The store's payout account cannot receive payouts yet.",
+  account_payouts_disabled: "Payouts are disabled on the store's payout account.",
+  order_not_ready: "The order is not fulfilled yet.",
+  order_aborted: "The order was canceled.",
+  payment_not_ready: "The order's payment is not captured yet.",
+  payment_failed: "The order's payment failed.",
+  payment_canceled: "The order's payment was canceled.",
+  payment_refunded: "The order's payment was refunded in full.",
+  payout_not_ready: "The payout for this order has not been sent yet.",
+  refund_aborted: "The refund was canceled.",
+  refund_absorbed: "The refund was deducted before the payout was sent.",
+  invalid_amount: "The amount to pay out is not valid.",
+  provider_error: "Stripe returned an error.",
+}
+
+export const payoutStatusReasonLabel = (reason: string) =>
+  PAYOUT_STATUS_REASON_LABEL[reason] ?? "This payout needs attention."
+
+export const payoutStatusDetail = (data: Record<string, unknown> | null | undefined) => {
+  const detail = data?.status_detail
+  return typeof detail === "string" && detail.length > 0 ? detail : null
 }
 
 export const SETTLEMENT_STATUS_COLOR: Record<string, BadgeColor> = {
@@ -52,7 +79,7 @@ export const JOB_DESCRIPTION: Record<string, string> = {
   "payout-monitor-kyc": "Re-reads every connected account's requirements and KYC status.",
 }
 
-export type StripeRequirements = {
+type StripeRequirements = {
   currently_due: string[]
   past_due: string[]
   pending_verification: string[]
@@ -86,17 +113,56 @@ export const JOB_TRIGGER_LABEL: Record<string, string> = {
   subscriber: "Event",
 }
 
+const JOB_STAT_LABEL: Record<string, string> = {
+  accounts: "Accounts",
+  adjustments: "Adjustments",
+  adjustments_processed: "Adjustments sent",
+  attention: "Need attention",
+  aborted: "Aborted",
+  awaiting_account: "Awaiting account",
+  backlog: "Backlog",
+  blocked: "Blocked",
+  canceled: "Canceled",
+  captured: "Captured",
+  captures: "Captures",
+  expired: "Expired",
+  failed: "Failed",
+  ignored: "Ignored",
+  new_orders: "New orders",
+  on_hold: "On hold",
+  orders: "Orders",
+  paid: "Paid",
+  payouts: "Payouts",
+  payouts_retried: "Bank payouts retried",
+  pending: "Pending",
+  processed: "Processed",
+  processing: "Processing",
+  refunds: "Refunds",
+  reversals: "Reversals",
+  sellers: "Stores",
+  sent: "Emails sent",
+  settlements: "Settlements",
+  skipped: "Skipped",
+  synced: "Synced",
+  total: "Total",
+}
+
+const humanizeKey = (key: string) => {
+  const text = key.replace(/_/g, " ")
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
+export const formatJobStats = (stats: Record<string, unknown> | null | undefined) =>
+  stats && Object.keys(stats).length
+    ? Object.entries(stats)
+        .map(([key, value]) => `${JOB_STAT_LABEL[key] ?? humanizeKey(key)}: ${String(value)}`)
+        .join(", ")
+    : "-"
+
 export const ADJUSTMENT_TYPE_LABEL: Record<string, string> = {
   subscription: "Subscription",
   extra_invoice: "Extra invoice",
   extra_credit: "Extra credit",
-}
-
-export const ACCOUNT_STATUS_LABEL: Record<string, string> = {
-  pending: "Pending",
-  active: "Active",
-  restricted: "Restricted",
-  rejected: "Rejected",
 }
 
 export const RETRYABLE_STATUSES = ["failed", "on_hold", "pending"]
@@ -114,7 +180,7 @@ export const toNumber = (amount: unknown) => Number(amount ?? 0)
 
 // Stripe's `requirements.disabled_reason` values:
 // https://docs.stripe.com/api/accounts/object#account_object-requirements-disabled_reason
-export const DISABLED_REASON_LABEL: Record<string, string> = {
+const DISABLED_REASON_LABEL: Record<string, string> = {
   "action_required.requested_capabilities": "Capabilities need to be requested",
   listed: "Under review: account appears on a restricted list",
   other: "Disabled by Stripe",
@@ -139,4 +205,17 @@ export const disabledReasonLabel = (reason: string) =>
 export const humanizeRequirement = (requirement: string) => {
   const text = requirement.split(".").join(" › ").replace(/_/g, " ")
   return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
+// Jobs stagger their minute (`1-59/5`) so they don't all fire at once; the
+// offset means nothing to an operator, so describe them as plain intervals.
+export const describeSchedule = (cron: string) => {
+  const [minute, ...rest] = cron.trim().split(/\s+/)
+  const normalized = [minute.replace(/^\d+-59\/(\d+)$/, "*/$1"), ...rest].join(" ")
+
+  try {
+    return cronstrue.toString(normalized, { use24HourTimeFormat: true })
+  } catch {
+    return cron
+  }
 }
