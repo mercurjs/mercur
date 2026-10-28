@@ -61,8 +61,27 @@ export const StripeConnectorEvents = {
   SETTLEMENT_CREATED: "stripe_connector.settlement_created",
 } as const
 
-export const CAPTURE_ERROR_KEY = "payout_capture_error"
 export const PAYOUT_IGNORED_KEY = "payout_ignored"
+
+export enum CaptureStatus {
+  /** Some orders of the group are not decided yet. */
+  PENDING = "pending",
+  /** Every order is decided, or the authorization is about to expire: capture now. */
+  READY = "ready",
+  /** Every order was canceled: release the authorization. */
+  CANCELABLE = "cancelable",
+  CAPTURED = "captured",
+  CANCELED = "canceled",
+  EXPIRED = "expired",
+  FAILED = "failed",
+}
+
+export const OPEN_CAPTURE_STATUSES = [
+  CaptureStatus.PENDING,
+  CaptureStatus.READY,
+  CaptureStatus.CANCELABLE,
+  CaptureStatus.FAILED,
+]
 
 export interface StripeConnectorPluginOptions {
   /** Platform secret key, used for settlement bank payouts and adjustments. */
@@ -170,9 +189,29 @@ export interface SettlementLineDTO {
   id: string
   settlement_id: string
   type: SettlementLineType
-  source_id: string
+  payout_id: string | null
+  payout_reversal_id: string | null
+  adjustment_id: string | null
   amount: BigNumberInput
   created_at: Date
+}
+
+export interface CaptureDTO {
+  id: string
+  order_group_id: string
+  payment_collection_id: string
+  payment_id: string
+  currency_code: string
+  authorized_amount: BigNumberInput
+  capturable_amount: BigNumberInput
+  orders_total: number
+  orders_decided: number
+  status: CaptureStatus
+  status_reason: string | null
+  authorized_at: Date | null
+  expires_at: Date | null
+  created_at: Date
+  updated_at: Date
 }
 
 export interface AdjustmentDTO {

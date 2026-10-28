@@ -1,20 +1,13 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 
-import { toAdminCapture } from "../../../../../../pipeline/captures"
-import { AdminPayoutCaptureResponse } from "../../../../../../types/http"
-import { capturePendingPaymentWorkflow } from "../../../../../../workflows/capture-pending-payment"
-import { retrievePendingCapture } from "../../helpers"
+import { AdminStripeCaptureResponse } from "../../../../../../types/http"
+import { settleOrderGroupPaymentWorkflow } from "../../../../../../workflows/captures/workflows/settle-order-group-payment"
+import { refetchCapture } from "../../helpers"
 
-export const POST = async (req: AuthenticatedMedusaRequest, res: MedusaResponse<AdminPayoutCaptureResponse>) => {
-  const item = await retrievePendingCapture(req.scope, req.params.order_group_id)
-
-  await capturePendingPaymentWorkflow(req.scope).run({
-    input: {
-      payment_id: item.payment.id,
-      payment_collection_id: item.collection.id,
-      amount: item.decision.capturable_amount,
-    },
+export const POST = async (req: AuthenticatedMedusaRequest, res: MedusaResponse<AdminStripeCaptureResponse>) => {
+  await settleOrderGroupPaymentWorkflow(req.scope).run({
+    input: { order_group_id: req.params.order_group_id, action: "capture" },
   })
 
-  res.json({ capture: toAdminCapture(item) })
+  res.json({ capture: await refetchCapture(req.scope, req.params.order_group_id, req.queryConfig.fields) })
 }

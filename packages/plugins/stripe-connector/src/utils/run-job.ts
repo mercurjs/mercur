@@ -1,20 +1,10 @@
 import { Logger, MedusaContainer } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 
-import StripeConnectorModuleService from "../modules/stripe-connector/service"
-import { JobRunDTO, JobTrigger, PayoutJobName, ResolvedStripeConnectorOptions } from "../types/common"
+import { JobRunDTO, JobTrigger, PayoutJobName } from "../types/common"
 import { resolveConnector } from "./payout-module"
 
 export type JobStats = Record<string, number | string | null>
-
-export type JobContext = {
-  container: MedusaContainer
-  connector: StripeConnectorModuleService
-  options: ResolvedStripeConnectorOptions
-  logger: Logger
-  stats: JobStats
-  now: Date
-}
 
 type Locking = {
   acquire: (key: string, args: { expire: number; ownerId: string }) => Promise<unknown>
@@ -31,7 +21,7 @@ export async function runJob(
   container: MedusaContainer,
   job: PayoutJobName,
   trigger: JobTrigger,
-  fn: (ctx: JobContext) => Promise<void>
+  run: () => Promise<JobStats>
 ): Promise<JobRunDTO | null> {
   const logger = container.resolve<Logger>(ContainerRegistrationKeys.LOGGER)
   const connector = resolveConnector(container)
@@ -53,18 +43,17 @@ export async function runJob(
     }
   }
 
-  const run = await connector.startJobRun({ job, trigger })
-  const stats: JobStats = {}
+  const jobRun = await connector.startJobRun({ job, trigger })
   logger.info(`[${job}] starting`)
 
   try {
-    await fn({ container, connector, options: connector.getOptions(), logger, stats, now: new Date() })
+    const stats = await run()
     logger.info(`[${job}] job succeeded`)
-    return await connector.finishJobRun(run.id, { stats })
+    return await connector.finishJobRun(jobRun.id, { stats })
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     logger.error(`[${job}] failed: ${message}`)
-    return await connector.finishJobRun(run.id, { stats, error: message })
+    return await connector.finishJobRun(jobRun.id, { error: message })
   } finally {
     if (locking) {
       await locking.release(lockKey, { ownerId: job }).catch(() => null)

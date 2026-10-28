@@ -1,19 +1,12 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 
-import { listSettlements } from "../../../../pipeline/settlement-views"
 import { AdminSettlementListResponse } from "../../../../types/http"
+import { listSettlementRows } from "../../../utils/settlements"
 import { AdminGetSettlementsParamsType } from "../../validators"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest<unknown, AdminGetSettlementsParamsType>,
   res: MedusaResponse<AdminSettlementListResponse>
 ) => {
-  const { offset = 0, limit = 20, order: _order, fields: _fields, ...filters } = req.validatedQuery
-  const { settlements, count } = await listSettlements(req.scope, {
-    filters: filters as Record<string, unknown>,
-    skip: offset,
-    take: limit,
-  })
-
-  res.json({ settlements, count, offset, limit })
+  res.json(await listSettlementRows(req.scope, req.filterableFields, req.queryConfig.pagination))
 }

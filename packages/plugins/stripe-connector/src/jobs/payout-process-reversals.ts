@@ -1,11 +1,11 @@
 import { MedusaContainer } from "@medusajs/framework/types"
 
-import { jobHandler } from "../pipeline/jobs"
 import { JobTrigger, PAYOUT_JOB_SCHEDULES } from "../types/common"
 import { runJob } from "../utils/run-job"
+import { jobWorkflow } from "../workflows/jobs"
 
 export default async function payoutProcessReversalsJob(container: MedusaContainer) {
-  await runJob(container, "payout-process-reversals", JobTrigger.SCHEDULE, jobHandler("payout-process-reversals"))
+  await runJob(container, "payout-process-reversals", JobTrigger.SCHEDULE, jobWorkflow("payout-process-reversals", container))
 }
 
 export const config = {

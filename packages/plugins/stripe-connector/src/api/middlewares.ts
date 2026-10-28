@@ -5,10 +5,14 @@ import { requirePermission } from "@mercurjs/core/api/utils/index"
 import {
   AdminCreateAdjustment,
   AdminGetAdjustmentsParams,
+  AdminGetCaptureParams,
+  AdminGetCapturesParams,
   AdminGetSettlementsParams,
   AdminIgnoreAccount,
   AdminRunJob,
 } from "./admin/validators"
+import { adminAdjustmentQueryConfig } from "./admin/stripe/adjustments/query-config"
+import { adminCaptureQueryConfig } from "./admin/stripe/captures/query-config"
 
 const view = requirePermission("payouts", "view")
 const edit = requirePermission("payouts", "edit")
@@ -24,10 +28,26 @@ const routes: MiddlewareRoute[] = [
   },
   { method: ["GET"], matcher: "/admin/stripe/notifications", middlewares: [view] },
   { method: ["POST"], matcher: "/admin/stripe/notifications/test", middlewares: [edit] },
-  { method: ["GET"], matcher: "/admin/stripe/captures", middlewares: [view] },
-  { method: ["GET"], matcher: "/admin/stripe/captures/:order_group_id", middlewares: [view] },
-  { method: ["POST"], matcher: "/admin/stripe/captures/:order_group_id/capture", middlewares: [edit] },
-  { method: ["POST"], matcher: "/admin/stripe/captures/:order_group_id/cancel", middlewares: [edit] },
+  {
+    method: ["GET"],
+    matcher: "/admin/stripe/captures",
+    middlewares: [view, validateAndTransformQuery(AdminGetCapturesParams, adminCaptureQueryConfig.list)],
+  },
+  {
+    method: ["GET"],
+    matcher: "/admin/stripe/captures/:order_group_id",
+    middlewares: [view, validateAndTransformQuery(AdminGetCaptureParams, adminCaptureQueryConfig.retrieve)],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/stripe/captures/:order_group_id/capture",
+    middlewares: [edit, validateAndTransformQuery(AdminGetCaptureParams, adminCaptureQueryConfig.retrieve)],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/stripe/captures/:order_group_id/cancel",
+    middlewares: [edit, validateAndTransformQuery(AdminGetCaptureParams, adminCaptureQueryConfig.retrieve)],
+  },
   {
     method: ["GET"],
     matcher: "/admin/stripe/settlements",
@@ -38,7 +58,7 @@ const routes: MiddlewareRoute[] = [
   {
     method: ["GET"],
     matcher: "/admin/stripe/adjustments",
-    middlewares: [view, validateAndTransformQuery(AdminGetAdjustmentsParams, { isList: true, defaults: ["id"] })],
+    middlewares: [view, validateAndTransformQuery(AdminGetAdjustmentsParams, adminAdjustmentQueryConfig.list)],
   },
   {
     method: ["POST"],
@@ -50,7 +70,11 @@ const routes: MiddlewareRoute[] = [
     matcher: "/admin/stripe/accounts/:id/ignore",
     middlewares: [edit, validateAndTransformBody(AdminIgnoreAccount)],
   },
-  { method: ["GET"], matcher: "/vendor/stripe/settlements", middlewares: [view] },
+  {
+    method: ["GET"],
+    matcher: "/vendor/stripe/settlements",
+    middlewares: [view, validateAndTransformQuery(AdminGetSettlementsParams, { isList: true, defaults: ["id"] })],
+  },
   { method: ["GET"], matcher: "/vendor/stripe/settlements/:id", middlewares: [view] },
 ]
 

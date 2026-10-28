@@ -1,10 +1,10 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { MedusaError } from "@medusajs/framework/utils"
 
-import { JobRunScope, jobHandler } from "../../../../../../pipeline/jobs"
 import { JobTrigger, PAYOUT_JOBS, PayoutJobName } from "../../../../../../types/common"
 import { AdminPayoutJobRunResponse } from "../../../../../../types/http"
 import { runJob } from "../../../../../../utils/run-job"
+import { JobScope, jobWorkflow } from "../../../../../../workflows/jobs"
 import { AdminRunJobType } from "../../../../validators"
 
 export const POST = async (
@@ -15,9 +15,9 @@ export const POST = async (
   if (!PAYOUT_JOBS.includes(job)) {
     throw new MedusaError(MedusaError.Types.NOT_FOUND, `Unknown payout job ${job}`)
   }
-  const scope: JobRunScope = req.validatedBody ?? {}
+  const scope: JobScope = req.validatedBody ?? {}
 
-  const run = await runJob(req.scope, job, JobTrigger.MANUAL, jobHandler(job, scope))
+  const run = await runJob(req.scope, job, JobTrigger.MANUAL, jobWorkflow(job, req.scope, scope))
   if (!run) {
     throw new MedusaError(MedusaError.Types.CONFLICT, `${job} is already running`)
   }

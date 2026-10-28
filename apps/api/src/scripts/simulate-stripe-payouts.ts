@@ -17,13 +17,10 @@ import {
   completeCartWithSplitOrdersWorkflow,
 } from "@mercurjs/core/workflows"
 import { MercurModules } from "@mercurjs/types"
-import { validateCaptures } from "@mercurjs/stripe-connector-plugin/pipeline/captures"
-import { processReversals } from "@mercurjs/stripe-connector-plugin/pipeline/reversals"
-import { processSettlements } from "@mercurjs/stripe-connector-plugin/pipeline/settlements"
-import { processTransfers } from "@mercurjs/stripe-connector-plugin/pipeline/transfers"
 import { getStripeClient } from "@mercurjs/stripe-connector-plugin/lib/stripe-client"
 import { JobTrigger, STRIPE_CONNECTOR_MODULE } from "@mercurjs/stripe-connector-plugin/types"
 import { runJob } from "@mercurjs/stripe-connector-plugin/utils/run-job"
+import { jobWorkflow } from "@mercurjs/stripe-connector-plugin/workflows/jobs"
 
 /**
  * Walks one Sole Society order through the whole Stripe pipeline against the
@@ -137,8 +134,8 @@ export default async function simulateStripePayouts({ container }: ExecArgs) {
   const offer = offers.find((o) => o.variant_id && published.has(o.variant_id))
   if (!offer) throw new Error(`${SELLER_NAME} has no offer on a published product`)
 
-  const run = async (job: Parameters<typeof runJob>[1], fn: Parameters<typeof runJob>[3]) => {
-    const result = await runJob(container, job, JobTrigger.MANUAL, fn)
+  const run = async (job: Parameters<typeof runJob>[1], scope: Parameters<typeof jobWorkflow>[2] = {}) => {
+    const result = await runJob(container, job, JobTrigger.MANUAL, jobWorkflow(job, container, scope))
     logger.info(`${job}: ${result?.status} ${JSON.stringify(result?.stats ?? {})}${result?.error ? ` error=${result.error}` : ""}`)
     return result
   }
@@ -234,7 +231,7 @@ export default async function simulateStripePayouts({ container }: ExecArgs) {
   }
 
   // 6. capture
-  await run("payout-validate-captures", (ctx) => validateCaptures(ctx, groupId))
+  await run("payout-validate-captures", { order_group_id: groupId })
 
   // The captured cart payment is split into per-order payments by a subscriber.
   let orderPaymentId: string | null = null
@@ -254,7 +251,7 @@ export default async function simulateStripePayouts({ container }: ExecArgs) {
   logger.info(`Order payment ${orderPaymentId} captured`)
 
   // 7. transfer
-  await run("payout-process-transfers", (ctx) => processTransfers(ctx, [order.id]))
+  await run("payout-process-transfers", { order_id: order.id })
 
   // 8. partial refund → reversal
   if (!SKIP_REFUND) {
@@ -264,10 +261,10 @@ export default async function simulateStripePayouts({ container }: ExecArgs) {
     })
     logger.info(`Refunded ${refundAmount} ${region.currency_code} on ${orderPaymentId}`)
   }
-  await run("payout-process-reversals", (ctx) => processReversals(ctx, [order.id]))
+  await run("payout-process-reversals", { order_id: order.id })
 
   // 9. settlement + payout
-  await run("payout-process-settlements", (ctx) => processSettlements(ctx, seller.id))
+  await run("payout-process-settlements", { seller_id: seller.id })
 
   // 10. summary
   const payouts = await payoutService.listPayouts({ order_id: order.id }, { relations: ["reversals"] })

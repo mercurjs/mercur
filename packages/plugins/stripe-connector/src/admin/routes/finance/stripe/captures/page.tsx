@@ -1,7 +1,8 @@
-import { CheckCircle, XCircle } from "@medusajs/icons"
-import { Container, Heading, Text, toast, usePrompt } from "@medusajs/ui"
+import { CheckCircle, ExclamationCircle, XCircle } from "@medusajs/icons"
+import { Container, Heading, Text, Tooltip, toast, usePrompt } from "@medusajs/ui"
 import {
   ActionMenu,
+  type Filter,
   DateCell,
   MoneyAmountCell,
   SingleColumnPage,
@@ -20,18 +21,34 @@ import { useMemo } from "react"
 
 import { useCancelPayment, useCapturePayment, useStripeCaptures } from "../../../../hooks/api/stripe"
 import { PAGE_SIZE, useStripeTableQuery } from "../../../../hooks/use-stripe-table-query"
-import type { AdminPayoutCapture } from "../../../../lib/client"
+import type { AdminStripeCapture } from "../../../../lib/client"
 import { type BadgeColor, toNumber } from "../../../../lib/status"
 import { SettingsProviders } from "../../../../providers/settings-providers"
 
-const CAPTURE_STATUS: Record<AdminPayoutCapture["action"], { color: BadgeColor; label: string }> = {
-  wait: { color: "grey", label: "Awaiting orders" },
-  capture: { color: "blue", label: "Ready to capture" },
-  cancel: { color: "orange", label: "Ready to cancel" },
+const CAPTURE_STATUS: Record<AdminStripeCapture["status"], { color: BadgeColor; label: string }> = {
+  pending: { color: "grey", label: "Awaiting orders" },
+  ready: { color: "blue", label: "Ready to capture" },
+  cancelable: { color: "orange", label: "Ready to cancel" },
+  captured: { color: "green", label: "Captured" },
+  canceled: { color: "grey", label: "Canceled" },
   expired: { color: "red", label: "Expired" },
+  failed: { color: "red", label: "Failed" },
 }
 
-const CaptureRowActions = ({ capture }: { capture: AdminPayoutCapture }) => {
+const SETTLED = ["captured", "canceled"]
+
+const useFilters = (): Filter[] => [
+  {
+    key: "status",
+    label: "Status",
+    type: "select",
+    multiple: true,
+    options: Object.entries(CAPTURE_STATUS).map(([value, { label }]) => ({ value, label })),
+  },
+  { key: "expires_at", label: "Expires", type: "date" },
+]
+
+const CaptureRowActions = ({ capture }: { capture: AdminStripeCapture }) => {
   const prompt = usePrompt()
   const { mutateAsync: captureAsync } = useCapturePayment(capture.order_group_id)
   const { mutateAsync: cancelAsync } = useCancelPayment(capture.order_group_id)
@@ -104,16 +121,20 @@ const CaptureRowActions = ({ capture }: { capture: AdminPayoutCapture }) => {
   )
 }
 
-const columnHelper = createColumnHelper<AdminPayoutCapture>()
+const columnHelper = createColumnHelper<AdminStripeCapture>()
 
 const useColumns = () =>
   useMemo(
     () => [
-      columnHelper.accessor("order_group_display_id", {
+      columnHelper.accessor("order_group_id", {
         header: () => <TextHeader text="Order group" />,
         cell: ({ row }) => (
           <TextCell
-            text={row.original.order_group_display_id ? `#${row.original.order_group_display_id}` : row.original.order_group_id}
+            text={
+              row.original.order_group?.display_id
+                ? `#${row.original.order_group.display_id}`
+                : row.original.order_group_id
+            }
           />
         ),
       }),
@@ -129,14 +150,20 @@ const useColumns = () =>
         header: () => <TextHeader text="Orders decided" />,
         cell: ({ row }) => <TextCell text={`${row.original.orders_decided} of ${row.original.orders_total}`} />,
       }),
-      columnHelper.accessor("action", {
+      columnHelper.accessor("status", {
         header: () => <TextHeader text="Status" />,
         cell: ({ row }) => {
-          if (row.original.capture_error) {
-            return <StatusCell color="red">Failed</StatusCell>
-          }
-          const { color, label } = CAPTURE_STATUS[row.original.action]
-          return <StatusCell color={color}>{label}</StatusCell>
+          const { color, label } = CAPTURE_STATUS[row.original.status]
+          return (
+            <div className="flex h-full w-full items-center gap-x-2">
+              <StatusCell color={color}>{label}</StatusCell>
+              {row.original.status_reason && (
+                <Tooltip content={row.original.status_reason}>
+                  <ExclamationCircle className="text-ui-tag-orange-icon shrink-0" />
+                </Tooltip>
+              )}
+            </div>
+          )
         },
       }),
       columnHelper.accessor("capturable_amount", {
@@ -155,19 +182,21 @@ const useColumns = () =>
       }),
       columnHelper.display({
         id: "actions",
-        cell: ({ row }) => <CaptureRowActions capture={row.original} />,
+        cell: ({ row }) =>
+          SETTLED.includes(row.original.status) ? null : <CaptureRowActions capture={row.original} />,
       }),
     ],
     []
   )
 
 const CaptureListDataTable = () => {
-  const { searchParams, raw } = useStripeTableQuery()
+  const { searchParams, raw } = useStripeTableQuery({ filters: ["status"], dateFilters: ["expires_at"] })
   const { captures, count, isPending, isError, error } = useStripeCaptures(searchParams, {
     placeholderData: keepPreviousData,
   })
 
   const columns = useColumns()
+  const filters = useFilters()
 
   const { table } = useDataTable({
     data: captures ?? [],
@@ -190,6 +219,7 @@ const CaptureListDataTable = () => {
       pageSize={PAGE_SIZE}
       isLoading={isPending}
       queryObject={raw}
+      filters={filters}
       pagination
       noRecords={{ message: "Every authorized payment has been captured or canceled." }}
     />

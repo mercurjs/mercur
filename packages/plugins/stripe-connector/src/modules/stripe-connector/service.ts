@@ -25,6 +25,7 @@ import {
 } from "../../types/common"
 import {
   Adjustment,
+  StripeCapture,
   ConnectorCheckpoint,
   ConnectorJobRun,
   ConnectorNotification,
@@ -62,6 +63,7 @@ const payoutStatusFromStripe = (status: Stripe.Payout["status"]): PayoutStatus =
 
 export default class StripeConnectorModuleService extends MedusaService({
   Adjustment,
+  StripeCapture,
   ConnectorCheckpoint,
   ConnectorJobRun,
   ConnectorNotification,

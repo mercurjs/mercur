@@ -1,6 +1,6 @@
 import { PayoutStatus } from "@mercurjs/types"
 
-import { SettlementLineType, SettlementStatus } from "../../types/common"
+import { SettlementLineType, SettlementStatus } from "../../../../types/common"
 import { buildSettlement } from "../settlement-builder"
 
 const periodEnd = new Date("2026-10-22T01:03:00Z")

@@ -1,7 +1,7 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { MedusaError } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
 
-import { sellerAccountIds } from "../../../../pipeline/settlements"
+import { sellerAccountIds } from "../../../utils/settlements"
 import { AdjustmentDTO } from "../../../../types/common"
 import { AdminAdjustmentListResponse, AdminAdjustmentResponse } from "../../../../types/http"
 import { resolveConnector } from "../../../../utils/payout-module"
@@ -11,13 +11,19 @@ export const GET = async (
   req: AuthenticatedMedusaRequest<unknown, AdminGetAdjustmentsParamsType>,
   res: MedusaResponse<AdminAdjustmentListResponse>
 ) => {
-  const { offset = 0, limit = 20, order: _order, fields: _fields, ...filters } = req.validatedQuery
-  const [adjustments, count] = await resolveConnector(req.scope).listAndCountAdjustments(filters, {
-    skip: offset,
-    take: limit,
-    order: { created_at: "DESC" },
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const { data: adjustments, metadata } = await query.graph({
+    entity: "adjustment",
+    fields: req.queryConfig.fields,
+    filters: req.filterableFields,
+    pagination: req.queryConfig.pagination,
   })
-  res.json({ adjustments: adjustments as unknown as AdjustmentDTO[], count, offset, limit })
+  res.json({
+    adjustments: adjustments as unknown as AdjustmentDTO[],
+    count: metadata?.count ?? 0,
+    offset: metadata?.skip ?? 0,
+    limit: metadata?.take ?? 0,
+  })
 }
 
 export const POST = async (

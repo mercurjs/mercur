@@ -1,17 +1,26 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
-import { listPendingCaptures, toAdminCapture } from "../../../../pipeline/captures"
-import { AdminPayoutCaptureListResponse } from "../../../../types/http"
-import { resolveConnector } from "../../../../utils/payout-module"
+import { AdminStripeCaptureListResponse } from "../../../../types/http"
+import { AdminGetCapturesParamsType } from "../../validators"
 
-export const GET = async (req: AuthenticatedMedusaRequest, res: MedusaResponse<AdminPayoutCaptureListResponse>) => {
-  const offset = Number(req.query.offset ?? 0)
-  const limit = Math.min(Number(req.query.limit ?? 20), 200)
-  const all = (await listPendingCaptures(req.scope, resolveConnector(req.scope).getOptions())).map(toAdminCapture)
+export const GET = async (
+  req: AuthenticatedMedusaRequest<unknown, AdminGetCapturesParamsType>,
+  res: MedusaResponse<AdminStripeCaptureListResponse>
+) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const { data: captures, metadata } = await query.graph({
+    entity: "stripe_capture",
+    fields: req.queryConfig.fields,
+    filters: req.filterableFields,
+    pagination: req.queryConfig.pagination,
+  })
+
   res.json({
-    captures: all.slice(offset, offset + limit),
-    count: all.length,
-    offset,
-    limit,
+    captures: captures as unknown as AdminStripeCaptureListResponse["captures"],
+    count: metadata?.count ?? 0,
+    offset: metadata?.skip ?? 0,
+    limit: metadata?.take ?? 0,
   })
 }

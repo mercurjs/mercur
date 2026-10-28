@@ -1,7 +1,7 @@
 import type { BigNumberInput, PaginatedResponse } from "@medusajs/types"
 import type { HttpTypes } from "@mercurjs/types"
 
-import type { AdjustmentDTO, JobRunDTO, PayoutJobName, SettlementDTO } from "./common"
+import type { AdjustmentDTO, CaptureDTO, JobRunDTO, PayoutJobName, SettlementDTO } from "./common"
 
 export type AdminPayoutAccountListResponse = HttpTypes.AdminPayoutAccountListResponse
 export type AdminPayoutAccountResponse = HttpTypes.AdminPayoutAccountResponse
@@ -107,42 +107,16 @@ export interface AdminPayoutStatusResponse {
   jobs: AdminPayoutJob[]
 }
 
-export interface AdminPayoutCaptureOrder {
-  id: string
-  display_id: number | null
-  status: string
-  canceled_at: Date | string | null
-  fulfillment_status: string | null
-  total: BigNumberInput
-  currency_code: string | null
-  seller: { id: string; name: string | null } | null
+export interface AdminStripeCapture extends CaptureDTO {
+  order_group: { id: string; display_id: number | null } | null
 }
 
-export interface AdminPayoutCapture {
-  order_group_id: string
-  order_group_display_id: number | null
-  payment_collection_id: string
-  payment_id: string
-  provider_id: string
-  currency_code: string
-  authorized_amount: BigNumberInput
-  capturable_amount: BigNumberInput
-  orders_total: number
-  orders_decided: number
-  decided: boolean
-  action: "wait" | "capture" | "cancel" | "expired"
-  authorized_at: Date | null
-  expires_at: Date | null
-  capture_error: string | null
-  orders: AdminPayoutCaptureOrder[]
+export type AdminStripeCaptureResponse = {
+  capture: AdminStripeCapture
 }
 
-export type AdminPayoutCaptureResponse = {
-  capture: AdminPayoutCapture
-}
-
-export type AdminPayoutCaptureListResponse = PaginatedResponse<{
-  captures: AdminPayoutCapture[]
+export type AdminStripeCaptureListResponse = PaginatedResponse<{
+  captures: AdminStripeCapture[]
 }>
 
 export interface AdminPayoutNotification {

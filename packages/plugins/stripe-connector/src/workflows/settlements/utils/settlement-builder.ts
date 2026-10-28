@@ -2,7 +2,7 @@ import { BigNumberInput } from "@medusajs/framework/types"
 import { MathBN } from "@medusajs/framework/utils"
 import { PayoutStatus, PayoutStatusReason, formatStatusReason } from "@mercurjs/types"
 
-import { SettlementLineType, SettlementStatus } from "../types/common"
+import { SettlementLineType, SettlementStatus } from "../../../types/common"
 
 export type SettlementSourceLine = {
   id: string

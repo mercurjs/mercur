@@ -14,8 +14,8 @@ import type {
   AdminAdjustmentResponse,
   AdminPayoutAccountListResponse,
   AdminPayoutAccountResponse,
-  AdminPayoutCaptureListResponse,
-  AdminPayoutCaptureResponse,
+  AdminStripeCaptureListResponse,
+  AdminStripeCaptureResponse,
   AdminPayoutJobListResponse,
   AdminPayoutJobRunListResponse,
   AdminPayoutJobRunResponse,
@@ -204,7 +204,7 @@ export type CreateAdjustmentPayload = {
 export const useCreateAdjustment = (options?: MutationOptions<AdminAdjustmentResponse, CreateAdjustmentPayload>) =>
   useStripeMutation((body: CreateAdjustmentPayload) => client.admin.stripe.adjustments.mutate(body), options)
 
-export const useStripeCaptures = (query?: ListQuery, options?: QueryOptions<AdminPayoutCaptureListResponse>) => {
+export const useStripeCaptures = (query?: ListQuery, options?: QueryOptions<AdminStripeCaptureListResponse>) => {
   const { data, ...rest } = useQuery({
     queryKey: stripeCaptureKeys.list(query),
     queryFn: () => client.admin.stripe.captures.query(query ?? {}),
@@ -214,13 +214,13 @@ export const useStripeCaptures = (query?: ListQuery, options?: QueryOptions<Admi
   return { ...data, ...rest }
 }
 
-export const useCapturePayment = (groupId: string, options?: MutationOptions<AdminPayoutCaptureResponse>) =>
+export const useCapturePayment = (groupId: string, options?: MutationOptions<AdminStripeCaptureResponse>) =>
   useStripeMutation(
     () => client.admin.stripe.captures.$order_group_id.capture.mutate({ $order_group_id: groupId }),
     options
   )
 
-export const useCancelPayment = (groupId: string, options?: MutationOptions<AdminPayoutCaptureResponse>) =>
+export const useCancelPayment = (groupId: string, options?: MutationOptions<AdminStripeCaptureResponse>) =>
   useStripeMutation(
     () => client.admin.stripe.captures.$order_group_id.cancel.mutate({ $order_group_id: groupId }),
     options

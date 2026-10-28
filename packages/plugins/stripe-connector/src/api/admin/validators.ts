@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { createFindParams, createOperatorMap } from "@medusajs/medusa/api/utils/validators"
+import { createFindParams, createOperatorMap, createSelectParams } from "@medusajs/medusa/api/utils/validators"
 
 import { AdjustmentType } from "../../types/common"
 
@@ -11,6 +11,19 @@ export const AdminRunJob = z
     order_group_id: z.string().optional(),
   })
   .strict()
+
+export type AdminGetCaptureParamsType = z.infer<typeof AdminGetCaptureParams>
+export const AdminGetCaptureParams = createSelectParams()
+
+export type AdminGetCapturesParamsType = z.infer<typeof AdminGetCapturesParams>
+export const AdminGetCapturesParams = createFindParams({ offset: 0, limit: 20, order: "expires_at" }).merge(
+  z.object({
+    order_group_id: z.union([z.string(), z.array(z.string())]).optional(),
+    status: z.union([z.string(), z.array(z.string())]).optional(),
+    expires_at: createOperatorMap().optional(),
+    created_at: createOperatorMap().optional(),
+  })
+)
 
 export type AdminGetSettlementsParamsType = z.infer<typeof AdminGetSettlementsParams>
 export const AdminGetSettlementsParams = createFindParams({ offset: 0, limit: 20 }).merge(

@@ -2,7 +2,7 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/
 import { MedusaError } from "@medusajs/framework/utils"
 import { PayoutStatus } from "@mercurjs/types"
 
-import { retrieveSettlement } from "../../../../../../pipeline/settlement-views"
+import { retrieveSettlementDetail } from "../../../../../utils/settlements"
 import { AdminSettlementResponse } from "../../../../../../types/http"
 import { resolveConnector, resolvePayoutModule } from "../../../../../../utils/payout-module"
 
@@ -26,5 +26,5 @@ export const POST = async (req: AuthenticatedMedusaRequest, res: MedusaResponse<
 
   await connector.dispatchSettlementPayout(settlement.id, account.external_id)
 
-  res.json({ settlement: await retrieveSettlement(req.scope, settlement.id) })
+  res.json({ settlement: await retrieveSettlementDetail(req.scope, settlement.id) })
 }

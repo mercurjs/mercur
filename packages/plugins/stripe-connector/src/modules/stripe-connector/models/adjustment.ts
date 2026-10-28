@@ -2,6 +2,7 @@ import { model } from "@medusajs/framework/utils"
 import { PayoutStatus } from "@mercurjs/types"
 
 import { AdjustmentType } from "../../../types/common"
+import { SettlementLine } from "./settlement-line"
 
 export const Adjustment = model
   .define({ name: "adjustment", tableName: "stripe_adjustment" }, {
@@ -16,6 +17,9 @@ export const Adjustment = model
     status_reason: model.text().nullable(),
     provider_transfer_id: model.text().nullable(),
     data: model.json().nullable(),
+    settlement_lines: model.hasMany(() => SettlementLine, {
+      mappedBy: "adjustment",
+    }),
   })
   .indexes([
     {

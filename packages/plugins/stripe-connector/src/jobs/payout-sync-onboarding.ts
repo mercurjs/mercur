@@ -1,11 +1,11 @@
 import { MedusaContainer } from "@medusajs/framework/types"
 
-import { jobHandler } from "../pipeline/jobs"
 import { JobTrigger, PAYOUT_JOB_SCHEDULES } from "../types/common"
 import { runJob } from "../utils/run-job"
+import { jobWorkflow } from "../workflows/jobs"
 
 export default async function payoutSyncOnboardingJob(container: MedusaContainer) {
-  await runJob(container, "payout-sync-onboarding", JobTrigger.SCHEDULE, jobHandler("payout-sync-onboarding"))
+  await runJob(container, "payout-sync-onboarding", JobTrigger.SCHEDULE, jobWorkflow("payout-sync-onboarding", container))
 }
 
 export const config = {

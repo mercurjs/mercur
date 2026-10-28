@@ -6,8 +6,6 @@ import type {
   AdminAdjustmentResponse,
   AdminPayoutAccountListResponse,
   AdminPayoutAccountResponse,
-  AdminPayoutCaptureListResponse,
-  AdminPayoutCaptureResponse,
   AdminPayoutJobListResponse,
   AdminPayoutJobRunListResponse,
   AdminPayoutJobRunResponse,
@@ -17,11 +15,13 @@ import type {
   AdminPayoutStatusResponse,
   AdminSettlementListResponse,
   AdminSettlementResponse,
+  AdminStripeCaptureListResponse,
+  AdminStripeCaptureResponse,
 } from "../../types/http"
 
 export type {
   AdminPayoutAccountListResponse,
-  AdminPayoutCapture,
+  AdminStripeCapture,
   AdminPayoutJob,
   AdminPayoutStatusResponse,
   AdminSettlementListResponse,
@@ -104,10 +104,10 @@ type Routes = {
         }
       }
       captures: {
-        GET: Route<ListQuery, AdminPayoutCaptureListResponse>
+        GET: Route<ListQuery, AdminStripeCaptureListResponse>
         $order_group_id: {
-          capture: { POST: Route<Empty, AdminPayoutCaptureResponse> }
-          cancel: { POST: Route<Empty, AdminPayoutCaptureResponse> }
+          capture: { POST: Route<Empty, AdminStripeCaptureResponse> }
+          cancel: { POST: Route<Empty, AdminStripeCaptureResponse> }
         }
       }
       notifications: {

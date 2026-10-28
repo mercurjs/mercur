@@ -15,6 +15,11 @@ type Filters = Record<string, unknown>
 export interface PayoutModuleReader {
   listPayouts(filters?: Filters, config?: FindConfig<PayoutDTO>): Promise<PayoutDTO[]>
   listPayoutReversals(filters?: Filters, config?: FindConfig<PayoutReversalDTO>): Promise<PayoutReversalDTO[]>
+  listAndCountPayouts(filters?: Filters, config?: FindConfig<PayoutDTO>): Promise<[PayoutDTO[], number]>
+  listAndCountPayoutReversals(
+    filters?: Filters,
+    config?: FindConfig<PayoutReversalDTO>
+  ): Promise<[PayoutReversalDTO[], number]>
   listPayoutAccounts(filters?: Filters, config?: FindConfig<PayoutAccountDTO>): Promise<PayoutAccountDTO[]>
   retrievePayoutAccount(id: string, config?: FindConfig<PayoutAccountDTO>): Promise<PayoutAccountDTO>
 }
