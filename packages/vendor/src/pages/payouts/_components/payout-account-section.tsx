@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 import { ActionMenu, type Action } from "@components/common/action-menu";
 import { SectionRow } from "@components/common/section";
 import { useCreatePayoutOnboarding, useMyPayoutAccount } from "@hooks/api/payout-accounts";
-import { useDate } from "@hooks/use-date";
 
 type StatusColor = "green" | "orange" | "red" | "blue" | "grey";
 
@@ -37,7 +36,6 @@ const disabledReasonMessage = (reason: string, t: TFunction) => {
 
 export const PayoutAccountSection = () => {
   const { t } = useTranslation();
-  const { getFullDate } = useDate();
   const { payout_account: account, isPending, isError, error } = useMyPayoutAccount();
   const onboarding = useCreatePayoutOnboarding(account?.id ?? "");
 
@@ -105,12 +103,7 @@ export const PayoutAccountSection = () => {
       )}
       <Container className="divide-y p-0" data-testid="payout-account-section">
         <div className="flex items-center justify-between px-6 py-4">
-          <div>
-            <Heading level="h2">{t("payouts.account.header")}</Heading>
-            <Text size="small" leading="compact" className="text-ui-fg-subtle">
-              {finishing ? t("payouts.account.onboardingHint") : t("payouts.account.subtitle")}
-            </Text>
-          </div>
+          <Heading level="h2">{t("payouts.account.header")}</Heading>
           <div className="flex items-center gap-x-2">
             <StatusBadge color={ACCOUNT_STATUS_COLOR[account.status] ?? "grey"}>
               {t(`payouts.account.status.${account.status}`)}
@@ -125,7 +118,7 @@ export const PayoutAccountSection = () => {
           value={account.payouts_enabled ? t("payouts.account.enabled") : t("payouts.account.notEnabled")}
         />
         <SectionRow
-          title={t("payouts.account.fields.verification")}
+          title={t("payouts.account.fields.kycStatus")}
           value={
             account.kyc_status ? (
               <StatusBadge color={KYC_STATUS_COLOR[account.kyc_status] ?? "grey"}>
@@ -134,14 +127,6 @@ export const PayoutAccountSection = () => {
             ) : (
               "-"
             )
-          }
-        />
-        <SectionRow
-          title={t("payouts.account.fields.lastSynced")}
-          value={
-            account.last_synced_at
-              ? getFullDate({ date: account.last_synced_at, includeTime: true })
-              : "-"
           }
         />
       </Container>

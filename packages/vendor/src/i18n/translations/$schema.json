@@ -12338,12 +12338,6 @@
             "header": {
               "type": "string"
             },
-            "subtitle": {
-              "type": "string"
-            },
-            "onboardingHint": {
-              "type": "string"
-            },
             "empty": {
               "type": "string"
             },
@@ -12362,17 +12356,13 @@
                 "payouts": {
                   "type": "string"
                 },
-                "verification": {
-                  "type": "string"
-                },
-                "lastSynced": {
+                "kycStatus": {
                   "type": "string"
                 }
               },
               "required": [
                 "payouts",
-                "verification",
-                "lastSynced"
+                "kycStatus"
               ],
               "additionalProperties": false
             },
@@ -12479,8 +12469,6 @@
           },
           "required": [
             "header",
-            "subtitle",
-            "onboardingHint",
             "empty",
             "enabled",
             "notEnabled",

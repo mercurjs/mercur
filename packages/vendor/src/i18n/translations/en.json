@@ -3086,20 +3086,17 @@
     },
     "account": {
       "header": "Payout account",
-      "subtitle": "Where the marketplace sends your share of each order.",
-      "onboardingHint": "Finish onboarding with the payout provider before payouts can start.",
       "empty": "Your payout account is being set up. It appears here once the payout provider has created it.",
       "enabled": "Enabled",
       "notEnabled": "Not enabled yet",
       "linkReady": "A new onboarding link is ready.",
       "fields": {
         "payouts": "Payouts",
-        "verification": "Verification",
-        "lastSynced": "Last synced"
+        "kycStatus": "KYC status"
       },
       "actions": {
         "continueOnboarding": "Continue onboarding",
-        "openDashboard": "Open provider dashboard",
+        "openDashboard": "Manage payout details",
         "refreshLink": "Refresh onboarding link"
       },
       "status": {
@@ -3109,9 +3106,9 @@
         "rejected": "Rejected"
       },
       "kyc": {
-        "pending_submission": "Details needed",
-        "pending_approval": "Under review",
-        "approved": "Verified",
+        "pending_submission": "Pending submission",
+        "pending_approval": "Pending approval",
+        "approved": "Approved",
         "refused": "Refused"
       },
       "disabled": {
