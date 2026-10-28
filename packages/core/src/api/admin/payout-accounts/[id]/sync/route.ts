@@ -1,34 +1,18 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
 import { syncPayoutAccountWorkflow } from "../../../../../workflows/payout"
+import { refetchPayoutAccount } from "../../helpers"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminPayoutAccountResponse>
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
-  const {
-    data: [link],
-  } = await query.graph({
-    entity: "seller_payout_account",
-    fields: ["seller_id"],
-    filters: { payout_account_id: req.params.id },
-  })
-
   await syncPayoutAccountWorkflow(req.scope).run({
-    input: { account_id: req.params.id, seller_id: link?.seller_id ?? null },
+    input: { id: req.params.id },
   })
 
-  const {
-    data: [payout_account],
-  } = await query.graph({
-    entity: "payout_account",
-    fields: req.queryConfig.fields,
-    filters: { id: req.params.id },
-  })
+  const payout_account = await refetchPayoutAccount(req.params.id, req.scope, req.queryConfig.fields)
 
   res.json({ payout_account })
 }

@@ -33,7 +33,7 @@ The `payout-webhook` subscriber, with subscriber id `payout-webhook-handler`, pa
 | `payout.payout-account.updated` | The provider response is stored, or a sync refreshes the account |
 | `payout.payout-account.deleted` | The provider call fails and the new account is removed |
 | `payout.onboarding.created` | `createOnboarding` runs for the first time on an account |
-| `payout.onboarding.updated` | `createOnboarding` or `refreshLoginLink` runs again on the same account |
+| `payout.onboarding.updated` | `createOnboarding` runs again on the same account |
 | `payout.payout.created` | `createOrderPayoutsWorkflow` inserts a payout |
 | `payout.payout.updated` | A payout is re-decided, sent, or changed by a webhook |
 | `payout.payout-reversal.created` | `createPayoutReversalsWorkflow` inserts a reversal |

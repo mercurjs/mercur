@@ -39,7 +39,7 @@ const syncProviderAccountsStep = createStep("sync-stripe-provider-accounts", asy
   let synced = 0
   for (const account of accounts) {
     const { result, errors } = await syncPayoutAccountWorkflow(container).run({
-      input: { account_id: account.id },
+      input: { id: account.id },
       throwOnError: false,
     })
     if (errors?.length) {

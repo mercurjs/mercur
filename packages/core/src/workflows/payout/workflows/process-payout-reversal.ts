@@ -6,7 +6,7 @@ import {
 import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { PayoutModuleEvents, PayoutReversalDTO, PayoutStatus } from "@mercurjs/types"
 
-import { dispatchPayoutReversalsStep } from "../steps/dispatch-payout-reversal"
+import { processPayoutReversalsStep } from "../steps"
 
 export type ProcessPayoutReversalWorkflowInput = {
   reversal_ids: string[]
@@ -29,11 +29,12 @@ export const failedReversalEvents = (reversals: PayoutReversalDTO[]) =>
 export const processPayoutReversalWorkflow = createWorkflow(
   processPayoutReversalWorkflowId,
   function (input: ProcessPayoutReversalWorkflowInput) {
-    const reversals = dispatchPayoutReversalsStep({ reversal_ids: input.reversal_ids })
+    const reversals = processPayoutReversalsStep({ ids: input.reversal_ids })
 
-    const failed = transform({ reversals }, ({ reversals }) => failedReversalEvents(reversals))
-
-    emitEventStep({ eventName: PayoutModuleEvents.PAYOUT_REVERSAL_FAILED, data: failed })
+    emitEventStep({
+      eventName: PayoutModuleEvents.PAYOUT_REVERSAL_FAILED,
+      data: transform({ reversals }, ({ reversals }) => failedReversalEvents(reversals)),
+    })
 
     return new WorkflowResponse(reversals)
   }

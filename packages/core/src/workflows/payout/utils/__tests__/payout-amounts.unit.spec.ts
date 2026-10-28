@@ -1,6 +1,7 @@
 import { PayoutStatus } from "@mercurjs/types"
 
-import { decideOrderPayout, decideReversal, fulfillmentReached } from "../payout-factory"
+import { fulfillmentReached } from "../fulfillment-status"
+import { decideOrderPayout, decideReversal } from "../payout-amounts"
 
 const order = (overrides: Partial<Parameters<typeof decideOrderPayout>[0]["order"]> = {}) => ({
   id: "order_1",

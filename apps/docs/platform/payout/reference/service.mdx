@@ -46,13 +46,13 @@ createPayoutAccount(input: CreatePayoutAccountDTO): Promise<PayoutAccountDTO>
 
 Creates the row, calls the provider’s `createAccount` with `data.account_id` and `metadata.account_id` set to the new id, then stores `external_id`, the flags, the derived `status` and `kyc_status`, and the provider’s `data`. Deletes the row if the provider throws. `input` takes optional `data`, `context`, and `seller` (used when `onboarding.prefill` is on).
 
-### syncPayoutAccount
+### updatePayoutAccount
 
 ```ts
-syncPayoutAccount(accountId: string): Promise<PayoutAccountDTO>
+updatePayoutAccount(accountId: string): Promise<PayoutAccountDTO>
 ```
 
-Re-reads the account with the provider’s `retrieveAccount` and stores the same fields as `createPayoutAccount`, plus `last_synced_at`. Clears `onboarding_token` once details are submitted.
+Re-reads the account with the provider’s `retrieveAccount` and stores the same fields as `createPayoutAccount`, plus `last_synced_at`. Clears `onboarding_token` once details are submitted. The account `status` and `kyc_status` are derived here from the provider’s flags, requirements and `disabled_reason`.
 
 ### createOnboarding
 
@@ -60,39 +60,28 @@ Re-reads the account with the provider’s `retrieveAccount` and stores the same
 createOnboarding(input: CreateOnboardingDTO): Promise<OnboardingDTO>
 ```
 
-Calls the provider’s `createOnboarding` for the account, with `refresh_url` and `return_url` from `input.data` or the module’s `onboarding` options, then creates the onboarding record or updates the existing one. `input` takes `account_id` and optional `data` and `context`.
+Publishes the link the seller follows next and stores it on the account’s onboarding record:
 
-### refreshLoginLink
+- Before the seller submits their details, it calls the provider’s `createOnboarding` with `refresh_url` and `return_url` from `input.data` or the module’s `onboarding` options, and stores the link with `kind: "onboarding"`. It creates the account’s `onboarding_token` for the refresh URL if it’s missing.
+- Once `details_submitted` is set, it asks the provider’s `createLoginLink` for a dashboard link and stores it with `kind: "login"`. A provider without `createLoginLink` gets a new onboarding link instead.
 
-```ts
-refreshLoginLink(accountId: string): Promise<OnboardingDTO | null>
-```
+`input` takes `account_id` and optional `data` and `context`.
 
-Asks the provider for a dashboard login link and stores it on the onboarding record with `kind: "login"`. Returns `null` when the provider has no `createLoginLink`.
-
-### dispatchPayout
+### processPayout
 
 ```ts
-dispatchPayout(payoutId: string): Promise<PayoutDTO>
+processPayout(payoutId: string): Promise<PayoutDTO>
 ```
 
-Sends a `pending` or `failed` payout with the provider’s `createPayout`, passing the order id as `group`, the payment in `data.source_payment`, and `{ payout_id, order_id }` as metadata. Stores the provider’s `status` and id. A provider error is recorded on the row as `failed`, or `aborted` when it’s a `PayoutProviderError` with `final: true`; it doesn’t throw. Any other status is returned unchanged.
+Sends a `pending` or `failed` payout with the provider’s `createPayout`, passing the order id as `group`, the payment in `data.source_payment`, and `{ payout_id, order_id }` as metadata. Like Medusa’s `capturePayment`, it locks the row and marks it `processing` in a transaction, then calls the provider outside it, so the lock is never held across the provider call. Stores the provider’s `status` and id. A provider error is recorded on the row as `failed`, or `aborted` when it’s a `PayoutProviderError` with `final: true`; it doesn’t throw. Any other status is returned unchanged.
 
-### dispatchPayoutReversal
+### processPayoutReversal
 
 ```ts
-dispatchPayoutReversal(reversalId: string): Promise<PayoutReversalDTO>
+processPayoutReversal(reversalId: string): Promise<PayoutReversalDTO>
 ```
 
-Sends a `pending` or `failed` reversal with the provider’s `reversePayout`, against the provider id kept in the payout’s `data.provider.id`. Records errors the same way as `dispatchPayout`.
-
-### listProviderAccounts
-
-```ts
-listProviderAccounts(input: ListAccountsInput): Promise<ListAccountsOutput | null>
-```
-
-Lists accounts at the provider, for mapping existing ones to sellers. Returns `null` when the provider has no `listAccounts`.
+Sends a `pending` or `failed` reversal with the provider’s `reversePayout`, against the provider id kept in the payout’s `data.provider.id`. Locks and records errors the same way as `processPayout`.
 
 ### getWebhookActionAndData
 
@@ -120,7 +109,7 @@ Each provider-backed method sets `context.idempotency_key` before it calls the p
 | --- | --- |
 | `createPayoutAccount` | The new `pacc` id, unless you pass one |
 | `createOnboarding` | The `account_id`, unless you pass one |
-| `dispatchPayout` | The `pout` id, then `<id>:<attempt>` on retries |
-| `dispatchPayoutReversal` | The reversal id, then `<id>:<attempt>` on retries |
+| `processPayout` | The `pout` id, then `<id>:<attempt>` on retries |
+| `processPayoutReversal` | The reversal id, then `<id>:<attempt>` on retries |
 
 A provider caches a key with the request that first used it, so a retry after a refused attempt needs a fresh key. The attempt count is stored in the row’s `data.attempts`. Stripe Connect forwards the key to Stripe on account, transfer, and reversal creation.

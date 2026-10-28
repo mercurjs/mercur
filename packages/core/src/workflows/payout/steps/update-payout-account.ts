@@ -1,35 +1,43 @@
-import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
-import { MercurModules, UpdatePayoutAccountDTO } from "@mercurjs/types"
+import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
+import { MercurModules } from "@mercurjs/types"
 
 import PayoutModuleService from "../../../modules/payout/services/payout-module-service"
 
-export const updatePayoutAccountStepId = "update-payout-account-step"
+export type UpdatePayoutAccountStepInput = {
+  id: string
+}
 
+export const updatePayoutAccountStepId = "update-payout-account"
+
+/**
+ * Refreshes the account from the provider.
+ */
 export const updatePayoutAccountStep = createStep(
   updatePayoutAccountStepId,
-  async (input: UpdatePayoutAccountDTO, { container }) => {
-    const payoutService = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
+  async (input: UpdatePayoutAccountStepInput, { container }) => {
+    const service = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
 
-    const previousAccount = await payoutService.retrievePayoutAccount(input.id)
+    const previous = await service.retrievePayoutAccount(input.id)
+    const account = await service.updatePayoutAccount(input.id)
 
-    const updatedAccount = await payoutService.updatePayoutAccounts({
-      id: input.id,
-      status: input.status,
-    })
-
-    return new StepResponse(updatedAccount, {
-      id: input.id,
-      previousStatus: previousAccount.status,
+    return new StepResponse(account, {
+      id: previous.id,
+      status: previous.status,
+      kyc_status: previous.kyc_status,
+      payouts_enabled: previous.payouts_enabled,
+      charges_enabled: previous.charges_enabled,
+      details_submitted: previous.details_submitted,
+      disabled_reason: previous.disabled_reason,
+      onboarding_token: previous.onboarding_token,
+      last_synced_at: previous.last_synced_at,
+      data: previous.data,
     })
   },
-  async (rollbackData, { container }) => {
-    if (!rollbackData) return
+  async (previous, { container }) => {
+    if (!previous) {
+      return
+    }
 
-    const payoutService = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
-
-    await payoutService.updatePayoutAccounts({
-      id: rollbackData.id,
-      status: rollbackData.previousStatus,
-    })
+    await container.resolve<PayoutModuleService>(MercurModules.PAYOUT).updatePayoutAccounts(previous)
   }
 )

@@ -10,7 +10,7 @@ A payout account is a seller’s connection to the payout provider, and onboardi
 
 A payout account is the record a payout is sent to. It’s the `PayoutAccount` data model (table `payout_account`, id prefix `pacc`), and the `seller_payout_account` link ties it to exactly one seller.
 
-You create one with `createPayoutAccountWorkflow`. The workflow checks the seller has no account yet, asks the module to create the account, and links it to the seller:
+You create one with `createPayoutAccountWorkflow`. The workflow checks the seller has no account yet, asks the module to create the account with the seller's profile, links it to the seller, and publishes the first onboarding link:
 
 ```ts
 import { createPayoutAccountWorkflow } from "@mercurjs/core/workflows"
@@ -33,10 +33,10 @@ If the provider call throws before an account exists, the module deletes the new
 
 With the `onboarding.prefill` option, the module also passes the seller’s name, website, email, phone, country, and business type, so the provider can prefill its forms. `onboarding.defaultCountry` applies when the seller has no address.
 
-`ensureSellerPayoutAccountWorkflow` wraps both steps for one seller: it creates the account when it’s missing, and publishes an onboarding link until the seller has submitted their details. Run it again as often as you like.
+`ensureSellerPayoutAccountWorkflow` does this for one seller only when needed: it creates the account when it’s missing, and otherwise publishes a fresh onboarding link until the seller has submitted their details. Run it again as often as you like.
 
 <Note>
-  A seller can have only one payout account. `validateSellerPayoutAccountStep` queries `seller_payout_account` and fails with `Seller already has a payout account` when a row exists.
+  A seller can have only one payout account. `validateSellerWithoutPayoutAccountStep` fails with a `409` when the seller already has one.
 </Note>
 
 ## Onboarding

@@ -23,6 +23,23 @@ export const ORDER_FULFILLMENT_FIELDS = [
   "fulfillments.items.quantity",
 ]
 
+const FULFILLMENT_SCALE: FulfillmentStatus[] = [
+  "not_fulfilled",
+  "partially_fulfilled",
+  "fulfilled",
+  "partially_shipped",
+  "shipped",
+  "partially_delivered",
+  "delivered",
+]
+
+export function fulfillmentReached(status: string | null | undefined, required: FulfillmentStatus): boolean {
+  if (status === "canceled") {
+    return false
+  }
+  return FULFILLMENT_SCALE.indexOf((status ?? "not_fulfilled") as FulfillmentStatus) >= FULFILLMENT_SCALE.indexOf(required)
+}
+
 /**
  * The order module derives `fulfillment_status` only on its own read path,
  * not through query.graph, so the pipeline rebuilds it from the fulfillments

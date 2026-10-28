@@ -1,135 +1,74 @@
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import {
-  StepResponse,
-  WorkflowResponse,
-  createStep,
-  createWorkflow,
-  transform,
-  when,
-} from "@medusajs/framework/workflows-sdk"
-import {
-  MercurModules,
-  PayoutStatus,
-  PayoutWebhookResult,
-} from "@mercurjs/types"
+import { createWorkflow, transform, when } from "@medusajs/framework/workflows-sdk"
+import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+import { PayoutStatus, PayoutWebhookResult } from "@mercurjs/types"
 
-import PayoutModuleService from "../../../modules/payout/services/payout-module-service"
+import { updatePayoutsStep } from "../steps"
 import { syncPayoutAccountWorkflow } from "./sync-payout-account"
 
 export type ProcessPayoutForWebhookWorkflowInput = PayoutWebhookResult
 
-type Resolved = {
-  account_id: string | null
-  seller_id: string | null
-  payout_id: string | null
-}
-
-const resolveWebhookTargetStep = createStep(
-  "resolve-payout-webhook-target",
-  async (input: ProcessPayoutForWebhookWorkflowInput, { container }) => {
-    const service = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
-    const query = container.resolve(ContainerRegistrationKeys.QUERY)
-    const providerObjectId = input.data?.id
-
-    const resolved: Resolved = {
-      account_id: null,
-      seller_id: null,
-      payout_id: null,
-    }
-
-    if (!providerObjectId) {
-      return new StepResponse(resolved)
-    }
-
-    if (input.action.startsWith("account.")) {
-      const [account] = await service.listPayoutAccounts({
-        external_id: providerObjectId,
-      })
-      if (account) {
-        resolved.account_id = account.id
-        const {
-          data: [link],
-        } = await query.graph({
-          entity: "seller_payout_account",
-          fields: ["seller_id"],
-          filters: { payout_account_id: account.id },
-        })
-        resolved.seller_id = link?.seller_id ?? null
-      }
-    } else if (input.action.startsWith("payout.")) {
-      const payoutId = input.data?.payout_id
-      const [payout] = payoutId ? await service.listPayouts({ id: payoutId }) : []
-      resolved.payout_id = payout?.id ?? null
-    }
-
-    return new StepResponse(resolved)
-  }
-)
-
-type StatusCompensation = {
-  payout?: { id: string; status: PayoutStatus; status_reason: string | null }
-}
-
-const applyWebhookStatusStep = createStep(
-  "apply-payout-webhook-status",
-  async (
-    input: { action: string; reason?: string; payout_id: string | null },
-    { container }
-  ): Promise<StepResponse<void, StatusCompensation>> => {
-    const service = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
-
-    if (input.payout_id) {
-      const statusByAction: Record<string, PayoutStatus> = {
-        "payout.paid": PayoutStatus.PAID,
-        "payout.failed": PayoutStatus.FAILED,
-      }
-      const status = statusByAction[input.action]
-      if (status) {
-        const previous = await service.retrievePayout(input.payout_id)
-        await service.updatePayouts({
-          id: input.payout_id,
-          status,
-          status_reason: status === PayoutStatus.FAILED ? (input.reason ?? previous.status_reason) : null,
-        })
-        return new StepResponse(void 0, { payout: { id: previous.id, status: previous.status, status_reason: previous.status_reason } } as StatusCompensation)
-      }
-    }
-
-    return new StepResponse(void 0, {} as StatusCompensation)
-  },
-  async (previous: StatusCompensation | undefined, { container }) => {
-    if (!previous) return
-    const service = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
-    if (previous.payout) {
-      await service.updatePayouts(previous.payout)
-    }
-  }
-)
-
 export const processPayoutForWebhookWorkflowId = "process-payout-for-webhook"
 
+const STATUS_BY_ACTION: Record<string, PayoutStatus> = {
+  "payout.paid": PayoutStatus.PAID,
+  "payout.failed": PayoutStatus.FAILED,
+}
+
+/**
+ * Applies a provider webhook: an `account.*` event re-syncs the account, a
+ * `payout.*` event moves the payout to its final status.
+ */
 export const processPayoutForWebhookWorkflow = createWorkflow(
   processPayoutForWebhookWorkflowId,
-  (input: ProcessPayoutForWebhookWorkflowInput) => {
-    const target = resolveWebhookTargetStep(input)
+  function (input: ProcessPayoutForWebhookWorkflowInput) {
+    const accounts = when(
+      "account-webhook",
+      { input },
+      ({ input }) => input.action.startsWith("account.") && !!input.data?.id
+    ).then(() => {
+      const { data } = useQueryGraphStep({
+        entity: "payout_account",
+        fields: ["id"],
+        filters: transform({ input }, ({ input }) => ({ external_id: input.data?.id as string })),
+      }).config({ name: "webhook-account-query" })
 
-    when({ target }, ({ target }) => !!target.account_id).then(() => {
+      return data
+    })
+
+    when("known-account", { accounts }, ({ accounts }) => !!accounts?.length).then(() => {
       syncPayoutAccountWorkflow.runAsStep({
-        input: {
-          account_id: target.account_id as unknown as string,
-          seller_id: target.seller_id,
-        },
+        input: transform({ accounts }, ({ accounts }) => ({ id: accounts![0].id })),
       })
     })
 
-    const statusInput = transform({ input, target }, ({ input, target }) => ({
-      action: input.action,
-      reason: input.data?.status_reason,
-      payout_id: target.payout_id,
-    }))
+    const payouts = when(
+      "payout-webhook",
+      { input },
+      ({ input }) => !!STATUS_BY_ACTION[input.action] && !!input.data?.payout_id
+    ).then(() => {
+      const { data } = useQueryGraphStep({
+        entity: "payout",
+        fields: ["id", "status_reason"],
+        filters: transform({ input }, ({ input }) => ({ id: input.data?.payout_id as string })),
+      }).config({ name: "webhook-payout-query" })
 
-    applyWebhookStatusStep(statusInput)
+      return data
+    })
 
-    return new WorkflowResponse(target)
+    updatePayoutsStep(
+      transform({ input, payouts }, ({ input, payouts }) =>
+        (payouts ?? []).map((payout) => {
+          const status = STATUS_BY_ACTION[input.action]
+          return {
+            id: payout.id,
+            status,
+            status_reason:
+              status === PayoutStatus.FAILED
+                ? ((input.data?.status_reason as string | undefined) ?? payout.status_reason)
+                : null,
+          }
+        })
+      )
+    )
   }
 )

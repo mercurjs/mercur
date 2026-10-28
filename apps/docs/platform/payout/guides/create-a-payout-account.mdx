@@ -44,7 +44,7 @@ You need:
     }
     ```
 
-    The workflow validates the seller has no account, creates it through the provider, and links it to the seller. The response returns only the id, because `result.data` holds the full provider object.
+    The workflow validates the seller has no account, creates it through the provider, links it to the seller, and publishes the onboarding link. The response returns only the id, because `result.data` holds the full provider object.
   </Step>
   <Step title="Call the route">
     Send the seller’s country. The module passes `data.country` to the provider, falling back to the seller’s address and then the `onboarding.defaultCountry` option:

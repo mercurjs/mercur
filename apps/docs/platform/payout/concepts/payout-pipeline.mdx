@@ -96,12 +96,11 @@ Every external call goes through `IPayoutProvider` from `@mercurjs/types`. The m
 | Method | Called by | Returns |
 | --- | --- | --- |
 | `createAccount` | `createPayoutAccount` | An `AccountOutput`: provider `id`, `status`, flags, requirements, `data` |
-| `retrieveAccount` | `syncPayoutAccount` | An `AccountOutput` |
-| `listAccounts` (optional) | `listProviderAccounts` | Provider accounts, for mapping existing ones |
+| `retrieveAccount` | `updatePayoutAccount` | An `AccountOutput` |
 | `createOnboarding` | `createOnboarding` | A `LinkOutput`: `url`, `expires_at`, `data` |
-| `createLoginLink` (optional) | `refreshLoginLink` | A `LinkOutput` for the provider dashboard |
-| `createPayout` | `dispatchPayout` | A `PayoutOutput`: provider `id`, `status`, `data` |
-| `reversePayout` | `dispatchPayoutReversal` | A `PayoutOutput` |
+| `createLoginLink` (optional) | `createOnboarding`, once details are submitted | A `LinkOutput` for the provider dashboard |
+| `createPayout` | `processPayout` | A `PayoutOutput`: provider `id`, `status`, `data` |
+| `reversePayout` | `processPayoutReversal` | A `PayoutOutput` |
 | `getWebhookActionAndData` | `getWebhookActionAndData` | A `PayoutWebhookResult` |
 
 Write a provider as a class that implements `IPayoutProvider` and has a static `identifier`; the module registers it under `pop_<identifier>_<id>`. Throw `PayoutProviderError` with `{ final: true }` from `createPayout` or `reversePayout` when a retry can’t succeed. The module then marks the row `aborted` instead of `failed`.

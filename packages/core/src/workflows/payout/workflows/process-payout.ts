@@ -6,7 +6,7 @@ import {
 import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { PayoutDTO, PayoutModuleEvents, PayoutStatus } from "@mercurjs/types"
 
-import { dispatchPayoutsStep } from "../steps/dispatch-payout"
+import { processPayoutsStep } from "../steps"
 
 export type ProcessPayoutWorkflowInput = {
   payout_ids: string[]
@@ -28,17 +28,18 @@ export const failedPayoutEvents = (payouts: PayoutDTO[]) =>
     }))
 
 /**
- * Sends pending or failed payouts to the provider. This is the retry path:
- * a payout that is paid, processing or aborted is returned unchanged.
+ * Sends pending or failed payouts to the provider. A payout that is paid,
+ * processing or aborted is returned unchanged.
  */
 export const processPayoutWorkflow = createWorkflow(
   processPayoutWorkflowId,
   function (input: ProcessPayoutWorkflowInput) {
-    const payouts = dispatchPayoutsStep({ payout_ids: input.payout_ids })
+    const payouts = processPayoutsStep({ ids: input.payout_ids })
 
-    const failed = transform({ payouts }, ({ payouts }) => failedPayoutEvents(payouts))
-
-    emitEventStep({ eventName: PayoutModuleEvents.PAYOUT_FAILED, data: failed })
+    emitEventStep({
+      eventName: PayoutModuleEvents.PAYOUT_FAILED,
+      data: transform({ payouts }, ({ payouts }) => failedPayoutEvents(payouts)),
+    })
 
     return new WorkflowResponse(payouts)
   }

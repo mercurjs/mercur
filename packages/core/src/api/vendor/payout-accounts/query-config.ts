@@ -23,6 +23,32 @@ export const vendorPayoutAccountQueryConfig = {
   },
 }
 
+export const vendorMyPayoutAccountFields = [
+  "id",
+  "external_id",
+  "status",
+  "kyc_status",
+  "payouts_enabled",
+  "charges_enabled",
+  "details_submitted",
+  "disabled_reason",
+  "last_synced_at",
+  "created_at",
+  "updated_at",
+  "onboarding.id",
+  "onboarding.account_id",
+  "onboarding.data",
+  "onboarding.created_at",
+  "onboarding.updated_at",
+]
+
+export const vendorMyPayoutAccountQueryConfig = {
+  retrieve: {
+    defaults: vendorMyPayoutAccountFields,
+    isList: false,
+  },
+}
+
 export const vendorOnboardingFields = [
   "id",
   "data",

@@ -1,11 +1,9 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
-import { HttpTypes, MercurModules } from "@mercurjs/types"
-import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
-import { WorkflowResponse, createStep, createWorkflow, StepResponse } from "@medusajs/framework/workflows-sdk"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { HttpTypes } from "@mercurjs/types"
 
-import PayoutModuleService from "../../../modules/payout/services/payout-module-service"
-import { syncPayoutAccountWorkflow } from "../../../workflows/payout"
+import { linkPayoutAccountWorkflow } from "../../../workflows/payout"
+import { refetchPayoutAccount } from "./helpers"
 import { AdminCreatePayoutAccountType } from "./validators"
 
 export const GET = async (
@@ -33,72 +31,15 @@ export const GET = async (
   })
 }
 
-const mapExistingAccountStep = createStep(
-  "map-existing-payout-account",
-  async (input: AdminCreatePayoutAccountType, { container }) => {
-    const service = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
-    const query = container.resolve(ContainerRegistrationKeys.QUERY)
-
-    const { data: existing } = await query.graph({
-      entity: "seller_payout_account",
-      fields: ["payout_account_id"],
-      filters: { seller_id: input.seller_id },
-    })
-    if (existing.length) {
-      throw new MedusaError(MedusaError.Types.CONFLICT, `Seller ${input.seller_id} already has a payout account`)
-    }
-
-    const account = await service.createPayoutAccounts({
-      external_id: input.external_id,
-      data: { id: input.external_id },
-    })
-
-    return new StepResponse(account, account.id)
-  },
-  async (accountId, { container }) => {
-    if (!accountId) return
-    const service = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
-    await service.deletePayoutAccounts(accountId)
-  }
-)
-
-const mapExistingPayoutAccountWorkflow = createWorkflow(
-  "map-existing-payout-account",
-  function (input: AdminCreatePayoutAccountType) {
-    const account = mapExistingAccountStep(input)
-
-    createRemoteLinkStep([
-      {
-        [MercurModules.SELLER]: { seller_id: input.seller_id },
-        [MercurModules.PAYOUT]: { payout_account_id: account.id },
-      },
-    ])
-
-    syncPayoutAccountWorkflow.runAsStep({
-      input: { account_id: account.id, seller_id: input.seller_id },
-    })
-
-    return new WorkflowResponse(account)
-  }
-)
-
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminCreatePayoutAccountType>,
   res: MedusaResponse<HttpTypes.AdminPayoutAccountResponse>
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
-  const { result } = await mapExistingPayoutAccountWorkflow(req.scope).run({
+  const { result } = await linkPayoutAccountWorkflow(req.scope).run({
     input: req.validatedBody,
   })
 
-  const {
-    data: [payout_account],
-  } = await query.graph({
-    entity: "payout_account",
-    fields: req.queryConfig.fields,
-    filters: { id: result.id },
-  })
+  const payout_account = await refetchPayoutAccount(result.id, req.scope, req.queryConfig.fields)
 
   res.status(201).json({ payout_account })
 }

@@ -1,7 +1,7 @@
 import { BigNumberInput, FulfillmentStatus } from "@medusajs/framework/types"
 import { MathBN } from "@medusajs/framework/utils"
 
-import { fulfillmentReached } from "@mercurjs/core/workflows/payout/utils/payout-factory"
+import { fulfillmentReached } from "@mercurjs/core/workflows/payout/utils/fulfillment-status"
 
 export type CaptureOrderState = {
   id: string
