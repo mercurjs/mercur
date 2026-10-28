@@ -1,7 +1,7 @@
-import { CreditCard } from "@medusajs/icons"
 import { SingleColumnPage, WidgetZone } from "@mercurjs/dashboard-shared"
 import { defineRouteConfig } from "@mercurjs/dashboard-sdk"
 
+import { StripeIcon } from "../../../components/stripe-icon"
 import { SettingsProviders } from "../../../providers/settings-providers"
 import { SettlementListTable } from "./components/settlement-list-table"
 
@@ -17,8 +17,8 @@ const SettlementListPage = () => (
 
 export const config = defineRouteConfig({
   label: "Stripe",
-  icon: CreditCard,
-  group: "finance",
+  icon: StripeIcon,
+  group: "integrations",
   rank: 30,
   permissions: ["payouts:view"],
 })

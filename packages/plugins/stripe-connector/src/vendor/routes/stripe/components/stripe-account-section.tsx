@@ -1,5 +1,5 @@
 import { OpenRectArrowOut } from "@medusajs/icons"
-import { Badge, Container, Copy, Heading, Text } from "@medusajs/ui"
+import { Badge, Container, Heading, Text } from "@medusajs/ui"
 import { ActionMenu, SectionRow } from "@mercurjs/dashboard-shared"
 
 import type { VendorAccount } from "../../../lib/client"
@@ -50,20 +50,6 @@ export const StripeAccountSection = ({ account }: { account: VendorAccount }) =>
           />
         ) : null}
       </div>
-      <SectionRow
-        title="Account ID"
-        value={
-          account.external_id ? (
-            <Copy asChild content={account.external_id} className="cursor-pointer">
-              <Badge size="2xsmall" className="text-ui-tag-neutral-text">
-                {account.external_id}
-              </Badge>
-            </Copy>
-          ) : (
-            "-"
-          )
-        }
-      />
       <SectionRow title="Card payments" value={account.charges_enabled ? "Enabled" : "Not enabled yet"} />
       <SectionRow title="Currently due" value={<Requirements items={requirements.currently_due} />} />
       <SectionRow title="Past due" value={<Requirements items={requirements.past_due} />} />

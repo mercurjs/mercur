@@ -20,7 +20,7 @@ import { Link } from "react-router-dom"
 
 import { useStripeAccounts, useStripeAdjustments } from "../../../../hooks/api/stripe"
 import { PAGE_SIZE, useStripeTableQuery } from "../../../../hooks/use-stripe-table-query"
-import type { AdjustmentRow } from "../../../../lib/client"
+import type { AdjustmentRow, PayoutAccountRow } from "../../../../lib/client"
 import {
   ADJUSTMENT_TYPE_LABEL,
   PAYOUT_STATUS_COLOR,
@@ -62,7 +62,8 @@ const AdjustmentListDataTable = () => {
   )
 
   const storeNames = useMemo(
-    () => new Map((payout_accounts ?? []).map((account) => [account.id, account.seller?.name ?? ""])),
+    () =>
+      new Map(((payout_accounts ?? []) as PayoutAccountRow[]).map((account) => [account.id, account.seller?.name ?? ""])),
     [payout_accounts]
   )
 

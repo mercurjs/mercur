@@ -7891,6 +7891,22 @@
           ],
           "additionalProperties": false
         },
+        "storeSection": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "empty": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "empty"
+          ],
+          "additionalProperties": false
+        },
         "disabledReason": {
           "type": "object",
           "properties": {
@@ -7938,6 +7954,7 @@
         "sync",
         "refreshLink",
         "capabilities",
+        "storeSection",
         "disabledReason"
       ],
       "additionalProperties": false

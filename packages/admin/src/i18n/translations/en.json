@@ -1934,6 +1934,10 @@
       "header": "Capabilities",
       "kycUnknown": "Not reported"
     },
+    "storeSection": {
+      "header": "Payout account",
+      "empty": "This store has no payout account yet."
+    },
     "disabledReason": {
       "pastDue": "Payouts are paused: the payout provider is waiting for overdue information from this store.",
       "pendingVerification": "Payouts are paused while the payout provider verifies this store's information.",

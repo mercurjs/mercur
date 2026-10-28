@@ -1,4 +1,3 @@
-import { BuildingStorefront } from "@medusajs/icons"
 import { Avatar, Container, Heading, Text } from "@medusajs/ui"
 import { Link } from "react-router-dom"
 
@@ -20,7 +19,7 @@ export const SettlementStoreSection = ({ settlement }: { settlement: SettlementD
             data-testid="stripe-settlement-store-link"
           >
             <div className="flex items-center gap-x-3">
-              <Avatar size="small" variant="squared" fallback={<BuildingStorefront />} />
+              <Avatar size="small" variant="squared" fallback={seller.name.charAt(0).toUpperCase()} />
               <div className="flex flex-col">
                 <Text size="small" leading="compact" weight="plus">
                   {seller.name}

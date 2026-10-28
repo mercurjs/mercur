@@ -149,3 +149,32 @@ export const statusProps = (
 })
 
 export const toNumber = (amount: unknown) => Number(amount ?? 0)
+
+// Stripe's `requirements.disabled_reason` values:
+// https://docs.stripe.com/api/accounts/object#account_object-requirements-disabled_reason
+export const DISABLED_REASON_LABEL: Record<string, string> = {
+  "action_required.requested_capabilities": "Capabilities need to be requested",
+  listed: "Under review: account appears on a restricted list",
+  other: "Disabled by Stripe",
+  platform_paused: "Paused by the platform",
+  "rejected.fraud": "Rejected for suspected fraud",
+  "rejected.incomplete_verification": "Rejected: verification was not completed in time",
+  "rejected.listed": "Rejected: account appears on a prohibited list",
+  "rejected.other": "Rejected by Stripe",
+  "rejected.platform_fraud": "Rejected by the platform for suspected fraud",
+  "rejected.platform_other": "Rejected by the platform",
+  "rejected.platform_terms_of_service": "Rejected by the platform for a terms of service violation",
+  "rejected.terms_of_service": "Rejected for a terms of service violation",
+  "requirements.past_due": "Required information is overdue",
+  "requirements.pending_verification": "Stripe is verifying the submitted information",
+  under_review: "Under review by Stripe",
+}
+
+export const disabledReasonLabel = (reason: string) =>
+  DISABLED_REASON_LABEL[reason] ?? humanizeRequirement(reason)
+
+// Requirement entries are field paths such as `individual.verification.document`.
+export const humanizeRequirement = (requirement: string) => {
+  const text = requirement.split(".").join(" › ").replace(/_/g, " ")
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}

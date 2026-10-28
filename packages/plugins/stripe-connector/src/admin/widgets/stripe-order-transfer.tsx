@@ -20,10 +20,10 @@ type Line = {
 }
 
 const Body = ({ orderId }: { orderId: string }) => {
-  const { data, isPending } = useStripePayouts({ limit: 20, offset: 0, order_id: orderId })
+  const { payouts, isPending } = useStripePayouts({ limit: 20, offset: 0, order_id: orderId })
   const retry = useRetryPayout()
   const blocker = useActionBlocker("payouts", "edit")
-  const rows: Line[] = (data?.payouts ?? []).flatMap((payout) => [
+  const rows: Line[] = (payouts ?? []).flatMap((payout) => [
     {
       id: payout.id,
       title: "Payout",
