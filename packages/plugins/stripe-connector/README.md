@@ -19,8 +19,9 @@ adjustments).
 - **Admin** Finance → Stripe: one tab per job with its run card and table, a
   run history, Settings → Stripe with the webhook URLs, a Stripe section on the
   seller page and a payout widget on the order page.
-- **Vendor** Settings → Stripe: set-up form, onboarding link, KYC status and
-  requirements, payouts, refunds and statements.
+- **Vendor** Integrations → Stripe: set-up form, the Stripe account with what
+  Stripe still needs, and statements. The payout account itself (status,
+  onboarding, verification) shows on the core vendor Payouts page.
 
 ## Install
 
@@ -69,7 +70,7 @@ module.exports = withMercur({
           },
         ],
         onboarding: {
-          returnUrl: `${process.env.VENDOR_URL}/settings/stripe`,
+          returnUrl: `${process.env.VENDOR_URL}/stripe`,
           refreshBaseUrl: process.env.BACKEND_URL,
         },
       },

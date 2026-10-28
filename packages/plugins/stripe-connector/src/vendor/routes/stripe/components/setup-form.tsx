@@ -1,7 +1,7 @@
 import { Button, Container, Heading, Input, Label, Select, Text, toast } from "@medusajs/ui"
 import { useState } from "react"
 
-import { useCreateMyAccount } from "../../../../hooks/api/stripe"
+import { useCreateMyAccount } from "../../../hooks/api/stripe"
 
 const COUNTRIES = ["US", "GB", "DE", "FR", "ES", "IT", "NL", "BE", "PL", "SE", "DK", "NO", "FI", "IE", "AT", "CH", "PT", "CZ", "CA", "AU"]
 

@@ -1,18 +1,23 @@
 import { queryKeysFactory } from "@mercurjs/dashboard-shared"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { UseQueryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import { client } from "../../lib/client"
+import type { VendorSettlementListResponse } from "../../../types/http"
 
 export const vendorStripeKeys = queryKeysFactory("vendor_stripe")
 
 export const useMyStripeAccount = () =>
   useQuery({ queryKey: vendorStripeKeys.detail("me"), queryFn: () => client.vendor["payout-accounts"].me.query({}) })
 
-export const useMySettlements = (query: Record<string, unknown> = {}) =>
-  useQuery({ queryKey: vendorStripeKeys.list({ kind: "settlements", ...query }), queryFn: () => client.vendor.stripe.settlements.query(query) })
-
-export const useMyPayouts = (query: Record<string, unknown> = {}) =>
-  useQuery({ queryKey: vendorStripeKeys.list({ kind: "payouts", ...query }), queryFn: () => client.vendor.payouts.query(query) })
+export const useMySettlements = (
+  query: Record<string, unknown> = {},
+  options?: Omit<UseQueryOptions<VendorSettlementListResponse>, "queryKey" | "queryFn">
+) =>
+  useQuery({
+    queryKey: vendorStripeKeys.list({ kind: "settlements", ...query }),
+    queryFn: () => client.vendor.stripe.settlements.query(query),
+    ...options,
+  })
 
 export const useCreateMyAccount = () => {
   const qc = useQueryClient()

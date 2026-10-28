@@ -3079,7 +3079,53 @@
       "aborted": "Aborted"
     },
     "reversals": {
-      "header": "Reversals"
+      "header": "Reversals",
+      "refund": "Refund",
+      "noRecordsTitle": "No reversals",
+      "noRecordsMessage": "Refunds on this order have not taken anything back from your payout."
+    },
+    "account": {
+      "header": "Payout account",
+      "subtitle": "Where the marketplace sends your share of each order.",
+      "onboardingHint": "Finish onboarding with the payout provider before payouts can start.",
+      "empty": "Your payout account is being set up. It appears here once the payout provider has created it.",
+      "enabled": "Enabled",
+      "notEnabled": "Not enabled yet",
+      "linkReady": "A new onboarding link is ready.",
+      "fields": {
+        "payouts": "Payouts",
+        "verification": "Verification",
+        "lastSynced": "Last synced"
+      },
+      "actions": {
+        "continueOnboarding": "Continue onboarding",
+        "openDashboard": "Open provider dashboard",
+        "refreshLink": "Refresh onboarding link"
+      },
+      "status": {
+        "pending": "Pending",
+        "active": "Active",
+        "restricted": "Restricted",
+        "rejected": "Rejected"
+      },
+      "kyc": {
+        "pending_submission": "Details needed",
+        "pending_approval": "Under review",
+        "approved": "Verified",
+        "refused": "Refused"
+      },
+      "disabled": {
+        "pastDue": "Payouts are paused: the payout provider is waiting for overdue information.",
+        "pendingVerification": "Payouts are paused while the payout provider verifies your information.",
+        "requirements": "Payouts are paused until you finish onboarding with the payout provider.",
+        "rejected": "The payout provider rejected this account. Contact the marketplace.",
+        "underReview": "The payout provider is reviewing your account. Payouts are paused until the review ends.",
+        "other": "The payout provider has paused payouts for this account."
+      }
+    },
+    "references": {
+      "header": "References",
+      "empty": "This payout is not linked to an order."
     }
   },
   "reviews": {

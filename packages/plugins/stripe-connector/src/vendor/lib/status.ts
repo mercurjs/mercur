@@ -105,3 +105,9 @@ export const stripeRequirementsOf = (data: Record<string, unknown> | null | unde
     pending_verification: requirements?.pending_verification ?? [],
   }
 }
+
+// Requirement entries are field paths such as `individual.verification.document`.
+export const humanizeRequirement = (requirement: string) => {
+  const text = requirement.split(".").join(" › ").replace(/_/g, " ")
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}

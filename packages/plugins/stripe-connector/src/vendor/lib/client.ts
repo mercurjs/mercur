@@ -13,7 +13,6 @@ type Empty = { fields?: string }
 
 export type VendorAccount = NonNullable<VendorPayoutAccountMeResponse["payout_account"]>
 export type VendorSettlementRow = VendorSettlementListResponse["settlements"][number]
-export type VendorPayoutRow = VendorPayoutListResponse["payouts"][number]
 
 type Routes = {
   vendor: {

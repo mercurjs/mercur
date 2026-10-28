@@ -68,7 +68,7 @@ module.exports = withMercur({
                 },
               ],
               onboarding: {
-                returnUrl: `${process.env.VENDOR_URL || 'http://localhost:7001'}/settings/stripe`,
+                returnUrl: `${process.env.VENDOR_URL || 'http://localhost:7001'}/stripe`,
                 refreshBaseUrl: process.env.BACKEND_URL || 'http://localhost:9000',
               },
             },

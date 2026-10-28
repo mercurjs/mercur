@@ -113,7 +113,7 @@ module.exports = withMercur({
           },
         ],
         onboarding: {
-          returnUrl: `${process.env.VENDOR_URL}/settings/stripe`,
+          returnUrl: `${process.env.VENDOR_URL}/stripe`,
           refreshBaseUrl: process.env.BACKEND_URL,
         },
       },
@@ -229,7 +229,7 @@ Payouts and reversals use core's statuses `pending`, `on_hold`, `processing`, `p
 
 ## Seller onboarding
 
-Sellers open **Settings → Stripe** in the vendor panel. Before an account exists they pick a country and business type; the onboarding job can also create the account on its own. The page then shows the Express onboarding link (refreshable when it expires), and after onboarding the KYC status, outstanding requirements, whether payouts are enabled, a link to the Stripe dashboard, and their transfers, refunds, statements and payouts.
+Sellers see their payout account on the vendor panel's **Payouts** page: its status, whether payouts are enabled, the verification status, and an action to continue onboarding (with a fresh link when the old one expires) or, once onboarding is done, to open the provider dashboard. The plugin adds a **Stripe** page under **Integrations** in the vendor sidebar. Before an account exists, sellers pick a country and business type there; the onboarding job can also create the account on its own. Afterwards the page shows the Stripe account id, card payments, what Stripe still needs from the seller, and the statements that net their payouts and refunds per period with the bank payout that paid them.
 
 Operators see the same account on the seller page, and can map an existing Stripe account, refresh links, sync from Stripe, or pause a seller's payouts under **Finance → Stripe → Onboarding**. Pausing sets `payout_ignored` on the seller's metadata, and the payout job skips that seller's orders.
 

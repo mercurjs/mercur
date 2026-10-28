@@ -75,6 +75,8 @@ declare module "@mercurjs/dashboard-sdk" {
     "orders.list.before": true
     "payouts.detail.main.after": true
     "payouts.detail.main.before": true
+    "payouts.detail.side.after": true
+    "payouts.detail.side.before": true
     "payouts.list.after": true
     "payouts.list.before": true
     "price-lists.detail.main.after": true
@@ -269,7 +271,7 @@ declare module "@mercurjs/dashboard-sdk" {
       formTabs: Record<string, string>
       formFieldIds: never
       displayZones: "general"
-      displayFieldIds: "amount" | "created_at" | "display_id" | "order_id" | "status" | "status_reason" | "updated_at"
+      displayFieldIds: "amount" | "created_at" | "display_id" | "status" | "updated_at"
       listZones: "list"
       listColumnIds: "amount" | "created_at" | "display_id" | "status"
     }

@@ -12313,10 +12313,199 @@
           "properties": {
             "header": {
               "type": "string"
+            },
+            "refund": {
+              "type": "string"
+            },
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
             }
           },
           "required": [
-            "header"
+            "header",
+            "refund",
+            "noRecordsTitle",
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
+        },
+        "account": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "subtitle": {
+              "type": "string"
+            },
+            "onboardingHint": {
+              "type": "string"
+            },
+            "empty": {
+              "type": "string"
+            },
+            "enabled": {
+              "type": "string"
+            },
+            "notEnabled": {
+              "type": "string"
+            },
+            "linkReady": {
+              "type": "string"
+            },
+            "fields": {
+              "type": "object",
+              "properties": {
+                "payouts": {
+                  "type": "string"
+                },
+                "verification": {
+                  "type": "string"
+                },
+                "lastSynced": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "payouts",
+                "verification",
+                "lastSynced"
+              ],
+              "additionalProperties": false
+            },
+            "actions": {
+              "type": "object",
+              "properties": {
+                "continueOnboarding": {
+                  "type": "string"
+                },
+                "openDashboard": {
+                  "type": "string"
+                },
+                "refreshLink": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "continueOnboarding",
+                "openDashboard",
+                "refreshLink"
+              ],
+              "additionalProperties": false
+            },
+            "status": {
+              "type": "object",
+              "properties": {
+                "pending": {
+                  "type": "string"
+                },
+                "active": {
+                  "type": "string"
+                },
+                "restricted": {
+                  "type": "string"
+                },
+                "rejected": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "pending",
+                "active",
+                "restricted",
+                "rejected"
+              ],
+              "additionalProperties": false
+            },
+            "kyc": {
+              "type": "object",
+              "properties": {
+                "pending_submission": {
+                  "type": "string"
+                },
+                "pending_approval": {
+                  "type": "string"
+                },
+                "approved": {
+                  "type": "string"
+                },
+                "refused": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "pending_submission",
+                "pending_approval",
+                "approved",
+                "refused"
+              ],
+              "additionalProperties": false
+            },
+            "disabled": {
+              "type": "object",
+              "properties": {
+                "pastDue": {
+                  "type": "string"
+                },
+                "pendingVerification": {
+                  "type": "string"
+                },
+                "requirements": {
+                  "type": "string"
+                },
+                "rejected": {
+                  "type": "string"
+                },
+                "underReview": {
+                  "type": "string"
+                },
+                "other": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "pastDue",
+                "pendingVerification",
+                "requirements",
+                "rejected",
+                "underReview",
+                "other"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "header",
+            "subtitle",
+            "onboardingHint",
+            "empty",
+            "enabled",
+            "notEnabled",
+            "linkReady",
+            "fields",
+            "actions",
+            "status",
+            "kyc",
+            "disabled"
+          ],
+          "additionalProperties": false
+        },
+        "references": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "empty": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "empty"
           ],
           "additionalProperties": false
         }
@@ -12328,7 +12517,9 @@
         "order",
         "statusReason",
         "status",
-        "reversals"
+        "reversals",
+        "account",
+        "references"
       ],
       "additionalProperties": false
     },
