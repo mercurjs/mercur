@@ -107,7 +107,7 @@
   "dependencies": {
     "cronstrue": "3.27.0",
     "stripe": "^19.1.0",
-    "zod": "4.6.5"
+    "zod": "4.6.6"
   },
   "engines": {
     "node": ">=20"
