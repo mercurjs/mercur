@@ -1,67 +1,124 @@
 ---
 title: "Telemetry"
-description: "Learn about the anonymous usage data collected by the Mercur CLI"
+description: "What anonymous usage data Mercur collects, why, and how to turn it off"
 ---
 
 ## Overview
 
-The Mercur CLI collects **anonymous usage data** to help us understand how the CLI is used and improve the developer experience. This data is collected by default but can be easily disabled.
+Mercur collects **anonymous usage data** from the CLI tools and from running
+Mercur servers. It tells the maintainers how many installations exist, which
+versions of Mercur, Medusa and Node they run, which first-party plugins they
+use, and whether new installations keep running. That is what decides which
+upgrade paths to keep working and which features to invest in.
 
-## What We Collect
+Collection is on by default and can be turned off in one line. Nothing that
+identifies a company, a person, a shop or a URL ever leaves your machine.
 
-When you run CLI commands (`create`, `init`, `add`, `registry:build`), the following data is sent:
+## Principles
 
-| Data | Description |
-|------|-------------|
-| Event type | Which command was run and its outcome |
-| Node.js version | Your Node.js runtime version |
-| Node environment | The `NODE_ENV` value |
-| Mercur version | Version of `@mercurjs/cli` in your project |
-| Medusa version | Version of `@medusajs/framework` in your project |
-| Package manager | npm, yarn, pnpm, or bun |
-| Project structure | Whether `src/` directory is used, alias prefix |
-| System info | OS, platform, architecture, CPU model/speed/count, RAM |
-| Environment | Whether running in WSL, Docker, or a TTY |
-| Deployment vendor | Detected hosting platform (Railway, Fly.io, Heroku, etc.) |
-| Project ID | SHA-256 hash (base64) of your git remote URL — **not the URL itself** |
-| Project config | Contents of your `blocks.json` configuration |
-| Email | **Only** if you voluntarily provided it during `create-mercur-app` |
+- **Random ids only.** A running server is identified by a random UUID stored
+  in its own database. A developer machine is identified by a random UUID in
+  the CLI config file. No hardware ids, no hostnames, no IP geolocation
+  (`$geoip_disable` is set on every event).
+- **Counts are ranges.** Entity counts are sent as one of `0`, `1-10`,
+  `11-100`, `101-1k`, `1k-10k`, `10k-100k`, `100k+`. Exact numbers never leave.
+- **Only first-party names.** Plugin, module and provider names are reported
+  only when they start with `@mercurjs/` or `@medusajs/`. Anything else is
+  counted (`custom_plugin_count`), never named. Block names are reported only
+  for the official `@mercurjs` registry.
+- **Never in the way.** Every request has a 2 s timeout and every failure is
+  swallowed. Nothing is sent from CI, from test runs, or from Medusa worker
+  processes.
+- **Auditable.** Set `MERCUR_TELEMETRY_DEBUG=true` and every payload is
+  printed instead of sent, so you can see exactly what would leave your
+  machine.
 
-## What We Do NOT Collect
+## How to opt out
 
-- Source code or file contents
-- File names or directory structure
-- Git history or commit messages
-- Personal data (beyond the optional email above)
-
-## How to Opt Out
-
-### Using the CLI
-
-```bash
-bunx @mercurjs/cli@latest telemetry --disable
-```
-
-### Using an environment variable
+Any one of these disables telemetry everywhere (CLI and server):
 
 ```bash
 export MERCUR_DISABLE_TELEMETRY=true
+# or the cross-tool convention
+export DO_NOT_TRACK=1
 ```
 
-This is useful for CI/CD environments or shared configurations.
+For the server only, in `medusa-config.ts`:
 
-### Check current status
-
-```bash
-bunx @mercurjs/cli@latest telemetry
+```ts
+module.exports = withMercur({
+  projectConfig: {
+    mercur: { telemetry: false },
+  },
+})
 ```
 
-## Where Data Goes
-
-Telemetry events are sent to `https://telemetry.mercurjs.com`. The data is used exclusively by the Mercur team to prioritize features and fix issues.
-
-## Re-enabling Telemetry
+For the CLI only:
 
 ```bash
+bunx @mercurjs/cli@latest telemetry --disable   # persists in ~/.config/mercur/config.json
+bunx @mercurjs/cli@latest telemetry             # show current status
 bunx @mercurjs/cli@latest telemetry --enable
 ```
+
+When the server starts it logs one line saying whether telemetry is enabled
+and how to disable it.
+
+## Where data goes
+
+Events are sent to `https://telemetry.mercurjs.com`, a service operated by the
+Mercur team. The data is stored securely, used only in aggregate to guide
+development, and never shared with third parties or used to identify an
+installation or a person.
+
+## What the server sends
+
+### Events
+
+| Event | When |
+| --- | --- |
+| `instance_started` | A few seconds after the HTTP server starts. Not sent by worker processes, migrations or `medusa exec`. |
+| `instance_heartbeat` | Once every 24 hours (plus up to an hour of jitter). With several replicas on one database only one of them sends. |
+| `instance_upgraded` | When a heartbeat sees a different `@mercurjs/core` version than the previous one. Carries `from_version` and `to_version`. |
+| `installation_milestone` | The first time an installation reaches one of the milestones below. Carries `milestone` and `days_since_install`. Never carries ids, names or amounts. |
+
+Milestones: `first_production_boot`, `first_seller`, `first_seller_approved`,
+`first_member_invited`, `first_offer`, `first_product_published`,
+`first_order`, `first_payout_account`, `first_payout_paid`,
+`first_commission_rule`.
+
+### Properties
+
+| Group | Properties |
+| --- | --- |
+| Identity | `schema_version`, `source` (`server`), `installation_id` (random UUID), `project_id` (salted SHA-256 of the git remote URL, or of the working directory when there is no remote), `instance_age_days` |
+| Versions | `mercur_version`, `medusa_version`, `node_version`, `runtime` (`node` or `bun`), `package_manager`, `postgres_version` (major only) |
+| Environment | `node_env`, `os`, `arch`, `cpu_count`, `total_memory_gb`, `containerized`, `cloud_provider` (detected from well-known environment variables), `worker_mode`, `redis_enabled`, `uptime_seconds` |
+| Stack | `plugins`, `custom_plugin_count`, `modules`, `custom_module_count`, `payment_providers`, `payout_provider`, `notification_providers`, `file_provider`, `search_provider`, `feature_flags`, `admin_disabled` |
+| Marketplace (ranges) | `sellers_total`, `sellers_pending`, `sellers_open`, `sellers_suspended`, `members_total`, `products_total`, `products_published`, `products_proposed`, `offers_total`, `product_changes_pending`, `order_groups_total`, `order_groups_last_30d`, `orders_total`, `payouts_paid`, `payouts_failed`, `payout_accounts_active`, `commission_rules_total`, `regions_total`, `currencies_total`, `sales_channels_total` |
+
+## What the CLI sends
+
+Applies to `@mercurjs/cli` and `create-mercur-app`.
+
+| Event | When | Extra properties |
+| --- | --- | --- |
+| `cli_command_executed` | Every command | `command`, `flags` (flag names; values kept only for booleans and fixed choices, otherwise `<redacted>`), `exit_code`, `duration_ms`, `error_category` (`network`, `fs`, `validation`, `registry`, `install`, `database`, `unknown`) |
+| `project_created` | `create-mercur-app` finished | `template`, `package_manager`, `with_storefront`, `skip_db` |
+| `block_added` | `mercurjs add` succeeded | `block` (official registry only, otherwise `<custom-registry>`), `registry_kind`, `overwrite` |
+
+Properties on every CLI event: `schema_version`, `source`, `cli_version`,
+`mercur_version`, `medusa_version`, `node_version`, `runtime`,
+`package_manager`, `os`, `arch`, `is_src_dir`, `is_ci`, `is_tty`, `is_agent`
+(whether an AI coding agent is driving the terminal), `is_docker`, `is_wsl`,
+`cloud_provider`, `project_id`.
+
+## What is never collected
+
+- Source code, file names, directory structure or configuration files
+- Email addresses or any personal data (the optional email prompt was removed)
+- URLs, hostnames, IP addresses or geolocation
+- Names of custom plugins, modules, providers, routes or blocks from private
+  registries
+- Exact entity counts, order values, or anything tied to a seller, customer or
+  order

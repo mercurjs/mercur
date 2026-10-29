@@ -13,7 +13,8 @@ import { spinner } from "@/src/utils/spinner";
 import { Command } from "commander";
 import { z } from "zod";
 import { REGISTRY_ITEM_SCHEMA_URL } from "../registry";
-import { sendTelemetryEvent, showTelemetryNoticeIfNeeded } from "../telemetry";
+import { showTelemetryNoticeIfNeeded } from "../telemetry";
+import { finishCommand } from "../telemetry/command-tracking";
 
 export const buildOptionsSchema = z.object({
   cwd: z.string(),
@@ -65,14 +66,7 @@ async function buildRegistry(opts: z.infer<typeof buildOptionsSchema>) {
         )} to create one.`
       );
       logger.break();
-      await sendTelemetryEvent({
-        type: 'build',
-        payload: {
-          outcome: 'missing_config',
-        }
-      }, {
-        cwd: options.cwd,
-      })
+      await finishCommand(1);
       process.exit(1);
     }
 
@@ -83,14 +77,7 @@ async function buildRegistry(opts: z.infer<typeof buildOptionsSchema>) {
         )}.`
       );
       logger.break();
-      await sendTelemetryEvent({
-        type: 'build',
-        payload: {
-          outcome: 'missing_registry_file',
-        }
-      }, {
-        cwd: options.cwd,
-      })
+      await finishCommand(1);
       process.exit(1);
     }
 
@@ -200,14 +187,6 @@ async function buildRegistry(opts: z.infer<typeof buildOptionsSchema>) {
       }
     }
 
-    await sendTelemetryEvent({
-      type: 'build',
-      payload: {
-        outcome: 'success',
-      }
-    }, {
-      cwd: options.cwd,
-    })
   } catch (error) {
     logger.break();
     handleError(error);
