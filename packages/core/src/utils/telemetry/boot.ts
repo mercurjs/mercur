@@ -105,15 +105,9 @@ async function run(container: MedusaContainer) {
   const reason = telemetryDisabledReason({ configEnabled: isTelemetryConfigEnabled(container) })
 
   if (reason) {
-    if (reason !== "worker" && reason !== "test") {
-      logger.info("Anonymous telemetry is disabled.")
-    }
+    logger.debug(`[telemetry] disabled (${reason}). ${TELEMETRY_DOCS_URL}`)
     return
   }
-
-  logger.info(
-    `Anonymous telemetry is enabled to help improve Mercur. Disable with MERCUR_DISABLE_TELEMETRY=true. ${TELEMETRY_DOCS_URL}`,
-  )
 
   try {
     const service = container.resolve<TelemetryModuleService>(MercurModules.TELEMETRY)
