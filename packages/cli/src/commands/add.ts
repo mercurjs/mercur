@@ -12,6 +12,7 @@ import { logger } from "../utils/logger";
 import { runInit } from "./init";
 import { handleError } from "../utils/handle-error";
 import { sendTelemetryEvent, showTelemetryNoticeIfNeeded } from "../telemetry";
+import { describeBlock } from "../telemetry/blocks";
 
 export const addOptionsSchema = z.object({
   blocks: z.array(z.string()).optional(),
@@ -94,15 +95,15 @@ export const add = new Command()
         path: options.cwd,
       });
 
-      await sendTelemetryEvent({
-        type: 'add',
-        payload: {
-          outcome: 'success',
-          blocks: options.blocks,
-        }
-      }, {
-        cwd: options.cwd,
-      })
+      for (const block of options.blocks) {
+        await sendTelemetryEvent(
+          {
+            event: "block_added",
+            properties: { ...describeBlock(block), overwrite: options.overwrite },
+          },
+          { cwd: options.cwd }
+        );
+      }
     } catch (error) {
       logger.break();
       handleError(error);

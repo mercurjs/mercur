@@ -12,7 +12,7 @@ import { handleError } from "../utils/handle-error";
 import { highlighter } from "../utils/highlighter";
 import { logger } from "../utils/logger";
 import { spinner } from "../utils/spinner";
-import { sendTelemetryEvent, showTelemetryNoticeIfNeeded } from "../telemetry";
+import { showTelemetryNoticeIfNeeded } from "../telemetry";
 
 export const initOptionsSchema = z.object({
   cwd: z.string(),
@@ -48,15 +48,6 @@ export const init = new Command()
         )} Project initialization completed.\nYou may now add blocks.`
       );
       logger.break();
-
-      await sendTelemetryEvent({
-        type: 'init',
-        payload: {
-          outcome: 'success'
-        }
-      }, {
-        cwd: options.cwd,
-      })
     } catch (error) {
       logger.break();
       handleError(error);
