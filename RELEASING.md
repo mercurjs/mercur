@@ -51,6 +51,47 @@ and hoists it to the repo root, where `@mercurjs/core` resolves it and
 
 ## How to Release
 
+Every release, whatever the channel, follows the same path:
+
+1. Branch off `main` (`chore/v<version>`), bump versions, refresh the lockfile.
+2. Run the [pre-release check](#pre-release-check).
+3. Open a PR to `main`. `main` is protected by the `Lint` and `Integration tests`
+   checks, so the bump cannot be pushed directly.
+4. Merge the PR, then tag the **merge commit on `main`** and push only the tag.
+   The release workflow triggers on any `v*` tag push and picks the npm tag
+   from the tag name (`canary` / `rc` / none → `latest`).
+
+Always tag the merged commit on `main`. Tagging a feature branch publishes
+whatever that branch contains under the channel tag, and npm versions cannot be
+reused afterwards. There is no long-lived `canary` branch; the one in the repo
+is stale and must not be pushed to.
+
+### Pre-release Check
+
+Fresh installs of a scaffolded project resolve transitive dependencies anew, so
+they surface peer-dependency drift that the repo's own `bun.lock` hides (e.g.
+`@tiptap/*` minor releases that peer on an exact core version, or
+`@opentelemetry/api` floating past the range the OpenTelemetry SDK accepts).
+Before opening the bump PR, install the template from scratch in a temporary
+directory:
+
+```bash
+tmp=$(mktemp -d) && cp -R templates/basic/. "$tmp" && cd "$tmp" && rm -rf node_modules bun.lock
+bun install 2>&1 | grep -E "warn|error"
+```
+
+The output must be empty (a `No version matching` error for `@mercurjs/*` is
+expected until the new version is published; temporarily point those
+specifiers at the previous release to complete the check). Fix any
+`incorrect peer dependency` warning at its source before releasing:
+
+- A version drift inside one package family (tiptap, radix, …): bump the pinned
+  versions in the owning package (`packages/dashboard-shared` for tiptap) so
+  they match what the family's own ranges resolve to.
+- A transitive package floating past a peer range: pin it in
+  `templates/basic/package.json` under **both** `overrides` (bun/npm) and
+  `resolutions` (yarn), and mirror the pin in the repo-root `overrides`.
+
 ### Stable Release
 
 1. Bump the version in every package's `package.json`:
@@ -79,13 +120,13 @@ bun install
    Commit the updated `bun.lock` together with the version bumps — CI runs
    `bun install --frozen-lockfile` and will fail otherwise.
 
-4. Commit and tag:
+4. Commit on a `chore/v2.X.Y` branch, open a PR to `main` and merge it once
+   checks pass. Then tag the merge commit:
 
 ```bash
-git add -A
-git commit -m "chore: v2.X.Y"
-git tag v2.X.Y
-git push origin main --tags
+git checkout main && git pull
+git tag v2.X.Y          # on the merged "chore: v2.X.Y" commit
+git push origin v2.X.Y
 ```
 
 5. The GitHub Action (`.github/workflows/release.yml`) triggers automatically and:
@@ -105,6 +146,13 @@ Where `Z` is the next incremental number (0, 1, 2, ...).
 
    Also bump every internal cross-dependency (`@mercurjs/*` and `create-mercur-app`)
    in `packages/*` and `packages/plugins/*` to the same `2.X.Y-canary.Z` (see [Internal Dependencies](#internal-dependencies)).
+   Since every occurrence of the previous version must move together, a single
+   replace covers steps 1 and 2:
+
+```bash
+grep -rl "2.X.Y-canary.P" --include=package.json packages apps templates \
+  | xargs sed -i '' 's/2\.X\.Y-canary\.P/2.X.Y-canary.Z/g'
+```
 
 2. Bump every `@mercurjs/*` dependency version inside the `templates/basic` template to the same `2.X.Y-canary.Z` value:
 
@@ -123,16 +171,27 @@ bun install
    Commit the updated `bun.lock` together with the version bumps — CI runs
    `bun install --frozen-lockfile` and will fail otherwise.
 
-4. Commit and tag:
+4. Commit on a `chore/v2.X.Y-canary.Z` branch, open a PR to `main` and merge
+   it once checks pass. Then tag the merge commit:
 
 ```bash
-git add -A
-git commit -m "chore: v2.X.Y-canary.Z"
-git tag v2.X.Y-canary.Z
-git push origin canary --tags
+git checkout main && git pull
+git tag v2.X.Y-canary.Z   # on the merged "chore: v2.X.Y-canary.Z" commit
+git push origin v2.X.Y-canary.Z
 ```
 
 5. The GitHub Action detects `canary` in the tag name and publishes with `--tag canary`.
+
+6. Verify the publish. The workflow reports success as soon as npm accepts each
+   tarball, but large packages (`@mercurjs/core`) can take 10–15 minutes of
+   registry-side processing before the version resolves. Check every package:
+
+```bash
+for p in core cli client types admin vendor dashboard-sdk dashboard-shared stripe-connector-plugin; do
+  echo "@mercurjs/$p: $(npm view @mercurjs/$p dist-tags.canary)"
+done
+echo "create-mercur-app: $(npm view create-mercur-app dist-tags.canary)"
+```
 
 ### Release Candidate
 
@@ -169,13 +228,13 @@ bun install
    Commit the updated `bun.lock` together with the version bumps — CI runs
    `bun install --frozen-lockfile` and will fail otherwise.
 
-4. Commit and tag:
+4. Commit on a `chore/v2.X.Y-rc.Z` branch, open a PR to `main` and merge it
+   once checks pass. Then tag the merge commit:
 
 ```bash
-git add -A
-git commit -m "chore: v2.X.Y-rc.Z"
-git tag v2.X.Y-rc.Z
-git push origin canary --tags
+git checkout main && git pull
+git tag v2.X.Y-rc.Z       # on the merged "chore: v2.X.Y-rc.Z" commit
+git push origin v2.X.Y-rc.Z
 ```
 
 5. The GitHub Action detects `rc` in the tag name and publishes with `--tag rc`.
