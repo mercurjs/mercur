@@ -88,6 +88,7 @@ medusaIntegrationTestRunner({
         expect(props.installation_id).toBe(installation.installation_id)
         expect(props.$groups).toEqual({ installation: installation.installation_id, project: props.project_id })
         expect(props.$geoip_disable).toBe(true)
+        expect(props.demo_data).toBe(false)
         expect(typeof props.project_id).toBe("string")
         expect(props.node_version).toBe(process.version)
         expect(typeof props.mercur_version).toBe("string")

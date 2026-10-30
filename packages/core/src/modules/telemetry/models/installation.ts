@@ -8,6 +8,7 @@ const TelemetryInstallation = model.define("telemetry_installation", {
   last_heartbeat_at: model.dateTime().nullable(),
   last_reported_version: model.text().nullable(),
   milestones: model.json().nullable(),
+  demo_data_seeded_at: model.dateTime().nullable(),
 })
 
 export default TelemetryInstallation

@@ -12,6 +12,7 @@ import { resolveProjectId } from "./identity"
 export type InstallationRecord = {
   installation_id: string
   created_at: Date | string
+  demo_data_seeded_at?: Date | string | null
 }
 
 type ModuleDeclaration = {
@@ -92,6 +93,7 @@ export function collectBaseProperties(
     project_id: projectId,
     instance_age_days: daysBetween(installation.created_at),
     node_env: env.NODE_ENV ?? "development",
+    demo_data: Boolean(installation.demo_data_seeded_at),
     mercur_version: packageVersion("@mercurjs/core"),
     medusa_version: packageVersion("@medusajs/medusa") ?? packageVersion("@medusajs/framework"),
     node_version: process.version,
