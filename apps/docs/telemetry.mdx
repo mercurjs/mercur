@@ -88,7 +88,7 @@ Milestones: `first_production_boot`, `first_seller`, `first_seller_approved`,
 
 | Group | Properties |
 | --- | --- |
-| Identity | `schema_version`, `source` (`server`), `installation_id` (random UUID), `project_id` (salted SHA-256 of the git remote URL, or of the working directory when there is no remote), `instance_age_days` |
+| Identity | `schema_version`, `source` (`server`), `installation_id` (random UUID), `project_id` (salted SHA-256 of the git remote URL, or of the working directory when there is no remote), `instance_age_days`, `demo_data` (`true` when `create-mercur-app` seeded the demo catalog into this database; it never clears) |
 | Versions | `mercur_version`, `medusa_version`, `node_version`, `runtime` (`node` or `bun`), `package_manager`, `postgres_version` (major only) |
 | Environment | `node_env`, `os`, `arch`, `cpu_count`, `total_memory_gb`, `containerized`, `cloud_provider` (detected from well-known environment variables), `worker_mode`, `redis_enabled`, `uptime_seconds` |
 | Stack | `plugins`, `custom_plugin_count`, `modules`, `custom_module_count`, `payment_providers`, `payout_provider`, `notification_providers`, `file_provider`, `search_provider`, `feature_flags`, `admin_disabled` |

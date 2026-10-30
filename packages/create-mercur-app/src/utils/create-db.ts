@@ -1,6 +1,7 @@
 import { getPackageManager } from "./get-package-manager";
 import { logger } from "./logger";
 import { manageEnvFiles } from "./manage-env-files";
+import { markDemoDataSeeded } from "./mark-demo-data";
 import { spinner } from "./spinner";
 import { execa } from "execa";
 import type { Ora } from "ora";
@@ -108,6 +109,8 @@ async function runPostDbSetup(args: DbSetupArgs & {
   if (!seeded) {
     return { success: false, dbName, connectionString: null };
   }
+
+  await markDemoDataSeeded({ connectionString });
 
   const inviteToken = await createAdminInvite({ projectDir });
 
