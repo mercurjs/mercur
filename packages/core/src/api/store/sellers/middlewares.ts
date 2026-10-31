@@ -5,8 +5,12 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { MiddlewareRoute } from "@medusajs/medusa"
-import { SellerStatus } from "@mercurjs/types"
 
+import sellerReview from "../../../links/seller-review"
+import { applyPublicReviewFilters } from "../reviews/helpers"
+import { storePublicReviewQueryConfig } from "../reviews/query-config"
+import { StoreGetPublicReviewsParams } from "../reviews/validators"
+import { getSellerOpenFilters } from "./helpers"
 import * as QueryConfig from "./query-config"
 import { StoreGetSellersParams, StoreGetSellerParams } from "./validators"
 
@@ -15,15 +19,12 @@ function applySellerOpenFilters(
   _res: MedusaResponse,
   next: MedusaNextFunction
 ) {
-  const now = new Date()
+  const { status, $and } = getSellerOpenFilters()
 
-  req.filterableFields.status ??= SellerStatus.OPEN
+  req.filterableFields.status ??= status
 
   req.filterableFields.$and ??= []
-    ; (req.filterableFields.$and as any[]).push(
-      { $or: [{ closed_from: null }, { closed_from: { $gt: now } }] },
-      { $or: [{ closed_to: null }, { closed_to: { $lt: now } }] }
-    )
+    ; (req.filterableFields.$and as unknown[]).push(...$and)
 
   next()
 }
@@ -49,6 +50,17 @@ export const storeSellersMiddlewares: MiddlewareRoute[] = [
         QueryConfig.retrieveSellerQueryConfig
       ),
       applySellerOpenFilters,
+    ],
+  },
+  {
+    method: ["GET"],
+    matcher: "/store/sellers/:id/reviews",
+    middlewares: [
+      validateAndTransformQuery(
+        StoreGetPublicReviewsParams,
+        storePublicReviewQueryConfig.list
+      ),
+      applyPublicReviewFilters("seller", sellerReview.entryPoint, "seller_id"),
     ],
   },
 ]

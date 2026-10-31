@@ -22,3 +22,18 @@ export const StoreUpdateReview = z.object({
   rating: z.number().int().min(1).max(5),
   customer_note: z.string().max(300).nullish(),
 })
+
+export type StoreGetPublicReviewsParamsType = z.infer<
+  typeof StoreGetPublicReviewsParams
+>
+export const StoreGetPublicReviewsParams = createFindParams({
+  offset: 0,
+  limit: 50,
+}).extend({
+  rating: z
+    .union([
+      z.coerce.number().int().min(1).max(5),
+      z.array(z.coerce.number().int().min(1).max(5)),
+    ])
+    .optional(),
+})

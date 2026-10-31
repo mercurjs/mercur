@@ -1,10 +1,12 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { MedusaContainer } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { ReviewWorkflowEvents } from "@mercurjs/core/workflows"
 import { MercurModules } from "@mercurjs/types"
 
 import { adminHeaders, createAdminUser } from "../../../helpers/create-admin-user"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { waitForEvent } from "../../../helpers/wait-for-event"
 
 jest.setTimeout(50000)
 
@@ -122,6 +124,23 @@ medusaIntegrationTestRunner({
 
           expect(error.response.status).toEqual(400)
         })
+
+        it("emits review.updated with the reviewed seller", async () => {
+          const review = await seedSellerReview(appContainer, seller.id)
+          const updated = waitForEvent(appContainer, ReviewWorkflowEvents.UPDATED)
+
+          await api.post(
+            `/admin/reviews/${review.id}`,
+            { status: "published" },
+            adminHeaders
+          )
+
+          expect(await updated).toEqual({
+            id: review.id,
+            reference: "seller",
+            reference_id: seller.id,
+          })
+        })
       })
 
       describe("POST /admin/reviews/:id/respond", () => {
@@ -149,6 +168,26 @@ medusaIntegrationTestRunner({
 
           expect(second.response.status).toBeGreaterThanOrEqual(400)
         })
+
+        it("emits review.responded with the reviewed seller", async () => {
+          const review = await seedSellerReview(appContainer, seller.id)
+          const responded = waitForEvent(
+            appContainer,
+            ReviewWorkflowEvents.RESPONDED
+          )
+
+          await api.post(
+            `/admin/reviews/${review.id}/respond`,
+            { seller_note: "Thanks for the feedback" },
+            adminHeaders
+          )
+
+          expect(await responded).toEqual({
+            id: review.id,
+            reference: "seller",
+            reference_id: seller.id,
+          })
+        })
       })
 
       describe("DELETE /admin/reviews/:id", () => {
@@ -167,6 +206,19 @@ medusaIntegrationTestRunner({
           expect(
             list.data.reviews.find((r: any) => r.id === review.id)
           ).toBeUndefined()
+        })
+
+        it("emits review.deleted with the reviewed seller", async () => {
+          const review = await seedSellerReview(appContainer, seller.id)
+          const deleted = waitForEvent(appContainer, ReviewWorkflowEvents.DELETED)
+
+          await api.delete(`/admin/reviews/${review.id}`, adminHeaders)
+
+          expect(await deleted).toEqual({
+            id: review.id,
+            reference: "seller",
+            reference_id: seller.id,
+          })
         })
       })
     })

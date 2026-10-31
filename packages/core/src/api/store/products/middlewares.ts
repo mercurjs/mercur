@@ -14,6 +14,10 @@ import {
   setTaxContext,
 } from "@medusajs/medusa/api/utils/middlewares/index"
 
+import productReview from "../../../links/product-review"
+import { applyPublicReviewFilters } from "../reviews/helpers"
+import { storePublicReviewQueryConfig } from "../reviews/query-config"
+import { StoreGetPublicReviewsParams } from "../reviews/validators"
 import { storeProductQueryConfig } from "./query-config"
 import {
   StoreGetProductParams,
@@ -123,6 +127,21 @@ export const storeProductsMiddlewares: MiddlewareRoute[] = [
       ),
       applyProductFilters,
       ...pricingMiddlewares,
+    ],
+  },
+  {
+    method: ["GET"],
+    matcher: "/store/products/:id/reviews",
+    middlewares: [
+      validateAndTransformQuery(
+        StoreGetPublicReviewsParams,
+        storePublicReviewQueryConfig.list
+      ),
+      applyPublicReviewFilters(
+        "product",
+        productReview.entryPoint,
+        "product_id"
+      ),
     ],
   },
 ]
