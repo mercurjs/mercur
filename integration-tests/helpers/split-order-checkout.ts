@@ -1,5 +1,6 @@
 import { MedusaContainer } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { createCartCreditLinesWorkflow } from "@medusajs/medusa/core-flows"
 import { MercurModules, SellerStatus } from "@mercurjs/types"
 
 import { createVendorProduct } from "./create-product"
@@ -169,7 +170,16 @@ export const completeSplitOrderCheckout = async (
 
 /** Checks out one cart holding every given offer; resolves to its split orders. */
 export const completeSplitOrderGroupCheckout = async (
-    opts: SplitOrderCheckoutOptions & { offerIds: string[] }
+    opts: SplitOrderCheckoutOptions & {
+        offerIds: string[]
+        creditLines?: {
+            amount: number
+            reference: string
+            reference_id: string
+        }[]
+        /** A cart fully covered by credit lines completes without a payment. */
+        skipPayment?: boolean
+    }
 ): Promise<{ id: string }[]> => {
     const { container, api, storeHeaders } = opts
 
@@ -227,18 +237,30 @@ export const completeSplitOrderGroupCheckout = async (
         )
     }
 
-    const paymentCollection = (
+    if (opts.creditLines?.length) {
+        await createCartCreditLinesWorkflow(container).run({
+            input: opts.creditLines.map((creditLine) => ({
+                ...creditLine,
+                cart_id: cart.id,
+                metadata: null,
+            })),
+        })
+    }
+
+    if (!opts.skipPayment) {
+        const paymentCollection = (
+            await api.post(
+                `/store/payment-collections`,
+                { cart_id: cart.id },
+                storeHeaders
+            )
+        ).data.payment_collection
         await api.post(
-            `/store/payment-collections`,
-            { cart_id: cart.id },
+            `/store/payment-collections/${paymentCollection.id}/payment-sessions`,
+            { provider_id: "pp_system_default" },
             storeHeaders
         )
-    ).data.payment_collection
-    await api.post(
-        `/store/payment-collections/${paymentCollection.id}/payment-sessions`,
-        { provider_id: "pp_system_default" },
-        storeHeaders
-    )
+    }
 
     const completeResp = await api.post(
         `/store/carts/${cart.id}/complete`,
