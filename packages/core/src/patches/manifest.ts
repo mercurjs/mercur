@@ -14,17 +14,6 @@ export interface PatchEntry {
 
 export const PATCHES: PatchEntry[] = [
   {
-    file: "@medusajs+modules-sdk@2.22.0-link-direction.patch",
-    package: "@medusajs/modules-sdk",
-    compatible: { from: "2.21.0", to: "2.23.0" },
-    reason:
-      "Link resolves the link module from the order of a link definition's keys. " +
-      "A compensation replays link definitions from the stored workflow context, a " +
-      "jsonb column that returns keys sorted, so dismissing an order-cart link after " +
-      "a reload asks for cart-order, finds no module and leaves every link behind. " +
-      "The patch falls back to the registered direction. See medusajs/medusa#17486.",
-  },
-  {
     file: "@medusajs+core-flows@2.18.0.patch",
     package: "@medusajs/core-flows",
     // Both targeted files are byte-identical from 2.17.2 through 2.22.0.

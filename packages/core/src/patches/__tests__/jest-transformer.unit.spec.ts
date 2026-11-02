@@ -1,5 +1,4 @@
 import { readFileSync } from "fs"
-import { createRequire } from "module"
 import { join } from "path"
 
 import { process as transform } from "../jest-transformer"
@@ -74,57 +73,6 @@ describe("jest transformer", () => {
 
         expect(code).toContain('fields: ["id", "code", "seller.id"]')
         expect(code).toContain('fields: ["id", "offer.seller_id"]')
-    })
-
-    it("resolves a link whose modules come back from jsonb in the wrong order", () => {
-        const linkEntry = PATCHES.find(
-            (patch) => patch.package === "@medusajs/modules-sdk"
-        )!
-        const linkCopy = resolvePackageCopies(linkEntry.package).find(
-            (candidate) =>
-                candidate.version &&
-                isWithinRange(candidate.version, linkEntry.compatible)
-        )!
-        const sourcePath = join(linkCopy.dir, "dist/link.js")
-        const { code } = transform(readFileSync(sourcePath, "utf8"), sourcePath)
-
-        const sandbox = { exports: {} as Record<string, unknown> }
-        new Function(
-            "exports",
-            "require",
-            "module",
-            "__filename",
-            "__dirname",
-            code
-        )(
-            sandbox.exports,
-            createRequire(sourcePath),
-            sandbox,
-            sourcePath,
-            linkCopy.dir
-        )
-
-        const link = Object.create(
-            (sandbox.exports.Link as { prototype: object }).prototype
-        ) as {
-            getLinkModule: (...args: string[]) => unknown
-            getLinkDataConfig: (link: object) => { moduleA: string; moduleB: string }
-        }
-        link.getLinkModule = (...args: string[]) =>
-            args.join("-") === "order-order_id-cart-cart_id" ? {} : undefined
-
-        expect(
-            link.getLinkDataConfig({
-                cart: { cart_id: "cart_1" },
-                order: { order_id: "order_1" },
-            })
-        ).toMatchObject({ moduleA: "order", moduleB: "cart" })
-        expect(
-            link.getLinkDataConfig({
-                order: { order_id: "order_1" },
-                cart: { cart_id: "cart_1" },
-            })
-        ).toMatchObject({ moduleA: "order", moduleB: "cart" })
     })
 
     it("leaves files it does not target untouched", () => {

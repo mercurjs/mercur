@@ -26,7 +26,6 @@ import {
     acquireLockStep,
     authorizePaymentSessionStep,
     createOrdersStep,
-    createRemoteLinkStep,
     emitEventStep,
     releaseLockStep,
     reserveInventoryStep,
@@ -54,6 +53,7 @@ import {
     PromotionSellerIds,
 } from "../utils"
 import { registerUsageStep } from "../../promotion"
+import { createLinksStep } from "../../common/steps"
 import { splitCapturedCartPaymentWorkflow } from "../../payment/workflows/split-order-payments"
 import { refreshOrderCommissionLinesWorkflow } from "../../commission/workflows/refresh-order-commission-lines"
 import {
@@ -609,7 +609,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             })
 
             parallelize(
-                createRemoteLinkStep(linksToCreate),
+                createLinksStep(linksToCreate),
                 mirrorLineItemOfferLinksToOrderStep({
                     pairs: orderLineOfferPairs,
                 }),
