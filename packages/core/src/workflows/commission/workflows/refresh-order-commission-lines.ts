@@ -46,6 +46,10 @@ export type RefreshOrderCommissionLinesWorkflowInput = {
 
 export const refreshOrderCommissionLinesWorkflowId = "refresh-order-commission-lines"
 
+// Checkout runs this as a step of a stored workflow; compensating it there needs
+// a stored execution of its own, kept as long as checkout keeps its own.
+const THREE_DAYS = 3 * 24 * 60 * 60
+
 /**
  * `setCommissionContext` receives the contexts built from the orders. A
  * handler returns `new StepResponse(contexts)` with `additional_context`
@@ -72,7 +76,11 @@ export const refreshOrderCommissionLinesWorkflow: ReturnWorkflow<
   CommissionLineDTO[],
   RefreshOrderCommissionLinesWorkflowHooks
 > = createWorkflow(
-  refreshOrderCommissionLinesWorkflowId,
+  {
+    name: refreshOrderCommissionLinesWorkflowId,
+    store: true,
+    retentionTime: THREE_DAYS,
+  },
   function (
     input: WorkflowData<RefreshOrderCommissionLinesWorkflowInput>
   ) {
