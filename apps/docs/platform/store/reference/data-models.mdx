@@ -28,7 +28,7 @@ The store account and its public profile. Table `seller`, id prefix `sel`.
 | `approved_at` | `dateTime` | Nullable, set on first approval |
 | `rejected_at` | `dateTime` | Nullable, set on first suspension |
 | `is_premium` | `boolean` | Default `false` |
-| `default_leadtime_to_ship` | `number` | Default `2`, in days |
+| `default_leadtime_to_ship` | `number` | Nullable, in days. Falls back to the marketplace default when `null` |
 | `closed_from` | `dateTime` | Nullable, start of a scheduled closure |
 | `closed_to` | `dateTime` | Nullable, end of a scheduled closure |
 | `closure_note` | `text` | Nullable |
