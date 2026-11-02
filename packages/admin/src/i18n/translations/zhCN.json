@@ -3613,8 +3613,7 @@
       "paid": "已支付",
       "processing": "处理中",
       "pending": "处理中",
-      "failed": "失败",
-      "canceled": "已取消"
+      "failed": "失败"
     }
   },
   "marketplace": {

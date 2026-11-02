@@ -21,7 +21,7 @@ jobs:
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "20"
+          node-version: "24"
           registry-url: "https://registry.npmjs.org"
 
       - name: Generate GitHub release changelog
@@ -55,7 +55,7 @@ jobs:
 
       - name: Publish to npm
         run: |
-          for dir in packages/*/ packages/providers/*/; do
+          for dir in packages/*/ packages/plugins/*/; do
             if [ -f "$dir/package.json" ] && ! grep -q '"private": true' "$dir/package.json"; then
               echo "Publishing $dir with --tag ${{ steps.npm-tag.outputs.tag }}..."
               cd "$dir"

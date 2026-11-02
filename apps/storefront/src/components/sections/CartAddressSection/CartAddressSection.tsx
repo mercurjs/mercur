@@ -6,7 +6,7 @@ import compareAddresses from "@/lib/helpers/compare-addresses"
 import { HttpTypes } from "@medusajs/types"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useActionState, useEffect } from "react"
-import { Button } from "@/components/atoms"
+import { Button } from '@/components/atoms/Button/Button';
 import ErrorMessage from "@/components/molecules/ErrorMessage/ErrorMessage"
 import Spinner from "@/icons/spinner"
 import ShippingAddress from "@/components/organisms/ShippingAddress/ShippingAddress"

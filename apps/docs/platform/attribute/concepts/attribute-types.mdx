@@ -1,59 +1,86 @@
 ---
-title: "Attribute types"
+title: "Attribute types and values"
 sidebarTitle: "Attribute types"
-description: "The five attribute types and the values they hold."
+description: "The five attribute types, how each one stores its values, and the flags every attribute carries."
 ---
 
-In this document, you'll learn about the attribute record, its five types, and
-the values attached to it.
+An attribute is a typed field in the shared catalog, and its type decides what a product can hold for it: a choice from a list, free text, a measurement, or a yes/no flag. Picking the right type matters because it fixes how values are stored and linked, and you can’t change it once the attribute exists.
 
-## Product attribute
+## The attribute record
 
-An attribute is a typed field in the shared catalog, represented by the
-`ProductAttribute` data model (table `product_attribute`, id prefix `pattr`).
-Each attribute carries a `name`, an optional `handle`, a `rank` for ordering, and
-a `type` that decides how its values are validated and rendered.
+Every attribute is a `ProductAttribute` record (id prefix `pattr`) with a `name`, a `type`, and a few flags. Its selectable choices are separate `ProductAttributeValue` records (id prefix `pattrval`) that belong to it and are deleted with it.
 
-```ts
-const { result } = await createProductAttributesWorkflow(container).run({
-  input: {
-    attributes: [
-      {
-        name: "Material",
-        type: "single_select",
-        values: [{ name: "Cotton" }, { name: "Wool" }],
-      },
-    ],
-  },
-})
+```ts title="src/scripts/seed-attributes.ts"
+import type { ExecArgs } from "@medusajs/framework/types"
+import { AttributeType } from "@mercurjs/types"
+import { createProductAttributesWorkflow } from "@mercurjs/core/workflows"
+
+export default async function seedAttributes({ container }: ExecArgs) {
+  await createProductAttributesWorkflow(container).run({
+    input: {
+      attributes: [
+        {
+          name: "Material",
+          type: AttributeType.SINGLE_SELECT,
+          values: [{ name: "Cotton" }, { name: "Linen" }],
+        },
+      ],
+    },
+  })
+}
 ```
 
-The `type` field is one of the `AttributeType` enum values:
+The script creates one global `single_select` attribute with two values. Because no `handle` is passed, the module derives `material` from the name.
 
-| Type | Value | Holds |
-| --- | --- | --- |
-| Single select | `single_select` | One choice from a fixed list of values |
-| Multi select | `multi_select` | Several choices from a fixed list of values |
-| Text | `text` | A free-form string |
-| Unit | `unit` | A numeric measurement (e.g. weight, capacity) |
-| Toggle | `toggle` | A boolean, backed by seeded `true` / `false` values |
+## The five types
 
-## Product attribute value
+The `type` field takes one of the `AttributeType` enum values. Each type stores what a product holds in a different way:
 
-The choices for select-style attributes are `ProductAttributeValue` records
-(table `product_attribute_value`, id prefix `pattrval`). Each value belongs to
-one attribute (`attribute_id`), has its own `name`, `handle`, and `rank`, and is
-deleted along with its parent attribute.
+| Type | Enum | A product holds | Where the value comes from |
+| --- | --- | --- | --- |
+| Single select | `single_select` | One choice from a fixed list | Values you create on the attribute |
+| Multi select | `multi_select` | Several choices from a fixed list | Values you create on the attribute |
+| Text | `text` | A free-form string | A new value created when you attach it |
+| Unit | `unit` | A measurement, such as `400` | A new value created when you attach it |
+| Toggle | `toggle` | `true` or `false` | The two values seeded when the attribute is created |
+
+Only a `multi_select` attribute can be a [variant axis](/platform/attribute/concepts/variant-axes). The other four types describe a product but never shape its variants.
+
+## How values link to products
+
+A product doesn’t store attribute data on itself. Instead, each value it holds is linked to it through the product to value pivot link, and the shape of that link depends on the type:
+
+- **Select types**: the product links to existing values you pick by id
+- **Text and unit**: attaching creates a new `ProductAttributeValue` named after the entered content, for example `"400"`, and links it
+- **Toggle**: the product links to the seeded `"true"` or `"false"` value, and no new value is ever created
 
 <Note>
-  `single_select` and `multi_select` attributes hold a list of predefined
-  `ProductAttributeValue` records. `text` and `unit` create a value on the fly
-  from the entered content when attached to a product. `toggle` is seeded with
-  its `true` / `false` values and never creates new ones.
+  `unit` stores the number as the value’s `name` string. The attribute has no separate unit-of-measure field, so put the unit in the attribute name, for example “Weight (kg)”.
 </Note>
 
-<Tip>
-  Use `is_required` to enforce that a product must carry a value for the
-  attribute, and `is_active` to retire an attribute from new use without deleting
-  its history.
-</Tip>
+## Rules the module enforces
+
+The Product Attribute service adds a few rules on top of the generated CRUD methods:
+
+- **Type is fixed**: `updateProductAttributes` throws when you try to change the `type` of an existing attribute
+- **Handles are derived**: a global attribute without a `handle` gets one from its name, and global select values get one from theirs
+- **Handles are unique**: attribute handles are unique across the catalog, and value handles are unique per attribute
+- **Toggle values are seeded**: creating a `toggle` attribute adds its `true` (rank 0) and `false` (rank 1) values
+
+## Flags on every attribute
+
+Each attribute carries flags that control where it shows up and how it’s treated:
+
+| Field | Default | Effect |
+| --- | --- | --- |
+| `is_required` | `false` | The attachment workflows refuse to remove the attribute from a product |
+| `is_filterable` | `false` | Marks the attribute as a storefront facet |
+| `is_variant_axis` | `false` | Makes a `multi_select` attribute generate a `ProductOption` |
+| `is_active` | `true` | A status flag you can filter attribute lists by |
+| `rank` | `0` | Sort order for attributes and for values within an attribute |
+
+## Related
+
+- [Variant axes and Medusa product options](/platform/attribute/concepts/variant-axes)
+- [Global and inline attributes](/platform/attribute/concepts/global-vs-inline)
+- [Every field on the data models](/platform/attribute/reference/data-models)

@@ -1,10 +1,15 @@
 import { HttpTypes } from "@medusajs/types";
-import { usePermissions } from "@mercurjs/dashboard-shared";
-import { useMemo } from "react";
+import { ColumnDef } from "@tanstack/react-table";
+import {
+  useExtendableGrid,
+  usePermissions,
+} from "@mercurjs/dashboard-shared";
+import { useCallback, useMemo } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import {
+  createDataGridExtensionColumn,
   createDataGridHelper,
   createDataGridLocationStockColumns,
   createDataGridPriceColumns,
@@ -15,9 +20,9 @@ import { useRouteModal } from "../../../../components/modals";
 import { defineTabMeta } from "../../../../components/tabbed-form/types";
 import { usePricePreferences } from "../../../../hooks/api/price-preferences";
 import { useOfferConditions } from "../../../../hooks/api/offer-conditions";
-import { useCurrentSeller } from "../../../../hooks/api/sellers";
 import { useShippingProfiles } from "../../../../hooks/api/shipping-profiles";
 import { useStockLocations } from "../../../../hooks/api/stock-locations";
+import { useSellerCurrencies } from "../../common/use-seller-currencies";
 import { CreateOfferFormValues, OfferVariantRow } from "./schema";
 
 type ShippingProfileLite = { id: string; name?: string | null };
@@ -44,11 +49,16 @@ type GridRow = ProductGroupRow | VariantGridRow;
 const isGroup = (row: GridRow): row is ProductGroupRow =>
   (row as ProductGroupRow).__group === true;
 
+const LOCKED_COLUMN_IDS = ["title"];
+
+const rowPath = (row: GridRow) =>
+  isGroup(row) ? null : `variants.${row.__formIndex}`;
+
 const Root = () => {
   const form = useFormContext<CreateOfferFormValues>();
   const { setCloseOnEscape } = useRouteModal();
 
-  const { currency_code } = useCurrentSeller();
+  const { currencies, regions } = useSellerCurrencies();
   const { can } = usePermissions();
   const { stock_locations } = useStockLocations(
     { limit: 100 },
@@ -65,7 +75,6 @@ const Root = () => {
     {},
     { enabled: can("price_preferences") }
   );
-
   const variants = useWatch({
     control: form.control,
     name: "variants",
@@ -88,14 +97,30 @@ const Root = () => {
     return rows;
   }, [variants]);
 
-  const columns = useColumns({
-    currencyCode: currency_code,
+  const baseColumns = useColumns({
+    currencies,
     stockLocations: stock_locations as
       | HttpTypes.AdminStockLocation[]
       | undefined,
     shippingProfiles: shipping_profiles ?? [],
     offerConditions: offer_conditions ?? [],
     pricePreferences,
+    regions,
+  });
+
+  const createColumn = useCallback(
+    createDataGridExtensionColumn<GridRow, CreateOfferFormValues>,
+    []
+  );
+
+  const columns = useExtendableGrid<GridRow>({
+    model: "offer",
+    zone: "create",
+    tab: "stockLevelsAndPrices",
+    columns: baseColumns as ColumnDef<GridRow, unknown>[],
+    lockedColumnIds: LOCKED_COLUMN_IDS,
+    getRowPath: rowPath,
+    createColumn,
   });
 
   return (
@@ -114,21 +139,23 @@ const Root = () => {
 };
 
 type ColumnArgs = {
-  currencyCode?: string;
+  currencies?: string[];
   stockLocations?: HttpTypes.AdminStockLocation[];
   shippingProfiles?: ShippingProfileLite[];
   offerConditions?: OfferConditionLite[];
   pricePreferences?: HttpTypes.AdminPricePreference[];
+  regions?: HttpTypes.AdminRegion[];
 };
 
 const columnHelper = createDataGridHelper<GridRow, CreateOfferFormValues>();
 
 const useColumns = ({
-  currencyCode,
+  currencies = [],
   stockLocations = [],
   shippingProfiles = [],
   offerConditions = [],
   pricePreferences = [],
+  regions = [],
 }: ColumnArgs) => {
   const { t } = useTranslation();
 
@@ -141,7 +168,9 @@ const useColumns = ({
       value: c.id,
       label: c.label,
     }));
-    const currencies = currencyCode ? [currencyCode] : [];
+    const cellCurrencies = Array.from(
+      new Set([...currencies, ...regions.map((r) => r.currency_code)])
+    );
 
     return [
       columnHelper.column({
@@ -233,6 +262,28 @@ const useColumns = ({
             />
           ),
       }),
+      columnHelper.column({
+        id: "leadtime_to_ship",
+        name: t("offers.fields.leadtime"),
+        header: t("offers.fields.leadtime"),
+        field: (context) => {
+          const row = context.row.original;
+          return isGroup(row)
+            ? null
+            : `variants.${row.__formIndex}.leadtime_to_ship`;
+        },
+        type: "number",
+        cell: (context) =>
+          isGroup(context.row.original) ? (
+            <DataGrid.ReadonlyCell context={context} />
+          ) : (
+            <DataGrid.NumberCell
+              context={context}
+              min={0}
+              placeholder={t("offers.fields.storeDefault")}
+            />
+          ),
+      }),
       ...createDataGridLocationStockColumns<GridRow, CreateOfferFormValues>({
         stockLocations,
         isReadyOnly: (context) => isGroup(context.row.original),
@@ -252,21 +303,31 @@ const useColumns = ({
         getFieldName: (context, value) => {
           const row = context.row.original;
           if (isGroup(row)) return null;
-          if (context.column.id?.startsWith("currency_prices")) {
-            return `variants.${row.__formIndex}.prices.${value}`;
-          }
-          return null;
+          return `variants.${row.__formIndex}.prices.${value}`;
         },
         t,
       }),
+      ...createDataGridPriceColumns<GridRow, CreateOfferFormValues>({
+        currencies: cellCurrencies,
+        regions,
+        pricePreferences,
+        isReadyOnly: (context) => isGroup(context.row.original),
+        getFieldName: (context, value) => {
+          const row = context.row.original;
+          if (isGroup(row)) return null;
+          return `variants.${row.__formIndex}.region_prices.${value}`;
+        },
+        t,
+      }).filter((column) => column.id?.startsWith("region_prices")),
     ];
   }, [
     t,
-    currencyCode,
+    currencies,
     stockLocations,
     shippingProfiles,
     offerConditions,
     pricePreferences,
+    regions,
   ]);
 };
 

@@ -1,7 +1,7 @@
 "use client"
 
-import { Button } from "@/components/atoms"
-import { UserNavigation } from "@/components/molecules"
+import { Button } from '@/components/atoms/Button/Button';
+import { UserNavigation } from '@/components/molecules/UserNavigation/UserNavigation';
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { ArrowLeftIcon } from "@/icons"
 import { ReturnItemsTab } from "./ReturnItemsTab"

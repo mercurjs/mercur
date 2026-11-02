@@ -1,4 +1,9 @@
-import { ProductDetailsPage } from "@/components/sections"
+import { Suspense } from "react"
+
+import {
+  ProductDetailsPage,
+  ProductDetailsPageSkeleton,
+} from "@/components/sections/ProductDetailsPage/ProductDetailsPage"
 import { listProducts } from "@/lib/data/products"
 import { generateProductMetadata } from "@/lib/helpers/seo"
 import type { Metadata } from "next"
@@ -18,16 +23,17 @@ export async function generateMetadata({
   return generateProductMetadata(prod, locale)
 }
 
-export default async function ProductPage({
-  params,
-}: {
-  params: Promise<{ handle: string; locale: string }>
-}) {
-  const { handle, locale } = await params
-
+export default function ProductPage({ params }: PageProps<"/[locale]/products/[handle]">) {
   return (
     <main className="container">
-      <ProductDetailsPage handle={handle} locale={locale} />
+      <Suspense fallback={<ProductDetailsPageSkeleton />}>
+        <ProductContent params={params} />
+      </Suspense>
     </main>
   )
+}
+
+async function ProductContent({ params }: Pick<PageProps<"/[locale]/products/[handle]">, "params">) {
+  const { handle, locale } = await params
+  return <ProductDetailsPage handle={handle} locale={locale} />
 }

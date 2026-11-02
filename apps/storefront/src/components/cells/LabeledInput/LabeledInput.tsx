@@ -1,5 +1,5 @@
 "use client"
-import { Input } from "@/components/atoms"
+import { Input } from '@/components/atoms/Input/Input';
 import { cn } from "@/lib/utils"
 import { FieldError } from "react-hook-form"
 

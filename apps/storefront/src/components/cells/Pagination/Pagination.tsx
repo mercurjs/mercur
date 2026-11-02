@@ -1,5 +1,5 @@
 "use client"
-import { PaginationButton } from "@/components/atoms"
+import { PaginationButton } from '@/components/atoms/PaginationButton/PaginationButton';
 import { CollapseIcon, MeatballsMenuIcon } from "@/icons"
 
 export const Pagination = ({

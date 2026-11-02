@@ -2,15 +2,14 @@
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { cn } from "@/lib/utils"
 import { HttpTypes } from "@medusajs/types"
-import { useParams } from "next/navigation"
+import { ActiveCategory } from "@/components/molecules/ActiveCategory/ActiveCategory"
 
-export const HeadingCategories = ({
+const HeadingCategoriesView = ({
+  category,
   categories,
 }: {
   categories: HttpTypes.StoreProductCategory[]
-}) => {
-  const { category } = useParams()
-
+} & { category?: string }) => {
   return (
     <nav className="hidden lg:flex space-x-2 items-center flex-col md:flex-row">
       {categories?.map(({ id, handle, name }) => (
@@ -28,3 +27,11 @@ export const HeadingCategories = ({
     </nav>
   )
 }
+
+export const HeadingCategories = (props: {
+  categories: HttpTypes.StoreProductCategory[]
+}) => (
+  <ActiveCategory fallback={<HeadingCategoriesView {...props} />}>
+    {(category) => <HeadingCategoriesView {...props} category={category} />}
+  </ActiveCategory>
+)

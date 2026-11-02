@@ -1,43 +1,69 @@
 import crypto from "crypto"
 
 import {
-  CreatePayoutAccountInput,
-  CreatePayoutAccountResponse,
-  CreatePayoutInput,
-  CreatePayoutResponse,
+  AccountOutput,
+  CreateAccountInput,
+  CreateLoginLinkInput,
   CreateOnboardingInput,
-  CreateOnboardingResponse,
+  CreatePayoutInput,
+  LinkOutput,
+  ListAccountsInput,
+  ListAccountsOutput,
+  PayoutAccountStatus,
+  PayoutOutput,
+  PayoutStatus,
   PayoutWebhookActionInput,
   PayoutWebhookResult,
-  IPayoutProvider,
-  PayoutAccountStatus,
-  PayoutStatus,
+  RetrieveAccountInput,
+  ReversePayoutInput,
 } from "@mercurjs/types"
 
-export class SystemPayoutProvider implements IPayoutProvider {
+import { AbstractPayoutProvider } from "../utils/abstract-payout-provider"
+
+const activeAccount = (id: string, data: Record<string, unknown> = {}): AccountOutput => ({
+  id,
+  status: PayoutAccountStatus.ACTIVE,
+  payouts_enabled: true,
+  charges_enabled: true,
+  details_submitted: true,
+  disabled_reason: null,
+  requirements: { currently_due: [], past_due: [], pending_verification: [] },
+  data,
+})
+
+export class SystemPayoutProvider extends AbstractPayoutProvider {
   static identifier = "system"
 
-  async createPayoutAccount(
-    _input: CreatePayoutAccountInput
-  ): Promise<CreatePayoutAccountResponse> {
-    return {
-      id: crypto.randomUUID(),
-      status: PayoutAccountStatus.ACTIVE,
-      data: {},
-    }
+  constructor(container: Record<string, unknown>, options: Record<string, unknown>) {
+    super(container, options)
   }
 
-  async createPayout(_input: CreatePayoutInput): Promise<CreatePayoutResponse> {
-    return {
-      status: PayoutStatus.PAID,
-      data: {},
-    }
+  async createAccount(_input: CreateAccountInput): Promise<AccountOutput> {
+    return activeAccount(crypto.randomUUID())
   }
 
-  async createOnboarding(
-    _input: CreateOnboardingInput
-  ): Promise<CreateOnboardingResponse> {
-    return { data: {} }
+  async retrieveAccount(input: RetrieveAccountInput): Promise<AccountOutput> {
+    return activeAccount(input.account.id, input.account.data)
+  }
+
+  async listAccounts(_input: ListAccountsInput): Promise<ListAccountsOutput> {
+    return { accounts: [], has_more: false }
+  }
+
+  async createOnboarding(input: CreateOnboardingInput): Promise<LinkOutput> {
+    return { url: input.return_url, data: {} }
+  }
+
+  async createLoginLink(input: CreateLoginLinkInput): Promise<LinkOutput> {
+    return { url: `system://account/${input.account.id}`, data: {} }
+  }
+
+  async createPayout(_input: CreatePayoutInput): Promise<PayoutOutput> {
+    return { id: crypto.randomUUID(), status: PayoutStatus.PAID, data: {} }
+  }
+
+  async reversePayout(_input: ReversePayoutInput): Promise<PayoutOutput> {
+    return { id: crypto.randomUUID(), status: PayoutStatus.PAID, data: {} }
   }
 
   async getWebhookActionAndData(
@@ -46,4 +72,3 @@ export class SystemPayoutProvider implements IPayoutProvider {
     return { action: "not_supported" }
   }
 }
-

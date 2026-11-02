@@ -11,6 +11,10 @@ type LinkSellerCustomerGroupStepInput = {
 export const linkSellerCustomerGroupStep = createStep(
   "link-seller-customer-group",
   async (input: LinkSellerCustomerGroupStepInput, { container }) => {
+    if (!input.customer_group_ids.length) {
+      return new StepResponse(undefined, undefined)
+    }
+
     const remoteLink: Link = container.resolve(ContainerRegistrationKeys.LINK)
 
     // Module order must match the `defineLink` order in

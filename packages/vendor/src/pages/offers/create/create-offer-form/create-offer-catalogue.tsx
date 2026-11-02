@@ -2,6 +2,7 @@ import { HttpTypes } from "@medusajs/types"
 import { Checkbox, Text } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
 import {
+  ColumnDef,
   OnChangeFn,
   RowSelectionState,
   createColumnHelper,
@@ -9,7 +10,12 @@ import {
 import { useMemo, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import { isForbidden, SectionNoAccess } from "@mercurjs/dashboard-shared"
+import {
+  isForbidden,
+  mergeListFilters,
+  SectionNoAccess,
+  useExtendableTable,
+} from "@mercurjs/dashboard-shared"
 
 import {
   CategoryCell,
@@ -89,8 +95,12 @@ const Root = () => {
     { placeholderData: keepPreviousData },
   )
 
-  const filters = useProductTableFilters()
-  const columns = useColumns()
+  const baseFilters = useProductTableFilters()
+  const { columns, filters: extFilters } = useColumns()
+  const filters = useMemo(
+    () => mergeListFilters(baseFilters, extFilters),
+    [baseFilters, extFilters],
+  )
 
   const { table } = useDataTable({
     data: (products ?? []) as ProductRow[],
@@ -153,7 +163,7 @@ const columnHelper = createColumnHelper<ProductRow>()
 const useColumns = () => {
   const { t } = useTranslation()
 
-  return useMemo(
+  const base = useMemo(
     () => [
       columnHelper.display({
         id: "select",
@@ -232,6 +242,20 @@ const useColumns = () => {
     ],
     [t],
   )
+
+  const selectColumn = base[0]
+  const { columns: extended, filters } = useExtendableTable<ProductRow>({
+    model: "offer",
+    zone: "create-catalogue",
+    columns: base.slice(1) as unknown as ColumnDef<ProductRow, unknown>[],
+  })
+
+  const columns = useMemo(
+    () => [selectColumn, ...extended] as ColumnDef<ProductRow, unknown>[],
+    [selectColumn, extended],
+  )
+
+  return { columns, filters }
 }
 
 Root._tabMeta = defineTabMeta<CreateOfferFormValues>({

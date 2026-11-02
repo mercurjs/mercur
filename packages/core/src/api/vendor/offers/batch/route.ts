@@ -7,6 +7,7 @@ import { CreateOfferDTO } from "@mercurjs/types"
 
 import { createOffersWorkflow } from "../../../../workflows/offer"
 import { validateSellerStockLocations } from "../../stock-locations/helpers"
+import { validateSellerRegionPrices } from "../../regions/helpers"
 import { VendorCreateOffersBatchType } from "../validators"
 
 export const POST = async (
@@ -42,8 +43,20 @@ export const POST = async (
     )
   )
 
+  await validateSellerRegionPrices(
+    req.scope,
+    sellerId,
+    offers.flatMap((offer) => offer.prices ?? [])
+  )
+
   const { result } = await createOffersWorkflow(req.scope).run({
-    input: { offers, additional_data },
+    input: {
+      offers,
+      additional_data,
+      offers_additional_data: req.validatedBody.offers.map(
+        (o) => o.additional_data
+      ),
+    },
   })
 
   const offerIds = result.map((o) => o.id)

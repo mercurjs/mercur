@@ -1,4 +1,5 @@
-import { useCan } from "@mercurjs/dashboard-shared"
+import { ColumnDef } from "@tanstack/react-table"
+import { useCan, useExtendableTable } from "@mercurjs/dashboard-shared"
 import type { HttpTypes } from "@medusajs/types"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -48,7 +49,17 @@ export const ReservationItemTable = ({
     }))
   }, [reservations, stock_locations])
 
-  const columns = useReservationTableColumn({ sku: inventoryItem.sku! })
+  const baseColumns = useReservationTableColumn({ sku: inventoryItem.sku! })
+  const actionsColumn = baseColumns[baseColumns.length - 1]
+  const { columns: extended } = useExtendableTable<ExtendedReservationItem>({
+    model: "reservation",
+    zone: "inventory-item",
+    columns: baseColumns.slice(0, -1) as unknown as ColumnDef<ExtendedReservationItem, unknown>[],
+  })
+  const columns = useMemo(
+    () => [...extended, actionsColumn] as ColumnDef<ExtendedReservationItem, unknown>[],
+    [extended, actionsColumn],
+  )
 
   const { table } = useDataTable({
     data: data ?? [],

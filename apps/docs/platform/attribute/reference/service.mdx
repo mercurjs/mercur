@@ -1,49 +1,88 @@
 ---
-title: "Service reference"
+title: "Product Attribute module service"
 sidebarTitle: "Service"
-description: "The Product Attribute module service, with methods for working with records directly."
+description: "Resolve the Product Attribute module service, and the generated and overridden methods it exposes."
 ---
 
-The Product Attribute module exposes a service you can resolve from the Medusa
-container to read and write records directly, without going through a workflow.
-Use it inside custom services, subscribers, or scheduled jobs.
+The Product Attribute module service reads and writes `ProductAttribute` and `ProductAttributeValue` records directly. Use it for reads in routes, subscribers, and scheduled jobs. For writes, prefer the [workflows](/platform/attribute/reference/workflows), because the service doesn’t emit events, update the mirror `ProductOption`, or link values to products.
 
-```ts
-import { MercurModules } from "@mercurjs/types"
+## Resolve the service
 
-const attributeModuleService = container.resolve(
-  MercurModules.PRODUCT_ATTRIBUTE,
-)
+Resolve the service from the container with `MercurModules.PRODUCT_ATTRIBUTE`, whose value is `"product_attribute"`.
 
-const [attributes, count] =
-  await attributeModuleService.listAndCountProductAttributes({
-    type: "single_select",
-  })
+```ts title="src/api/admin/catalog-import/facets/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { AttributeType, MercurModules } from "@mercurjs/types"
+
+export async function GET(req: MedusaRequest, res: MedusaResponse) {
+  const attributeService = req.scope.resolve(MercurModules.PRODUCT_ATTRIBUTE)
+
+  const [attributes, count] =
+    await attributeService.listAndCountProductAttributes(
+      { is_filterable: true, product_id: null },
+      { relations: ["values"], order: { rank: "ASC" } }
+    )
+
+  res.json({ attributes, count })
+}
 ```
+
+The route lists filterable global attributes in rank order, each with its values.
 
 ## Generated methods
 
-Each data model gets a standard set of auto-generated methods. For
-`ProductAttribute`:
+The service extends `MedusaService`, so each data model gets the standard methods. For `ProductAttribute`:
 
 | Method | Description |
 | --- | --- |
-| `createProductAttributes(data)` | Create one or more attributes |
-| `retrieveProductAttribute(id, config?)` | Retrieve an attribute by id |
-| `listProductAttributes(filters?, config?)` | List attributes matching filters |
-| `listAndCountProductAttributes(filters?, config?)` | List attributes with a total count |
-| `updateProductAttributes(data)` | Update one or more attributes |
-| `deleteProductAttributes(ids)` | Delete one or more attributes |
+| `retrieveProductAttribute(id, config?)` | Retrieve one attribute by id |
+| `listProductAttributes(filters?, config?)` | List attributes. Overridden, see below |
+| `listAndCountProductAttributes(filters?, config?)` | List attributes with a total count. Overridden, see below |
+| `createProductAttributes(data)` | Create one or more attributes. Overridden, see below |
+| `updateProductAttributes(data)` | Update one or more attributes by id. Overridden, see below |
+| `deleteProductAttributes(ids)` | Hard-delete attributes and their values |
+| `softDeleteProductAttributes(ids)` | Soft-delete attributes and their values |
+| `restoreProductAttributes(ids)` | Restore soft-deleted attributes |
 
-The same set exists for `ProductAttributeValue`: `createProductAttributeValues`,
-`retrieveProductAttributeValue`, `listProductAttributeValues`,
-`listAndCountProductAttributeValues`, `updateProductAttributeValues`, and
-`deleteProductAttributeValues`.
+`ProductAttributeValue` gets the same set: `retrieveProductAttributeValue`, `listProductAttributeValues`, `listAndCountProductAttributeValues`, `createProductAttributeValues`, `updateProductAttributeValues`, `deleteProductAttributeValues`, `softDeleteProductAttributeValues`, and `restoreProductAttributeValues`.
+
+## Overridden methods
+
+Five methods add behavior on top of the generated ones.
+
+### createProductAttributes
+
+```ts
+createProductAttributes(data: object | object[], sharedContext?: Context)
+```
+
+Derives a `handle` from `name` for any global attribute created without one. After creating, it seeds a `"true"` value (rank 0) and a `"false"` value (rank 1) for every `toggle` attribute. It doesn’t create any other values, so add them with `createProductAttributeValues`.
+
+### updateProductAttributes
+
+```ts
+updateProductAttributes(data: object | object[], sharedContext?: Context)
+```
+
+Throws `INVALID_DATA` when an update sets a `type` that differs from the attribute’s current type. Every other field passes through.
+
+### listProductAttributes and listAndCountProductAttributes
+
+```ts
+listProductAttributes(filters?, config?: FindConfig, sharedContext?: Context)
+listAndCountProductAttributes(filters?, config?, sharedContext?)
+```
+
+When `config.relations` or `config.select` asks for `values`, the service loads them in a separate query. Only `single_select`, `multi_select`, and `toggle` attributes get their values. `text` and `unit` attributes come back with `values: []`, because their values belong to individual products.
+
+### createProductAttributeValues
+
+```ts
+createProductAttributeValues(data: object | object[], sharedContext?: Context)
+```
+
+Derives a `handle` from `name` for values of global `single_select` and `multi_select` attributes. Values of inline attributes and of `text`, `unit`, and `toggle` attributes keep a `null` handle.
 
 <Warning>
-  Prefer [workflows](/platform/attribute/reference/workflows) for anything with
-  side effects, such as creating an axis attribute, attaching attributes to a
-  product, or keeping the mirror `ProductOption` in sync. The service writes records
-  directly and does **not** emit events, maintain the option mirror, or run
-  compensation.
+  Writing `product_option_id` or `product_option_value_id` through the service doesn’t create or change any Medusa option. Use `createProductAttributesWorkflow` and the value workflows so the mirror stays correct.
 </Warning>

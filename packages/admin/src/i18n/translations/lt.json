@@ -3617,8 +3617,7 @@
       "paid": "Apmokėta",
       "processing": "Apdorojama",
       "pending": "Laukia",
-      "failed": "Nepavyko",
-      "canceled": "Atšauktas"
+      "failed": "Nepavyko"
     }
   },
   "marketplace": {

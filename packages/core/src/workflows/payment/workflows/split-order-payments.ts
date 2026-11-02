@@ -1,6 +1,7 @@
 import { PaymentCollectionStatus, PaymentEvents } from "@medusajs/framework/utils"
 import {
   createWorkflow,
+  parallelize,
   transform,
   when,
   WorkflowResponse,
@@ -86,23 +87,27 @@ export const splitCapturedCartPaymentWorkflow = createWorkflow(
       ({ input }) => `split-order-payment:${input.cart_id}`
     )
 
+    // Runs as a sub-workflow of checkout and races the `payment.captured`
+    // subscriber, so the lock must also be taken on the nested path.
     acquireLockStep({
       key: lockKey,
       timeout: LOCK_TIMEOUT_SECONDS,
       ttl: LOCK_TTL_SECONDS,
+      executeOnSubWorkflow: true,
     })
 
-    const cartPaymentQuery = useQueryGraphStep({
-      entity: "cart_payment_collection",
-      fields: cartPaymentCollectionFields,
-      filters: { cart_id: input.cart_id },
-    }).config({ name: "get-cart-payment-collection" })
-
-    const cartOrdersQuery = useQueryGraphStep({
-      entity: "order_cart",
-      fields: cartOrderFields,
-      filters: { cart_id: input.cart_id },
-    }).config({ name: "get-cart-orders" })
+    const [cartPaymentQuery, cartOrdersQuery] = parallelize(
+      useQueryGraphStep({
+        entity: "cart_payment_collection",
+        fields: cartPaymentCollectionFields,
+        filters: { cart_id: input.cart_id },
+      }).config({ name: "get-cart-payment-collection" }),
+      useQueryGraphStep({
+        entity: "order_cart",
+        fields: cartOrderFields,
+        filters: { cart_id: input.cart_id },
+      }).config({ name: "get-cart-orders" })
+    )
 
     const plan = transform(
       { cartPaymentQuery, cartOrdersQuery },
@@ -212,7 +217,7 @@ export const splitCapturedCartPaymentWorkflow = createWorkflow(
       data: capturedEvents,
     })
 
-    releaseLockStep({ key: lockKey })
+    releaseLockStep({ key: lockKey, executeOnSubWorkflow: true })
 
     return new WorkflowResponse(capturedPayments)
   }

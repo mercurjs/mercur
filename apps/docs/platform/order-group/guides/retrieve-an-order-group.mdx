@@ -1,63 +1,114 @@
 ---
-title: "Retrieve an order group"
+title: "Retrieve an order group with its child orders"
 sidebarTitle: "Retrieve an order group"
-description: "Load an order group and its aggregated child orders with getOrderGroupDetailWorkflow."
+description: "Load one order group, its child orders, and their payment and fulfillment status with getOrderGroupDetailWorkflow."
 ---
 
-In this guide, you'll learn how to load a single order group together with its
-child orders from your own server code.
+Load one order group from server code when you build an order page, an email, or an export that needs the whole purchase.
 
-Mercur exposes a `getOrderGroupDetailWorkflow` that fetches the group, expands
-its child orders, and derives each order's payment and fulfillment status. Run it
-from any place that has access to the Medusa container.
+## Before you begin
 
-## Run the workflow
+You need the following:
 
-```ts title="src/api/custom/order-group/[id]/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { getOrderGroupDetailWorkflow } from "@mercurjs/core/workflows"
+- **A completed multi-seller cart**: at least one order group in your database, for example from a storefront checkout
+- **The group id**: an id with the `og` prefix, such as `og_01JD8Q1234567`
 
-export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const { result: order_group } = await getOrderGroupDetailWorkflow(
-    req.scope
-  ).run({
-    input: {
-      order_group_id: req.params.id,
-      fields: ["id", "display_id", "total", "seller_count", "cart_id"],
-    },
-  })
+## Load the group in an API route
 
-  res.json({ order_group })
-}
+<Steps>
+  <Step title="Create the route">
+    Run `getOrderGroupDetailWorkflow` with the group id and the fields you want back.
+
+    ```ts title="src/api/admin/purchases/[id]/route.ts"
+    import type {
+      MedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import { getOrderGroupDetailWorkflow } from "@mercurjs/core/workflows"
+
+    export async function GET(req: MedusaRequest, res: MedusaResponse) {
+      const { result: order_group } = await getOrderGroupDetailWorkflow(
+        req.scope
+      ).run({
+        input: {
+          order_group_id: req.params.id,
+          fields: ["id", "display_id", "total", "seller_count", "cart_id"],
+        },
+      })
+
+      res.json({ order_group })
+    }
+    ```
+
+    The workflow adds the child order fields it needs on top of yours, so `order_group.orders` is always populated. Each order carries `payment_status` and `fulfillment_status`.
+  </Step>
+  <Step title="Add the child order fields you display">
+    Ask for extra order fields with the `orders.` prefix.
+
+    ```ts
+    const fields = [
+      "id",
+      "display_id",
+      "total",
+      "orders.display_id",
+      "orders.total",
+      "orders.seller.name",
+    ]
+    ```
+
+    The workflow always returns `orders.id`, `orders.status`, `orders.currency_code`, and `orders.items.*`. Everything else on the order comes from your list.
+  </Step>
+  <Step title="Handle a missing group">
+    The workflow throws a `NOT_FOUND` error when no group has the id. Inside an API route, Medusa’s error handler turns it into a 404 response, so you don’t need to check the result.
+  </Step>
+</Steps>
+
+## Keep payment collections and fulfillments in the response
+
+The workflow loads every child order’s payment collections and fulfillments to compute the statuses, then drops them from the result. To keep them, include a field that contains `payment_collections` or `fulfillments`:
+
+```ts
+fields: [
+  "id",
+  "orders.payment_collections.id",
+  "orders.fulfillments.id",
+]
 ```
 
-The workflow always expands the group's child orders regardless of the `fields`
-you pass, so `order_group.orders` is populated with each seller's slice.
-
-<Note>
-  The workflow only fetches heavy relations when you ask for them: include a
-  `payment_collections` field to get per-order `payment_status`, and a
-  `fulfillments` field to get `fulfillment_status`. Otherwise those collections
-  are stripped from the response to keep it lean.
-</Note>
+Before the payment is captured, `payment_collections` holds the cart’s shared collection. After capture, it holds the order’s own collection. Fields that start with `orders.cart` keep the child orders’ `cart` in the result too.
 
 ## Follow the cart link
 
-The group's read-only `cart_id` points back to the immutable cart it came from.
-Expand it through the module link when you need the original basket:
+Expand the read-only cart link to get the basket the group came from:
 
 ```ts
-await getOrderGroupDetailWorkflow(req.scope).run({
-  input: {
-    order_group_id: req.params.id,
-    fields: ["id", "cart.id", "cart.email", "orders.id", "orders.total"],
-  },
+fields: ["id", "cart.id", "cart.email", "cart.completed_at"]
+```
+
+The cart is completed and frozen, so these values match what the shopper paid for.
+
+## Find the group for an order
+
+When you start from a child order id, look up the group through the `order_group_order` link entity, then run the workflow with its id:
+
+```ts
+const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+const { data: [link] } = await query.graph({
+  entity: "order_group_order",
+  fields: ["order_group_id"],
+  filters: { order_id: "order_01JD8Q1234568" },
 })
 ```
 
+`ContainerRegistrationKeys` comes from `@medusajs/framework/utils`. `link` is `undefined` when the order isn’t part of a group.
+
 <Tip>
-  Prefer the workflow over reading the record directly. It does the child-order
-  status aggregation for you. The raw
-  [service method](/platform/order-group/reference/service) returns only the
-  group row and its computed totals.
+  Use the workflow rather than `retrieveOrderGroup` when you need child orders. The service method returns the group row and its computed totals only, without orders or statuses.
 </Tip>
+
+## Next steps
+
+- [List and filter order groups](/platform/order-group/guides/list-order-groups)
+- [How the child order statuses are derived](/platform/order-group/concepts/computed-totals#child-order-statuses)
+- [`getOrderGroupDetailWorkflow` reference](/platform/order-group/reference/workflows#getordergroupdetailworkflow)

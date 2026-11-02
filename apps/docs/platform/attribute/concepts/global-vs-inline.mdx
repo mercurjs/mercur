@@ -1,50 +1,72 @@
 ---
-title: "Global vs inline & filtering"
+title: "Global and inline attributes"
 sidebarTitle: "Global vs inline"
-description: "Catalog-wide attributes, product-scoped attributes, and storefront filtering."
+description: "Catalog-wide attributes, attributes scoped to one product, category scoping, and storefront filters."
 ---
 
-In this document, you'll learn the difference between global and inline
-attributes and how an attribute becomes a storefront filter.
+Every attribute is either global, a catalog entry any product can reuse, or inline, a one-off field created on a single product. Global attributes keep the catalog consistent across stores. Inline attributes cover the odd field one product needs without adding noise to the shared vocabulary.
 
-## Scope
+## Scope is decided by product_id
 
-Every `ProductAttribute` is either **global** or **inline**, decided by its
-`product_id` field:
+The `product_id` field on `ProductAttribute` decides the scope. It’s `null` for a global attribute and holds the product’s id for an inline one:
 
-| Scope | `product_id` | Meaning |
-| --- | --- | --- |
-| Global | `null` | A catalog entry, reusable across any product, listed in the operator's attribute catalog |
-| Inline | set | A one-off attribute scoped to a single product, created from that product's form and hidden from the global catalog |
+| Scope | `product_id` | Created by | Listed in the catalog |
+| --- | --- | --- | --- |
+| Global | `null` | `createProductAttributesWorkflow` | Yes |
+| Inline | `prod_…` | An inline entry in a product’s `add` list | No |
+
+The admin, vendor, and store attribute list routes all filter on `product_id: null`, so inline attributes never appear in the catalog. You read them from the product through the `scoped_attributes` link instead.
 
 ```ts
-// Global: reusable across the catalog
-{ name: "Material", type: "single_select", values: [{ name: "Cotton" }] }
-
-// Inline: scoped to one product, created as it's attached
-{ title: "Gift wrap", type: "toggle", product_id: "prod_123" }
+const { data: [product] } = await query.graph({
+  entity: "product",
+  fields: ["id", "scoped_attributes.name", "scoped_attributes.values.name"],
+  filters: { id: "prod_01JD8Q1234567" },
+})
 ```
 
-A global attribute is defined once and attached to many products. An inline
-attribute is created in the same step it is attached and only ever describes that
-one product. It is useful for the occasional one-off field that doesn't belong in
-the shared vocabulary.
+## Create an inline attribute
 
-<Note>
-  Attributes describe products in the **shared master catalog**. They are never
-  owned by a store. A seller sells against a master product through an offer, and
-  the product's attributes come from the catalog, not from the seller.
-</Note>
+You create an inline attribute while you attach it. An `add` entry with a `title` instead of an `id` creates a product-scoped attribute, its values, and the links in one step:
 
-## Filtering
+```ts
+await createAndLinkProductAttributesToProductWorkflow(container).run({
+  input: {
+    product_id: "prod_01JD8Q1234567",
+    add: [{ title: "Gift wrap", value: true }],
+  },
+})
+```
 
-An attribute with `is_filterable` set to `true` is exposed as a storefront
-filter, letting shoppers narrow the catalog by its values. Leave it `false` for
-descriptive-only attributes that shouldn't appear as facets.
+When you omit `type`, the workflow infers it: `is_variant_axis: true` makes a `multi_select` axis, a boolean `value` makes a `toggle`, and anything else makes a `text` attribute. Inline attributes get no derived handle, so their names never clash with the catalog.
+
+The two scopes behave differently over their life:
+
+- **Rename**: an `update` entry with a `title` renames an inline attribute and, for an axis, its exclusive option, but it’s ignored for a global attribute
+- **Remove**: removing an inline attribute from its product deletes the attribute and its values, while removing a global one drops the product’s value links and, for an axis, detaches the option
+- **Delete**: `deleteProductAttributesWorkflow` refuses to delete a global attribute while any of its values are linked to a product
+
+## Scope global attributes to categories
+
+A global attribute can link to product categories through the `categories` link. The admin and vendor attribute lists accept a `product_category_id` filter and return two groups: attributes linked to that category, and attributes linked to no category at all. Category links change where an attribute is offered:
+
+- **No categories**: the attribute is offered for every product
+- **One or more categories**: the attribute is offered only for products in those categories
+
+Pass `category_ids` to `createProductAttributesWorkflow` to create the links with the attribute.
+
+## Storefront filters
+
+Shoppers filter `GET /store/products` with `attributes[<handle>]=value` query parameters. The store middleware turns each one into a filter on `variants.options.value`, so filtering works on variant axis values. Several values for one attribute are OR’d, and separate attributes are AND’d.
+
+`is_filterable` doesn’t change that query. It’s a flag your storefront reads from the store attribute list to decide which attributes to render as facets.
 
 <Tip>
-  Filtering pairs naturally with variant axes: a filterable `multi_select` axis
-  like Color both generates variants and lets shoppers filter by them. A
-  descriptive `text` attribute like Care instructions is usually left
-  non-filterable.
+  Mark axes such as Size and Color as filterable. Descriptive `text` attributes such as care instructions aren’t variant options, so the product filter can’t match them.
 </Tip>
+
+## Related
+
+- [Attach attributes to a product](/platform/attribute/guides/attach-attributes-to-a-product)
+- [Variant axes and Medusa product options](/platform/attribute/concepts/variant-axes)
+- [The scoped_attributes and categories links](/platform/attribute/reference/links)

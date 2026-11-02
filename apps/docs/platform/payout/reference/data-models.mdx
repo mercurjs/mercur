@@ -1,61 +1,130 @@
 ---
-title: "Data models"
+title: "Payout data models"
 sidebarTitle: "Data models"
-description: "The data models owned by the Payout domain."
+description: "Every field of PayoutAccount, Onboarding, Payout, and PayoutReversal, plus the payout enums."
 ---
 
-The Payout domain is owned by the **Payout module**. This reference lists its
-data models and their fields. For the full module overview, see the
-[Payout overview](/platform/payout/overview).
+The Payout module owns 4 data models: `PayoutAccount`, `Onboarding`, `Payout`, and `PayoutReversal`. They’re defined in `packages/core/src/modules/payout/models`, and the module service is registered as `MercurModules.PAYOUT`. Every model also gets Medusa’s `created_at`, `updated_at`, and `deleted_at` columns.
+
+The module has no provider table and no `provider_id` columns: a marketplace has exactly one payout provider.
 
 ## PayoutAccount
 
-Table `payout_account`, id prefix `pacc`. A seller's connection to the payment
-provider. This is the record funds are transferred to.
+A seller’s connection to the payout provider. Table `payout_account`, id prefix `pacc`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
-| `id` | text | Primary key |
-| `status` | enum | `PayoutAccountStatus`, default `pending` |
-| `data` | json | Provider-specific account data |
-| `context` | json | Nullable; per-request provider hints |
+| `id` | `text` | Primary key, such as `pacc_01JD8Q1234567` |
+| `external_id` | `text`, nullable | The provider’s account id, such as a Stripe `acct_…` id. Unique when set, like `external_id` on Medusa’s `AccountHolder` |
+| `status` | `enum` | `PayoutAccountStatus`, default `pending` |
+| `kyc_status` | `enum`, nullable | `PayoutKycStatus`, derived from the provider’s requirements |
+| `payouts_enabled` | `boolean` | Mirrors the provider, default `false` |
+| `charges_enabled` | `boolean` | Mirrors the provider, default `false` |
+| `details_submitted` | `boolean` | Mirrors the provider, default `false` |
+| `disabled_reason` | `text`, nullable | The provider’s reason for disabling the account |
+| `onboarding_token` | `text`, nullable | Secret for the public refresh URL. Unique when set, rotated on every refresh, cleared once details are submitted |
+| `onboarding_token_issued_at` | `dateTime`, nullable | When `onboarding_token` was issued. The refresh URL rejects a token older than `onboarding.tokenTtlSeconds` |
+| `last_synced_at` | `dateTime`, nullable | When the account was last read from the provider |
+| `data` | `json` | The provider’s account object, default `{}`. Provider details such as outstanding requirements live here |
+| `context` | `json`, nullable | Provider context passed at creation |
 
-Relations: `onboarding` (one-to-one, nullable), `payouts` (one-to-many).
+Relations:
+
+- **`onboarding`**: `hasOne` `Onboarding`, nullable, mapped by `account`
+- **`payouts`**: `hasMany` `Payout`, mapped by `account`
+
+The seller is reached through the `seller_payout_account` link, not a column. See [Links](/platform/payout/reference/links).
 
 ## Onboarding
 
-Table `onboarding`, id prefix `onb`. Provider setup state for a payout account
-(for Stripe Connect, the onboarding link).
+The provider’s onboarding state for one payout account. Table `onboarding`, id prefix `onb`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
-| `id` | text | Primary key |
-| `data` | json | Nullable; provider onboarding data |
-| `context` | json | Nullable; per-request provider hints |
-| `account_id` | text | Belongs to a `PayoutAccount` |
+| `id` | `text` | Primary key, such as `onb_01JD8Q1234567` |
+| `data` | `json`, nullable | Provider link data plus `url`, `kind` (`onboarding` or `login`), and `expires_at` |
+| `context` | `json`, nullable | Provider context from the last onboarding call |
+| `account_id` | `text` | Foreign key to `PayoutAccount` |
 
-<Note>
-  `Onboarding` is one-to-one with `PayoutAccount`. Re-running the onboarding
-  workflow updates the existing record rather than creating a second one.
-</Note>
+Relations:
+
+- **`account`**: `belongsTo` `PayoutAccount`, mapped by `onboarding`
 
 ## Payout
 
-Table `payout`, id prefix `pout`. A single transfer of a seller's earnings for
-one order.
+The seller’s share of one order, sent to their payout account. Table `payout`, id prefix `pout`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
-| `id` | text | Primary key |
-| `display_id` | number | Auto-incrementing, human-readable |
-| `currency_code` | text | The payout's currency |
-| `amount` | bigNumber | Order total minus commission |
-| `data` | json | Nullable; provider transfer data |
-| `status` | enum | `PayoutStatus`, default `pending` |
-| `account_id` | text | Belongs to a `PayoutAccount` |
+| `id` | `text` | Primary key, such as `pout_01JD8Q1234567` |
+| `display_id` | `autoincrement` | Human-readable sequence number |
+| `order_id` | `text`, nullable | The order paid out. Unique when set, so an order is paid once |
+| `currency_code` | `text` | Currency of the payout |
+| `amount` | `bigNumber` | Order total minus commission, net of refunds that landed before the payout |
+| `status` | `enum` | `PayoutStatus`, default `pending` |
+| `status_reason` | `text`, nullable | A `PayoutStatusReason` code saying why the payout is on hold, failed, or aborted |
+| `data` | `json`, nullable | `attempts`, `idempotency_key`, `status_detail` (the details behind `status_reason`), `source_payment`, `absorbed_refund_ids`, and the provider response under `provider`, whose `id` is the provider’s payout id, such as a Stripe transfer id |
+| `metadata` | `json`, nullable | Your own data |
+| `account_id` | `text` | Foreign key to `PayoutAccount` |
+
+Relations:
+
+- **`account`**: `belongsTo` `PayoutAccount`, mapped by `payouts`
+- **`reversals`**: `hasMany` `PayoutReversal`, mapped by `payout`, deleted with the payout
+
+Indexes, all limited to rows where `deleted_at IS NULL`:
+
+- **`IDX_payout_account_id_created_at`**: on `account_id`, `created_at`
+- **`IDX_payout_status_created_at`**: on `status`, `created_at`
+- **`IDX_payout_order_id`**: unique on `order_id` when set
+
+## PayoutReversal
+
+One refund’s share taken back from a payout, the way Medusa keeps a `Refund` under a `Payment`. Table `payout_reversal`, id prefix `pourev`.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `text` | Primary key |
+| `refund_id` | `text`, nullable | The Medusa refund reversed. Unique when set |
+| `amount` | `bigNumber` | The refund minus its share of the commission |
+| `status` | `enum` | `PayoutStatus`, default `pending` |
+| `status_reason` | `text`, nullable | A `PayoutStatusReason` code saying why the reversal is on hold, failed, or aborted |
+| `data` | `json`, nullable | `attempts`, `idempotency_key`, `status_detail`, and the provider response under `provider`, whose `id` is the provider’s reversal id |
+| `payout_id` | `text` | Foreign key to `Payout` |
+
+Relations:
+
+- **`payout`**: `belongsTo` `Payout`, mapped by `reversals`
 
 ## Enums
 
-**`PayoutAccountStatus`:** `pending`, `active`, `restricted`, `rejected`.
+The enums are exported from `@mercurjs/types`.
 
-**`PayoutStatus`:** `pending`, `processing`, `paid`, `failed`, `canceled`.
+`PayoutAccountStatus`:
+
+| Member | Value |
+| --- | --- |
+| `PENDING` | `pending` |
+| `ACTIVE` | `active` |
+| `RESTRICTED` | `restricted` |
+| `REJECTED` | `rejected` |
+
+`PayoutKycStatus`:
+
+| Member | Value |
+| --- | --- |
+| `PENDING_SUBMISSION` | `pending_submission` |
+| `PENDING_APPROVAL` | `pending_approval` |
+| `APPROVED` | `approved` |
+| `REFUSED` | `refused` |
+
+`PayoutStatus`, used by both `Payout` and `PayoutReversal`:
+
+| Member | Value |
+| --- | --- |
+| `PENDING` | `pending` |
+| `ON_HOLD` | `on_hold` |
+| `PROCESSING` | `processing` |
+| `PAID` | `paid` |
+| `FAILED` | `failed` |
+| `ABORTED` | `aborted` |

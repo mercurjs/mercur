@@ -32,7 +32,7 @@ export const POST = async (
 
   if (!sellerMembers.length) {
     throw new MedusaError(
-      MedusaError.Types.NOT_ALLOWED,
+      MedusaError.Types.FORBIDDEN,
       "You are not a member of this seller account"
     )
   }

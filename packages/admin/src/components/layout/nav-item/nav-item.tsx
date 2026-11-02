@@ -150,16 +150,14 @@ export const NavItem = ({
       isNested?: boolean;
       isSetting?: boolean;
     }) => {
-      if (["core", "setting"].includes(type)) {
-        isActive = pathname.startsWith(to);
+      isActive = pathname.startsWith(to);
 
-        if (isActive && !isNested && items?.length) {
-          const nestedIsActive = items.some((item) =>
-            pathname.startsWith(item.to),
-          );
-          if (nestedIsActive) {
-            isActive = false;
-          }
+      if (isActive && !isNested && items?.length) {
+        const nestedIsActive = items.some((item) =>
+          pathname.startsWith(item.to),
+        );
+        if (nestedIsActive) {
+          isActive = false;
         }
       }
 
@@ -169,7 +167,7 @@ export const NavItem = ({
         [SETTING_NAV_LINK_CLASSES]: isSetting,
       });
     },
-    [type, pathname, items],
+    [pathname, items],
   );
 
   const isSetting = type === "setting";

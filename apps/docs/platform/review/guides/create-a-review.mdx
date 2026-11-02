@@ -1,55 +1,125 @@
 ---
-title: "Create a review"
+title: "Create a review from your own route"
 sidebarTitle: "Create a review"
-description: "Create a review programmatically with createReviewWorkflow."
+description: "Run createReviewWorkflow from a custom API route, an import script, or a seed."
 ---
 
-In this guide, you'll learn how to create a review from your own server code. This
-is useful in a custom storefront route, an import script, or a seed.
+Run `createReviewWorkflow` to create a review outside the built-in `POST /store/reviews` route, for example in a custom checkout follow-up, an import script, or a seed. The workflow validates the order, creates the review as `pending`, and writes its four links.
 
-Mercur exposes a `createReviewWorkflow` that validates the submission, creates the
-`Review` record, and links it to its target, order, and customer in one step. Run
-it from any place that has access to the Medusa container.
+## Before you begin
 
-## Run the workflow
+You need the following:
 
-```ts title="src/api/custom/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { createReviewWorkflow } from "@mercurjs/core/workflows"
+- **A customer and an order**: the order’s `customer_id` must match the customer you pass
+- **A target id**: a product id for a product review, or a seller id for a store review
+- **Mercur core installed**: the Review module ships in `@mercurjs/core`, so there’s nothing else to register
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  const { result } = await createReviewWorkflow(req.scope).run({
-    input: {
-      order_id: "order_123",
-      reference: "product",
-      reference_id: "prod_123",
-      rating: 5,
-      customer_note: "Exactly as described.",
-      customer_id: "cus_123",
-    },
-  })
+<Steps>
+  <Step title="Add the route">
+    Create a route that reads the signed-in customer and runs the workflow:
 
-  res.status(201).json({ review: result })
+    ```ts title="src/api/store/order-reviews/route.ts" {14-22}
+    import type {
+      AuthenticatedMedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import { createReviewWorkflow } from "@mercurjs/core/workflows"
+
+    type Body = { order_id: string; product_id: string; rating: number }
+
+    export async function POST(
+      req: AuthenticatedMedusaRequest<Body>,
+      res: MedusaResponse
+    ) {
+      const { order_id, product_id, rating } = req.body
+      const { result } = await createReviewWorkflow(req.scope).run({
+        input: {
+          order_id,
+          reference: "product",
+          reference_id: product_id,
+          rating,
+          customer_id: req.auth_context.actor_id,
+        },
+      })
+
+      res.status(201).json({ review: result })
+    }
+    ```
+
+    The route always creates a product review. Pass `reference: "seller"` with a seller id in `reference_id` to rate a store instead. `customer_note` is optional and defaults to `null`.
+  </Step>
+  <Step title="Require a signed-in customer">
+    Custom `/store` routes aren’t authenticated by default. Add the `authenticate` middleware so `auth_context.actor_id` holds the customer id:
+
+    ```ts title="src/api/middlewares.ts"
+    import { authenticate, defineMiddlewares } from "@medusajs/framework/http"
+
+    export default defineMiddlewares({
+      routes: [
+        {
+          method: ["POST"],
+          matcher: "/store/order-reviews",
+          middlewares: [authenticate("customer", ["session", "bearer"])],
+        },
+      ],
+    })
+    ```
+
+    This is the same middleware the built-in Store review routes use.
+  </Step>
+  <Step title="Call the route">
+    Send a request as the customer who placed the order:
+
+    ```bash
+    curl -X POST http://localhost:9000/store/order-reviews \
+      -H "Authorization: Bearer your_customer_token" \
+      -H "x-publishable-api-key: your_publishable_key" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "order_id": "order_01JD8Q1234567",
+        "product_id": "prod_01JD8Q1234568",
+        "rating": 5
+      }'
+    ```
+
+    The response holds the new review with `status: "pending"`.
+  </Step>
+</Steps>
+
+## Validate the rating and the target
+
+`createReviewWorkflow` checks only that the order belongs to the customer and that the order hasn’t reviewed this target yet. It stores any `rating` you pass and doesn’t check that the product or seller was part of the order. Validate both before you run it:
+
+```ts title="src/api/store/order-reviews/route.ts"
+if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+  throw new MedusaError(MedusaError.Types.INVALID_DATA, "Invalid rating")
+}
+
+const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+const { data: [order] } = await query.graph({
+  entity: "order",
+  fields: ["items.product_id"],
+  filters: { id: order_id },
+})
+
+if (!order?.items?.some((item) => item?.product_id === product_id)) {
+  throw new MedusaError(MedusaError.Types.NOT_ALLOWED, "Not in order")
 }
 ```
 
-The `reference` field selects the target: pass `"product"` with a product id, or
-`"seller"` with a seller id, in `reference_id`.
+Import `MedusaError` and `ContainerRegistrationKeys` from `@medusajs/framework/utils`. Put this block before the workflow call.
 
-<Note>
-  The workflow validates that the `order_id` belongs to `customer_id` and that
-  the customer hasn't already reviewed the same target on that order. Either
-  check failing raises an error and no review is created.
-</Note>
+## Handle a rejected submission
 
-## Statuses on creation
+The workflow throws a `MedusaError` with type `INVALID_DATA` in two cases, and Medusa returns them as `400` responses:
 
-A new review is created as `pending` and stays hidden until it's moderated. See
-[Moderate a review](/platform/review/guides/moderate-a-review) to publish or
-reject it.
+- **“Order not found!”**: the order doesn’t exist or belongs to another customer
+- **“Review already exists”**: this order already has a review with the same `reference` and target id
 
-<Tip>
-  A single order can back several reviews, one per distinct target. Create the
-  product review and the seller review as two separate calls with different
-  `reference` / `reference_id` values.
-</Tip>
+When either check fails, nothing is written. If a later step fails, the workflow deletes the review it created.
+
+## Next steps
+
+- [Moderate the new review](/platform/review/guides/moderate-a-review)
+- [Check createReviewWorkflow’s steps and input](/platform/review/reference/workflows)
+- [Learn how reference picks the target](/platform/review/concepts/product-vs-seller-reviews)

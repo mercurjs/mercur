@@ -1,5 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
-import { CategoryNavbar, NavbarSearch } from "@/components/molecules"
+import { CategoryNavbar } from '@/components/molecules/CategoryNavbar/CategoryNavbar';
+import { NavbarSearch } from '@/components/molecules/NavbarSearch/NavbarSearch';
 
 export const Navbar = ({
   categories,

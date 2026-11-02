@@ -1,83 +1,135 @@
 ---
-title: "Create an offer"
+title: "Create an offer from your server code"
 sidebarTitle: "Create an offer"
-description: "Create a single offer programmatically with createOffersWorkflow."
+description: "Run createOffersWorkflow to list a master variant for a store with a SKU, price, stock, and shipping profile."
 ---
 
-In this guide, you'll learn how to create an offer from your own server code,
-for example in a custom API route, a seed script, or an import flow.
+Create an offer with `createOffersWorkflow` when you list products for a store outside the Vendor panel, for example in a custom route, a seed script, or an import job.
 
-Mercur exposes a `createOffersWorkflow` that creates the `Offer` record, its
-inventory items, and its price rows, and wires up every link in one run. Run it
-from any place that has access to the Medusa container.
+## Before you begin
 
-## Run the workflow
+You need these records in place:
 
-```ts title="src/api/custom/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { createOffersWorkflow } from "@mercurjs/core/workflows"
+- **A store**: its `seller_id` and the id of a member to record as `created_by`
+- **A master variant**: the `variant_id` the store will sell
+- **A shipping profile**: one that belongs to the store
+- **A stock location**: where the starting stock is held
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  const { result } = await createOffersWorkflow(req.scope).run({
-    input: {
-      offers: [
-        {
-          seller_id: "sel_123",
-          created_by: "mem_123",
-          variant_id: "variant_123",
-          shipping_profile_id: "sp_123",
-          sku: "ACME-WIDGET-01",
-          prices: [{ amount: 2500, currency_code: "usd" }],
-          inventory_items: [
+## Create the offer
+
+<Steps>
+  <Step title="Add a route that runs the workflow">
+    Create an API route that runs `createOffersWorkflow` with one offer.
+
+    ```ts title="src/api/admin/custom/offers/route.ts"
+    import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+    import { createOffersWorkflow } from "@mercurjs/core/workflows"
+
+    const stock = [{ location_id: "sloc_01JD8Q1234567", stocked_quantity: 50 }]
+
+    export async function POST(req: MedusaRequest, res: MedusaResponse) {
+      const { result } = await createOffersWorkflow(req.scope).run({
+        input: {
+          offers: [
             {
-              stock_levels: [{ location_id: "sloc_1", stocked_quantity: 50 }],
+              seller_id: "sel_01JD8Q1234567",
+              created_by: "mem_01JD8Q1234567",
+              variant_id: "variant_01JD8Q1234567",
+              shipping_profile_id: "sp_01JD8Q1234567",
+              sku: "ACME-LS-M",
+              prices: [{ amount: 4700, currency_code: "eur" }],
+              inventory_items: [{ stock_levels: stock }],
             },
           ],
         },
-      ],
-    },
-  })
+      })
 
-  res.status(201).json({ offer: result[0] })
+      res.status(201).json({ offer: result[0] })
+    }
+    ```
+
+    The workflow returns the created `Offer` rows. The one `inventory_items` entry becomes a new inventory item with 50 units at the location.
+  </Step>
+  <Step title="Know what the run wires up">
+    One run does more than insert the row:
+
+    - **Inventory**: creates an `InventoryItem` per entry, links it to the offer with its `required_quantity`, and links it to the store
+    - **Prices**: adds each price to the variant’s price set with an `offer_id` rule and links it to the offer
+    - **Barcodes**: copies `ean` and `upc` from the variant when you leave them out
+    - **Shipping**: links the master product to the shipping profile if the product has none
+    - **Event**: emits `offer.created` with `{ id, product_id }`
+  </Step>
+  <Step title="Read the offer back with its links">
+    Query the offer with its prices and stock to confirm the result.
+
+    ```ts
+    const { data: [offer] } = await query.graph({
+      entity: "offer",
+      fields: [
+        "id",
+        "sku",
+        "prices.amount",
+        "prices.currency_code",
+        "inventory_item_link.required_quantity",
+        "inventory_item_link.inventory_item.location_levels.*",
+      ],
+      filters: { id: result[0].id },
+    })
+    ```
+
+    `prices` reads the offer’s own rows on the shared price set. `inventory_item_link` returns the pivot rows, so you get `required_quantity` with each item.
+  </Step>
+</Steps>
+
+## Set selling terms and a condition
+
+The offer accepts optional fields beyond the required ones. Add them to the same entry:
+
+```ts
+{
+  sku: "ACME-LS-M-RF",
+  condition_id: "ofcond_01JD8Q1234567",
+  manage_inventory: true,
+  allow_backorder: false,
+  leadtime_to_ship: 3,
+  metadata: { source: "erp" },
 }
 ```
 
-<Note>
-  Each offer must reference an existing master `variant_id` and include at least
-  one `inventory_items` entry. The SKU must be unique within the store.
-  Reusing an existing `(seller_id, sku)` pair is rejected.
-</Note>
+`condition_id` must point at an active offer condition. `manage_inventory` defaults to `true`, `allow_backorder` to `false`, and `leadtime_to_ship` to `null`.
 
-## What the workflow wires up
+## Attach custom data with additional_data
 
-A single run does more than insert a row:
+Pass `additional_data` to the run to hand extra values to the `offersCreated` hook. Use it to store data from your own module next to the offer.
 
-- Creates a new `InventoryItem` per `inventory_items` entry (with any `stock_levels`) and links each to the offer. Remember, inventory links to the **offer**, not the variant.
-- Writes each price onto the master variant's shared price set, stamped with an `offer_id` rule, and links the price rows to the offer.
-- Links the offer to its store, product, variant, and shipping profile.
-- Emits `offer.created`.
+```ts title="src/workflows/hooks/offers-created.ts"
+import { createOffersWorkflow } from "@mercurjs/core/workflows"
 
-## Attach custom data
-
-The workflow accepts an `additional_data` payload that is passed to its
-`offersCreated` hook, letting you persist marketplace-specific data alongside the
-offer without forking the workflow.
-
-```ts
-await createOffersWorkflow(req.scope).run({
-  input: {
-    offers: [
-      {
-        seller_id: "sel_123",
-        created_by: "mem_123",
-        variant_id: "variant_123",
-        shipping_profile_id: "sp_123",
-        sku: "ACME-WIDGET-01",
-        prices: [{ amount: 2500, currency_code: "usd" }],
-        inventory_items: [{ stock_levels: [{ location_id: "sloc_1", stocked_quantity: 50 }] }],
-      },
-    ],
-    additional_data: { source: "csv-import" },
-  },
-})
+createOffersWorkflow.hooks.offersCreated(
+  async ({ offers, additional_data }, { container }) => {
+    const logger = container.resolve("logger")
+    for (const offer of offers) {
+      logger.info(`${offer.sku}: ${additional_data?.source ?? "api"}`)
+    }
+  }
+)
 ```
+
+The hook receives the created offers with their `prices` loaded. Run the workflow with `additional_data: { source: "erp" }` to see the value in the handler.
+
+## Handle a failed run
+
+The workflow validates the whole input and rolls back on failure. Compensation removes the inventory items, prices, and links it already created.
+
+A run fails when:
+
+- **A variant doesn’t exist**: `Variant with id … was not found`
+- **An offer has no inventory items**: `Offer must have at least one inventory item`
+- **A condition is unknown or inactive**: `Offer condition … is not active` or not found
+- **A SKU is taken in the store**: the `(seller_id, sku)` unique index rejects the insert
+
+## Next steps
+
+- [Bulk-create offers](/platform/offer/guides/bulk-create-offers)
+- [Manage offer inventory](/platform/offer/guides/manage-offer-inventory)
+- [createOffersWorkflow reference](/platform/offer/reference/workflows)

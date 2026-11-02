@@ -1,10 +1,8 @@
 'use client';
 
-import { Input } from '@/components/atoms';
-import {
-  Accordion,
-  FilterCheckboxOption,
-} from '@/components/molecules';
+import { Input } from '@/components/atoms/Input/Input';
+import { Accordion } from '@/components/molecules/Accordion/Accordion';
+import { FilterCheckboxOption } from '@/components/molecules/FilterCheckboxOption/FilterCheckboxOption';
 import useFilters from '@/hooks/useFilters';
 import { SearchIcon } from '@/icons';
 import { useEffect, useState } from 'react';

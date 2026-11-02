@@ -43,6 +43,10 @@ const EditStoreSchema = zod.object({
   phone: zod.string().optional().or(zod.literal("")),
   description: zod.string().optional().or(zod.literal("")),
   website_url: zod.string().optional().or(zod.literal("")),
+  default_leadtime_to_ship: zod
+    .string()
+    .regex(/^\d*$/, { message: i18n.t("store.leadtime.invalid") })
+    .optional(),
   media: zod.array(MediaSchema).optional(),
   bannerMedia: zod.array(MediaSchema).optional(),
 });
@@ -105,6 +109,8 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
       phone: seller.phone ?? "",
       description: seller.description ?? "",
       website_url: stripWebsiteProtocol(seller.website_url),
+      default_leadtime_to_ship:
+        seller.default_leadtime_to_ship?.toString() ?? "",
       media: seller.logo
         ? [
             {
@@ -182,6 +188,9 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
         phone: values.phone || null,
         description: values.description || null,
         website_url: ensureWebsiteProtocol(values.website_url),
+        default_leadtime_to_ship: values.default_leadtime_to_ship
+          ? Number(values.default_leadtime_to_ship)
+          : null,
         logo: logoUrl,
         banner: bannerUrl,
         additional_data: values.additional_data,
@@ -344,6 +353,27 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
               </Select>
             </Form.Item>
           </div>
+          <Form.Field
+            control={form.control}
+            name="default_leadtime_to_ship"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label optional>{t("store.leadtime.label")}</Form.Label>
+                <Form.Control>
+                  <Input
+                    type="number"
+                    min={0}
+                    step={1}
+                    inputMode="numeric"
+                    {...field}
+                    data-testid="store-edit-form-leadtime-input"
+                  />
+                </Form.Control>
+                <Form.Hint>{t("store.leadtime.hint")}</Form.Hint>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
           <div className="border-ui-border-base border-t" />
           <div className="flex flex-col gap-y-4">
             <Heading level="h2">{t("store.edit.mediaHeading")}</Heading>

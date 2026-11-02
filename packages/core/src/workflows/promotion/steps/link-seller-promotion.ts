@@ -11,6 +11,10 @@ type LinkSellerPromotionStepInput = {
 export const linkSellerPromotionStep = createStep(
   "link-seller-promotion",
   async (input: LinkSellerPromotionStepInput, { container }) => {
+    if (!input.promotion_ids.length) {
+      return new StepResponse(undefined, undefined)
+    }
+
     const remoteLink: Link = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = input.promotion_ids.map((promotionId) => ({

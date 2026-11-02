@@ -1,8 +1,14 @@
+import { FormExtensionZone } from "@mercurjs/dashboard-shared";
+
+import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form";
 import { defineTabMeta } from "../../../../../components/tabbed-form/types";
+import { PRODUCT_CREATE_FIELD_IDS } from "../../constants";
 import { ProductCreateSchemaType } from "../../types";
 import { ProductCreateOrganizationSection } from "./components/product-create-organize-section";
 
 const Root = () => {
+  const form = useTabbedForm<ProductCreateSchemaType>();
+
   return (
     <div
       className="flex flex-col items-center p-16"
@@ -13,6 +19,14 @@ const Root = () => {
         data-testid="product-create-organize-form-content"
       >
         <ProductCreateOrganizationSection />
+        <FormExtensionZone
+          model="product"
+          zone="create"
+          tab="organize"
+          exactTab
+          control={form.control}
+          builtInFieldIds={PRODUCT_CREATE_FIELD_IDS}
+        />
       </div>
     </div>
   );

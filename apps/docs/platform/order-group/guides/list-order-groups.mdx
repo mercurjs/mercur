@@ -1,71 +1,111 @@
 ---
-title: "List order groups"
+title: "List and filter order groups"
 sidebarTitle: "List order groups"
-description: "Page through order groups and scope them to a seller with getOrderGroupsListWorkflow."
+description: "Page through order groups, filter them, and scope them to one seller with getOrderGroupsListWorkflow."
 ---
 
-In this guide, you'll learn how to list order groups from server code, page
-through the results, and optionally scope them to a single seller.
+List order groups from server code when you build an order history, a report, or a seller-facing view of purchases.
 
-Mercur exposes a `getOrderGroupsListWorkflow` that returns groups with their
-aggregated child orders and a total count for pagination.
+## List groups in an API route
 
-## Run the workflow
+<Steps>
+  <Step title="Run the list workflow">
+    Pass the fields you want and put filters and pagination in `variables`.
 
-```ts title="src/api/custom/order-groups/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { getOrderGroupsListWorkflow } from "@mercurjs/core/workflows"
+    ```ts title="src/api/admin/purchases/route.ts"
+    import type {
+      MedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import { getOrderGroupsListWorkflow } from "@mercurjs/core/workflows"
 
-export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const { result } = await getOrderGroupsListWorkflow(req.scope).run({
-    input: {
-      fields: ["id", "display_id", "total", "seller_count"],
-      variables: {
-        skip: 0,
-        take: 20,
-        order: { created_at: "DESC" },
-      },
-    },
-  })
+    export async function GET(req: MedusaRequest, res: MedusaResponse) {
+      const { result } = await getOrderGroupsListWorkflow(req.scope).run({
+        input: {
+          fields: ["id", "display_id", "total", "seller_count"],
+          variables: { skip: 0, take: 20, order: { display_id: "DESC" } },
+        },
+      })
 
-  res.json({
-    order_groups: result.rows,
-    count: result.metadata?.count ?? 0,
-  })
-}
-```
+      res.json({
+        order_groups: result.rows,
+        count: result.metadata?.count ?? 0,
+      })
+    }
+    ```
 
-The workflow returns `{ rows, metadata }`, where `metadata` carries the `count`,
-`skip`, and `take` you need to drive pagination.
+    The workflow returns `{ rows, metadata }`. `metadata` carries `count`, `skip`, and `take` for pagination. Every row includes its child `orders` with `payment_status` and `fulfillment_status`.
+  </Step>
+  <Step title="Add filters">
+    Put filter keys next to the pagination keys in `variables`:
 
-<Note>
-  Filters go inside `variables`: the group repository understands `id`,
-  `customer_id`, `seller_id`, `status`, `sales_channel_id`, `created_at`,
-  `updated_at`, and a free-text `q` (matched against group id and customer id).
-  Order-level filters (`seller_id`, `status`, `sales_channel_id`) only decide
-  which groups match. A matching group's `seller_count` and `total` still
-  describe every order in the group, as covered in
-  [Computed totals](/platform/order-group/concepts/computed-totals).
-</Note>
+    ```ts
+    variables: {
+      customer_id: "cus_01JD8Q1234567",
+      payment_status: ["captured", "partially_captured"],
+      created_at: { $gte: "2026-10-01T00:00:00Z" },
+      take: 20,
+    }
+    ```
 
-## Scope to a seller
+    This returns the customer’s groups from October 2026 that have at least one captured or partially captured child order.
+  </Step>
+</Steps>
 
-Pass a `sellerId` to get a vendor's slice. The workflow filters each group's
-child orders down to that seller, so vendors only ever see their own orders
-within a group.
+## Filters you can use
+
+The Seller module reads groups through a custom repository that understands a fixed set of top-level keys:
+
+- **Group filters**: `id`, `customer_id`, `cart_id`, as a string or an array
+- **Order filters**: `seller_id`, `status`, `payment_status`, `sales_channel_id`, which match a group when at least one child order matches
+- **Dates**: `created_at` and `updated_at`, with `$eq`, `$ne`, `$lt`, `$lte`, `$gt`, `$gte`, `$in`, `$nin`, `$like`, `$ilike`
+- **Search**: `q`, which matches the group id or customer id, and a display id such as `#G98`, `G98`, or `98` on the group or a child order
+
+You can sort by `display_id`, `created_at`, or `updated_at`. Without an `order`, groups come back newest first.
+
+<Warning>
+  The repository ignores keys it doesn’t know, including `$and` and `$or`. Pass `id` as a plain string or array, not `{ $in: [...] }`. If you need two id constraints, intersect them yourself before you call the workflow.
+</Warning>
+
+## Scope groups to one seller
+
+To show a seller only their part of each purchase, filter the groups and trim their orders:
 
 ```ts
-await getOrderGroupsListWorkflow(req.scope).run({
+const sellerId = "sel_01JD8Q1234567"
+
+const { result } = await getOrderGroupsListWorkflow(req.scope).run({
   input: {
-    fields: ["id", "display_id"],
-    variables: { seller_id: "sel_123", take: 20 },
-    sellerId: "sel_123",
+    fields: ["id", "display_id", "orders.total"],
+    variables: { seller_id: sellerId, take: 20 },
+    sellerId,
   },
 })
 ```
 
-<Tip>
-  Admin surfaces call this workflow with no `sellerId` for platform-wide
-  visibility. Vendor surfaces pass the resolved seller so both the query and the
-  returned child orders stay scoped to that store.
-</Tip>
+The two inputs do different jobs. `variables.seller_id` keeps only the groups where the seller has an order. `sellerId` removes the other sellers’ orders from each returned group. `sellerId` also accepts an array of seller ids.
+
+<Note>
+  `seller_count` and `total` still describe the whole group when you scope it. Sum the trimmed `orders` to get the seller’s share.
+</Note>
+
+## List groups without child orders
+
+When you only need group rows, call the Seller module service. It skips the child order expansion and the status work:
+
+```ts
+const sellerModuleService = req.scope.resolve(MercurModules.SELLER)
+
+const [groups, count] = await sellerModuleService.listAndCountOrderGroups(
+  { customer_id: "cus_01JD8Q1234567" },
+  { take: 20, order: { created_at: "DESC" } }
+)
+```
+
+`MercurModules` comes from `@mercurjs/types`. The rows still include the computed `seller_count` and `total`.
+
+## Next steps
+
+- [Retrieve one group with its child orders](/platform/order-group/guides/retrieve-an-order-group)
+- [Why filters don’t change the totals](/platform/order-group/concepts/computed-totals#filters-pick-groups-not-orders)
+- [`getOrderGroupsListWorkflow` reference](/platform/order-group/reference/workflows#getordergroupslistworkflow)

@@ -8,6 +8,10 @@ export type CreateOffersStepInput = CreateOfferRowDTO[]
 export const createOffersStep = createStep(
   "create-offers",
   async (data: CreateOffersStepInput, { container }) => {
+    if (!data.length) {
+      return new StepResponse([], [])
+    }
+
     const service = container.resolve<OfferModuleService>(MercurModules.OFFER)
     const offers = await service.createOffers(data)
     return new StepResponse(

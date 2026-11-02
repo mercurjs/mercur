@@ -1,6 +1,7 @@
 import { HttpTypes } from "@medusajs/types";
 import { Container, Heading } from "@medusajs/ui";
 import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
+import { keepPreviousData } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { _DataTable } from "@components/table/data-table";
@@ -31,11 +32,14 @@ export const CustomerOrderSection = ({
     prefix: PREFIX,
   });
 
-  const { orders, count, isLoading, isError, error } = useOrders({
-    fields: DEFAULT_FIELDS + "," + DEFAULT_RELATIONS,
-    ...searchParams,
-    customer_id: customer.id,
-  });
+  const { orders, count, isLoading, isError, error } = useOrders(
+    {
+      fields: DEFAULT_FIELDS + "," + DEFAULT_RELATIONS,
+      ...searchParams,
+      customer_id: customer.id,
+    },
+    { placeholderData: keepPreviousData },
+  );
 
   const columns = useColumns();
   const filters = useOrderTableFilters();

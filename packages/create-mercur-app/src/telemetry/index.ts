@@ -3,26 +3,52 @@ import path from "path";
 
 import fs from "fs-extra";
 
+import packageJson from "../../package.json";
+import { getPackageManagerFromUserAgent } from "../utils/get-package-manager";
 import { highlighter } from "../utils/highlighter";
-import { getPackageManager } from "../utils/get-package-manager";
 import { detectSystemInfo } from "./detect-system-info";
-import { hashToBase64 } from "./hash";
+import { hashProjectKey } from "./hash";
 import { configStore } from "./store";
 
-const TELEMETRY_URL =
-  process.env.MERCUR_TELEMETRY_PROXY_URL ||
-  "https://telemetry.mercurjs.com/api/v1/events";
-
-export interface TelemetryEvent {
-  type: string;
-  payload?: Record<string, unknown>;
-}
-
-export const setTelemetryEmail = (email: string) => {
-  configStore.set("telemetry_email", email);
-};
+const DEFAULT_TELEMETRY_HOST = "https://telemetry.mercurjs.com";
+const REQUEST_TIMEOUT_MS = 2_000;
+const SCHEMA_VERSION = 1;
+const PLACEHOLDER_API_KEY = "mercur";
 
 export const TELEMETRY_DOCS_URL = "https://docs.mercurjs.com/telemetry";
+
+const CI_ENV_KEYS = ["CI", "GITHUB_ACTIONS", "GITLAB_CI", "CIRCLECI", "BUILDKITE", "JENKINS_URL", "TF_BUILD", "TEAMCITY_VERSION", "DRONE"];
+const AGENT_ENV_KEYS = ["CLAUDECODE", "CLAUDE_CODE", "CURSOR_AGENT", "CODEX_SANDBOX", "GEMINI_CLI", "COPILOT_AGENT", "OPENCODE_CLIENT"];
+
+export const ErrorCategory = {
+  NETWORK: "network",
+  FS: "fs",
+  VALIDATION: "validation",
+  REGISTRY: "registry",
+  INSTALL: "install",
+  DATABASE: "database",
+  UNKNOWN: "unknown",
+} as const;
+
+export type ErrorCategory = (typeof ErrorCategory)[keyof typeof ErrorCategory];
+
+export interface TelemetryEvent {
+  event: string;
+  properties?: Record<string, unknown>;
+}
+
+const isTruthy = (value: string | undefined) =>
+  value !== undefined && ["1", "true", "yes"].includes(value.toLowerCase());
+
+export const isCi = () => CI_ENV_KEYS.some((key) => Boolean(process.env[key]));
+
+export const isTelemetryEnabled = () => {
+  if (isTruthy(process.env.MERCUR_TELEMETRY_FORCE_ENABLED)) return true;
+  if (isTruthy(process.env.MERCUR_DISABLE_TELEMETRY)) return false;
+  if (isTruthy(process.env.DO_NOT_TRACK)) return false;
+  if (isCi()) return false;
+  return configStore.get("telemetry_enabled");
+};
 
 export const showTelemetryNoticeIfNeeded = () => {
   if (configStore.get("notice_shown")) {
@@ -31,7 +57,7 @@ export const showTelemetryNoticeIfNeeded = () => {
 
   configStore.set("notice_shown", true);
 
-  if (process.env.MERCUR_DISABLE_TELEMETRY === "true") {
+  if (!isTelemetryEnabled()) {
     return;
   }
 
@@ -47,132 +73,127 @@ export const showTelemetryNoticeIfNeeded = () => {
   );
 };
 
-const isTelemetryEnabled = () => {
-  return (
-    configStore.get("telemetry_enabled") &&
-    process.env.MERCUR_DISABLE_TELEMETRY !== "true"
-  );
-};
-
-export const sendTelemetryEvent = async (
-  event: TelemetryEvent,
-  options: { cwd: string }
-) => {
+const getGitRemote = (cwd: string) => {
   try {
-    if (!isTelemetryEnabled()) {
-      return;
-    }
-
-    const projectInfo = await getProjectInfo(options.cwd);
-
-    const baseEvent = {
-      nodeEnv: process.env.NODE_ENV || "development",
-      nodeVersion: process.version,
-      mercurVersion: projectInfo.mercurVersion,
-      medusaVersion: projectInfo.medusaVersion,
-      isSrcDir: projectInfo.isSrcDir,
-      aliasPrefix: projectInfo.aliasPrefix,
-      config: projectInfo.config,
-      projectId: getProjectId(options.cwd),
-      systemInfo: await detectSystemInfo(),
-      packageManager: await getPackageManager(options.cwd),
-      email: getTelemetryEmail(),
-    };
-
-    await fetch(TELEMETRY_URL, {
-      body: JSON.stringify({ ...baseEvent, ...event }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "post",
-    });
-  } catch {
-    // Eat any errors in sending telemetry event
-  }
-};
-
-const getGitID = () => {
-  try {
-    const originBuffer = execSync(
-      "git config --local --get remote.origin.url",
-      {
-        stdio: "pipe",
-        timeout: 1000,
-      }
-    );
-
-    return String(originBuffer).trim();
+    return execSync("git config --local --get remote.origin.url", {
+      cwd,
+      stdio: "pipe",
+      timeout: 1000,
+    })
+      .toString()
+      .trim();
   } catch {
     return null;
   }
 };
 
-const getProjectId = (cwd: string): string => {
-  const gitID = getGitID();
-  if (gitID) {
-    return hashToBase64(gitID);
+export const getProjectId = (cwd: string): string => hashProjectKey(getGitRemote(cwd) || cwd);
+
+const readJson = async (file: string): Promise<Record<string, unknown> | null> => {
+  try {
+    return await fs.readJSON(file);
+  } catch {
+    return null;
   }
-
-  return hashToBase64(cwd);
 };
-
-export const getTelemetryEmail = () => {
-  return configStore.get("telemetry_email") || undefined;
-};
-
-interface ProjectInfo {
-  isSrcDir: boolean;
-  aliasPrefix: string | null;
-  medusaVersion: string | null;
-  config: unknown;
-  mercurVersion: string | null;
-}
 
 /**
- * Lightweight project introspection for freshly scaffolded projects. The full
- * CLI resolves this via tsconfig-paths/fast-glob/cosmiconfig; here the project
- * always has the template layout, so plain file reads at known paths suffice
- * and keep this package's dependency tree minimal.
+ * The scaffolded project always has the template layout, so plain reads at
+ * known paths are enough to pick up the pinned framework versions.
  */
-async function getProjectInfo(cwd: string): Promise<ProjectInfo> {
-  const readJson = async (relPath: string): Promise<Record<string, unknown> | null> => {
-    try {
-      return await fs.readJSON(path.join(cwd, relPath));
-    } catch {
-      return null;
-    }
-  };
-
-  const [isSrcDir, rootPkg, apiPkg, config, tsconfig] = await Promise.all([
-    fs.pathExists(path.join(cwd, "src")),
-    readJson("package.json"),
-    readJson("packages/api/package.json"),
-    readJson("blocks.json"),
-    readJson("tsconfig.json"),
+const readVersions = async (cwd: string) => {
+  const [rootPkg, apiPkg] = await Promise.all([
+    readJson(path.join(cwd, "package.json")),
+    readJson(path.join(cwd, "packages/api/package.json")),
   ]);
-
-  const dependenciesOf = (pkg: Record<string, unknown> | null) =>
+  const deps = (pkg: Record<string, unknown> | null) =>
     (pkg?.dependencies ?? {}) as Record<string, string | undefined>;
-
-  const findDep = (name: string): string | null =>
-    dependenciesOf(rootPkg)[name] ?? dependenciesOf(apiPkg)[name] ?? null;
-
-  const compilerOptions = (tsconfig?.compilerOptions ?? {}) as {
-    paths?: Record<string, unknown>;
-  };
-  const paths = compilerOptions.paths ?? {};
-  const firstPath = Object.keys(paths)[0];
-  const aliasPrefix = firstPath
-    ? firstPath.includes("*")
-      ? firstPath.replace("/*", "")
-      : firstPath.replace("/", "")
-    : null;
+  const find = (name: string) => deps(rootPkg)[name] ?? deps(apiPkg)[name];
 
   return {
-    isSrcDir,
-    aliasPrefix,
-    medusaVersion: findDep("@medusajs/framework"),
-    mercurVersion: findDep("@mercurjs/cli"),
-    config,
+    mercur_version: find("@mercurjs/core") ?? find("@mercurjs/cli"),
+    medusa_version: find("@medusajs/framework"),
   };
-}
+};
+
+const baseProperties = async (cwd: string) => {
+  const [versions, systemInfo] = await Promise.all([readVersions(cwd), detectSystemInfo()]);
+  const projectId = getProjectId(cwd);
+
+  return {
+    schema_version: SCHEMA_VERSION,
+    source: "create-mercur-app",
+    cli_version: packageJson.version,
+    ...versions,
+    node_version: process.version,
+    runtime: process.versions.bun ? "bun" : "node",
+    package_manager: getPackageManagerFromUserAgent(),
+    os: systemInfo.systemPlatform,
+    arch: systemInfo.systemArchitecture,
+    is_ci: isCi(),
+    is_tty: Boolean(process.stdout.isTTY),
+    is_agent: AGENT_ENV_KEYS.some((key) => Boolean(process.env[key])),
+    is_docker: systemInfo.isDocker,
+    is_wsl: systemInfo.isWSL,
+    cloud_provider: systemInfo.deploymentVendor,
+    project_id: projectId,
+    $groups: { project: projectId },
+    $geoip_disable: true,
+  };
+};
+
+export const sendTelemetryEvent = async (event: TelemetryEvent, options: { cwd: string }) => {
+  try {
+    if (!isTelemetryEnabled()) {
+      return;
+    }
+
+    const body = {
+      api_key: PLACEHOLDER_API_KEY,
+      batch: [
+        {
+          event: event.event,
+          distinct_id: configStore.deviceId(),
+          timestamp: new Date().toISOString(),
+          properties: { ...(await baseProperties(options.cwd)), ...event.properties },
+        },
+      ],
+    };
+
+    if (isTruthy(process.env.MERCUR_TELEMETRY_DEBUG)) {
+      console.error(`[telemetry] ${JSON.stringify(body.batch, null, 2)}`);
+      return;
+    }
+
+    const host = (process.env.MERCUR_TELEMETRY_PROXY_URL || DEFAULT_TELEMETRY_HOST).replace(/\/+$/, "");
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    try {
+      await fetch(`${host}/batch`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+  } catch {
+    // Telemetry must never fail a command.
+  }
+};
+
+export const categorizeError = (error: unknown): ErrorCategory => {
+  if (error && typeof error === "object") {
+    const name = (error as { name?: string }).name ?? "";
+    const code = (error as { code?: string }).code ?? "";
+    const message = (error as { message?: string }).message ?? "";
+    if ((Object.values(ErrorCategory) as string[]).includes(name)) return name as ErrorCategory;
+    if (name === "ZodError") return ErrorCategory.VALIDATION;
+    if (["ENOTFOUND", "ECONNREFUSED", "ECONNRESET", "ETIMEDOUT", "EAI_AGAIN"].includes(code) || /fetch failed/i.test(message)) {
+      return ErrorCategory.NETWORK;
+    }
+    if (["ENOENT", "EACCES", "EPERM", "EEXIST", "ENOTDIR", "EISDIR"].includes(code)) return ErrorCategory.FS;
+  }
+  return ErrorCategory.UNKNOWN;
+};

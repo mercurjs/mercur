@@ -1,4 +1,4 @@
-import { Card } from "@/components/atoms"
+import { Card } from '@/components/atoms/Card/Card';
 
 export const OrderTrack = ({ order }: { order: any }) => {
   if (!order.fulfillments[0]?.labels?.length) return null

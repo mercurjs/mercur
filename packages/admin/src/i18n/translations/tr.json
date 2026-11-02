@@ -3617,8 +3617,7 @@
       "paid": "Ödendi",
       "processing": "İşleniyor",
       "pending": "Beklemede",
-      "failed": "Başarısız",
-      "canceled": "İptal edildi"
+      "failed": "Başarısız"
     }
   },
   "marketplace": {

@@ -14,7 +14,7 @@ export const updateOfferConditionsStep = createStep(
     const before = await service.listOfferConditions({ id: ids })
 
     const conditions = await service.updateOfferConditions(
-      input.map(({ id, ...data }) => ({ selector: { id }, data }))
+      input
     )
 
     const compensation = before.map((prev) => ({
@@ -34,7 +34,7 @@ export const updateOfferConditionsStep = createStep(
     }
     const service = container.resolve<OfferModuleService>(MercurModules.OFFER)
     await service.updateOfferConditions(
-      compensation.map(({ id, ...data }) => ({ selector: { id }, data }))
+      compensation
     )
   }
 )

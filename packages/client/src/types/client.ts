@@ -1,3 +1,4 @@
+import type { AuthOption } from "../auth";
 import { ChildKeys, InferInput, InferOutput, TypeError } from "./helpers";
 
 export type ActionType = "query" | "mutate" | "delete";
@@ -5,7 +6,19 @@ export type ActionType = "query" | "mutate" | "delete";
 export type ClientOptions = {
     baseUrl: string;
     fetchOptions?: RequestInit;
-    headers?: () => Record<string, string>;
+    /**
+     * How requests authenticate: a token store (sent as a bearer token), one
+     * scheme, or several. Resolved on every request, so a token set after the
+     * client was created is picked up by the next call.
+     */
+    auth?: AuthOption;
+    /** Extra headers computed per request, on top of `auth`. */
+    headers?: () => Record<string, string> | Promise<Record<string, string>>;
+    /**
+     * Runs when the API answers 401. By default the bearer token stores in
+     * `auth` are cleared so the panel falls back to its login screen.
+     */
+    onUnauthorized?: (error: { status: number; message: string }) => void;
 };
 
 type AddParamsToFn<Fn, TParams> =

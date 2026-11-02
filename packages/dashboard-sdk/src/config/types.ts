@@ -1,5 +1,6 @@
 import type { ComponentType } from "react"
 import type { Permission } from "../permissions"
+import type { LayoutEntryId } from "./layouts"
 
 /**
  * Open registry interfaces. Each panel package ships a generated
@@ -36,15 +37,28 @@ export type NavGroupId = keyof NavGroupRegistry extends never
     : keyof NavGroupRegistry
 
 /**
- * A widget is a React component attached to a named zone on a page. The
- * placement (`before | after`) is encoded as the zone-id suffix, so there is no
- * separate rank field — multiple `before`/`after` widgets stack in registration
- * order.
+ * A widget is a React component attached to a named zone on a page. On a
+ * composer page the zone is the page prefix (`product.details`) or one of its
+ * sections (`product.details.side`); `section`, `order` and `replace` place it
+ * among the page's entries. The legacy `before` / `after` zone suffixes still
+ * resolve to the first and last position of the section.
  */
 export interface WidgetConfig {
     zone: WidgetZoneId | WidgetZoneId[]
     /** Stable id; derived from the file path at build time when omitted. */
     id?: string
+    /** Section of the page layout to render in; defaults to the zone's section. */
+    section?: string
+    /**
+     * Sort order among the section's entries. Core entries sit at 0, so a
+     * negative order renders before them; unset renders after them.
+     */
+    order?: number
+    /**
+     * Take the place of a page entry (`core:ProductGeneralSection`). The widget
+     * receives `renderDefault` to render what it replaced.
+     */
+    replace?: LayoutEntryId
     /**
      * Permission(s) the actor needs for the widget to render. With several, any
      * one is enough.

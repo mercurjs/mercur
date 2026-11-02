@@ -1,58 +1,64 @@
 ---
-title: "Status lifecycle"
+title: "Product status lifecycle"
 sidebarTitle: "Status lifecycle"
-description: "How a master product moves from draft to proposed, published, or rejected."
+description: "How a master product moves from draft or proposed to published or rejected, and which workflow runs each step."
 ---
 
-In this document, you'll learn about the product status lifecycle and how a
-submission becomes a live catalog product.
+Every master product has a `status` that decides who can see it and whether it's for sale. Mercur uses that status as a review gate: stores submit products as `proposed`, and an operator decides whether each one joins the published catalog.
 
-## Status
+## The four statuses
 
-A product's state is held in the `status` field of the `Product` model, typed by
-Medusa's `ProductStatus` enum. A master product moves through four statuses:
+The status lives in the `status` field of Medusa's `Product` model. Mercur re-exports the values as `ProductStatus` from `@mercurjs/types`. The model default is `draft`.
 
+| Status | Meaning | Who sees it |
+| --- | --- | --- |
+| `draft` | Work in progress, not submitted | Operators and the submitting store |
+| `proposed` | Submitted and waiting for review | Operators and the submitting store |
+| `published` | Live in the shared catalog | Everyone the [allowlist](/platform/catalog/concepts/product-seller-allowlist) permits, and the Store API |
+| `rejected` | Turned down in review | Operators, and the submitting store by id |
+
+## Review transitions
+
+Mercur ships one workflow per review step. Each one reads the product, checks its status with `validateProductsStatusStep`, records a confirmed `ProductChange`, and emits an event.
+
+<img className="block dark:hidden" src="/images/figures/catalog-status-lifecycle-light.svg" alt="A Status transitions table: createProductsWorkflow creates a product as proposed, then confirmProductsWorkflow, rejectProductWorkflow, and requestProductChangeWorkflow move it to published, to rejected, or keep it proposed, with a product_change audit table behind." />
+<img className="hidden dark:block" src="/images/figures/catalog-status-lifecycle-dark.svg" alt="A Status transitions table: createProductsWorkflow creates a product as proposed, then confirmProductsWorkflow, rejectProductWorkflow, and requestProductChangeWorkflow move it to published, to rejected, or keep it proposed, with a product_change audit table behind." />
+
+| Workflow | From | To | Audit action | Event |
+| --- | --- | --- | --- | --- |
+| `createProductsWorkflow` | none | input `status` | `PRODUCT_ADD` | `product.created` |
+| `confirmProductsWorkflow` | `proposed` | `published` | `STATUS_CHANGE` | `product.published` |
+| `rejectProductWorkflow` | `proposed` | `rejected` | `STATUS_CHANGE` | `product.rejected` |
+| `requestProductChangeWorkflow` | `proposed` | `proposed` | `CHANGE_REQUESTED` | `product.change-requested` |
+
+The three review workflows run only on `proposed` products. A product in any other status fails with a `NOT_ALLOWED` error that lists each product id and its current status.
+
+## Starting status
+
+The status a product starts in depends on who creates it. `createProductsWorkflow` passes the `status` you give it to Medusa, which falls back to `draft`.
+
+- **Vendor API**: defaults to `proposed`; a store may also send `draft`
+- **Admin API**: uses the request's `status`, or `draft` when it has none
+- **Your own code**: whatever you pass, or `draft`
+
+The vendor rule comes from the `product_request` feature flag, which is on by default. Turn it off with `MEDUSA_FF_PRODUCT_REQUEST=false` and stores can create products in any status, including `published`.
+
+```bash title=".env"
+MEDUSA_FF_PRODUCT_REQUEST=false
 ```
-   ┌────────┐   submit    ┌──────────┐   approve   ┌────────────┐
-   │ draft   │ ──────────►│ proposed  │ ──────────►│ published  │
-   └────────┘             └────┬─────┘             └────────────┘
-                               │ reject
-                               ▼
-                         ┌────────────┐
-                         │ rejected   │
-                         └────────────┘
-```
 
-| Status | Meaning |
-| --- | --- |
-| `draft` | Work in progress, not yet submitted for review |
-| `proposed` | Submitted, awaiting operator review |
-| `published` | Approved and live in the shared catalog, sellable via offers |
-| `rejected` | Turned down during review |
+The same flag controls whether store edits to existing products wait for review. See [status and auto-confirm](/platform/product-edit/concepts/status-and-auto-confirm).
 
-<Note>
-  Vendor-created products default to **`proposed`**. A store submits a product
-  for review rather than publishing it directly. An operator (or a low-risk
-  auto-confirm rule) is what promotes it to `published`.
-</Note>
+## Changes outside the review workflows
 
-## Transitions
+Mercur ships no workflow that moves a `draft` to `proposed`, or a `published` product back. Those changes go through a regular product update. The admin API runs Medusa's `updateProductsWorkflow` for that, which accepts any status.
 
-Each review transition has a dedicated Mercur workflow so the audit trail,
-events, and side effects run consistently:
+<Warning>
+  A direct status update skips the `proposed` check, writes no `STATUS_CHANGE` record, and emits none of Mercur's product events. Use the review workflows when you need the audit trail.
+</Warning>
 
-| Workflow | Transition |
-| --- | --- |
-| `confirmProductsWorkflow` | `proposed` → `published` |
-| `rejectProductWorkflow` | `proposed` → `rejected` |
-| `requestProductChangeWorkflow` | stays `proposed`, asks the submitter for a revision |
+## Related
 
-Every transition validates that the product is currently `proposed` before it
-runs, and records an immutable `STATUS_CHANGE` (or `CHANGE_REQUESTED`) action in
-the product-change pipeline for a full history of who reviewed what.
-
-<Tip>
-  Reviewing a product doesn't touch offers. Publishing makes the master product
-  sellable, but each store still lists it independently through its own
-  [offer](/platform/offer/overview).
-</Tip>
+- [Publish or reject a product](/platform/catalog/guides/publish-or-reject-a-product) to run the review workflows
+- [Workflows reference](/platform/catalog/reference/workflows) for inputs and hooks
+- [Change pipeline](/platform/product-edit/concepts/change-pipeline) for how edits to existing products are reviewed

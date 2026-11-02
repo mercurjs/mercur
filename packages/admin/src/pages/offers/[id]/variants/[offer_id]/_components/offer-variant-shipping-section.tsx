@@ -1,5 +1,5 @@
 import { Buildings } from "@medusajs/icons"
-import { Container, Heading } from "@medusajs/ui"
+import { Container, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { OfferDTO } from "@mercurjs/types"
 
@@ -14,7 +14,7 @@ import { NoRecords } from "../../../../../../components/common/empty-table-conte
 export const OfferVariantShippingSection = ({
   offer,
 }: {
-  offer: Pick<OfferDTO, "shipping_profile">
+  offer: Pick<OfferDTO, "shipping_profile"> & { leadtime_to_ship?: number | null }
 }) => {
   const { t } = useTranslation()
   const profile = offer.shipping_profile
@@ -47,6 +47,16 @@ export const OfferVariantShippingSection = ({
       ) : (
         <NoRecords className="h-40" />
       )}
+      <div className="text-ui-fg-subtle grid grid-cols-2 border-t px-6 py-4">
+        <Text size="small" leading="compact" weight="plus">
+          {t("offers.fields.leadtime")}
+        </Text>
+        <Text size="small" leading="compact" data-testid="offer-variant-leadtime">
+          {offer.leadtime_to_ship === null || offer.leadtime_to_ship === undefined
+            ? t("offers.fields.storeDefault")
+            : t("marketplace.leadtimeDays", { count: offer.leadtime_to_ship })}
+        </Text>
+      </div>
     </Container>
   )
 }

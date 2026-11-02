@@ -119,6 +119,19 @@ export const StoreGeneralSection = ({
               </div>
             </div>
           </DisplayField>
+          <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+            <Text size="small" leading="compact" weight="plus">
+              {t("stores.fields.defaultLeadtime")}
+            </Text>
+            <Text size="small" leading="compact">
+              {seller.default_leadtime_to_ship === null ||
+              seller.default_leadtime_to_ship === undefined
+                ? t("stores.fields.marketplaceDefault")
+                : t("marketplace.leadtimeDays", {
+                    count: seller.default_leadtime_to_ship,
+                  })}
+            </Text>
+          </div>
           <DisplayExtensionZone
             model="seller"
             zone="general"

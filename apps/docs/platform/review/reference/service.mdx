@@ -1,54 +1,82 @@
 ---
-title: "Service reference"
+title: "Review module service"
 sidebarTitle: "Service"
-description: "The Review module service: CRUD methods and aggregate-rating helpers."
+description: "Resolve the Review module service, its generated CRUD methods, and its three rating helpers."
 ---
 
-The Review module exposes a service you can resolve from the Medusa container to
-read and write records directly, without going through a workflow. Use it inside
-custom services, subscribers, scheduled jobs, or route handlers.
+The Review module service, `ReviewModuleService`, reads and writes `Review` records directly and computes average ratings. Use it in subscribers, scheduled jobs, and routes when you don’t need a workflow’s validation, links, or compensation.
+
+## Resolve the service
+
+Resolve the service from the Medusa container with `MercurModules.REVIEW`, which is the string `"review"`:
 
 ```ts
 import { MercurModules } from "@mercurjs/types"
 
-const reviewModuleService = container.resolve(MercurModules.REVIEW)
+const reviewService = container.resolve(MercurModules.REVIEW)
 
-const [reviews, count] = await reviewModuleService.listAndCountReviews({
-  status: "published",
-})
+const [reviews, count] = await reviewService.listAndCountReviews(
+  { status: "published" },
+  { order: { created_at: "DESC" }, take: 20 }
+)
 ```
+
+This lists the 20 newest published reviews and the total count. Filters apply to the review’s own fields, so you can’t filter by product or seller here: use `query.graph` from the linked side, as shown in the [Links reference](/platform/review/reference/links).
+
+<Warning>
+  Writing through the service skips the workflow checks. `createReviews` doesn’t validate the order, reject duplicates, or write any link, and `updateReviews` doesn’t stop a second store answer.
+</Warning>
 
 ## Generated methods
 
-The `Review` model gets a standard set of auto-generated methods:
+`MedusaService` generates these methods for the `Review` model:
 
 | Method | Description |
 | --- | --- |
-| `createReviews(data)` | Create one or more reviews |
-| `retrieveReview(id, config?)` | Retrieve a review by id |
-| `listReviews(filters?, config?)` | List reviews matching filters |
-| `listAndCountReviews(filters?, config?)` | List reviews with a total count |
-| `updateReviews(data)` | Update one or more reviews |
-| `deleteReviews(ids)` | Delete one or more reviews |
-| `softDeleteReviews(ids)` | Soft-delete reviews (restorable) |
-| `restoreReviews(ids)` | Restore soft-deleted reviews |
+| `retrieveReview(id, config?)` | Retrieve one review. Throws when it doesn’t exist |
+| `listReviews(filters?, config?)` | List reviews |
+| `listAndCountReviews(filters?, config?)` | List reviews and the total count |
+| `createReviews(data)` | Create one review or an array of reviews |
+| `updateReviews(data)` | Update by `id`, or by `{ selector, data }` |
+| `deleteReviews(ids)` | Delete reviews permanently |
+| `softDeleteReviews(ids)` | Set `deleted_at` on reviews |
+| `restoreReviews(ids)` | Clear `deleted_at` on reviews |
 
-## Aggregate-rating methods
+Each write emits a mutation event, listed in the [Events reference](/platform/review/reference/events).
 
-The service adds three helpers that compute average ratings on demand:
+## getAvgRating
 
-| Method | Description |
-| --- | --- |
-| `getAvgRating(type, id)` | Average rating for one `"product"` or `"seller"`; `null` when it has no reviews |
-| `getProductsWithRating(fields)` | Product records with an average `rating` joined in |
-| `getSellersWithRating(fields)` | Seller records with an average `rating` joined in |
+Returns the average rating of one product or one seller.
 
-See [Compute aggregate ratings](/platform/review/guides/compute-aggregate-ratings)
-for usage.
+```ts
+getAvgRating(
+  type: "seller" | "product",
+  id: string
+): Promise<string | null>
+```
 
-<Warning>
-  Prefer [workflows](/platform/review/reference/workflows) for anything with side
-  effects (creation with its validation and links, responses, moderation). The
-  service writes records directly and does **not** run the create-flow validation
-  or manage the target/order/customer links.
-</Warning>
+The result is the Postgres `AVG` of `rating` as a numeric string, such as `"4.5000000000000000"`, or `null` when the target has no linked reviews. It counts every linked review whatever its `status`, including soft deleted ones.
+
+## getProductsWithRating
+
+Returns every product with its average rating.
+
+```ts
+getProductsWithRating(fields: string[]): Promise<Record<string, unknown>[]>
+```
+
+`fields` are column names of the `product` table, such as `["id", "title"]`. Each row gains a `rating` numeric string, or `null`. The query left joins the `product_product_review_review` link table and groups by product, with no filters, pagination, or `deleted_at` checks.
+
+## getSellersWithRating
+
+Returns every seller with its average rating.
+
+```ts
+getSellersWithRating(fields: string[]): Promise<Record<string, unknown>[]>
+```
+
+`fields` are column names of the `seller` table, such as `["id", "name"]`. It works like `getProductsWithRating`, joining through `seller_seller_review_review`.
+
+<Note>
+  The return types above describe the rows. The source declares no explicit return type for the two list helpers, so TypeScript infers Knex’s result type.
+</Note>

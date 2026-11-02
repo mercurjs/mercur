@@ -1,0 +1,101 @@
+---
+title: "Payouts and settlements"
+sidebarTitle: "Payouts and settlements"
+description: "How each order's share reaches the seller's Stripe balance, how refunds are taken back, how operator adjustments work, and how the nightly settlement nets it all into one bank payout."
+---
+
+Money reaches a seller in two steps. Each order's share moves to the seller's Stripe balance as soon as the order is fulfilled and paid. Then, every night, everything that moved since the last settlement is netted and paid to the seller's bank in one deposit.
+
+| | Payout | Settlement |
+| --- | --- | --- |
+| One per | Seller order | Seller, currency and period |
+| Moves money | Platform balance → seller's Stripe balance | Seller's Stripe balance → seller's bank |
+| Stripe object | Transfer | Payout |
+| Owned by | Mercur core (`payout`, `payout_reversal`) | The plugin (`settlement`) |
+| Shown under | **Payouts** in the admin, the order's **Stripe payouts** section | **Integrations → Stripe** in the admin, the vendor **Stripe** page |
+
+## Payouts
+
+The payout job runs every five minutes, and right away when an order is fulfilled or canceled or a payment is captured. For each order it asks core's `createOrderPayoutsWorkflow` to decide:
+
+| The order is | Result |
+| --- | --- |
+| Fulfilled to `transfers.requiredFulfillmentStatus` and captured, and the seller's account is `active` | A `payout` of the order total minus commission, net of refunds that already landed, sent as a Transfer |
+| Not fulfilled, not captured, or its seller's account isn't `active` | A `payout` **on hold**, with a reason. It is decided again on every run |
+| Canceled, or refunded in full | No money moves. The payout is **aborted** with the reason |
+| Already paid | Nothing. Each order has one payout |
+
+The Transfer uses the order's charge as `source_transaction`, so it doesn't wait for the funds to become available on your platform balance.
+
+A seller with no payout account yet gets no payout row. When their account becomes `active`, their orders are queued and the next run pays them.
+
+Orders of a store you [ignore](/resources/integrations/stripe-connect/seller-onboarding#ignoring-a-store) are skipped until you stop ignoring it.
+
+### The backlog
+
+Every run first re-decides payouts that are **failed** or **on hold**, then looks for newly fulfilled orders since its checkpoint. A payout held because the order wasn't fulfilled is paid on the first run after fulfillment. One held because the account wasn't ready is paid on the first run after Stripe activates it.
+
+Payout statuses and their reasons are listed in the [reference](/resources/integrations/stripe-connect/reference#payout-statuses).
+
+## Reversals
+
+A refund on an order that was already paid out writes a `payout_reversal` of the seller's share of the refund: the refund amount minus its proportional share of commission. Stripe reverses that much of the order's Transfer, which moves it back from the seller's balance to yours.
+
+The reversal job runs every five minutes, and right away when a refund is created. A refund that lands before the payout is sent never needs a reversal. The payout is simply smaller.
+
+## Adjustments
+
+Adjustments are amounts that don't belong to an order: a monthly subscription fee, an extra invoice for a service, or a goodwill credit.
+
+Create one under **Integrations → Stripe → Adjustments → Create**. Pick the store, the type, the amount and currency, and an optional reason.
+
+| Type | Moves |
+| --- | --- |
+| Subscription | From the seller's Stripe balance to yours |
+| Extra invoice | From the seller's Stripe balance to yours |
+| Extra credit | From your balance to the seller's |
+
+The settlement job sends pending adjustments at the start of every run, as Transfers in the right direction, and includes them in that run's settlements. An adjustment for a store whose account isn't ready waits, with the reason, and is retried every run.
+
+## Settlements
+
+The settlement job runs every night at 01:03 UTC. For every seller and currency it builds one **settlement** covering the time since that seller's previous settlement in that currency, or since the account was created.
+
+A settlement nets every line that reached the seller's balance in that period and isn't in another settlement yet:
+
+```
+amount = paid payouts − paid reversals + extra credits − subscriptions − extra invoices
+```
+
+Each line keeps a link to its payout, reversal or adjustment, so the settlement page lists every order behind the amount.
+
+### The bank payout
+
+In `plugin` mode the job then pays each settlement to the seller's bank as a Stripe Payout:
+
+1. It checks the connected account's available balance in the settlement currency.
+2. If the balance covers the amount, it creates the Payout, and the settlement waits for Stripe's `payout.paid` webhook to become **Paid out**.
+3. If the balance is short, usually because funds from recent captures aren't available yet, the bank payout is held with `insufficient_available_balance` and retried on the next run.
+
+A settlement whose bank payout failed or is held blocks the next settlement in that currency, so periods never overlap and the seller never gets two deposits for the same money. Once the bank payout goes through, the next run settles the time since.
+
+In `provider` mode the job records each settlement as **Paid out** right away, and Stripe's automatic schedule moves the money. Use the settlement as the seller's statement.
+
+### Settlement statuses
+
+| Status | Meaning |
+| --- | --- |
+| `open` | The bank payout is pending or on its way |
+| `paid_out` | Stripe paid it to the seller's bank, or Stripe's own schedule pays it in `provider` mode |
+| `failed` | The bank payout failed or is held: the account can't receive payouts, or Stripe refused it. Retried on the next run |
+| `aborted` | The net amount is zero or negative. Nothing is paid, and the lines are kept for the record |
+
+A negative period, where refunds and fees exceed sales, is aborted rather than charged. Its lines still appear on the seller's statement.
+
+### Retrying a bank payout
+
+Failed and held bank payouts are retried at the start of every settlement run. To retry one now, open the settlement in **Integrations → Stripe** and choose **Retry bank payout**. Retry works for bank payouts that are failed, held or pending.
+
+## What sellers see
+
+The vendor **Stripe** page lists the seller's settlements: the period, the net amount, the status and the bank payout that paid it, so the seller can match each bank deposit to a period. The seller's per-order payouts are on their **Payouts** page.

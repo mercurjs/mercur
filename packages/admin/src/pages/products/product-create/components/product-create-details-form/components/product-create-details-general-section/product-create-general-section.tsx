@@ -1,5 +1,5 @@
 import { Input } from "@medusajs/ui"
-import { RichTextEditor } from "@mercurjs/dashboard-shared"
+import { ExtendableFormField, RichTextEditor } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 
 import { uploadRichTextImage } from "@lib/upload-rich-text-image"
@@ -17,80 +17,112 @@ export const ProductCreateGeneralSection = () => {
     <div id="general" className="flex flex-col gap-y-6" data-testid="product-create-general-section">
       <div className="flex flex-col gap-y-2" data-testid="product-create-general-section-fields">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3" data-testid="product-create-general-section-title-fields">
-          <Form.Field
+          <ExtendableFormField
+            model="product"
+            zone="create"
+            tab="details"
+            id="title"
             control={form.control}
-            name="title"
-            render={({ field }) => {
-              return (
-                <Form.Item data-testid="product-create-general-section-title-item">
-                  <Form.Label data-testid="product-create-general-section-title-label">{t("products.fields.title.label")}</Form.Label>
-                  <Form.Control data-testid="product-create-general-section-title-control">
-                    <Input {...field} placeholder={t("products.fields.title.placeholder")} data-testid="product-create-general-section-title-input" />
-                  </Form.Control>
-                  <Form.ErrorMessage data-testid="product-create-general-section-title-error" />
-                </Form.Item>
-              )
-            }}
-          />
-          <Form.Field
+          >
+            <Form.Field
+              control={form.control}
+              name="title"
+              render={({ field }) => {
+                return (
+                  <Form.Item data-testid="product-create-general-section-title-item">
+                    <Form.Label data-testid="product-create-general-section-title-label">{t("products.fields.title.label")}</Form.Label>
+                    <Form.Control data-testid="product-create-general-section-title-control">
+                      <Input {...field} placeholder={t("products.fields.title.placeholder")} data-testid="product-create-general-section-title-input" />
+                    </Form.Control>
+                    <Form.ErrorMessage data-testid="product-create-general-section-title-error" />
+                  </Form.Item>
+                )
+              }}
+            />
+          </ExtendableFormField>
+          <ExtendableFormField
+            model="product"
+            zone="create"
+            tab="details"
+            id="subtitle"
             control={form.control}
-            name="subtitle"
-            render={({ field }) => {
-              return (
-                <Form.Item data-testid="product-create-general-section-subtitle-item">
-                  <Form.Label optional data-testid="product-create-general-section-subtitle-label">
-                    {t("products.fields.subtitle.label")}
-                  </Form.Label>
-                  <Form.Control data-testid="product-create-general-section-subtitle-control">
-                    <Input {...field} placeholder={t("products.fields.subtitle.placeholder")} data-testid="product-create-general-section-subtitle-input" />
-                  </Form.Control>
-                </Form.Item>
-              )
-            }}
-          />
-          <Form.Field
+          >
+            <Form.Field
+              control={form.control}
+              name="subtitle"
+              render={({ field }) => {
+                return (
+                  <Form.Item data-testid="product-create-general-section-subtitle-item">
+                    <Form.Label optional data-testid="product-create-general-section-subtitle-label">
+                      {t("products.fields.subtitle.label")}
+                    </Form.Label>
+                    <Form.Control data-testid="product-create-general-section-subtitle-control">
+                      <Input {...field} placeholder={t("products.fields.subtitle.placeholder")} data-testid="product-create-general-section-subtitle-input" />
+                    </Form.Control>
+                  </Form.Item>
+                )
+              }}
+            />
+          </ExtendableFormField>
+          <ExtendableFormField
+            model="product"
+            zone="create"
+            tab="details"
+            id="handle"
             control={form.control}
-            name="handle"
-            render={({ field }) => {
-              return (
-                <Form.Item data-testid="product-create-general-section-handle-item">
-                  <Form.Label
-                    tooltip={t("products.fields.handle.tooltip")}
-                    optional
-                    data-testid="product-create-general-section-handle-label"
-                  >
-                    {t("fields.handle")}
-                  </Form.Label>
-                  <Form.Control data-testid="product-create-general-section-handle-control">
-                    <HandleInput {...field} placeholder={t("products.fields.handle.placeholder")} data-testid="product-create-general-section-handle-input" />
-                  </Form.Control>
-                </Form.Item>
-              )
-            }}
-          />
+          >
+            <Form.Field
+              control={form.control}
+              name="handle"
+              render={({ field }) => {
+                return (
+                  <Form.Item data-testid="product-create-general-section-handle-item">
+                    <Form.Label
+                      tooltip={t("products.fields.handle.tooltip")}
+                      optional
+                      data-testid="product-create-general-section-handle-label"
+                    >
+                      {t("fields.handle")}
+                    </Form.Label>
+                    <Form.Control data-testid="product-create-general-section-handle-control">
+                      <HandleInput {...field} placeholder={t("products.fields.handle.placeholder")} data-testid="product-create-general-section-handle-input" />
+                    </Form.Control>
+                  </Form.Item>
+                )
+              }}
+            />
+          </ExtendableFormField>
         </div>
       </div>
-      <Form.Field
+      <ExtendableFormField
+        model="product"
+        zone="create"
+        tab="details"
+        id="description"
         control={form.control}
-        name="description"
-        render={({ field }) => {
-          return (
-            <Form.Item data-testid="product-create-general-section-description-item">
-              <Form.Label optional data-testid="product-create-general-section-description-label">
-                {t("products.fields.description.label")}
-              </Form.Label>
-              <Form.Control data-testid="product-create-general-section-description-control">
-                <RichTextEditor
-                  {...field}
-                  placeholder={t("products.fields.description.placeholder")}
-                  onUpload={uploadRichTextImage}
-                  data-testid="product-create-general-section-description-input"
-                />
-              </Form.Control>
-            </Form.Item>
-          )
-        }}
-      />
+      >
+        <Form.Field
+          control={form.control}
+          name="description"
+          render={({ field }) => {
+            return (
+              <Form.Item data-testid="product-create-general-section-description-item">
+                <Form.Label optional data-testid="product-create-general-section-description-label">
+                  {t("products.fields.description.label")}
+                </Form.Label>
+                <Form.Control data-testid="product-create-general-section-description-control">
+                  <RichTextEditor
+                    {...field}
+                    placeholder={t("products.fields.description.placeholder")}
+                    onUpload={uploadRichTextImage}
+                    data-testid="product-create-general-section-description-input"
+                  />
+                </Form.Control>
+              </Form.Item>
+            )
+          }}
+        />
+      </ExtendableFormField>
     </div>
   )
 }

@@ -45,7 +45,7 @@ export async function ensureSellerMiddleware(
   if (!sellerMembers.length) {
     return next(
       new MedusaError(
-        MedusaError.Types.NOT_ALLOWED,
+        MedusaError.Types.FORBIDDEN,
         "You are not a member of this seller account"
       )
     )

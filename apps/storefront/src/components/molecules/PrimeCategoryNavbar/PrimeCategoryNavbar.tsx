@@ -1,12 +1,10 @@
 "use client"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { cn } from "@/lib/utils"
-import { useParams } from "next/navigation"
+import { ActiveCategory } from "@/components/molecules/ActiveCategory/ActiveCategory"
 import { primeCategories } from "@/data/categories"
 
-export const PrimeCategoryNavbar = () => {
-  const { category } = useParams()
-
+const PrimeCategoryNavbarView = ({ category }: { category?: string }) => {
   return (
     <div className="flex items-center gap-2">
       {Object.keys(primeCategories).map((key: string) => (
@@ -24,3 +22,9 @@ export const PrimeCategoryNavbar = () => {
     </div>
   )
 }
+
+export const PrimeCategoryNavbar = () => (
+  <ActiveCategory fallback={<PrimeCategoryNavbarView />}>
+    {(category) => <PrimeCategoryNavbarView category={category} />}
+  </ActiveCategory>
+)

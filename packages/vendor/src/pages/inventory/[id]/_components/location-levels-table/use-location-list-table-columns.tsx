@@ -9,7 +9,7 @@ import { LocationActions } from "./location-actions"
 /**
  * Adds missing properties to the InventoryLevelDTO type.
  */
-interface ExtendedLocationLevel extends InventoryTypes.InventoryLevelDTO {
+export interface ExtendedLocationLevel extends InventoryTypes.InventoryLevelDTO {
   stock_locations: StockLocationDTO[]
   reserved_quantity: number
   stocked_quantity: number

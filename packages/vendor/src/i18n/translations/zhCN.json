@@ -3864,8 +3864,7 @@
       "pending": "处理中",
       "processing": "处理中",
       "paid": "已支付",
-      "failed": "失败",
-      "canceled": "已取消"
+      "failed": "失败"
     }
   },
   "translations": {

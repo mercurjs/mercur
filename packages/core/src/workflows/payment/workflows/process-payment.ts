@@ -1,5 +1,5 @@
 import { BigNumberInput } from "@medusajs/framework/types"
-import { PaymentActions } from "@medusajs/framework/utils"
+import { MathBN, PaymentActions } from "@medusajs/framework/utils"
 import {
     createWorkflow,
     transform,
@@ -40,7 +40,7 @@ export const processPaymentWorkflow = createWorkflow(
     (input: ProcessPaymentWorkflowInput) => {
         const paymentData = useQueryGraphStep({
             entity: "payment",
-            fields: ["id"],
+            fields: ["id", "amount", "captures.amount", "captures.raw_amount"],
             filters: { payment_session_id: input.data?.session_id },
         }).config({ name: "payment-query" })
 
@@ -88,12 +88,19 @@ export const processPaymentWorkflow = createWorkflow(
             })
         })
 
+        // A partial capture leaves Medusa's payment without captured_at, so the
+        // provider's confirmation of it would otherwise be recorded again.
         when({ input, paymentData }, ({ input, paymentData }) => {
-            return (
-                !!input.data?.session_id &&
-                input.action === PaymentActions.SUCCESSFUL &&
-                !!paymentData.data.length
+            const payment = paymentData.data[0]
+            if (!input.data?.session_id || input.action !== PaymentActions.SUCCESSFUL || !payment) {
+                return false
+            }
+            const captured = (payment.captures ?? []).reduce(
+                (sum: BigNumberInput, capture) =>
+                    MathBN.add(sum, capture?.raw_amount ?? capture?.amount ?? 0),
+                0
             )
+            return MathBN.lt(captured, input.data.amount ?? payment.amount)
         }).then(() => {
             capturePaymentWorkflow
                 .runAsStep({

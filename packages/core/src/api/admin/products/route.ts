@@ -28,10 +28,17 @@ export const GET = async (
     )
   }
 
+  // `sku` lives on the variant; as a product filter it would hit a column that does not exist.
+  const { sku, ...filters } = req.filterableFields as Record<string, unknown> & { sku?: string }
+  if (sku) {
+    const and = (filters.$and as object[] | undefined) ?? []
+    filters.$and = [...and, { variants: { sku } }]
+  }
+
   const { data: products, metadata } = await query.graph({
     entity: "product",
     fields: req.queryConfig.fields,
-    filters: req.filterableFields,
+    filters,
     pagination: req.queryConfig.pagination,
   })
 

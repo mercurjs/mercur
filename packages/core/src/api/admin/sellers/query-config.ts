@@ -37,6 +37,9 @@ export const adminSellerFields = [
 export const adminSellerRetrieveFields = [
   ...adminSellerFields,
   "*members",
+  "regions.id",
+  "regions.name",
+  "regions.currency_code",
 ]
 
 export const adminSellerQueryConfig = {

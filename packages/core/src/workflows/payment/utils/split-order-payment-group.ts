@@ -293,9 +293,20 @@ export const planCartPaymentSplit = (
     weights,
     decimalDigits,
   })
+  // Capture can leave canceled orders out; anything above the open total is refunded.
+  // What a canceled order held was refunded on its own payment, so it is not available.
+  const hasCanceled = orders.some(isOrderCanceled)
+  const openWeights = orders.map((order) => (isOrderCanceled(order) ? 0 : order.total))
+  const openTotal = openWeights.reduce<BigNumberInput>((acc, weight) => MathBN.add(acc, weight), 0)
+  const heldByCanceled = orders
+    .filter(isOrderCanceled)
+    .reduce<BigNumberInput>(
+      (acc, order) => MathBN.add(acc, sum(getOrderCollection(order, cartCollection.id)?.payments?.[0]?.captures)),
+      0
+    )
   const targets = allocateProportionally({
-    amount: captured,
-    weights,
+    amount: hasCanceled ? MathBN.min(MathBN.sub(captured, heldByCanceled), openTotal) : captured,
+    weights: hasCanceled ? openWeights : weights,
     decimalDigits,
   })
 

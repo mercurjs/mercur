@@ -7,8 +7,8 @@ import { ClientError } from '@mercurjs/client';
 import Link from 'next/link';
 import { FieldError, FormProvider, useForm, useFormContext } from 'react-hook-form';
 
-import { Button } from '@/components/atoms';
-import { LabeledInput } from '@/components/cells';
+import { Button } from '@/components/atoms/Button/Button';
+import { LabeledInput } from '@/components/cells/LabeledInput/LabeledInput';
 import { sendResetPasswordEmail } from '@/lib/data/customer';
 import { toast } from '@/lib/helpers/toast';
 

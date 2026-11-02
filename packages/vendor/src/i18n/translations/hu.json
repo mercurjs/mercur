@@ -3867,8 +3867,7 @@
       "pending": "Függőben",
       "processing": "Feldolgozás alatt",
       "paid": "Kifizetve",
-      "failed": "Sikertelen",
-      "canceled": "Törölt"
+      "failed": "Sikertelen"
     }
   },
   "translations": {

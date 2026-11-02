@@ -1,53 +1,131 @@
 ---
-title: "Service reference"
+title: "Payout module service"
 sidebarTitle: "Service"
-description: "The Payout module service: methods for working with records directly."
+description: "Resolve the Payout module service, and use its generated data methods and its provider-backed methods."
 ---
 
-The Payout module exposes a service you can resolve from the Medusa container to
-read and write records directly, without going through a workflow. Use it inside
-custom services, subscribers, or scheduled jobs.
+`PayoutModuleService` reads and writes payout records, and it’s the only code that calls the payout provider. Resolve it from the container in subscribers, jobs, steps, and routes. Prefer the [workflows](/platform/payout/reference/workflows) when you also need links, events, or a rollback.
+
+## Resolve the service
+
+The service is registered under `MercurModules.PAYOUT`, whose value is `"payout"`:
 
 ```ts
-import { MercurModules } from "@mercurjs/types"
+import { IPayoutModuleService, MercurModules } from "@mercurjs/types"
 
-const payoutModuleService = container.resolve(MercurModules.PAYOUT)
+const payoutService = container.resolve<IPayoutModuleService>(MercurModules.PAYOUT)
 
-const [payouts, count] = await payoutModuleService.listAndCountPayouts({
-  status: "paid",
-})
+const [payouts, count] = await payoutService.listAndCountPayouts(
+  { status: "on_hold" },
+  { take: 20, order: { created_at: "DESC" } }
+)
 ```
 
 ## Generated methods
 
-Each data model gets a standard set of auto-generated methods. For `Payout`:
+The service extends `MedusaService({ Onboarding, Payout, PayoutAccount, PayoutReversal })` and implements `IPayoutModuleService` from `@mercurjs/types`, so each model gets Medusa’s standard methods. Resolve it with that interface: `container.resolve<IPayoutModuleService>(MercurModules.PAYOUT)`.
 
-| Method | Description |
+| Model | Methods |
 | --- | --- |
-| `retrievePayout(id, config?)` | Retrieve a payout by id |
-| `listPayouts(filters?, config?)` | List payouts matching filters |
-| `listAndCountPayouts(filters?, config?)` | List payouts with a total count |
-| `updatePayouts(data)` | Update one or more payouts |
-| `deletePayouts(ids)` | Delete one or more payouts |
+| `PayoutAccount` | `retrievePayoutAccount`, `listPayoutAccounts`, `listAndCountPayoutAccounts`, `createPayoutAccounts`, `updatePayoutAccounts`, `deletePayoutAccounts`, `softDeletePayoutAccounts`, `restorePayoutAccounts` |
+| `Onboarding` | `retrieveOnboarding`, `listOnboardings`, `listAndCountOnboardings`, `createOnboardings`, `updateOnboardings`, `deleteOnboardings`, `softDeleteOnboardings`, `restoreOnboardings` |
+| `Payout` | `retrievePayout`, `listPayouts`, `listAndCountPayouts`, `createPayouts`, `updatePayouts`, `deletePayouts`, `softDeletePayouts`, `restorePayouts` |
+| `PayoutReversal` | `retrievePayoutReversal`, `listPayoutReversals`, `listAndCountPayoutReversals`, `createPayoutReversals`, `updatePayoutReversals`, `deletePayoutReversals`, `softDeletePayoutReversals`, `restorePayoutReversals` |
 
-The same set exists for `PayoutAccount` and `Onboarding` (e.g.
-`retrievePayoutAccount`, `listPayoutAccounts`, `updateOnboardings`).
+The generated create and update methods write rows only. They never call the provider.
 
-## Provider-integrated methods
+## Provider-backed methods
 
-These overrides call the configured provider as part of the operation. Prefer
-them over the raw generated creates.
+These methods call the payout provider as part of the write.
 
-| Method | Description |
+### createPayoutAccount
+
+```ts
+createPayoutAccount(input: CreatePayoutAccountDTO): Promise<PayoutAccountDTO>
+```
+
+Creates the row, calls the provider’s `createAccount` with `data.account_id` and `metadata.account_id` set to the new id, then stores `external_id`, the flags, the derived `status` and `kyc_status`, and the provider’s `data`. Deletes the row if the provider throws. `input` takes optional `data`, `context`, and `seller` (used when `onboarding.prefill` is on).
+
+### syncPayoutAccount
+
+```ts
+syncPayoutAccount(accountId: string): Promise<PayoutAccountDTO>
+```
+
+Re-reads the account with the provider’s `retrieveAccount` and stores the same fields as `createPayoutAccount`, plus `last_synced_at`. Clears `onboarding_token` once details are submitted. The account `status` and `kyc_status` are derived here from the provider’s flags, requirements and `disabled_reason`.
+
+### deletePayoutAccount
+
+```ts
+deletePayoutAccount(accountId: string): Promise<void>
+```
+
+Deletes the account at the provider with its optional `deleteAccount`, then the row. `createPayoutAccountWorkflow` calls it when it rolls back, so the provider isn’t left with an account no seller is linked to. A provider without `deleteAccount` keeps its account.
+
+### createOnboarding
+
+```ts
+createOnboarding(input: CreateOnboardingDTO): Promise<OnboardingDTO>
+```
+
+Publishes the link the seller follows next and stores it on the account’s onboarding record:
+
+- Before the seller submits their details, it calls the provider’s `createOnboarding` with `refresh_url` and `return_url` from `input.data` or the module’s `onboarding` options, and stores the link with `kind: "onboarding"`. The refresh URL carries the account’s `onboarding_token`. A new token is issued when the account has none, when the current one is older than `onboarding.tokenTtlSeconds`, or when `input.rotate_token` is set, and `onboarding_token_issued_at` records when.
+- Once `details_submitted` is set, it asks the provider’s `createLoginLink` for a dashboard link and stores it with `kind: "login"`. A provider without `createLoginLink` gets a new onboarding link instead.
+
+`input` takes `account_id` and optional `data`, `context` and `rotate_token`.
+
+### processPayout
+
+```ts
+processPayout(payoutId: string): Promise<PayoutDTO>
+```
+
+Sends a `pending` or `failed` payout with the provider’s `createPayout`, passing the order id as `group`, the payment in `data.source_payment`, and `{ payout_id, order_id }` as metadata. Like Medusa’s `capturePayment`, it locks the row and marks it `processing` in a transaction, then calls the provider outside it, so the lock is never held across the provider call. Stores the provider’s `status` and id. A provider error doesn’t throw: the row gets `status_reason: "provider_error"`, the message in `data.status_detail`, and the status `failed`, or `aborted` when the error is a `PayoutProviderError` with code `final`. Any other status is returned unchanged.
+
+### processPayoutReversal
+
+```ts
+processPayoutReversal(reversalId: string): Promise<PayoutReversalDTO>
+```
+
+Sends a `pending` or `failed` reversal with the provider’s `reversePayout`, against the provider id kept in the payout’s `data.provider.id`. Locks and records errors the same way as `processPayout`.
+
+### getWebhookActionAndData
+
+```ts
+getWebhookActionAndData(
+  input: PayoutWebhookActionInput
+): Promise<PayoutWebhookResult>
+```
+
+Passes `{ data, rawData, headers }` to the provider and returns its action and the provider’s object id. It doesn’t change any record.
+
+### getOptions
+
+```ts
+getOptions(): ResolvedPayoutModuleOptions
+```
+
+Returns the resolved module options, `onboarding.returnUrl`, `onboarding.refreshBaseUrl`, `onboarding.prefill`, `onboarding.defaultCountry`, and `onboarding.tokenTtlSeconds` (24 hours by default), with defaults applied. Scheduling options belong to the integration that runs the payouts, such as the Stripe connector plugin.
+
+## Idempotency keys
+
+Each provider-backed method sets `context.idempotency_key` before it calls the provider:
+
+| Method | Key |
 | --- | --- |
-| `createPayoutAccount(input)` | Create the account and the provider's connected account |
-| `createOnboarding(input)` | Create or update onboarding via the provider |
-| `createPayouts(input)` | Initiate a transfer through the provider (account must be `ACTIVE`) |
-| `getWebhookActionAndData(input)` | Ask the provider to parse a raw webhook payload |
-| `getOptions()` | Read the module's configured options (with defaults applied) |
+| `createPayoutAccount` | The new `pacc` id, unless you pass one |
+| `createOnboarding` | The `account_id`, unless you pass one |
+| `processPayout` | The `pout` id, then `<id>:<attempt>` after a refusal |
+| `processPayoutReversal` | The reversal id, then `<id>:<attempt>` after a refusal |
 
-<Warning>
-  Prefer [workflows](/platform/payout/reference/workflows) for anything that
-  touches the provider or links records. The generated `updatePayouts` /
-  `updatePayoutAccounts` write status directly and do **not** call the provider.
-</Warning>
+The key in use is stored in the row’s `data.idempotency_key` and the attempt count in `data.attempts`. What happens to the key depends on the error the provider throws:
+
+| Error | Row | Next attempt |
+| --- | --- | --- |
+| `PayoutProviderError` with code `refused` | `failed` | A fresh key: the provider refused the request and created nothing, and it would return the cached refusal for the old key |
+| `PayoutProviderError` with code `final` | `aborted` | None |
+| Any other error (timeout, network, provider 5xx), or code `unknown` | `failed` | The same key, so if the provider did make the payout, the retry gets that payout back instead of a second one |
+
+A `payout.failed` webhook also clears the key, because the provider failed the payout it made under it. Stripe Connect forwards the key to Stripe on account, transfer, and reversal creation.

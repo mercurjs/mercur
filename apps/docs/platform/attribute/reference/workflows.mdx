@@ -1,45 +1,175 @@
 ---
-title: "Workflows"
+title: "Attribute workflows"
 sidebarTitle: "Workflows"
-description: "Attribute catalog and product-attachment workflows."
+description: "Every catalog and product attachment workflow in the Product Attribute domain, with inputs, hooks, and events."
 ---
 
-This reference lists the workflows for the Attribute domain. Import them from
-`@mercurjs/core/workflows` and run them against the Medusa container.
+The Product Attribute domain exports 11 workflows from `@mercurjs/core/workflows`: 7 that manage the catalog and 4 that attach attributes to products. Run each one with `workflow(container).run({ input })`. When a step fails, the steps that already ran undo their work through their compensation functions.
 
 ## Catalog workflows
 
-Manage the attribute catalog and its values.
+These workflows create, change, and delete attributes and values. They keep the mirror `ProductOption` of a variant axis in step.
 
-| Workflow | Input | Purpose |
+### createProductAttributesWorkflow
+
+Creates attributes and their values. For each `multi_select` attribute with `is_variant_axis`, it first creates a global `ProductOption` (`is_exclusive: false`) titled with the attribute name, then links the values to its option values. Id `create-product-attributes`.
+
+| Input | Type | Description |
 | --- | --- | --- |
-| `createProductAttributesWorkflow` | `{ attributes[], additional_data? }` | Create attributes (+ values, + mirror option for axes) |
-| `updateProductAttributesWorkflow` | `{ selector, update }` | Update attribute fields |
-| `deleteProductAttributesWorkflow` | `{ ids[] }` | Delete attributes (fails if still linked) |
-| `createProductAttributeValuesWorkflow` | `{ values[], additional_data? }` | Add values to attributes |
-| `updateProductAttributeValuesWorkflow` | `{ selector, update }` | Update values |
-| `deleteProductAttributeValuesWorkflow` | `{ ids[] }` | Delete values |
-| `upsertProductAttributeValuesWorkflow` | `{ attribute_id, values[] }` | Create or update an attribute's values in one call |
+| `attributes` | `(CreateProductAttributeDTO & { category_ids?: string[] })[]` | Attributes to create, each with optional `values` |
+| `additional_data` | `Record<string, unknown>` | Passed to the `productAttributesCreated` hook |
 
-## Product-attachment workflows
+- **Returns**: `ProductAttributeDTO[]`
+- **Hooks**: `validate` with `{ input }`, `productAttributesCreated` with `{ attributes, additional_data }`
+- **Events**: `product-attribute.created` per attribute
 
-Attach attributes to products in the shared master catalog.
+### updateProductAttributesWorkflow
 
-| Workflow | Input | Purpose |
+Updates every attribute matching `selector`. When `update.name` is set, it also renames the mirror option of each axis attribute. Id `update-product-attributes`.
+
+| Input | Type | Description |
 | --- | --- | --- |
-| `createAndLinkProductAttributesToProductWorkflow` | `{ product_id, add?, remove?, update? }` | Batch engine: attach, detach, and update, applied remove → add → update |
-| `addProductAttributesToProductWorkflow` | `{ product_id, add[] }` | Attach attributes (existing or inline) to a product |
-| `removeProductAttributesFromProductWorkflow` | `{ product_id, ... }` | Detach attributes from a product |
-| `updateProductAttributesOnProductWorkflow` | `{ product_id, ... }` | Update a product's attribute selections |
+| `selector` | `Record<string, unknown>` | Filters for the attributes to update, such as `{ id }` |
+| `update` | `UpdateProductAttributeDTO` | Fields to set. Changing `type` throws |
+| `additional_data` | `Record<string, unknown>` | Passed to the `productAttributesUpdated` hook |
+
+- **Returns**: `ProductAttributeDTO[]`
+- **Hooks**: `validate` with `{ input }`, `productAttributesUpdated` with `{ attributes, additional_data }`
+- **Events**: `product-attribute.updated` per attribute
+
+### deleteProductAttributesWorkflow
+
+Soft-deletes attributes and their values, then deletes the mirror options of axis attributes. It throws `NOT_ALLOWED` if any value of an attribute is linked to a product. Id `delete-product-attributes`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `ids` | `string[]` | Attribute ids |
+| `additional_data` | `Record<string, unknown>` | Passed to the `productAttributesDeleted` hook |
+
+- **Returns**: nothing
+- **Hooks**: `validate` with `{ input }`, `productAttributesDeleted` with `{ ids, additional_data }`
+- **Events**: `product-attribute.deleted` per id
+
+### createProductAttributeValuesWorkflow
+
+Adds values to one attribute. For an axis, it first adds the names to the mirror option and stores each new option value’s id. Id `create-product-attribute-values`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `attribute_id` | `string` | The parent attribute |
+| `values` | `CreateProductAttributeValueDTO[]` | Values to create, each with at least a `name` |
+| `additional_data` | `Record<string, unknown>` | Passed to the `productAttributeValuesCreated` hook |
+
+- **Returns**: `ProductAttributeValueDTO[]`
+- **Hooks**: `validate` with `{ input }`, `productAttributeValuesCreated` with `{ values, additional_data }`
+- **Events**: `product-attribute-value.created` per value
+
+### updateProductAttributeValuesWorkflow
+
+Updates every value matching `selector`. When the values belong to exactly one axis attribute, it rewrites that option’s values from the attribute’s value names. Id `update-product-attribute-values`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `selector` | `Record<string, unknown>` | Filters for the values to update |
+| `update` | `UpdateProductAttributeValueDTO` | Fields to set |
+| `additional_data` | `Record<string, unknown>` | Passed to the `productAttributeValuesUpdated` hook |
+
+- **Returns**: `ProductAttributeValueDTO[]`
+- **Hooks**: `validate` with `{ input }`, `productAttributeValuesUpdated` with `{ values, additional_data }`
+- **Events**: `product-attribute-value.updated` per value
+
+### deleteProductAttributeValuesWorkflow
+
+Soft-deletes values. When they belong to exactly one axis attribute, it rewrites that option’s values from the remaining value names. Id `delete-product-attribute-values`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `ids` | `string[]` | Value ids |
+| `additional_data` | `Record<string, unknown>` | Passed to the `productAttributeValuesDeleted` hook |
+
+- **Returns**: nothing
+- **Hooks**: `validate` with `{ input }`, `productAttributeValuesDeleted` with `{ ids, additional_data }`
+- **Events**: `product-attribute-value.deleted` per id
+
+### upsertProductAttributeValuesWorkflow
+
+Creates values without an `id` and updates values with one, for a single attribute. For an axis, it adds any new names to the mirror option first. Id `upsert-product-attribute-values`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `attribute_id` | `string` | The parent attribute |
+| `values` | `UpsertProductAttributeValueDTO[]` | Values to create or update, matched by `id` |
+
+- **Returns**: `ProductAttributeValueDTO[]`, created values first
+- **Hooks**: none
+- **Events**: none
+
+## Product attachment workflows
+
+These workflows attach attributes to products, write the `product_attribute_value_link` pivot, and attach or detach axis options on the product. Their input types are `ProductAttributeBatchAdd` and `ProductAttributeBatchUpdate` from `@mercurjs/types`.
+
+### createAndLinkProductAttributesToProductWorkflow
+
+The batch engine. It runs the remove, add, and update workflows below in that order, skipping any list that’s empty. Id `create-and-link-product-attributes-to-product`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `product_id` | `string` | The product to change |
+| `add` | `ProductAttributeBatchAdd[]` | Attributes to attach, existing or inline |
+| `remove` | `string[]` | Attribute ids to detach |
+| `update` | `ProductAttributeBatchUpdate[]` | Selections to change |
+| `additional_data` | `Record<string, unknown>` | Passed to the `productAttributesLinked` hook |
+
+- **Returns**: nothing
+- **Hooks**: `validate` with `{ input }`, `productAttributesLinked` with `{ product_id, additional_data }`
+- **Events**: none of its own. Nested catalog workflows emit theirs
+
+### addProductAttributesToProductWorkflow
+
+Attaches attributes. It creates inline attributes and their exclusive options, creates `text` and `unit` values, attaches axis options with the selected subset, and links every value to the product. Id `add-product-attributes-to-product`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `product_id` | `string` | The product to change |
+| `add` | `ProductAttributeBatchAdd[]` | Attributes to attach |
+
+The input can also be an array of `{ product_id, add }` objects to attach to several products in one run. It has no hooks and emits no events.
+
+### removeProductAttributesFromProductWorkflow
+
+Detaches attributes. It throws `NOT_ALLOWED` for a required attribute unless the id is also in `readd`. It then detaches global axis options, drops the value links, and deletes inline attributes through `deleteProductAttributesWorkflow`. Id `remove-product-attributes-from-product`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `product_id` | `string` | The product to change |
+| `remove` | `string[]` | Attribute ids to detach |
+| `readd` | `string[]` | Ids removed and re-added in the same batch, skipped by the required check |
+
+### updateProductAttributesOnProductWorkflow
+
+Changes selections. It resolves `value_ids` into an add and remove delta, moves global axis option values, swaps `text`, `unit`, and `toggle` values, adds or deletes values of an inline axis, and renames inline attributes from `title`. Id `update-product-attributes-on-product`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `product_id` | `string` | The product to change |
+| `update` | `ProductAttributeBatchUpdate[]` | Selections to change |
 
 <Note>
-  `createAndLinkProductAttributesToProductWorkflow` is the engine behind the
-  product attribute batch endpoint; it composes the three single-purpose
-  attachment workflows. See
-  [Attach attributes to a product](/platform/attribute/guides/attach-attributes-to-a-product).
+  Changes made by these workflows land on the product right away. To route a store’s attribute edits through review, run `productEditUpdateAttributesWorkflow` from the [Product edits](/platform/product-edit/overview) domain, which applies the batch engine once the change is confirmed.
 </Note>
 
-To work with records directly instead of through a workflow, see the
-[Service reference](/platform/attribute/reference/service). To run side effects
-when an attribute changes, see the
-[Event reference](/platform/attribute/reference/events).
+## Steps
+
+The domain also exports its steps for use in your own workflows:
+
+| Step | Id | Compensation |
+| --- | --- | --- |
+| `createProductAttributesStep` | `pa-create-product-attributes` | Deletes the created attributes |
+| `updateProductAttributesStep` | `pa-update-product-attributes` | Restores previous field values |
+| `deleteProductAttributesStep` | `pa-delete-product-attributes` | Restores the soft-deleted attributes |
+| `createProductAttributeValuesStep` | `pa-create-product-attribute-values` | Deletes the created values |
+| `updateProductAttributeValuesStep` | `pa-update-product-attribute-values` | Restores previous field values |
+| `deleteProductAttributeValuesStep` | `pa-delete-product-attribute-values` | Restores the soft-deleted values |
+| `detachProductOptionValuesFromProductStep` | `pa-detach-product-option-values-from-product` | Re-attaches the option values |
+| `validateProductAttributesNotLinkedStep` | `pa-validate-attributes-not-linked` | None |
+| `validateProductAttributesNotRequiredStep` | `pa-validate-attributes-not-required` | None |

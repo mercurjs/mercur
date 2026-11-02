@@ -11,6 +11,7 @@ import {
     isVariableDeclaration,
     isVariableDeclarator,
 } from "./babel"
+import { emitLayers, spreadLayers } from "./layers"
 import type { BuiltMercurConfig } from "./types"
 
 type Route = {
@@ -277,46 +278,17 @@ export function buildRouteTree(results: RouteResult[]): RouteResult[] {
     return Array.from(routeMap.values())
 }
 
-export function generateRoutes({ srcDir, pluginExtensions }: BuiltMercurConfig): string {
-    const routesDir = path.join(srcDir, "routes")
+/**
+ * Routes are emitted in layer order, plugins first and the host app last. A
+ * later route at the same path overrides the earlier one; the panel resolves
+ * the override and hands the overridden page to the new one as `renderDefault`.
+ */
+export function generateRoutes(config: BuiltMercurConfig): string {
+    const { header, names } = emitLayers(config)
 
-    let index = 0
-    const results: RouteResult[] = []
-
-    // App's own routes
-    for (const file of crawlRoutes(routesDir)) {
-        const result = parseFile(file, routesDir, index)
-        if (result) {
-            results.push(result)
-            index++
-        }
-    }
-
-    // Plugin extensions. Static rather than `await import(...)`: a top-level
-    // await here would force every consuming app to raise its build target.
-    const pluginDeclarations = pluginExtensions.map((ext, i) =>
-        `import __plugin${i} from "${normalizePath(ext)}"`
-    )
-    const pluginSpreads = pluginExtensions.map((_, i) =>
-        `    ...(__plugin${i}.routeModule?.routes ?? [])`
-    )
-
-    const routeTree = buildRouteTree(results)
-    const appImports = routeTree.flatMap((r) => r.imports)
-    const appRoutes = routeTree.map((r) => formatRoute(r.route))
-
-    const allImports = [...appImports]
-    const allRoutes = [...appRoutes, ...pluginSpreads]
-
-    if (allImports.length === 0 && pluginDeclarations.length === 0 && allRoutes.length === 0) {
-        return `export const customRoutes = []`
-    }
-
-    return `${allImports.join("\n")}
-
-${pluginDeclarations.join("\n")}
+    return `${header}
 
 export const customRoutes = [
-${allRoutes.join(",\n")}
+${spreadLayers(names, "routeModule", "routes")}
 ]`
 }

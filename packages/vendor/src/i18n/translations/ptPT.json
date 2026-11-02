@@ -3955,8 +3955,7 @@
       "pending": "Pendente",
       "processing": "Em processamento",
       "paid": "Pago",
-      "failed": "Falhou",
-      "canceled": "Cancelada"
+      "failed": "Falhou"
     }
   },
   "translations": {

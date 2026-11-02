@@ -257,8 +257,8 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
           `EXISTS (
             SELECT 1
             FROM order_group_order qogo
-            JOIN "order" qo ON qo.id = qogo.order_id
-            WHERE qogo.order_group_id = og.id AND qo.display_id = ?
+            JOIN "order" qo ON qo.id = qogo.order_id AND qo.deleted_at IS NULL
+            WHERE qogo.order_group_id = og.id AND qogo.deleted_at IS NULL AND qo.display_id = ?
           )`
         )
         params.push(displayId, displayId)
@@ -274,10 +274,10 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
       whereClauses.push(`EXISTS (
         SELECT 1
         FROM order_group_order fogo
-        JOIN "order" fo ON fo.id = fogo.order_id
-        LEFT JOIN order_order_seller_seller fo_seller ON fo_seller.order_id = fo.id
+        JOIN "order" fo ON fo.id = fogo.order_id AND fo.deleted_at IS NULL
+        LEFT JOIN order_order_seller_seller fo_seller ON fo_seller.order_id = fo.id AND fo_seller.deleted_at IS NULL
         ${needsPaymentStatus ? ORDER_PAYMENT_STATUS_JOIN : ""}
-        WHERE fogo.order_group_id = og.id AND ${orderClauses.join(" AND ")}
+        WHERE fogo.order_group_id = og.id AND fogo.deleted_at IS NULL AND ${orderClauses.join(" AND ")}
       )`)
       params.push(...orderParams)
     }
@@ -307,10 +307,10 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
         COUNT(DISTINCT oso.seller_id) as seller_count,
         COALESCE(SUM((os.totals->>'current_order_total')::numeric), 0) as total
       FROM order_group og
-      LEFT JOIN order_group_order ogo ON ogo.order_group_id = og.id
-      LEFT JOIN "order" o ON o.id = ogo.order_id
-      LEFT JOIN order_summary os ON os.order_id = o.id AND os.version = o.version
-      LEFT JOIN order_order_seller_seller oso ON oso.order_id = o.id
+      LEFT JOIN order_group_order ogo ON ogo.order_group_id = og.id AND ogo.deleted_at IS NULL
+      LEFT JOIN "order" o ON o.id = ogo.order_id AND o.deleted_at IS NULL
+      LEFT JOIN order_summary os ON os.order_id = o.id AND os.version = o.version AND os.deleted_at IS NULL
+      LEFT JOIN order_order_seller_seller oso ON oso.order_id = o.id AND oso.deleted_at IS NULL
       WHERE ${whereClause}
       GROUP BY og.id
       ORDER BY ${orderByClauses.join(", ")}

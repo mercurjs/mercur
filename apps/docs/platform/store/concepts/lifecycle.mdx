@@ -1,62 +1,86 @@
 ---
-title: "Lifecycle"
+title: "Store statuses and transitions"
 sidebarTitle: "Lifecycle"
-description: "Store statuses, transitions, scheduled closures, and premium."
+description: "The four store statuses, the workflow behind each transition, scheduled closures, and the premium flag."
 ---
 
-This page covers the store account lifecycle and the states a store moves through.
+Every store has a status that decides whether it can trade. The status lives in the `status` field of `Seller`, typed by the `SellerStatus` enum, and only dedicated workflows move it. Each transition validates the current status, records a reason or a timestamp, emits an event, and exposes a hook you can extend.
 
-## Status
+## The four statuses
 
-A store's state lives in the `status` field of the `Seller` model, typed by the
-`SellerStatus` enum. A store moves through four statuses.
-
-```
-                ┌───────────────────┐
-                │  pending_approval  │
-                └─────────┬─────────┘
-                          │ approve
-                          ▼
-   ┌───────────┐     ┌────────┐
-   │ suspended  │◄───►│  open   │
-   └───────────┘     └───┬────┘
-                         │ terminate
-                         ▼
-                  ┌────────────┐
-                  │ terminated  │
-                  └────────────┘
-```
+A store is in exactly one status at a time. New stores start in `pending_approval` unless you pass another status to `createSellersWorkflow`.
 
 | Status | Meaning |
 | --- | --- |
-| `pending_approval` | Registered, waiting for operator review. |
-| `open` | Active. Can list offers, take orders, and collect payouts. |
-| `suspended` | Temporarily frozen. Offers stay listed but cannot be purchased. |
-| `terminated` | Permanently closed. This status is irreversible. |
+| `pending_approval` | Registered and waiting for operator review |
+| `open` | Trading: listed in the Store API with its offers |
+| `suspended` | Frozen by the operator, hidden from the Store API |
+| `terminated` | Closed by the operator, hidden from the Store API and from its members’ store list |
 
-Only the operator can change a store's status. Each transition runs through a
-dedicated workflow: `approveSellerWorkflow`, `suspendSellerWorkflow`,
-`unsuspendSellerWorkflow`, and `terminateSellerWorkflow`.
+The Store API seller and offer listings return only `open` stores that aren’t inside a closure window. A store in any other status disappears from those listings, but its records stay intact.
 
-<Note>
-  Termination is irreversible. All orders and payouts must be resolved before a
-  store can be terminated.
-</Note>
+## Transitions
+
+Each transition is its own workflow, and each one checks the starting status before it writes.
+
+<img className="block dark:hidden" src="/images/figures/store-lifecycle-light.svg" alt="A Status transitions table for the Seller module listing each lifecycle workflow with the status it starts from, the status it sets, and the event it emits, with the terminate row highlighted because only a suspended or pending store can be terminated." />
+<img className="hidden dark:block" src="/images/figures/store-lifecycle-dark.svg" alt="A Status transitions table for the Seller module listing each lifecycle workflow with the status it starts from, the status it sets, and the event it emits, with the terminate row highlighted because only a suspended or pending store can be terminated." />
+
+The workflows accept these starting statuses:
+
+| Workflow | Allowed from | Sets |
+| --- | --- | --- |
+| `approveSellerWorkflow` | `pending_approval` | `open`, and `approved_at` on first approval |
+| `suspendSellerWorkflow` | `pending_approval`, `open` | `suspended`, `status_reason`, and `rejected_at` on first suspension |
+| `unsuspendSellerWorkflow` | `suspended` | `open`, and clears `status_reason` |
+| `terminateSellerWorkflow` | `pending_approval`, `suspended` | `terminated` and `status_reason` |
+| `unterminateSellerWorkflow` | `terminated` | `suspended`, and clears `status_reason` |
+
+Any other starting status fails with a `NOT_ALLOWED` error and changes nothing.
+
+<Warning>
+  You can’t terminate an `open` store. Suspend it first, then terminate it.
+</Warning>
+
+Termination isn’t final: `unterminateSellerWorkflow` brings a store back as `suspended`, and you then unsuspend it to reopen. Use suspension to reject a pending application: it stamps `rejected_at` and keeps the reason in `status_reason`.
 
 ## Scheduled closures
 
-A store can schedule a temporary closure with the `closed_from` and `closed_to`
-fields without changing its status. During the window, the storefront shows as
-unavailable and no new orders are accepted. The account stays `open` and resumes
-on its own once `closed_to` passes.
+A scheduled closure takes a store offline for a window without changing its status. Set `closed_from` and `closed_to`, and optionally a `closure_note` for the reason. Both the operator and the store’s own members can set these fields.
 
-<Tip>
-  A closure overlays the current status. It is not a status of its own, and it
-  does not affect the transition rules.
-</Tip>
+The Store API filter shows a store only when both bounds allow it:
+
+- **`closed_from`**: `null`, or later than now
+- **`closed_to`**: `null`, or earlier than now
+
+The store comes back once `closed_to` passes, with no job or workflow involved. Set the fields as the closure starts, for example from a scheduled job, because a future `closed_to` hides the store right away even when `closed_from` is also in the future.
+
+```ts
+import { updateSellersWorkflow } from "@mercurjs/core/workflows"
+
+await updateSellersWorkflow(container).run({
+  input: {
+    selector: { id: "sel_01JD8Q1234567" },
+    update: {
+      closed_from: new Date(),
+      closed_to: new Date("2026-12-27"),
+    },
+  },
+})
+```
+
+This closes the store from now until December 27. A `closed_from` in the past with a `null` `closed_to` hides the store until you clear the fields.
+
+<Note>
+  Closures filter the Store API seller and offer listings. They don’t block cart or checkout workflows, so add your own check there if a closed store must refuse orders.
+</Note>
 
 ## Premium
 
-The `is_premium` boolean is set only by the operator. Stores cannot designate
-themselves as premium. The storefront uses the flag for featured placement,
-badges, and curation priority.
+`is_premium` is a boolean that defaults to `false`. The Admin API accepts it on create and update, and the Vendor API doesn’t, so only the operator can set it. Mercur stores the flag and returns it, and your storefront decides what premium means, such as featured placement or a badge.
+
+## Related
+
+- [Moderate stores](/platform/store/guides/moderate-a-store)
+- [Event reference](/platform/store/reference/events)
+- [Workflows reference](/platform/store/reference/workflows)

@@ -1,39 +1,47 @@
 ---
-title: "Links to other modules"
+title: "Product Edit links"
 sidebarTitle: "Links"
-description: "How the Product Edit domain links to other modules across the marketplace."
+description: "The read-only link that exposes a product's change history as product.changes."
 ---
 
-Modules in Mercur never reference each other directly. They connect through
-**module links**. Once a link is defined, you retrieve related records with
-`query.graph` using the link alias.
+Mercur modules never import each other. They connect through module links, which you read with `query.graph`. The Product Edit module has one link, to Medusa’s Product module.
 
-## Product
+## Product to product changes
 
-The Product Edit domain links to the Product module so a product's change
-history hangs off the product itself.
+A read-only link that lists a product’s changes under the `changes` alias. It’s defined in `packages/core/src/links/product-change-link.ts`.
 
-| Linked module | Relationship |
-| --- | --- |
-| **Product** | A product has many changes (`product_change.product_id`, read-only). Exposed as `product.changes`. |
+| Side | Module | Linkable | Key |
+| --- | --- | --- | --- |
+| Source | Product (`Modules.PRODUCT`) | `product` | `id` |
+| Target | Product Edit (`MercurModules.PRODUCT_EDIT`) | `product_change` | `product_id` |
+
+- **Cardinality**: one product to many changes
+- **Alias**: `changes`, read as `product.changes`
+- **Storage**: no pivot table. The link reads the `product_id` column on `product_change`
+- **Writes**: none. The link is `readOnly`, so you create changes with the [workflows](/platform/product-edit/reference/workflows), never through the link
+
+Read a product’s history with its actions:
 
 ```ts
-const { data: products } = await query.graph({
+const query = container.resolve("query")
+
+const { data: [product] } = await query.graph({
   entity: "product",
-  fields: ["id", "title", "changes.status", "changes.actions.action"],
+  fields: [
+    "id",
+    "title",
+    "changes.id",
+    "changes.status",
+    "changes.created_by",
+    "changes.actions.action",
+    "changes.actions.details",
+  ],
+  filters: { id: "prod_01JD8Q1234567" },
 })
 ```
 
-<Note>
-  The link is **read-only** and has no pivot table. The FK lives directly on the
-  `product_change` row. It exists so you read the audit trail through
-  `product.changes`. You can't write a change through the link itself. Stage
-  changes with the [workflows](/platform/product-edit/reference/workflows).
-</Note>
+`product.changes` returns every change on the product, including audit changes and resolved ones. To filter by status, query the `product_change` entity with a `product_id` filter instead, because `query.graph` can’t filter on linked records.
 
-## Actor references
+## Actor fields
 
-The `created_by`, `confirmed_by`, `declined_by`, and `canceled_by` fields hold
-actor ids (the dashboard user who staged or resolved the change). They are plain
-text references for the audit trail, not module links, so they aren't resolved
-through `query.graph`.
+`created_by`, `confirmed_by`, `declined_by`, and `canceled_by` hold actor ids as plain text: a seller id when the change came from a vendor route, a user id when it came from an admin route. They aren’t module links, so `query.graph` can’t expand them. Resolve the seller or user yourself when you need their details.

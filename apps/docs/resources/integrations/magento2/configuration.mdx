@@ -1,0 +1,229 @@
+---
+title: "Configure the Magento 2 connector"
+sidebarTitle: "Configuration"
+description: "Every setting of the connector on both sides: the Mercur plugin, API keys and their permissions, the webhook endpoint, and each field under Stores → Configuration → Mercur."
+---
+
+The connector is configured in two places. Mercur needs the plugin, a payment provider on the right region and a webhook endpoint. Magento holds everything else under **Stores → Configuration → Mercur → Marketplace**, with the API credentials, sync schedules and storefront behavior.
+
+## Credentials and where they live
+
+Three secrets connect the two systems. Each one is created on one side and stored on the other:
+
+| Secret | Created in | Stored in | Used for |
+| --- | --- | --- | --- |
+| Admin API key | Mercur, **Settings → Secret API Keys** | Magento, `mercur/general/api_key`, encrypted | Every Admin API call from Magento |
+| Publishable API key | Mercur, **Settings → Publishable API Keys** | Magento, `mercur/general/publishable_key`, encrypted | The Mercur cart behind checkout, offer prices |
+| Webhook signing secret | Mercur, when the endpoint is created | Magento, `mercur/webhook/secret`, encrypted | Verifying the `x-mercur-signature` of every webhook |
+
+Magento encrypts all three with its own crypt key and masks them in `var/log/mercur.log`, together with cookies and any `password`, `token` or `secret` field in a logged body.
+
+<Warning>
+  Mercur shows the signing secret once, in the response that creates the endpoint. Lists and lookups never return it. If you lose it, create a new endpoint, paste its secret into Magento and delete the old one.
+</Warning>
+
+## Mercur
+
+### Plugin and payment provider
+
+The plugin takes no options. Register it, and register its payment provider with the id `external`, which Medusa exposes as `pp_external_external`:
+
+```ts medusa-config.ts
+module.exports = withMercur({
+  plugins: [
+    { resolve: "@mercurjs/magento2-connector-plugin", options: {} },
+  ],
+  modules: [
+    {
+      resolve: "@medusajs/medusa/payment",
+      options: {
+        providers: [
+          {
+            resolve: "@mercurjs/magento2-connector-plugin/providers/payment-external",
+            id: "external",
+          },
+        ],
+      },
+    },
+  ],
+})
+```
+
+Then add `pp_external_external` to the payment providers of every region a Magento website sells in. The provider records the payment Magento collected and never charges anyone, so it's safe to enable next to a real provider.
+
+### API key permissions
+
+If your project runs the roles module, bind the admin API key to a role that holds these permissions and nothing else. Without a roles module, an admin API key has full access.
+
+| Permission | Right | Used for |
+| --- | --- | --- |
+| `integrations` | `edit` | Capture, cancel and refund calls, and the connection check |
+| `sellers` | `view` | The seller mirror |
+| `offers` | `view` | The offer mirror |
+| `products` | `view` | Importing published seller products. Needs `edit` when **Push operator products** is on |
+| `product_categories` | `edit` | Pushing your categories |
+| `product_attributes` | `edit` | Pushing your marketplace attributes and their values |
+| `orders` | `view` | Reading seller orders for fulfillment, cancellation and refund sync |
+
+A higher right includes the lower ones: `edit` grants `view`.
+
+### Webhook endpoint
+
+Create the endpoint under **Settings → Magento → Add endpoint**:
+
+| Field | Value |
+| --- | --- |
+| Endpoint URL | `https://your-magento-store.com/mercur/webhook` |
+| Description | Optional, shown instead of the URL in the admin |
+| Events | Keep all selected |
+
+The connector needs the offer, seller and product events to keep the mirror current, and the order, shipment, delivery, return and refund events to keep orders in step. An event Magento has no handler for is acknowledged and ignored, so subscribing to everything is safe.
+
+From the endpoint page you can pause and resume deliveries, read every attempt with its response, and redeliver any of them. You can also manage endpoints through the API: see [Mercur admin routes](/resources/integrations/magento2/reference#mercur-admin-routes).
+
+### Cart channel
+
+Magento sets `metadata.channel` on every Mercur cart it creates, `magento` by default. Mercur copies it onto the order group and each seller order, and **Settings → Magento** counts order groups with `channel: "magento"` as **Orders from Magento (24h)**. Keep the default unless you have a reason to tell several storefronts apart.
+
+## Magento
+
+Every field lives under **Stores → Configuration → Mercur → Marketplace**. The scope column says where a value can differ: **D** default, **W** website, **S** store view.
+
+### Connection
+
+| Field | Path | Scope | Default | Description |
+| --- | --- | --- | --- | --- |
+| Enabled | `mercur/general/enabled` | D W S | No | Turns the connector on for this scope |
+| Mercur API URL | `mercur/general/api_url` | D W S | `http://localhost:9000` | Base URL of the Mercur API. A trailing `/` is trimmed |
+| Admin API key | `mercur/general/api_key` | D W S | | Secret admin API key. Encrypted |
+| Publishable API key | `mercur/general/publishable_key` | D W S | | Publishable key of the sales channel. Encrypted |
+| Mercur sales channel ID | `mercur/general/sales_channel_id` | D W S | | Sales channel of the Mercur carts this scope creates |
+| Mercur region ID | `mercur/general/region_id` | D W S | | The region whose prices this website shows. A website sells offers only when it has one |
+| Channel | `mercur/general/channel` | D W | `magento` | Written to `metadata.channel` of every Mercur cart |
+| Request timeout (seconds) | `mercur/general/timeout` | D W | `15` | Timeout of every Mercur API call |
+| Retries | `mercur/general/retries` | D W | `2` | Retries on a network error, `429`, `500`, `502`, `503` or `504`. Only reads and deletes are retried |
+| Retry delay (ms) | `mercur/general/retry_delay_ms` | D W | `500` | First retry delay. It doubles on every further attempt, with up to 50% jitter |
+| API log level | `mercur/general/log_level` | D W S | Errors only | `Off`, `Errors only`, `Every request` or `Every request with bodies`. Written to `var/log/mercur.log` |
+
+**Test connection** checks the saved values of the scope you're editing. It calls `GET /admin/magento/status` with the admin key, then looks up the region when one is set.
+
+### Offers
+
+| Field | Path | Scope | Default | Description |
+| --- | --- | --- | --- | --- |
+| Best offer rule | `mercur/offers/best_offer_rule` | D W | Lowest total price | Which way to buy a SKU is preselected. See [the buy box](/resources/integrations/magento2/catalog-and-offers#the-buy-box) |
+| Label for your own stock | `mercur/offers/operator_label` | D W S | `Sold by us` | Shown on the product page row for your own stock |
+| Identifier attributes | `mercur/offers/identifier_attributes` | D | | Product attributes that hold an EAN, UPC or GTIN. Offers and seller products are matched to your products through them when the SKUs differ. Run a full offer sync after changing it |
+
+The three rules are:
+
+| Value | Label | Preselects |
+| --- | --- | --- |
+| `lowest_total_price` | Lowest total price | The cheapest unit price, yours or a seller's |
+| `operator_first` | Our own stock first | Your own stock whenever it's in stock, then the cheapest seller |
+| `premium_first` | Premium sellers first | Premium sellers, then the cheapest |
+
+### Delivery estimates
+
+| Field | Path | Scope | Default | Description |
+| --- | --- | --- | --- | --- |
+| Show estimated delivery | `mercur/delivery/enabled` | D W | Yes | Shows "Arrives …" on offers, in the cart and at checkout |
+| Order cut-off time | `mercur/delivery/cutoff_time` | D W | `14:00` | `HH:MM` in the store timezone. Orders after it count from the next business day |
+| Business days | `mercur/delivery/business_days` | D W | Monday to Friday | Days that count for lead time and transit |
+| Minimum transit days | `mercur/delivery/transit_days_min` | D W | `1` | Default transit time, low end |
+| Maximum transit days | `mercur/delivery/transit_days_max` | D W | `3` | Default transit time, high end |
+
+A Mercur shipping option can override both transit values through `data.transit_days_min` and `data.transit_days_max`. Lead time comes from the offer's `leadtime_to_ship`, or the seller's `default_leadtime_to_ship`.
+
+### Checkout
+
+| Field | Path | Scope | Default | Description |
+| --- | --- | --- | --- | --- |
+| Seller shipping prices include tax | `mercur/checkout/shipping_prices_include_tax` | D W S | No | Set to Yes when sellers quote gross shipping prices. Seller shipping is taxed with the shipping tax class from **Sales → Tax** |
+| Remove unavailable seller lines automatically | `mercur/checkout/auto_remove_unavailable` | D W S | Yes | Yes drops a line whose offer was withdrawn and tells the shopper. No keeps it and blocks checkout until the shopper removes it |
+
+### Orders
+
+| Field | Path | Scope | Default | Description |
+| --- | --- | --- | --- | --- |
+| Create in Mercur when the order status is | `mercur/order/auto_create_statuses` | D W S | `pending`, `processing` | The order is sent once it's committed in one of these statuses. Leave out `pending` to wait for payment |
+| Leave seller lines to the sellers | `mercur/order/lock_seller_shipping` | D W S | Yes | Keeps seller lines out of shipments created in Magento, from the admin or the REST ship endpoint. The connector records a shipment for each fulfillment Mercur reports |
+
+### Webhooks
+
+| Field | Path | Scope | Default | Description |
+| --- | --- | --- | --- | --- |
+| Signing secret | `mercur/webhook/secret` | D | | The secret Mercur showed when you created the endpoint. Encrypted |
+| Maximum event age (seconds) | `mercur/webhook/max_age_sec` | D | `0` | Events whose `created_at` is older are acknowledged and ignored. `0` turns the check off |
+
+The webhook settings exist at the default scope only, so one Magento installation has one endpoint.
+
+### Catalog
+
+| Field | Path | Scope | Default | Description |
+| --- | --- | --- | --- | --- |
+| Marketplace attribute group | `mercur/catalog/attribute_group` | D | `Marketplace` | Attributes in this group are pushed to Mercur as global attributes |
+| Attribute set for imported products | `mercur/catalog/attribute_set_id` | D | `4` (Default) | Attribute set of imported seller products, and the set whose group is pushed |
+| Import published seller products | `mercur/catalog/import_products` | D | Yes | Creates Magento products for seller products published in Mercur |
+| Push operator products | `mercur/catalog/export_products` | D | No | Pushes your own products to Mercur so sellers can list offers on them. Push the taxonomy first |
+| Status of imported products | `mercur/catalog/imported_product_status` | D | Enabled | |
+| Visibility of imported products | `mercur/catalog/imported_product_visibility` | D | Catalog, Search | Children of an imported configurable are always Not Visible Individually |
+| Websites for imported products | `mercur/catalog/website_ids` | D | | Leave empty to use every website with a region |
+| Import product images | `mercur/catalog/import_images` | D | Yes | Downloads seller product images into the media gallery |
+| Maximum image size (MB) | `mercur/catalog/image_max_size_mb` | D | `10` | Larger images are skipped and counted in the process output |
+| Image download timeout (seconds) | `mercur/catalog/image_timeout_sec` | D | `20` | |
+
+### Synchronisation
+
+All schedules are cron expressions in the server timezone.
+
+| Field | Path | Scope | Default | Runs |
+| --- | --- | --- | --- | --- |
+| Sellers schedule (cron) | `mercur/sync/sellers_cron` | D | `*/15 * * * *` | Seller delta |
+| Offers delta schedule (cron) | `mercur/sync/offers_cron` | D | `*/5 * * * *` | Offer delta and prices |
+| Published products schedule (cron) | `mercur/sync/products_cron` | D | `0 * * * *` | Seller product import |
+| Operator product push schedule (cron) | `mercur/sync/product_push_cron` | D | `30 * * * *` | Product push, when it's on |
+| Full resync schedule (cron) | `mercur/sync/full_cron` | D | `0 2 * * *` | Everything, from scratch |
+| Refund fallback schedule (cron) | `mercur/sync/refunds_cron` | D | `*/15 * * * *` | Refunds whose webhook didn't arrive |
+| Order retry schedule (cron) | `mercur/sync/order_retry_cron` | D | `*/10 * * * *` | Orders not yet sent or captured |
+| Page size | `mercur/sync/page_size` | D W | `100` | Records per Admin API page |
+
+### Processes
+
+| Field | Path | Scope | Default | Description |
+| --- | --- | --- | --- | --- |
+| Timeout (seconds) | `mercur/process/timeout_sec` | D | `3600` | A running process with no output for this long is marked as timed out |
+| Maximum attempts | `mercur/process/max_attempts` | D | `3` | Attempts of a process that asks to retry later |
+| Keep history (days) | `mercur/process/history_days` | D | `30` | Finished processes older than this are deleted daily |
+
+### Marketplace carrier
+
+Under **Stores → Configuration → Sales → Delivery Methods → Mercur marketplace**:
+
+| Field | Path | Scope | Default | Description |
+| --- | --- | --- | --- | --- |
+| Enabled | `carriers/mercur/active` | D W | Yes | |
+| Title | `carriers/mercur/title` | D W S | `Marketplace` | |
+| Method name | `carriers/mercur/name` | D W S | `Shipped by the sellers` | |
+
+The carrier is offered only when every line in the cart comes from a seller, at a price of zero. Each seller's own shipping is charged in the **Seller shipping** total.
+
+## Several websites
+
+A website sells offers when the connector is enabled for it and it has a **Mercur region ID**. Each website is priced from its own region, including Mercur price lists, so a store with a US and an EU website needs two regions and two website-scoped region IDs.
+
+<Warning>
+  Each website's base currency must match its region's currency. Offers with no price in that currency are skipped, and the log shows `Offer {id} has no {CURRENCY} price in region {region}`.
+</Warning>
+
+## When the connection check fails
+
+| Message | Cause |
+| --- | --- |
+| Save the API URL and admin API key first. | The scope you're editing has no saved URL or key. Save, then test |
+| Mercur rejected the admin API key (HTTP 401). | The key is wrong, revoked, or not a secret admin key |
+| Mercur rejected the admin API key (HTTP 403). | The key's role misses `integrations:view`. See [API key permissions](#api-key-permissions) |
+| Mercur answered with an error: … | The plugin isn't installed, so `/admin/magento/status` doesn't exist, or the API failed |
+| Connection failed: … | Magento can't reach the API URL. Check DNS, TLS and firewalls from the Magento host |
+| Region `reg_...` was not found. | The region ID is wrong for this scope |
+| No region id set for this scope. | Expected at the default scope. Switch to the website and test again |

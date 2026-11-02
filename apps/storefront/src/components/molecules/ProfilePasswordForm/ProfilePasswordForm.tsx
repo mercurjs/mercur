@@ -1,7 +1,8 @@
 "use client"
 
-import { Button, Card } from "@/components/atoms"
-import { LabeledInput } from "@/components/cells"
+import { Button } from '@/components/atoms/Button/Button';
+import { Card } from '@/components/atoms/Card/Card';
+import { LabeledInput } from '@/components/cells/LabeledInput/LabeledInput';
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
   FieldError,

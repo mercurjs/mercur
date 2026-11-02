@@ -2,7 +2,7 @@
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { cn } from "@/lib/utils"
-import { useParams } from "next/navigation"
+import { ActiveCategory } from "@/components/molecules/ActiveCategory/ActiveCategory"
 import { CollapseIcon } from "@/icons"
 import { useMemo } from "react"
 import {
@@ -19,13 +19,12 @@ interface CategoryNavbarProps {
   onClose?: (state: boolean) => void
 }
 
-export const CategoryNavbar = ({
+const CategoryNavbarView = ({
+  category,
   categories,
   parentCategories = [],
   onClose,
-}: CategoryNavbarProps) => {
-  const { category } = useParams<{ category?: string }>()
-
+}: CategoryNavbarProps & { category?: string }) => {
   const {
     hoveredCategoryId,
     isDropdownVisible,
@@ -152,3 +151,9 @@ export const CategoryNavbar = ({
     </>
   )
 }
+
+export const CategoryNavbar = (props: CategoryNavbarProps) => (
+  <ActiveCategory fallback={<CategoryNavbarView {...props} />}>
+    {(category) => <CategoryNavbarView {...props} category={category} />}
+  </ActiveCategory>
+)

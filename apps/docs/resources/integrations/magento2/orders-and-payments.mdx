@@ -1,0 +1,133 @@
+---
+title: "Orders and payments"
+sidebarTitle: "Orders and payments"
+description: "How a Magento order becomes one Mercur order per seller, when the payment is captured, how seller shipments reach Magento, and how refunds move in both directions."
+---
+
+Magento collects the money, and Mercur keeps track of whose it is. The shopper pays once through your Magento payment method. Mercur records that payment on the `pp_external_external` provider, splits it across one order per seller and computes commission. No money moves through Mercur at checkout, so Mercur only follows what Magento reports: an authorization when the order is sent, a capture when it's invoiced, a refund when it's credited.
+
+## The external payment
+
+Each Magento order with seller lines has one payment in Mercur, held by the order group's cart. Its status follows the Magento order:
+
+| Magento | Mercur payment | Route Magento calls |
+| --- | --- | --- |
+| Order committed in a configured status | Authorized | `POST /store/carts/:id/complete` |
+| Invoice paid | Captured, then split per seller order | `POST /admin/magento/order-groups/:id/payments/capture` |
+| Order canceled before capture | Canceled, every seller order canceled | `POST /admin/magento/order-groups/:id/payments/cancel` |
+| Credit memo on seller lines | Refund recorded on the seller order | `POST /admin/magento/orders/:id/refunds/external` |
+
+The Magento order number is the payment's reference, and Magento's payment method is stored with it.
+
+## Send the order to Mercur
+
+The workflow starts when Magento commits an order that has seller lines.
+
+1. Magento checks the order's status against **Create in Mercur when the order status is**, `pending` and `processing` by default. Remove `pending` to wait until the payment is confirmed.
+2. It adds an authorized payment session on `pp_external_external` to the Mercur cart it built during checkout, and completes the cart.
+3. Mercur splits the cart into an order group with one order per seller and computes their commission lines.
+4. Magento stores the order group on the order and each seller order on its lines, sets every seller line to `not_fulfilled`, and adds the comment `Marketplace order group {number} created in Mercur.`
+
+Your own lines are never sent. A cart's channel, `magento` by default, is copied onto the order group and every seller order as `metadata.channel`.
+
+If Mercur doesn't answer, the Magento order still succeeds. The comment "Marketplace order could not be created in Mercur: …" explains why, and the `order_retry` process sends it on its next run, every 10 minutes by default. **Send to marketplace** on the order view sends it at once.
+
+## Capture the payment
+
+The workflow starts when an invoice on the order is paid.
+
+1. Magento calls the capture route for the order group.
+2. Mercur captures the external payment once and splits it across the seller orders. Calling it again is a no-op.
+3. Magento adds the comment "Marketplace payment captured in Mercur."
+
+Capture confirms the whole order group on the first paid invoice. That invoice also carries all the seller shipping that isn't invoiced yet.
+
+A capture that fails is retried by `order_retry`, and the comment says so. When your payment method captures at placement, the invoice is paid before the order reaches Mercur. `order_retry` then captures right after it's sent.
+
+Mercur splits the payment across seller orders only once it's captured, so what each seller is owed follows money you actually collected. See [the payout pipeline](/platform/payout/concepts/payout-pipeline) for how transfers to sellers are triggered.
+
+## Cancel before capture
+
+The workflow starts when you cancel a Magento order that hasn't been captured.
+
+1. Magento calls the cancel route.
+2. Mercur cancels every seller order in the group and voids the authorization.
+3. Magento adds the comment "Marketplace payment authorization released in Mercur."
+
+After capture the payment can't be canceled. Refund the order with a credit memo instead.
+
+## Fulfillment
+
+Sellers ship their own lines from the vendor panel. Magento records what they report.
+
+The workflow starts when a seller creates, ships, delivers or cancels a fulfillment.
+
+1. Mercur sends `order.fulfillment_created`, `shipment.created`, `delivery.created` or `order.fulfillment_canceled`.
+2. Magento reads the seller order with its fulfillments and tracking labels.
+3. For each fulfillment that has shipped and isn't recorded yet, it creates a Magento shipment of those lines, with the tracking numbers and a customer-visible comment linking to the tracking pages. The customer is notified the usual way.
+4. Each seller line's marketplace status is updated from its quantities: `fulfilled`, `partially_shipped`, `shipped` or `delivered`.
+
+Partial and multi-parcel deliveries become one Magento shipment each, as they happen. The order stays in **Processing** until every fulfillment is recorded.
+
+### Seller lines are shipped by sellers
+
+With **Leave seller lines to the sellers** on, the default, seller lines can't be shipped from the Magento admin or the REST ship endpoint. Your own lines ship as usual. The lock covers shipping only: invoices, cancellations and credit memos work on seller lines as before.
+
+### Resync by hand
+
+**Resync marketplace status** on the order view reads every seller order again and records anything missing. Use it after a webhook outage that lasted longer than Mercur's retries.
+
+## When a seller cancels or refuses
+
+The workflow starts when a seller order is canceled in Mercur.
+
+1. Mercur sends `order.canceled`.
+2. Magento sets the seller's lines to `refused` when the seller canceled, or `canceled` when the operator did, and adds an order comment.
+3. If those lines were invoiced, Magento issues a credit memo for them and that seller's shipping, refunding the shopper.
+
+## Returns
+
+Return events, `order.return_requested` and `order.return_received`, update the lines to **Return requested** and **Returned** and add an order comment. They don't move money. The refund comes separately, when the seller or operator refunds the order in Mercur.
+
+## Refunds
+
+Refunds can start on either side. Each is executed where the money is, and recorded on the other side, so commission and the seller's balance stay right.
+
+### Refund from Magento
+
+The workflow starts when you create a credit memo that includes seller lines or seller shipping.
+
+1. For each seller order on the credit memo, Magento adds up the refunded seller lines, including tax and minus discounts.
+2. It splits the refunded seller shipping across sellers by what each one charged.
+3. It records each amount on the seller order through the external refund route, with the credit memo number as the reference.
+4. Mercur records the refund on the captured payment, tagged `metadata.source: "external"`, and emits `order.refund_recorded`.
+
+<Warning>
+  A report that fails is logged to `var/log/mercur.log` as `Mercur refund report failed` and isn't retried. Record the missing amount on the seller order with `POST /admin/magento/orders/:id/refunds/external`, or the seller's balance will include money you already refunded.
+</Warning>
+
+### Refund from Mercur
+
+The workflow starts when a seller or an operator refunds a seller order in Mercur.
+
+1. Mercur records the refund. It has moved no money, so the plugin emits `order.refund_requested` with the order, amount and refund id.
+2. Magento issues an adjustment credit memo for the amount on the Magento order. It refunds online through your payment method when the invoice was captured online, and offline otherwise.
+3. The credit memo stores the Mercur refund id, so a repeated webhook doesn't refund twice, and it isn't reported back.
+
+When a credit memo isn't possible, the order gets the comment `Mercur refund {id} of {amount} could not be refunded automatically. Refund it manually.`
+
+If the webhook never arrives, the `refunds` process finds the refund within 15 minutes. It checks seller orders on Magento orders updated in the last 30 days that aren't closed or canceled.
+
+## In the Magento admin
+
+Every order with seller lines has a **Marketplace** section: the order group, and per seller the seller order, items, seller shipping, status and tracking. Each item has a marketplace status column, and the order grid has a **Marketplace order group** column.
+
+Three buttons on the order view cover anything that needs a push by hand:
+
+| Button | Shown when | Does |
+| --- | --- | --- |
+| Send to marketplace | The order isn't in Mercur yet | Sends it now, whatever its status |
+| Capture marketplace payment | The order is paid and not yet captured in Mercur | Confirms the capture |
+| Resync marketplace status | The order is in Mercur | Reads every seller order again and records missing shipments and statuses |
+
+The buttons need the **Mercur → Order actions** ACL resource.

@@ -1,6 +1,5 @@
 import { Accordion } from './Accordion/Accordion';
 import { AddressForm } from './AddressForm/AddressForm';
-import { CartDropdownItem } from './CartDropdownItem/CartDropdownItem';
 import { CategoryNavbar } from './CategoryNavbar/CategoryNavbar';
 import { DeleteCartItemButton } from './DeleteCartItemButton/DeleteCartItemButton';
 import { Dropdown } from './Dropdown/Dropdown';
@@ -66,7 +65,6 @@ export {
   HeaderCategoryNavbar,
   DeleteCartItemButton,
   Dropdown,
-  CartDropdownItem,
   LoginForm,
   RegisterForm,
   UserNavigation,

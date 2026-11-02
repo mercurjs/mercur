@@ -1,36 +1,53 @@
 ---
-title: "Links to other modules"
+title: "Payout module links"
 sidebarTitle: "Links"
-description: "How the Payout domain links to sellers and orders across the marketplace."
+description: "The 3 module links that connect payout accounts and payouts to sellers and orders."
 ---
 
-Modules in Mercur never reference each other directly. They connect through
-**module links**. The Payout module links to the Seller and Order modules. Once a
-link is defined, you retrieve related records with `query.graph` using the link
-alias.
+The Payout module never references other modules directly. 3 module links in `packages/core/src/links` connect its records to sellers and orders. Read across them with `query.graph`, and query a link’s own table by its entry name.
+
+| Link | Entry name | Cardinality | Created by |
+| --- | --- | --- | --- |
+| Seller ↔ payout account | `seller_payout_account` | One to one | `createPayoutAccountWorkflow` |
+| Payout ↔ seller | `payout_seller` | Many payouts to one seller | `createOrderPayoutsWorkflow` |
+| Order ↔ payout | `order_payout` | One order to its payout | `createOrderPayoutsWorkflow` |
+
+## Seller and payout account
+
+Defined in `seller-payout-account-link.ts` between `SellerModule.linkable.seller` and `PayoutModule.linkable.payoutAccount`. Neither side is a list, so a seller has one payout account and an account belongs to one seller. `validateSellerPayoutAccountStep` enforces the one-account rule before a new link is created.
 
 ```ts
-const { data: sellers } = await query.graph({
+const { data: [seller] } = await query.graph({
   entity: "seller",
-  fields: ["id", "name", "payout_account.*", "payouts.*"],
+  fields: ["id", "name", "payout_account.id", "payout_account.status"],
+  filters: { id: "sel_01JD8Q1234567" },
 })
 ```
 
-## Sellers
+## Payout and seller
 
-| Linked module | Relationship |
-| --- | --- |
-| **Seller** (account) | A store has **one** payout account (`seller` ↔ `payout_account`). |
-| **Seller** (payouts) | A store has **many** payouts (`seller` ↔ `payout`, list). |
+Defined in `payout-seller-link.ts` between `PayoutModule.linkable.payout`, marked `isList: true`, and `SellerModule.linkable.seller`. A seller has many payouts, and each payout has one seller. `createOrderPayoutsWorkflow` creates this link when it creates a payout.
 
-## Orders
+```ts
+const { data: payouts } = await query.graph({
+  entity: "payout",
+  fields: ["id", "amount", "status", "seller.id", "seller.name"],
+  filters: { status: "paid" },
+})
+```
 
-| Linked module | Relationship |
-| --- | --- |
-| **Order** | An order has **many** payouts (`order` ↔ `payout`, list). |
+The Vendor API scopes payouts by querying the link table directly, with `entity: "payout_seller"` and filters on `seller_id` and `payout_id`.
 
-<Note>
-  A payout is linked to both the order it settles and the seller it pays. The
-  account link is one-to-one, while the seller-payouts and order-payouts links
-  are lists.
-</Note>
+## Order and payout
+
+Defined in `order-payout-link.ts` between Medusa’s `OrderModule.linkable.order` and `PayoutModule.linkable.payout`, marked `isList: true`. `createOrderPayoutsWorkflow` creates it with the payout. The payout also stores `order_id` in its own unique column, which is what keeps an order from being paid twice; the link is there so you can read across modules with `query.graph`:
+
+```ts
+const { data: [order] } = await query.graph({
+  entity: "order",
+  fields: ["id", "payouts.id", "payouts.status", "payouts.reversals.*"],
+  filters: { id: "order_01JD8Q1234567" },
+})
+```
+
+Reversals aren’t linked to anything: they’re children of their payout, and `refund_id` names the Medusa refund they reverse.

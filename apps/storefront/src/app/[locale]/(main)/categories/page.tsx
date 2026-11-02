@@ -1,20 +1,15 @@
-import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
-import { Suspense } from "react"
-
-import { Breadcrumbs } from "@/components/atoms"
-import { SearchProductsListing, ProductListing } from "@/components/sections"
-import isBot from "@/lib/helpers/isBot"
-import { headers } from "next/headers"
+import { Breadcrumbs } from '@/components/atoms/Breadcrumbs/Breadcrumbs';
+import { SearchProductsListing } from '@/components/sections/ProductListing/SearchProductsListing';
 import type { Metadata } from "next"
-import Script from "next/script"
+import { getBaseUrl } from "@/lib/helpers/base-url"
 import { listRegions } from "@/lib/data/regions"
-import { listProducts } from "@/lib/data/products"
+import { searchProducts } from "@/lib/data/products"
+import { PRODUCT_LIMIT } from "@/const"
 import {
   buildHreflangAlternates,
   getStorefrontLocales,
 } from "@/lib/helpers/hreflang"
 
-export const revalidate = 60
 
 export async function generateMetadata({
   params,
@@ -22,10 +17,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
   const { locale } = await params
-  const headersList = await headers()
-  const host = headersList.get("host")
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
+  const baseUrl = getBaseUrl()
 
   let locales: string[] = []
   try {
@@ -64,15 +56,11 @@ export async function generateMetadata({
   }
 }
 
-async function AllCategories({
+export default async function AllCategories({
   params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
+  searchParams,
+}: PageProps<"/[locale]/categories">) {
   const { locale } = await params
-
-  const ua = (await headers()).get("user-agent") || ""
-  const bot = isBot(ua)
 
   const breadcrumbsItems = [
     {
@@ -81,15 +69,10 @@ async function AllCategories({
     },
   ]
 
-  const headersList = await headers()
-  const host = headersList.get("host")
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
-  const {
-    response: { products: jsonLdProducts },
-  } = await listProducts({
+  const baseUrl = getBaseUrl()
+  const { products: jsonLdProducts } = await searchProducts({
     countryCode: locale,
-    queryParams: { limit: 8, order: "created_at", fields: "id,title,handle" },
+    limit: PRODUCT_LIMIT,
   })
 
   const itemList = jsonLdProducts.slice(0, 8).map((p, idx) => ({
@@ -101,7 +84,7 @@ async function AllCategories({
 
   return (
     <main className="container">
-      <Script
+      <script
         id="ld-breadcrumbs-categories"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -119,7 +102,7 @@ async function AllCategories({
           }),
         }}
       />
-      <Script
+      <script
         id="ld-itemlist-categories"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -136,15 +119,7 @@ async function AllCategories({
 
       <h1 className="heading-xl uppercase">All Products</h1>
 
-      <Suspense fallback={<div data-testid="all-categories-page-loading"><ProductListingSkeleton /></div>}>
-        {bot ? (
-          <ProductListing showSidebar locale={locale} />
-        ) : (
-          <SearchProductsListing locale={locale} />
-        )}
-      </Suspense>
+      <SearchProductsListing locale={locale} searchParams={searchParams} />
     </main>
   )
 }
-
-export default AllCategories

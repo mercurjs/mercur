@@ -13,6 +13,15 @@ export interface ICommissionProvider {
   getCommissionLines(
     context: CommissionCalculationContext
   ): Promise<CreateCommissionLineDTO[]>
+
+  /**
+   * Compute lines for several contexts at once, one result per context in
+   * the same order. Lets a provider load its rate data a single time per
+   * batch. Falls back to `getCommissionLines` per context when not implemented.
+   */
+  getCommissionLinesBatch?(
+    contexts: CommissionCalculationContext[]
+  ): Promise<CreateCommissionLineDTO[][]>
 }
 
 export interface CommissionModuleOptions {

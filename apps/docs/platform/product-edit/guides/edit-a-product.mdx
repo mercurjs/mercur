@@ -1,74 +1,154 @@
 ---
-title: "Edit a product"
+title: "Stage a product edit from server code"
 sidebarTitle: "Edit a product"
-description: "Stage a product change from server code with the edit workflows."
+description: "Route a product edit through the review pipeline from a custom API route, a script, or a bulk tool."
 ---
 
-In this guide, you'll learn how to route a product edit through the change
-pipeline from your own server code, such as a custom API route or a bulk tool.
+Stage a product edit as a `ProductChange` instead of writing to the product, so it goes through the same review as an edit from the Vendor panel. Use this when you build your own edit surface, such as a bulk editor or an import.
 
-Instead of writing to a product directly, you stage a `ProductChange`. Mercur
-exposes high-level edit workflows that diff your update against the current
-product and stage only the fields that actually changed.
+## Before you begin
 
-## Update product fields
+You need the following in place:
 
-`productEditUpdateProductWorkflow` diffs the `update` payload against the product
-and stages an `UPDATE` action per changed field.
+- A Mercur server with `@mercurjs/core` installed through `withMercur()`
+- A product id, and the id of the actor making the edit, such as a seller id (`sel_…`)
 
-```ts title="src/api/custom/edit/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { productEditUpdateProductWorkflow } from "@mercurjs/core/workflows"
+## Stage a field edit
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  const { result } = await productEditUpdateProductWorkflow(req.scope).run({
-    input: {
-      product_id: req.params.id,
-      created_by: req.auth_context?.actor_id,
-      update: { title: "Updated title", material: "Cotton" },
-    },
-  })
+`productEditUpdateProductWorkflow` compares your update with the product and stages one action per field that differs.
 
-  res.status(201).json({ product_change: result })
-}
-```
+<Steps>
+  <Step title="Create the route">
+    Add a route under `/admin` so Medusa authenticates the caller, and pass the update to the workflow. The workflow returns the staged change.
 
-<Note>
-  If a product already has a `pending` change, staging another one is rejected.
-  Only one active change per product is allowed. Resolve or cancel the open
-  change first.
-</Note>
+    ```ts title="src/api/admin/custom/products/[id]/edit/route.ts" {13-19}
+    import type {
+      AuthenticatedMedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import { productEditUpdateProductWorkflow } from "@mercurjs/core/workflows"
 
-## Stage actions directly
+    type Body = { title?: string; material?: string }
 
-For finer control (variants, attributes, mixed operations), stage the actions
-yourself with `stageProductChangeWorkflow`:
+    export async function POST(
+      req: AuthenticatedMedusaRequest<Body>,
+      res: MedusaResponse
+    ) {
+      const { result } = await productEditUpdateProductWorkflow(req.scope).run({
+        input: {
+          product_id: req.params.id,
+          created_by: req.auth_context.actor_id,
+          update: req.body,
+        },
+      })
+
+      res.status(202).json({ product_change: result })
+    }
+    ```
+
+    The route answers `202` because the edit isn’t on the product yet. With the default `product_request` flag on, `result.status` is `pending`.
+  </Step>
+  <Step title="Handle an open change">
+    If the same `created_by` already has a `pending` change on the product, the workflow throws a `NOT_ALLOWED` error before it stages anything. Medusa’s error handler turns it into a `400` response. Cancel the open change with `cancelProductChangeWorkflow`, or wait for an operator to resolve it.
+  </Step>
+  <Step title="Read the staged actions">
+    Load the change with its actions to show the seller what’s waiting for review.
+
+    ```ts
+    const query = req.scope.resolve("query")
+
+    const { data: [change] } = await query.graph({
+      entity: "product_change",
+      fields: ["id", "status", "actions.action", "actions.details"],
+      filters: { id: result.id },
+    })
+    ```
+
+    Each `UPDATE` action carries `field`, `value`, and `previous_value` in `details`.
+  </Step>
+</Steps>
+
+If no field differs, the workflow still stages a change, with no actions. Compare the input yourself first when an empty change would confuse your reviewers.
+
+## Stage variant and attribute edits
+
+Variants and attributes have their own edit workflows, with the same pending check. `productEditUpdateVariantsWorkflow` takes a list of typed operations:
 
 ```ts
-import { stageProductChangeWorkflow } from "@mercurjs/core/workflows"
+import { productEditUpdateVariantsWorkflow } from "@mercurjs/core/workflows"
 
-await stageProductChangeWorkflow(container).run({
+await productEditUpdateVariantsWorkflow(container).run({
   input: {
-    product_id: "prod_123",
-    created_by: "user_123",
-    actions: [
-      { product_id: "prod_123", action: "UPDATE", details: { field: "subtitle", value: "New" } },
-      { product_id: "prod_123", action: "VARIANT_REMOVE", details: { variant_id: "variant_123" } },
+    product_id: "prod_01JD8Q1234567",
+    created_by: "sel_01JD8Q1234567",
+    operations: [
+      {
+        type: "update",
+        variant_id: "variant_01JD8Q1234567",
+        fields: { sku: "LINEN-M" },
+      },
+      { type: "remove", variant_id: "variant_01JD8Q1234568" },
     ],
   },
 })
 ```
 
-## Auto-confirm
+Each operation becomes a `VARIANT_ADD`, `VARIANT_UPDATE`, or `VARIANT_REMOVE` action. An update whose fields all match the current variant stages nothing. For attributes, pass `add`, `remove`, and `update` arrays to `productEditUpdateAttributesWorkflow`, in the same shapes as the attribute batch.
 
-Both workflows run auto-confirm after staging: with review off the change
-applies immediately, with review on it stays `pending`. Pass `auto_confirm: true`
-to `stageProductChangeWorkflow` to force immediate application regardless of the
-review setting.
+## Stage actions directly
 
-<Tip>
-  Dedicated helpers exist for common shapes, such as
-  `productEditUpdateVariantsWorkflow`, `productEditUpdateAttributesWorkflow`, and
-  `productEditDeleteProductWorkflow`. Each stages the right action types for you.
-  See the [Workflows reference](/platform/product-edit/reference/workflows).
-</Tip>
+For a mixed change, build the actions yourself and pass them to `stageProductChangeWorkflow`. It skips the diff and the pending check, so check for an open change first.
+
+```ts
+import { ProductChangeActionType } from "@mercurjs/types"
+import { stageProductChangeWorkflow } from "@mercurjs/core/workflows"
+
+await stageProductChangeWorkflow(container).run({
+  input: {
+    product_id: "prod_01JD8Q1234567",
+    created_by: "sel_01JD8Q1234567",
+    external_note: "Spring catalog refresh",
+    actions: [
+      {
+        product_id: "prod_01JD8Q1234567",
+        action: ProductChangeActionType.UPDATE,
+        details: { field: "subtitle", value: "Washed linen" },
+      },
+    ],
+  },
+})
+```
+
+Every action needs its own `product_id`. The workflow fills in `product_change_id` for you.
+
+## Apply an edit without review
+
+Pass `auto_confirm: true` to `stageProductChangeWorkflow` or `productEditDeleteProductWorkflow` to confirm and apply the change in the same run. Use it for trusted sources, such as an operator tool. The change still lands in the trail as `confirmed`, and `product-change.confirmed` still fires.
+
+## Attach custom data with additional_data
+
+`productEditUpdateProductWorkflow` and `productEditUpdateAttributesWorkflow` accept `additional_data` and pass it to their `productChangeCreated` hook. Use the hook to store your own data on the change:
+
+```ts title="src/workflows/hooks/product-change-created.ts"
+import { productEditUpdateProductWorkflow } from "@mercurjs/core/workflows"
+import { MercurModules } from "@mercurjs/types"
+
+productEditUpdateProductWorkflow.hooks.productChangeCreated(
+  async ({ product_change, additional_data }, { container }) => {
+    const productEdit = container.resolve(MercurModules.PRODUCT_EDIT)
+
+    await productEdit.updateProductChanges({
+      id: product_change.id,
+      metadata: { ticket_id: additional_data?.ticket_id },
+    })
+  }
+)
+```
+
+The hook runs after staging and auto-confirm, so `product_change` is the record the workflow returns.
+
+## Next steps
+
+- [Confirm or decline the staged change](/platform/product-edit/guides/confirm-or-decline-a-change)
+- [Every action type and its `details`](/platform/product-edit/concepts/change-actions)
+- [Edit workflow inputs and hooks](/platform/product-edit/reference/workflows#edit-workflows)

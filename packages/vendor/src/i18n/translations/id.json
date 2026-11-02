@@ -3864,8 +3864,7 @@
       "pending": "Tertunda",
       "processing": "Sedang diproses",
       "paid": "Dibayar",
-      "failed": "Gagal",
-      "canceled": "Dibatalkan"
+      "failed": "Gagal"
     }
   },
   "translations": {

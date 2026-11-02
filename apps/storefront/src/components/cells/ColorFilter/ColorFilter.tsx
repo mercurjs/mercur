@@ -1,9 +1,7 @@
 'use client';
 
-import {
-  Accordion,
-  FilterCheckboxOption,
-} from '@/components/molecules';
+import { Accordion } from '@/components/molecules/Accordion/Accordion';
+import { FilterCheckboxOption } from '@/components/molecules/FilterCheckboxOption/FilterCheckboxOption';
 import { cn } from '@/lib/utils';
 import useFilters from '@/hooks/useFilters';
 

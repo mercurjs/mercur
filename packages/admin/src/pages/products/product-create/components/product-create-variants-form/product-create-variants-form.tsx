@@ -1,9 +1,12 @@
 import { Input } from "@medusajs/ui";
-import { useMemo, useState } from "react";
+import { useExtendableGrid } from "@mercurjs/dashboard-shared";
+import { ColumnDef } from "@tanstack/react-table";
+import { useCallback, useMemo, useState } from "react";
 import { useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import {
+  createDataGridExtensionColumn,
   createDataGridHelper,
   DataGrid,
 } from "../../../../../components/data-grid";
@@ -43,8 +46,21 @@ const Root = () => {
   /**
    * NOTE: anything that goes to the datagrid component needs to be memoised otherwise DataGrid will rerender and inputs will loose focus
    */
-  const columns = useColumns({
+  const baseColumns = useColumns({
     variantAxes,
+  });
+  const createColumn = useCallback(
+    createDataGridExtensionColumn<VariantRow, ProductCreateSchemaType>,
+    [],
+  );
+  const columns = useExtendableGrid<VariantRow>({
+    model: "product",
+    zone: "create",
+    tab: "variants",
+    columns: baseColumns as ColumnDef<VariantRow, unknown>[],
+    lockedColumnIds: LOCKED_COLUMN_IDS,
+    getRowPath: rowPath,
+    createColumn,
   });
 
   const variantData = useMemo(() => {
@@ -118,6 +134,10 @@ Root._tabMeta = defineTabMeta<ProductCreateSchemaType>({
 export const ProductCreateVariantsForm = Root;
 
 type VariantRow = ProductCreateVariantSchema & { originalIndex: number };
+
+const LOCKED_COLUMN_IDS = ["attributes"];
+
+const rowPath = (row: VariantRow) => `variants.${row.originalIndex}`;
 
 const columnHelper = createDataGridHelper<
   VariantRow,

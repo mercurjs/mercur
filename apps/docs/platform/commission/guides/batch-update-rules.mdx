@@ -1,58 +1,86 @@
 ---
 title: "Batch-update commission rules"
 sidebarTitle: "Batch-update rules"
-description: "Create, update, and delete a rate's rules in a single call."
+description: "Add, change, and remove a commission rate's rules in one workflow run with batchCommissionRulesWorkflow."
 ---
 
-In this guide, you'll learn how to manage the rules that scope a commission rate
-from your own server code, adding, changing, and removing them in one atomic
-operation.
+Change the rules that scope a commission rate in one run, for example to move a seller onto a negotiated rate or to retarget a rate at a new category.
 
-## Run the workflow
+## Before you begin
 
-`batchCommissionRulesWorkflow` applies creates, updates, and deletes to a single
-rate's rules in parallel. Pass the target `commission_rate_id` and any of the
-`create`, `update`, and `delete` arrays.
+You need the following:
 
-```ts title="src/api/custom/rules/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { batchCommissionRulesWorkflow } from "@mercurjs/core/workflows"
+- The id of the rate to change, such as `comrate_01JD8Q1234567`
+- The ids of the rules to update or delete, from the rate’s `rules` relation
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  const { result } = await batchCommissionRulesWorkflow(req.scope).run({
-    input: {
-      commission_rate_id: "comrate_123",
-      create: [
-        { reference: "seller", reference_id: "sel_123" },
-        { reference: "product_category", reference_id: "pcat_shoes" },
-      ],
-      update: [{ id: "comrule_456", reference_id: "pcat_boots" }],
-      delete: ["comrule_789"],
-    },
-  })
+<Steps>
+  <Step title="Look up the rate's rules">
+    List the rate’s current rules through the module service.
 
-  res.json(result)
-}
-```
+    ```ts
+    import { MercurModules } from "@mercurjs/types"
 
-The result groups the affected rules as `{ created, updated, deleted }`.
+    const commission = container.resolve(MercurModules.COMMISSION)
+
+    const rules = await commission.listCommissionRules({
+      commission_rate_id: "comrate_01JD8Q1234567",
+    })
+    ```
+
+    Each rule has an `id`, a `reference`, and a `reference_id`. You need the `id` to update or delete a rule.
+
+  </Step>
+  <Step title="Run the batch">
+    Call `batchCommissionRulesWorkflow` from an API route. This route adds a seller rule, retargets a category rule, and removes a product rule.
+
+    ```ts title="src/api/admin/commission-scopes/route.ts"
+    import type {
+      MedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import { batchCommissionRulesWorkflow } from "@mercurjs/core/workflows"
+
+    export async function POST(req: MedusaRequest, res: MedusaResponse) {
+      const { result } = await batchCommissionRulesWorkflow(req.scope).run({
+        input: {
+          commission_rate_id: "comrate_01JD8Q1234567",
+          create: [{ reference: "seller", reference_id: "sel_01JD8Q1234567" }],
+          update: [
+            { id: "comrule_01JD8Q1234567", reference_id: "pcat_01JD8Q1234568" },
+          ],
+          delete: ["comrule_01JD8Q1234569"],
+        },
+      })
+
+      res.json(result)
+    }
+    ```
+
+    The result is `{ created, updated, deleted }`: the created and updated rules, and the deleted ids.
+
+  </Step>
+</Steps>
+
+## How the three operations run
+
+The workflow runs `createCommissionRulesStep`, `updateCommissionRulesStep`, and `deleteCommissionRulesStep` in parallel. Each array is optional, and an empty or missing one is a no-op. If any step fails, the others roll back: created rules are deleted, updated rules get their old values, and deleted rules are created again.
 
 <Note>
-  Every rule's `reference` must be one of the five dimensions: `product`,
-  `product_type`, `product_collection`, `product_category`, or `seller`. The
-  `reference_id` is the id of the specific record in that dimension.
+  A rolled-back delete creates new rule records with the same `reference` and `reference_id`. The rules keep their meaning, but their ids change.
 </Note>
 
-## How scoping changes matching
+## How the new rules change matching
 
-Adding rules **narrows** a rate. Rules on the same dimension OR together. Rules
-across dimensions AND together. The two `create` rules above make the rate match
-only lines that are both from seller `sel_123` **and** in category `pcat_shoes`,
-raising the rate's specificity to `2`.
+Adding rules narrows a rate. Rules on the same dimension are alternatives, and rules on different dimensions must all match. Adding the `seller` rule above to a rate that already had a `product_category` rule raises its specificity from 1 to 2, so it now beats single-dimension rates on that seller’s lines in that category.
 
-<Tip>
-  Increasing a rate's specificity makes it win over less-specific rates on the
-  lines it matches. See
-  [Rule matching](/platform/commission/concepts/rule-matching) for how
-  most-specific-wins and tie-breaks resolve.
-</Tip>
+Use only the five supported references: `product`, `product_type`, `product_collection`, `product_category`, and `seller`. The module stores any string, and a rule with an unknown reference makes the rate match nothing.
+
+## Recompute existing orders
+
+Rule changes affect orders placed or refreshed after the change. To apply new rules to existing orders, run `refreshOrderCommissionLinesWorkflow` for them.
+
+## Next steps
+
+- [Refresh order commission lines after a rule change](/platform/commission/guides/refresh-order-commission-lines)
+- [See how specificity and tie-breaks pick a rate](/platform/commission/concepts/rule-matching)
+- [Input and output of batchCommissionRulesWorkflow](/platform/commission/reference/workflows)

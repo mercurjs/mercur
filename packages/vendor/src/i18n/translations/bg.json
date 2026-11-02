@@ -3868,8 +3868,7 @@
       "pending": "В изчакване",
       "processing": "В обработка",
       "paid": "Изплатено",
-      "failed": "Неуспешно",
-      "canceled": "Анулирана"
+      "failed": "Неуспешно"
     }
   },
   "translations": {

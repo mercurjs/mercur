@@ -1,6 +1,6 @@
 'use client';
 
-import { CartSummary } from '@/components/organisms';
+import { CartSummary } from '@/components/organisms/CartSummary/CartSummary';
 import { PromoCode } from '@/components/organisms/PromoCode/PromoCode';
 
 import { CartItems } from './CartItems';

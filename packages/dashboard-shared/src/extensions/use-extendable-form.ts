@@ -38,6 +38,11 @@ export interface UseExtendableFormProps<
    */
   zone?: string
   tab?: string
+  /**
+   * Ids of the form's own fields. Config entries keyed by one of them replace
+   * or remove that field (`<ExtendableFormField>`) instead of adding one.
+   */
+  builtInFieldIds?: string[]
 }
 
 /**
@@ -58,12 +63,19 @@ export const useExtendableForm = <
   data,
   zone,
   tab,
+  builtInFieldIds,
   ...props
 }: UseExtendableFormProps<TSchema, TContext, unknown, TTransformedValues>) => {
   const extension = useExtension()
 
   const schema = useMemo(() => {
-    const additionalData = buildAdditionalDataSchema(extension, model, zone, tab)
+    const additionalData = buildAdditionalDataSchema(
+      extension,
+      model,
+      zone,
+      tab,
+      builtInFieldIds
+    )
       .partial()
       .optional()
 
@@ -72,7 +84,7 @@ export const useExtendableForm = <
       .extend === "function"
       ? baseSchema.extend({ additional_data: additionalData })
       : (baseSchema.and(z.object({ additional_data: additionalData })) as unknown as typeof baseSchema)
-  }, [baseSchema, extension, model, zone, tab])
+  }, [baseSchema, extension, model, zone, tab, builtInFieldIds])
 
   const defaultValues = useMemo(
     () => ({
@@ -82,10 +94,11 @@ export const useExtendableForm = <
         model,
         data,
         zone,
-        tab
+        tab,
+        builtInFieldIds
       ),
     }),
-    [baseDefaultValues, extension, model, data, zone, tab]
+    [baseDefaultValues, extension, model, data, zone, tab, builtInFieldIds]
   )
 
   return useForm<

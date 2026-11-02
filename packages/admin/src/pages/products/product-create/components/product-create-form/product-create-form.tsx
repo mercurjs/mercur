@@ -1,24 +1,34 @@
 import { HttpTypes } from "@medusajs/types";
 import { Button, toast } from "@medusajs/ui";
-import { ReactNode, useEffect, useMemo, Children } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, Children } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { isForbidden, useCan } from "@mercurjs/dashboard-shared";
+import {
+  buildScopedAdditionalData,
+  isForbidden,
+  refineAdditionalData,
+  useCan,
+  useExtension,
+} from "@mercurjs/dashboard-shared";
 import {
   RouteFocusModal,
   useRouteModal,
 } from "../../../../../components/modals";
 import { TabbedForm } from "../../../../../components/tabbed-form/tabbed-form";
+import { TabDefinition } from "../../../../../components/tabbed-form/types";
 import { useCreateProduct } from "../../../../../hooks/api/products";
 import { useRegions } from "../../../../../hooks/api";
 import { sdk } from "../../../../../lib/client";
 import {
+  PRODUCT_CREATE_FIELD_IDS,
   PRODUCT_CREATE_FORM_DEFAULTS,
+  PRODUCT_CREATE_VARIANT_COLUMN_IDS,
   ProductCreateSchema,
 } from "../../constants";
 import { ProductCreateSchemaType } from "../../types";
 import {
   normalizeProductFormValues,
+  seedVariantAdditionalData,
   subscribeVariantsToAttributes,
 } from "../../utils";
 import { ProductCreateAttributesForm } from "../product-create-attributes-form";
@@ -29,6 +39,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { DeepPartial } from "react-hook-form";
 
 const SAVE_DRAFT_BUTTON = "save-draft-button";
+
+// The variants tab is a data grid: its fields are per-variant columns.
+const FORM_TABS = ["details", "organize", "attributes"];
+const VARIANTS_TAB = "variants";
 
 type ProductCreateFormProps = {
   children?: ReactNode;
@@ -43,12 +57,56 @@ export const ProductCreateForm = ({
 }: ProductCreateFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
+  const extension = useExtension();
+
+  const productAdditionalData = useMemo(
+    () =>
+      buildScopedAdditionalData(extension, {
+        model: "product",
+        zone: "create",
+        tabs: FORM_TABS,
+        builtInFieldIds: PRODUCT_CREATE_FIELD_IDS,
+      }),
+    [extension],
+  );
+  const variantAdditionalData = useMemo(
+    () =>
+      buildScopedAdditionalData(extension, {
+        model: "product",
+        zone: "create",
+        tabs: [VARIANTS_TAB],
+        exactTab: true,
+        builtInFieldIds: PRODUCT_CREATE_VARIANT_COLUMN_IDS,
+      }),
+    [extension],
+  );
+
+  const resolverSchema = useMemo(
+    () =>
+      refineAdditionalData(schema ?? ProductCreateSchema, {
+        additionalData: productAdditionalData.schema,
+        rows: {
+          path: "variants",
+          schema: variantAdditionalData.schema,
+          include: (row) => row.should_create === true,
+        },
+      }),
+    [schema, productAdditionalData, variantAdditionalData],
+  );
+
   const form = useForm<ProductCreateSchemaType>({
     defaultValues: {
       ...PRODUCT_CREATE_FORM_DEFAULTS,
+      additional_data: productAdditionalData.defaults,
       ...extraDefaults,
+      variants: seedVariantAdditionalData(
+        (extraDefaults?.variants ??
+          PRODUCT_CREATE_FORM_DEFAULTS.variants ??
+          []) as ProductCreateSchemaType["variants"],
+        variantAdditionalData.defaults,
+      ),
     } as ProductCreateSchemaType,
-    resolver: zodResolver(schema ?? ProductCreateSchema),
+    resolver: zodResolver(resolverSchema),
   });
 
   const { mutateAsync, isPending } = useCreateProduct();
@@ -80,7 +138,35 @@ export const ProductCreateForm = ({
     );
   }, [regions]);
 
-  useEffect(() => subscribeVariantsToAttributes(form), [form]);
+  useEffect(
+    () => subscribeVariantsToAttributes(form, variantAdditionalData.defaults),
+    [form, variantAdditionalData],
+  );
+
+  // Continue validates a tab's own fields, so each tab also checks the custom
+  // fields it renders (untabbed ones render on the first tab).
+  const transformTabs = useCallback(
+    (tabs: TabDefinition<ProductCreateSchemaType>[]) =>
+      tabs.map((tab, index) => {
+        if (!tab.validationFields || !FORM_TABS.includes(tab.id)) return tab;
+        const custom = extension
+          .getFormFields(
+            "product",
+            "create",
+            tab.id,
+            PRODUCT_CREATE_FIELD_IDS,
+            index > 0,
+          )
+          .map(
+            ({ name }) =>
+              `additional_data.${name}` as `additional_data.${string}`,
+          );
+        return custom.length
+          ? { ...tab, validationFields: [...tab.validationFields, ...custom] }
+          : tab;
+      }),
+    [extension],
+  );
 
   const handleSubmit = form.handleSubmit(async (values, e) => {
     if (isRegionsPending) {
@@ -168,6 +254,7 @@ export const ProductCreateForm = ({
     <TabbedForm
       model="product"
       zone="create"
+      transformTabs={transformTabs}
       form={form}
       onSubmit={handleSubmit}
       isLoading={isPending || isRegionsPending}

@@ -1,55 +1,145 @@
 ---
-title: "Manage the team"
+title: "Manage a store's team from server code"
 sidebarTitle: "Manage the team"
-description: "Invite and add store members from server code."
+description: "Invite members, accept invites, add existing members, change roles, and remove members with the Seller module workflows."
 ---
 
-In this guide, you'll learn how to manage a store's team from your own server
-code. You can invite members, add them directly, and update their roles.
+Manage a store’s team from your own server code when you migrate staff from another system, sync people from an identity provider, or build your own team screens. Every change runs through a workflow that validates the owner rules and emits an event.
 
-## Invite a member
+## Before you begin
 
-`inviteSellerWorkflow` creates a `MemberInvite` and sends the invitation email.
-The invitee sets up access and is linked to the store when they accept.
+You need the following in place:
 
-```ts title="src/api/custom/invite/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { inviteSellerWorkflow } from "@mercurjs/core/workflows"
+- A store id, such as `sel_01JD8Q1234567`
+- A notification provider for email, if you send invite links from a subscriber
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  await inviteSellerWorkflow(req.scope).run({
-    input: {
-      email: "ops@acme.com",
-      seller_id: req.params.id,
-    },
-  })
+## Invite and onboard a member
 
-  res.sendStatus(200)
-}
-```
+<Steps>
+  <Step title="Create the invite">
+    `createMemberInvitesWorkflow` takes an array of invites, each with `seller_id`, `email`, and `role_id`. It signs a token for each one and fails if an email already belongs to the store.
 
-## Add a member directly
+    ```ts
+    import { SellerRole } from "@mercurjs/types"
+    import { createMemberInvitesWorkflow } from "@mercurjs/core/workflows"
 
-When you already have the user, for example during a migration, add them to a
-store without the invite step. Use `addSellerMemberWorkflow`.
+    const { result: invites } = await createMemberInvitesWorkflow(
+      container
+    ).run({
+      input: [
+        {
+          seller_id: "sel_01JD8Q1234567",
+          email: "ops@acme.com",
+          role_id: SellerRole.ORDER_MANAGEMENT,
+        },
+      ],
+    })
+    ```
+  </Step>
+  <Step title="Send the invite link">
+    The workflow emits `member_invite.created` once per invite, with `id`, `token`, and `expires_at`. Mercur doesn’t email team invites itself, so send the link from a subscriber.
+
+    ```ts title="src/subscribers/member-invite-created.ts"
+    import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+    import { Modules } from "@medusajs/framework/utils"
+    import { MercurModules } from "@mercurjs/types"
+
+    export default async function inviteCreated({
+      event,
+      container,
+    }: SubscriberArgs<{ id: string; token: string }>) {
+      const sellers = container.resolve(MercurModules.SELLER)
+      const invite = await sellers.retrieveMemberInvite(event.data.id)
+      await container.resolve(Modules.NOTIFICATION).createNotifications({
+        to: invite.email,
+        channel: "email",
+        template: "member-invite",
+        data: { token: event.data.token },
+      })
+    }
+
+    export const config: SubscriberConfig = { event: "member_invite.created" }
+    ```
+  </Step>
+  <Step title="Accept the invite">
+    When the invitee signs up or signs in, run `acceptMemberInviteWorkflow` with the token and their auth identity. It returns the member.
+
+    ```ts
+    import { acceptMemberInviteWorkflow } from "@mercurjs/core/workflows"
+
+    const { result: member } = await acceptMemberInviteWorkflow(
+      req.scope
+    ).run({
+      input: {
+        invite_token: "your_invite_token",
+        auth_identity_id: req.auth_context.auth_identity_id,
+        first_name: "Ola",
+        last_name: "Nordmann",
+      },
+    })
+    ```
+
+    The workflow upserts the member by email, creates the membership with the invite’s role, and deletes the invite. Pass `member_id` when the person is already a member of another store, so the workflow leaves their auth identity as it is.
+  </Step>
+</Steps>
+
+## Resend or revoke an invite
+
+`resendMemberInviteWorkflow` takes `invite_id` and `seller_id`. It deletes the invite and creates a fresh one with a new token and expiry, then emits `member_invite.created` again. `deleteMemberInviteWorkflow` takes `invite_id` and deletes the invite without a replacement.
+
+## Add an existing member directly
+
+Skip the invite when the person already has a `Member` record, for example after a migration. `addSellerMemberWorkflow` creates the membership and returns it.
 
 ```ts
+import { SellerRole } from "@mercurjs/types"
 import { addSellerMemberWorkflow } from "@mercurjs/core/workflows"
 
 await addSellerMemberWorkflow(container).run({
   input: {
-    seller_id: "sel_123",
-    member: { email: "ops@acme.com" },
+    seller_id: "sel_01JD8Q1234567",
+    member_id: "mem_01JD8Q1234567",
+    role_id: SellerRole.SUPPORT,
   },
 })
 ```
 
-<Tip>
-  Every store must keep at least one admin member. A workflow that would remove or
-  demote the last admin fails instead of leaving a store unadministered.
-</Tip>
+The membership is unique on `(seller_id, member_id)`, so adding the same member twice fails.
 
-## Accept an invite
+## Change a role or remove a member
 
-The invitee's acceptance runs through `acceptMemberInviteWorkflow`. It links the
-member to the store, and if the email already exists, it reuses their account.
+Both workflows take the membership id, `seller_member_id`, not the member id. Both reject the owner membership with a `NOT_ALLOWED` error.
+
+```ts
+import { SellerRole } from "@mercurjs/types"
+import {
+  removeSellerMemberWorkflow,
+  updateMemberRoleWorkflow,
+} from "@mercurjs/core/workflows"
+
+await updateMemberRoleWorkflow(container).run({
+  input: {
+    seller_member_id: "selmem_01JD8Q1234567",
+    role_id: SellerRole.ACCOUNTING,
+  },
+})
+
+await removeSellerMemberWorkflow(container).run({
+  input: {
+    seller_member_id: "selmem_01JD8Q1234567",
+    seller_id: "sel_01JD8Q1234567",
+  },
+})
+```
+
+Removing a membership keeps the `Member` record, so the person keeps access to their other stores.
+
+## Update a member’s profile
+
+`updateMemberWorkflow` changes `first_name`, `last_name`, and `locale` on members that match a `selector`. It exposes a `membersUpdated` hook and doesn’t emit an event.
+
+## Next steps
+
+- [How store teams work](/platform/store/concepts/team)
+- [Event reference](/platform/store/reference/events)
+- [Workflows reference](/platform/store/reference/workflows)

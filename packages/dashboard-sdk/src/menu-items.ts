@@ -1,5 +1,4 @@
 import fs from "fs"
-import path from "path"
 import { VALID_FILE_EXTENSIONS } from "./constants"
 import { normalizePath, getParserOptions } from "./utils"
 import {
@@ -15,6 +14,7 @@ import {
     isObjectExpression,
     isBooleanLiteral,
 } from "./babel"
+import { emitLayers, spreadLayers } from "./layers"
 import type { BuiltMercurConfig } from "./types"
 
 type MenuItemConfig = {
@@ -43,33 +43,6 @@ type MenuItem = {
 type MenuItemResult = {
     import: string
     menuItem: MenuItem
-}
-
-function crawlRoutes(dir: string, pattern = "page"): string[] {
-    const files: string[] = []
-
-    if (!fs.existsSync(dir)) {
-        return files
-    }
-
-    const entries = fs.readdirSync(dir, { withFileTypes: true })
-
-    for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name)
-
-        if (entry.isDirectory()) {
-            files.push(...crawlRoutes(fullPath, pattern))
-        } else if (entry.isFile()) {
-            const ext = path.extname(entry.name)
-            const baseName = path.basename(entry.name, ext)
-
-            if (baseName === pattern && VALID_FILE_EXTENSIONS.includes(ext)) {
-                files.push(fullPath)
-            }
-        }
-    }
-
-    return files
 }
 
 function getRoute(file: string, routesDir: string): string {
@@ -301,47 +274,18 @@ export function parseMenuItemFile(
     }
 }
 
-export function generateMenuItems({ srcDir, pluginExtensions }: BuiltMercurConfig): string {
-    const routesDir = path.join(srcDir, "routes")
+/** Later layers win: a menu item at a path already declared replaces it. */
+export function generateMenuItems(config: BuiltMercurConfig): string {
+    const { header, names } = emitLayers(config)
 
-    let index = 0
-    const results: MenuItemResult[] = []
+    return `${header}
 
-    // App's own routes
-    for (const file of crawlRoutes(routesDir)) {
-        const result = parseMenuItemFile(file, routesDir, index)
-        if (result) {
-            results.push(result)
-            index++
-        }
-    }
+const byPath = new Map()
+for (const item of [
+${spreadLayers(names, "menuItemModule", "menuItems")}
+]) {
+    byPath.set(item.path, item)
+}
 
-    // Plugin extensions. Static rather than `await import(...)`: a top-level
-    // await here would force every consuming app to raise its build target.
-    const pluginDeclarations = pluginExtensions.map((ext, i) =>
-        `import __plugin${i} from "${normalizePath(ext)}"`
-    )
-    const pluginSpreads = pluginExtensions.map((_, i) =>
-        `        ...(__plugin${i}.menuItemModule?.menuItems ?? [])`
-    )
-
-    const appImports = results.map((r) => r.import)
-    const appMenuItems = results.map((r) => formatMenuItem(r.menuItem))
-
-    const allImports = [...appImports]
-    const allMenuItems = [...appMenuItems, ...pluginSpreads]
-
-    if (allImports.length === 0 && pluginDeclarations.length === 0 && allMenuItems.length === 0) {
-        return `export default { menuItems: [] }`
-    }
-
-    return `${allImports.join("\n")}
-
-${pluginDeclarations.join("\n")}
-
-export default {
-    menuItems: [
-${allMenuItems.join(",\n")}
-    ]
-}`
+export default { menuItems: [...byPath.values()] }`
 }

@@ -1,6 +1,7 @@
 "use client"
-import { Chip } from "@/components/atoms"
-import { Accordion, SelectField } from "@/components/molecules"
+import { Chip } from '@/components/atoms/Chip/Chip';
+import { Accordion } from '@/components/molecules/Accordion/Accordion';
+import { SelectField } from '@/components/molecules/SelectField/SelectField';
 import useFilters from "@/hooks/useFilters"
 import useUpdateSearchParams from "@/hooks/useUpdateSearchParams"
 import { useSearchParams } from "next/navigation"

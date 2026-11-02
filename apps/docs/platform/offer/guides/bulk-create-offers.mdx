@@ -1,65 +1,84 @@
 ---
-title: "Bulk-create offers"
+title: "Create and update offers in bulk"
 sidebarTitle: "Bulk-create offers"
-description: "List many offers against the master catalog in a single workflow run."
+description: "List a store’s master variants in a single createOffersWorkflow run, then update or delete them in bulk."
 ---
 
-In this guide, you'll learn how to create many offers at once, for example when
-onboarding a store's catalog or running a CSV import.
+Pass a list of entries to `createOffersWorkflow` when you onboard a store’s catalog or run an import. One run creates every offer or none of them.
 
-`createOffersWorkflow` accepts an array of offers, so a single run can list a
-store against many master variants at once. Each entry is independent and carries
-its own SKU, prices, inventory, and shipping profile.
+## Before you begin
 
-## Run the workflow with many offers
+You need these records in place:
 
-```ts title="src/api/custom/bulk/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { createOffersWorkflow } from "@mercurjs/core/workflows"
-
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  const { result } = await createOffersWorkflow(req.scope).run({
-    input: {
-      offers: [
-        {
-          seller_id: "sel_123",
-          created_by: "mem_123",
-          variant_id: "variant_a",
-          shipping_profile_id: "sp_123",
-          sku: "ACME-A-01",
-          prices: [{ amount: 2500, currency_code: "usd" }],
-          inventory_items: [{ stock_levels: [{ location_id: "sloc_1", stocked_quantity: 50 }] }],
-        },
-        {
-          seller_id: "sel_123",
-          created_by: "mem_123",
-          variant_id: "variant_b",
-          shipping_profile_id: "sp_123",
-          sku: "ACME-B-01",
-          prices: [{ amount: 4000, currency_code: "usd" }],
-          inventory_items: [{ stock_levels: [{ location_id: "sloc_1", stocked_quantity: 20 }] }],
-        },
-      ],
-    },
-  })
-
-  res.status(201).json({ offers: result })
-}
-```
+- **A store and a member**: the `seller_id` and the `created_by` member id for every entry
+- **Master variants**: one `variant_id` per row you import
+- **A shipping profile and a stock location**: both owned by the store
 
 <Warning>
-  The batch is validated as a whole: if any entry references a missing variant,
-  omits its inventory items, or reuses an existing `(seller_id, sku)` pair, the
-  run fails and its steps are compensated, so no partial offers are left behind.
+  Keep each run to one store. The workflow links all new inventory items to the store of the first entry, so mixing stores in one run assigns the other stores’ stock to the wrong store.
 </Warning>
 
-## Update many offers
+## Import a store’s rows
 
-`updateOffersWorkflow` mirrors the same array shape for edits. Each entry is
-keyed by the offer `id`; supplying a `prices` array **replaces** the offer's
-price ladder (rows with an `id` are updated in place, rows without one are added,
-and omitted rows are removed), while leaving `prices` out keeps the ladder
-untouched.
+<Steps>
+  <Step title="Map your rows to offer entries">
+    Turn each source row into a `CreateOfferDTO` from `@mercurjs/types`.
+
+    ```ts title="src/lib/to-offers.ts"
+    import type { CreateOfferDTO } from "@mercurjs/types"
+
+    type Row = { variant_id: string; sku: string; price: number; qty: number }
+
+    export const toOffers = (rows: Row[]): CreateOfferDTO[] =>
+      rows.map((row) => ({
+        seller_id: "sel_01JD8Q1234567",
+        created_by: "mem_01JD8Q1234567",
+        shipping_profile_id: "sp_01JD8Q1234567",
+        variant_id: row.variant_id,
+        sku: row.sku,
+        prices: [{ amount: row.price, currency_code: "eur" }],
+        inventory_items: [
+          {
+            stock_levels: [
+              { location_id: "sloc_01JD8Q1234567", stocked_quantity: row.qty },
+            ],
+          },
+        ],
+      }))
+    ```
+
+    Each entry is independent and carries its own SKU, price, and starting stock.
+  </Step>
+  <Step title="Run the workflow once for the batch">
+    Call the workflow with the mapped entries.
+
+    ```ts title="src/api/admin/custom/offers/import/route.ts"
+    import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+    import { createOffersWorkflow } from "@mercurjs/core/workflows"
+    import { toOffers } from "../../../../../lib/to-offers"
+
+    export async function POST(req: MedusaRequest, res: MedusaResponse) {
+      const { rows } = req.body as { rows: Parameters<typeof toOffers>[0] }
+
+      const { result } = await createOffersWorkflow(req.scope).run({
+        input: { offers: toOffers(rows) },
+      })
+
+      res.status(201).json({ count: result.length })
+    }
+    ```
+
+    The run emits one `offer.created` event per offer.
+  </Step>
+</Steps>
+
+<Note>
+  The batch is all or nothing. A missing variant, an entry without inventory items, or a SKU the store already uses fails the run, and compensation removes everything it created.
+</Note>
+
+## Update offers in bulk
+
+`updateOffersWorkflow` takes the same array shape, keyed by offer `id`. Every field except `id` is optional.
 
 ```ts
 import { updateOffersWorkflow } from "@mercurjs/core/workflows"
@@ -67,18 +86,35 @@ import { updateOffersWorkflow } from "@mercurjs/core/workflows"
 await updateOffersWorkflow(req.scope).run({
   input: {
     offers: [
-      { id: "offer_a", sku: "ACME-A-02" },
+      { id: "offer_01JD8Q1234567", sku: "ACME-LS-M-2" },
       {
-        id: "offer_b",
-        prices: [{ amount: 3500, currency_code: "usd" }],
+        id: "offer_01JD8Q1234568",
+        prices: [{ amount: 3900, currency_code: "eur" }],
       },
     ],
+    updated_by: "mem_01JD8Q1234567",
   },
 })
 ```
 
-<Tip>
-  Both workflows emit one event per affected offer (`offer.created` /
-  `offer.updated`). Subscribe to those events to run downstream side effects like
-  re-indexing search. See the [Event reference](/platform/offer/reference/events).
-</Tip>
+The first entry renames a SKU and keeps its prices. The second replaces that offer’s prices: send an existing price `id` to update a row in place, since rows left out are deleted. `updated_by` reaches the `offersUpdated` and `offerPricesUpserted` hooks.
+
+## Delete offers in bulk
+
+`deleteOffersWorkflow` takes a list of ids and soft-deletes the offer rows.
+
+```ts
+import { deleteOffersWorkflow } from "@mercurjs/core/workflows"
+
+await deleteOffersWorkflow(req.scope).run({
+  input: { ids: ["offer_01JD8Q1234567", "offer_01JD8Q1234568"] },
+})
+```
+
+The run emits `offer.deleted` per offer. Its `offersDeleted` hook gets a snapshot of each offer and its prices taken before the delete. The workflow has no step that removes the offer’s prices or inventory items.
+
+## Next steps
+
+- [Manage offer inventory](/platform/offer/guides/manage-offer-inventory)
+- [How offer prices are replaced](/platform/offer/concepts/pricing-and-inventory)
+- [Offer events](/platform/offer/reference/events)

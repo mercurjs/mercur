@@ -3869,8 +3869,7 @@
       "pending": "รอดำเนินการ",
       "processing": "กำลังดำเนินการ",
       "paid": "จ่ายแล้ว",
-      "failed": "ล้มเหลว",
-      "canceled": "ยกเลิก"
+      "failed": "ล้มเหลว"
     }
   },
   "translations": {

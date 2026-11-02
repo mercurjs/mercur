@@ -11,6 +11,10 @@ type LinkSellerStockLocationStepInput = {
 export const linkSellerStockLocationStep = createStep(
   "link-seller-stock-location",
   async (input: LinkSellerStockLocationStepInput, { container }) => {
+    if (!input.stock_location_ids.length) {
+      return new StepResponse(undefined, undefined)
+    }
+
     const remoteLink: Link = container.resolve(ContainerRegistrationKeys.LINK)
 
     const links = input.stock_location_ids.map((stockLocationId) => ({

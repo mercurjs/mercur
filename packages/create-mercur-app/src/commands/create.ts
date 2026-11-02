@@ -16,11 +16,8 @@ import validateProjectName from "validate-npm-package-name";
 import waitOn from "wait-on";
 
 import packageJson from "../../package.json";
-import {
-  sendTelemetryEvent,
-  setTelemetryEmail,
-  showTelemetryNoticeIfNeeded,
-} from "../telemetry";
+import { ErrorCategory, sendTelemetryEvent, showTelemetryNoticeIfNeeded } from "../telemetry";
+import { finishCommand } from "../telemetry/command-tracking";
 import { setupDatabase, type SetupDatabaseResult } from "../utils/create-db";
 import {
   resolveProjectPackageManager,
@@ -73,7 +70,7 @@ export const create = new Command()
   .option("--no-deps", "skip installing dependencies.")
   .option("--skip-storefront", "skip adding the Next.js storefront.", false)
   .option("--skip-db", "skip database configuration.", false)
-  .option("--skip-email", "skip email prompt.", false)
+  .option("--skip-email", "deprecated: the email prompt was removed, this flag has no effect.", false)
   .option(
     "--tag <tag>",
     "the release channel to pin @mercurjs/* packages to: latest, rc, or canary. defaults to the channel of this CLI."
@@ -150,28 +147,6 @@ export const create = new Command()
         addStorefront = Boolean(wantsStorefront);
       }
 
-      if (!opts.skipEmail) {
-        const { wantsEmail } = await prompts({
-          type: "confirm",
-          name: "wantsEmail",
-          message: "Mind sharing your email? We reach out for priority support, community events, and invite-only meetups. We never spam.",
-          initial: false,
-        });
-
-        if (wantsEmail) {
-          const { email } = await prompts({
-            type: "text",
-            name: "email",
-            message: "Enter your email:",
-            format: (value: string) => value.trim(),
-          });
-
-          if (email) {
-            setTelemetryEmail(email);
-          }
-        }
-      }
-
       const projectDir = path.resolve(opts.cwd, projectName);
 
       await createOrFindProjectDir(projectDir);
@@ -232,15 +207,7 @@ export const create = new Command()
           initialInstallSpinner.succeed(`Dependencies installed successfully in ${installDuration}s.`);
         } else {
           initialInstallSpinner.fail(`Failed to install dependencies`);
-          await sendTelemetryEvent({
-            type: 'create',
-            payload: {
-              outcome: 'dependency_installation_failed',
-              packageManager,
-            }
-          }, {
-            cwd: projectDir,
-          })
+          await finishCommand(1, { name: ErrorCategory.INSTALL });
           process.exit(1);
         }
       }
@@ -273,12 +240,7 @@ export const create = new Command()
         } else {
           dbSpinner.fail("Failed to setup database.");
           logger.log(feedbackOutro());
-          await sendTelemetryEvent({
-            type: 'create',
-            payload: {
-              outcome: 'database_setup_failed',
-            }
-          }, { cwd: projectDir });
+          await finishCommand(1, { name: ErrorCategory.DATABASE });
           process.exit(1);
         }
       } else {
@@ -292,14 +254,18 @@ export const create = new Command()
 
       await initGit(projectDir);
 
-      await sendTelemetryEvent({
-        type: 'create',
-        payload: {
-          outcome: 'created'
-        }
-      }, {
-        cwd: projectDir,
-      });
+      await sendTelemetryEvent(
+        {
+          event: "project_created",
+          properties: {
+            template,
+            package_manager: packageManager,
+            with_storefront: addStorefront,
+            skip_db: Boolean(opts.skipDb),
+          },
+        },
+        { cwd: projectDir }
+      );
 
       const totalDuration = ((Date.now() - createStart) / 1000).toFixed(1);
       spinner(`Mercur project successfully created! (${totalDuration}s)`).succeed();

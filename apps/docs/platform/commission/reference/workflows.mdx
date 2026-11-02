@@ -1,40 +1,114 @@
 ---
-title: "Workflows"
+title: "Commission workflows"
 sidebarTitle: "Workflows"
-description: "Commission rate, rule, and order-line workflows."
+description: "Inputs, outputs, steps, and hooks of the rate, rule, and order-line commission workflows."
 ---
 
-This reference lists the workflows for the Commission domain. Import them from
-`@mercurjs/core/workflows` and run them against the Medusa container.
+The Commission module ships five workflows, exported from `@mercurjs/core/workflows`. They run against the Medusa container, and each step compensates on failure unless noted. None of them emits an event.
 
-## Rate workflows
+## createCommissionRatesWorkflow
 
-| Workflow | Input | Purpose |
+Creates one or more commission rates. Workflow id `create-commission-rates`.
+
+| Input | Type |
+| --- | --- |
+| (root) | `CreateCommissionRateDTO[]` |
+
+`CreateCommissionRateDTO` takes `name`, `type`, and `value`, and optionally `code`, `currency_code`, `include_tax`, `include_shipping`, `is_enabled`, and `is_default`. The module also accepts nested `rules` and `values` arrays, which the DTO doesn’t declare. A missing `code` is generated from `name`.
+
+- **Output**: the created rates, in input order
+- **Steps**: `createCommissionRatesStep`, compensated by deleting the created rates
+- **Hooks**: none
+
+## updateCommissionRatesWorkflow
+
+Updates fields on one or more rates. Workflow id `update-commission-rates`.
+
+| Input | Type |
+| --- | --- |
+| (root) | `UpdateCommissionRateDTO[]` |
+
+Each item needs an `id` and takes any `CreateCommissionRateDTO` field as optional.
+
+- **Output**: the updated rates
+- **Steps**: `updateCommissionRatesStep`
+- **Hooks**: none
+
+<Warning>
+  The compensation of `updateCommissionRatesStep` re-applies the step’s input, not the previous values. If a later step in a parent workflow fails, the rate keeps the new values.
+</Warning>
+
+## deleteCommissionRatesWorkflow
+
+Soft-deletes rates after checking that none of them is the global rate. Workflow id `delete-commission-rates`.
+
+| Input | Type | Description |
 | --- | --- | --- |
-| `createCommissionRatesWorkflow` | `CreateCommissionRateDTO[]` | Create rates (auto-generates `code`) |
-| `updateCommissionRatesWorkflow` | `UpdateCommissionRateDTO[]` | Update rate fields |
-| `deleteCommissionRatesWorkflow` | `{ ids[] }` | Delete rates (validates deletability first) |
+| `ids` | `string[]` | Ids of the rates to delete |
 
-## Rule workflows
+- **Output**: none
+- **Steps**: `validateCommissionRatesDeletableStep`, which throws `NOT_ALLOWED` for an `is_default` rate, then `deleteCommissionRatesStep`, compensated by restoring the rates
+- **Hooks**: `commissionRatesDeleted`, with `{ ids }`
 
-| Workflow | Input | Purpose |
+## batchCommissionRulesWorkflow
+
+Creates, updates, and deletes the rules of one rate. Workflow id `batch-commission-rules`.
+
+| Input | Type | Description |
 | --- | --- | --- |
-| `batchCommissionRulesWorkflow` | `{ commission_rate_id, create?, update?, delete? }` | Create, update, and delete a rate's rules in one call |
+| `commission_rate_id` | `string` | The rate that new rules attach to |
+| `create` | `CreateCommissionRuleDTO[]`, optional | `{ reference, reference_id }` |
+| `update` | `UpdateCommissionRuleDTO[]`, optional | `{ id, reference?, reference_id? }` |
+| `delete` | `string[]`, optional | Ids of rules to delete |
 
-## Order-line workflows
+- **Output**: `{ created, updated, deleted }`, where `deleted` holds the ids
+- **Steps**: `createCommissionRulesStep`, `updateCommissionRulesStep`, and `deleteCommissionRulesStep`, run in parallel
+- **Hooks**: none
 
-| Workflow | Input | Purpose |
+Only `create` uses `commission_rate_id`. The ids in `update` and `delete` aren’t checked against it.
+
+## refreshOrderCommissionLinesWorkflow
+
+Recomputes and replaces the commission lines of one or more orders. Workflow id `refresh-order-commission-lines`.
+
+| Input | Type | Description |
 | --- | --- | --- |
-| `refreshOrderCommissionLinesWorkflow` | `{ order_ids[] }` | Recompute and upsert an order's commission lines (idempotent) |
+| `order_ids` | `string[]` | Orders to refresh. An unknown id throws |
 
-<Note>
-  `deleteCommissionRatesWorkflow` exposes a `commissionRatesDeleted` hook, and
-  `batchCommissionRulesWorkflow` runs its create / update / delete steps in
-  parallel. `refreshOrderCommissionLinesWorkflow` also runs as a step inside the
-  cart-split checkout workflow.
-</Note>
+- **Output**: `CommissionLineDTO[]`, the lines written for all the orders
+- **Steps**: `fetch-orders` (`useQueryGraphStep`), `getCommissionLinesStep`, `upsertCommissionLinesStep`
+- **Called by**: `completeCartWithSplitOrdersWorkflow` and the `order-commission-refresh-handler` subscriber
 
-To work with records directly instead of through a workflow, see the
-[Service reference](/platform/commission/reference/service). To run side effects
-when an order changes, see the
-[Event reference](/platform/commission/reference/events).
+The workflow exposes two hooks:
+
+| Hook | Input | Return |
+| --- | --- | --- |
+| `setCommissionContext` | `{ contexts: CommissionCalculationContext[] }` | `StepResponse` of new contexts, or nothing |
+| `commissionLinesUpserted` | `{ order_ids, commission_lines }` | Ignored |
+
+```ts
+refreshOrderCommissionLinesWorkflow.hooks.setCommissionContext(
+  ({ contexts }) =>
+    new StepResponse(
+      contexts.map((c) => ({ ...c, additional_context: { tier: "gold" } }))
+    )
+)
+```
+
+The handler above adds data to every context before the provider sees it. Neither `getCommissionLinesStep` nor `upsertCommissionLinesStep` defines a compensation.
+
+## Exported steps
+
+`@mercurjs/core/workflows` also exports each step, with its id, for use in your own workflows:
+
+| Step | Id |
+| --- | --- |
+| `createCommissionRatesStep` | `create-commission-rates-step` |
+| `updateCommissionRatesStep` | `update-commission-rates-step` |
+| `deleteCommissionRatesStep` | `delete-commission-rates-step` |
+| `validateCommissionRatesDeletableStep` | `validate-commission-rates-deletable-step` |
+| `createCommissionRulesStep` | `create-commission-rules-step` |
+| `updateCommissionRulesStep` | `update-commission-rules-step` |
+| `deleteCommissionRulesStep` | `delete-commission-rules-step` |
+| `getCommissionLinesStep` | `get-commission-lines` |
+| `upsertCommissionLinesStep` | `upsert-commission-lines` |

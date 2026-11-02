@@ -3,6 +3,7 @@ import { Command } from "commander";
 
 import packageJson from "../package.json";
 import { create } from "./commands/create";
+import { registerCommandTracking } from "./telemetry/command-tracking";
 
 process.on("SIGINT", () => process.exit(0));
 process.on("SIGTERM", () => process.exit(0));
@@ -16,6 +17,7 @@ const program = new Command()
     "display the version number"
   );
 
+registerCommandTracking(program);
 program.addCommand(create, { isDefault: true });
 
 program.parse();

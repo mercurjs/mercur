@@ -1,6 +1,8 @@
 import { logger } from "./logger";
+import { finishCommand } from "../telemetry/command-tracking";
 
-export function handleError(error: unknown) {
+export async function handleError(error: unknown) {
+  await finishCommand(1, error);
   logger.break();
   logger.error(
     `Something went wrong. Please check the error below for more details.`

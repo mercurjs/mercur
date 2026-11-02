@@ -391,6 +391,47 @@ medusaIntegrationTestRunner({
                 })
                 expect(orderCarts).toHaveLength(1)
             })
+
+            it("does not record a capture the payment already has when the provider confirms it", async () => {
+                const { cart, sessionId } = await seedReadyCart(
+                    sellerSeed.offer.id
+                )
+                const query = appContainer.resolve(
+                    ContainerRegistrationKeys.QUERY
+                )
+                const paymentModule = appContainer.resolve(Modules.PAYMENT)
+                const { processPaymentWorkflow } = await import(
+                    "@mercurjs/core/workflows/payment/workflows/process-payment"
+                )
+
+                await api.post(`/store/carts/${cart.id}/complete`, {}, storeHeaders)
+
+                const {
+                    data: [payment],
+                } = await query.graph({
+                    entity: "payment",
+                    fields: ["id", "amount"],
+                    filters: { payment_session_id: sessionId },
+                })
+                const partial = Number(payment.amount) / 2
+                await paymentModule.capturePayment({ payment_id: payment.id, amount: partial })
+
+                await processPaymentWorkflow(appContainer).run({
+                    input: {
+                        action: "captured",
+                        data: { session_id: sessionId, amount: partial },
+                    },
+                })
+
+                const {
+                    data: [after],
+                } = await query.graph({
+                    entity: "payment",
+                    fields: ["captures.amount"],
+                    filters: { id: payment.id },
+                })
+                expect((after as { captures?: unknown[] }).captures).toHaveLength(1)
+            })
         })
     },
 })

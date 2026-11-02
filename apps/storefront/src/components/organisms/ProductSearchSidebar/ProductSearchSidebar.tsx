@@ -1,7 +1,11 @@
 "use client"
 
-import { Button, Chip, Input } from "@/components/atoms"
-import { Accordion, FilterCheckboxOption, Modal } from "@/components/molecules"
+import { Button } from '@/components/atoms/Button/Button';
+import { Chip } from '@/components/atoms/Chip/Chip';
+import { Input } from '@/components/atoms/Input/Input';
+import { Accordion } from '@/components/molecules/Accordion/Accordion';
+import { FilterCheckboxOption } from '@/components/molecules/FilterCheckboxOption/FilterCheckboxOption';
+import { Modal } from '@/components/molecules/Modal/Modal';
 import useFilters from "@/hooks/useFilters"
 import useUpdateSearchParams from "@/hooks/useUpdateSearchParams"
 import { cn } from "@/lib/utils"

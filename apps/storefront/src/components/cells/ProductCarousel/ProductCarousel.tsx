@@ -3,7 +3,7 @@
 import useEmblaCarousel from "embla-carousel-react"
 import { HttpTypes } from "@medusajs/types"
 import Image from "next/image"
-import { ProductCarouselIndicator } from "@/components/molecules"
+import { ProductCarouselIndicator } from '@/components/molecules/ProductCarouselIndicator/ProductCarouselIndicator';
 import { useScreenSize } from "@/hooks/useScreenSize"
 
 export const ProductCarousel = ({

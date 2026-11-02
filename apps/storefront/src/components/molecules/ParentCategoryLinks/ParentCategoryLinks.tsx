@@ -2,7 +2,7 @@
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { cn } from "@/lib/utils"
-import { useParams } from "next/navigation"
+import { ActiveCategory } from "@/components/molecules/ActiveCategory/ActiveCategory"
 import { useMemo } from "react"
 import { getActiveParentHandle } from "@/lib/helpers/category-utils"
 
@@ -11,12 +11,11 @@ interface ParentCategoryLinksProps {
   categories: HttpTypes.StoreProductCategory[]
 }
 
-export const ParentCategoryLinks = ({
+const ParentCategoryLinksView = ({
+  category,
   parentCategories,
   categories,
-}: ParentCategoryLinksProps) => {
-  const { category } = useParams<{ category?: string }>()
-
+}: ParentCategoryLinksProps & { category?: string }) => {
   const activeParentHandle = useMemo(
     () => getActiveParentHandle(category, categories, parentCategories),
     [category, categories, parentCategories]
@@ -46,3 +45,9 @@ export const ParentCategoryLinks = ({
     </nav>
   )
 }
+
+export const ParentCategoryLinks = (props: ParentCategoryLinksProps) => (
+  <ActiveCategory fallback={<ParentCategoryLinksView {...props} />}>
+    {(category) => <ParentCategoryLinksView {...props} category={category} />}
+  </ActiveCategory>
+)

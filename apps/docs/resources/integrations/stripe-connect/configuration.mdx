@@ -1,0 +1,212 @@
+---
+title: "Configure the Stripe connector"
+sidebarTitle: "Configuration"
+description: "Every option of the Stripe payment provider, the Stripe Connect payout provider, the payout module and the plugin, the two webhook endpoints, and what to change when you go live."
+---
+
+The integration is configured in four places in `medusa-config.ts`, plus two webhook endpoints in the Stripe Dashboard:
+
+| Where | Configures |
+| --- | --- |
+| The plugin entry under `plugins` | Jobs, capture timing, settlements, notifications and alerts |
+| The payment provider on `@medusajs/medusa/payment` | How the cart is charged |
+| The payout provider on `@mercurjs/core/modules/payout` | How connected accounts are created and validated |
+| The payout module's own options | Where sellers land after onboarding |
+
+## Credentials
+
+| Secret | Created in | Used by |
+| --- | --- | --- |
+| Secret API key | Stripe, **Developers → API keys** | The payment provider, the payout provider and the plugin |
+| Platform webhook signing secret | Stripe, when you create the endpoint that listens to **Your account** | The payment provider |
+| Connect webhook signing secret | Stripe, when you create the endpoint that listens to **Connected accounts** | The payout provider and the plugin |
+
+## Full example
+
+```ts medusa-config.ts
+module.exports = withMercur({
+  plugins: [
+    {
+      resolve: "@mercurjs/stripe-connector-plugin",
+      options: {
+        apiKey: process.env.STRIPE_SECRET_KEY,
+        webhookSecret: process.env.STRIPE_SELLERS_WEBHOOK_SECRET,
+        settlements: { mode: "plugin" },
+        alerting: {
+          technicalEmail: "ops@example.com",
+          from: "noreply@example.com",
+        },
+      },
+    },
+  ],
+  modules: [
+    {
+      resolve: "@medusajs/medusa/payment",
+      options: {
+        providers: [
+          {
+            resolve: "@mercurjs/stripe-connector-plugin/providers/payment-stripe",
+            id: "stripe",
+            options: {
+              apiKey: process.env.STRIPE_SECRET_KEY,
+              webhookSecret: process.env.STRIPE_OPERATOR_WEBHOOK_SECRET,
+            },
+          },
+        ],
+      },
+    },
+    {
+      resolve: "@mercurjs/core/modules/payout",
+      options: {
+        providers: [
+          {
+            resolve: "@mercurjs/stripe-connector-plugin/providers/payout-stripe-connect",
+            id: "stripe",
+            options: {
+              apiKey: process.env.STRIPE_SECRET_KEY,
+              webhookSecret: process.env.STRIPE_SELLERS_WEBHOOK_SECRET,
+              manualPayouts: true,
+            },
+          },
+        ],
+        onboarding: {
+          returnUrl: `${process.env.VENDOR_URL}/stripe`,
+          refreshBaseUrl: process.env.BACKEND_URL,
+        },
+      },
+    },
+  ],
+})
+```
+
+Run `bunx medusa db:migrate` after adding the plugin. It creates the plugin's `stripe_connector` tables. Then add `pp_stripe-connector_stripe` to the payment providers of every region that sells through Stripe, under **Settings → Regions**.
+
+## Payment provider
+
+Registered with the id `stripe`, so Medusa exposes it as `pp_stripe-connector_stripe`.
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `apiKey` | `string` | Required | Stripe secret API key |
+| `webhookSecret` | `string` | Required | Signing secret of the platform-account webhook |
+| `automaticPaymentMethods` | `boolean` | `false` | Turn on Stripe's automatic payment methods on the PaymentIntent |
+| `paymentDescription` | `string` | - | Description set on the PaymentIntent |
+| `orderGroupMetadataKey` | `string` | `mercur_order_group_id` | Metadata key carrying the order group id on the PaymentIntent |
+
+Capture is always manual. The plugin's capture job decides when to capture, so there's no `capture` option.
+
+## Payout provider
+
+Registered with the id `stripe`, so Mercur exposes it as `pop_stripe-connect_stripe`. The payout module takes exactly one provider.
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `apiKey` | `string` | Required | Stripe secret API key |
+| `webhookSecret` | `string` | Required | Signing secret of the Connect webhook |
+| `manualPayouts` | `boolean` | `false` | Put new connected accounts on a manual payout schedule, so only the plugin's settlements pay them out. Pair with `settlements.mode: "plugin"` |
+| `accountValidation` | `object` | See below | When a connected account counts as `active` |
+
+### Account validation
+
+A connected account is `active` when every enabled check passes. An account that fails a check after submitting its details is `restricted`, and one Stripe rejected is `rejected`.
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `detailsSubmitted` | `boolean` | `true` | Require onboarding details to be submitted |
+| `chargesEnabled` | `boolean` | `true` | Require charges to be enabled |
+| `payoutsEnabled` | `boolean` | `true` | Require payouts to be enabled |
+| `noOutstandingRequirements` | `boolean` | `true` | Treat any currently due or past due requirement as restricted |
+| `requiredCapabilities` | `string[]` | `[]` | Capabilities that must be `active`, for example `["transfers"]` |
+
+<Note>
+  `manualPayouts` only applies to accounts the provider creates from then on. To move existing accounts to a manual schedule, update their payout settings in Stripe.
+</Note>
+
+## Payout module
+
+These options belong to `@mercurjs/core/modules/payout` and apply to any provider.
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `onboarding.returnUrl` | - | Where Stripe sends the seller after onboarding. Point it at the vendor Stripe page, `<vendor url>/stripe` |
+| `onboarding.refreshBaseUrl` | - | Your API's public origin. When an onboarding link expires, Stripe sends the seller to `<base>/payout/onboarding/refresh?token=...`, which issues a fresh link |
+| `onboarding.prefill` | `false` | Prefill the Express account from the seller: country, business type and business profile |
+| `onboarding.defaultCountry` | - | Country used for a new account when the seller has no address |
+
+## Plugin
+
+These go on the plugin entry under `plugins`, typed by `StripeConnectorPluginOptions` from `@mercurjs/stripe-connector-plugin/types`.
+
+### Credentials
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `apiKey` | - | Platform secret key, used for adjustments and settlement bank payouts |
+| `webhookSecret` | - | Signing secret of the Connect webhook, used to read bank `payout.*` events |
+
+### Onboarding
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `onboarding.enabled` | `true` | Create an Express account for every new seller and publish their onboarding link. Turn off to create accounts only when sellers ask from the vendor Stripe page |
+
+### Capture
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `capture.captureBeforeAcceptance` | `false` | Count an order as decided once it is no longer awaiting acceptance, instead of once it reaches the fulfillment threshold |
+| `capture.authorizationWindowMs` | 7 days | How long a card authorization stays valid. Match your Stripe account's authorization validity |
+| `capture.safetyBufferMs` | 24 hours | How long before expiry to capture what is decided, even if some orders aren't |
+
+### Payouts and reversals
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `transfers.enabled` | `true` | Run the payout job and its subscribers |
+| `transfers.requiredFulfillmentStatus` | `"fulfilled"` | Minimum fulfillment status before an order counts as decided for capture and is paid out. Use `"shipped"` or `"delivered"` to pay later |
+| `reversals.enabled` | `true` | Run the reversal job and its subscriber |
+
+### Settlements
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `settlements.enabled` | `true` | Run the settlement job |
+| `settlements.mode` | `"plugin"` | `plugin` nets each period and sends the bank payout. Pair with `manualPayouts: true`. `provider` records each period's settlement and lets Stripe's automatic schedule pay. See [settlement modes](/resources/integrations/stripe-connect/architecture#settlement-modes) |
+
+### Notifications and alerts
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `notifications.url` | - | Endpoint that receives a JSON `POST` for every failed payout, reversal and settlement bank payout. See [notification endpoint](/resources/integrations/stripe-connect/operations#notification-endpoint) |
+| `notifications.secret` | - | Signs each notification. See [notification signatures](/resources/integrations/stripe-connect/reference#notification-signatures) |
+| `notifications.mailOnEndpointDown` | `true` | Email the technical contact when the endpoint keeps failing |
+| `notifications.endpointDownCooldownMinutes` | `10` | Minimum time between two of those emails |
+| `alerting.technicalEmail` | - | Recipient of the daily failed-operations digest, KYC alerts and endpoint-down emails |
+| `alerting.from` | - | Sender of those emails |
+| `kycMonitor.enabled` | `false` | Run the KYC monitor job every six hours |
+
+Alert emails go through Medusa's notification module on the `email` channel, so register a notification provider for that channel to receive them.
+
+## Webhooks
+
+Create two endpoints under **Developers → Webhooks** in the Stripe Dashboard. **Settings → Stripe** in the admin prints both URLs for your deployment.
+
+| Endpoint | Listen to | Events |
+| --- | --- | --- |
+| `https://<api>/hooks/payment/pp_stripe-connector_stripe` | Your account | `payment_intent.succeeded`, `payment_intent.amount_capturable_updated`, `payment_intent.payment_failed`, `payment_intent.canceled`, `charge.refunded` |
+| `https://<api>/hooks/payout` | Connected accounts | `account.updated`, `payout.paid`, `payout.failed`, `payout.canceled`, `payout.updated` |
+
+Paste the first endpoint's signing secret into the payment provider's `webhookSecret`, and the second's into the payout provider's and the plugin's `webhookSecret`.
+
+Both endpoints verify the `stripe-signature` header against the raw body. An event with a bad signature is logged and ignored.
+
+## Go live
+
+1. Activate your Stripe account and complete the Connect platform profile under **Settings → Connect**.
+2. Replace every `sk_test_` key with its `sk_live_` counterpart.
+3. Create both webhook endpoints again in live mode, and replace both signing secrets. Test-mode endpoints never receive live events.
+4. Set `onboarding.returnUrl` and `onboarding.refreshBaseUrl` to your production vendor and API URLs. Stripe rejects `http://` links in live mode.
+5. Set `alerting.technicalEmail` and register an email notification provider, so failed operations reach someone.
+6. Check **Settings → Stripe**: the API key is set and **Last webhook** updates after the first live event.
+
+Payout accounts created with test keys point at test-mode connected accounts, which live keys can't reach. Start production on a fresh database, or remove those payout accounts so sellers onboard again in live mode.

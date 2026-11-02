@@ -1,10 +1,14 @@
 import { PencilSquare, Trash } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
 import { Checkbox, Container, Heading, toast, usePrompt } from "@medusajs/ui";
-import { createColumnHelper } from "@tanstack/react-table";
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
+import {
+  DisplayExtensionZone,
+  mergeListFilters,
+  useExtendableTable,
+} from "@mercurjs/dashboard-shared";
 import { ActionMenu } from "@components/common/action-menu";
 import { _DataTable } from "@components/table/data-table";
 import { useUpdateCollectionProducts } from "@hooks/api/collections";
@@ -38,8 +42,12 @@ export const CollectionProductSection = ({
     { placeholderData: keepPreviousData },
   );
 
-  const filters = useProductTableFilters(["collections"]);
-  const columns = useColumns();
+  const baseFilters = useProductTableFilters(["collections"]);
+  const { columns, filters: extFilters } = useColumns();
+  const filters = useMemo(
+    () => mergeListFilters(baseFilters, extFilters),
+    [baseFilters, extFilters],
+  );
 
   const { table } = useDataTable({
     data: products ?? [],
@@ -229,9 +237,16 @@ const ProductActions = ({
 const columnHelper = createColumnHelper<ExtendedAdminProduct>();
 
 const useColumns = () => {
-  const columns = useProductTableColumns();
+  const { columns, filters } = useExtendableTable<ExtendedAdminProduct>({
+    model: "collection",
+    zone: "products",
+    columns: useProductTableColumns() as unknown as ColumnDef<
+      ExtendedAdminProduct,
+      unknown
+    >[],
+  });
 
-  return useMemo(
+  const tableColumns = useMemo(
     () => [
       columnHelper.display({
         id: "select",
@@ -280,4 +295,6 @@ const useColumns = () => {
     ],
     [columns],
   );
+
+  return { columns: tableColumns, filters };
 };

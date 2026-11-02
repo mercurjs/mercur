@@ -3,20 +3,18 @@ import { getCategoryByHandle, collectCategorySubtreeIds } from "@/lib/data/categ
 import { Suspense } from "react"
 
 import type { Metadata } from "next"
-import { Breadcrumbs } from "@/components/atoms"
-import { SearchProductsListing, ProductListing } from "@/components/sections"
+import { getBaseUrl } from "@/lib/helpers/base-url"
+import { Breadcrumbs } from '@/components/atoms/Breadcrumbs/Breadcrumbs';
+import { SearchProductsListing } from '@/components/sections/ProductListing/SearchProductsListing';
 import { notFound } from "next/navigation"
-import isBot from "@/lib/helpers/isBot"
-import { headers } from "next/headers"
-import Script from "next/script"
 import { listRegions } from "@/lib/data/regions"
-import { listProducts } from "@/lib/data/products"
+import { searchProducts } from "@/lib/data/products"
+import { PRODUCT_LIMIT } from "@/const"
 import {
   buildHreflangAlternates,
   getStorefrontLocales,
 } from "@/lib/helpers/hreflang"
 
-export const revalidate = 60
 
 export async function generateMetadata({
   params,
@@ -24,10 +22,7 @@ export async function generateMetadata({
   params: Promise<{ category: string; locale: string }>
 }): Promise<Metadata> {
   const { category: categoryHandle, locale } = await params
-  const headersList = await headers()
-  const host = headersList.get("host")
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
+  const baseUrl = getBaseUrl()
 
   const cat = await getCategoryByHandle(categoryHandle)
   if (!cat) {
@@ -71,14 +66,29 @@ export async function generateMetadata({
   }
 }
 
+export default function CategoryPage({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/categories/[category]">) {
+  return (
+    <main className="container">
+      <Suspense
+        fallback={
+          <div aria-busy="true" data-testid="category-page-loading">
+            <ProductListingSkeleton />
+          </div>
+        }
+      >
+        <Category params={params} searchParams={searchParams} />
+      </Suspense>
+    </main>
+  )
+}
+
 async function Category({
   params,
-}: {
-  params: Promise<{
-    category: string
-    locale: string
-  }>
-}) {
+  searchParams,
+}: Pick<PageProps<"/[locale]/categories/[category]">, "params" | "searchParams">) {
   const { category: categoryHandle, locale } = await params
 
   const category = await getCategoryByHandle(categoryHandle)
@@ -90,8 +100,6 @@ async function Category({
   // Include the whole category subtree so a parent department page lists every
   // product in its sub-categories, not just products attached to the parent.
   const categoryIds = collectCategorySubtreeIds(category)
-  const ua = (await headers()).get("user-agent") || ""
-  const bot = isBot(ua)
 
   const breadcrumbsItems = [
     {
@@ -100,16 +108,11 @@ async function Category({
     },
   ]
 
-  const headersList = await headers()
-  const host = headersList.get("host")
-  const protocol = headersList.get("x-forwarded-proto") || "https"
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
-  const {
-    response: { products: jsonLdProducts },
-  } = await listProducts({
+  const baseUrl = getBaseUrl()
+  const { products: jsonLdProducts } = await searchProducts({
     countryCode: locale,
-    queryParams: { limit: 8, order: "created_at", fields: "id,title,handle" },
     category_id: categoryIds,
+    limit: PRODUCT_LIMIT,
   })
 
   const itemList = jsonLdProducts.slice(0, 8).map((p, idx) => ({
@@ -120,8 +123,8 @@ async function Category({
   }))
 
   return (
-    <main className="container">
-      <Script
+    <>
+      <script
         id="ld-breadcrumbs-category"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -139,7 +142,7 @@ async function Category({
           }),
         }}
       />
-      <Script
+      <script
         id="ld-itemlist-category"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -156,15 +159,11 @@ async function Category({
 
       <h1 className="heading-xl uppercase">{category.name}</h1>
 
-      <Suspense fallback={<div data-testid="category-page-loading"><ProductListingSkeleton /></div>}>
-        {bot ? (
-          <ProductListing category_id={categoryIds} showSidebar locale={locale} />
-        ) : (
-          <SearchProductsListing category_id={categoryIds} locale={locale} />
-        )}
-      </Suspense>
-    </main>
+      <SearchProductsListing
+        category_id={categoryIds}
+        locale={locale}
+        searchParams={searchParams}
+      />
+    </>
   )
 }
-
-export default Category

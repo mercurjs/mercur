@@ -1,16 +1,15 @@
-import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { Container } from "@medusajs/ui"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
 import {
   isForbidden,
+  LayoutComposer,
   SectionNoAccess,
   useLinkQuery,
-  WidgetZone,
 } from "@mercurjs/dashboard-shared"
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
-import { TwoColumnPage } from "../../../components/layout/pages"
 import { useProduct } from "../../../hooks/api/products"
 import { ProductMediaSection } from "../../products/[id]/_components/product-media-section"
 import { OFFER_PRODUCT_DETAIL_FIELDS } from "../common/constants"
@@ -20,7 +19,7 @@ import { OfferVariantsSection } from "./_components/offer-variants-section"
 import { OfferAssociatedProductSection } from "./_components/offer-associated-product-section"
 import { loader } from "./loader"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const OfferDetailPage = () => {
   const { id } = useParams()
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>
   const query = useLinkQuery("offer", OFFER_PRODUCT_DETAIL_FIELDS)
@@ -47,39 +46,35 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const typed = product as OfferProduct
 
   return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage data={typed} hasOutlet>
-          <TwoColumnPage.Main>
-            <WidgetZone id="offers.detail.main" data={typed}>
+    <LayoutComposer
+      widgetsZonePrefix="offers.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
+      data={typed}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="OfferDetailGeneralSection">
               <OfferDetailGeneralSection product={typed} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="ProductMediaSection">
               <ProductMediaSection product={typed} readOnly />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="OfferVariantsSection">
               <OfferVariantsSection
                 variants={typed.variants}
                 thumbnail={typed.thumbnail}
               />
-            </WidgetZone>
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            <WidgetZone id="offers.detail.side" data={typed}>
-              <OfferAssociatedProductSection product={typed} />
-            </WidgetZone>
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </>
+            </LayoutComposer.Entry>
+          </>
+        ),
+        side: (
+          <LayoutComposer.Entry id="OfferAssociatedProductSection">
+            <OfferAssociatedProductSection product={typed} />
+          </LayoutComposer.Entry>
+        ),
+      }}
+    />
   )
 }
 
-export const OfferDetailPage = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  General: OfferDetailGeneralSection,
-  Media: ProductMediaSection,
-  Variants: OfferVariantsSection,
-  AssociatedProduct: OfferAssociatedProductSection,
-})
-
-export const Component = Root
+export const Component = OfferDetailPage

@@ -6,7 +6,7 @@ import { sdk } from "../../../lib/client"
 import { queryClient } from "../../../lib/query-client"
 
 export const STORE_DETAIL_FIELDS =
-  "+address.*,+payment_details.*,+professional_details.*"
+  "+address.*,+payment_details.*,+professional_details.*,+regions.*"
 
 const sellerDetailQuery = (id: string) => {
   const query = getLinkQuery("seller", STORE_DETAIL_FIELDS)

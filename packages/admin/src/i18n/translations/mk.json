@@ -3617,8 +3617,7 @@
       "paid": "Платено",
       "processing": "Во обработка",
       "pending": "Во очекување",
-      "failed": "Не успеа",
-      "canceled": "Откажано"
+      "failed": "Не успеа"
     }
   },
   "marketplace": {

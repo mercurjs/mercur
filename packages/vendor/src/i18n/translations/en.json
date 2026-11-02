@@ -1272,7 +1272,10 @@
       "variantsCount_other": "{{count}} variants",
       "manageInventory": "Manage inventory",
       "allowBackorders": "Allow backorders",
-      "store": "Store"
+      "store": "Store",
+      "leadtime": "Lead time",
+      "leadtimeHint": "Business days you need before you ship this offer. Leave empty to use your store default.",
+      "storeDefault": "Store default"
     },
     "status": {
       "published": "Published",
@@ -1303,8 +1306,10 @@
       "noPublishableRows": "Add a SKU, enable a stock location, or set a price to publish.",
       "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
       "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
-      "duplicateBatchEntry": "An inventory item can only appear in one bucket (create, update, or delete)."
-    }
+      "duplicateBatchEntry": "An inventory item can only appear in one bucket (create, update, or delete).",
+      "noCurrencies": "No regions are assigned to your store yet, so no currencies are available for pricing."
+    },
+    "regionPrices": "Region prices"
   },
   "giftCards": {
     "domain": "Gift Cards",
@@ -3063,12 +3068,81 @@
     "domain": "Payouts",
     "payout": "Payout",
     "noRecords": "No payouts found",
+    "order": "Order",
+    "statusReason": "Reason",
     "status": {
       "pending": "Pending",
+      "on_hold": "On hold",
       "processing": "Processing",
       "paid": "Paid",
       "failed": "Failed",
-      "canceled": "Canceled"
+      "aborted": "Aborted"
+    },
+    "reversals": {
+      "header": "Reversals",
+      "refund": "Refund",
+      "noRecordsTitle": "No reversals",
+      "noRecordsMessage": "Refunds on this order have not taken anything back from your payout."
+    },
+    "account": {
+      "header": "Payout account",
+      "empty": "Your payout account is being set up. It appears here once the payout provider has created it.",
+      "enabled": "Enabled",
+      "notEnabled": "Not enabled yet",
+      "linkReady": "A new onboarding link is ready.",
+      "onboardingPanel": {
+        "title": "Onboarding in progress",
+        "description": "Finish setting up your payout details to start getting paid."
+      },
+      "fields": {
+        "payouts": "Payouts",
+        "kycStatus": "KYC status"
+      },
+      "actions": {
+        "continueOnboarding": "Continue onboarding",
+        "openDashboard": "Manage payout details",
+        "refreshLink": "Refresh onboarding link"
+      },
+      "status": {
+        "pending": "Pending",
+        "active": "Active",
+        "restricted": "Restricted",
+        "rejected": "Rejected"
+      },
+      "kyc": {
+        "pending_submission": "Pending submission",
+        "pending_approval": "Pending approval",
+        "approved": "Approved",
+        "refused": "Refused"
+      },
+      "disabled": {
+        "pastDue": "Payouts are paused: the payout provider is waiting for overdue information.",
+        "pendingVerification": "Payouts are paused while the payout provider verifies your information.",
+        "requirements": "Payouts are paused until you finish onboarding with the payout provider.",
+        "rejected": "The payout provider rejected this account. Contact the marketplace.",
+        "underReview": "The payout provider is reviewing your account. Payouts are paused until the review ends.",
+        "other": "The payout provider has paused payouts for this account."
+      }
+    },
+    "references": {
+      "header": "References",
+      "empty": "This payout is not linked to an order."
+    },
+    "statusReasons": {
+      "account_not_ready": "Your payout account cannot receive payouts yet.",
+      "account_payouts_disabled": "Payouts are disabled on your payout account.",
+      "order_not_ready": "The order is not fulfilled yet.",
+      "order_aborted": "The order was canceled.",
+      "payment_not_ready": "The order's payment is not captured yet.",
+      "payment_failed": "The order's payment failed.",
+      "payment_canceled": "The order's payment was canceled.",
+      "payment_refunded": "The order's payment was refunded in full.",
+      "payout_not_ready": "The payout for this order has not been sent yet.",
+      "refund_aborted": "The refund was canceled.",
+      "refund_absorbed": "The refund was deducted before the payout was sent.",
+      "invalid_amount": "The amount to pay out is not valid.",
+      "provider_error": "The payout provider returned an error.",
+      "other": "This payout needs attention."
     }
   },
   "reviews": {
@@ -3403,6 +3477,14 @@
       "currenciesRemoved": "Removed currencies from the store successfully",
       "localesRemoved": "Removed locales from the store successfully",
       "updatedTaxInclusivitySuccessfully": "Tax inclusive pricing updated successfully"
+    },
+    "leadtime": {
+      "label": "Default lead time",
+      "hint": "Business days you need before you ship an order. Offers without their own lead time use it. Leave empty to use the marketplace default.",
+      "marketplaceDefault": "Marketplace default",
+      "days_one": "{{count}} business day",
+      "days_other": "{{count}} business days",
+      "invalid": "Enter a whole number of days"
     }
   },
   "regions": {

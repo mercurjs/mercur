@@ -1,96 +1,48 @@
-import { Container, Heading, StatusBadge, Text } from "@medusajs/ui";
+import { Container, Heading, StatusBadge } from "@medusajs/ui";
 import { PayoutDTO } from "@mercurjs/types";
 import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared";
 import { useTranslation } from "react-i18next";
+
+import { SectionRow } from "@components/common/section";
+import { useDate } from "@hooks/use-date";
 import { getStylizedAmount } from "@lib/money-amount-helpers";
 
-const GENERAL_FIELD_IDS = [
-  "display_id",
-  "status",
-  "amount",
-  "created_at",
-  "updated_at",
-];
+import { payoutStatusColor } from "../../_components/payout-status";
 
-const payoutStatusColor = (status: string) => {
-  switch (status) {
-    case "paid":
-      return "green";
-    case "processing":
-      return "orange";
-    case "pending":
-      return "grey";
-    case "failed":
-    case "canceled":
-      return "red";
-    default:
-      return "grey";
-  }
-};
+const GENERAL_FIELD_IDS = ["amount", "status", "display_id", "created_at", "updated_at"];
 
 export const PayoutGeneralSection = ({ payout }: { payout: PayoutDTO }) => {
   const { t } = useTranslation();
+  const { getFullDate } = useDate();
 
-  const statusText = t(`payouts.status.${payout.status}`, {
-    defaultValue:
-      payout.status.charAt(0).toUpperCase() + payout.status.slice(1),
-  });
+  const formatDate = (value: Date | string | null | undefined) =>
+    value ? getFullDate({ date: value, includeTime: true }) : "-";
 
   return (
-    <Container className="divide-y p-0">
+    <Container className="divide-y p-0" data-testid="payout-general-section">
       <div className="flex items-center justify-between px-6 py-4">
-        <DisplayField model="payout" zone="general" id="display_id" data={payout}>
-          <Heading>#{payout.display_id}</Heading>
+        <DisplayField model="payout" zone="general" id="amount" data={payout}>
+          <Heading data-testid="payout-general-section-heading">
+            {getStylizedAmount(Number(payout.amount), payout.currency_code)}
+          </Heading>
         </DisplayField>
-        <div className="flex items-center gap-x-2">
-          <DisplayField model="payout" zone="general" id="status" data={payout}>
-            <StatusBadge color={payoutStatusColor(payout.status)}>
-              {statusText}
-            </StatusBadge>
-          </DisplayField>
-        </div>
+        <DisplayField model="payout" zone="general" id="status" data={payout}>
+          <StatusBadge
+            color={payoutStatusColor(payout.status)}
+            data-testid="payout-general-section-status-badge"
+          >
+            {t(`payouts.status.${payout.status}`)}
+          </StatusBadge>
+        </DisplayField>
       </div>
-      <DisplayField model="payout" zone="general" id="amount" data={payout}>
-        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-          <Text size="small" leading="compact" weight="plus">
-            {t("fields.amount")}
-          </Text>
-          <Text size="small" leading="compact">
-            {getStylizedAmount(payout.amount as number, payout.currency_code)}
-          </Text>
-        </div>
+      <DisplayField model="payout" zone="general" id="display_id" data={payout}>
+        <SectionRow title={t("fields.id")} value={`#${payout.display_id}`} />
       </DisplayField>
       <DisplayField model="payout" zone="general" id="created_at" data={payout}>
-        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-          <Text size="small" leading="compact" weight="plus">
-            {t("fields.createdAt")}
-          </Text>
-          <Text size="small" leading="compact">
-            {new Date(payout.created_at).toLocaleDateString(undefined, {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </Text>
-        </div>
+        <SectionRow title={t("fields.createdAt")} value={formatDate(payout.created_at)} />
       </DisplayField>
       <DisplayField model="payout" zone="general" id="updated_at" data={payout}>
-        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-          <Text size="small" leading="compact" weight="plus">
-            {t("fields.updatedAt")}
-          </Text>
-          <Text size="small" leading="compact">
-            {new Date(payout.updated_at).toLocaleDateString(undefined, {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </Text>
-        </div>
+        <SectionRow title={t("fields.updatedAt")} value={formatDate(payout.updated_at)} />
       </DisplayField>
       <DisplayExtensionZone
         model="payout"

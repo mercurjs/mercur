@@ -3927,8 +3927,7 @@
       "pending": "Pendiente",
       "processing": "Procesando",
       "paid": "Pagado",
-      "failed": "Fallido",
-      "canceled": "Cancelado"
+      "failed": "Fallido"
     }
   },
   "refundReasons": {

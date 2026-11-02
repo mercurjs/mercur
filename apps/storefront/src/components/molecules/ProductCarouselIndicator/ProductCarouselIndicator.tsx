@@ -4,7 +4,7 @@ import { HttpTypes } from "@medusajs/types"
 import { EmblaCarouselType } from "embla-carousel"
 import { useCallback, useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
-import { Indicator } from "@/components/atoms"
+import { Indicator } from '@/components/atoms/Indicator/Indicator';
 import useEmblaCarousel from "embla-carousel-react"
 
 export const ProductCarouselIndicator = ({

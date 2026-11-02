@@ -1,4 +1,4 @@
-import { Cart } from '@/components/sections';
+import { Cart } from '@/components/sections/Cart/Cart';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 

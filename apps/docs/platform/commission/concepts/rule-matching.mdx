@@ -1,86 +1,76 @@
 ---
-title: "Rule matching"
+title: "How Mercur picks a commission rate"
 sidebarTitle: "Rule matching"
-description: "The five dimensions, most-specific-wins resolution, tie-breaks, and shipping."
+description: "The five rule dimensions, AND and OR matching, most-specific-wins, the oldest-rate tie-break, and shipping."
 ---
 
-This page covers how Mercur decides which commission rate applies to a given
-order line.
+Rule matching decides which single rate commissions each order line. Mercur finds every enabled rate whose rules fit the line’s product and seller, then keeps the one scoped on the most dimensions. Knowing the algorithm lets you predict a seller’s commission before an order exists.
 
-## Commission rule
+<img className="block dark:hidden" src="/images/figures/commission-rule-matching-light.svg" alt="Resolving the rate for a Linen shirt sold by ACME in the Shirts category: four enabled rates match, the acme-shirts rate scopes on two dimensions and wins, lighting does not match, and the default rate ranks last." />
+<img className="hidden dark:block" src="/images/figures/commission-rule-matching-dark.svg" alt="Resolving the rate for a Linen shirt sold by ACME in the Shirts category: four enabled rates match, the acme-shirts rate scopes on two dimensions and wins, lighting does not match, and the default rate ranks last." />
 
-A commission rule scopes a rate to part of the catalog. It's represented by the
-`CommissionRule` data model (table `commission_rule`, id prefix `comrule`). A
-rule is a `reference` / `reference_id` pair that belongs to one rate. The
-`reference` names the dimension, and the `reference_id` names the specific
-record.
+## Each dimension checks one product field
 
-```ts
-await batchCommissionRulesWorkflow(container).run({
-  input: {
-    commission_rate_id: "comrate_123",
-    create: [
-      { reference: "seller", reference_id: "sel_123" },
-      { reference: "product_category", reference_id: "pcat_shoes" },
-    ],
-  },
-})
-```
-
-A rate with **no** rules is a catch-all that matches every line. A rate with
-rules only matches lines that satisfy them.
-
-## The five dimensions
-
-A rule's `reference` is one of five dimensions, each resolved against the order
-line's product:
+A rule compares its `reference_id` with one field of the line’s product. The product comes from the order line, and the seller comes from the offer the customer bought.
 
 | `reference` | Matches when |
 | --- | --- |
-| `product` | The line's product id equals `reference_id` |
-| `product_type` | The product's type id equals `reference_id` |
-| `product_collection` | The product's collection id equals `reference_id` |
-| `product_category` | One of the product's categories equals `reference_id` |
-| `seller` | The seller behind the line's offer equals `reference_id` |
+| `product` | `product.id` equals `reference_id` |
+| `product_type` | `product.type_id` equals `reference_id` |
+| `product_collection` | `product.collection_id` equals `reference_id` |
+| `product_category` | Any of `product.categories` has the id `reference_id` |
+| `seller` | The offer’s `seller_id` equals `reference_id` |
 
-<Note>
-  Products are the shared master catalog. The `seller` dimension resolves
-  through the **offer** on the order line (`item.offer.seller_id`), not through
-  product ownership.
-</Note>
+Products are a shared catalog that no seller owns, which is why the `seller` dimension reads the offer on the line and not the product.
 
-## Most-specific-wins
+<Warning>
+  The module stores `reference` as free text and doesn’t validate it. A rule with any other `reference`, such as a typo, never matches, so the whole rate never matches.
+</Warning>
 
-When several rates match a line, resolution is **AND across dimensions, OR
-within a dimension**. Rules are grouped by `reference`. A rate matches only when
-**every** group it defines has at least one matching rule. Among the matching
-rates, the one scoped on the **most distinct dimensions** wins.
+## AND across dimensions, OR within one
 
+Mercur groups a rate’s rules by `reference`. The rate matches a line when every group has at least one rule that matches. Rules in the same group are alternatives, and groups narrow each other.
+
+```ts
+const rules = [
+  { reference: "seller", reference_id: "sel_01JD8Q1234567" },
+  { reference: "product_category", reference_id: "pcat_01JD8Q1234567" },
+  { reference: "product_category", reference_id: "pcat_01JD8Q1234568" },
+]
 ```
-Rate A: seller = sel_123                          (specificity 1)
-Rate B: seller = sel_123 AND category = pcat_shoes (specificity 2)  ← wins
-```
 
-<Tip>
-  Specificity is the count of **distinct dimensions** a rate scopes on, not the
-  number of rules. Two `product_category` rules on one rate still count as a
-  single dimension (they OR together).
-</Tip>
+A rate with these rules matches lines sold by that seller in either category. It doesn’t match the seller’s lines in other categories, or other sellers’ lines in those categories.
 
-## Tie-break
+## The most specific rate wins
 
-When two matching rates have equal specificity, the **oldest** rate wins. Rates
-are evaluated `created_at` ascending, so the earliest-created rate is the
-deterministic winner.
+When several rates match, Mercur sorts them by specificity and keeps the first. Specificity is the number of distinct dimensions a rate’s rules use, not the number of rules. The rules above give a specificity of 2.
 
-## Shipping commission
+Mercur resolves each line in this order:
 
-Item commission is resolved per line as above. Shipping is different: a
-shipping method is commissioned **only** by the global rate, and only when its
-`include_shipping` flag is on. No scoped rate can commission shipping.
+1. Drop disabled rates and rates whose `currency_code` is set to another currency.
+2. Keep the rates that match the line. A rate without rules always matches.
+3. Sort by specificity, highest first.
+4. Break ties by `created_at`, oldest first.
+5. Apply the first rate to the line’s base amount.
 
-<Note>
-  `include_tax` is a separate, per-rate toggle. When on, the line's `tax_total`
-  is added to the base amount before the rate is applied. This holds for both
-  item and shipping commission.
-</Note>
+The global rate has no rules, so its specificity is 0 and any matching scoped rate beats it. If no enabled rate matches, the line gets no commission line.
+
+<Warning>
+  The tie-break also applies between rule-less rates. If you create a second rate without rules, it competes with the global rate at specificity 0, and the older of the two wins.
+</Warning>
+
+## Shipping uses the global rate only
+
+Shipping methods aren’t matched against rules. If the global rate has `include_shipping` set, every shipping method on the order gets a line from it, with the description `Shipping Commission`. Otherwise shipping isn’t commissioned.
+
+The global rate’s `include_tax` flag applies to shipping too, adding the method’s `tax_total` to its `subtotal`. For a fixed global rate, each shipping method gets the fixed amount.
+
+## Rates load once per batch
+
+The `system` provider loads all enabled rates with their rules and values in one query per batch of orders. It then resolves every line of every order in memory. Adding rates doesn’t add queries per line.
+
+## Related
+
+- [Rate types, per-currency values, and the global commission](/platform/commission/concepts/rules-and-rates)
+- [Scope a rate with batchCommissionRulesWorkflow](/platform/commission/guides/batch-update-rules)
+- [Write your own provider to replace this algorithm](/platform/commission/reference/service)

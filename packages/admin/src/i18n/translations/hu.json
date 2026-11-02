@@ -3616,8 +3616,7 @@
       "paid": "Kifizetve",
       "processing": "Feldolgozás alatt",
       "pending": "Függőben",
-      "failed": "Sikertelen",
-      "canceled": "Törölt"
+      "failed": "Sikertelen"
     }
   },
   "marketplace": {

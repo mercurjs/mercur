@@ -1,40 +1,57 @@
 ---
-title: "Data models"
+title: "Order group data models"
 sidebarTitle: "Data models"
-description: "The data model owned by the Order Group domain."
+description: "Fields, indexes, and relations of the OrderGroup data model in the Seller module."
 ---
 
-The Order Group domain is owned by the **Seller module**. There is no separate
-order-group module. This reference lists its data model and fields. For the full
-module overview, see the [Order Group overview](/platform/order-group/overview).
+Order groups have one data model, `OrderGroup`, registered on the Seller module. There is no separate order group module: resolve it with `MercurModules.SELLER`. The model is defined in `packages/core/src/modules/seller/models/order-group.ts`, and its record type is `OrderGroupDTO` from `@mercurjs/types`.
 
 ## OrderGroup
 
-Table `order_group`, id prefix `og`. The aggregate over the per-seller orders
-created from a single cart.
+The parent record over the child orders created from one completed cart. Table `order_group`, id prefix `og`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
-| `id` | text | Primary key (prefix `og`) |
-| `display_id` | integer | Auto-incrementing, human-readable reference |
-| `customer_id` | text | Nullable; who placed the group |
-| `cart_id` | text | The originating cart (read-only link to Cart) |
-| `seller_count` | number | **Computed**: distinct sellers with a child order |
-| `total` | bigNumber | **Computed**: sum of child order totals |
-| `created_at` / `updated_at` | dateTime | Timestamps |
-| `deleted_at` | dateTime | Nullable; soft-delete marker |
+| `id` | `text` | Primary key with the prefix `og` |
+| `display_id` | `autoincrement` | Integer assigned by the database in creation order, for people to quote |
+| `customer_id` | `text`, nullable | Id of the customer on the completed cart, or `null` when the cart had none |
+| `cart_id` | `text` | Id of the completed cart; backs the read-only link to the Cart module |
+| `seller_count` | `number`, computed | Number of distinct sellers across the group’s child orders; not stored |
+| `total` | `bigNumber`, computed | Sum of the child orders’ `current_order_total`; not stored, returned as a `number` |
+| `created_at` | `dateTime` | Set when the record is created |
+| `updated_at` | `dateTime` | Set when the record changes |
+| `deleted_at` | `dateTime`, nullable | Soft-delete marker |
 
-Relations: `orders` (one-to-many through the `order_group_order` link table),
-`cart` (read-only, via `cart_id`).
+The computed fields are filled by the Seller module’s `OrderGroupRepository` on every read. See [Computed totals](/platform/order-group/concepts/computed-totals).
 
-<Note>
-  `seller_count` and `total` are marked `computed()`. They hold no value on the
-  row and are aggregated from the group's child orders each time it's read. See
-  [Computed totals](/platform/order-group/concepts/computed-totals).
-</Note>
+### Indexes
 
-<Warning>
-  The `cart_id` link is **read-only**. The cart is frozen (`completed_at` is set)
-  the moment the split runs, so it's a historical reference and can't be written
-  through the group.
-</Warning>
+The model declares three partial indexes, each limited to rows where `deleted_at IS NULL`:
+
+| Index | Columns | Serves |
+| --- | --- | --- |
+| `IDX_order_group_cart_id` | `cart_id` | The one-group-per-cart lookup at checkout |
+| `IDX_order_group_customer_id_created_at` | `customer_id`, `created_at` | A customer’s order history, newest first |
+| `IDX_order_group_created_at` | `created_at` | The default newest-first list |
+
+### Relations
+
+`OrderGroup` has no relations inside the Seller module. It reaches other modules through module links:
+
+| Alias | Target | Cardinality | Link |
+| --- | --- | --- | --- |
+| `orders` | `Order` (Order module) | One group to many orders | `order_group_order` |
+| `cart` | `Cart` (Cart module) | One group to one cart, read-only | `cart_id` field |
+
+See [Links](/platform/order-group/reference/links) for the definitions and `query.graph` examples.
+
+## Mutation types
+
+`@mercurjs/types` exports the input shapes for the generated create and update methods:
+
+| Type | Fields |
+| --- | --- |
+| `CreateOrderGroupDTO` | `cart_id: string`, `customer_id?: string \| null` |
+| `UpdateOrderGroupDTO` | `id: string`, `customer_id?: string`, `cart_id?: string` |
+
+Checkout creates every group through `createOrderGroupStep`. Mercur never updates a group after that.

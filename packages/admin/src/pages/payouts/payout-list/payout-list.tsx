@@ -1,25 +1,74 @@
-import { Children, ReactNode } from "react"
+import { Children, ReactNode, useMemo } from "react"
+import { ArrowPath } from "@medusajs/icons"
 import { Container, Heading } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
+import { createColumnHelper } from "@tanstack/react-table"
 import { useTranslation } from "react-i18next"
 
 import { WidgetZone } from "@mercurjs/dashboard-shared"
 
+import { ActionMenu } from "../../../components/common/action-menu"
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { _DataTable } from "../../../components/table/data-table"
 import { usePayouts } from "../../../hooks/api/payouts"
+import { AdminPayout } from "../../../lib/payouts"
 import { usePayoutTableColumns } from "../../../hooks/table/columns/use-payout-table-columns"
+import { usePayoutTableFilters } from "../../../hooks/table/filters/use-payout-table-filters"
 import { usePayoutTableQuery } from "../../../hooks/table/query/use-payout-table-query"
 import { useDataTable } from "../../../hooks/use-data-table"
-import { PayoutDTO } from "@mercurjs/types"
+import { useRetryPayoutAction } from "../common/hooks/use-retry-payout-action"
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 20
+
+const PayoutRowActions = ({ payout }: { payout: AdminPayout }) => {
+  const { t } = useTranslation()
+  const { handleRetry, canRetry } = useRetryPayoutAction(payout)
+
+  return (
+    <ActionMenu
+      data-testid={`payout-list-row-actions-${payout.id}`}
+      groups={[
+        {
+          actions: [
+            {
+              icon: <ArrowPath />,
+              label: t("payouts.actions.retry"),
+              onClick: handleRetry,
+              permission: "payouts:edit",
+              disabled: !canRetry,
+              disabledTooltip: t("payouts.retry.disabledTooltip"),
+            },
+          ],
+        },
+      ]}
+    />
+  )
+}
+
+const columnHelper = createColumnHelper<AdminPayout>()
+
+const useColumns = () => {
+  const base = usePayoutTableColumns()
+
+  return useMemo(
+    () => [
+      ...base,
+      columnHelper.display({
+        id: "actions",
+        cell: ({ row }) => <PayoutRowActions payout={row.original} />,
+      }),
+    ],
+    [base],
+  )
+}
 
 export const PayoutListTitle = () => {
   const { t } = useTranslation()
 
   return (
-    <Heading level="h2">{t("payouts.domain")}</Heading>
+    <Heading level="h2" data-testid="payout-list-heading">
+      {t("payouts.domain")}
+    </Heading>
   )
 }
 
@@ -60,10 +109,11 @@ export const PayoutListDataTable = () => {
     },
   )
 
-  const columns = usePayoutTableColumns()
+  const columns = useColumns()
+  const filters = usePayoutTableFilters()
 
   const { table } = useDataTable({
-    data: (payouts as PayoutDTO[]) ?? [],
+    data: payouts ?? [],
     columns,
     enablePagination: true,
     count: count ?? 0,
@@ -81,13 +131,17 @@ export const PayoutListDataTable = () => {
       pagination
       navigateTo={(row) => `/payouts/${row.original.id}`}
       count={count ?? 0}
+      filters={filters}
       search
       isLoading={isLoading}
       pageSize={PAGE_SIZE}
       orderBy={[
+        { key: "status", label: t("fields.status") },
+        { key: "amount", label: t("fields.amount") },
         { key: "created_at", label: t("fields.createdAt") },
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
+      defaultOrder="-created_at"
       queryObject={raw}
       noRecords={{
         message: t("payouts.list.empty"),

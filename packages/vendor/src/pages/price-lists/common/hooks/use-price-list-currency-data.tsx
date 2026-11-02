@@ -1,21 +1,12 @@
 import { isForbidden, usePermissions } from "@mercurjs/dashboard-shared"
 
 import { useRegions } from "../../../../hooks/api/regions"
-import { useCurrentSeller } from "../../../../hooks/api/sellers"
 import { usePricePreferences } from "../../../../hooks/api/price-preferences"
 
 export const usePriceListCurrencyData = () => {
-  const {
-    currency_code,
-    isPending: isSellerPending,
-    isError: isSellerError,
-    error: sellerError,
-  } = useCurrentSeller()
   const { can } = usePermissions()
   const canViewRegions = can("regions")
   const canViewPreferences = can("price_preferences")
-
-  const currencies = currency_code ? [currency_code] : undefined
 
   const {
     regions,
@@ -37,11 +28,14 @@ export const usePriceListCurrencyData = () => {
     error: preferencesError,
   } = usePricePreferences({}, { enabled: canViewPreferences })
 
+  const currencies = regions
+    ? Array.from(new Set(regions.map((r) => r.currency_code)))
+    : undefined
+
   const isReady =
     !!currencies &&
     !!regions &&
     !!pricePreferences &&
-    !isSellerPending &&
     !isRegionsPending &&
     !isPreferencesPending
 
@@ -53,10 +47,6 @@ export const usePriceListCurrencyData = () => {
 
   if (isRegionsError && !isForbidden(regionsError)) {
     throw regionsError
-  }
-
-  if (isSellerError) {
-    throw sellerError
   }
 
   if (isPreferencesError && !isForbidden(preferencesError)) {

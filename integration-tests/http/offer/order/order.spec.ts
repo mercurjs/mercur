@@ -339,6 +339,18 @@ medusaIntegrationTestRunner({
                 )
                 expect(completeResp.status).toEqual(200)
                 expect(completeResp.data.type).toEqual("order_group")
+                expect(completeResp.data.order_group.orders).toHaveLength(1)
+                expect(completeResp.data.order_group.orders[0]).toEqual(
+                    expect.objectContaining({
+                        id: expect.any(String),
+                        display_id: expect.any(Number),
+                        status: expect.any(String),
+                        seller: expect.objectContaining({
+                            id: expect.any(String),
+                            name: expect.any(String),
+                        }),
+                    })
+                )
 
                 const query = appContainer.resolve(
                     ContainerRegistrationKeys.QUERY

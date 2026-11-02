@@ -11,24 +11,9 @@ import {
   DisplayIdCell,
 } from "../../../components/table/table-cells/order/display-id-cell"
 import { getStylizedAmount } from "../../../lib/money-amount-helpers"
+import { payoutStatusColor } from "../../../pages/payouts/_components/payout-status"
 
 const columnHelper = createColumnHelper<PayoutDTO>()
-
-const payoutStatusColor = (status: string) => {
-  switch (status) {
-    case "paid":
-      return "green"
-    case "processing":
-      return "orange"
-    case "pending":
-      return "grey"
-    case "failed":
-    case "canceled":
-      return "red"
-    default:
-      return "grey"
-  }
-}
 
 export const usePayoutTableColumns = () => {
   const { t } = useTranslation()

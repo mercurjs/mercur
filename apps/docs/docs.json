@@ -54,6 +54,14 @@
             ]
           },
           {
+            "group": "Use cases",
+            "icon": "signs-post",
+            "pages": [
+              "learn/use-cases/standalone-marketplace",
+              "learn/use-cases/marketplace-inside-store"
+            ]
+          },
+          {
             "group": "Legal",
             "icon": "scale-balanced",
             "pages": [
@@ -417,7 +425,33 @@
             "icon": "plug",
             "pages": [
               "resources/integrations/overview",
-              "resources/integrations/stripe-connect"
+              {
+                "group": "Stripe Connect",
+                "pages": [
+                  "resources/integrations/stripe-connect/overview",
+                  "resources/integrations/stripe-connect/quickstart",
+                  "resources/integrations/stripe-connect/architecture",
+                  "resources/integrations/stripe-connect/configuration",
+                  "resources/integrations/stripe-connect/seller-onboarding",
+                  "resources/integrations/stripe-connect/payments-and-capture",
+                  "resources/integrations/stripe-connect/payouts-and-settlements",
+                  "resources/integrations/stripe-connect/operations",
+                  "resources/integrations/stripe-connect/reference"
+                ]
+              },
+              {
+                "group": "Magento 2",
+                "pages": [
+                  "resources/integrations/magento2/overview",
+                  "resources/integrations/magento2/quickstart",
+                  "resources/integrations/magento2/architecture",
+                  "resources/integrations/magento2/configuration",
+                  "resources/integrations/magento2/catalog-and-offers",
+                  "resources/integrations/magento2/storefront",
+                  "resources/integrations/magento2/orders-and-payments",
+                  "resources/integrations/magento2/reference"
+                ]
+              }
             ]
           },
           {
@@ -445,6 +479,7 @@
               "references/panel-extensions/overview",
               "references/panel-extensions/custom-fields",
               "references/panel-extensions/widgets",
+              "references/panel-extensions/layouts",
               "references/panel-extensions/create-page"
             ]
           },
@@ -844,6 +879,14 @@
   },
   "redirects": [
     {
+      "source": "/resources/integrations/stripe-connect",
+      "destination": "/resources/integrations/stripe-connect/overview"
+    },
+    {
+      "source": "/resources/integrations/magento2",
+      "destination": "/resources/integrations/magento2/overview"
+    },
+    {
       "source": "/welcome",
       "destination": "/learn/introduction"
     },
@@ -1109,15 +1152,15 @@
     },
     {
       "source": "/how-to-guides/stripe-connect-integration",
-      "destination": "/resources/integrations/stripe-connect"
+      "destination": "/resources/integrations/stripe-connect/overview"
     },
     {
       "source": "/rc/how-to-guides/stripe-connect-integration",
-      "destination": "/resources/integrations/stripe-connect"
+      "destination": "/resources/integrations/stripe-connect/overview"
     },
     {
       "source": "/v2/how-to-guides/stripe-connect-integration",
-      "destination": "/resources/integrations/stripe-connect"
+      "destination": "/resources/integrations/stripe-connect/overview"
     },
     {
       "source": "/how-to-guides/medusa-cloud",
@@ -1333,7 +1376,7 @@
     },
     {
       "source": "/integrations/stripe",
-      "destination": "/resources/integrations/stripe-connect"
+      "destination": "/resources/integrations/stripe-connect/overview"
     },
     {
       "source": "/integrations/:slug*",
@@ -1453,7 +1496,7 @@
     },
     {
       "source": "/resources/tutorials/seller-payouts-stripe",
-      "destination": "/resources/integrations/stripe-connect"
+      "destination": "/resources/integrations/stripe-connect/overview"
     },
     {
       "source": "/resources/tutorials/store-setup-checklist",
@@ -1470,6 +1513,10 @@
     {
       "source": "/resources/tutorials/replace-panel-components",
       "destination": "/resources/customization/extending-panels"
+    },
+    {
+      "source": "/learn/use-cases",
+      "destination": "/learn/use-cases/standalone-marketplace"
     }
   ],
   "footer": {

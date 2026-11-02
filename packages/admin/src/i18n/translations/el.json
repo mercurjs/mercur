@@ -3617,8 +3617,7 @@
       "paid": "Πληρώθηκε",
       "processing": "Σε επεξεργασία",
       "pending": "Σε εκκρεμότητα",
-      "failed": "Απέτυχε",
-      "canceled": "Ακυρώθηκε"
+      "failed": "Απέτυχε"
     }
   },
   "marketplace": {

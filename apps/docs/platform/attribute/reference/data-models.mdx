@@ -1,56 +1,71 @@
 ---
-title: "Data models"
+title: "Attribute data models"
 sidebarTitle: "Data models"
-description: "The data models owned by the Attribute (Product Attribute) domain."
+description: "Every field on ProductAttribute and ProductAttributeValue, with defaults, nullability, indexes, and relations."
 ---
 
-The Attribute domain is owned by the **Product Attribute module**. This reference
-lists its data models and their fields. For the full module overview, see the
-[Attribute module overview](/platform/attribute/overview).
+The Product Attribute module owns 2 data models: `ProductAttribute` and `ProductAttributeValue`. Both are defined in `packages/core/src/modules/product-attribute/models` and resolved through `MercurModules.PRODUCT_ATTRIBUTE` (`"product_attribute"`). Like every Medusa data model, each also gets `created_at`, `updated_at`, and `deleted_at` timestamps.
 
 ## ProductAttribute
 
-Table `product_attribute`, id prefix `pattr`. A typed catalog attribute.
+A typed attribute in the shared catalog, either global or scoped to one product. Id prefix `pattr`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
-| `id` | text | Primary key |
-| `name` | text | Searchable |
-| `handle` | text | Nullable; unique when set |
-| `description` | text | Nullable |
-| `type` | enum | `AttributeType`: `single_select`, `multi_select`, `text`, `unit`, `toggle` |
-| `is_required` | boolean | Default `false` |
-| `is_filterable` | boolean | Default `false`; exposes the attribute as a storefront filter |
-| `is_variant_axis` | boolean | Default `false`; `multi_select` axis that generates variants |
-| `rank` | number | Default `0`; ordering |
-| `is_active` | boolean | Default `true` |
-| `created_by` | text | Nullable |
-| `product_id` | text | Nullable; non-null = product-scoped (inline), null = global |
-| `product_option_id` | text | Nullable; FK to the mirror `ProductOption` (axis attributes) |
-| `metadata` | json | Nullable |
+| `id` | `string` | Primary key, prefixed `pattr` |
+| `handle` | `string \| null` | Unique among non-deleted attributes when set. Derived from `name` on create for global attributes |
+| `name` | `string` | Display name. Searchable. For an axis, also the title of its `ProductOption` |
+| `description` | `string \| null` | Free-form description |
+| `type` | `AttributeType` | One of `single_select`, `multi_select`, `unit`, `toggle`, `text`. Can’t change after create |
+| `is_required` | `boolean` | Default `false`. The remove workflows refuse to detach a required attribute |
+| `is_filterable` | `boolean` | Default `false`. Marks the attribute as a storefront facet |
+| `is_variant_axis` | `boolean` | Default `false`. With `multi_select`, backs the attribute with a `ProductOption` |
+| `rank` | `number` | Default `0`. Sort order |
+| `is_active` | `boolean` | Default `true` |
+| `created_by` | `string \| null` | Id of whoever created the attribute. The built-in routes leave it unset |
+| `product_id` | `string \| null` | `null` for a global attribute, the product’s id for an inline one |
+| `product_option_id` | `string \| null` | Id of the mirror `ProductOption` for an axis attribute |
+| `metadata` | `Record<string, unknown> \| null` | Custom key-value data |
 
-Relations: `values` (one-to-many `ProductAttributeValue`, deleted with the
-attribute).
+Relations and constraints:
+
+- **`values`**: has many `ProductAttributeValue`, deleted with the attribute
+- **`IDX_product_attribute_handle_unique`**: unique `handle` where `deleted_at IS NULL AND handle IS NOT NULL`
+- **`IDX_product_attribute_type`**: index on `type`
+- **`IDX_product_attribute_product_id`**: index on `product_id` where it’s not null
 
 ## ProductAttributeValue
 
-Table `product_attribute_value`, id prefix `pattrval`. A selectable value that
-belongs to one attribute.
+One selectable value of an attribute, or the stored value of a `text`, `unit`, or `toggle` attribute on a product. Id prefix `pattrval`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
-| `id` | text | Primary key |
-| `name` | text | The value label |
-| `handle` | text | Nullable; unique per attribute when set |
-| `rank` | number | Default `0`; ordering |
-| `is_active` | boolean | Default `true` |
-| `product_option_value_id` | text | Nullable; FK to the mirror `ProductOptionValue` (axis values) |
-| `metadata` | json | Nullable |
+| `id` | `string` | Primary key, prefixed `pattrval` |
+| `attribute_id` | `string` | Id of the parent `ProductAttribute` |
+| `handle` | `string \| null` | Unique per attribute when set. Derived from `name` on create for values of global select attributes |
+| `name` | `string` | The value label, or the stored content for `text` and `unit` |
+| `rank` | `number` | Default `0`. Sort order within the attribute |
+| `is_active` | `boolean` | Default `true` |
+| `product_option_value_id` | `string \| null` | Id of the mirror `ProductOptionValue` for an axis value |
+| `metadata` | `Record<string, unknown> \| null` | Custom key-value data |
 
-Relations: `attribute` (belongs to `ProductAttribute` via `attribute_id`).
+Relations and constraints:
+
+- **`attribute`**: belongs to `ProductAttribute` through `attribute_id`
+- **`IDX_product_attribute_value_handle_unique`**: unique `(attribute_id, handle)` where `deleted_at IS NULL AND handle IS NOT NULL`
+
+## AttributeType enum
+
+`AttributeType` is exported from `@mercurjs/types`:
+
+| Member | Value |
+| --- | --- |
+| `SINGLE_SELECT` | `"single_select"` |
+| `MULTI_SELECT` | `"multi_select"` |
+| `UNIT` | `"unit"` |
+| `TOGGLE` | `"toggle"` |
+| `TEXT` | `"text"` |
 
 <Note>
-  `product_option_id` on the attribute and `product_option_value_id` on the value
-  are the foreign keys behind the read-only mirror links to Medusa's product
-  options. See [Links](/platform/attribute/reference/links).
+  Neither model stores which products hold a value. That lives in the `product_attribute_value_link` pivot table, described in [Links](/platform/attribute/reference/links).
 </Note>

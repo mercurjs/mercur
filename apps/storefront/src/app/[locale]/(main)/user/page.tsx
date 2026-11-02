@@ -1,8 +1,18 @@
-import { UserNavigation } from "@/components/molecules"
+import { Suspense } from "react"
+import { RouteFallback } from "@/components/molecules/RouteFallback/RouteFallback"
+import { UserNavigation } from '@/components/molecules/UserNavigation/UserNavigation';
 import { retrieveCustomer } from "@/lib/data/customer"
 import { redirect } from "next/navigation"
 
-export default async function UserPage() {
+export default function UserPage() {
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <UserPageContent />
+    </Suspense>
+  )
+}
+
+async function UserPageContent() {
   const user = await retrieveCustomer()
 
   if (!user) {

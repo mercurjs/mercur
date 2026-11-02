@@ -11,6 +11,10 @@ type LinkSellerPriceListStepInput = {
 export const linkSellerPriceListStep = createStep(
   "link-seller-price-list",
   async (input: LinkSellerPriceListStepInput, { container }) => {
+    if (!input.price_list_ids.length) {
+      return new StepResponse(undefined, undefined)
+    }
+
     const remoteLink: Link = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
     const links = input.price_list_ids.map((priceListId) => ({

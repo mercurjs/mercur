@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 
-import { Button, Card, Input } from '@/components/atoms';
+import { Button } from '@/components/atoms/Button/Button';
+import { Card } from '@/components/atoms/Card/Card';
+import { Input } from '@/components/atoms/Input/Input';
 import { BinIcon, CollapseIcon, DiscountIcon } from '@/icons';
 import { applyPromotions, deletePromotionCode } from '@/lib/data/cart';
 import { toast } from '@/lib/helpers/toast';

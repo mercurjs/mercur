@@ -1,69 +1,55 @@
-import { type Control } from "react-hook-form"
-import { Input, Switch, Textarea } from "@medusajs/ui"
+import { type ReactNode } from "react"
+import { type Control, type FieldValues } from "react-hook-form"
+import { Input, Select, Switch, Textarea } from "@medusajs/ui"
 import type { CustomFormField } from "@mercurjs/dashboard-sdk"
 import { Form } from "../components/common/form"
 import { useExtension } from "./context"
-
-type FieldControlType = "boolean" | "number" | "string" | "textarea"
-
-// Zod wrappers that carry the base schema on `def.innerType` — unwrap them so an
-// `optional()`/`nullable()`/`default()` field maps to its underlying control.
-const ZOD_WRAPPER_TYPES = new Set([
-  "optional",
-  "nullable",
-  "default",
-  "prefault",
-  "nonoptional",
-  "readonly",
-  "catch",
-])
-
-type ZodDef = { type?: string; innerType?: { def?: ZodDef } }
-
-function zodType(field: CustomFormField): FieldControlType {
-  let def = (field.validation as unknown as { def?: ZodDef })?.def
-
-  while (def && ZOD_WRAPPER_TYPES.has(def.type ?? "")) {
-    def = def.innerType?.def
-  }
-
-  switch (def?.type) {
-    case "boolean":
-    case "number":
-    case "string":
-      return def.type
-    default:
-      return "textarea"
-  }
-}
+import { resolveFormFieldType } from "./custom-fields-form"
 
 type FieldProps = {
   name: string
+  path: string
   field: CustomFormField
-  control: Control<any>
+  control: Control<FieldValues>
   data?: unknown
 }
 
-const ExtensionField = ({ name, field, control }: FieldProps) => {
-  const type = zodType(field)
+const ExtensionField = ({ name, path, field, control, data }: FieldProps) => {
+  const type = resolveFormFieldType(field)
   const Component = field.component
 
   return (
     <Form.Field
       control={control}
-      name={`additional_data.${name}`}
+      name={path}
       render={({ field: rhf }) => (
         <Form.Item>
           <Form.Label>{field.label ?? name}</Form.Label>
           {field.description && <Form.Hint>{field.description}</Form.Hint>}
           <Form.Control>
             {Component ? (
-              <Component />
+              <Component field={rhf} data={data} />
             ) : type === "boolean" ? (
               <Switch
                 checked={!!rhf.value}
                 onCheckedChange={rhf.onChange}
               />
+            ) : type === "select" ? (
+              <Select
+                value={(rhf.value as string) ?? ""}
+                onValueChange={rhf.onChange}
+              >
+                <Select.Trigger ref={rhf.ref}>
+                  <Select.Value placeholder={field.placeholder} />
+                </Select.Trigger>
+                <Select.Content>
+                  {(field.options ?? []).map((option) => (
+                    <Select.Item key={option.value} value={option.value}>
+                      {option.label}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
             ) : type === "number" ? (
               <Input
                 type="number"
@@ -71,7 +57,7 @@ const ExtensionField = ({ name, field, control }: FieldProps) => {
                 {...rhf}
                 value={(rhf.value as string) ?? ""}
               />
-            ) : type === "string" ? (
+            ) : type === "text" ? (
               <Input
                 placeholder={field.placeholder}
                 {...rhf}
@@ -92,12 +78,32 @@ const ExtensionField = ({ name, field, control }: FieldProps) => {
   )
 }
 
-export type FormExtensionZoneProps = {
+// RHF's `Control` is invariant in its field values, so hosts' typed controls
+// are taken generically and widened once here.
+type AnyControl<TFieldValues extends FieldValues, TContext, TTransformed> =
+  Control<TFieldValues, TContext, TTransformed>
+
+const widen = <TFieldValues extends FieldValues, TContext, TTransformed>(
+  control: AnyControl<TFieldValues, TContext, TTransformed>
+) => control as unknown as Control<FieldValues>
+
+export type FormExtensionZoneProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TContext = unknown,
+  TTransformed = TFieldValues,
+> = {
   model: string
   zone: string
   tab?: string
-  control: Control<any>
+  control: AnyControl<TFieldValues, TContext, TTransformed>
   data?: unknown
+  /** The form's own field ids; config entries for them are overrides. */
+  builtInFieldIds?: string[]
+  /**
+   * Render only fields aimed at `tab`. A tabbed form sets it on every tab but
+   * the first, so untabbed fields render once.
+   */
+  exactTab?: boolean
 }
 
 /**
@@ -105,14 +111,26 @@ export type FormExtensionZoneProps = {
  * `additional_data.<field>` RHF namespace (Medusa's convention), through the
  * mandated `Form.Field → Form.Item` primitive chain.
  */
-export const FormExtensionZone = ({
+export const FormExtensionZone = <
+  TFieldValues extends FieldValues,
+  TContext,
+  TTransformed,
+>({
   model,
   zone,
   tab,
   control,
   data,
-}: FormExtensionZoneProps) => {
-  const fields = useExtension().getFormFields(model, zone, tab)
+  builtInFieldIds,
+  exactTab,
+}: FormExtensionZoneProps<TFieldValues, TContext, TTransformed>) => {
+  const fields = useExtension().getFormFields(
+    model,
+    zone,
+    tab,
+    builtInFieldIds,
+    exactTab
+  )
   if (fields.length === 0) return null
 
   return (
@@ -121,11 +139,66 @@ export const FormExtensionZone = ({
         <ExtensionField
           key={name}
           name={name}
+          path={`additional_data.${name}`}
           field={field}
-          control={control}
+          control={widen(control)}
           data={data}
         />
       ))}
     </div>
+  )
+}
+
+export type ExtendableFormFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TContext = unknown,
+  TTransformed = TFieldValues,
+> = {
+  model: string
+  zone: string
+  tab?: string
+  /** The built-in field's form key, which is also its override id. */
+  id: string
+  control: AnyControl<TFieldValues, TContext, TTransformed>
+  data?: unknown
+  children: ReactNode
+}
+
+/**
+ * Wraps one of a form's own fields so `forms[].fields[id]` can replace it (the
+ * replacement binds to the same form key; validation stays the base schema's)
+ * or remove it (`null`, the field keeps its default value).
+ */
+export const ExtendableFormField = <
+  TFieldValues extends FieldValues,
+  TContext,
+  TTransformed,
+>({
+  model,
+  zone,
+  tab,
+  id,
+  control,
+  data,
+  children,
+}: ExtendableFormFieldProps<TFieldValues, TContext, TTransformed>) => {
+  const { overridden, field } = useExtension().getFormFieldOverride(
+    model,
+    zone,
+    id,
+    tab
+  )
+
+  if (!overridden) return <>{children}</>
+  if (!field) return null
+
+  return (
+    <ExtensionField
+      name={id}
+      path={id}
+      field={field}
+      control={widen(control)}
+      data={data}
+    />
   )
 }

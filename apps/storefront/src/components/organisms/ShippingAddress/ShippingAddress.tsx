@@ -2,7 +2,7 @@ import { HttpTypes } from "@medusajs/types"
 import { Container } from "@medusajs/ui"
 import { mapKeys } from "lodash"
 import React, { useEffect, useMemo, useState } from "react"
-import { Input } from "@/components/atoms"
+import { Input } from '@/components/atoms/Input/Input';
 import AddressSelect from "@/components/cells/AddressSelect/AddressSelect"
 import CountrySelect from "@/components/cells/CountrySelect/CountrySelect"
 import { usePathname } from "next/navigation"

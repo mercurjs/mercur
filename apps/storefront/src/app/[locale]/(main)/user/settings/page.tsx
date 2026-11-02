@@ -1,9 +1,20 @@
-import { LoginForm, ProfileDetails } from "@/components/molecules"
-import { UserNavigation } from "@/components/molecules"
+import { Suspense } from "react"
+import { RouteFallback } from "@/components/molecules/RouteFallback/RouteFallback"
+import { LoginForm } from '@/components/molecules/LoginForm/LoginForm';
+import { ProfileDetails } from '@/components/molecules/ProfileDetails/ProfileDetails';
+import { UserNavigation } from '@/components/molecules/UserNavigation/UserNavigation';
 import { ProfilePassword } from "@/components/molecules/ProfileDetails/ProfilePassword"
 import { retrieveCustomer } from "@/lib/data/customer"
 
-export default async function ReviewsPage() {
+export default function ReviewsPage() {
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <ReviewsPageContent />
+    </Suspense>
+  )
+}
+
+async function ReviewsPageContent() {
   const user = await retrieveCustomer()
 
   if (!user) return <LoginForm />

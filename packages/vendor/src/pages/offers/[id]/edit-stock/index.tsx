@@ -1,14 +1,21 @@
 import { HttpTypes } from "@medusajs/types"
 import { OfferDTO } from "@mercurjs/types"
 import { Button, toast } from "@medusajs/ui"
-import { useMemo, useRef } from "react"
+import { ColumnDef } from "@tanstack/react-table"
+import { useCallback, useMemo, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
-import { isForbidden, SectionNoAccess, useCan } from "@mercurjs/dashboard-shared"
+import {
+  isForbidden,
+  SectionNoAccess,
+  useCan,
+  useExtendableGrid,
+} from "@mercurjs/dashboard-shared"
 
 import { Thumbnail } from "../../../../components/common/thumbnail"
 import {
+  createDataGridExtensionColumn,
   createDataGridHelper,
   createDataGridLocationStockColumns,
   DataGrid,
@@ -21,6 +28,8 @@ import { offerQueryKeys } from "../../../../hooks/api/offers"
 import { useStockLocations } from "../../../../hooks/api/stock-locations"
 import { queryClient } from "../../../../lib/query-client"
 import { OFFER_PRODUCT_DETAIL_FIELDS } from "../../common/constants"
+
+const LOCKED_COLUMN_IDS = ["title"]
 
 type LocationLevel = { checked: boolean; quantity: number | ""; id?: string }
 
@@ -165,7 +174,20 @@ const EditStockGrid = ({
   const initial = useRef(rows)
 
   const form = useForm<FormValues>({ defaultValues: { rows } })
-  const columns = useColumns({ stockLocations: locations })
+  const baseColumns = useColumns({ stockLocations: locations })
+  const createColumn = useCallback(
+    createDataGridExtensionColumn<EditStockRow, FormValues>,
+    [],
+  )
+  const columns = useExtendableGrid<EditStockRow>({
+    model: "offer",
+    zone: "edit-stock",
+    columns: baseColumns as ColumnDef<EditStockRow, unknown>[],
+    lockedColumnIds: LOCKED_COLUMN_IDS,
+    // Rows save to an endpoint without `additional_data`: overrides only.
+    allowAdd: false,
+    createColumn,
+  })
 
   const handleSubmit = form.handleSubmit(async (values) => {
     const payload: HttpTypes.AdminBatchInventoryItemsLocationLevels = {

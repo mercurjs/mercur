@@ -3866,8 +3866,7 @@
       "pending": "Na čekanju",
       "processing": "U obradi",
       "paid": "Isplaćeno",
-      "failed": "Neuspješno",
-      "canceled": "Otkazano"
+      "failed": "Neuspješno"
     }
   },
   "translations": {

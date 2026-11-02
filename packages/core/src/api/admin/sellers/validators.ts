@@ -24,8 +24,10 @@ export const AdminGetSellersParams = createFindParams({
     email: z.string().optional(),
     status: z.union([z.string(), z.array(z.string())]).optional(),
     is_premium: booleanString().optional(),
+    region_id: z.union([z.string(), z.array(z.string())]).optional(),
     created_at: createOperatorMap().optional(),
     updated_at: createOperatorMap().optional(),
+    deleted_at: createOperatorMap().optional(),
   })
 )
 
@@ -64,7 +66,7 @@ export const CreateSeller = z.object({
   status: z.string().optional(),
   status_reason: z.string().nullable().optional(),
   is_premium: z.boolean().optional(),
-  default_leadtime_to_ship: z.number().int().min(0).optional(),
+  default_leadtime_to_ship: z.number().int().min(0).nullable().optional(),
   closed_from: z.coerce.date().nullable().optional(),
   closed_to: z.coerce.date().nullable().optional(),
   closure_note: z.string().nullable().optional(),
@@ -72,6 +74,7 @@ export const CreateSeller = z.object({
   member: z.object({
     email: z.string().email(),
   }),
+  region_ids: z.array(z.string()).optional(),
 })
 export const AdminCreateSeller = WithAdditionalData(CreateSeller)
 
@@ -89,7 +92,7 @@ export const UpdateSeller = z.object({
   status: z.string().optional(),
   status_reason: z.string().nullable().optional(),
   is_premium: z.boolean().optional(),
-  default_leadtime_to_ship: z.number().int().min(0).optional(),
+  default_leadtime_to_ship: z.number().int().min(0).nullable().optional(),
   closed_from: z.coerce.date().nullable().optional(),
   closed_to: z.coerce.date().nullable().optional(),
   closure_note: z.string().nullable().optional(),

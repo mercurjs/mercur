@@ -30,10 +30,18 @@ function mergeRoutes(
 
     if (existingIndex !== -1) {
       const { children: customChildren, ...customRest } = customRoute;
+      const baseHandle = result[existingIndex].handle as object | undefined;
+      const customHandle = customRest.handle as object | undefined;
       result[existingIndex] = {
         ...result[existingIndex],
         ...customRest,
         path: result[existingIndex].path,
+        // Merge rather than replace, so a custom route declaring only
+        // `permissions` doesn't drop the base route's `breadcrumb`.
+        handle:
+          baseHandle || customHandle
+            ? { ...baseHandle, ...customHandle }
+            : undefined,
         children: customChildren
           ? mergeRoutes(result[existingIndex].children ?? [], customChildren)
           : result[existingIndex].children,

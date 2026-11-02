@@ -1,6 +1,8 @@
-import { UserNavigation } from "@/components/molecules"
+import { Suspense } from "react"
+import { RouteFallback } from "@/components/molecules/RouteFallback/RouteFallback"
+import { UserNavigation } from '@/components/molecules/UserNavigation/UserNavigation';
 import { retrieveCustomer } from "@/lib/data/customer"
-import { Button } from "@/components/atoms"
+import { Button } from '@/components/atoms/Button/Button';
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { ArrowLeftIcon } from "@/icons"
 import { redirect } from "next/navigation"
@@ -8,7 +10,17 @@ import { format } from "date-fns"
 import { retrieveOrderGroup } from "@/lib/data/orders"
 import { OrderDetailsSection } from "@/components/sections/OrderDetailsSection/OrderDetailsSection"
 
-export default async function UserPage({
+export default function UserPage(props: {
+  params: Promise<{ id: string }>
+}) {
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <UserPageContent {...props} />
+    </Suspense>
+  )
+}
+
+async function UserPageContent({
   params,
 }: {
   params: Promise<{ id: string }>

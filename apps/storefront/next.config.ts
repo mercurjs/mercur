@@ -1,6 +1,8 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  cacheComponents: true,
+  partialPrefetching: true,
   output: "standalone",
   trailingSlash: false,
   reactStrictMode: true,
@@ -10,6 +12,8 @@ const nextConfig: NextConfig = {
     }
   },
   images: {
+    // The local Medusa backend serves uploads from localhost, which Next 16 blocks by default.
+    dangerouslyAllowLocalIP: process.env.NODE_ENV !== 'production',
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",

@@ -13,6 +13,7 @@ import {
     isVariableDeclaration,
     isVariableDeclarator,
     isArrayExpression,
+    isUnaryExpression,
 } from "@babel/types"
 
 let traverse: typeof _traverse
@@ -37,4 +38,5 @@ export {
     isVariableDeclaration,
     isVariableDeclarator,
     isArrayExpression,
+    isUnaryExpression,
 }

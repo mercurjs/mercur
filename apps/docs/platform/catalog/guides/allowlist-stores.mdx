@@ -1,59 +1,122 @@
 ---
-title: "Allowlist stores"
+title: "Restrict a product to chosen stores"
 sidebarTitle: "Allowlist stores"
-description: "Grant and revoke a store's right to sell a master product from server code."
+description: "Add stores to a product's allowlist, remove them, and open a product to every store again from server code."
 ---
 
-In this guide, you'll learn how to control which stores may sell a shared master
-product by managing the `product_seller` allowlist from your own server code.
+Run `linkSellersToProductWorkflow` to change which stores can see and sell a master product. Use it for exclusive ranges, authorized resellers, or to restrict a store's own submission after review.
 
-A store can only create an [offer](/platform/offer/overview) against a master
-product if it's on that product's allowlist. Mercur exposes
-`linkSellersToProductWorkflow` to add and remove stores in a single call.
+## Before you begin
 
-## Add and remove stores
+Know how the list behaves before you change it:
 
-```ts title="src/api/custom/allowlist/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { linkSellersToProductWorkflow } from "@mercurjs/core/workflows"
+- **Empty list**: every store can sell the product
+- **One or more stores**: only those stores can sell it
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  await linkSellersToProductWorkflow(req.scope).run({
-    input: {
-      id: req.params.id, // product id
-      add: ["sel_123", "sel_456"],
-      remove: ["sel_789"],
-    },
-  })
+Read [the store allowlist](/platform/catalog/concepts/product-seller-allowlist) for where Mercur enforces it.
 
-  res.sendStatus(200)
+## Change a product's allowlist
+
+<Steps>
+  <Step title="Add a route that runs the workflow">
+    The workflow takes the product `id` and optional `add` and `remove` arrays of seller ids. It writes and deletes `product_seller` rows in one run.
+
+    ```ts title="src/api/admin/exclusive-products/[id]/route.ts"
+    import type {
+      MedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import { linkSellersToProductWorkflow } from "@mercurjs/core/workflows"
+
+    type Body = { add?: string[]; remove?: string[] }
+
+    export async function POST(
+      req: MedusaRequest<Body>,
+      res: MedusaResponse
+    ) {
+      await linkSellersToProductWorkflow(req.scope).run({
+        input: { id: req.params.id, ...req.body },
+      })
+
+      res.json({ id: req.params.id })
+    }
+    ```
+
+    If a step fails, the workflow undoes the rows it already changed.
+  </Step>
+  <Step title="Check the result">
+    Read the product's `sellers` to confirm the new list.
+
+    ```ts
+    const { data: [product] } = await query.graph({
+      entity: "product",
+      fields: ["id", "sellers.id"],
+      filters: { id: "prod_01JD8Q1234567" },
+    })
+    ```
+
+    `product.sellers` holds every store on the list. An empty array means the product is open to all stores.
+  </Step>
+</Steps>
+
+## Open a product to every store again
+
+Remove every store on the list. Read the current stores first, then pass all of them in `remove`.
+
+```ts
+const { data: [product] } = await query.graph({
+  entity: "product",
+  fields: ["sellers.id"],
+  filters: { id: "prod_01JD8Q1234567" },
+})
+
+await linkSellersToProductWorkflow(container).run({
+  input: {
+    id: "prod_01JD8Q1234567",
+    remove: (product.sellers ?? []).map((seller) => seller.id),
+  },
+})
+```
+
+The product now has no `product_seller` rows, so every store can see and sell it once it's published.
+
+## Check the allowlist before creating offers
+
+`createOffersWorkflow` doesn't read the allowlist. If your code creates offers for stores, read the product's `sellers` as shown above and check that the store may sell it first.
+
+```ts
+import { MedusaError } from "@medusajs/framework/utils"
+
+const sellerIds = (product.sellers ?? []).map((seller) => seller.id)
+const allowed =
+  sellerIds.length === 0 || sellerIds.includes("sel_01JD8Q1234567")
+
+if (!allowed) {
+  throw new MedusaError(
+    MedusaError.Types.NOT_ALLOWED,
+    "This store can't sell the product"
+  )
 }
 ```
 
-<Note>
-  `add` and `remove` are both optional. Pass either or both. Adding a store
-  that's already allowlisted is idempotent. Removing a store revokes its right
-  to sell the product going forward.
-</Note>
+`allowed` is true when the list is empty or names the store. Removing a store from the list later doesn't delete the offers it already has.
 
-## Allowlist a category
+## Link stores to a category
 
-Categories use the same shape through `linkSellersToProductCategoryWorkflow`,
-scoping which stores a category is associated with:
+`linkSellersToProductCategoryWorkflow` writes the `category_seller` link with the same input shape.
 
 ```ts
 import { linkSellersToProductCategoryWorkflow } from "@mercurjs/core/workflows"
 
 await linkSellersToProductCategoryWorkflow(container).run({
-  input: {
-    id: "pcat_123",
-    add: ["sel_123"],
-  },
+  input: { id: "pcat_01JD8Q1234567", add: ["sel_01JD8Q1234567"] },
 })
 ```
 
-<Tip>
-  Allowlisting grants the **right to sell**, not the listing itself. After a
-  store is allowlisted, it still has to create an offer for the product to
-  appear on its storefront.
-</Tip>
+Mercur doesn't filter products by this link. Run `validateSellerProductPermissionsStep` in your own workflow if you want linked stores blocked from a category.
+
+## Next steps
+
+- [Create a master product](/platform/catalog/guides/create-a-master-product) with `seller_ids` set from the start
+- [Create an offer](/platform/offer/guides/create-an-offer) for an allowed store
+- [Links reference](/platform/catalog/reference/links) for the `product_seller` and `category_seller` definitions

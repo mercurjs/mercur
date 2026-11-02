@@ -1,6 +1,8 @@
 "use client"
-import { Button, Divider } from "@/components/atoms"
-import { Modal, ReportSellerForm } from "@/components/molecules"
+import { Button } from '@/components/atoms/Button/Button';
+import { Divider } from '@/components/atoms/Divider/Divider';
+import { Modal } from '@/components/molecules/Modal/Modal';
+import { ReportSellerForm } from '@/components/molecules/ReportSellerForm/ReportSellerForm';
 import { DoneIcon } from "@/icons"
 import { SingleProductSeller } from "@/types/product"
 import { SellerDTO } from "@mercurjs/types"

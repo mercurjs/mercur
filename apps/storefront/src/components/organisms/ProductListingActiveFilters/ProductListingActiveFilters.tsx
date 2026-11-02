@@ -1,6 +1,6 @@
 "use client"
 
-import { ActiveFilterElement } from "@/components/cells"
+import { ActiveFilterElement } from '@/components/cells/ActiveFilterElement/ActiveFilterElement';
 import useGetAllSearchParams from "@/hooks/useGetAllSearchParams"
 
 export const ProductListingActiveFilters = () => {

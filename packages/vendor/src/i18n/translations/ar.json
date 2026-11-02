@@ -3868,8 +3868,7 @@
       "pending": "قيد الانتظار",
       "processing": "قيد المعالجة",
       "paid": "مدفوع",
-      "failed": "فشل",
-      "canceled": "ملغى"
+      "failed": "فشل"
     }
   },
   "translations": {

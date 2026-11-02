@@ -1,10 +1,20 @@
-import { UserNavigation } from "@/components/molecules"
+import { Suspense } from "react"
+import { RouteFallback } from "@/components/molecules/RouteFallback/RouteFallback"
+import { UserNavigation } from '@/components/molecules/UserNavigation/UserNavigation';
 import { retrieveCustomer } from "@/lib/data/customer"
 import { redirect } from "next/navigation"
-import { Addresses } from "@/components/organisms"
+import { Addresses } from '@/components/organisms/Addressess/Addresses';
 import { listRegions } from "@/lib/data/regions"
 
-export default async function Page() {
+export default function Page() {
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <PageContent />
+    </Suspense>
+  )
+}
+
+async function PageContent() {
   const user = await retrieveCustomer()
   const regions = await listRegions()
 

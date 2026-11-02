@@ -18,10 +18,18 @@ Mercur focuses on the marketplace domain on top.
 
 ## Requirements
 
-- [Node.js v20+](https://nodejs.org/en/download) (LTS)
+- [Node.js v24.22.1+](https://nodejs.org/en/download) (LTS, recommended) or v22.23.4+
 - [Bun v1.3+](https://bun.sh) (recommended package manager)
 - [Git](https://git-scm.com/downloads)
 - PostgreSQL v14+
+
+<Warning>
+  The [October 2026 Node.js security releases](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases)
+  fix several high-severity vulnerabilities, including a remote code execution
+  bug in the Brotli decoder and TLS certificate hostname bypasses. We recommend
+  running Mercur on **Node.js v24.22.1** or later. If you stay on Node.js 22,
+  use v22.23.4 or later.
+</Warning>
 
 <Tip>
   The quickest way to run PostgreSQL locally is with Docker:

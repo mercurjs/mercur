@@ -15,7 +15,7 @@ Creates an onboarding session with the payout provider. For Stripe Connect, the 
 ## Body parameters
 
 <ParamField body="data" type="object">
-  Provider-specific data forwarded when creating the onboarding (e.g. `refresh_url` and `return_url` for Stripe Connect). Merged over the payout account's stored `data`.
+  Provider-specific data forwarded when creating the onboarding, merged over the payout account's stored `data`. `refresh_url` and `return_url` are ignored: the links always use the module's `onboarding` options.
 </ParamField>
 
 <ParamField body="context" type="object">
@@ -40,16 +40,12 @@ curl -X POST 'http://localhost:9000/vendor/payout-accounts/pacc_01HXYZ/onboardin
   -H 'Authorization: Bearer <token>' \
   -H 'x-seller-id: <seller_id>' \
   -H 'Content-Type: application/json' \
-  -d '{"data": {"refresh_url": "https://vendor.example.com/payouts", "return_url": "https://vendor.example.com/payouts"}}'
+  -d '{}'
 ```
 
 ```ts JS Client
 const { onboarding } = await client.vendor.payoutAccounts.$id.onboarding.mutate({
   $id: "pacc_01HXYZ",
-  data: {
-    refresh_url: "https://vendor.example.com/payouts",
-    return_url: "https://vendor.example.com/payouts",
-  },
 })
 ```
 </RequestExample>

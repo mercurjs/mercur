@@ -1,6 +1,11 @@
 import { ExclamationCircle, PlusMini } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
-import { DisplayExtensionZone, usePermissionGate } from "@mercurjs/dashboard-shared";
+import {
+  DisplayExtensionZone,
+  mergeListFilters,
+  useExtendableTable,
+  usePermissionGate,
+} from "@mercurjs/dashboard-shared";
 import { ProductDTO } from "@mercurjs/types";
 import {
   Checkbox,
@@ -12,7 +17,11 @@ import {
   usePrompt,
 } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
-import { createColumnHelper, RowSelectionState } from "@tanstack/react-table";
+import {
+  createColumnHelper,
+  RowSelectionState,
+  type ColumnDef,
+} from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -51,8 +60,12 @@ export const CategoryProductSection = ({
     },
   );
 
-  const columns = useColumns();
-  const filters = useProductTableFilters(["categories"]);
+  const { columns, filters: extFilters } = useColumns();
+  const baseFilters = useProductTableFilters(["categories"]);
+  const filters = useMemo(
+    () => mergeListFilters(baseFilters, extFilters),
+    [baseFilters, extFilters],
+  );
 
   const { table } = useDataTable({
     data: products || [],
@@ -180,9 +193,13 @@ export const CategoryProductSection = ({
 const columnHelper = createColumnHelper<ProductDTO>();
 
 const useColumns = () => {
-  const base = useProductTableColumns();
+  const { columns: base, filters } = useExtendableTable<ProductDTO>({
+    model: "category",
+    zone: "products",
+    columns: useProductTableColumns() as unknown as ColumnDef<ProductDTO, unknown>[],
+  });
 
-  return useMemo(
+  const columns = useMemo(
     () => [
       columnHelper.display({
         id: "select",
@@ -212,4 +229,6 @@ const useColumns = () => {
     ],
     [base],
   );
+
+  return { columns, filters };
 };

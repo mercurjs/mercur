@@ -35,6 +35,26 @@ A handful of vendor routes are public by design: seller registration (`POST /ven
 
 Store routes are public. Customer authentication (session or bearer) is **required** for `/store/order-groups` and **optional** for `/store/offers` and `/store/products`, where it enriches the pricing context when present. Public seller routes only return sellers whose status is `open` and who are not inside a scheduled closure window.
 
+### With the client
+
+`@mercurjs/client` carries the credential for you. Pass `auth` once and every request resolves it fresh, so a token stored after login is picked up by the next call:
+
+```typescript
+import { createClient, adminAuth, vendorAuth, apiKeyAuth, publishableKeyAuth } from "@mercurjs/client"
+
+// inside the admin or vendor panel, or a plugin's dashboard code
+const admin = createClient({ baseUrl, auth: adminAuth() })
+const vendor = createClient({ baseUrl, auth: vendorAuth() })
+
+// a server-side integration with a secret API key
+const integration = createClient({ baseUrl, auth: apiKeyAuth(() => process.env.MERCUR_API_KEY) })
+
+// a storefront
+const store = createClient({ baseUrl, auth: publishableKeyAuth(() => publishableKey) })
+```
+
+`adminAuth()` and `vendorAuth()` read the same token stores the panels write on login (`adminTokenStore`, `vendorTokenStore`, `vendorSellerStore`), so dashboard extensions share the user's session without knowing a storage key. `createTokenStore(key)` builds your own store, falling back to memory where `localStorage` is unavailable. A `401` clears the bearer store unless you pass `onUnauthorized`.
+
 ## Pagination
 
 List endpoints use offset pagination with two query parameters:

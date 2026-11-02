@@ -1,41 +1,57 @@
 ---
-title: "Event reference"
+title: "Catalog events"
 sidebarTitle: "Events"
-description: "Events emitted by the Catalog domain, for subscribers and side effects."
+description: "The events Mercur's product workflows emit, their payloads, and how to subscribe to them."
 ---
 
-The Catalog domain emits events as products are created and reviewed. Subscribe
-to them to run side effects instead of polling, such as sending notifications,
-syncing external systems, or reindexing search.
-
-```ts title="src/subscribers/product-published.ts"
-import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
-
-export default async function productPublishedHandler({
-  event,
-  container,
-}: SubscriberArgs<{ id: string }>) {
-  const productId = event.data.id
-  // ...reindex search, notify the seller, etc.
-}
-
-export const config: SubscriberConfig = {
-  event: "product.published",
-}
-```
+Mercur's product workflows emit 4 events as products are created and reviewed. The names are exported as `ProductWorkflowEvents` from `@mercurjs/core/workflows`. Subscribe to them to notify stores, sync external systems, or reindex search.
 
 ## Product events
 
-| Event | Emitted when | Payload |
-| --- | --- | --- |
-| `product.created` | A master product is created | `{ id }` |
-| `product.published` | A proposed product is approved (`→ published`) | `{ id, internal_note? }` |
-| `product.rejected` | A proposed product is rejected | `{ id, message? }` |
-| `product.change-requested` | A revision is requested on a proposed product | `{ id, message?, actor_id? }` |
+Each event is emitted once per product. Payloads come from the `emitEventStep` calls in `packages/core/src/workflows/product/workflows`.
 
-<Note>
-  These are the marketplace lifecycle events emitted by Mercur's product
-  workflows. Medusa's Product module also emits its own native events (e.g.
-  `product.updated`, `product-variant.created`) for lower-level changes. See the
-  [Medusa events reference](https://docs.medusajs.com/resources/events-reference).
-</Note>
+| Event | Constant | Emitted when | Payload |
+| --- | --- | --- | --- |
+| `product.created` | `CREATED` | `createProductsWorkflow` creates a product | `{ id }` |
+| `product.published` | `PUBLISHED` | `confirmProductsWorkflow` publishes a product | `{ id, internal_note? }` |
+| `product.rejected` | `REJECTED` | `rejectProductWorkflow` rejects a product | `{ id, message? }` |
+| `product.change-requested` | `CHANGE_REQUESTED` | `requestProductChangeWorkflow` asks for a revision | `{ id, message?, actor_id? }` |
+
+<Warning>
+  Mercur's `createProductsWorkflow` runs Medusa's `createProductsWorkflow` as a step, which also emits `product.created` with `{ id }`. Expect 2 `product.created` events per product and make handlers idempotent.
+</Warning>
+
+## Subscribe to an event
+
+Write a subscriber that listens for one of the events. This one logs the rejection reason for each rejected product.
+
+```ts title="src/subscribers/product-rejected.ts"
+import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import { ProductWorkflowEvents } from "@mercurjs/core/workflows"
+
+export default async function productRejected({
+  event,
+  container,
+}: SubscriberArgs<{ id: string; message?: string }>) {
+  const logger = container.resolve("logger")
+  const reason = event.data.message ?? "no reason given"
+
+  logger.info(`Product ${event.data.id} rejected: ${reason}`)
+}
+
+export const config: SubscriberConfig = {
+  event: ProductWorkflowEvents.REJECTED,
+}
+```
+
+Medusa calls the handler once per rejected product with the payload above.
+
+## Events from Medusa
+
+Medusa's own product workflows emit their events alongside Mercur's. These matter for the catalog:
+
+- **`product.updated`**: from Medusa's `updateProductsWorkflow`, which `assignProductsToCategoryWorkflow` and the admin product update both run
+- **`product.deleted`**: from Medusa's `deleteProductsWorkflow`
+- **`product-variant.created`**: from `createProductVariantsWorkflow`, which Mercur's create workflow runs for `variants`
+
+See the [Medusa events reference](https://docs.medusajs.com/resources/references/events) for the full list. Edits that stores submit through the product edit pipeline emit `product-change.*` events, listed in the [product edit events](/platform/product-edit/reference/events).

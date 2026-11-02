@@ -2,7 +2,7 @@
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { cn } from "@/lib/utils"
-import { useParams } from "next/navigation"
+import { ActiveCategory } from "@/components/molecules/ActiveCategory/ActiveCategory"
 import { CollapseIcon } from "@/icons"
 import { useMemo, useState } from "react"
 import {
@@ -18,12 +18,12 @@ interface MobileCategoryNavbarProps {
   onClose?: (state: boolean) => void
 }
 
-export const MobileCategoryNavbar = ({
+const MobileCategoryNavbarView = ({
+  category,
   categories,
   parentCategories = [],
   onClose,
-}: MobileCategoryNavbarProps) => {
-  const { category } = useParams<{ category?: string }>()
+}: MobileCategoryNavbarProps & { category?: string }) => {
   const [selectedCategory, setSelectedCategory] = useState<HttpTypes.StoreProductCategory | null>(null)
 
   const activeParentHandle = useMemo(
@@ -120,3 +120,9 @@ export const MobileCategoryNavbar = ({
     </>
   )
 }
+
+export const MobileCategoryNavbar = (props: MobileCategoryNavbarProps) => (
+  <ActiveCategory fallback={<MobileCategoryNavbarView {...props} />}>
+    {(category) => <MobileCategoryNavbarView {...props} category={category} />}
+  </ActiveCategory>
+)

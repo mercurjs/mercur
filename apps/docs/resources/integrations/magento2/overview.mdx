@@ -1,0 +1,104 @@
+---
+title: "Magento 2"
+sidebarTitle: "Overview"
+description: "Sell Mercur marketplace offers from a Magento 2 or Adobe Commerce store, next to your own products, with one checkout and one payment."
+---
+
+The Magento 2 connector turns a store you already run into a marketplace. Shoppers keep using your Magento storefront, cart and checkout. Sellers list offers in Mercur, and those offers appear on your product pages next to your own stock. One checkout can mix your products and products from several sellers, and the shopper pays once.
+
+After checkout, Magento keeps the order and the payment. Mercur splits the seller lines into one order per seller, computes commission and tracks what each seller owes and is owed.
+
+<Frame>
+  <iframe
+    className="w-full aspect-video rounded-xl"
+    src="https://www.youtube.com/embed/aDb_Qx37z70"
+    title="Magento 2 Connector for Mercur"
+    frameBorder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowFullScreen
+  ></iframe>
+</Frame>
+
+## Who owns what
+
+| | Magento | Mercur |
+| --- | --- | --- |
+| Storefront, cart, checkout | ✓ | |
+| Payment, invoices, credit memos | ✓ | |
+| Your own products, prices, stock, carriers | ✓ | |
+| Sellers and their onboarding | | ✓ |
+| Offers: seller SKU, price, stock, shipping | | ✓ |
+| One order per seller, fulfillment, returns | | ✓ |
+| Commission and payouts | | ✓ |
+
+Magento never sees a seller's stock levels as its own, and Mercur never charges the shopper. Each side reads what it needs from the other through the API and webhooks.
+
+## What you get
+
+- **A buy box on every product page**: your own stock and every active seller offer, with per-website prices, price list strike-through, quantity tiers and an estimated delivery date
+- **Seller-only products**: published seller products are imported as simple or configurable products, with images, and stay buyable while any offer is in stock
+- **Your catalog in Mercur**: your own products can be pushed to Mercur so sellers can list offers against them, matched by SKU or by EAN, UPC or GTIN
+- **One checkout**: lines grouped by seller, a shipping choice per seller and "Sold by" on every line, and a "Seller shipping" total on the cart, order, invoice and emails
+- **One payment, split after capture**: the order is created in Mercur with the payment authorized, and the capture is confirmed when Magento invoices
+- **Seller fulfillment**: every shipment a seller creates becomes a Magento shipment with tracking, including partial and multi-parcel deliveries
+- **Refunds in both directions**: a Magento credit memo is reported to Mercur, and a refund started in Mercur becomes a Magento credit memo
+- **Seller pages** at `/seller/{handle}`, and GraphQL and REST support for headless storefronts
+
+## Two packages
+
+The integration ships as two packages, one on each side:
+
+| Package | Installed in | Adds |
+| --- | --- | --- |
+| [`@mercurjs/magento2-connector-plugin`](https://www.npmjs.com/package/@mercurjs/magento2-connector-plugin) | Your Mercur API | Signed outbound webhooks, the `pp_external_external` payment provider, capture, cancel and refund routes, and the **Settings → Magento** page |
+| [`mercurjs/magento2-connector`](https://github.com/mercurjs/magento2-connector) | Your Magento root | Nine `Mercur_*` modules that mirror sellers and offers, run checkout against Mercur and keep orders in step |
+
+## Compatibility
+
+| Platform | Version |
+| --- | --- |
+| Magento Open Source | 2.4.4 and later |
+| Adobe Commerce | 2.4.4 and later |
+| PHP | 8.1, 8.2, 8.3 |
+| Mercur | 2.3.8 and later, with `@mercurjs/magento2-connector-plugin` |
+
+Stores running Multi-Source Inventory enable one extra module, `Mercur_Inventory`.
+
+## Not supported yet
+
+- Buyer and seller messaging, order incidents and seller ratings
+- Documents sellers attach to orders
+- A third-party tax engine for seller lines. Magento taxes them with the product's tax class
+- Mercur promotions. Magento cart price rules never apply to seller lines
+- Shipping one order to several addresses
+
+## Get started
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/resources/integrations/magento2/quickstart">
+    Connect a Magento store to Mercur and place a first mixed order.
+  </Card>
+  <Card title="Architecture" icon="sitemap" href="/resources/integrations/magento2/architecture">
+    What runs on each side, how they sync and how an order travels.
+  </Card>
+  <Card title="Configuration" icon="sliders" href="/resources/integrations/magento2/configuration">
+    Every setting on both sides, its scope and its default.
+  </Card>
+  <Card title="Reference" icon="book" href="/resources/integrations/magento2/reference">
+    Scheduled jobs, CLI, webhook events, routes and the GraphQL schema.
+  </Card>
+</CardGroup>
+
+## Guides
+
+<CardGroup cols={3}>
+  <Card title="Catalog and offers" icon="tags" href="/resources/integrations/magento2/catalog-and-offers">
+    Sellers, offers, the buy box, product import and push.
+  </Card>
+  <Card title="Storefront" icon="store" href="/resources/integrations/magento2/storefront">
+    Product page, cart, checkout, seller pages and GraphQL.
+  </Card>
+  <Card title="Orders and payments" icon="credit-card" href="/resources/integrations/magento2/orders-and-payments">
+    Placement, capture, shipments, returns and refunds.
+  </Card>
+</CardGroup>

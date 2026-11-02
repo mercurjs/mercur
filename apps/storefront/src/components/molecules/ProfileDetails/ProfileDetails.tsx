@@ -1,5 +1,6 @@
 "use client"
-import { Button, Card } from "@/components/atoms"
+import { Button } from '@/components/atoms/Button/Button';
+import { Card } from '@/components/atoms/Card/Card';
 import { HttpTypes } from "@medusajs/types"
 import { Modal } from "../Modal/Modal"
 import { useState } from "react"

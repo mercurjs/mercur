@@ -3868,8 +3868,7 @@
       "pending": "Beklemede",
       "processing": "İşleniyor",
       "paid": "Ödendi",
-      "failed": "Başarısız",
-      "canceled": "İptal edildi"
+      "failed": "Başarısız"
     }
   },
   "translations": {

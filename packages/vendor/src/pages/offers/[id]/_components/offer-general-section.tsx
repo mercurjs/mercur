@@ -74,6 +74,14 @@ export const OfferGeneralSection = ({ offer }: Props) => {
       <SectionRow title={t("offers.fields.ean")} value={offer.ean ?? "-"} />
       <SectionRow title={t("offers.fields.upc")} value={offer.upc ?? "-"} />
       <SectionRow
+        title={t("offers.fields.leadtime")}
+        value={
+          offer.leadtime_to_ship === null || offer.leadtime_to_ship === undefined
+            ? t("offers.fields.storeDefault")
+            : t("store.leadtime.days", { count: offer.leadtime_to_ship })
+        }
+      />
+      <SectionRow
         title={t("shippingProfile.domain")}
         value={offer.shipping_profile?.name ?? "-"}
       />

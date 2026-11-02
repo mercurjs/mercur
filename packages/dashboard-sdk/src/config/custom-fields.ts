@@ -32,8 +32,11 @@ export interface CustomFieldsRegistry {}
 type DefaultModelShape = {
   formZones: string
   formTabs: Record<string, string>
+  formFieldIds: string
   displayZones: string
   displayFieldIds: string
+  listZones: string
+  listColumnIds: string
 }
 
 export type CustomFieldModel = keyof CustomFieldsRegistry extends never
@@ -44,6 +47,24 @@ type ModelShape<TModel> = TModel extends keyof CustomFieldsRegistry
   ? CustomFieldsRegistry[TModel] & DefaultModelShape
   : DefaultModelShape
 
+/** The bound form value handed to a custom field `component`. */
+export type CustomFormFieldControl = {
+  name: string
+  value: unknown
+  onChange: (value: unknown) => void
+  onBlur: () => void
+}
+
+export type CustomFormFieldComponentProps = {
+  field?: CustomFormFieldControl
+  data?: unknown
+}
+
+export type CustomFormFieldOption = {
+  label: string
+  value: string
+}
+
 export type CustomFormField<TData = unknown> = {
   /** Zod schema — drives the input type and validation. */
   validation: FieldValidation
@@ -52,8 +73,14 @@ export type CustomFormField<TData = unknown> = {
   label?: string
   description?: string
   placeholder?: string
+  /**
+   * Input kind for hosts that can't infer it from `validation` (data grids).
+   * `select` reads its choices from `options`.
+   */
+  type?: "text" | "number" | "boolean" | "select"
+  options?: CustomFormFieldOption[]
   /** Custom render component; falls back to a default input for the type. */
-  component?: ComponentType
+  component?: ComponentType<CustomFormFieldComponentProps>
 }
 
 export type CustomFormZone<TModel> = ModelShape<TModel>["formZones"]
@@ -90,7 +117,15 @@ export type CustomFormEntry<TModel> =
               zone: TZone
               /** TabbedForm tab id, or onboarding wizard step id for `zone: "onboarding"`. */
               tab?: CustomFormTab<TModel, TZone>
-              fields?: Record<string, CustomFormField>
+              /**
+               * ADD (unknown key, stored under `additional_data`), REPLACE
+               * (built-in key + a field with a `component`), or REMOVE
+               * (built-in key + `null`) a form field or data-grid column.
+               */
+              fields?: Partial<
+                Record<ModelShape<TModel>["formFieldIds"], CustomFormField | null>
+              > &
+                Record<string, CustomFormField | null>
               disabled?: false
             } & OnboardingStepOptions)
           | {
@@ -126,8 +161,13 @@ export type CustomDisplayEntry<TModel> = {
   actions?: SectionAction[]
 }
 
-export type CustomColumn = {
-  id: string
+/**
+ * ADD (unknown id), REPLACE (built-in id + `component`) a table column. Hide a
+ * built-in column with `viewDefaults.columnVisibility[id] = false`.
+ */
+export type CustomColumn<TModel = unknown> = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  id: ModelShape<TModel>["listColumnIds"] | (string & {})
   header?: string
   component?: ComponentType<{ row?: unknown; value?: unknown }>
 }
@@ -154,13 +194,22 @@ export type CustomListFilter =
     ))
   | { key: string; remove: true }
 
-export type CustomListExtension = {
-  columns?: CustomColumn[]
+export type CustomListExtension<TModel = unknown> = {
+  /**
+   * Table the block extends. Omitted means the model's list page (`"list"`);
+   * other tables of the model (e.g. a detail section) have their own zone.
+   */
+  zone?: ModelShape<TModel>["listZones"]
+  columns?: CustomColumn<TModel>[]
   bulkActions?: SectionAction[]
   filters?: CustomListFilter[]
   viewDefaults?: {
-    columnVisibility?: Record<string, boolean>
-    columnOrder?: string[]
+    columnVisibility?: Partial<
+      Record<ModelShape<TModel>["listColumnIds"], boolean>
+    > &
+      Record<string, boolean>
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    columnOrder?: (ModelShape<TModel>["listColumnIds"] | (string & {}))[]
   }
 }
 
@@ -197,7 +246,7 @@ export interface CustomFieldsConfig<TModel extends CustomFieldModel = CustomFiel
   >
   /** Extra timeline entries for the entity, merged and sorted with the built-ins. */
   activity?: (entity: unknown) => ActivityEntry[]
-  list?: CustomListExtension
+  list?: CustomListExtension<TModel> | CustomListExtension<TModel>[]
   forms?: CustomFormEntry<TModel>[]
   displays?: CustomDisplayEntry<TModel>[]
 }

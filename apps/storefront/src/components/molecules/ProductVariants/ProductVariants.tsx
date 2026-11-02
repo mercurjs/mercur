@@ -2,7 +2,7 @@
 
 import { HttpTypes } from "@medusajs/types"
 
-import { Chip } from "@/components/atoms"
+import { Chip } from '@/components/atoms/Chip/Chip';
 import useUpdateSearchParams from "@/hooks/useUpdateSearchParams"
 
 export const ProductVariants = ({

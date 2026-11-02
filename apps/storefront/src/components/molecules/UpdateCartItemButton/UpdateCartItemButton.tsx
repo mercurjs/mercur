@@ -1,94 +1,81 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-
-import { useRouter } from 'next/navigation';
-
-import { Button } from '@/components/atoms';
 import { useCartContext } from '@/components/providers';
+import { MinusThinIcon, PlusIcon } from '@/icons';
+import { cn } from '@/lib/utils';
 import { toast } from '@/lib/helpers/toast';
+
+const MAX_QUANTITY = 99;
 
 export const UpdateCartItemButton = ({
   quantity,
-  lineItemId
+  lineItemId,
+  compact = false
 }: {
   quantity: number;
   lineItemId: string;
+  compact?: boolean;
 }) => {
-  const { updateCartItem, isUpdatingItem } = useCartContext();
-  const [pendingQuantity, setPendingQuantity] = useState(quantity);
-  const debounceTimerRef = useRef<NodeJS.Timeout>(null);
-  const router = useRouter();
+  const { updateCartItem } = useCartContext();
+  const isOptimisticLine = !lineItemId || lineItemId.startsWith('optimistic:');
 
-  useEffect(() => {
-    setPendingQuantity(quantity);
-  }, [quantity]);
+  const handleQuantityChange = async (newQuantity: number) => {
+    if (newQuantity < 1 || newQuantity > MAX_QUANTITY) return;
 
-  useEffect(() => {
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-    };
-  }, []);
-
-  const handleQuantityChange = (newQuantity: number) => {
-    if (newQuantity < 1) return;
-
-    setPendingQuantity(newQuantity);
-
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
+    try {
+      await updateCartItem(lineItemId, newQuantity);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message.replace('Error setting up the request: ', '')
+          : 'Failed to update quantity';
+      toast.error({
+        title: 'Error updating cart',
+        description: errorMessage
+      });
     }
-
-    debounceTimerRef.current = setTimeout(async () => {
-      try {
-        await updateCartItem(lineItemId, newQuantity);
-        router.refresh();
-      } catch (error: unknown) {
-        setPendingQuantity(quantity);
-        const errorMessage =
-          error instanceof Error
-            ? error.message.replace('Error setting up the request: ', '')
-            : 'Failed to update quantity';
-        toast.error({
-          title: 'Error updating cart',
-          description: errorMessage
-        });
-      }
-    }, 500);
   };
 
-  const isDecreaseDisabled = pendingQuantity === 1 || isUpdatingItem || !lineItemId;
-  const isIncreaseDisabled = isUpdatingItem || !lineItemId;
+  const buttonClassName = cn(
+    'flex cursor-pointer items-center justify-center disabled:cursor-not-allowed disabled:opacity-40',
+    compact ? 'h-7 w-7' : 'h-8 w-8'
+  );
 
   return (
-    <div className="mt-2 flex items-center gap-4">
-      <Button
-        variant="tonal"
-        className="flex h-8 w-8 items-center justify-center"
-        disabled={isDecreaseDisabled}
-        onClick={() => handleQuantityChange(pendingQuantity - 1)}
+    <div
+      aria-label="Item quantity"
+      role="group"
+      className={cn('inline-flex items-center rounded-sm border', !compact && 'mt-2')}
+      data-testid="cart-item-quantity"
+    >
+      <button
+        type="button"
+        aria-label="Decrease quantity"
+        className={buttonClassName}
+        disabled={isOptimisticLine || quantity <= 1}
+        onClick={() => handleQuantityChange(quantity - 1)}
+        data-testid="cart-item-quantity-decrease"
       >
-        -
-      </Button>
+        <MinusThinIcon size={compact ? 14 : 16} />
+      </button>
       <span
-        className={`font-medium transition-all duration-300 ${
-          isDecreaseDisabled || isIncreaseDisabled
-            ? 'scale-95 text-secondary opacity-70'
-            : 'scale-100 text-primary opacity-100'
-        }`}
+        aria-live="polite"
+        role="status"
+        className={cn('label-md text-center tabular-nums text-primary', compact ? 'w-6' : 'w-8')}
+        data-testid="cart-item-quantity-value"
       >
-        {pendingQuantity}
+        {quantity}
       </span>
-      <Button
-        variant="tonal"
-        className="flex h-8 w-8 items-center justify-center"
-        disabled={isIncreaseDisabled}
-        onClick={() => handleQuantityChange(pendingQuantity + 1)}
+      <button
+        type="button"
+        aria-label="Increase quantity"
+        className={buttonClassName}
+        disabled={isOptimisticLine || quantity >= MAX_QUANTITY}
+        onClick={() => handleQuantityChange(quantity + 1)}
+        data-testid="cart-item-quantity-increase"
       >
-        +
-      </Button>
+        <PlusIcon size={compact ? 14 : 16} />
+      </button>
     </div>
   );
 };

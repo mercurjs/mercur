@@ -21,10 +21,13 @@ import { StorePaymentDetailsSection } from "./store-payment-details-section";
 import { StoreCompanyDetailsSection } from "./store-company-details-section";
 import { StoreConfigurationSection } from "./store-configuration-section";
 import { StoreAddressSection } from "./store-address-section";
+import { StorePayoutAccountSection } from "./store-payout-account-section";
+import { StoreRegionsSection } from "./store-regions-section";
 import { StoreMembersSection } from "./store-members-section";
 import { StoreRequestSection } from "./store-request-section";
 import { StoreOrdersSection } from "./store-orders-section";
 import { StoreOffersSection } from "./store-offers-section";
+import { PayoutsSection } from "../../../payouts/common/components/payouts-section";
 import {
   StoreDetailHeader,
   StoreDetailTitle,
@@ -94,7 +97,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const { seller, isLoading, isError, error } = useSeller(id!, query);
 
   if (isLoading || !seller) {
-    return <TwoColumnPageSkeleton mainSections={3} sidebarSections={3} />;
+    return <TwoColumnPageSkeleton mainSections={3} sidebarSections={4} />;
   }
 
   if (isError) {
@@ -132,6 +135,21 @@ const Root = ({ children }: { children?: ReactNode }) => {
             id: "offers",
             label: t("offers.domain"),
             content: <StoreOffersSection sellerId={seller.id} />,
+          },
+        ]
+      : []),
+    ...(can("payouts")
+      ? [
+          {
+            id: "payouts",
+            label: t("payouts.domain"),
+            content: (
+              <PayoutsSection
+                scope={{ seller_id: seller.id }}
+                prefix="store-payouts"
+                data-testid="store-payouts-section"
+              />
+            ),
           },
         ]
       : []),
@@ -177,8 +195,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
       <TwoColumnPage.Sidebar>
         <WidgetZone id="stores.detail.side" data={seller}>
           <StoreAddressSection seller={seller} />
+          <StoreRegionsSection seller={seller} />
           <StoreCompanyDetailsSection seller={seller} />
           <StorePaymentDetailsSection seller={seller} />
+          <StorePayoutAccountSection sellerId={seller.id} />
         </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
@@ -193,6 +213,8 @@ export const StoreDetailPage = Object.assign(Root, {
   MainPaymentDetailsSection: StorePaymentDetailsSection,
   MainCompanyDetailsSection: StoreCompanyDetailsSection,
   SidebarAddressSection: StoreAddressSection,
+  SidebarPayoutAccountSection: StorePayoutAccountSection,
+  SidebarRegionsSection: StoreRegionsSection,
   SidebarMembersSection: StoreMembersSection,
   Header: StoreDetailHeader,
   HeaderTitle: StoreDetailTitle,

@@ -1,14 +1,25 @@
+import { zodResolver } from "@hookform/resolvers/zod"
 import { HttpTypes } from "@medusajs/types"
-import { OfferDTO } from "@mercurjs/types"
 import { Button, toast } from "@medusajs/ui"
-import { useMemo } from "react"
-import { useForm } from "react-hook-form"
+import { ColumnDef } from "@tanstack/react-table"
+import { useCallback, useMemo } from "react"
+import { Resolver, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
-import { isForbidden, SectionNoAccess, useCan } from "@mercurjs/dashboard-shared"
+import {
+  buildScopedAdditionalData,
+  isForbidden,
+  refineAdditionalData,
+  SectionNoAccess,
+  useCan,
+  useExtendableGrid,
+  useExtension,
+} from "@mercurjs/dashboard-shared"
+import { z } from "zod"
 
 import { Thumbnail } from "../../../../components/common/thumbnail"
 import {
+  createDataGridExtensionColumn,
   createDataGridHelper,
   createDataGridPriceColumns,
   DataGrid,
@@ -18,62 +29,48 @@ import { KeyboundForm } from "../../../../components/utilities/keybound-form"
 import { usePricePreferences } from "../../../../hooks/api/price-preferences"
 import { useProduct, productsQueryKeys } from "../../../../hooks/api/products"
 import { offerQueryKeys } from "../../../../hooks/api/offers"
-import { useCurrentSeller } from "../../../../hooks/api/sellers"
-import { castNumber } from "../../../../lib/cast-number"
 import { sdk } from "../../../../lib/client"
 import { queryClient } from "../../../../lib/query-client"
 import { OFFER_PRODUCT_DETAIL_FIELDS } from "../../common/constants"
-
-type EditPriceRow = {
-  offer_id: string
-  variant_title: string
-  product_thumbnail?: string | null
-  prices: Record<string, number | string>
-}
+import { useSellerCurrencies } from "../../common/use-seller-currencies"
+import {
+  buildPricePayload,
+  buildRows,
+  EditPriceRow,
+  PriceProduct,
+  Region,
+} from "./utils"
 
 type FormValues = { rows: EditPriceRow[] }
 
-type PriceProduct = HttpTypes.AdminProduct & {
-  variants?: Array<
-    HttpTypes.AdminProductVariant & { offers?: OfferDTO[] | null }
-  > | null
-}
+const GRID_ZONE = "edit-price"
+const LOCKED_COLUMN_IDS = ["title"]
+const ROWS_SCHEMA = z
+  .object({ rows: z.array(z.object({}).passthrough()) })
+  .passthrough()
 
-const numericOrZero = (v: number | string | undefined | null): number =>
-  v === "" || v === null || v === undefined ? 0 : castNumber(v) || 0
-
-const buildRows = (product: PriceProduct, currencies: string[]): EditPriceRow[] =>
-  (product.variants ?? []).flatMap((variant) =>
-    (variant.offers ?? []).map((offer) => {
-      const prices: Record<string, number | ""> = {}
-      for (const code of currencies) {
-        const match = (offer.prices ?? []).find(
-          (p) => p.currency_code === code,
-        )
-        prices[code] = match?.amount ?? ""
-      }
-      return {
-        offer_id: offer.id,
-        variant_title: variant.title ?? "",
-        product_thumbnail: product.thumbnail ?? null,
-        prices,
-      }
-    }),
-  )
+const rowPath = (row: EditPriceRow & { __formIndex?: number }) =>
+  `rows.${row.__formIndex}`
 
 const columnHelper = createDataGridHelper<EditPriceRow, FormValues>()
 
 const useColumns = ({
   currencies,
+  regions,
   pricePreferences,
 }: {
   currencies: string[]
+  regions: Region[]
   pricePreferences?: HttpTypes.AdminPricePreference[]
 }) => {
   const { t } = useTranslation()
 
-  return useMemo(
-    () => [
+  return useMemo(() => {
+    const cellCurrencies = Array.from(
+      new Set([...currencies, ...regions.map((r) => r.currency_code)]),
+    )
+
+    return [
       columnHelper.column({
         id: "title",
         header: t("fields.title"),
@@ -95,58 +92,117 @@ const useColumns = ({
       ...createDataGridPriceColumns<EditPriceRow, FormValues>({
         currencies,
         pricePreferences: pricePreferences ?? [],
-        getFieldName: (context, value) => {
-          if (context.column.id?.startsWith("currency_prices")) {
-            return `rows.${context.row.index}.prices.${value}`
-          }
-          return null
-        },
+        getFieldName: (context, value) =>
+          `rows.${context.row.index}.prices.${value}`,
         t,
       }),
-    ],
-    [t, currencies, pricePreferences],
-  )
+      ...createDataGridPriceColumns<EditPriceRow, FormValues>({
+        currencies: cellCurrencies,
+        regions,
+        pricePreferences: pricePreferences ?? [],
+        getFieldName: (context, value) =>
+          `rows.${context.row.index}.region_prices.${value}`,
+        t,
+      }).filter((column) => column.id?.startsWith("region_prices")),
+    ]
+  }, [t, currencies, regions, pricePreferences])
 }
 
 const EditPriceGrid = ({
   product,
   productId,
+  currencies,
+  regions,
 }: {
   product: PriceProduct
   productId: string
+  currencies: string[]
+  regions: Region[]
 }) => {
   const { t } = useTranslation()
   const { handleSuccess, setCloseOnEscape } = useRouteModal()
-  const { currency_code } = useCurrentSeller()
   const canViewPricePreferences = useCan("price_preferences")
   const { price_preferences: pricePreferences } = usePricePreferences(
     {},
     { enabled: canViewPricePreferences }
   )
 
-  const currencies = useMemo(
-    () => (currency_code ? [currency_code] : []),
-    [currency_code],
+  const extension = useExtension()
+  const offersById = useMemo(
+    () =>
+      new Map(
+        (product.variants ?? []).flatMap((variant) =>
+          ((variant as { offers?: { id: string }[] | null }).offers ?? []).map(
+            (offer) => [offer.id, offer] as const,
+          ),
+        ),
+      ),
+    [product],
+  )
+
+  const scope = useMemo(
+    () => ({
+      model: "offer",
+      zone: GRID_ZONE,
+      exactTab: true,
+      builtInFieldIds: LOCKED_COLUMN_IDS,
+    }),
+    [],
+  )
+  const rowSchema = useMemo(
+    () => buildScopedAdditionalData(extension, scope).schema,
+    [extension, scope],
   )
 
   const rows = useMemo(
-    () => buildRows(product, currencies),
-    [product, currencies],
+    () =>
+      buildRows(product, currencies, regions).map((row, index) => ({
+        ...row,
+        __formIndex: index,
+        additional_data: buildScopedAdditionalData(
+          extension,
+          scope,
+          offersById.get(row.offer_id),
+        ).defaults,
+      })),
+    [product, currencies, regions, extension, scope, offersById],
   )
 
-  const form = useForm<FormValues>({ defaultValues: { rows } })
-  const columns = useColumns({ currencies, pricePreferences })
+  const form = useForm<FormValues>({
+    defaultValues: { rows },
+    // The grid's own cells are unvalidated; only custom-field cells are checked.
+    resolver: zodResolver(
+      refineAdditionalData(ROWS_SCHEMA, {
+        rows: { path: "rows", schema: rowSchema },
+      }),
+    ) as unknown as Resolver<FormValues>,
+  })
+  const baseColumns = useColumns({ currencies, regions, pricePreferences })
+  const createColumn = useCallback(
+    createDataGridExtensionColumn<EditPriceRow, FormValues>,
+    [],
+  )
+  const columns = useExtendableGrid<EditPriceRow>({
+    model: "offer",
+    zone: GRID_ZONE,
+    columns: baseColumns as ColumnDef<EditPriceRow, unknown>[],
+    lockedColumnIds: LOCKED_COLUMN_IDS,
+    getRowPath: rowPath,
+    createColumn,
+  })
 
   const handleSubmit = form.handleSubmit(async (values) => {
     try {
       await Promise.all(
-        values.rows.map((row) => {
-          const prices = currencies.map((code) => ({
-            amount: numericOrZero(row.prices?.[code]),
-            currency_code: code,
-          }))
-          return sdk.vendor.offers.$id.mutate({ $id: row.offer_id, prices })
-        }),
+        values.rows.map((row) =>
+          sdk.vendor.offers.$id.mutate({
+            $id: row.offer_id,
+            prices: buildPricePayload(row, currencies, regions),
+            ...(row.additional_data && Object.keys(row.additional_data).length
+              ? { additional_data: row.additional_data }
+              : {}),
+          }),
+        ),
       )
       await queryClient.invalidateQueries({ queryKey: offerQueryKeys.lists() })
       await queryClient.invalidateQueries({
@@ -202,10 +258,20 @@ export const OfferEditPricePage = () => {
   const { product, isPending, isError, error } = useProduct(id!, {
     fields: OFFER_PRODUCT_DETAIL_FIELDS,
   })
+  const {
+    currencies,
+    regions,
+    isPending: isRegionsPending,
+    isError: isRegionsError,
+    error: regionsError,
+  } = useSellerCurrencies()
 
   const forbidden = isError && isForbidden(error)
 
   if (isError && !forbidden) throw error
+  if (isRegionsError) throw regionsError
+
+  const ready = !isPending && !!product && !isRegionsPending
 
   return (
     <RouteFocusModal>
@@ -223,9 +289,13 @@ export const OfferEditPricePage = () => {
           </RouteFocusModal.Body>
         </>
       ) : (
-        !isPending &&
-        product && (
-          <EditPriceGrid product={product as PriceProduct} productId={id!} />
+        ready && (
+          <EditPriceGrid
+            product={product as PriceProduct}
+            productId={id!}
+            currencies={currencies}
+            regions={regions}
+          />
         )
       )}
     </RouteFocusModal>

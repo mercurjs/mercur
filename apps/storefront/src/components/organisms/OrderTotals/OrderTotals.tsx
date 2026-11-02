@@ -1,4 +1,5 @@
-import { Card, Divider } from "@/components/atoms"
+import { Card } from '@/components/atoms/Card/Card';
+import { Divider } from '@/components/atoms/Divider/Divider';
 import { convertToLocale } from "@/lib/helpers/money"
 
 export const OrderTotals = ({ orderGroup }: { orderGroup: any }) => {

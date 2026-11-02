@@ -231,6 +231,35 @@ describe("planCartPaymentSplit", () => {
     expect(amountsOf(plan.refunds)).toEqual([98])
   })
 
+  it("gives a capture that left out a canceled order to the open orders only", () => {
+    const plan = planCartPaymentSplit(cartCollection([102]), [
+      order("order_a", 98, { status: "canceled" }),
+      order("order_b", 102),
+    ])
+
+    expect(plan.captures.map((c) => c.order_id)).toEqual(["order_b"])
+    expect(amountsOf(plan.captures)).toEqual([102])
+    expect(plan.refunds).toEqual([])
+  })
+
+  it("keeps a capture above the order totals with the orders when nothing is canceled", () => {
+    const plan = planCartPaymentSplit(cartCollection([200.01]), [order("order_a", 100), order("order_b", 100)])
+
+    expect(plan.refunds).toEqual([])
+    expect(amountsOf(plan.captures).reduce((a, b) => a + b, 0)).toBeCloseTo(200.01, 6)
+  })
+
+  it("gives a later capture to the open orders only, not what a canceled order already held", () => {
+    const plan = planCartPaymentSplit(
+      cartCollection([100, 10], { metadata: { split_order_collections: true } }),
+      [splitOrder("order_a", 98, 49), { ...splitOrder("order_b", 102, 51), status: "canceled" }]
+    )
+
+    expect(plan.captures.map((c) => c.payment_id)).toEqual(["pay_order_a"])
+    expect(amountsOf(plan.captures)).toEqual([10])
+    expect(plan.refunds).toEqual([])
+  })
+
   it("reuses a collection left without a payment", () => {
     const plan = planCartPaymentSplit(cartCollection([200]), [
       order("order_a", 98, {

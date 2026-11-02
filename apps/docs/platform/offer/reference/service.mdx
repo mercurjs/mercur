@@ -1,53 +1,88 @@
 ---
-title: "Service reference"
+title: "Offer module service"
 sidebarTitle: "Service"
-description: "The Offer module service and its methods for working with records directly."
+description: "Resolve the Offer module service and use its generated and custom methods."
 ---
 
-The Offer module exposes a service you can resolve from the Medusa container to
-read and write records directly, without going through a workflow. Use it inside
-custom services, subscribers, or scheduled jobs.
+The Offer module service reads and writes `Offer` and `OfferCondition` rows directly. Use it in subscribers, scheduled jobs, and your own steps when you don’t need what the workflows add on top.
+
+## Resolve the service
+
+Resolve the service from the container with `MercurModules.OFFER`.
 
 ```ts
 import { MercurModules } from "@mercurjs/types"
 
 const offerModuleService = container.resolve(MercurModules.OFFER)
 
-const [offers, count] = await offerModuleService.listAndCountOffers({
-  seller_id: "sel_123",
-})
-```
-
-## Generated methods
-
-The `Offer` model gets a standard set of auto-generated methods:
-
-| Method | Description |
-| --- | --- |
-| `createOffers(data)` | Create one or more offers |
-| `retrieveOffer(id, config?)` | Retrieve an offer by id |
-| `listOffers(filters?, config?)` | List offers matching filters |
-| `listAndCountOffers(filters?, config?)` | List offers with a total count |
-| `updateOffers(data)` | Update one or more offers |
-| `deleteOffers(ids)` | Delete one or more offers |
-
-## Group by seller
-
-`listOffers` and `listAndCountOffers` accept a `group_by_seller` filter. When
-set, the service collapses offers to one row per `(product, seller)` group and
-populates `variant_count` and `offer_ids` on each returned offer.
-
-```ts
-const [grouped] = await offerModuleService.listAndCountOffers({
-  product_id: "prod_123",
-  group_by_seller: true,
-})
+const [offers, count] = await offerModuleService.listAndCountOffers(
+  { seller_id: "sel_01JD8Q1234567" },
+  { take: 20 }
+)
 ```
 
 <Warning>
-  The service writes the `offer` row and its computed fields directly. It does
-  **not** create the offer's prices, inventory items, or module links, and it
-  does **not** emit events or run compensation. Prefer the
-  [workflows](/platform/offer/reference/workflows) for anything that must wire up
-  pricing, inventory, or links.
+  The service writes rows only. It doesn’t create prices, inventory items, or links, emit events, or roll back on failure. Use the [workflows](/platform/offer/reference/workflows) for anything that touches pricing, stock, or links.
 </Warning>
+
+## Generated methods
+
+The service extends `MedusaService({ Offer, OfferCondition })`, which generates these methods for each model:
+
+| Offer | OfferCondition |
+| --- | --- |
+| `retrieveOffer(id, config?)` | `retrieveOfferCondition(id, config?)` |
+| `listOffers(filters?, config?)` | `listOfferConditions(filters?, config?)` |
+| `listAndCountOffers(filters?, config?)` | `listAndCountOfferConditions(filters?, config?)` |
+| `createOffers(data)` | `createOfferConditions(data)` |
+| `updateOffers(data)` | `updateOfferConditions(data)` |
+| `deleteOffers(ids)` | `deleteOfferConditions(ids)` |
+| `softDeleteOffers(ids)` | `softDeleteOfferConditions(ids)` |
+| `restoreOffers(ids)` | `restoreOfferConditions(ids)` |
+
+## listOffers and listAndCountOffers with group_by_seller
+
+Both offer list methods accept an extra `group_by_seller` filter. Without it they behave like the generated methods.
+
+```ts
+listOffers(
+  filters?: Record<string, unknown> & { group_by_seller?: boolean },
+  config?: FindConfig<OfferDTO>,
+  sharedContext?: Context
+): Promise<OfferDTO[]>
+
+listAndCountOffers(
+  filters?: Record<string, unknown> & { group_by_seller?: boolean },
+  config?: FindConfig<OfferDTO>,
+  sharedContext?: Context
+): Promise<[OfferDTO[], number]>
+```
+
+With `group_by_seller: true`, the service returns one offer per `(product_id, seller_id)` group, the newest by `created_at`. Each returned offer gets `variant_count` and `offer_ids` for its group, and the count is the number of groups.
+
+Grouped mode reads only the `product_id` and `seller_id` filters. Pagination uses `config.skip` and `config.take`, with `take` defaulting to 20.
+
+## getStatistics
+
+Counts offers, and the distinct stores and products behind them, as they stood at a point in time.
+
+```ts
+getStatistics(
+  input?: OfferStatisticsInput,
+  sharedContext?: Context
+): Promise<OfferStatisticsOutput>
+```
+
+`input.at` defaults to now. `input.filters.seller_id` takes one id or a list. An offer counts when it was created at or before `at` and wasn’t deleted by then.
+
+```ts
+const { offers, sellers, products } =
+  await offerModuleService.getStatistics({ at: new Date("2026-10-01") })
+```
+
+The result is `{ offers, sellers, products }`, each a number.
+
+## Related
+
+- [Offer data models](/platform/offer/reference/data-models)
+- [Offer workflows](/platform/offer/reference/workflows)

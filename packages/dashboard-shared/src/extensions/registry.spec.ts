@@ -180,6 +180,80 @@ describe("ExtensionRegistry", () => {
       ])
     })
 
+    test("list blocks target a table by zone; no zone means the list page", () => {
+      const registry = new ExtensionRegistry({
+        customFields: {
+          configs: [
+            {
+              model: "offer",
+              list: [
+                { columns: [{ id: "brand", header: "Brand" }] },
+                {
+                  zone: "variants",
+                  columns: [{ id: "warranty", header: "Warranty" }],
+                  viewDefaults: { columnVisibility: { inventory: false } },
+                },
+              ],
+            },
+            {
+              model: "offer",
+              list: { zone: "list", columns: [{ id: "erp", header: "ERP" }] },
+            },
+          ],
+        },
+      })
+
+      expect(registry.getListExtension("offer").columns?.map((c) => c.id)).toEqual([
+        "brand",
+        "erp",
+      ])
+      const variants = registry.getListExtension("offer", "variants")
+      expect(variants.columns?.map((c) => c.id)).toEqual(["warranty"])
+      expect(variants.viewDefaults?.columnVisibility).toEqual({ inventory: false })
+      expect(registry.getListExtension("offer", "inventory").columns).toEqual([])
+    })
+
+    test("form entries keyed by a built-in id override it instead of adding", () => {
+      const registry = new ExtensionRegistry({
+        customFields: {
+          configs: [
+            {
+              model: "offer",
+              forms: [
+                {
+                  zone: "edit",
+                  fields: {
+                    leadtime_to_ship: null,
+                    sku: { validation: {}, component: Plugin },
+                    warranty: { validation: {}, label: "Warranty" },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      })
+
+      const builtIns = ["sku", "leadtime_to_ship", "shipping_profile_id"]
+      expect(
+        registry.getFormFields("offer", "edit", undefined, builtIns).map((f) => f.name)
+      ).toEqual(["warranty"])
+      expect(registry.getFormFieldOverride("offer", "edit", "leadtime_to_ship")).toEqual({
+        overridden: true,
+        field: null,
+      })
+      expect(registry.getFormFieldOverride("offer", "edit", "sku").field?.component).toBe(
+        Plugin
+      )
+      expect(
+        registry.getFormFieldOverride("offer", "edit", "shipping_profile_id").overridden
+      ).toBe(false)
+      expect(registry.getAllFormFields("offer").map((f) => f.name)).toEqual([
+        "sku",
+        "warranty",
+      ])
+    })
+
     test("a later display field replaces or removes an added field by id", () => {
       const registry = new ExtensionRegistry({
         customFields: {

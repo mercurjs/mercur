@@ -9,6 +9,7 @@ import {
   updateOffersWorkflow,
 } from "../../../../workflows/offer"
 import { refetchOffer, validateSellerOffer } from "../helpers"
+import { validateSellerRegionPrices } from "../../regions/helpers"
 import { VendorUpdateOfferType } from "../validators"
 
 export const GET = async (
@@ -39,6 +40,14 @@ export const POST = async (
   await validateSellerOffer(req.scope, req.seller_context!.seller_id, id)
 
   const { additional_data, ...update } = req.validatedBody
+
+  if (update.prices) {
+    await validateSellerRegionPrices(
+      req.scope,
+      req.seller_context!.seller_id,
+      update.prices
+    )
+  }
 
   await updateOffersWorkflow(req.scope).run({
     input: {

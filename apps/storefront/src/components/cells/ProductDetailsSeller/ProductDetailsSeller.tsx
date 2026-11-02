@@ -1,4 +1,4 @@
-import { SellerInfo } from "@/components/molecules"
+import { SellerInfo } from '@/components/molecules/SellerInfo/SellerInfo';
 import { SellerDTO } from "@mercurjs/types"
 
 export const ProductDetailsSeller = ({ seller }: { seller?: SellerDTO }) => {

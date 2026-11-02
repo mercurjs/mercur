@@ -3,6 +3,7 @@ import {
     validateAndTransformQuery,
 } from "@medusajs/framework/http"
 import { MiddlewareRoute } from "@medusajs/medusa"
+import { MedusaNextFunction, MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 
 import { ORIGINAL_MIDDLEWARES } from "../../../utils/disable-medusa-middlewares"
 import { storeCompleteCartQueryConfig } from "./[id]/complete/query-config"
@@ -33,7 +34,40 @@ const baseCartsMiddlewares = capturedBase.filter((route) => {
     )
 })
 
+// An empty currency_code passes Medusa's validator and is stored as is, which
+// later fails every price calculation; the region's currency has to win.
+const dropEmptyCurrencyCode = (
+    req: MedusaRequest<{ currency_code?: unknown }>,
+    _res: MedusaResponse,
+    next: MedusaNextFunction
+) => {
+    if (req.body && typeof req.body === "object" && req.body.currency_code === "") {
+        delete req.body.currency_code
+    }
+    next()
+}
+
+// Medusa's store cart query config silently drops requested fields outside its
+// allowlist, so line-item offers (and their seller) never reach the storefront.
+const allowLineItemOffers = (
+    req: MedusaRequest,
+    _res: MedusaResponse,
+    next: MedusaNextFunction
+) => {
+    req.allowed.push("items.offer", "items.offer.seller")
+    next()
+}
+
 export const storeCartsMiddlewares: MiddlewareRoute[] = [
+    {
+        matcher: "/store/carts*",
+        middlewares: [allowLineItemOffers],
+    },
+    {
+        method: ["POST"],
+        matcher: "/store/carts",
+        middlewares: [dropEmptyCurrencyCode],
+    },
     ...baseCartsMiddlewares,
     {
         method: ["POST"],

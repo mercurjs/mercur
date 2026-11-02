@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { Button } from "@/components/atoms"
+import { Button } from '@/components/atoms/Button/Button';
 import { HttpTypes } from "@medusajs/types"
 import { cn } from "@/lib/utils"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"

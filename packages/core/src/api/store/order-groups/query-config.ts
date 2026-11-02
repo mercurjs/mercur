@@ -2,6 +2,7 @@ export const storeOrderGroupFields = [
   "id",
   "display_id",
   "customer_id",
+  "metadata",
   "seller_count",
   "total",
   "created_at",

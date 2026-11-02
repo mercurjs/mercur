@@ -1,9 +1,9 @@
 "use client"
 
-import { Input } from "@/components/atoms"
+import { Input } from '@/components/atoms/Input/Input';
 import { SearchIcon } from "@/icons"
 import { useSearchParams } from "next/navigation"
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { redirect } from "next/navigation"
 import clsx from "clsx"
 
@@ -11,10 +11,19 @@ interface Props {
   className?: string
 }
 
-export const NavbarSearch = ({ className }: Props) => {
-  const searchParams = useSearchParams()
+export const NavbarSearch = ({ className }: Props) => (
+  <Suspense fallback={<NavbarSearchForm className={className} initialQuery="" />}>
+    <NavbarSearchWithQuery className={className} />
+  </Suspense>
+)
 
-  const [search, setSearch] = useState(searchParams.get("query") || "")
+const NavbarSearchWithQuery = ({ className }: Props) => {
+  const searchParams = useSearchParams()
+  return <NavbarSearchForm className={className} initialQuery={searchParams.get("query") || ""} />
+}
+
+const NavbarSearchForm = ({ className, initialQuery }: Props & { initialQuery: string }) => {
+  const [search, setSearch] = useState(initialQuery)
 
   const handleSearch = () => {
     if (search) {

@@ -8,6 +8,7 @@ export const defaultStoreOfferFields = [
   "ean",
   "upc",
   "leadtime_to_ship",
+  "effective_leadtime_to_ship",
   "condition_id",
   "metadata",
   "created_at",

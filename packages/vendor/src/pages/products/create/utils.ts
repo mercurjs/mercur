@@ -57,6 +57,7 @@ export const normalizeProductFormValues = (
       values.variants.filter((variant) => variant.should_create),
       hasAxis,
     ),
+    ...withAdditionalData(values.additional_data),
   } as any
 }
 
@@ -73,9 +74,13 @@ export const normalizeVariants = (
       options: hasOpts ? opts : hasAxis ? undefined : { "Default Option": "Default" },
       sku: variant.sku || undefined,
       variant_rank: variant.variant_rank,
+      ...withAdditionalData(variant.additional_data),
     }
   })
 }
+
+const withAdditionalData = (data?: Record<string, unknown>) =>
+  data && Object.keys(data).length ? { additional_data: data } : {}
 
 const toValueArray = (values: string | string[] | undefined): string[] =>
   Array.isArray(values) ? values.filter(Boolean) : values ? [values] : []
@@ -255,11 +260,17 @@ type VariantSyncForm = Pick<
   "getValues" | "setValue" | "subscribe"
 >
 
-export const syncVariantsWithAttributes = (form: VariantSyncForm) => {
+export const syncVariantsWithAttributes = (
+  form: VariantSyncForm,
+  rowDefaults: Record<string, unknown> = {}
+) => {
   const currentVariants = form.getValues("variants") ?? []
-  const nextVariants = generateVariantsFromAttributes(
-    form.getValues("attributes") ?? [],
-    currentVariants
+  const nextVariants = seedVariantAdditionalData(
+    generateVariantsFromAttributes(
+      form.getValues("attributes") ?? [],
+      currentVariants
+    ),
+    rowDefaults
   )
 
   const sameOptions =
@@ -274,12 +285,28 @@ export const syncVariantsWithAttributes = (form: VariantSyncForm) => {
 // `useWatch({ name: "attributes" })` hands back the same array reference RHF
 // mutates in place, so a dependent effect only fires on the first change.
 // Subscribing by name fires for every nested update instead.
-export const subscribeVariantsToAttributes = (form: VariantSyncForm) => {
-  syncVariantsWithAttributes(form)
+export const subscribeVariantsToAttributes = (
+  form: VariantSyncForm,
+  rowDefaults: Record<string, unknown> = {}
+) => {
+  syncVariantsWithAttributes(form, rowDefaults)
 
   return form.subscribe({
     name: "attributes",
     formState: { values: true },
-    callback: () => syncVariantsWithAttributes(form),
+    callback: () => syncVariantsWithAttributes(form, rowDefaults),
   })
 }
+
+/** Gives rows without custom-field values the configured defaults. */
+export const seedVariantAdditionalData = (
+  variants: ProductCreateSchemaType["variants"],
+  rowDefaults: Record<string, unknown>
+): ProductCreateSchemaType["variants"] =>
+  Object.keys(rowDefaults).length
+    ? variants.map((variant) =>
+        variant.additional_data
+          ? variant
+          : { ...variant, additional_data: { ...rowDefaults } }
+      )
+    : variants

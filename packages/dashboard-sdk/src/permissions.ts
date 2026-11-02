@@ -57,6 +57,7 @@ export interface PermissionKeys {
     "shipping_profiles": true
     "shipping_options": true
     "fulfillment_sets": true
+    "integrations": true
     "regions": true
     "tax_regions": true
     "store": true

@@ -2,18 +2,16 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
 import { createOnboardingWorkflow } from "../../../../../workflows/payout"
-import { validateSellerPayoutAccount } from "../../helpers"
+import { refetchOnboarding, validateSellerPayoutAccount } from "../../helpers"
 import { VendorCreateOnboardingType } from "../../validators"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCreateOnboardingType>,
   res: MedusaResponse<HttpTypes.VendorOnboardingResponse>
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const sellerId = req.seller_context!.seller_id
 
   await validateSellerPayoutAccount(req.scope, sellerId, req.params.id)
@@ -26,13 +24,7 @@ export const POST = async (
     },
   })
 
-  const {
-    data: [onboarding],
-  } = await query.graph({
-    entity: "onboarding",
-    fields: req.queryConfig.fields,
-    filters: { id: result.id },
-  })
+  const onboarding = await refetchOnboarding(result.id, req.scope, req.queryConfig.fields)
 
   res.status(201).json({ onboarding })
 }

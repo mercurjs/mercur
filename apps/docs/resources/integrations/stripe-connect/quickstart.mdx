@@ -1,0 +1,145 @@
+---
+title: "Stripe Connect quickstart"
+sidebarTitle: "Quickstart"
+description: "Install the Stripe connector plugin, forward webhooks in test mode, onboard a test seller and follow a two-seller order from checkout to the seller's bank."
+---
+
+By the end of this guide a test customer pays for a cart with products from two sellers, each seller receives their share in their Stripe test account, and a settlement sends it to their bank. Plan for about 30 minutes.
+
+<Note>
+  Use Stripe **test mode** keys throughout. Nothing in this guide moves real money.
+</Note>
+
+Before you start, make sure you have:
+
+- A running Mercur project on 2.3.9 or later ([installation guide](/learn/introduction))
+- A Stripe account with **Connect** enabled under **Settings → Connect**
+- The [Stripe CLI](https://docs.stripe.com/stripe-cli), logged in to that account
+- Two approved sellers with products in a region
+
+## Step 1: Install the plugin
+
+```bash
+bun add @mercurjs/stripe-connector-plugin
+```
+
+## Step 2: Set environment variables
+
+Start the two webhook forwarders first, so you have their signing secrets:
+
+```bash
+stripe listen --forward-to localhost:9000/hooks/payment/pp_stripe-connector_stripe
+stripe listen --forward-connect-to localhost:9000/hooks/payout
+```
+
+Each command prints a `whsec_...` secret. Add both to your API's `.env`, with your test secret key:
+
+```bash .env
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_OPERATOR_WEBHOOK_SECRET=whsec_...   # from the first command
+STRIPE_SELLERS_WEBHOOK_SECRET=whsec_...    # from the second command
+BACKEND_URL=http://localhost:9000
+VENDOR_URL=http://localhost:7001
+```
+
+Leave both forwarders running.
+
+## Step 3: Register the plugin and the providers
+
+```ts medusa-config.ts
+module.exports = withMercur({
+  plugins: [
+    {
+      resolve: "@mercurjs/stripe-connector-plugin",
+      options: {
+        apiKey: process.env.STRIPE_SECRET_KEY,
+        webhookSecret: process.env.STRIPE_SELLERS_WEBHOOK_SECRET,
+      },
+    },
+  ],
+  modules: [
+    {
+      resolve: "@medusajs/medusa/payment",
+      options: {
+        providers: [
+          {
+            resolve: "@mercurjs/stripe-connector-plugin/providers/payment-stripe",
+            id: "stripe",
+            options: {
+              apiKey: process.env.STRIPE_SECRET_KEY,
+              webhookSecret: process.env.STRIPE_OPERATOR_WEBHOOK_SECRET,
+            },
+          },
+        ],
+      },
+    },
+    {
+      resolve: "@mercurjs/core/modules/payout",
+      options: {
+        providers: [
+          {
+            resolve: "@mercurjs/stripe-connector-plugin/providers/payout-stripe-connect",
+            id: "stripe",
+            options: {
+              apiKey: process.env.STRIPE_SECRET_KEY,
+              webhookSecret: process.env.STRIPE_SELLERS_WEBHOOK_SECRET,
+              manualPayouts: true,
+            },
+          },
+        ],
+        onboarding: {
+          returnUrl: `${process.env.VENDOR_URL}/stripe`,
+          refreshBaseUrl: process.env.BACKEND_URL,
+        },
+      },
+    },
+  ],
+})
+```
+
+Run the migrations, which create the plugin's `stripe_connector` tables, and restart the API:
+
+```bash
+bunx medusa db:migrate
+```
+
+Open **Settings → Stripe** in the admin. The **API key** row shows **Set in the plugin options**.
+
+## Step 4: Enable Stripe on your region
+
+Go to **Settings → Regions**, edit the region your sellers sell in, and add `pp_stripe-connector_stripe` to its payment providers.
+
+## Step 5: Onboard both sellers
+
+The onboarding job runs every minute. Within a minute of the API starting, each seller has a Stripe Express account.
+
+Log in to the vendor panel as the first seller and open **Payouts**. Choose **Continue onboarding**, and complete Stripe's form with [test data](https://docs.stripe.com/connect/testing): phone `000 000 0000`, SMS code `000000`, and bank account `000123456789` with routing number `110000000`.
+
+Stripe sends the seller back to the vendor **Stripe** page, under **Integrations** in the sidebar. Within a few seconds the `account.updated` webhook arrives, and the account shows as **Active** with payouts enabled. Repeat for the second seller.
+
+## Step 6: Place a two-seller order
+
+From your storefront, add one product from each seller to a cart and pay with the test card `4242 4242 4242 4242`. Mercur splits the cart into two seller orders. The payment stays authorized, not captured.
+
+Open **Integrations → Stripe → Captures** in the admin. The order group shows **Awaiting orders**, with 0 of 2 orders decided.
+
+## Step 7: Fulfill both orders
+
+Fulfill both seller orders, from the admin or each seller's vendor panel. Each fulfillment refreshes the order group's capture right away:
+
+1. Once the second order is fulfilled, **Captures** shows **Ready to capture**. The capture job captures the full authorized amount on its next run, within five minutes, or choose **Capture now** on the row. The row moves to **Captured**.
+2. The capture runs the payout pass for both orders. Each gets a payout of its total minus commission, sent as a Stripe Transfer. Open either order in the admin: the **Stripe payouts** section in the sidebar shows the payout as **Paid**.
+
+In the Stripe test dashboard, under **Connect → Accounts**, each seller's balance holds their share.
+
+## Step 8: Settle to the bank
+
+Settlements run nightly. To run one now, open **Integrations → Stripe → Jobs**, open **Settlements** and choose **Run now**.
+
+**Integrations → Stripe** now lists one settlement per seller. Open one: it shows the period, the payout it nets and the Stripe bank payout that paid it. In test mode Stripe marks the bank payout paid within a few minutes, and the `payout.paid` webhook moves the settlement to **Paid out**.
+
+## Next steps
+
+- [Architecture](/resources/integrations/stripe-connect/architecture): how the order's money travelled through those steps
+- [Configuration](/resources/integrations/stripe-connect/configuration): capture timing, fulfillment thresholds, settlement mode and alerts
+- [Go live](/resources/integrations/stripe-connect/configuration#go-live): live keys and webhook endpoints in the Stripe Dashboard

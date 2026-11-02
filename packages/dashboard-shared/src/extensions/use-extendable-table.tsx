@@ -18,6 +18,11 @@ function columnId<TData>(col: ColumnDef<TData, unknown>): string | undefined {
 export type UseExtendableTableProps<TData> = {
   /** Model whose custom-fields `list` block extends this table (e.g. `product`). */
   model: string
+  /**
+   * Which of the model's tables this is. Defaults to `"list"` (the list page);
+   * embedded tables pass their own zone so `list` blocks can target them.
+   */
+  zone?: string
   /** Base columns to extend. */
   columns: ColumnDef<TData, unknown>[]
 }
@@ -42,9 +47,10 @@ export type ExtendableTable<TData> = {
  */
 export function useExtendableTable<TData>({
   model,
+  zone = "list",
   columns: baseColumns,
 }: UseExtendableTableProps<TData>): ExtendableTable<TData> {
-  const ext = useExtension().getListExtension(model)
+  const ext = useExtension().getListExtension(model, zone)
 
   return useMemo(() => {
     const helper = createColumnHelper<TData>()

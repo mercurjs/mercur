@@ -17,18 +17,17 @@ export type UpdateOffersStepInput = Array<{
 export const updateOffersStep = createStep(
   "update-offers",
   async (data: UpdateOffersStepInput, { container }) => {
+    if (!data.length) {
+      return new StepResponse([], [])
+    }
+
     const service = container.resolve<OfferModuleService>(MercurModules.OFFER)
 
     const ids = data.map((d) => d.id)
     const before = await service.listOffers({ id: ids })
     const beforeById = new Map(before.map((o) => [o.id, o]))
 
-    const offers = await service.updateOffers(
-      data.map(({ id, ...update }) => ({
-        selector: { id },
-        data: update,
-      }))
-    )
+    const offers = await service.updateOffers(data)
 
     const compensation = data.map(({ id }) => {
       const prev = beforeById.get(id)
@@ -51,11 +50,6 @@ export const updateOffersStep = createStep(
       return
     }
     const service = container.resolve<OfferModuleService>(MercurModules.OFFER)
-    await service.updateOffers(
-      compensation.map(({ id, ...data }) => ({
-        selector: { id },
-        data,
-      }))
-    )
+    await service.updateOffers(compensation)
   }
 )

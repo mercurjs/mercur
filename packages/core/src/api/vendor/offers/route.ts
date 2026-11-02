@@ -9,6 +9,7 @@ import {
 import { createOffersWorkflow } from "../../../workflows/offer"
 import { refetchOffer } from "./helpers"
 import { validateSellerStockLocations } from "../stock-locations/helpers"
+import { validateSellerRegionPrices } from "../regions/helpers"
 import { VendorCreateOfferType, VendorGetOffersParamsType } from "./validators"
 
 export const GET = async (
@@ -48,6 +49,8 @@ export const POST = async (
       (item.stock_levels ?? []).map((level) => level.location_id)
     )
   )
+
+  await validateSellerRegionPrices(req.scope, sellerId, offerData.prices)
 
   const { result } = await createOffersWorkflow(req.scope).run({
     input: {

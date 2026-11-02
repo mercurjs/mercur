@@ -1,4 +1,4 @@
-import { ProductCarousel } from '@/components/cells';
+import { ProductCarousel } from '@/components/cells/ProductCarousel/ProductCarousel';
 import { HttpTypes } from '@medusajs/types';
 
 export const GalleryCarousel = ({

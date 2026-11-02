@@ -1856,14 +1856,111 @@
   "payouts": {
     "domain": "Payouts",
     "list": {
-      "empty": "No payouts found"
+      "empty": "Payouts appear once a fulfilled and paid order is processed."
     },
     "status": {
-      "paid": "Paid",
-      "processing": "Processing",
       "pending": "Pending",
+      "on_hold": "On hold",
+      "processing": "Processing",
+      "paid": "Paid",
       "failed": "Failed",
-      "canceled": "Canceled"
+      "aborted": "Aborted"
+    },
+    "fields": {
+      "order": "Order",
+      "payoutAccount": "Payout account"
+    },
+    "actions": {
+      "retry": "Retry payout"
+    },
+    "retry": {
+      "title": "Retry payout",
+      "description": "The payout is evaluated again and sent to the payout provider once the order is ready.",
+      "successToast": "Payout retried.",
+      "disabledTooltip": "Only pending, failed or on-hold payouts can be retried."
+    },
+    "reversals": {
+      "header": "Reversals",
+      "refund": "Refund",
+      "noRecordsTitle": "No reversals",
+      "noRecordsMessage": "Refunds on this order have not taken anything back from the store."
+    },
+    "references": {
+      "header": "References",
+      "empty": "This payout has no linked records."
+    },
+    "statusReasons": {
+      "account_not_ready": "The store's payout account cannot receive payouts yet.",
+      "account_payouts_disabled": "Payouts are disabled on the store's payout account.",
+      "order_not_ready": "The order is not fulfilled yet.",
+      "order_aborted": "The order was canceled.",
+      "payment_not_ready": "The order's payment is not captured yet.",
+      "payment_failed": "The order's payment failed.",
+      "payment_canceled": "The order's payment was canceled.",
+      "payment_refunded": "The order's payment was refunded in full.",
+      "payout_not_ready": "The payout for this order has not been sent yet.",
+      "refund_aborted": "The refund was canceled.",
+      "refund_absorbed": "The refund was deducted before the payout was sent.",
+      "invalid_amount": "The amount to pay out is not valid.",
+      "provider_error": "The payout provider returned an error.",
+      "other": "This payout needs attention."
+    }
+  },
+  "payoutAccounts": {
+    "domain": "Payout accounts",
+    "subtitle": "Every store's payout account, mirrored from its payout provider.",
+    "noStore": "This account is not linked to a store.",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "list": {
+      "noRecordsMessage": "Payout accounts appear once a store starts onboarding with a payout provider."
+    },
+    "fields": {
+      "store": "Store",
+      "kycStatus": "KYC status",
+      "payoutsEnabled": "Payouts",
+      "chargesEnabled": "Charges",
+      "detailsSubmitted": "Details submitted",
+      "lastSyncedAt": "Last synced"
+    },
+    "status": {
+      "pending": "Pending",
+      "active": "Active",
+      "restricted": "Restricted",
+      "rejected": "Rejected"
+    },
+    "kycStatus": {
+      "pending_submission": "Pending submission",
+      "pending_approval": "Pending approval",
+      "approved": "Approved",
+      "refused": "Refused"
+    },
+    "actions": {
+      "sync": "Sync from provider",
+      "refreshLink": "Refresh onboarding link",
+      "openLink": "Open onboarding link"
+    },
+    "sync": {
+      "successToast": "Account synced from the payout provider."
+    },
+    "refreshLink": {
+      "successToast": "A new onboarding link was created."
+    },
+    "capabilities": {
+      "header": "Capabilities",
+      "kycUnknown": "Not reported"
+    },
+    "storeSection": {
+      "header": "Payout account",
+      "empty": "This store has no payout account yet."
+    },
+    "disabledReason": {
+      "pastDue": "Payouts are paused: the payout provider is waiting for overdue information from this store.",
+      "pendingVerification": "Payouts are paused while the payout provider verifies this store's information.",
+      "requirements": "Payouts are paused until this store completes onboarding with the payout provider.",
+      "rejected": "The payout provider rejected this account. Payouts to this store are not possible.",
+      "underReview": "The payout provider is reviewing this account. Payouts are paused until the review ends.",
+      "other": "The payout provider has disabled payouts for this account."
     }
   },
   "draftOrders": {
@@ -2994,7 +3091,12 @@
     "edit": {
       "header": "Edit Marketplace",
       "namePlaceholder": "ACME"
-    }
+    },
+    "defaultLeadtime": "Default lead time",
+    "defaultLeadtimeHint": "Business days a store needs before it ships an order. Used when neither the offer nor the store sets its own.",
+    "leadtimeDays_one": "{{count}} business day",
+    "leadtimeDays_other": "{{count}} business days",
+    "leadtimeInvalid": "Enter a whole number of days"
   },
   "store": {
     "domain": "Store",
@@ -3169,6 +3271,20 @@
       "requirements": {
         "label": "Requirements",
         "hint": "Specify the requirements for the shipping option."
+      }
+    },
+    "sellers": {
+      "header": "Stores",
+      "add": "Add stores",
+      "hint": "Stores assigned to this region can see it and price offers and shipping in its currency.",
+      "empty": "No stores are assigned to this region.",
+      "noSellersToAdd": "There are no stores to add.",
+      "alreadyAssigned": "This store is already assigned to the region.",
+      "removeWarning_one": "You are about to remove {{count}} store from this region. The store will no longer be able to price offers or shipping in it.",
+      "removeWarning_other": "You are about to remove {{count}} stores from this region. They will no longer be able to price offers or shipping in it.",
+      "toast": {
+        "added": "Stores added to region successfully",
+        "removed": "Stores removed from region successfully"
       }
     }
   },
@@ -3570,10 +3686,10 @@
   },
   "offerConditions": {
     "domain": "Offer Conditions",
-    "subtitle": "Manage the conditions sellers can list offers under.",
+    "subtitle": "Manage the conditions stores can list offers under.",
     "create": {
       "header": "Create Offer Condition",
-      "subtitle": "Specify the conditions sellers can list their offers under.",
+      "subtitle": "Specify the conditions stores can list their offers under.",
       "successToast": "Offer condition {{label}} was successfully created."
     },
     "edit": {
@@ -3601,7 +3717,7 @@
       },
       "isActive": {
         "label": "Enabled",
-        "hint": "When disabled, sellers can't list new offers under this condition."
+        "hint": "When disabled, stores can't list new offers under this condition."
       }
     }
   },
@@ -4127,7 +4243,10 @@
       "province": "Province",
       "country_code": "Country Code",
       "seller": "Store",
-      "premium": "Featured"
+      "premium": "Featured",
+      "defaultLeadtime": "Default lead time",
+      "defaultLeadtimeHint": "Business days this store needs before it ships. Leave empty to use the marketplace default.",
+      "marketplaceDefault": "Marketplace default"
     },
     "status": {
       "open": "Active",
@@ -4196,7 +4315,9 @@
         "emailRequired": "Please enter an email",
         "emailInvalid": "Please enter a valid email",
         "currencyRequired": "Please select a currency"
-      }
+      },
+      "regions": "Regions",
+      "regionsHint": "The store default region is always assigned. Each assigned region unlocks its currency for pricing."
     },
     "request": {
       "title": "Store request",
@@ -4243,6 +4364,23 @@
       "successToast": "{{count}} store(s) updated",
       "emptyHeading": "No stores selected",
       "emptyDescription": "Select stores from the list to edit them here."
+    },
+    "regions": {
+      "header": "Regions",
+      "add": "Add regions",
+      "empty": {
+        "title": "No regions assigned",
+        "message": "Assign regions so the seller can price offers and shipping in them."
+      },
+      "noRegionsToAdd": "There are no regions to add.",
+      "alreadyAssigned": "This region is already assigned to the seller.",
+      "removeWarning": "You are about to remove the region {{name}} from this seller. The seller will no longer be able to price offers or shipping in it.",
+      "toast": {
+        "added": "Regions added successfully",
+        "removed": "Region removed successfully"
+      },
+      "hint": "Assigned regions decide which currencies this store can price in. The default region is assigned on creation.",
+      "lastRegion": "A store must stay assigned to at least one region."
     }
   },
   "messages": {
@@ -4438,7 +4576,9 @@
       "stockStatus": "Stock status",
       "variants": "Variants",
       "variantsCount_one": "{{count}} variant",
-      "variantsCount_other": "{{count}} variants"
+      "variantsCount_other": "{{count}} variants",
+      "leadtime": "Lead time",
+      "storeDefault": "Store default"
     },
     "detail": {
       "offerLabel": "Offer",
@@ -4477,7 +4617,8 @@
       "in_stock": "In stock",
       "low_stock": "Low stock",
       "out_of_stock": "Out of stock"
-    }
+    },
+    "regionPrices": "Region prices"
   },
   "permissions": {
     "noAccess": "You don't have permission to view this.",

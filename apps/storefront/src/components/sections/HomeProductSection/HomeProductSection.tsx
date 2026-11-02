@@ -1,4 +1,4 @@
-import { HomeProductsCarousel } from "@/components/organisms"
+import { HomeProductsCarousel } from '@/components/organisms/HomeProductsCarousel/HomeProductsCarousel';
 import { Product } from "@/types/product"
 
 export const HomeProductSection = async ({

@@ -165,7 +165,24 @@ medusaIntegrationTestRunner({
             })
 
             describe("POST /store/carts/:id/line-items", () => {
-                it("should reject add-to-cart when offer_id is missing", async () => {
+                it("creates the cart in the region currency when currency_code is empty", async () => {
+                const response = await api.post(
+                    `/store/carts`,
+                    {
+                        region_id: region.id,
+                        sales_channel_id: salesChannel.id,
+                        currency_code: "",
+                    },
+                    storeHeaders
+                )
+
+                expect(response.status).toEqual(200)
+                expect(response.data.cart.currency_code).toEqual(
+                    region.currency_code
+                )
+            })
+
+            it("should reject add-to-cart when offer_id is missing", async () => {
                     await seedSellerOffer({
                         email: "missing-offer@test.com",
                         name: "Missing Offer",
@@ -405,6 +422,50 @@ medusaIntegrationTestRunner({
                             id: seed.offer.id,
                         })
                     )
+                })
+
+                it("should return each line's offer and seller on GET /store/carts/:id when requested", async () => {
+                    const first: SellerSeed = await seedSellerOffer({
+                        email: "cart-seller-a@test.com",
+                        name: "Cart Seller A",
+                        stocked: 10,
+                        offerPrice: 3000,
+                    })
+                    const second: SellerSeed = await seedSellerOffer({
+                        email: "cart-seller-b@test.com",
+                        name: "Cart Seller B",
+                        stocked: 10,
+                        offerPrice: 3200,
+                    })
+
+                    const cart = await createCart()
+
+                    for (const seed of [first, second]) {
+                        await api.post(
+                            `/store/carts/${cart.id}/line-items`,
+                            { offer_id: seed.offer.id, quantity: 1 },
+                            storeHeaders
+                        )
+                    }
+
+                    const response = await api.get(
+                        `/store/carts/${cart.id}?fields=*items,*items.offer,*items.offer.seller`,
+                        storeHeaders
+                    )
+
+                    expect(response.status).toEqual(200)
+
+                    const sellerByOffer = Object.fromEntries(
+                        response.data.cart.items.map((item: any) => [
+                            item.offer?.id,
+                            item.offer?.seller?.id,
+                        ])
+                    )
+
+                    expect(sellerByOffer).toEqual({
+                        [first.offer.id]: first.sellerId,
+                        [second.offer.id]: second.sellerId,
+                    })
                 })
 
                 // SPEC-007: decorateLineItemWithOfferStep is removed.

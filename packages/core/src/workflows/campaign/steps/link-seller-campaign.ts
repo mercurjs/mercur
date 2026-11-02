@@ -11,6 +11,10 @@ type LinkSellerCampaignStepInput = {
 export const linkSellerCampaignStep = createStep(
   "link-seller-campaign",
   async (input: LinkSellerCampaignStepInput, { container }) => {
+    if (!input.campaign_ids.length) {
+      return new StepResponse(undefined, undefined)
+    }
+
     const remoteLink: Link = container.resolve(ContainerRegistrationKeys.LINK)
 
     const links = input.campaign_ids.map((campaignId) => ({

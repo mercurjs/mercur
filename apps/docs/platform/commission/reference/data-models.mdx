@@ -1,75 +1,89 @@
 ---
-title: "Data models"
+title: "Commission data models"
 sidebarTitle: "Data models"
-description: "The data models owned by the Commission domain."
+description: "Every field of CommissionRate, CommissionRule, CommissionRateValue, and CommissionLine."
 ---
 
-The Commission domain is owned by the **Commission module**. This reference
-lists its data models and their fields. For the full module overview, see the
-[Commission overview](/platform/commission/overview).
+The Commission module owns four data models, defined in `packages/core/src/modules/commission/models`. Every model also has `created_at`, `updated_at`, and a nullable `deleted_at`, which Medusa adds and the tables below leave out.
 
 ## CommissionRate
 
-Table `commission_rate`, id prefix `comrate`. The rate the marketplace takes
-from a sale.
+The rate the marketplace takes from a sale. Table `commission_rate`, id prefix `comrate`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
 | `id` | text | Primary key |
-| `name` | text | Searchable |
-| `code` | text | Unique, searchable; auto-generated from `name` when omitted |
-| `type` | enum | `CommissionRateType`, `fixed` or `percentage` |
-| `value` | bigNumber | Percent (for `percentage`) or fallback amount (for `fixed`) |
-| `currency_code` | text | Nullable; when set, the rate applies only to that currency |
-| `include_tax` | boolean | Default `false`; add `tax_total` to the base amount |
-| `include_shipping` | boolean | Default `false`; only meaningful on the global rate |
-| `is_enabled` | boolean | Default `true`; only enabled rates are evaluated |
-| `is_default` | boolean | Default `false`; the single Global Commission |
+| `name` | text | Display name, searchable |
+| `code` | text | Unique among non-deleted rates and searchable. Generated from `name` when omitted on create |
+| `type` | enum | `CommissionRateType`: `fixed` or `percentage` |
+| `value` | bigNumber | The percent for `percentage`, the fallback amount for `fixed` |
+| `currency_code` | text, nullable | When set, the rate applies only to orders in this currency |
+| `include_tax` | boolean | Default `false`. Adds the line’s `tax_total` to the base amount |
+| `include_shipping` | boolean | Default `false`. Produces shipping lines, on the `is_default` rate only |
+| `is_enabled` | boolean | Default `true`. Disabled rates are skipped |
+| `is_default` | boolean | Default `false`. Marks the global commission, which can’t be deleted |
 
-Relations: `rules` (one-to-many `CommissionRule`), `values` (one-to-many
-`CommissionRateValue`).
+Relations:
+
+- **`rules`**: has many `CommissionRule`
+- **`values`**: has many `CommissionRateValue`
 
 ## CommissionRule
 
-Table `commission_rule`, id prefix `comrule`. Scopes a rate to a slice of the
-catalog.
+Scopes a rate to one record in one dimension. Table `commission_rule`, id prefix `comrule`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
 | `id` | text | Primary key |
 | `reference` | text | The dimension: `product`, `product_type`, `product_collection`, `product_category`, or `seller` |
 | `reference_id` | text | The id of the record in that dimension |
-| `commission_rate` | relation | The rate this rule belongs to (`belongsTo`) |
+| `commission_rate_id` | text | Foreign key to the owning rate |
+
+Relations:
+
+- **`commission_rate`**: belongs to `CommissionRate`
+
+The table has an index on `(reference, reference_id)` for non-deleted rows.
 
 ## CommissionRateValue
 
-Table `commission_rate_value`, id prefix `comval`. A per-currency amount for a
-fixed rate.
+A per-currency amount for a fixed rate. Table `commission_rate_value`, id prefix `comval`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
 | `id` | text | Primary key |
-| `currency_code` | text | The currency this amount applies to |
-| `amount` | bigNumber | The flat commission for that currency |
-| `commission_rate` | relation | The rate this value belongs to (`belongsTo`) |
+| `currency_code` | text | The currency this amount applies to, such as `usd` |
+| `amount` | bigNumber | The fixed commission per line item in that currency |
+| `commission_rate_id` | text | Foreign key to the owning rate |
+
+Relations:
+
+- **`commission_rate`**: belongs to `CommissionRate`
 
 ## CommissionLine
 
-Table `commission_line`, id prefix `comline`. The resolved commission for one
-order line.
+The resolved commission for one order line item or shipping method. Table `commission_line`, id prefix `comline`.
 
-| Field | Type | Notes |
+| Field | Type | Description |
 | --- | --- | --- |
 | `id` | text | Primary key |
-| `item_id` | text | Nullable; the order line item this line commissions |
-| `shipping_method_id` | text | Nullable; the shipping method this line commissions |
-| `commission_rate_id` | text | Nullable; the rate that matched |
-| `code` | text | The matched rate's code |
-| `rate` | float | The applied rate |
-| `amount` | bigNumber | The computed commission amount |
-| `description` | text | Nullable; `"Shipping Commission"` on shipping lines |
+| `item_id` | text, nullable | The order line item this line commissions |
+| `shipping_method_id` | text, nullable | The order shipping method this line commissions |
+| `commission_rate_id` | text, nullable | The rate that produced the line. Plain text, not a relation |
+| `provider_id` | text | Default `system`. The provider that computed the line |
+| `code` | text | The code of the rate that produced the line |
+| `rate` | float | The percent, or the fixed amount, that was applied |
+| `amount` | bigNumber | The commission amount |
+| `description` | text, nullable | `Shipping Commission` on shipping lines from the `system` provider |
+| `data` | json, nullable | Free data from the provider |
 
-<Note>
-  A commission line anchors to **either** `item_id` **or** `shipping_method_id`.
-  It references those records by id, not through a module link.
-</Note>
+The table has indexes on `item_id` and on `shipping_method_id` for non-deleted rows. A line sets one of the two anchors and leaves the other `null`.
+
+## Enums
+
+`CommissionRateType` is exported from `@mercurjs/types`.
+
+| Member | Value |
+| --- | --- |
+| `CommissionRateType.FIXED` | `fixed` |
+| `CommissionRateType.PERCENTAGE` | `percentage` |

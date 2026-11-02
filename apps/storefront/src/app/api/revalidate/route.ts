@@ -1,7 +1,6 @@
 import { revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
-export const runtime = 'nodejs';
 
 type RevalidatePayload = {
   tags?: string[];
@@ -46,7 +45,7 @@ export async function POST(request: NextRequest) {
   }
 
   for (const tag of tags) {
-    revalidateTag(tag);
+    revalidateTag(tag, 'max');
   }
 
   return NextResponse.json({ revalidated: true, tags });

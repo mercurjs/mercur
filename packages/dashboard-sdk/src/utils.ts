@@ -1,4 +1,5 @@
 import fs from "fs"
+import { createRequire } from "module"
 import path from "path"
 import type { ParserOptions } from "@babel/parser"
 import { traverse } from "./babel"
@@ -57,7 +58,9 @@ export function resolveExports(moduleExports: any) {
 
 export async function getFileExports(path: string): Promise<any> {
     const { unregister } = await safeRegister()
-    const module = require(path)
+    // The ESM build has no `require`; a CJS consumer gets one via the shim.
+    const load = createRequire(import.meta.url)
+    const module = load(path)
     unregister()
 
     return resolveExports(module)

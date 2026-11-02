@@ -1,70 +1,146 @@
 ---
-title: "Create a master product"
+title: "Create a master product from server code"
 sidebarTitle: "Create a master product"
-description: "Create a master product programmatically with createProductsWorkflow."
+description: "Add a product to the shared catalog with Mercur's createProductsWorkflow, including attributes, variants, and an allowlist."
 ---
 
-In this guide, you'll learn how to add a product to the shared catalog from your
-own server code, for example in a seed script, a custom API route, or an import
-flow.
+Run `createProductsWorkflow` to add a product to the shared catalog from a custom route, a seed script, or an import job. It creates the product and its variants, attaches attributes, links any stores you name, and records the submission.
 
-Mercur exposes a `createProductsWorkflow` that creates the `Product` record,
-attaches attributes and variants, records the submission for audit, and
-optionally allowlists the submitting store. Run it from any place that has access
-to the Medusa container.
+## Before you begin
 
-## Run the workflow
+You need the following in place:
 
-```ts title="src/api/custom/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { createProductsWorkflow } from "@mercurjs/core/workflows"
+- A Mercur server with `@mercurjs/core` installed
+- The ids of any [attributes](/platform/attribute/overview) and stores you want to reference
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  const { result } = await createProductsWorkflow(req.scope).run({
-    input: {
-      products: [
-        {
-          title: "Aeron Chair",
-          status: "proposed",
-          seller_ids: ["sel_123"],
+<Warning>
+  Import `createProductsWorkflow` from `@mercurjs/core/workflows`, not `@medusajs/medusa/core-flows`. Medusa's workflow has the same name but skips attributes, the allowlist, and the audit record.
+</Warning>
+
+## Create the product
+
+<Steps>
+  <Step title="Add a route that runs the workflow">
+    Create an admin route. The workflow returns the created `ProductDTO` objects in input order.
+
+    ```ts title="src/api/admin/supplier-products/route.ts"
+    import type {
+      AuthenticatedMedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import { createProductsWorkflow } from "@mercurjs/core/workflows"
+
+    export async function POST(
+      req: AuthenticatedMedusaRequest,
+      res: MedusaResponse
+    ) {
+      const { result } = await createProductsWorkflow(req.scope).run({
+        input: {
+          products: [{ title: "Aeron Chair", status: "proposed" }],
+          created_by: req.auth_context.actor_id,
         },
+      })
+
+      res.status(201).json({ product: result[0] })
+    }
+    ```
+
+    `created_by` is required. Mercur stores it on the `PRODUCT_ADD` change as the submitter. Without a `status`, the product starts as `draft`.
+  </Step>
+  <Step title="Add attributes and variants">
+    Pass `attributes` instead of native `options`. A `multi_select` attribute with `is_variant_axis` becomes the option that variants bind to by title.
+
+    ```ts
+    const product = {
+      title: "Aeron Chair",
+      status: "proposed" as const,
+      attributes: [
+        {
+          id: "pattr_01JD8Q1234567",
+          value_ids: ["pattrval_01JD8Q1234567"],
+        },
+        { title: "Size", is_variant_axis: true, values: ["B", "C"] },
       ],
-      created_by: req.auth_context.actor_id,
-    },
-  })
+      variants: [
+        { title: "Size B", options: { Size: "B" } },
+        { title: "Size C", options: { Size: "C" } },
+      ],
+    }
+    ```
 
-  res.status(201).json({ product: result[0] })
-}
-```
+    The first entry attaches a global attribute with a chosen value. The second creates a product-scoped axis. New variants get `manage_inventory: false` unless you set it, since stock lives on [offers](/platform/offer/overview).
+  </Step>
+  <Step title="Restrict the product to stores">
+    Add `seller_ids` to a product to put those stores on its [allowlist](/platform/catalog/concepts/product-seller-allowlist).
 
-<Note>
-  Passing `seller_ids` allowlists those stores for the product as it's created,
-  so the submitting store can immediately create an
-  [offer](/platform/offer/overview) against it. `created_by` records who
-  submitted the product for the audit trail.
-</Note>
+    ```ts
+    const product = {
+      title: "Aeron Chair",
+      seller_ids: ["sel_01JD8Q1234567", "sel_01JD8Q1234568"],
+    }
+    ```
 
-## Default status
+    Only these 2 stores can see and sell the product once it's published. Leave `seller_ids` out to open it to every store.
+  </Step>
+</Steps>
 
-A product created without an explicit `status` follows the marketplace's review
-flow. Vendor-created products default to **`proposed`**, submitted for operator
-review rather than published outright. Set `status: "draft"` to keep a product
-private until it's ready, or `status: "published"` from a trusted operator flow
-to skip review. See the
-[status lifecycle](/platform/catalog/concepts/status-lifecycle).
+## Submit on behalf of a store
 
-## Attach custom data
-
-The workflow accepts an `additional_data` payload passed to its hooks, letting
-you persist marketplace-specific data alongside the product without forking the
-workflow.
+Pass the store's seller id as `created_by` to make the product a submission from that store. That's what the vendor API does, and it's how Mercur lets a store see its own `draft` and `proposed` products.
 
 ```ts
-await createProductsWorkflow(req.scope).run({
+await createProductsWorkflow(container).run({
   input: {
-    products: [{ title: "Aeron Chair", seller_ids: ["sel_123"] }],
-    created_by: "usr_123",
-    additional_data: { source: "supplier-feed" },
+    products: [{ title: "Desk lamp", status: "proposed" }],
+    created_by: "sel_01JD8Q1234567",
   },
 })
 ```
+
+The product appears in that store's product list as a proposed submission, and stays hidden from other stores until it's published.
+
+## Validate input with the validate hook
+
+The workflow runs a `validate` hook before it creates anything. Throw from the handler to stop the run.
+
+```ts title="src/workflows/hooks/validate-products.ts"
+import { createProductsWorkflow } from "@mercurjs/core/workflows"
+import { MedusaError } from "@medusajs/framework/utils"
+
+createProductsWorkflow.hooks.validate(async ({ products }) => {
+  const missing = products.find((p) => !p.description)
+  if (missing) {
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      `Product "${missing.title}" needs a description`
+    )
+  }
+})
+```
+
+The hook receives the raw `input` and its `products` array, so you can check any field before Medusa writes rows.
+
+## Attach custom data with additional_data
+
+Pass `additional_data` to carry extra values through the run. Mercur forwards it to Medusa's product and variant workflows and to the `productsCreated` hook.
+
+```ts title="src/workflows/hooks/products-created.ts"
+import { createProductsWorkflow } from "@mercurjs/core/workflows"
+
+createProductsWorkflow.hooks.productsCreated(
+  async ({ products, additional_data }, { container }) => {
+    const logger = container.resolve("logger")
+    const source = additional_data?.source
+
+    logger.info(`Imported ${products.length} products from ${source}`)
+  }
+)
+```
+
+Call the workflow with `additional_data: { source: "supplier_feed" }` and the handler receives it next to the created products.
+
+## Next steps
+
+- [Publish or reject a product](/platform/catalog/guides/publish-or-reject-a-product) to review what you created
+- [Allowlist stores](/platform/catalog/guides/allowlist-stores) to change the store list later
+- [Create an offer](/platform/offer/guides/create-an-offer) so a store can sell the product

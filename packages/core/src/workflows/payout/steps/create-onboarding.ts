@@ -1,15 +1,19 @@
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
-import { CreateOnboardingDTO, MercurModules, OnboardingDTO } from "@mercurjs/types"
+import { CreateOnboardingDTO, IPayoutModuleService, MercurModules } from "@mercurjs/types"
 
-import PayoutModuleService from "../../../modules/payout/services/payout-module-service"
+export const createOnboardingStepId = "create-onboarding"
 
+/**
+ * Publishes the onboarding link, or the dashboard login link once the seller
+ * submitted their details. A published link cannot be revoked, so there is
+ * no compensation.
+ */
 export const createOnboardingStep = createStep(
-  "create-onboarding",
+  createOnboardingStepId,
   async (input: CreateOnboardingDTO, { container }) => {
-    const service = container.resolve<PayoutModuleService>(MercurModules.PAYOUT)
+    const service = container.resolve<IPayoutModuleService>(MercurModules.PAYOUT)
+    const onboarding = await service.createOnboarding(input)
 
-    const onboarding: OnboardingDTO = await service.createOnboarding(input)
-
-    return new StepResponse(onboarding, onboarding.id)
+    return new StepResponse(onboarding)
   }
 )

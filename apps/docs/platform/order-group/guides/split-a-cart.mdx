@@ -1,58 +1,133 @@
 ---
-title: "Split a cart into orders"
+title: "Split a cart into an order group"
 sidebarTitle: "Split a cart"
-description: "Complete a multi-seller cart into a group of per-seller orders with completeCartWithSplitOrdersWorkflow."
+description: "Run completeCartWithSplitOrdersWorkflow from your own code and change the split with its validate and setOrderStatus hooks."
 ---
 
-In this guide, you'll learn how the checkout split works and how to run it from
-your own server code, such as a custom complete-cart route.
+Run the checkout split yourself when you build a custom completion flow, or hook into it when you need to block a checkout or set the initial status of each seller’s order.
 
-Mercur replaces Medusa's single-order checkout with
-`completeCartWithSplitOrdersWorkflow`. It takes a cart that may hold offers from
-several sellers, creates one order per seller, and wraps them in an `OrderGroup`.
+## Before you begin
 
-## Run the workflow
+You need the following:
 
-```ts title="src/api/store/carts/[id]/complete/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { completeCartWithSplitOrdersWorkflow } from "@mercurjs/core/workflows"
+- **A cart ready to complete**: items bought through offers, a shipping method for each seller that ships, and a payment session
+- **Mercur’s cart completion in place**: Mercur’s cart completion route already runs this workflow, so you only need your own route for a custom flow
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  const { result } = await completeCartWithSplitOrdersWorkflow(req.scope).run({
-    input: { cart_id: req.params.id },
-  })
+## Complete a cart from a custom route
 
-  res.json({ order_group_id: result.order_group_id })
+<Steps>
+  <Step title="Run the workflow">
+    Call `completeCartWithSplitOrdersWorkflow` with the cart id. Set `throwOnError: false` so you can handle payment errors yourself.
+
+    ```ts title="src/api/store/carts/[id]/place/route.ts"
+    import type {
+      MedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import {
+      completeCartWithSplitOrdersWorkflow,
+    } from "@mercurjs/core/workflows"
+
+    export async function POST(req: MedusaRequest, res: MedusaResponse) {
+      const { result, errors } = await completeCartWithSplitOrdersWorkflow(
+        req.scope
+      ).run({
+        input: { cart_id: req.params.id },
+        throwOnError: false,
+      })
+
+      if (errors?.[0]) {
+        throw errors[0].error
+      }
+
+      res.json({ order_group_id: result.order_group_id })
+    }
+    ```
+
+    The workflow returns `{ order_group_id }`. It runs once per cart: a second call for the same cart returns the existing group’s id.
+  </Step>
+  <Step title="Return the group to the shopper">
+    Load the group with `query.graph` and send it back instead of the bare id:
+
+    ```ts
+    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+    const { data: [order_group] } = await query.graph({
+      entity: "order_group",
+      fields: ["id", "display_id", "total", "orders.id", "orders.total"],
+      filters: { id: result.order_group_id },
+    })
+    ```
+
+    `ContainerRegistrationKeys` comes from `@medusajs/framework/utils`.
+  </Step>
+</Steps>
+
+## Handle a failed payment authorization
+
+The workflow authorizes the payment session after it creates the orders. If authorization fails, the workflow rolls back: it deletes the group, and Medusa’s steps undo the orders, links, and reservations. Mercur’s own route answers `PAYMENT_AUTHORIZATION_ERROR` and `PAYMENT_REQUIRES_MORE_ERROR` with a `200` that carries the cart and the error, so the storefront can retry payment. Do the same in a custom route:
+
+```ts
+import { MedusaError } from "@medusajs/framework/utils"
+
+const retryable: string[] = [
+  MedusaError.Types.PAYMENT_AUTHORIZATION_ERROR,
+  MedusaError.Types.PAYMENT_REQUIRES_MORE_ERROR,
+]
+
+if (errors?.[0] && retryable.includes(errors[0].error?.type)) {
+  res.json({ type: "cart", error: errors[0].error.message })
+  return
 }
 ```
 
-The workflow is idempotent per cart: if a group already exists for the cart it
-returns the existing `order_group_id` instead of splitting again. It acquires a
-lock on the cart id for the duration of the split so concurrent completions can't
-create duplicate orders.
+Throw every other error so Medusa’s error handler responds with the matching status.
 
-<Note>
-  Line items are grouped by `item.offer.seller_id`. Sellers sell against the
-  shared master catalog through **offers**, so a line item's seller comes from
-  its offer, never from product ownership.
-</Note>
+## Block a checkout with the validate hook
 
-## What happens during the split
+The `validate` hook runs before the split and receives the workflow `input` and the `cart`. Throw to stop the checkout:
 
-For the cart, the workflow validates payments and per-seller shipping, then in a
-single transaction:
+```ts title="src/workflows/hooks/validate-split-cart.ts"
+import { MedusaError } from "@medusajs/framework/utils"
+import { completeCartWithSplitOrdersWorkflow } from "@mercurjs/core/workflows"
 
-- creates the parent `OrderGroup` (`customer_id`, `cart_id`)
-- creates one child `Order` per seller from that seller's items and shipping
-- links each order to the group, its seller, and the originating cart
-- mirrors line-item → offer links, reserves offer inventory, and splits payment captures proportionally
-- refreshes commission lines per order and marks the cart `completed_at`
+completeCartWithSplitOrdersWorkflow.hooks.validate(async ({ cart }) => {
+  if (!cart.email) {
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      "Add an email address before you complete the cart"
+    )
+  }
+})
+```
 
-Finally it emits `order.placed` for the created orders and `order_group.created`
-for the group.
+The hook runs on every cart completion, including completions started by a payment webhook through `processPaymentWorkflow`.
 
-<Tip>
-  The workflow exposes hooks `validate`, `beforePaymentAuthorization`, and
-  `orderGroupCreated`, so you can inject marketplace-specific logic around the
-  split without forking it.
-</Tip>
+## Set the initial order status with setOrderStatus
+
+Child orders start as `pending`. Return a status from the `setOrderStatus` hook to change that, for example when sellers must accept an order before they fulfill it:
+
+```ts title="src/workflows/hooks/set-split-order-status.ts"
+import { OrderStatus } from "@medusajs/framework/utils"
+import { StepResponse } from "@medusajs/framework/workflows-sdk"
+import { completeCartWithSplitOrdersWorkflow } from "@mercurjs/core/workflows"
+
+completeCartWithSplitOrdersWorkflow.hooks.setOrderStatus(async () => {
+  return new StepResponse({
+    status: OrderStatus.REQUIRES_ACTION,
+    status_by_seller_id: { sel_01JD8Q1234567: OrderStatus.PENDING },
+  })
+})
+```
+
+`status` applies to every child order. `status_by_seller_id` overrides it for the sellers you list. Return nothing to keep `pending`.
+
+## React to the new group
+
+The split emits `order_group.created` with the group id, and `order.placed` once for each child order. Subscribe to the first for purchase-level work, such as a single confirmation email, and to the second for per-seller work. The [event reference](/platform/order-group/reference/events) has a subscriber example.
+
+## Next steps
+
+- [How the split assigns items, shipping, and promotions](/platform/order-group/concepts/order-splitting)
+- [`completeCartWithSplitOrdersWorkflow` reference](/platform/order-group/reference/workflows#completecartwithsplitordersworkflow)
+- [Retrieve the new group](/platform/order-group/guides/retrieve-an-order-group)

@@ -1,7 +1,13 @@
+import { ColumnDef } from "@tanstack/react-table";
+import { useMemo } from "react";
+import { useExtendableTable } from "@mercurjs/dashboard-shared";
 import { _DataTable } from "@components/table/data-table";
 import { useInventoryItemLevels } from "@hooks/api/inventory";
 import { useDataTable } from "@hooks/use-data-table";
-import { useLocationListTableColumns } from "./use-location-list-table-columns";
+import {
+  ExtendedLocationLevel,
+  useLocationListTableColumns,
+} from "./use-location-list-table-columns";
 import { useLocationLevelTableQuery } from "./use-location-list-table-query";
 import { StockLocationDTO } from "@medusajs/types";
 import { useTranslation } from "react-i18next";
@@ -25,7 +31,17 @@ export const ItemLocationListTable = ({
       fields: "*stock_locations",
     },
   );
-  const columns = useLocationListTableColumns();
+  const baseColumns = useLocationListTableColumns();
+  const actionsColumn = baseColumns[baseColumns.length - 1];
+  const { columns: extended } = useExtendableTable<ExtendedLocationLevel>({
+    model: "inventory_item",
+    zone: "location-levels",
+    columns: baseColumns.slice(0, -1) as unknown as ColumnDef<ExtendedLocationLevel, unknown>[],
+  });
+  const columns = useMemo(
+    () => [...extended, actionsColumn] as ColumnDef<ExtendedLocationLevel, unknown>[],
+    [extended, actionsColumn],
+  );
 
   const filteredLocationLevels = inventory_levels?.filter(
     (level) =>
@@ -34,7 +50,7 @@ export const ItemLocationListTable = ({
   );
 
   const { table } = useDataTable({
-    data: filteredLocationLevels ?? [],
+    data: (filteredLocationLevels ?? []) as ExtendedLocationLevel[],
     columns,
     count,
     enablePagination: true,

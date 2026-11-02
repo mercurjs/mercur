@@ -1,4 +1,4 @@
-import { StarRating } from "@/components/atoms"
+import { StarRating } from '@/components/atoms/StarRating/StarRating';
 import { SellerAvatar } from "@/components/cells/SellerAvatar/SellerAvatar"
 import { CollapseIcon } from "@/icons"
 import clsx from "clsx"

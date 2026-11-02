@@ -3615,8 +3615,7 @@
       "paid": "Isplaćeno",
       "processing": "U obradi",
       "pending": "Na čekanju",
-      "failed": "Neuspješno",
-      "canceled": "Otkazano"
+      "failed": "Neuspješno"
     }
   },
   "marketplace": {

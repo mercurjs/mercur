@@ -396,7 +396,7 @@ except Exception:
 
 # Enumerate every published @mercurjs/* package name from the source tree.
 mercur_names = set()
-for path in glob.glob(f"{SOURCE_DIR}/packages/*/package.json") + glob.glob(f"{SOURCE_DIR}/packages/providers/*/package.json"):
+for path in glob.glob(f"{SOURCE_DIR}/packages/*/package.json") + glob.glob(f"{SOURCE_DIR}/packages/plugins/*/package.json"):
     with open(path) as f:
         name = json.load(f).get("name")
     if name and name.startswith(SCOPE):

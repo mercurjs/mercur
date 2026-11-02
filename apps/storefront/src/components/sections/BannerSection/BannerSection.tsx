@@ -1,4 +1,4 @@
-import { Button } from "@/components/atoms"
+import { Button } from '@/components/atoms/Button/Button';
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import Image from "next/image"
 

@@ -3864,8 +3864,7 @@
       "pending": "대기 중",
       "processing": "처리 중",
       "paid": "지급 완료",
-      "failed": "실패",
-      "canceled": "취소됨"
+      "failed": "실패"
     }
   },
   "translations": {

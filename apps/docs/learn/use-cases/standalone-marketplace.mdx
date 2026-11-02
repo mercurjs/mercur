@@ -1,0 +1,64 @@
+---
+title: "Run a standalone marketplace"
+sidebarTitle: "Standalone marketplace"
+description: "Launch a multi-vendor marketplace on Mercur: its own storefront, an operator admin, a vendor panel for sellers, and a backend that splits every checkout into one order per seller, computes commissions and pays sellers out."
+---
+
+Mercur runs the whole marketplace. Shoppers buy on a storefront built on the Store API, operators approve sellers and review catalog changes in the admin panel, sellers manage offers, orders and payouts in the vendor panel, and the backend turns one checkout into one order per seller. There is no other commerce system in the picture: products, pricing, carts, orders and payments run on Medusa underneath Mercur.
+
+<Card title="Install Mercur" icon="rocket" href="/learn/introduction">
+  Create a marketplace project with `create-mercur-app`, seed it and run the API, admin and vendor panel locally.
+</Card>
+
+<img className="block dark:hidden" src="/images/figures/use-case-platform-light.svg" alt="Three Mercur surfaces stacked back to front: the admin Sellers list, the vendor panel's Offers table for ACME, and the storefront product page for the Linen shirt listing the offers a shopper can buy." />
+<img className="hidden dark:block" src="/images/figures/use-case-platform-dark.svg" alt="Three Mercur surfaces stacked back to front: the admin Sellers list, the vendor panel's Offers table for ACME, and the storefront product page for the Linen shirt listing the offers a shopper can buy." />
+
+## Use cases
+
+<CardGroup cols={2}>
+  <Card title="Launch a multi-vendor marketplace" icon="store" href="/platform/store/overview">
+    Register sellers, approve or suspend them, and give each a team with roles that never leak into another store.
+  </Card>
+  <Card title="Curate one shared catalog" icon="book-open" href="/platform/catalog/overview">
+    Keep master products in a single catalog, allowlist which sellers may sell which products, and review every submission and edit before it goes live.
+  </Card>
+  <Card title="Let sellers compete on the same products" icon="tags" href="/platform/offer/overview">
+    Sellers list offers against master products with their own SKU, price, stock and shipping; shoppers pick the offer, not a duplicate product.
+  </Card>
+  <Card title="Split checkout, commission and pay out" icon="money-bill-transfer" href="/platform/order-group/overview">
+    One payment becomes one order per seller, commission lines are computed per order, and payouts reach each seller's connected account on a schedule.
+  </Card>
+</CardGroup>
+
+## What is a standalone marketplace?
+
+A standalone marketplace is a store whose catalog is sold by many sellers rather than by the operator. The operator owns the brand, the storefront and the rules: who may sell, what the catalog looks like, what commission applies. Sellers own their stock, their prices and their fulfillment. The shopper sees one store and pays once; behind it, each seller receives and ships their own part of the order.
+
+## Why run it on Mercur
+
+Building that on a single-store engine means writing the seller layer yourself: seller accounts and teams, a catalog that is shared rather than owned, a review pipeline for edits, order splitting, commission arithmetic, payouts. Mercur ships those as modules on top of Medusa, so the commerce core is mature from day one and the marketplace layer is yours to extend. You self-host it, you own the source of every block you install, and there is no commission on gross merchandise value.
+
+## How Mercur does it
+
+| Surface | Who uses it | Package |
+| --- | --- | --- |
+| Storefront | Shoppers | Any framework on the [Store API](/references/api/store), or the starter storefront |
+| Admin panel | Operators | `@mercurjs/admin` |
+| Vendor panel | Sellers | `@mercurjs/vendor` |
+| Backend | Everyone | `@mercurjs/core` as a plugin on Medusa |
+
+- **Sellers and teams:** the [Store](/platform/store/overview) module holds seller accounts, their lifecycle (`pending_approval` → `open` → `suspended` / `terminated`) and members with per-store roles.
+- **Catalog:** [master products](/platform/catalog/overview) live in one shared catalog; a product–seller link allowlists who may sell them, and every edit flows through the [product change pipeline](/platform/product-edit/overview) with an audit trail.
+- **Offers:** an [offer](/platform/offer/overview) is how a seller sells a master product, with offer-scoped price, inventory and shipping profile.
+- **Orders and money:** the [Order Group](/platform/order-group/overview) module splits a cart into one order per seller, the [Commission](/platform/commission/overview) module writes commission lines per order, and the [Payout](/platform/payout/overview) module transfers seller earnings through a provider such as Stripe Connect.
+
+Everything is extended the Medusa way: custom modules, workflow hooks, subscribers, extra API routes, and pages dropped into the admin or vendor panel through the [Dashboard SDK](/resources/customization/extending-panels).
+
+<CardGroup cols={2}>
+  <Card title="Architecture" icon="sitemap" href="/learn/architecture">
+    How the panels, the API and the modules fit together.
+  </Card>
+  <Card title="Marketplace inside a store" icon="arrow-right-arrow-left" href="/learn/use-cases/marketplace-inside-store">
+    Already running a store such as Magento? Keep it and add sellers to it instead.
+  </Card>
+</CardGroup>

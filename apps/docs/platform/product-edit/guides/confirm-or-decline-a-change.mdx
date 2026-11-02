@@ -1,76 +1,124 @@
 ---
-title: "Confirm or decline a change"
+title: "Confirm, decline, or cancel a product change"
 sidebarTitle: "Confirm or decline"
-description: "Resolve a pending product change from server code."
+description: "Resolve a pending product change from server code and react to the result."
 ---
 
-In this guide, you'll learn how to resolve a pending change from your own server
-code. Each resolution has a dedicated workflow so the side effects (applying
-actions, events, compensation) run consistently.
+Resolve a pending product change from your own code, for example in a custom review tool or an automated approval rule. Each resolution has its own workflow, so the status update, the product write, and the event always happen together.
 
-## Confirm a change
+## Before you begin
 
-`confirmProductChangeWorkflow` marks the changes `confirmed`, applies their
-pending actions to the product, and emits `product-change.confirmed`.
+You need the following in place:
 
-```ts title="src/api/custom/confirm/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { confirmProductChangeWorkflow } from "@mercurjs/core/workflows"
+- A Mercur server with `@mercurjs/core` installed through `withMercur()`
+- A change in `pending` status. Changes stay `pending` only while the `product_request` feature flag is on, the default
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  await confirmProductChangeWorkflow(req.scope).run({
-    input: {
-      ids: [req.params.id],
-      confirmed_by: req.auth_context?.actor_id,
-    },
-  })
+## Review and resolve a change
 
-  res.sendStatus(200)
-}
-```
+Find the pending change, then confirm or decline it.
 
-<Note>
-  Confirmation only applies actions that aren't already `applied`, so re-running
-  it never writes the same edit twice.
-</Note>
+<Steps>
+  <Step title="Find pending changes">
+    List the pending changes on a product with their actions, so a reviewer can see what each one does.
 
-## Decline a change
+    ```ts
+    const query = container.resolve("query")
 
-`rejectProductChangeWorkflow` moves a `pending` change to `declined` without
-touching the product, and emits `product-change.declined`.
+    const { data: changes } = await query.graph({
+      entity: "product_change",
+      fields: ["id", "created_by", "external_note", "actions.*"],
+      filters: {
+        product_id: "prod_01JD8Q1234567",
+        status: "pending",
+      },
+    })
+    ```
 
-```ts
-import { rejectProductChangeWorkflow } from "@mercurjs/core/workflows"
+    Each action’s `details` holds the proposed value and the previous one, as described in [Change actions](/platform/product-edit/concepts/change-actions).
+  </Step>
+  <Step title="Confirm the change">
+    `confirmProductChangeWorkflow` sets the changes to `confirmed`, applies their actions to the product, and emits `product-change.confirmed`.
 
-await rejectProductChangeWorkflow(container).run({
-  input: {
-    id: "prodch_123",
-    declined_by: "user_123",
-    declined_reason: "Images don't meet guidelines",
-  },
-})
-```
+    ```ts title="src/api/admin/custom/changes/[id]/confirm/route.ts"
+    import type {
+      AuthenticatedMedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import { confirmProductChangeWorkflow } from "@mercurjs/core/workflows"
+
+    export async function POST(
+      req: AuthenticatedMedusaRequest,
+      res: MedusaResponse
+    ) {
+      await confirmProductChangeWorkflow(req.scope).run({
+        input: {
+          ids: [req.params.id],
+          confirmed_by: req.auth_context.actor_id,
+        },
+      })
+
+      res.json({ id: req.params.id, status: "confirmed" })
+    }
+    ```
+
+    The input takes an `ids` array. Pass `internal_note` or `external_note` to overwrite the change’s notes as you confirm it.
+  </Step>
+  <Step title="Or decline it">
+    `rejectProductChangeWorkflow` sets one change to `declined` and leaves the product untouched. Give the seller a reason in `declined_reason`.
+
+    ```ts
+    import { rejectProductChangeWorkflow } from "@mercurjs/core/workflows"
+
+    await rejectProductChangeWorkflow(container).run({
+      input: {
+        id: "prodch_01JD8Q1234567",
+        declined_by: "user_01JD8Q1234567",
+        declined_reason: "Photos don't meet the image guidelines",
+      },
+    })
+    ```
+
+    The workflow emits `product-change.declined` with the change id.
+  </Step>
+</Steps>
 
 ## Cancel a change
 
-When the change should be withdrawn rather than judged (for example the vendor
-retracting their own submission), use `cancelProductChangeWorkflow`:
+Cancel a change when it should be withdrawn rather than judged, for example when a seller retracts their own edit. Canceling frees the author to stage a new change on the product.
 
 ```ts
 import { cancelProductChangeWorkflow } from "@mercurjs/core/workflows"
 
 await cancelProductChangeWorkflow(container).run({
-  input: { id: "prodch_123", canceled_by: "user_123" },
+  input: {
+    id: "prodch_01JD8Q1234567",
+    canceled_by: "sel_01JD8Q1234567",
+  },
 })
 ```
 
-<Warning>
-  Confirm, decline, and cancel all require the change to be `pending`. Resolving
-  an already-resolved change fails validation. A change is resolved exactly once.
-</Warning>
+The workflow sets `canceled_by` and `canceled_at`, then emits `product-change.canceled`.
 
-## React to resolutions
+## Confirm several changes at once
 
-To run your own side effects when a change resolves, subscribe to the events
-these workflows emit rather than polling. See the
-[Event reference](/platform/product-edit/reference/events).
+`confirmProductChangeWorkflow` loads every id in `ids` before it writes anything. If one id doesn’t exist, it throws a `NOT_FOUND` error. If one change isn’t `pending`, it throws `NOT_ALLOWED`, and none of the changes are confirmed.
+
+## Handle a failed apply
+
+Applying actions runs Medusa’s product workflows inside the confirm workflow. If one of them fails, for example because a variant was already deleted, the workflow compensates: it restores the change to `pending` and clears `confirmed_by` and `confirmed_at`. Fix the cause, then confirm again.
+
+## Run your own logic on a resolution
+
+Each resolution workflow has a hook that receives the change ids and the `additional_data` you passed in:
+
+- **`confirmProductChangeWorkflow`**: `productChangeConfirmed`, with `{ ids, additional_data }`
+- **`rejectProductChangeWorkflow`**: `productChangeRejected`, with `{ id, additional_data }`
+- **`cancelProductChangeWorkflow`**: `productChangeCanceled`, with `{ id, additional_data }`
+
+Use a hook when your logic must succeed or fail together with the resolution. For side effects that can run later, such as an email to the seller, subscribe to the events listed in the [Events reference](/platform/product-edit/reference/events).
+
+## Next steps
+
+- [Send a proposed product back for a revision](/platform/product-edit/guides/request-a-revision)
+- [How actions apply on confirm](/platform/product-edit/concepts/change-actions#how-actions-apply)
+- [Workflow inputs and hooks](/platform/product-edit/reference/workflows)

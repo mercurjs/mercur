@@ -1,5 +1,6 @@
-import { OfferCard, ProductsPagination } from "@/components/organisms"
-import { ProductListingNoResultsView } from "@/components/molecules"
+import { OfferCard } from '@/components/organisms/OfferCard/OfferCard';
+import { ProductsPagination } from '@/components/organisms/ProductsPagination/ProductsPagination';
+import ProductListingNoResultsView from '@/components/molecules/ProductListingNoResultsView/ProductListingNoResultsView';
 import { PRODUCT_LIMIT } from "@/const"
 import { listOffers } from "@/lib/data/offers"
 import type { StoreOffer } from "@/lib/helpers/buybox"

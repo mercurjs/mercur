@@ -1,58 +1,104 @@
 ---
-title: "Moderate a review"
+title: "Publish, reject, and delete reviews in code"
 sidebarTitle: "Moderate a review"
-description: "Publish, reject, and delete reviews from server code."
+description: "Set a review's status with updateReviewWorkflow and remove it with deleteReviewWorkflow."
 ---
 
-In this guide, you'll learn how to moderate reviews from your own server code.
-Moderation is a change to the review's `status`; removal is a soft delete that
-can be undone.
+Moderate reviews from your own code when the Admin API doesn’t fit, for example to auto-publish high ratings or to reject reviews flagged by a spam filter. Moderation is an `updateReviewWorkflow` run that sets `status`, and removal is a `deleteReviewWorkflow` run that soft deletes the review.
 
-## Publish or reject
+<Steps>
+  <Step title="Set the status">
+    Run `updateReviewWorkflow` with the review id and the new status:
 
-Move a `pending` review to `published` or `rejected` with `updateReviewWorkflow`,
-setting the `status` field:
+    ```ts title="src/api/admin/review-moderation/[id]/route.ts" {13-15}
+    import type {
+      AuthenticatedMedusaRequest,
+      MedusaResponse,
+    } from "@medusajs/framework/http"
+    import { updateReviewWorkflow } from "@mercurjs/core/workflows"
 
-```ts title="src/api/custom/moderate/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+    type Body = { status: "published" | "rejected" }
+
+    export async function POST(
+      req: AuthenticatedMedusaRequest<Body>,
+      res: MedusaResponse
+    ) {
+      const { result } = await updateReviewWorkflow(req.scope).run({
+        input: { id: req.params.id, status: req.body.status },
+      })
+
+      res.json({ review: result })
+    }
+    ```
+
+    Routes under `/admin` require an authenticated admin user by default. The workflow returns the updated review.
+  </Step>
+  <Step title="Delete a review">
+    Add a `DELETE` handler to the same file that runs `deleteReviewWorkflow` with the review id as its whole input:
+
+    ```ts title="src/api/admin/review-moderation/[id]/route.ts"
+    import { deleteReviewWorkflow } from "@mercurjs/core/workflows"
+
+    export async function DELETE(
+      req: AuthenticatedMedusaRequest,
+      res: MedusaResponse
+    ) {
+      await deleteReviewWorkflow(req.scope).run({ input: req.params.id })
+
+      res.json({ id: req.params.id, object: "review", deleted: true })
+    }
+    ```
+
+    The review gets a `deleted_at` timestamp. Its row and its four links stay in the database.
+  </Step>
+</Steps>
+
+## Publish reviews automatically
+
+Run the moderation from a subscriber to publish reviews without an operator. The module emits `review.review.created` with the new review’s id, so you can load the review and decide:
+
+```ts title="src/subscribers/auto-publish-reviews.ts"
+import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import { MercurModules } from "@mercurjs/types"
 import { updateReviewWorkflow } from "@mercurjs/core/workflows"
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  await updateReviewWorkflow(req.scope).run({
-    input: {
-      id: req.params.id,
-      status: "published",
-    },
-  })
+export default async function autoPublish({
+  event,
+  container,
+}: SubscriberArgs<{ id: string }>) {
+  const reviewService = container.resolve(MercurModules.REVIEW)
+  const review = await reviewService.retrieveReview(event.data.id)
 
-  res.sendStatus(200)
+  if (review.rating >= 4) {
+    await updateReviewWorkflow(container).run({
+      input: { id: review.id, status: "published" },
+    })
+  }
 }
+
+export const config: SubscriberConfig = { event: "review.review.created" }
 ```
 
-`updateReviewWorkflow` also accepts `rating`, `customer_note`, and `seller_note`,
-so the same workflow is used for any correction to a review. It captures the
-previous values for compensation, so a failure downstream rolls the record back.
+This publishes every review rated 4 or 5 and leaves the rest `pending` for an operator. See the [Events reference](/platform/review/reference/events) for the payload.
 
-## Delete a review
+## Correct a review’s content
 
-Remove a review with `deleteReviewWorkflow`. This is a **soft delete**. The row
-is retained and restored automatically if the workflow is rolled back:
+`updateReviewWorkflow` also accepts `rating`, `customer_note`, and `seller_note`. Use it to fix a rating, redact a note, or clear a store’s answer:
 
 ```ts
-import { deleteReviewWorkflow } from "@mercurjs/core/workflows"
-
-await deleteReviewWorkflow(container).run({ input: "rev_123" })
+await updateReviewWorkflow(container).run({
+  input: { id: "rev_01JD8Q1234567", customer_note: null },
+})
 ```
 
-<Warning>
-  A soft-deleted review stops counting toward aggregate ratings, but its row (and
-  its links) are kept. Use a hard delete through the service only if you need the
-  record gone permanently.
-</Warning>
+The workflow saves the previous `rating`, `customer_note`, `seller_note`, and `status` before it writes, and restores them if a later step fails.
 
-## React to moderation
+## Account for soft deleted reviews in averages
 
-To run your own side effects when a review is published or rejected, wrap
-`updateReviewWorkflow` in a route that also runs your follow-up logic, or add a
-hook. See the [Events reference](/platform/review/reference/events) for the
-current state of review-domain events.
+A soft deleted review disappears from `query.graph` and the APIs, but the service’s rating helpers still count it, because their query doesn’t check `deleted_at`. Compute averages with `query.graph` if deletions must change the number, as shown in [Compute aggregate ratings](/platform/review/guides/compute-aggregate-ratings).
+
+## Next steps
+
+- [Let the store answer the review](/platform/review/guides/respond-to-a-review)
+- [Learn which status changes are allowed](/platform/review/concepts/ratings-and-moderation)
+- [Check updateReviewWorkflow’s input](/platform/review/reference/workflows)

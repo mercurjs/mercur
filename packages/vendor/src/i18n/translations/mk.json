@@ -3868,8 +3868,7 @@
       "pending": "Во очекување",
       "processing": "Во обработка",
       "paid": "Платено",
-      "failed": "Не успеа",
-      "canceled": "Откажано"
+      "failed": "Не успеа"
     }
   },
   "translations": {

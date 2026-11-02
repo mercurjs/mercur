@@ -42,11 +42,14 @@ export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
 
   const {
     data: [product],
-  } = await query.graph({
-    entity: "product",
-    fields: req.queryConfig.fields,
-    filters: { ...productFilters, id: req.params.id },
-  })
+  } = await query.graph(
+    {
+      entity: "product",
+      fields: req.queryConfig.fields,
+      filters: { ...productFilters, id: req.params.id },
+    },
+    { cache: { enable: true }, locale: req.locale }
+  )
 
   if (!product) {
     throw new MedusaError(

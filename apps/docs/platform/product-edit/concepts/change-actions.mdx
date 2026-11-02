@@ -1,66 +1,73 @@
 ---
-title: "Change actions"
+title: "What a change action records and how it applies"
 sidebarTitle: "Change actions"
-description: "The typed actions that make up a change and the details they carry."
+description: "The ProductChangeAction types, the details each one carries, and the order they apply in."
 ---
 
-In this document, you'll learn how the individual operations inside a change are
-modeled.
+A change action is one operation inside a product change: set a field, add a variant, detach an attribute, delete the product. Splitting a change into typed actions lets an operator see exactly what a seller asked for, and lets Mercur apply each operation through the right Medusa workflow when the change is confirmed.
 
-## Product change action
+## The action record
 
-Each operation inside a change is a `ProductChangeAction` (table
-`product_change_action`, id prefix `prodchact`). An action belongs to a parent
-`ProductChange`, targets a `product_id`, and names the operation in its `action`
-field. The operation's payload lives in the `details` JSON, and an `applied`
-boolean records whether it has already been written to the product.
+A `ProductChangeAction` (id prefix `prodchact`) belongs to a parent change through `product_change_id` and targets a `product_id`. Its `action` field names the operation, and its `details` JSON holds the payload. The `applied` boolean starts `false` and flips to `true` once the action has been written to the product.
+
+Actions also carry an auto-incrementing `ordering`, plus `reference` and `reference_id` columns. Mercur’s workflows don’t set the reference columns, so you can use them to point an action at a record of your own.
 
 ```ts
 const action = {
-  product_id: "prod_123",
-  action: "UPDATE",
-  details: { field: "title", value: "New title" },
+  product_id: "prod_01JD8Q1234567",
+  action: ProductChangeActionType.UPDATE,
+  details: { field: "title", value: "Linen shirt" },
 }
 ```
 
-Actions carry an autoincrementing `ordering` so a change with several operations
-applies them deterministically.
+This is the shape you pass to `stageProductChangeWorkflow` in its `actions` array. `ProductChangeActionType` is exported from `@mercurjs/types`.
 
 ## Action types
 
-The `action` field is one of the `ProductChangeActionType` values. Each type
-reads a different shape out of `details`:
+The `action` field takes one of the 11 `ProductChangeActionType` values. The edit workflows also store the previous value in `details`, so a reviewer can see the before and after:
 
-| Action | `details` shape | Applies |
+| Action | `details` written by Mercur | Applies |
 | --- | --- | --- |
-| `UPDATE` | `{ field, value }` | A single product field update |
-| `STATUS_CHANGE` | `{ status }` | A product status change |
-| `VARIANT_ADD` | `{ variant }` | Create a variant |
-| `VARIANT_UPDATE` | `{ variant_id, fields }` | Update a variant (scalars + image links) |
-| `VARIANT_REMOVE` | `{ variant_id }` | Delete a variant |
-| `ATTRIBUTE_ADD` | `{ attribute }` | Attach a product attribute |
-| `ATTRIBUTE_UPDATE` | `{ update }` | Change an attached attribute |
-| `ATTRIBUTE_REMOVE` | `{ attribute_id }` | Detach an attribute |
-| `PRODUCT_ADD` | None | Record a product creation in the trail |
-| `PRODUCT_DELETE` | None | Delete the product |
-| `CHANGE_REQUESTED` | `{ message }` | Record an operator revision request |
+| `UPDATE` | `{ field, value, previous_value }` | Sets one product field |
+| `STATUS_CHANGE` | `{ status, previous_status }` | Sets the product status |
+| `VARIANT_ADD` | `{ variant }` | Creates a variant |
+| `VARIANT_UPDATE` | `{ variant_id, fields, previous_fields }` | Updates a variant and its image links |
+| `VARIANT_REMOVE` | `{ variant_id }` | Deletes a variant |
+| `ATTRIBUTE_ADD` | `{ attribute, attribute_id, previous_value }` | Attaches an attribute |
+| `ATTRIBUTE_UPDATE` | `{ update, attribute_id, value, previous_value }` | Changes an attached attribute |
+| `ATTRIBUTE_REMOVE` | `{ attribute_id, previous_value }` | Detaches an attribute |
+| `PRODUCT_DELETE` | `{}` | Deletes the product and its offers |
+| `PRODUCT_ADD` | `{ status, attribute_ids }` | Nothing: records the product’s creation |
+| `CHANGE_REQUESTED` | `{ message }` | Nothing: records a revision request |
 
-<Note>
-  `CHANGE_REQUESTED` mutates nothing. It's an audit-only marker for a revision
-  request. The operator's message rides on both the action's `details.message`
-  and the parent change's `external_note`. See
-  [Status & auto-confirm](/platform/product-edit/concepts/status-and-auto-confirm).
-</Note>
+`PRODUCT_ADD` and `CHANGE_REQUESTED` only appear on audit changes, which Mercur stores with `applied: true`. See [The change pipeline](/platform/product-edit/concepts/change-pipeline#audit-changes).
+
+## What the edit workflows diff
+
+The edit workflows stage an action only when your input differs from the product. Arrays of relations compare by id or URL, ignoring order, so resending the same categories stages nothing:
+
+- **Product fields**: `title`, `subtitle`, `handle`, `description`, `discountable`, `is_giftcard`, `thumbnail`, `images`, `material`, `weight`, `length`, `height`, `width`, `hs_code`, `mid_code`, `origin_country`, `type_id`, `collection_id`, `categories`, `tags`, `sales_channels`, `metadata`
+- **Status**: a `status` key in the update becomes a `STATUS_CHANGE` action instead of an `UPDATE`
+- **Variants**: `manage_inventory` is skipped on update, and `images` takes `{ add, remove }` image ids
+- **Attributes**: an add the product already holds, or a remove of an attribute it doesn’t hold, stages nothing
+
+A key outside the product field list is ignored by `productEditUpdateProductWorkflow`.
 
 ## How actions apply
 
-When a change is confirmed, its **not-yet-applied** actions are bucketed by type
-and dispatched to the matching Medusa workflows in one pass: product updates,
-variant creates/updates/deletes, and the attribute batch. Each action is then
-flipped to `applied: true` so a re-run never applies it twice.
+When a change is confirmed, `applyProductChangeActionsWorkflow` loads its actions with `applied: false`, groups them by type, and runs each group once. The groups run in this order:
 
-<Tip>
-  Audit-trail changes (publish approvals, revision requests) are stored with
-  their actions already `applied`, so confirming them is a no-op on the product
-  itself. They exist purely as history.
-</Tip>
+1. `STATUS_CHANGE` and `UPDATE`, merged per product into one `updateProductsWorkflow` call
+2. `VARIANT_REMOVE` through `deleteProductVariantsWorkflow`
+3. `VARIANT_ADD` through `createProductVariantsWorkflow`
+4. `VARIANT_UPDATE` scalar fields through `updateProductVariantsWorkflow`, then the variant image links
+5. `ATTRIBUTE_*` as one batch through `createAndLinkProductAttributesToProductWorkflow`
+6. `PRODUCT_DELETE` through `deleteProductsWorkflow`, followed by `deleteOffersWorkflow` for the product’s offers
+
+The workflow then marks every action it handled as `applied: true`, so running the apply workflow again on the same change never writes an action twice. Types it doesn’t handle, `PRODUCT_ADD` and `CHANGE_REQUESTED`, keep whatever `applied` value they were stored with.
+
+## Related
+
+- [The change lifecycle and auto-confirm](/platform/product-edit/concepts/status-and-auto-confirm)
+- [Stage actions directly](/platform/product-edit/guides/edit-a-product#stage-actions-directly)
+- [The `ProductChangeAction` data model](/platform/product-edit/reference/data-models#productchangeaction)

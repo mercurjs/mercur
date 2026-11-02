@@ -3633,8 +3633,7 @@
       "paid": "Pagado",
       "processing": "Procesando",
       "pending": "Pendiente",
-      "failed": "Fallido",
-      "canceled": "Cancelado"
+      "failed": "Fallido"
     }
   },
   "marketplace": {

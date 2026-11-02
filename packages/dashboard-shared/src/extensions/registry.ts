@@ -1,4 +1,4 @@
-import type { ComponentType } from "react"
+import type { ComponentType, ReactNode } from "react"
 import type {
   ActivityEntry,
   CustomColumn,
@@ -7,20 +7,28 @@ import type {
   CustomFormField,
   CustomListExtension,
   CustomListFilter,
+  LayoutConfig,
+  LayoutPreferences,
   NavGroupConfig,
   NavItemOverride,
   Permission,
   SectionAction,
+  ZonePreference,
 } from "@mercurjs/dashboard-sdk"
+import { NAV_ZONES } from "@mercurjs/dashboard-sdk"
+import { mergeLayoutPreferences, navOverridesFromPreferences } from "./preferences"
 
 export type WidgetPlacement = "before" | "after"
 
 export type Widget = {
-  Component: ComponentType<{ data?: unknown }>
+  Component: ComponentType<{ data?: unknown; renderDefault?: () => ReactNode }>
   zone: string[]
   widgetId: string
   permission?: Permission[]
   label?: string
+  section?: string
+  order?: number
+  replace?: string
 }
 
 export type WidgetModule = { widgets?: Widget[] }
@@ -29,9 +37,25 @@ export type NavigationModule = {
   items?: NavItemOverride<string>[]
 }
 export type CustomFieldsModule = { configs?: CustomFieldsConfig[] }
+export type LayoutModule = { layouts?: LayoutConfig[] }
+export type PreferenceModule = { layers?: LayoutPreferences[] }
 
 export type ResolvedFormField = { name: string; field: CustomFormField }
-type ResolvedFormEntry = ResolvedFormField & { zone: string; tab?: string }
+type ResolvedFormEntry = {
+  name: string
+  field: CustomFormField | null
+  zone: string
+  tab?: string
+}
+
+/**
+ * A config entry keyed by a built-in field id. `field: null` removes the
+ * built-in; a field replaces it.
+ */
+export type FormFieldOverride = {
+  overridden: boolean
+  field: CustomFormField | null
+}
 
 export type OnboardingStep = {
   id: string
@@ -65,6 +89,17 @@ export type ZoneWidgets = {
   after: ResolvedWidget[]
 }
 
+/** A widget resolved for a composer page, keyed by the section it lands in. */
+export type SectionWidget = {
+  Component: Widget["Component"]
+  /** Entry id, `widget:<id>` */
+  widgetId: string
+  permission?: Permission[]
+  order?: number
+  replace?: string
+}
+export type SectionWidgetMap = Record<string, SectionWidget[]>
+
 const PLACEMENTS: WidgetPlacement[] = ["before", "after"]
 
 function splitZone(zone: string): { slot: string; placement: WidgetPlacement } {
@@ -86,21 +121,99 @@ function splitZone(zone: string): { slot: string; placement: WidgetPlacement } {
  */
 export class ExtensionRegistry {
   private widgets = new Map<string, ZoneWidgets>()
+  private rawWidgets: Widget[] = []
   private navOverrides: NavItemOverride<string>[] = []
   private navGroups: NavGroupConfig[] = []
   private customFields: CustomFieldsConfig[] = []
+  private layouts = new Map<string, LayoutConfig>()
+  private preferences: LayoutPreferences = {}
 
   constructor(
     input: {
       widgets?: WidgetModule
       navigation?: NavigationModule
       customFields?: CustomFieldsModule
+      layouts?: LayoutModule
+      preferences?: PreferenceModule
     } = {}
   ) {
-    this.populateWidgets(input.widgets?.widgets ?? [])
-    this.navOverrides = input.navigation?.items ?? []
-    this.navGroups = input.navigation?.groups ?? []
+    this.rawWidgets = input.widgets?.widgets ?? []
+    this.populateWidgets(this.rawWidgets)
     this.customFields = input.customFields?.configs ?? []
+    for (const layout of input.layouts?.layouts ?? []) {
+      this.layouts.set(layout.id, layout)
+    }
+    this.preferences = mergeLayoutPreferences(input.preferences?.layers ?? [])
+
+    // `_navigation.ts` overrides first, then the sidebar zones of `_layouts.ts`
+    // layered over them field by field.
+    const nav = navOverridesFromPreferences(
+      { items: input.navigation?.items ?? [], groups: input.navigation?.groups ?? [] },
+      [this.preferences[NAV_ZONES.MAIN], this.preferences[NAV_ZONES.SETTINGS]]
+    )
+    this.navOverrides = nav.items
+    this.navGroups = nav.groups
+  }
+
+  getLayout(id: string): LayoutConfig | undefined {
+    return this.layouts.get(id)
+  }
+
+  registerLayouts(layouts: LayoutConfig[]): void {
+    for (const layout of layouts) {
+      if (!this.layouts.has(layout.id)) this.layouts.set(layout.id, layout)
+    }
+  }
+
+  getLayoutPreference(zone: string): ZonePreference {
+    return this.preferences[zone] ?? {}
+  }
+
+  /**
+   * Widgets for a composer page, keyed by the layout section each lands in. A
+   * zone is the page prefix (`product.details`) or a section under it
+   * (`product.details.side`); the legacy `.before` / `.after` suffixes map to
+   * the first and last order of that section. An explicit `section` wins.
+   */
+  getWidgetsForSections(prefix: string, sections: string[]): SectionWidgetMap {
+    const result: SectionWidgetMap = {}
+    const defaultSection = sections.includes("main") ? "main" : sections[0]
+    const seen = new Map<string, number>()
+
+    for (const widget of this.rawWidgets) {
+      for (const zone of widget.zone) {
+        if (zone !== prefix && !zone.startsWith(`${prefix}.`)) continue
+
+        let suffix = zone === prefix ? "" : zone.slice(prefix.length + 1)
+        let order = widget.order
+        if (suffix === "before" || suffix.endsWith(".before")) {
+          suffix = suffix.replace(/\.?before$/, "")
+          order ??= Number.NEGATIVE_INFINITY
+        } else if (suffix === "after" || suffix.endsWith(".after")) {
+          suffix = suffix.replace(/\.?after$/, "")
+          order ??= Number.POSITIVE_INFINITY
+        }
+        if (suffix && !sections.includes(suffix)) continue
+
+        const section = widget.section ?? (suffix || defaultSection)
+        if (!section) continue
+
+        const base = `widget:${widget.widgetId}`
+        const count = seen.get(base) ?? 0
+        seen.set(base, count + 1)
+
+        result[section] ??= []
+        result[section].push({
+          Component: widget.Component,
+          widgetId: count === 0 ? base : `${base}#${count + 1}`,
+          permission: widget.permission,
+          order,
+          replace: widget.replace,
+        })
+      }
+    }
+
+    return result
   }
 
   private ensureSlot(slot: string): ZoneWidgets {
@@ -187,15 +300,53 @@ export class ExtensionRegistry {
     return [...byName.values()]
   }
 
-  /** Custom form fields for a model's form zone (and optional tab). */
-  getFormFields(model: string, zone: string, tab?: string): ResolvedFormField[] {
-    return this.resolveFormFields(model)
-      .filter((entry) => {
-        if (entry.zone !== zone) return false
-        if (!entry.tab) return true
-        return !!tab && entry.tab === tab
-      })
-      .map(({ name, field }) => ({ name, field }))
+  // An entry without a tab belongs to every tab of its zone, unless the host
+  // asks for `exactTab` (a data grid tab only takes fields aimed at it).
+  private formEntriesFor(
+    model: string,
+    zone: string,
+    tab?: string,
+    exactTab = false
+  ) {
+    return this.resolveFormFields(model).filter((entry) => {
+      if (entry.zone !== zone) return false
+      if (!entry.tab) return !exactTab
+      return !!tab && entry.tab === tab
+    })
+  }
+
+  /**
+   * Custom form fields added to a model's form zone (and optional tab). Entries
+   * keyed by one of the host's `builtInFieldIds` are overrides, not additions,
+   * and are read through `getFormFieldOverride` instead.
+   */
+  getFormFields(
+    model: string,
+    zone: string,
+    tab?: string,
+    builtInFieldIds: string[] = [],
+    exactTab = false
+  ): ResolvedFormField[] {
+    const builtIns = new Set(builtInFieldIds)
+    return this.formEntriesFor(model, zone, tab, exactTab).flatMap(({ name, field }) =>
+      field && !builtIns.has(name) ? [{ name, field }] : []
+    )
+  }
+
+  /** Replacement (or removal, `field: null`) of a built-in form field. */
+  getFormFieldOverride(
+    model: string,
+    zone: string,
+    id: string,
+    tab?: string,
+    exactTab = false
+  ): FormFieldOverride {
+    const entry = this.formEntriesFor(model, zone, tab, exactTab).find(
+      (e) => e.name === id
+    )
+    return entry
+      ? { overridden: true, field: entry.field }
+      : { overridden: false, field: null }
   }
 
   /**
@@ -260,7 +411,9 @@ export class ExtensionRegistry {
 
   /** All custom form fields for a model, keyed for schema/default building. */
   getAllFormFields(model: string): ResolvedFormField[] {
-    return this.resolveFormFields(model).map(({ name, field }) => ({ name, field }))
+    return this.resolveFormFields(model).flatMap(({ name, field }) =>
+      field ? [{ name, field }] : []
+    )
   }
 
   /** Section display contributions (field add/replace/remove + actions). */
@@ -278,17 +431,22 @@ export class ExtensionRegistry {
     return { fields: [...fields.values()], actions }
   }
 
-  /** Merged list-table extension for a model. */
-  getListExtension(model: string): CustomListExtension {
+  /**
+   * Merged table extension for a model. `zone` picks the table: `"list"` is the
+   * model's list page, and also matches `list` blocks that omit a zone.
+   */
+  getListExtension(model: string, zone = "list"): CustomListExtension {
     const columns = new Map<string, CustomColumn>()
     const filters = new Map<string, CustomListFilter>()
     const bulkActions: SectionAction[] = []
     const columnVisibility: Record<string, boolean> = {}
     let columnOrder: string[] = []
 
-    for (const config of this.configsFor(model)) {
-      const list = config.list
-      if (!list) continue
+    const lists = this.configsFor(model).flatMap((config) =>
+      config.list ? [config.list].flat() : []
+    )
+    for (const list of lists) {
+      if ((list.zone ?? "list") !== zone) continue
       for (const column of list.columns ?? []) columns.set(column.id, column)
       for (const filter of list.filters ?? []) filters.set(filter.key, filter)
       if (list.bulkActions) bulkActions.push(...list.bulkActions)

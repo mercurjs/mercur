@@ -20,6 +20,12 @@ export type MercurInputConfig = Omit<InputConfigWithArrayModules, "projectConfig
        * here fails the boot.
        */
       disabledPatches?: string[]
+      /**
+       * Anonymous usage telemetry (https://docs.mercurjs.com/telemetry).
+       * Defaults to `true`; `MERCUR_DISABLE_TELEMETRY=true` or `DO_NOT_TRACK=1`
+       * also turn it off.
+       */
+      telemetry?: boolean
     }
   }
 }

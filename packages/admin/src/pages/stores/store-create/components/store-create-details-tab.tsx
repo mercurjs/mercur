@@ -1,12 +1,15 @@
 import { usePermissionGate } from "@mercurjs/dashboard-shared";
 import { Heading, Input, Select } from "@medusajs/ui";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Form } from "../../../../components/common/form";
+import { Combobox } from "../../../../components/inputs/combobox";
 import { HandleInput } from "../../../../components/inputs/handle-input";
 import { useTabbedForm } from "../../../../components/tabbed-form/tabbed-form";
 import { defineTabMeta } from "../../../../components/tabbed-form/types";
 import { useStore } from "../../../../hooks/api";
+import { useRegions } from "../../../../hooks/api/regions";
 import { CreateStoreSchemaType } from "./schema";
 import { ConditionalTooltip } from "../../../../components/common/conditional-tooltip";
 
@@ -15,6 +18,20 @@ const Root = () => {
   const form = useTabbedForm<CreateStoreSchemaType>();
   const storeGate = usePermissionGate("store:view");
   const { store } = useStore(undefined, { enabled: storeGate.allowed });
+  const regionsGate = usePermissionGate("regions:view");
+  const { regions } = useRegions(
+    { fields: "id,name,currency_code", limit: 100 },
+    { enabled: regionsGate.allowed },
+  );
+
+  const defaultRegionId = store?.default_region_id ?? null;
+  const { getValues, setValue } = form;
+
+  useEffect(() => {
+    if (defaultRegionId && getValues("region_ids").length === 0) {
+      setValue("region_ids", [defaultRegionId]);
+    }
+  }, [defaultRegionId, getValues, setValue]);
 
   return (
     <div className="flex flex-1 flex-col items-center overflow-y-auto px-3">
@@ -108,6 +125,37 @@ const Root = () => {
                           ))}
                         </Select.Content>
                       </Select>
+                    </Form.Control>
+                  </div>
+                </ConditionalTooltip>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="region_ids"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label optional tooltip={t("stores.create.regionsHint")}>
+                  {t("stores.create.regions")}
+                </Form.Label>
+                <ConditionalTooltip
+                  showTooltip={regionsGate.denied}
+                  content={regionsGate.tooltip}
+                >
+                  <div>
+                    <Form.Control>
+                      <Combobox
+                        {...field}
+                        disabled={field.disabled || regionsGate.denied}
+                        options={(regions ?? []).map((region) => ({
+                          label: `${region.name} (${region.currency_code.toUpperCase()})`,
+                          value: region.id,
+                        }))}
+                        placeholder={t("fields.selectPlaceholder")}
+                        data-testid="store-create-form-regions-combobox"
+                      />
                     </Form.Control>
                   </div>
                 </ConditionalTooltip>

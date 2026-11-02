@@ -7,6 +7,7 @@ import { HttpTypes } from "@mercurjs/types"
 
 import { createSellerShippingOptionsWorkflow } from "../../../workflows/shipping-option"
 import { refetchShippingOption } from "./helpers"
+import { validateSellerRegionPrices } from "../regions/helpers"
 import { VendorCreateShippingOptionType } from "./validators"
 
 export const GET = async (
@@ -35,6 +36,12 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.VendorShippingOptionResponse>
 ) => {
   const sellerId = req.seller_context!.seller_id
+
+  await validateSellerRegionPrices(
+    req.scope,
+    sellerId,
+    req.validatedBody.prices ?? []
+  )
 
   const { result } = await createSellerShippingOptionsWorkflow(req.scope).run({
     input: {

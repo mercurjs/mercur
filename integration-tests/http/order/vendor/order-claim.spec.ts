@@ -357,6 +357,49 @@ medusaIntegrationTestRunner({
                 })
             })
 
+            describe("GET /vendor/claims", () => {
+                it("lists only the caller's own claims", async () => {
+                    const order1 = await completeCartCheckout(seller1Seed.offer.id)
+                    const order2 = await completeCartCheckout(seller2Seed.offer.id)
+
+                    const claim1 = (
+                        await api.post(
+                            `/vendor/claims`,
+                            { type: "refund", order_id: order1.id },
+                            seller1Seed.headers
+                        )
+                    ).data.claim
+                    const claim2 = (
+                        await api.post(
+                            `/vendor/claims`,
+                            { type: "refund", order_id: order2.id },
+                            seller2Seed.headers
+                        )
+                    ).data.claim
+
+                    const asSeller1 = await api.get(`/vendor/claims`, seller1Seed.headers)
+                    const ids1 = asSeller1.data.claims.map((c: any) => c.id)
+                    expect(ids1).toContain(claim1.id)
+                    expect(ids1).not.toContain(claim2.id)
+                    expect(asSeller1.data.count).toEqual(1)
+
+                    const asSeller2 = await api.get(`/vendor/claims`, seller2Seed.headers)
+                    const ids2 = asSeller2.data.claims.map((c: any) => c.id)
+                    expect(ids2).toContain(claim2.id)
+                    expect(ids2).not.toContain(claim1.id)
+                })
+
+                it("rejects an order_id filter pointing at another seller's order", async () => {
+                    const order1 = await completeCartCheckout(seller1Seed.offer.id)
+
+                    const response = await api
+                        .get(`/vendor/claims?order_id=${order1.id}`, seller2Seed.headers)
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(404)
+                })
+            })
+
             describe("/:id sub-routes (seller-scope)", () => {
                 it("rejects claim-items add from non-owning seller", async () => {
                     const order = await completeCartCheckout(seller1Seed.offer.id)

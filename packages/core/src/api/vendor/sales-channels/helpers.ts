@@ -41,7 +41,7 @@ export const ensureSellerOwnsProducts = async (
   const ownedProductIds = new Set<string | null>(
     links.map((link: { product_id: string | null }) => link.product_id)
   )
-  for (const id of await getSellerOwnedProductIds(scope, sellerId)) {
+  for (const id of await getSellerOwnedProductIds(scope, sellerId, productIds)) {
     ownedProductIds.add(id)
   }
   const unowned = productIds.filter((id) => !ownedProductIds.has(id))

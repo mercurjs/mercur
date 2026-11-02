@@ -3864,8 +3864,7 @@
       "pending": "Đang chờ xử lý",
       "processing": "Đang xử lý",
       "paid": "Đã thanh toán",
-      "failed": "Thất bại",
-      "canceled": "Đã hủy"
+      "failed": "Thất bại"
     }
   },
   "translations": {

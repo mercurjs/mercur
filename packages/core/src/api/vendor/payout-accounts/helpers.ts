@@ -1,4 +1,5 @@
 import { MedusaContainer } from "@medusajs/framework"
+import { refetchEntity } from "@medusajs/framework/http"
 import {
   ContainerRegistrationKeys,
   MedusaError,
@@ -29,3 +30,9 @@ export const validateSellerPayoutAccount = async (
     )
   }
 }
+
+export const refetchPayoutAccount = async (id: string, scope: MedusaContainer, fields: string[]) =>
+  await refetchEntity({ entity: "payout_account", idOrFilter: id, scope, fields })
+
+export const refetchOnboarding = async (id: string, scope: MedusaContainer, fields: string[]) =>
+  await refetchEntity({ entity: "onboarding", idOrFilter: id, scope, fields })

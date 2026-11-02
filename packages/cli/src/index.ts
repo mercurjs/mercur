@@ -13,6 +13,7 @@ import { telemetry } from "./commands/telemetry";
 import { view } from "./commands/view";
 import { pluginBuild } from "./commands/plugin-build";
 import { dashboardBuild } from "./commands/dashboard-build";
+import { registerCommandTracking } from "./telemetry/command-tracking";
 
 process.on("SIGINT", () => process.exit(0));
 process.on("SIGTERM", () => process.exit(0));
@@ -26,6 +27,8 @@ async function main() {
       "-v, --version",
       "display the version number"
     );
+
+  registerCommandTracking(program);
 
   program
     .addCommand(add)

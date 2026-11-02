@@ -23,7 +23,7 @@ describe("permission catalog", () => {
     const catalog = getPermissionCatalog()
 
     expect(catalog.map((p) => p.key)).toEqual(
-      expect.arrayContaining(["orders", "orders.refunds", "payouts", "sellers"])
+      expect.arrayContaining(["orders", "orders.refunds", "payouts", "sellers", "integrations"])
     )
     expect(() => validatePermissionCatalog(catalog)).not.toThrow()
   })

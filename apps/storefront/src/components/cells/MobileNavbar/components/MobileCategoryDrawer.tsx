@@ -5,7 +5,7 @@ import { useEffect } from "react"
 import { cn } from "@/lib/utils"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { ArrowLeftIcon, CloseIcon } from "@/icons"
-import { IconButton } from "@/components/atoms"
+import { IconButton } from '@/components/atoms/IconButton/IconButton';
 
 interface MobileCategoryDrawerProps {
   category: HttpTypes.StoreProductCategory

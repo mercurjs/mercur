@@ -1,0 +1,328 @@
+---
+title: "Magento 2 reference"
+sidebarTitle: "Reference"
+description: "Scheduled jobs, background tasks, CLI commands, webhook events and signatures, Mercur admin routes, Magento events, the GraphQL schema and the database tables the connector adds."
+---
+
+## Scheduled jobs
+
+### Magento
+
+All jobs run in Magento's `default` cron group. Each one queues a [process](#tasks), and `mercur_process_run_pending` runs it within a minute. The sync jobs queue nothing while the connector is disabled everywhere.
+
+| Job | Default schedule | Config path | Queues | Recommended |
+| --- | --- | --- | --- | --- |
+| `mercur_process_run_pending` | Every minute | | Runs up to 10 due processes | Leave as is |
+| `mercur_sync_offers` | `*/5 * * * *` | `mercur/sync/offers_cron` | `offers` | Under 15 minutes |
+| `mercur_sync_sellers` | `*/15 * * * *` | `mercur/sync/sellers_cron` | `sellers` | Under 1 hour |
+| `mercur_sync_products` | `0 * * * *` | `mercur/sync/products_cron` | `products` | Under 1 day |
+| `mercur_push_products` | `30 * * * *` | `mercur/sync/product_push_cron` | `product_push` | Off-peak when your catalog is large |
+| `mercur_retry_orders` | `*/10 * * * *` | `mercur/sync/order_retry_cron` | `order_retry` | Under 1 hour |
+| `mercur_poll_refunds` | `*/15 * * * *` | `mercur/sync/refunds_cron` | `refunds` | Under 1 hour |
+| `mercur_sync_full` | `0 2 * * *` | `mercur/sync/full_cron` | `full` | Daily, off-peak |
+| `mercur_process_clear_history` | `0 3 * * *` | | Deletes finished processes older than **Keep history** | Leave as is |
+
+### Mercur
+
+The plugin adds two scheduled jobs to your Mercur API:
+
+| Job | Schedule | Does |
+| --- | --- | --- |
+| `retry-magento-webhook-deliveries` | Every minute | Sends up to 200 deliveries that are queued or retrying and due |
+| `prune-magento-webhook-deliveries` | `0 3 * * *` | Deletes delivered deliveries older than 30 days. Failed and abandoned ones are kept |
+
+## Tasks
+
+Every unit of background work in Magento is a process running one task. Run any task with `bin/magento mercur:sync <task>`, or from **Mercur → Processes → Run task**.
+
+| Task | Name | Does | Parameters |
+| --- | --- | --- | --- |
+| `sellers` | Import sellers | Mirrors sellers changed since the last run, and turns their offers on or off | `full` |
+| `offers` | Import offers | Mirrors offers changed since the last run and prices them for every selling website | `full` |
+| `products` | Import published seller products | Creates and updates Magento products for published seller products | `full` |
+| `taxonomy` | Push categories and attributes | Pushes categories and marketplace attributes to Mercur | |
+| `product_push` | Push operator products | Pushes your own products to Mercur | `full`, `skus`, `archive` |
+| `full` | Full resync | Queues `sellers`, `offers`, `taxonomy`, `product_push` and `products` with `full`, as child processes in that order | |
+| `order_retry` | Retry marketplace order creation and payment capture | Sends orders that aren't in Mercur yet and confirms captures that failed, 50 of each per run | |
+| `refunds` | Execute refunds started in Mercur | Executes Mercur refunds whose webhook didn't arrive | |
+
+`full` ignores the delta cursor and, for offers, removes anything Mercur no longer returns. If Mercur returns no offers at all, nothing is removed.
+
+### Process statuses
+
+| Status | Meaning |
+| --- | --- |
+| `pending` | Queued |
+| `pending_retry` | Asked to retry later. Waits 60 seconds, doubling up to an hour, until **Maximum attempts** |
+| `processing` | Running. Locked by `hostname:pid` |
+| `completed` | Finished |
+| `error` | Failed, or out of attempts |
+| `timeout` | No output for longer than **Timeout (seconds)** |
+| `stopped` | Stopped from the admin |
+
+A process queued while an identical one is `pending`, `pending_retry` or `processing` is merged into it.
+
+## CLI
+
+| Command | Does |
+| --- | --- |
+| `bin/magento mercur:sync` | Runs every due process now |
+| `bin/magento mercur:sync <task> [--full]` | Queues the task, runs it now and prints its output. Exits non-zero unless it completes |
+| `bin/magento mercur:process:run <id>` | Runs one pending process |
+| `bin/magento mercur:process:clear-history [--days=N]` | Deletes finished processes older than `N` days, **Keep history** by default |
+
+## Webhooks
+
+### Delivery
+
+Mercur posts every event to each active endpoint subscribed to it, with a 10-second timeout:
+
+```http
+POST /mercur/webhook HTTP/1.1
+Content-Type: application/json
+User-Agent: mercur-magento2-connector
+x-mercur-event: offer.updated
+x-mercur-delivery: mwhd_01JB8K3XQ0M7S2VYH4T6R9C5DE
+x-mercur-signature: sha256=5f2b0c7e…
+
+{
+  "id": "mwhd_01JB8K3XQ0M7S2VYH4T6R9C5DE",
+  "event": "offer.updated",
+  "created_at": "2026-10-26T09:41:07.000Z",
+  "data": { "id": "offer_01JB8K2Y7W3N0QF5E1A6H9TZXG" }
+}
+```
+
+`data` is the event's own payload, usually `{ "id" }` of the record that changed. `shipment.created` and `delivery.created` also carry `fulfillment_id` and `order_id`.
+
+A `2xx` answer marks the delivery **Delivered**. Anything else, or no answer, marks it **Retrying** and schedules the next attempt:
+
+| Attempt | After the previous one |
+| --- | --- |
+| 2 | 1 minute |
+| 3 | 5 minutes |
+| 4 | 30 minutes |
+| 5 | 2 hours |
+| 6 | 12 hours |
+
+After the sixth failure the delivery is marked **Gave up**. Every delivery can be sent again from the endpoint page or through the redeliver route.
+
+### Signature
+
+`x-mercur-signature` is `sha256=` followed by the hex HMAC-SHA256 of the raw request body, keyed with the endpoint's signing secret. There's no timestamp in the signature. To reject old events, set **Maximum event age** and Magento compares it with `created_at`.
+
+Verify it before parsing the body:
+
+<CodeGroup>
+```php PHP
+$expected = 'sha256=' . hash_hmac('sha256', $rawBody, $secret);
+if (!hash_equals($expected, $request->getHeader('x-mercur-signature'))) {
+    // 401
+}
+```
+
+```ts Node.js
+import { createHmac, timingSafeEqual } from "node:crypto"
+
+const expected = "sha256=" + createHmac("sha256", secret).update(rawBody).digest("hex")
+const valid =
+  signature.length === expected.length &&
+  timingSafeEqual(Buffer.from(signature), Buffer.from(expected))
+```
+</CodeGroup>
+
+### Magento's answers
+
+| Response | When |
+| --- | --- |
+| `200 {"received":true,"event":"…"}` | Handled, or no handler for the event |
+| `200 {"received":true,"event":"…","duplicate":true}` | The `x-mercur-delivery` id was already processed |
+| `200 {"received":true,"event":"…","stale":true}` | Older than **Maximum event age** |
+| `400 {"error":"invalid json"}` | The body isn't JSON |
+| `401 {"error":"invalid signature"}` | No signature, no secret configured, or a mismatch |
+| `500 {"error":"handler failed"}` | A handler threw. The id is forgotten, so Mercur's retry runs again |
+
+Processed delivery ids are kept in `mercur_webhook_event` for 30 days.
+
+### Events
+
+| Event | Magento does |
+| --- | --- |
+| `offer.created`, `offer.updated`, `offer.deleted` | Queues an `offers` delta |
+| `seller.updated`, `seller.approved`, `seller.suspended`, `seller.unsuspended`, `seller.terminated`, `seller.unterminated` | Queues a `sellers` delta |
+| `product.published` | Queues a `products` delta |
+| `product.rejected` | Disables the imported product |
+| `order.fulfillment_created`, `order.fulfillment_canceled`, `shipment.created`, `delivery.created` | Records shipments and updates line statuses for the seller order |
+| `order.return_requested`, `order.return_received` | Updates line statuses and adds an order comment |
+| `order.canceled` | Marks the seller's lines `refused` or `canceled` and credits what was invoiced |
+| `order.refund_requested` | Issues an adjustment credit memo for the amount |
+| `order_group.created`, `order.updated`, `order.refund_recorded`, `order.payment_captured` | Acknowledged, no action |
+
+Payloads of the events the plugin emits:
+
+| Event | `data` |
+| --- | --- |
+| `order.refund_requested` | `{ order_id, payment_id, refund_id, amount, currency_code, note }` |
+| `order.refund_recorded` | `{ id, payment_id, amount, reference }`, where `id` is the seller order |
+| `order.payment_captured` | `{ id, payment_id, reference }`, where `id` is the order group |
+
+`order.refund_requested` is only emitted for payments on `pp_external_external`, and never for refunds Magento recorded itself.
+
+## Mercur admin routes
+
+The plugin adds these routes to your Mercur API. All need an admin session or secret API key, and the `integrations` permission at the right shown.
+
+| Method | Path | Right | Does |
+| --- | --- | --- | --- |
+| `GET` | `/admin/magento/status` | `view` | Connection status, used by **Test connection** |
+| `GET` | `/admin/magento/webhooks` | `view` | Lists endpoints. Filters: `id`, `is_active` |
+| `POST` | `/admin/magento/webhooks` | `manage` | Creates an endpoint and returns its `secret`, once |
+| `GET` | `/admin/magento/webhooks/:id` | `view` | Retrieves an endpoint, without its secret |
+| `POST` | `/admin/magento/webhooks/:id` | `manage` | Updates `url`, `events`, `is_active`, `description`, `metadata` or `secret` |
+| `DELETE` | `/admin/magento/webhooks/:id` | `manage` | Deletes an endpoint and its deliveries |
+| `GET` | `/admin/magento/webhooks/:id/deliveries` | `view` | Lists deliveries. Filters: `status`, `event`, `created_at` |
+| `POST` | `/admin/magento/webhooks/:id/deliveries/:delivery_id/redeliver` | `edit` | Sends a delivery again, whatever its status |
+| `POST` | `/admin/magento/order-groups/:id/payments/capture` | `edit` | Captures the group's external payment. Body: `{ reference? }` |
+| `POST` | `/admin/magento/order-groups/:id/payments/cancel` | `edit` | Cancels every seller order and voids the payment. Fails once captured |
+| `POST` | `/admin/magento/orders/:id/refunds/external` | `edit` | Records a refund on a seller order's captured payment. Body: `{ amount, reference?, note? }` |
+
+Create an endpoint through the API:
+
+```bash
+curl -X POST https://api.your-marketplace.com/admin/magento/webhooks \
+  -u "$MERCUR_SECRET_API_KEY:" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://your-magento-store.com/mercur/webhook",
+    "events": ["offer.created", "offer.updated", "offer.deleted", "seller.updated"],
+    "description": "Production store"
+  }'
+```
+
+`GET /admin/magento/status` answers:
+
+```json
+{
+  "payment_provider": { "id": "pp_external_external", "installed": true },
+  "events": ["offer.created", "offer.updated", "…"],
+  "webhooks": { "total": 1, "active": 1 },
+  "deliveries": {
+    "window_hours": 24,
+    "delivered": 412,
+    "failed": 0,
+    "dead": 0,
+    "pending": 0,
+    "last_delivered_at": "2026-10-26T09:41:08.000Z"
+  },
+  "orders": { "channel": "magento", "last_24h": 37 }
+}
+```
+
+### Delivery statuses
+
+| Status | Shown as | Meaning |
+| --- | --- | --- |
+| `pending` | Queued | Created, not sent yet |
+| `delivered` | Delivered | Answered with `2xx` |
+| `failed` | Retrying | Failed, next attempt scheduled |
+| `dead` | Gave up | Failed six times |
+
+### External payment session data
+
+The `data` Magento sends with the `pp_external_external` payment session. Another storefront can also pass `captured_at` to record a payment that is already settled.
+
+| Field | Description |
+| --- | --- |
+| `reference` | The Magento order number |
+| `amount`, `currency_code` | The Mercur cart total, seller lines and seller shipping, in the website's base currency |
+| `authorized_at` | When Magento sent the order |
+| `channel` | The cart channel, `magento` by default |
+| `payment_method` | Magento's payment method code |
+
+## Magento events
+
+Observe these from your own module to extend the connector:
+
+| Event | Data |
+| --- | --- |
+| `mercur_api_call_before` | `request`: `method`, `url`, `path`, `headers`, `body`, `store_id`. Headers can be changed |
+| `mercur_api_call_after` | `request`, `status`, `body`, `duration_ms`, `attempt`, `exception` on a transport failure |
+| `mercur_webhook_received` | `event_name`, `payload`. Changes to `payload` reach the handlers |
+| `mercur_seller_imported` | `sellers`, `deleted`, `full` |
+| `mercur_offer_mapped_before` | `offer`, `transport`. Set `skip` on `transport` to skip the offer |
+| `mercur_offer_mapped_after` | `row`, which can be changed, and `offer` |
+| `mercur_offers_imported` | `skus`, `full` |
+| `mercur_cart_sync_before` | `quote`, `items`, which can be changed |
+| `mercur_order_place_before` | `order`, `cart_id` |
+| `mercur_order_place_after` | `order`, `cart_id`, `order_group_id`, `seller_orders` |
+| `mercur_fulfillment_synced` | `order`, `seller_order_id`, `shipments_created` |
+| `mercur_refund_reported` | `order`, `creditmemo`, `seller_order_id`, `refund_id`, `amount` |
+
+Webhook handlers are registered in `di.xml` on `Mercur\Connector\Model\Webhook\Dispatcher`, keyed by event name. A handler under `*` runs for every event.
+
+## GraphQL
+
+| Addition | Type |
+| --- | --- |
+| `ProductInterface.mercur_offers` | `[MercurOffer]`, cheapest first. A configurable returns its variants' offers |
+| `ProductInterface.mercur_buy_box` | `MercurBuyBox`: `best_offer_id`, `best_seller_id`, `best_price`, `min_price`, `max_price`, `offer_count`, `operator_available` |
+| `CartItemInput.mercur_offer_id` | Buys the line from this offer |
+| `CartItemInterface.mercur_offer` | `MercurCartItemOffer`: `offer_id`, `seller`. `null` for your own stock |
+| `Cart.mercur_sellers` | `[MercurCartSeller!]!`: `seller`, `items`, `shipping_options`, `estimated_delivery` |
+| `CartPrices.mercur_shipping` | `Money`, the seller shipping total |
+| `OrderItemInterface.mercur` | `MercurOrderItem`: `seller`, `seller_order_id`, `status`, `status_label`. `null` for your own stock |
+| `Query.mercurSeller(handle)` | `MercurSeller`, or `null` when the seller isn't selling |
+| `Mutation.setMercurShippingMethods(input)` | Picks one shipping option per seller: `{ cart_id, shipping_methods: [{ seller_id, option_id }] }` |
+
+`MercurOffer` has `id`, `sku`, `seller_id`, `seller_name`, `seller_premium`, `seller`, `price`, `origin_price`, `price_ranges`, `currency_code`, `quantity`, `leadtime_to_ship`, `estimated_delivery`, `condition_code`, `condition_label` and `is_best`.
+
+## Database
+
+### Tables
+
+| Table | Holds |
+| --- | --- |
+| `mercur_seller` | The seller mirror |
+| `mercur_offer` | The offer mirror, keyed by offer id, with the Magento SKU it sells |
+| `mercur_offer_price` | One price per offer and website, with the strike-through price and quantity tiers |
+| `mercur_offer_product_index` | The buy box per SKU and website |
+| `mercur_process` | Processes, their parameters, status and output |
+| `mercur_webhook_event` | Processed webhook delivery ids, for 30 days |
+
+### Columns on Magento tables
+
+| Table | Columns |
+| --- | --- |
+| `quote` | `mercur_cart_id`, `mercur_shipping_methods`, `mercur_sync_hash` |
+| `quote_item` | `mercur_offer_id`, `mercur_seller_id`, `mercur_line_item_id` |
+| `quote_address` | `mercur_shipping_amount`, `mercur_shipping_tax_amount`, `mercur_shipping_incl_tax` and their `base_` versions, `mercur_shipping_error` |
+| `sales_order` | `mercur_cart_id`, `mercur_order_group_id`, `mercur_shipping_methods`, the seller shipping amounts, tax, invoiced and refunded with their `base_` versions, `mercur_sent_at`, `mercur_captured_at` |
+| `sales_order_item` | `mercur_offer_id`, `mercur_seller_id`, `mercur_line_item_id`, `mercur_order_id`, `mercur_order_line_item_id`, `mercur_status`, `mercur_cancel_reason` |
+| `sales_order_grid` | `mercur_order_group_id` |
+| `sales_invoice` | The seller shipping amounts and tax |
+| `sales_creditmemo` | The seller shipping amounts and tax, `mercur_refund_id`, `mercur_reported` |
+| `sales_shipment` | `mercur_fulfillment_id` |
+
+### Product attributes
+
+In the **Marketplace** attribute group:
+
+| Code | Label |
+| --- | --- |
+| `mercur_product` | Imported from Mercur |
+| `mercur_product_id` | The Mercur product id |
+| `mercur_variant_id` | The Mercur variant id |
+| `mercur_thumbnail` | Mercur thumbnail URL |
+| `mercur_scoped_attributes` | Seller attributes, as JSON |
+
+## Magento admin
+
+| Menu | ACL resource |
+| --- | --- |
+| **Mercur → Sellers** | `Mercur_Core::sellers` |
+| **Mercur → Offers** | `Mercur_Core::offers` |
+| **Mercur → Processes** | `Mercur_Core::process`. Running and stopping need `Mercur_Core::process_run`, deleting needs `Mercur_Core::process_delete` |
+| **Mercur → Configuration** | `Mercur_Core::config` |
+| Order view buttons | `Mercur_Core::orders` |
+
+The product edit form also gets a **Marketplace offers** section listing every offer for the product's SKU.

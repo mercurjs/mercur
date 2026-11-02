@@ -1,35 +1,315 @@
 ---
-title: "Workflows"
+title: "Seller module workflows"
 sidebarTitle: "Workflows"
-description: "Seller and member workflows, service methods, and events."
+description: "Every store, lifecycle, business-detail, and team workflow in the Seller module, with inputs, hooks, and events."
 ---
 
-This reference lists the workflows, service methods, and events for the Store
-domain. Import workflows from `@mercurjs/core/workflows` and run them against the
-Medusa container.
+This reference lists every workflow that writes Seller module data. Import them from `@mercurjs/core/workflows` and run them against the Medusa container: `await workflow(container).run({ input })`. Workflows roll back their completed steps when a later step fails.
 
-## Seller workflows
+```ts
+import { approveSellerWorkflow } from "@mercurjs/core/workflows"
 
-| Workflow | Input | Purpose |
+await approveSellerWorkflow(container).run({
+  input: { seller_id: "sel_01JD8Q1234567" },
+})
+```
+
+Workflows that take `additional_data` pass it to their hooks. Register a hook handler with `workflow.hooks.<hookName>(handler)`.
+
+## createSellersWorkflow
+
+Creates one or more stores, links each to the default region plus `region_ids`, and invites one member per store with `role_seller_administration`. Returns `SellerDTO[]`.
+
+| Input | Type | Description |
 | --- | --- | --- |
-| `createSellersWorkflow` | `{ sellers[], additional_data? }` | Create stores with defaults |
-| `updateSellersWorkflow` | `{ selector, update }` | Update store fields |
-| `deleteSellersWorkflow` | `{ ids[] }` | Delete stores |
-| `approveSellerWorkflow` | `{ seller_id, additional_data? }` | `pending_approval` → `open` |
-| `suspendSellerWorkflow` | `{ seller_id }` | `open` → `suspended` |
-| `unsuspendSellerWorkflow` | `{ seller_id }` | `suspended` → `open` |
-| `terminateSellerWorkflow` | `{ seller_id }` | → `terminated` (irreversible) |
+| `sellers` | `CreateSellerDTO & { member, region_ids? }[]` | Store fields; `status` defaults to `pending_approval` |
+| `sellers[].member` | `{ email: string }` | Required, the address that gets the invite |
+| `sellers[].region_ids` | `string[]` | Optional, regions besides the default one |
+| `additional_data` | `Record<string, unknown>` | Optional, passed to hooks |
 
-## Member workflows
+- **Hooks**: `validate` (`{ input }`), `sellersCreated` (`{ sellers, additional_data }`)
+- **Events**: `seller.created` per store, `member_invite.created` per invite
 
-| Workflow | Input | Purpose |
+## createSellerAccountWorkflow
+
+Creates one store in `pending_approval` and adds a member as its owner with `role_seller_administration`. Returns `SellerDTO`.
+
+| Input | Type | Description |
 | --- | --- | --- |
-| `inviteSellerWorkflow` | `{ email, seller_id }` | Create + send a member invite |
-| `acceptMemberInviteWorkflow` | `{ token }` | Accept an invite, link the member |
-| `addSellerMemberWorkflow` | `{ seller_id, member }` | Add a member directly |
-| `removeSellerMemberWorkflow` | `{ seller_id, member_id }` | Revoke access |
-| `updateMemberRoleWorkflow` | `{ id, role_id }` | Change a member's role |
+| `auth_identity_id` | `string` | The auth identity to attach the member to |
+| `seller` | `CreateSellerDTO` | Store fields; `status` is forced to `pending_approval` |
+| `member_id` | `string` | Optional, an existing member to make owner |
+| `member_email` | `string` | Used when `member_id` is absent to upsert a member |
+| `first_name`, `last_name` | `string` | Optional, set on a new member |
+| `address` | `UpdateSellerAddressDTO` | Optional, written through `updateSellerAddressWorkflow` |
+| `professional_details` | `UpdateProfessionalDetailsDTO` | Optional |
+| `payment_details` | `UpdatePaymentDetailsDTO` | Optional |
+| `region_ids` | `string[]` | Optional, regions besides the default one |
+| `additional_data` | `Record<string, unknown>` | Optional, passed to hooks |
 
-To work with records directly instead of through a workflow, see the
-[Service reference](/platform/store/reference/service). To run side effects when
-a store changes, see the [Event reference](/platform/store/reference/events).
+- **Hooks**: `validate` (`{ input }`), `sellerAccountCreated` (`{ seller, member_id, additional_data }`)
+- **Events**: `seller.created`
+
+## updateSellersWorkflow
+
+Updates every store that matches `selector` with the same `update`. Returns `SellerDTO[]`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `selector` | `Record<string, unknown>` | Filters, such as `{ id: "sel_01JD8Q1234567" }` |
+| `update` | `UpdateSellerDTO` | Fields to set |
+| `additional_data` | `Record<string, unknown>` | Optional, passed to hooks |
+
+- **Hooks**: `sellersUpdated` (`{ sellers, additional_data }`)
+- **Events**: `seller.updated` per store
+
+## deleteSellersWorkflow
+
+Soft deletes stores by id. Compensation restores them.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `ids` | `string[]` | Seller ids |
+
+- **Hooks**: none
+- **Events**: `seller.deleted` per store
+
+## approveSellerWorkflow
+
+Moves a `pending_approval` store to `open`, clears `status_reason`, and sets `approved_at` if it’s empty.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `seller_id` | `string` | The store to approve |
+| `additional_data` | `Record<string, unknown>` | Optional, passed to hooks |
+
+- **Hooks**: `sellerApproved` (`{ seller_id, additional_data }`)
+- **Events**: `seller.approved`
+
+## suspendSellerWorkflow
+
+Moves a `pending_approval` or `open` store to `suspended`, saves `reason` in `status_reason`, and sets `rejected_at` if it’s empty.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `seller_id` | `string` | The store to suspend |
+| `reason` | `string` | Optional |
+| `additional_data` | `Record<string, unknown>` | Optional, passed to hooks |
+
+- **Hooks**: `sellerSuspended` (`{ seller_id, additional_data }`)
+- **Events**: `seller.suspended`
+
+## unsuspendSellerWorkflow
+
+Moves a `suspended` store to `open` and clears `status_reason`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `seller_id` | `string` | The store to reopen |
+| `additional_data` | `Record<string, unknown>` | Optional, passed to hooks |
+
+- **Hooks**: `sellerUnsuspended` (`{ seller_id, additional_data }`)
+- **Events**: `seller.unsuspended`
+
+## terminateSellerWorkflow
+
+Moves a `pending_approval` or `suspended` store to `terminated` and saves `reason` in `status_reason`. Fails for an `open` store.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `seller_id` | `string` | The store to terminate |
+| `reason` | `string` | Optional |
+| `additional_data` | `Record<string, unknown>` | Optional, passed to hooks |
+
+- **Hooks**: `sellerTerminated` (`{ seller_id, additional_data }`)
+- **Events**: `seller.terminated`
+
+## unterminateSellerWorkflow
+
+Moves a `terminated` store to `suspended` and clears `status_reason`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `seller_id` | `string` | The store to restore |
+| `additional_data` | `Record<string, unknown>` | Optional, passed to hooks |
+
+- **Hooks**: `sellerUnterminated` (`{ seller_id, additional_data }`)
+- **Events**: `seller.unterminated`
+
+## linkSellerRegionsWorkflow
+
+Adds and removes store region links in one run. Fails if a region or seller doesn’t exist, or if a store would be left with no region.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `add` | `{ seller_id, region_id }[]` | Optional, links to create |
+| `remove` | `{ seller_id, region_id }[]` | Optional, links to dismiss |
+
+- **Hooks**: none
+- **Events**: none
+
+## updateSellerAddressWorkflow
+
+Creates or updates a store’s `SellerAddress`. Returns `SellerAddressDTO`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `seller_id` | `string` | The store |
+| `data` | `UpdateSellerAddressDTO` | Address fields |
+| `additional_data` | `Record<string, unknown>` | Optional, passed to hooks |
+
+- **Hooks**: `addressUpdated` (`{ address, additional_data }`)
+- **Events**: none
+
+## updateSellerProfessionalDetailsWorkflow
+
+Creates or updates a store’s `ProfessionalDetails`. Returns `ProfessionalDetailsDTO`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `seller_id` | `string` | The store |
+| `data` | `UpdateProfessionalDetailsDTO` | `corporate_name`, `registration_number`, `tax_id` |
+| `additional_data` | `Record<string, unknown>` | Optional, passed to hooks |
+
+- **Hooks**: `professionalDetailsUpdated` (`{ professional_details, additional_data }`)
+- **Events**: none
+
+## deleteSellerProfessionalDetailsWorkflow
+
+Deletes a store’s `ProfessionalDetails`, if it has any.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `seller_id` | `string` | The store |
+| `additional_data` | `Record<string, unknown>` | Optional, passed to hooks |
+
+- **Hooks**: `professionalDetailsDeleted` (`{ seller_id, additional_data }`)
+- **Events**: none
+
+## updateSellerPaymentDetailsWorkflow
+
+Creates or updates a store’s `PaymentDetails`. Returns `PaymentDetailsDTO`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `seller_id` | `string` | The store |
+| `data` | `UpdatePaymentDetailsDTO` | Bank account fields |
+| `additional_data` | `Record<string, unknown>` | Optional, passed to hooks |
+
+- **Hooks**: `paymentDetailsUpdated` (`{ payment_details, additional_data }`)
+- **Events**: none
+
+## inviteSellerWorkflow
+
+Sends an email that invites someone to register a new store. It creates a notification with the template `newSellerInvitation` on the `email` channel, and writes no Seller module records.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `email` | `string` | The prospective seller |
+| `registration_url` | `string` | Optional, the link in the email’s button |
+
+- **Hooks**: none
+- **Events**: none
+
+## createMemberInvitesWorkflow
+
+Creates team invites with signed tokens. Fails if an email already belongs to the store. Returns `MemberInviteDTO[]`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `[].seller_id` | `string` | The store |
+| `[].email` | `string` | The invitee |
+| `[].role_id` | `string` | A `SellerRole` value |
+
+The input is an array of invites, not an object.
+
+- **Hooks**: none
+- **Events**: `member_invite.created` per invite
+
+## resendMemberInviteWorkflow
+
+Deletes an invite and creates a replacement with the same email and role, a new token, and a new expiry. Returns `MemberInviteDTO[]`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `invite_id` | `string` | The invite to replace |
+| `seller_id` | `string` | The store that owns it |
+
+- **Hooks**: none
+- **Events**: `member_invite.created`
+
+## deleteMemberInviteWorkflow
+
+Deletes an invite.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `invite_id` | `string` | The invite to delete |
+
+- **Hooks**: none
+- **Events**: none
+
+## acceptMemberInviteWorkflow
+
+Validates an invite token, upserts the member by email, creates the membership with the invite’s role, and deletes the invite. The member becomes owner when the store has no owner yet. Returns `MemberDTO`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `invite_token` | `string` | The token from the invite |
+| `auth_identity_id` | `string` | The invitee’s auth identity |
+| `member_id` | `string` | Optional; when set, the auth identity isn’t updated |
+| `first_name`, `last_name` | `string` | Optional, set on a new member |
+| `additional_data` | `Record<string, unknown>` | Optional, passed to hooks |
+
+- **Hooks**: `validate` (`{ input, invite }`), `memberInviteAccepted` (`{ member, invite, additional_data }`)
+- **Events**: `member_invite.accepted`
+
+## addSellerMemberWorkflow
+
+Adds an existing member to a store. Returns the `SellerMember`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `seller_id` | `string` | The store |
+| `member_id` | `string` | The existing member |
+| `role_id` | `string` | A `SellerRole` value |
+
+- **Hooks**: none
+- **Events**: `seller_member.created`
+
+## updateMemberRoleWorkflow
+
+Changes the role on a membership. Fails for the owner membership.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `seller_member_id` | `string` | The membership id (`selmem_…`) |
+| `role_id` | `string` | A `SellerRole` value |
+
+- **Hooks**: none
+- **Events**: `seller_member.updated`
+
+## removeSellerMemberWorkflow
+
+Deletes a membership and keeps the `Member` record. Fails for the owner membership.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `seller_member_id` | `string` | The membership id |
+| `seller_id` | `string` | The store, included in the event payload |
+
+- **Hooks**: none
+- **Events**: `seller_member.deleted`
+
+## updateMemberWorkflow
+
+Updates the profile of every member that matches `selector`. Returns `MemberDTO[]`.
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `selector` | `Record<string, unknown>` | Filters, such as `{ id: "mem_01JD8Q1234567" }` |
+| `update` | `{ first_name?, last_name?, locale? }` | Profile fields |
+| `additional_data` | `Record<string, unknown>` | Optional, passed to hooks |
+
+- **Hooks**: `membersUpdated` (`{ members, additional_data }`)
+- **Events**: none

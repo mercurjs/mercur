@@ -13,7 +13,11 @@ import {
   RowSelectionState,
   type ColumnDef,
 } from "@tanstack/react-table";
-import { useExtendableTable, mergeListFilters } from "@mercurjs/dashboard-shared";
+import {
+  getListInitialData,
+  mergeListFilters,
+  useExtendableTable,
+} from "@mercurjs/dashboard-shared";
 import { ReactNode, useMemo, useState, Children } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Outlet, useLoaderData, useNavigate } from "react-router-dom";
@@ -109,11 +113,12 @@ export const ProductListDataTable = () => {
 
   const { mutateAsync: batchProducts } = useBatchProducts();
 
-  const initialData = useLoaderData() as Awaited<
+  const loaderData = useLoaderData() as Awaited<
     ReturnType<ReturnType<typeof productsLoader>>
   >;
 
   const { searchParams, raw } = useProductTableQuery({ pageSize: PAGE_SIZE });
+  const initialData = getListInitialData(raw, loaderData);
   const { products, count, isLoading, isError, error } = useProducts(
     {
       ...searchParams,

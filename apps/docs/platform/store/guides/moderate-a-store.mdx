@@ -1,59 +1,128 @@
 ---
-title: "Moderate stores"
+title: "Approve, suspend, and terminate stores"
 sidebarTitle: "Moderate stores"
-description: "Approve, suspend, and terminate stores from server code."
+description: "Move stores through their lifecycle from server code, extend each transition with a hook, and react to the events."
 ---
 
-In this guide, you'll learn how to drive a store through its lifecycle from your
-own server code. Each transition has a dedicated workflow, so the side effects
-(events, notifications, and compensation) run consistently.
+Drive a store through its lifecycle from your own server code, for example to auto-approve vetted sellers or to suspend a store when a risk check fails. Each transition is a workflow that validates the current status, writes the change, emits an event, and exposes a hook.
 
-## Approve a store
+## Moderate a store
 
-Move a `pending_approval` store to `open` with `approveSellerWorkflow`.
+<Steps>
+  <Step title="Approve a pending store">
+    `approveSellerWorkflow` moves a `pending_approval` store to `open` and stamps `approved_at`.
 
-```ts title="src/api/custom/approve/route.ts"
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+    ```ts title="src/api/admin/stores/[id]/vet/route.ts"
+    import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+    import { approveSellerWorkflow } from "@mercurjs/core/workflows"
+
+    export async function POST(req: MedusaRequest, res: MedusaResponse) {
+      await approveSellerWorkflow(req.scope).run({
+        input: { seller_id: req.params.id },
+      })
+
+      res.sendStatus(200)
+    }
+    ```
+  </Step>
+  <Step title="Suspend and reinstate a store">
+    `suspendSellerWorkflow` takes an optional `reason`, which it saves in `status_reason`. `unsuspendSellerWorkflow` reopens the store and clears the reason.
+
+    ```ts
+    import {
+      suspendSellerWorkflow,
+      unsuspendSellerWorkflow,
+    } from "@mercurjs/core/workflows"
+
+    await suspendSellerWorkflow(container).run({
+      input: { seller_id: "sel_01JD8Q1234567", reason: "Chargeback review" },
+    })
+
+    await unsuspendSellerWorkflow(container).run({
+      input: { seller_id: "sel_01JD8Q1234567" },
+    })
+    ```
+  </Step>
+  <Step title="Terminate a store">
+    `terminateSellerWorkflow` accepts a `pending_approval` or `suspended` store. Suspend an `open` store first.
+
+    ```ts
+    import { terminateSellerWorkflow } from "@mercurjs/core/workflows"
+
+    await terminateSellerWorkflow(container).run({
+      input: { seller_id: "sel_01JD8Q1234567", reason: "Policy breach" },
+    })
+    ```
+
+    To undo it, run `unterminateSellerWorkflow`. It returns the store to `suspended`, and you reopen it with `unsuspendSellerWorkflow`.
+  </Step>
+</Steps>
+
+## Reject a pending application
+
+Mercur has no separate reject workflow. Run `suspendSellerWorkflow` on the `pending_approval` store with a `reason`: it stamps `rejected_at` and keeps the store out of the Store API. Terminate it afterwards if the decision is final.
+
+## Handle a failed transition
+
+Each workflow checks the starting status and fails with a `NOT_ALLOWED` error when the transition isn’t allowed. Nothing is written in that case. Pass `throwOnError: false` to read the error instead of catching it.
+
+```ts
+import { MedusaError } from "@medusajs/framework/utils"
+import { terminateSellerWorkflow } from "@mercurjs/core/workflows"
+
+const { errors } = await terminateSellerWorkflow(container).run({
+  input: { seller_id: "sel_01JD8Q1234567" },
+  throwOnError: false,
+})
+
+const notAllowed = errors.some(
+  ({ error }) => error.type === MedusaError.Types.NOT_ALLOWED
+)
+```
+
+An `open` store makes `notAllowed` true here, with the message “Cannot terminate an open seller. Suspend or close first.”
+
+The workflow also fails when the seller id doesn’t exist, because its lookup step runs with `throwIfKeyNotFound`.
+
+## Extend a transition with a hook
+
+Each lifecycle workflow exposes a hook that receives `seller_id` and `additional_data`. Register a handler to run your own step inside the transition.
+
+```ts title="src/workflows/hooks/seller-approved.ts"
 import { approveSellerWorkflow } from "@mercurjs/core/workflows"
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  await approveSellerWorkflow(req.scope).run({
-    input: { seller_id: req.params.id },
-  })
+approveSellerWorkflow.hooks.sellerApproved(
+  async ({ seller_id }, { container }) => {
+    const logger = container.resolve("logger")
+    logger.info(`Store ${seller_id} approved`)
+  }
+)
+```
 
-  res.sendStatus(200)
+The other hooks follow the same shape: `sellerSuspended`, `sellerUnsuspended`, `sellerTerminated`, and `sellerUnterminated`.
+
+## Run side effects from a subscriber
+
+Subscribe to the lifecycle events for work that shouldn’t block the transition, such as emails. Each event carries `{ id }`, the seller id.
+
+```ts title="src/subscribers/store-suspended.ts"
+import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+
+export default async function storeSuspended({
+  event,
+  container,
+}: SubscriberArgs<{ id: string }>) {
+  const logger = container.resolve("logger")
+  logger.info(`Store ${event.data.id} suspended`)
+}
+
+export const config: SubscriberConfig = {
+  event: "seller.suspended",
 }
 ```
 
-## Suspend and reinstate
+## Next steps
 
-Freeze an `open` store's operations, then reinstate it once the issue is resolved.
-
-```ts
-import {
-  suspendSellerWorkflow,
-  unsuspendSellerWorkflow,
-} from "@mercurjs/core/workflows"
-
-await suspendSellerWorkflow(container).run({ input: { seller_id } })
-// ...later
-await unsuspendSellerWorkflow(container).run({ input: { seller_id } })
-```
-
-## Terminate a store
-
-```ts
-import { terminateSellerWorkflow } from "@mercurjs/core/workflows"
-
-await terminateSellerWorkflow(container).run({ input: { seller_id } })
-```
-
-<Warning>
-  Termination is irreversible. All orders and payouts must be resolved first.
-</Warning>
-
-## React to lifecycle changes
-
-To run your own side effects when a store's status changes, subscribe to the
-events these workflows emit instead of polling. The
-[Event reference](/platform/store/reference/events) lists the event names.
+- [Store statuses and transitions](/platform/store/concepts/lifecycle)
+- [Event reference](/platform/store/reference/events)
+- [Workflows reference](/platform/store/reference/workflows)

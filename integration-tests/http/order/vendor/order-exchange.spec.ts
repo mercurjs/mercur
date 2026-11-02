@@ -353,6 +353,49 @@ medusaIntegrationTestRunner({
                 })
             })
 
+            describe("GET /vendor/exchanges", () => {
+                it("lists only the caller's own exchanges", async () => {
+                    const order1 = await completeCartCheckout(seller1Seed.offer.id)
+                    const order2 = await completeCartCheckout(seller2Seed.offer.id)
+
+                    const exchange1 = (
+                        await api.post(
+                            `/vendor/exchanges`,
+                            { order_id: order1.id },
+                            seller1Seed.headers
+                        )
+                    ).data.exchange
+                    const exchange2 = (
+                        await api.post(
+                            `/vendor/exchanges`,
+                            { order_id: order2.id },
+                            seller2Seed.headers
+                        )
+                    ).data.exchange
+
+                    const asSeller1 = await api.get(`/vendor/exchanges`, seller1Seed.headers)
+                    const ids1 = asSeller1.data.exchanges.map((e: any) => e.id)
+                    expect(ids1).toContain(exchange1.id)
+                    expect(ids1).not.toContain(exchange2.id)
+                    expect(asSeller1.data.count).toEqual(1)
+
+                    const asSeller2 = await api.get(`/vendor/exchanges`, seller2Seed.headers)
+                    const ids2 = asSeller2.data.exchanges.map((e: any) => e.id)
+                    expect(ids2).toContain(exchange2.id)
+                    expect(ids2).not.toContain(exchange1.id)
+                })
+
+                it("rejects an order_id filter pointing at another seller's order", async () => {
+                    const order1 = await completeCartCheckout(seller1Seed.offer.id)
+
+                    const response = await api
+                        .get(`/vendor/exchanges?order_id=${order1.id}`, seller2Seed.headers)
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(404)
+                })
+            })
+
             describe("/:id sub-routes (seller-scope)", () => {
                 it("rejects inbound items from non-owning seller", async () => {
                     const order = await completeCartCheckout(seller1Seed.offer.id)

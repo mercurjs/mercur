@@ -3616,8 +3616,7 @@
       "paid": "Betaald",
       "processing": "Wordt verwerkt",
       "pending": "In behandeling",
-      "failed": "Mislukt",
-      "canceled": "Geannuleerd"
+      "failed": "Mislukt"
     }
   },
   "marketplace": {

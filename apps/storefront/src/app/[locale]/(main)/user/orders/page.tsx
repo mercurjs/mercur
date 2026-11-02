@@ -1,13 +1,27 @@
+import { Suspense } from "react"
+import { RouteFallback } from "@/components/molecules/RouteFallback/RouteFallback"
 import { isEmpty } from 'lodash';
 
-import { LoginForm, ParcelAccordion, UserNavigation } from '@/components/molecules';
-import { OrdersPagination } from '@/components/sections';
+import { LoginForm } from '@/components/molecules/LoginForm/LoginForm';
+import { ParcelAccordion } from '@/components/molecules/ParcelAccordion/ParcelAccordion';
+import { UserNavigation } from '@/components/molecules/UserNavigation/UserNavigation';
+import { OrdersPagination } from '@/components/organisms/OrdersPagination/OrdersPagination';
 import { retrieveCustomer } from '@/lib/data/customer';
 import { listOrders } from '@/lib/data/orders';
 
 const LIMIT = 10;
 
-export default async function UserPage({
+export default function UserPage(props: {
+  searchParams: Promise<{ page: string }>;
+}) {
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <UserPageContent {...props} />
+    </Suspense>
+  )
+}
+
+async function UserPageContent({
   searchParams
 }: {
   searchParams: Promise<{ page: string }>;

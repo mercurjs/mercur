@@ -1,7 +1,6 @@
-import { requirePermission } from "../../utils"
+import { applySellerLinkFilter, requirePermission } from "../../utils"
 import {
   AuthenticatedMedusaRequest,
-  maybeApplyLinkFilter,
   MedusaNextFunction,
   MedusaResponse,
   MiddlewareRoute,
@@ -40,17 +39,9 @@ const applySellerOrderLinkFilter = async (
       req.seller_context!.seller_id,
       req.filterableFields.order_id as string | string[]
     )
-    return next()
   }
 
-  req.filterableFields.seller_id = req.seller_context!.seller_id
-
-  return maybeApplyLinkFilter({
-    entryPoint: "order_seller",
-    resourceId: "order_id",
-    filterableField: "seller_id",
-    filterByField: "order_id",
-  })(req, res, next)
+  return applySellerLinkFilter(["order", "seller"])(req, res, next)
 }
 
 export const vendorReturnsMiddlewares: MiddlewareRoute[] = [

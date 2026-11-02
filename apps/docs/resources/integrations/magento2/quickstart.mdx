@@ -1,0 +1,195 @@
+---
+title: "Magento 2 quickstart"
+sidebarTitle: "Quickstart"
+description: "Install both halves of the connector, connect Magento to Mercur, run the first sync and place a first order that mixes your products with a seller's."
+---
+
+By the end of this guide a seller's offer shows on one of your Magento product pages, and one checkout buys it together with your own stock. Plan for about 30 minutes.
+
+<Note>
+  You need a running Mercur project on 2.3.8 or later, and a Magento 2.4.4+ store with [cron running](https://experienceleague.adobe.com/en/docs/commerce-operations/configuration-guide/cli/configure-cron-jobs). The connector does all background work from cron, so nothing syncs without it.
+</Note>
+
+Before you start, make sure you have:
+
+- A Mercur region whose currency matches the base currency of the Magento website that will sell offers
+- A Mercur sales channel for the Magento store
+- At least one approved seller with an active offer in that region
+- A public HTTPS URL for the Magento store that your Mercur API can reach
+
+## Step 1: Install the plugin in Mercur
+
+Add the plugin to your Mercur API:
+
+```bash
+bun add @mercurjs/magento2-connector-plugin
+```
+
+Register the plugin and its payment provider in `medusa-config.ts`:
+
+```ts medusa-config.ts
+module.exports = withMercur({
+  // ...
+  plugins: [
+    { resolve: "@mercurjs/magento2-connector-plugin", options: {} },
+  ],
+  modules: [
+    {
+      resolve: "@medusajs/medusa/payment",
+      options: {
+        providers: [
+          {
+            resolve: "@mercurjs/magento2-connector-plugin/providers/payment-external",
+            id: "external",
+          },
+        ],
+      },
+    },
+  ],
+})
+```
+
+Run the migrations and restart the API:
+
+```bash
+bunx medusa db:migrate
+```
+
+Open **Settings → Magento** in the Mercur admin. The **Payment provider** row shows `pp_external_external`. If it says **Not registered**, the provider block above isn't loaded.
+
+## Step 2: Enable the payment provider on your region
+
+The connector records the Magento payment on the `pp_external_external` provider. Open the region the Magento website sells in, edit it, and add **pp_external_external** to its payment providers.
+
+<Warning>
+  Without this the Mercur cart can't complete, and every Magento order with seller lines stays unsent.
+</Warning>
+
+## Step 3: Create the API keys
+
+Magento needs two keys from Mercur:
+
+- **A secret admin API key.** Create it under **Settings → Secret API Keys**. Magento reads sellers, offers and products with it, and confirms captures and refunds. If your project runs the roles module, give the key a role with the [permissions the connector needs](/resources/integrations/magento2/configuration#api-key-permissions). Without a roles module the key has full admin access, so store it like an admin password.
+- **A publishable API key**, under **Settings → Publishable API Keys**, for the sales channel from the prerequisites. Magento builds the Mercur cart for each checkout with it.
+
+Copy the ID of the region and the sales channel too. You'll paste all four values in the next steps.
+
+## Step 4: Install the Magento package
+
+In your Magento root, add the repository and require the package:
+
+```bash
+composer config repositories.mercur vcs https://github.com/mercurjs/magento2-connector
+composer require mercurjs/magento2-connector:dev-main
+```
+
+Enable the modules and rebuild:
+
+```bash
+bin/magento module:enable Mercur_Core Mercur_Process Mercur_Connector \
+  Mercur_OfferIndexer Mercur_Catalog Mercur_Settlement Mercur_Frontend Mercur_GraphQl
+# Only on stores that run Multi-Source Inventory:
+bin/magento module:enable Mercur_Inventory
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento cache:flush
+```
+
+A **Mercur** menu now appears in the Magento admin, with **Sellers**, **Offers**, **Processes** and **Configuration**.
+
+## Step 5: Connect Magento to Mercur
+
+Open **Stores → Configuration → Mercur → Marketplace → Connection**. Set the API URL, both keys and the sales channel at the default scope. Then switch the scope to the website that sells offers and set its **Mercur region ID**:
+
+| Field | Value |
+| --- | --- |
+| Enabled | Yes |
+| Mercur API URL | `https://api.your-marketplace.com` |
+| Admin API key | the secret key from step 3 |
+| Publishable API key | the publishable key from step 3 |
+| Mercur sales channel ID | `sc_...` |
+| Mercur region ID | `reg_...`, set on the website |
+
+Save, then click **Test connection**. A working setup answers with both lines:
+
+```text
+Connected to https://api.your-marketplace.com.
+Region Europe (EUR).
+```
+
+<Tip>
+  The check uses the saved values of the scope you're editing. Save before you test, and test once at the website scope so the region lookup runs.
+</Tip>
+
+## Step 6: Register the webhook
+
+Mercur tells Magento about new offers, seller changes, shipments, returns and refunds through a signed webhook.
+
+1. In the Mercur admin, open **Settings → Magento** and click **Add endpoint**.
+2. Enter `https://your-magento-store.com/mercur/webhook` and keep every event selected.
+3. Click **Create** and copy the **Signing secret**. It's shown once.
+4. In Magento, paste it into **Stores → Configuration → Mercur → Marketplace → Webhooks → Signing secret**, at the default scope, and save.
+
+To check it, edit any seller in Mercur. A `seller.updated` delivery appears under the endpoint's **Deliveries** as **Delivered**. If it shows **Retrying** with a `401`, the secret in Magento doesn't match.
+
+The status card at the top of **Settings → Magento** now shows **Connected**.
+
+## Step 7: Run the first sync
+
+Mirror Mercur into Magento:
+
+```bash
+bin/magento mercur:sync taxonomy
+bin/magento mercur:sync full
+```
+
+`taxonomy` pushes your categories and marketplace attributes to Mercur, so seller products can use them. `full` imports sellers, offers and published seller products, and prices each offer for every website that has a region.
+
+Check the result in the Magento admin:
+
+- **Mercur → Sellers** lists your sellers
+- **Mercur → Offers** lists their offers, with a price and the websites that sell them
+- **Mercur → Processes** shows each step of the full resync as **Completed**, with its output
+
+From now on cron keeps the mirror current, and webhooks trigger a delta sync within a minute of a change.
+
+## Step 8: Place a test order
+
+Open a product page on the storefront for a SKU with a seller offer. Under **Also sold by**, the seller's offer shows its price and estimated delivery.
+
+1. Add the seller's offer to the cart, and one of your own products too.
+2. Go to checkout. The seller's line sits in its own group with a shipping choice, and the totals show **Seller shipping**.
+3. Place the order with any payment method.
+
+In the Magento admin, the order's comments show:
+
+```text
+Marketplace order group 12 created in Mercur.
+```
+
+The **Marketplace** section of the order lists the seller's order with its status. In the Mercur admin, the order group appears under **Orders** and the seller sees their order in the vendor panel.
+
+Invoice the order in Magento. A second comment confirms the capture:
+
+```text
+Marketplace payment captured in Mercur.
+```
+
+The seller can now fulfill. When they ship, the shipment and its tracking number appear on the Magento order.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Configuration" icon="sliders" href="/resources/integrations/magento2/configuration">
+    The best offer rule, delivery estimates, product push and every other setting.
+  </Card>
+  <Card title="Orders and payments" icon="credit-card" href="/resources/integrations/magento2/orders-and-payments">
+    What happens on invoice, cancel, shipment and refund.
+  </Card>
+  <Card title="Architecture" icon="sitemap" href="/resources/integrations/magento2/architecture">
+    How the two sides stay in step, and what happens when one is down.
+  </Card>
+  <Card title="Reference" icon="book" href="/resources/integrations/magento2/reference">
+    Cron jobs, CLI commands and webhook events.
+  </Card>
+</CardGroup>

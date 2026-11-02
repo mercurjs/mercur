@@ -51,6 +51,10 @@ const EditStoreSchema = zod.object({
   phone: zod.string().optional().or(zod.literal("")),
   website_url: zod.string().optional().or(zod.literal("")),
   is_premium: zod.boolean(),
+  default_leadtime_to_ship: zod
+    .string()
+    .regex(/^\d*$/, { message: i18n.t("marketplace.leadtimeInvalid") })
+    .optional(),
   media: zod.array(MediaSchema).optional(),
   bannerMedia: zod.array(MediaSchema).optional(),
 });
@@ -115,6 +119,8 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
       phone: seller.phone ?? "",
       website_url: stripWebsiteProtocol(seller.website_url),
       is_premium: seller.is_premium ?? false,
+      default_leadtime_to_ship:
+        seller.default_leadtime_to_ship?.toString() ?? "",
       media: seller.logo
         ? [
             {
@@ -194,6 +200,9 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
         description: values.description || null,
         website_url: ensureWebsiteProtocol(values.website_url ?? ""),
         is_premium: values.is_premium,
+        default_leadtime_to_ship: values.default_leadtime_to_ship
+          ? Number(values.default_leadtime_to_ship)
+          : null,
         logo: logoUrl,
         banner: bannerUrl,
         additional_data: values.additional_data,
@@ -388,6 +397,27 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
               </Select>
             </Form.Item>
           </div>
+          <Form.Field
+            control={form.control}
+            name="default_leadtime_to_ship"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label optional>{t("stores.fields.defaultLeadtime")}</Form.Label>
+                <Form.Control>
+                  <Input
+                    type="number"
+                    min={0}
+                    step={1}
+                    inputMode="numeric"
+                    {...field}
+                    data-testid="store-edit-form-leadtime-input"
+                  />
+                </Form.Control>
+                <Form.Hint>{t("stores.fields.defaultLeadtimeHint")}</Form.Hint>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
           <SwitchBox
             control={form.control}
             name="is_premium"

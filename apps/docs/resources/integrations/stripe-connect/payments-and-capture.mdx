@@ -1,0 +1,77 @@
+---
+title: "Payments and capture"
+sidebarTitle: "Payments and capture"
+description: "How the customer is charged once for a multi-seller cart, when the plugin captures or cancels the authorization, and how cancellations and refunds flow back to sellers."
+---
+
+The customer pays once, on your platform account, for every seller in the cart. The card is only authorized at checkout. The plugin captures it once every seller has decided their order, for exactly what will ship.
+
+## Checkout
+
+The payment provider, `pp_stripe-connector_stripe`, creates one PaymentIntent for the cart with `capture_method: manual`. It sets the order group id on the PaymentIntent's metadata, under `mercur_order_group_id` unless you change `orderGroupMetadataKey`.
+
+When the cart completes, Mercur splits it into an order group with one order per seller and writes each order's commission lines. The plugin opens a **capture** for the order group. It tracks the authorized amount, the expiry of the authorization and how many orders are decided.
+
+## When an order is decided
+
+An order is **decided** when it is canceled, or when it reaches the fulfillment threshold, `transfers.requiredFulfillmentStatus`, which is `fulfilled` by default.
+
+With `capture.captureBeforeAcceptance: true`, an order is decided as soon as it is no longer awaiting the seller's acceptance, so you capture before anything ships.
+
+Every fulfillment and cancellation refreshes the order group's capture right away.
+
+## The capture decision
+
+The capture job runs every five minutes. For every open capture it decides what to do:
+
+| Situation | Action | Amount |
+| --- | --- | --- |
+| Some orders aren't decided yet, and expiry is more than `capture.safetyBufferMs` away | Wait | |
+| Every order is decided and at least one wasn't canceled | Capture | Authorized amount minus the totals of canceled orders |
+| Every order was canceled | Cancel the authorization | |
+| Expiry is within `capture.safetyBufferMs` | Capture what is left, even if some orders aren't decided | Authorized amount minus canceled orders |
+| The authorization has expired | Mark expired | |
+
+The authorization expires `capture.authorizationWindowMs` after it was created, 7 days by default. That matches Stripe's default for card payments. If your account has [extended authorization](https://docs.stripe.com/payments/extended-authorization), raise it to match.
+
+After a capture, Medusa gives each seller order its own captured payment on the same charge, so each order's payout can use that charge as its `source_transaction`.
+
+## Capture statuses
+
+| Status | Label in the admin | Meaning |
+| --- | --- | --- |
+| `pending` | Awaiting orders | Some orders aren't decided yet |
+| `ready` | Ready to capture | Every order is decided, or expiry is close. The next run captures |
+| `cancelable` | Ready to cancel | Every order was canceled. The next run cancels the authorization |
+| `captured` | Captured | The payment is captured |
+| `canceled` | Canceled | The authorization was released |
+| `expired` | Expired | The authorization expired before it could be captured |
+| `failed` | Failed | Stripe refused the capture or cancellation. The next run tries again |
+
+## Captures in the admin
+
+**Integrations → Stripe → Captures** lists every order group's capture, with the orders decided out of the total, the authorized amount, the expiry and the status. Filter by status or by expiry date.
+
+Each open row has two actions:
+
+- **Capture now**: capture the capturable amount without waiting for the next run
+- **Cancel authorization**: release the authorization, for example when you are cancelling the whole order group
+
+Both ask for confirmation first.
+
+## Refunds
+
+Refunds are made the usual Medusa way, from the order in the admin or by the seller. The payment provider refunds the charge on the platform account.
+
+The refund then has to come back out of the seller's share:
+
+- **Before the order's payout is sent**, the payout is computed net of the refund. Nothing is reversed, and the payout's reason says `refund_absorbed`.
+- **After the payout is sent**, the refund writes a `payout_reversal` of the seller's share, net of its commission share, and Stripe reverses that much of the original Transfer.
+
+The reversal runs right away from the refund, and again from the reversal job every five minutes for anything left over. See [reversals](/resources/integrations/stripe-connect/payouts-and-settlements#reversals).
+
+## Cancellations
+
+A canceled order before capture is simply left out of the capture amount, so the customer is never charged for it.
+
+A canceled order after capture needs a refund like any other, which reverses the seller's share if it was already paid out.

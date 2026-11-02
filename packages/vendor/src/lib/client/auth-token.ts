@@ -1,42 +1,16 @@
-const AUTH_TOKEN_KEY = 'mercur_vendor_auth_token'
+import {
+  resolveAuthHeaders,
+  vendorAuth,
+  vendorSellerStore,
+  vendorTokenStore,
+} from '@mercurjs/client'
 
-const SELLER_ID_KEY = 'mercur_vendor_seller_id'
+export const getAuthToken = () => vendorTokenStore.get()
+export const setAuthToken = (token: string) => vendorTokenStore.set(token)
+export const clearAuthToken = () => vendorTokenStore.clear()
 
-const read = (key: string) => {
-  try {
-    return localStorage.getItem(key)
-  } catch {
-    return null
-  }
-}
+export const getSellerId = () => vendorSellerStore.get()
+export const setSellerId = (sellerId: string) => vendorSellerStore.set(sellerId)
+export const clearSellerId = () => vendorSellerStore.clear()
 
-const write = (key: string, value: string | null) => {
-  try {
-    if (value === null) {
-      localStorage.removeItem(key)
-    } else {
-      localStorage.setItem(key, value)
-    }
-  } catch {
-    return
-  }
-}
-
-export const getAuthToken = () => read(AUTH_TOKEN_KEY)
-export const setAuthToken = (token: string) => write(AUTH_TOKEN_KEY, token)
-export const clearAuthToken = () => write(AUTH_TOKEN_KEY, null)
-
-export const getSellerId = () => read(SELLER_ID_KEY)
-export const setSellerId = (sellerId: string) => write(SELLER_ID_KEY, sellerId)
-export const clearSellerId = () => write(SELLER_ID_KEY, null)
-
-export const getAuthHeaders = (): Record<string, string> => {
-  const token = getAuthToken()
-
-  const sellerId = getSellerId()
-
-  return {
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(sellerId ? { 'x-seller-id': sellerId } : {}),
-  }
-}
+export const getAuthHeaders = () => resolveAuthHeaders(vendorAuth())

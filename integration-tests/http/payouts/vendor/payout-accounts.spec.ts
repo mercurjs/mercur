@@ -52,6 +52,23 @@ medusaIntegrationTestRunner({
           expect(response.data.payout_account.id).toEqual(expect.any(String))
         })
       })
+
+      describe("GET /vendor/payout-accounts/me", () => {
+        it("ignores fields outside the vendor defaults", async () => {
+          await api.post("/vendor/payout-accounts", {}, sellerHeaders)
+
+          const response = await api.get(
+            "/vendor/payout-accounts/me?fields=+onboarding_token,+payouts.id,+context",
+            sellerHeaders
+          )
+
+          expect(response.status).toEqual(200)
+          expect(response.data.payout_account.id).toEqual(expect.any(String))
+          expect(response.data.payout_account.onboarding_token).toBeUndefined()
+          expect(response.data.payout_account.payouts).toBeUndefined()
+          expect(response.data.payout_account.context).toBeUndefined()
+        })
+      })
     })
   },
 })

@@ -1,86 +1,94 @@
 ---
-title: "Commission"
+title: "Commissions"
 sidebarTitle: "Overview"
-description: "Configure how the marketplace takes its cut of every seller order."
+description: "Set the share of each sale the marketplace keeps, scope it to sellers and parts of the catalog, and record it per order line."
 ---
 
-Use Mercur to keep financial control over what share of each sale the
-marketplace keeps and each seller earns.
+Use Mercur to decide what share of each sale the marketplace keeps and what each seller earns.
 
-Financial control over the marketplace runs through commission. You set
-policy-based **rates** (fixed or percentage) and scope them to parts of your
-catalog with **rules**. Mercur resolves the right rate for every order line by
-most-specific-wins and writes an auditable **commission line**. That line is the
-exact amount deducted before the seller is paid out, computed in arbitrary
-precision so the numbers reconcile.
+Commission is the marketplace’s cut of a seller order. You define rates as a percentage or a fixed amount and scope them with rules to sellers, products, types, collections, or categories. When an order is placed, Mercur picks the most specific matching rate for every line item and writes a commission line with the amount. The payout for that order is the order total minus the sum of its commission lines.
+
+<img className="block dark:hidden" src="/images/figures/commission-overview-light.svg" alt="Commission rates behind the commission lines of order #100: the Linen shirt line matches the 12% acme-apparel rate for € 5.64, while the Desk lamp line and the shipping method fall back to the 10% default rate." />
+<img className="hidden dark:block" src="/images/figures/commission-overview-dark.svg" alt="Commission rates behind the commission lines of order #100: the Linen shirt line matches the 12% acme-apparel rate for € 5.64, while the Desk lamp line and the shipping method fall back to the 10% default rate." />
 
 <Note>
-  **Commission = the `CommissionRate` + `CommissionRule` entities.** A rate is
-  the number, either a percentage or a fixed amount. Rules scope that rate to a
-  slice of the catalog. Every marketplace has one **Global Commission**. This is
-  the `is_default` rate that applies when nothing more specific matches.
+  The Commission module owns four data models: `CommissionRate` (`comrate`), `CommissionRule` (`comrule`), `CommissionRateValue` (`comval`), and `CommissionLine` (`comline`). Resolve its service with `MercurModules.COMMISSION` from `@mercurjs/types`.
 </Note>
 
 ## Key features
 
-- **Fixed or percentage:** a percentage of the line, or a flat per-currency amount.
-- **Per-currency amounts:** fixed rates carry an amount per currency, falling back to a default `value`.
-- **Five scoping dimensions:** match on `product`, `product_type`, `product_collection`, `product_category`, and `seller`.
-- **Most-specific-wins:** the rate scoped on the most dimensions wins, and ties break to the oldest rate.
-- **Shipping commission:** only the global rate may commission shipping (`include_shipping`).
-- **Automatic order lines:** a commission line is generated per item and recomputed when an order changes.
-- **BigNumber arithmetic:** all commission math uses arbitrary precision for financial accuracy.
+The Commission module covers configuration, resolution, and the per-order record:
+
+- **Percentage or fixed rates**: a percent of the line subtotal, or a flat amount per line
+- **Per-currency amounts**: a fixed rate holds one amount per currency and falls back to its `value`
+- **Five scoping dimensions**: rules match on `product`, `product_type`, `product_collection`, `product_category`, and `seller`
+- **Most specific wins**: the matching rate scoped on the most dimensions wins, and ties go to the oldest rate
+- **Global commission**: a seeded `is_default` rate that can’t be deleted and is the only rate that commissions shipping
+- **Lines that follow the order**: lines are written at checkout and recomputed on order edits, returns, claims, and exchanges
+- **Exact arithmetic**: amounts are computed with Medusa’s `MathBN` and stored as big numbers
+- **Pluggable calculation**: swap the built-in `system` provider for your own `ICommissionProvider`
+
+## How it works
+
+Commission runs as part of checkout and again whenever the order changes:
+
+1. `completeCartWithSplitOrdersWorkflow` splits the cart into one order per seller.
+2. It runs `refreshOrderCommissionLinesWorkflow` for the new orders as a nested step.
+3. The workflow builds one calculation context per order and passes them to the active provider in one batch.
+4. The `system` provider loads the enabled rates once and picks the winning rate for each item.
+5. The module replaces the order’s commission lines with the new set.
+6. When a payout is created, Mercur subtracts the sum of the order’s commission lines from the order total.
 
 ## Get started
 
-Learn how the domain fits together.
+Learn how rates, rules, and commission lines fit together.
 
 <CardGroup cols={2}>
   <Card title="Rules & rates" icon="percent" href="/platform/commission/concepts/rules-and-rates">
-    Fixed vs. percentage rates, per-currency amounts, and the global rate.
+    Percentage and fixed rates, per-currency amounts, and the global commission.
   </Card>
   <Card title="Rule matching" icon="sliders" href="/platform/commission/concepts/rule-matching">
-    The five dimensions, most-specific-wins, tie-breaks, and shipping.
+    How Mercur picks one rate for each line, and how shipping is handled.
   </Card>
   <Card title="Order commission lines" icon="receipt" href="/platform/commission/concepts/order-commission-lines">
-    How per-order lines are computed and kept in sync.
+    What a commission line records and when it’s recomputed.
   </Card>
 </CardGroup>
 
 ## Examples
 
-Build against the Commission domain in your own code.
+Build against commission in your own server code.
 
 <CardGroup cols={2}>
   <Card title="Create a rate" icon="plus" href="/platform/commission/guides/create-a-rate">
-    Run `createCommissionRatesWorkflow` from a route or seed script.
+    Create percentage and fixed rates with `createCommissionRatesWorkflow`.
   </Card>
   <Card title="Batch-update rules" icon="list-check" href="/platform/commission/guides/batch-update-rules">
-    Create, update, and delete a rate's rules in one call.
+    Add, change, and remove a rate’s rules in one workflow run.
   </Card>
   <Card title="Refresh order lines" icon="arrows-rotate" href="/platform/commission/guides/refresh-order-commission-lines">
-    Recompute commission for an order after it changes.
+    Recompute commission for orders and extend the calculation context.
   </Card>
 </CardGroup>
 
 ## Resources
 
-Data models, workflows, service methods, and events for the Commission domain.
+The data models, links, workflows, service methods, and events behind commission.
 
 <CardGroup cols={2}>
   <Card title="Data models" icon="table" href="/platform/commission/reference/data-models">
-    `CommissionRate`, `CommissionRule`, and related entities.
+    Every field of the four commission models.
   </Card>
   <Card title="Links" icon="link" href="/platform/commission/reference/links">
-    How Commission connects to catalog, sellers, and orders.
+    How commission records point at the catalog, sellers, and orders.
   </Card>
   <Card title="Workflows" icon="diagram-project" href="/platform/commission/reference/workflows">
-    Rate, rule, and order-line workflows.
+    Rate, rule, and order-line workflows with their inputs and hooks.
   </Card>
   <Card title="Service" icon="gear" href="/platform/commission/reference/service">
-    Module service methods for working with records directly.
+    Generated and custom service methods, and commission providers.
   </Card>
   <Card title="Events" icon="bell" href="/platform/commission/reference/events">
-    How commission stays in sync with order changes.
+    The order events that trigger a recompute.
   </Card>
 </CardGroup>

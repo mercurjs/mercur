@@ -78,7 +78,22 @@ medusaIntegrationTestRunner({
           .post(`/vendor/sellers/select`, { seller_id: otherSellerId }, member)
           .catch((e) => e.response)
 
-        expect(response.status).toEqual(400)
+        expect(response.status).toEqual(403)
+        expect(response.data.message).toEqual(
+          "You are not a member of this seller account"
+        )
+      })
+
+      it("forbids a vendor route for a seller the member does not belong to", async () => {
+        const member = await login("member", "alpha@test.com")
+
+        const response = await api
+          .get(`/vendor/members/me`, {
+            headers: { ...member.headers, "x-seller-id": otherSellerId },
+          })
+          .catch((e) => e.response)
+
+        expect(response.status).toEqual(403)
         expect(response.data.message).toEqual(
           "You are not a member of this seller account"
         )

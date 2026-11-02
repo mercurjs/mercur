@@ -11,6 +11,7 @@ import { useSelectedParams } from "../hooks"
 import { useDataTableFilterContext } from "./context"
 import FilterChip from "./filter-chip"
 import { IFilter } from "./types"
+import { isCompleteDate } from "./is-complete-date"
 
 type DateFilterProps = IFilter
 
@@ -68,6 +69,10 @@ export const DateFilter = ({
   const customEndValue = getDateFromComparison(currentDateComparison, "$lte")
 
   const handleCustomDateChange = (value: Date | null, pos: "start" | "end") => {
+    if (value && !isCompleteDate(value)) {
+      return
+    }
+
     const key = pos === "start" ? "$gte" : "$lte"
 
     let dateValue = value

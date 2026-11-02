@@ -1,6 +1,6 @@
 import { Buildings } from "@medusajs/icons"
 import { Button, Container, Heading, Text } from "@medusajs/ui"
-import { createColumnHelper } from "@tanstack/react-table"
+import { type ColumnDef, createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
@@ -13,6 +13,7 @@ import {
   DisplayExtensionZone,
   PermissionAction,
   useCan,
+  useExtendableTable,
 } from "@mercurjs/dashboard-shared"
 
 import { OfferDetail, OfferInventoryItemLink } from "../../common/types"
@@ -93,7 +94,7 @@ export const OfferInventorySection = ({ offer }: Props) => {
       .filter((x): x is InventoryRow => x !== null)
   }, [offer.inventory_item_link])
 
-  const columns = useMemo(
+  const baseColumns = useMemo(
     () => [
       columnHelper.accessor("title", {
         header: t("fields.title"),
@@ -154,12 +155,26 @@ export const OfferInventorySection = ({ offer }: Props) => {
           )
         },
       }),
-      columnHelper.display({
-        id: "actions",
-        cell: ({ row }) => <InventoryActions item={row.original} />,
-      }),
     ],
     [t],
+  )
+
+  const { columns: extended } = useExtendableTable<InventoryRow>({
+    model: "offer",
+    zone: "inventory",
+    columns: baseColumns as unknown as ColumnDef<InventoryRow, unknown>[],
+  })
+
+  const columns = useMemo(
+    () =>
+      [
+        ...extended,
+        columnHelper.display({
+          id: "actions",
+          cell: ({ row }) => <InventoryActions item={row.original} />,
+        }),
+      ] as ColumnDef<InventoryRow, unknown>[],
+    [extended],
   )
 
   const { table } = useDataTable({

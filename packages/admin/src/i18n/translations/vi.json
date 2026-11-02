@@ -3613,8 +3613,7 @@
       "paid": "Đã thanh toán",
       "processing": "Đang xử lý",
       "pending": "Đang chờ xử lý",
-      "failed": "Thất bại",
-      "canceled": "Đã hủy"
+      "failed": "Thất bại"
     }
   },
   "marketplace": {

@@ -313,7 +313,7 @@ medusaIntegrationTestRunner({
             input: { order_ids: [order.id] },
           })
 
-          // Same query createPayoutWorkflow uses to total commission for the
+          // Same query createOrderPayoutsWorkflow uses to total commission for the
           // payout: read the order's item + shipping commission lines.
           const { data: lines } = await query.graph({
             entity: "commission_line",

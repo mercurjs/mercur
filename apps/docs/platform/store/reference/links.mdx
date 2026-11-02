@@ -1,71 +1,89 @@
 ---
-title: "Links to other modules"
+title: "Seller module links"
 sidebarTitle: "Links"
-description: "How the Store (Seller) domain links to other modules across the marketplace."
+description: "Every module link that connects the Seller module to other modules, with cardinality, source file, and query.graph aliases."
 ---
 
-Modules in Mercur never reference each other directly. They connect through
-**module links**. The Seller module is the most linked domain in the marketplace,
-and almost every other module attaches to a store. Once a link is defined, you
-retrieve related records with `query.graph` using the link alias.
+Mercur modules never reference each other directly: they connect through module links defined in `packages/core/src/links`. The `seller` entity is the most linked record in the marketplace. Once a link exists, `query.graph` resolves the other side through the link’s alias.
 
 ```ts
-const { data: stores } = await query.graph({
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+
+const query = container.resolve(ContainerRegistrationKeys.QUERY)
+
+const { data: [seller] } = await query.graph({
   entity: "seller",
-  fields: ["id", "name", "offers.*", "payout_account.*"],
+  fields: ["id", "name", "regions.*", "payout_account.*"],
+  filters: { id: "sel_01JD8Q1234567" },
 })
 ```
 
-## Commerce
+The tables below list the alias on each side. Read the “From seller” column as a field on `seller`, and the “From the other side” column as a field on the linked entity.
 
-| Linked module | Relationship |
-| --- | --- |
-| **Offer** | A store has many offers (`offer.seller_id`, read-only). Offers are how a store sells against a master product. |
-| **Product** | Many-to-many allowlist (`product_seller`) that controls which stores may sell a given master product. |
-| **Product category** | Many-to-many link to the categories a store is associated with. |
-| **Order** | Each order belongs to one store; a store has many orders. |
+## Catalog and offers
 
-## Payouts
+These links decide what a store sells and where it’s listed.
 
-| Linked module | Relationship |
-| --- | --- |
-| **Payout** | A store has many payouts. |
-| **Payout account** | A store has one payout account (its provider onboarding record). |
+| Link | Cardinality | From seller | From the other side | File |
+| --- | --- | --- | --- | --- |
+| Product | many-to-many, table `product_seller` | `products` | `product.sellers` | `product-seller-link.ts` |
+| Product category | many-to-many | `product_categories` | `product_category.sellers` | `category-seller-link.ts` |
+| Offer | many offers to one seller, read-only | none | `offer.seller` | `offer-seller-link.ts` |
 
-## Customers
+The offer link is read-only and built on the `offer.seller_id` column, so you can’t create or dismiss it through the Link API. Query it from the offer side.
 
-| Linked module | Relationship |
-| --- | --- |
-| **Customer** | Many-to-many link to the customers associated with a store. |
-| **Customer group** | A customer group is owned by exactly one store; a store owns many groups. |
+## Orders and payouts
 
-## Fulfillment & inventory
+These links attach a store’s sales and settlements.
 
-| Linked module | Relationship |
-| --- | --- |
-| **Shipping profile** | A store has many shipping profiles. |
-| **Shipping option** | A store has many shipping options. |
-| **Service zone** | A store has many service zones. |
-| **Fulfillment set** | A store has many fulfillment sets. |
-| **Stock location** | A store has many stock locations. |
-| **Inventory item** | A store has many inventory items. |
+| Link | Cardinality | From seller | From the other side | File |
+| --- | --- | --- | --- | --- |
+| Order | many orders to one seller | `orders` | `order.seller` | `order-seller-link.ts` |
+| Payout | many payouts to one seller | `payouts` | `payout.seller` | `payout-seller-link.ts` |
+| Payout account | one-to-one | `payout_account` | `payout_account.seller` | `seller-payout-account-link.ts` |
 
-## Pricing & promotions
+## Regions and customers
 
-| Linked module | Relationship |
-| --- | --- |
-| **Price list** | A store has many price lists. |
-| **Promotion** | A store has many promotions. |
-| **Campaign** | A store has many campaigns. |
+These links set where a store trades and who it serves.
 
-## Access & reviews
+| Link | Cardinality | From seller | From the other side | File |
+| --- | --- | --- | --- | --- |
+| Region | many-to-many, table `region_seller` | `regions` | `region.sellers` | `region-seller-link.ts` |
+| Customer | many-to-many | `customers` | `customer.sellers` | `seller-customer-link.ts` |
+| Customer group | many groups to one seller | `customer_groups` | `customer_group.seller` | `seller-customer-group-link.ts` |
 
-| Linked module | Relationship |
-| --- | --- |
-| **RBAC role** | A member's role on a store (`seller_member.role_id`, read-only) resolves against the roles module. |
-| **Review** | A store has many reviews. |
+`createSellersWorkflow` and `createSellerAccountWorkflow` create the region links. `linkSellerRegionsWorkflow` changes them later.
 
-<Note>
-  Read-only links (Offer, RBAC role) are resolved from the field on the owning
-  record and can't be written through the link itself.
-</Note>
+## Fulfillment and inventory
+
+These links scope fulfillment setup and stock to a store.
+
+| Link | Cardinality | From seller | From the other side | File |
+| --- | --- | --- | --- | --- |
+| Fulfillment set | many sets to one seller | `fulfillment_sets` | `fulfillment_set.seller` | `fulfillment-set-seller-link.ts` |
+| Service zone | many zones to one seller | `service_zones` | `service_zone.seller` | `service-zone-seller-link.ts` |
+| Shipping option | many options to one seller | `shipping_options` | `shipping_option.seller` | `shipping-option-seller-link.ts` |
+| Stock location | many locations to one seller | `stock_locations` | `stock_location.seller` | `stock-location-seller-link.ts` |
+| Inventory item | many items to one seller | `inventory_items` | `inventory_item.seller` | `inventory-item-seller-link.ts` |
+
+## Pricing and promotions
+
+These links scope a store’s own pricing and marketing.
+
+| Link | Cardinality | From seller | From the other side | File |
+| --- | --- | --- | --- | --- |
+| Price list | many lists to one seller | `price_lists` | `price_list.seller` | `price-list-seller-link.ts` |
+| Promotion | many promotions to one seller | `promotions` | `promotion.seller` | `promotion-seller-link.ts` |
+| Campaign | many campaigns to one seller | `campaigns` | `campaign.seller` | `campaign-seller-link.ts` |
+
+## Reviews
+
+This link attaches customer reviews of a store.
+
+| Link | Cardinality | From seller | From the other side | File |
+| --- | --- | --- | --- | --- |
+| Review | many reviews to one seller | `reviews` | `review.seller` | `seller-review.ts` |
+
+## Order groups
+
+The order group links start from `OrderGroup`, which lives in the Seller module, not from `Seller`. See the [order group links](/platform/order-group/reference/links) for `order-group-order-link.ts` and `order-group-cart-link.ts`.

@@ -1,21 +1,16 @@
 ---
-title: "The order group"
+title: "What an order group is"
 sidebarTitle: "The order group"
-description: "The aggregate record over a multi-seller purchase, its display id, and cart link."
+description: "The record that ties a multi-seller purchase together: its display id, its customer, its cart, and its child orders."
 ---
 
-This page covers the order group record and how it aggregates the per-seller
-orders created from a single cart.
+An order group is the record that represents one checkout across several sellers. Sellers can’t share an order, because each one ships, refunds, and gets paid on their own, so Mercur gives every seller a child order and keeps the purchase together in a group. You use the group whenever you need the shopper’s view of a purchase: an order history page, a confirmation email, or an operator’s order list.
 
-## Order group
+## The OrderGroup record
 
-An order group is the shopper-facing wrapper over a multi-seller purchase. It is
-represented by the `OrderGroup` data model (table `order_group`, id prefix
-`og`). When a cart containing offers from more than one seller is completed, the
-cart is split into one child order per seller. All of those orders are attached
-to a single group.
+The group is the `OrderGroup` data model in the Seller module, stored in the `order_group` table with the id prefix `og`. It holds four stored fields and two computed ones:
 
-```ts
+```ts title="packages/core/src/modules/seller/models/order-group.ts"
 const OrderGroup = model.define("order_group", {
   id: model.id({ prefix: "og" }).primaryKey(),
   display_id: model.autoincrement(),
@@ -26,39 +21,51 @@ const OrderGroup = model.define("order_group", {
 })
 ```
 
-The group carries a human-readable `display_id`, an auto-incrementing integer,
-so shoppers and operators can reference the purchase without exposing the
-internal id. `customer_id` records who placed it. `seller_count` and `total`
-are computed at read time. See [Computed totals](/platform/order-group/concepts/computed-totals).
+Each field has one job:
+
+- **`display_id`**: an auto-incrementing integer, so people can quote a purchase without the internal id
+- **`customer_id`**: the customer who completed the cart, or `null` when the cart has no customer
+- **`cart_id`**: the cart the group was created from
+- **`seller_count` and `total`**: summed from the child orders when you read the group, covered in [Computed totals](/platform/order-group/concepts/computed-totals)
 
 <Note>
-  A group is created even for a single-seller cart, so every completed
-  marketplace order has exactly one parent group regardless of how many sellers
-  it spans.
+  Checkout creates a group for every completed cart, even when the cart has items from one seller. Every marketplace order therefore has exactly one parent group.
 </Note>
 
 ## The cart link
 
-Each group holds a `cart_id` pointing back to the cart it was created from. This
-is exposed as a **read-only** link to the Cart module. The cart is frozen
-(`completed_at` is set) the moment the split runs, so the reference is a
-historical record, not something you write through.
+The `cart_id` field backs a read-only link to Medusa’s Cart module, so you can expand `cart.*` from a group. Checkout sets `completed_at` on the cart in the same run that creates the group, and the cart doesn’t change after that. Treat `cart_id` as a stable pointer to the basket the shopper paid for.
 
 ```ts
-const { data: groups } = await query.graph({
+const { data: [group] } = await query.graph({
   entity: "order_group",
-  fields: ["id", "display_id", "cart.id", "orders.id"],
+  fields: ["id", "display_id", "cart.id", "cart.email"],
+  filters: { id: "og_01JD8Q1234567" },
 })
 ```
 
-<Tip>
-  Because the cart is immutable after checkout, the `cart_id` is safe to treat as
-  a stable audit pointer to the exact basket the shopper paid for.
-</Tip>
+The query loads one group and the cart it came from. Because the link is read-only, you can’t create or dismiss it with `link.create`: it always follows the `cart_id` column.
 
 ## Child orders
 
-The group doesn't store line items itself. Those live on the child `Order`
-records, linked through the `order_group_order` table. Loading a group's
-`orders.*` gives you each seller's slice, each with its own fulfillment, payment,
-returns, and refunds.
+A group holds no line items. The items live on the child `Order` records, one per seller, connected through the `order_group_order` link table. Each child order is a regular Medusa order with its own items, shipping methods, fulfillments, returns, and refunds:
+
+- **Seller**: each child order links to the seller who fulfills it
+- **Line items**: each order line item links to the offer it was bought from
+- **Cart**: each child order also links back to the completed cart
+
+```ts
+const { data: [group] } = await query.graph({
+  entity: "order_group",
+  fields: ["id", "orders.id", "orders.seller.name", "orders.status"],
+  filters: { id: "og_01JD8Q1234567" },
+})
+```
+
+The query returns the group with each child order and the seller behind it. To go from an order to its group, query the `order_group_order` link entity by `order_id`.
+
+## Related
+
+- [How checkout splits a cart into child orders](/platform/order-group/concepts/order-splitting)
+- [How `seller_count` and `total` are computed](/platform/order-group/concepts/computed-totals)
+- [Every link around an order group](/platform/order-group/reference/links)

@@ -9,6 +9,11 @@ import { MercurModules } from "@mercurjs/types"
 import VendorUIModuleService from "../modules/vendor-ui/services/vendor-ui-module-service"
 import AdminUIModuleService from "../modules/admin-ui/services/admin-ui-module-service"
 import { DashboardBase } from "../utils/dashboard/dashboard-base"
+import { scheduleTelemetryBoot } from "../utils/telemetry/boot"
+
+// Medusa imports this file only in processes that serve HTTP, which is the
+// signal that a real server (not a worker, migration or exec script) came up.
+scheduleTelemetryBoot()
 
 function dashboardMiddleware(service: DashboardBase) {
   return (req: MedusaRequest, res: MedusaResponse, next: MedusaNextFunction) => {

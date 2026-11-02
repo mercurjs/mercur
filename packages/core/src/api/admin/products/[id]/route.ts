@@ -5,6 +5,8 @@ import {
 import {
   ContainerRegistrationKeys,
   MedusaError,
+  Modules,
+  ProductStatus,
 } from "@medusajs/framework/utils"
 
 import { AdditionalData } from "@medusajs/framework/types"
@@ -16,6 +18,7 @@ import {
   wrapProductVariantsWithOffers,
 } from "../../../utils"
 import { productEditDeleteProductWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-delete-product"
+import { ProductWorkflowEvents } from "../../../../workflows/product/events"
 import { AdminUpdateProductType } from "../validators"
 
 export const GET = async (
@@ -69,6 +72,15 @@ export const POST = async (
 
   const { additional_data, ...update } = req.validatedBody
 
+  const publishing = update.status === ProductStatus.PUBLISHED
+  const wasPublished = publishing
+    ? (await query.graph({
+        entity: "product",
+        fields: ["status"],
+        filters: { id: req.params.id },
+      })).data[0]?.status === ProductStatus.PUBLISHED
+    : false
+
   await updateProductsWorkflow(req.scope).run({
     input: {
       selector: { id: req.params.id },
@@ -76,6 +88,14 @@ export const POST = async (
       additional_data,
     },
   })
+
+  if (publishing && !wasPublished) {
+    const eventBus = req.scope.resolve(Modules.EVENT_BUS)
+    await eventBus.emit({
+      name: ProductWorkflowEvents.PUBLISHED,
+      data: [{ id: req.params.id }],
+    })
+  }
 
   const {
     data: [product],

@@ -5,6 +5,8 @@ import {
   validateAndTransformQuery,
 } from "@medusajs/framework"
 import { z } from "zod"
+import { createLinkBody } from "@medusajs/medusa/api/utils/validators"
+import { maybeApplyLinkFilter } from "@medusajs/framework"
 
 import {
   adminSellerQueryConfig,
@@ -50,6 +52,19 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
         AdminGetSellersParams,
         adminSellerQueryConfig.list
       ),
+      maybeApplyLinkFilter({
+        entryPoint: "region_seller",
+        resourceId: "seller_id",
+        filterableField: "region_id",
+      }),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/sellers/:id/regions",
+    middlewares: [
+      requirePermission("sellers", "edit"),
+      validateAndTransformBody(createLinkBody()),
     ],
   },
   {

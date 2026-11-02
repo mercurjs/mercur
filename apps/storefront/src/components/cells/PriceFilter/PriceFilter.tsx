@@ -2,8 +2,9 @@
 import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 
-import { Input } from "@/components/atoms"
-import { Accordion, FilterCheckboxOption } from "@/components/molecules"
+import { Input } from '@/components/atoms/Input/Input';
+import { Accordion } from '@/components/molecules/Accordion/Accordion';
+import { FilterCheckboxOption } from '@/components/molecules/FilterCheckboxOption/FilterCheckboxOption';
 import useUpdateSearchParams from "@/hooks/useUpdateSearchParams"
 import { DollarIcon } from "@/icons"
 import useFilters from "@/hooks/useFilters"

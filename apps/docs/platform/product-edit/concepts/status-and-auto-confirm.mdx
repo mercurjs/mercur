@@ -1,66 +1,63 @@
 ---
-title: "Status & auto-confirm"
+title: "Change statuses, revision requests, and auto-confirm"
 sidebarTitle: "Status & auto-confirm"
-description: "The change status lifecycle, revision requests, and auto-confirm."
+description: "The four ProductChangeStatus values, how a revision request fits in, and when a change confirms without review."
 ---
 
-In this document, you'll learn about the states a change moves through and when
-it resolves without operator review.
+Every product change has a status that says whether it’s waiting for review or already resolved. A change starts `pending` and is resolved exactly once: confirmed, declined, or canceled. Whether a seller’s edit waits for an operator at all depends on the `product_request` feature flag and on the `auto_confirm` input.
 
-## Status
+## The status lifecycle
 
-A change's state is held in the `status` field of the `ProductChange` model,
-typed by the `ProductChangeStatus` enum. A change moves through four statuses:
+The `status` field takes one of the four `ProductChangeStatus` values, exported from `@mercurjs/types`. Each resolution has its own workflow, which checks that the change is still `pending`, stamps the actor field, and emits an event.
 
-```
-                ┌───────────┐
-                │  pending   │
-                └─────┬─────┘
-          ┌───────────┼───────────┐
-    confirm          decline     cancel
-          ▼           ▼           ▼
-   ┌───────────┐ ┌──────────┐ ┌──────────┐
-   │ confirmed │ │ declined │ │ canceled │
-   └───────────┘ └──────────┘ └──────────┘
-```
+<img className="block dark:hidden" src="/images/figures/product-edit-lifecycle-light.svg" alt="The ProductChangeStatus table: a change enters pending through stageProductChangeWorkflow, then confirmProductChangeWorkflow, rejectProductChangeWorkflow, or cancelProductChangeWorkflow moves it to confirmed, declined, or canceled, each emitting its own event and stamping its own actor field." />
+<img className="hidden dark:block" src="/images/figures/product-edit-lifecycle-dark.svg" alt="The ProductChangeStatus table: a change enters pending through stageProductChangeWorkflow, then confirmProductChangeWorkflow, rejectProductChangeWorkflow, or cancelProductChangeWorkflow moves it to confirmed, declined, or canceled, each emitting its own event and stamping its own actor field." />
 
-| Status | Meaning |
-| --- | --- |
-| `pending` | Awaiting operator review. The default for a staged edit |
-| `confirmed` | Approved; its actions are applied to the product |
-| `declined` | Rejected by the operator; nothing is applied |
-| `canceled` | Withdrawn (e.g. by the vendor) before review |
+| Status | Meaning | Product touched |
+| --- | --- | --- |
+| `pending` | Staged and waiting for review. The default | No |
+| `confirmed` | Approved, or recorded as an audit change | Yes, its actions are applied |
+| `declined` | Rejected by an operator, with an optional `declined_reason` | No |
+| `canceled` | Withdrawn, by the seller or an operator, before review | No |
+
+Confirming, declining, or canceling a change that isn’t `pending` fails with a `NOT_ALLOWED` error. Each resolution step saves the previous values, so if a later step fails, the workflow restores the change to `pending`.
 
 <Note>
-  Only a `pending` change can be confirmed, declined, or canceled. The
-  resolution workflows validate the current status first, so a change is
-  resolved exactly once.
+  The model also has `requires_action_by`, `requires_action_at`, and `requires_action_reason` columns, but `ProductChangeStatus` has no `requires_action` value and no workflow writes those columns.
 </Note>
 
 ## Revision requests
 
-When an operator wants a submission reworked rather than approved or rejected,
-they **request a revision**. This is recorded as a `CHANGE_REQUESTED` audit
-action (a `confirmed` audit change) carrying the operator's message, and it emits
-`product.change-requested`. The product stays with the vendor to revise and
-resubmit. A revision request is a signal in the audit trail, not a fourth
-resolution of the pending change.
+A revision request sends a proposed product back to its seller without approving or rejecting it. `requestProductChangeWorkflow` checks that the product status is `proposed`, records an audit change with a `CHANGE_REQUESTED` action, and emits `product.change-requested`. The product stays `proposed` for the seller to revise.
+
+A revision request isn’t a fifth status, and it doesn’t resolve any pending change. It’s an already-`confirmed` entry in the product’s history. The operator’s message is stored twice: in the action’s `details.message` and in the change’s `external_note`.
 
 ## Auto-confirm
 
-Staging a change runs `autoConfirmProductChangeWorkflow`. Whether it confirms
-immediately depends on the marketplace's review setting:
+Staging always runs `autoConfirmProductChangeWorkflow` right after the change is created. It runs `confirmProductChangeWorkflow` in the same workflow run when either condition holds:
 
-- **Review off:** the change is confirmed and applied in the same run, so
-  low-friction edits don't wait for an operator.
-- **Review on:** the change stays `pending` for an operator to resolve.
+- **The flag is off**: the `product_request` feature flag is disabled
+- **Forced**: the caller passed `auto_confirm: true`, which reaches the workflow as `force`
 
-You can also force auto-confirm for a specific change (for example a
-trusted-source import) via the `auto_confirm` flag on the staging workflow,
-regardless of the review setting.
+Otherwise the change stays `pending`. The flag is on by default. Turn it off with an environment variable:
 
-<Tip>
-  Auto-confirm reuses the exact same `confirmProductChangeWorkflow` as a manual
-  approval, so an auto-confirmed change is applied and audited identically to one
-  an operator approves by hand.
-</Tip>
+```bash title=".env"
+MEDUSA_FF_PRODUCT_REQUEST=false
+```
+
+With the flag off, every seller edit applies immediately and still leaves a confirmed change in the trail. The same flag also controls product creation: while it’s on, a seller can only create products as `draft` or `proposed`.
+
+## When Mercur forces auto-confirm
+
+There’s no risk scoring: Mercur doesn’t classify edits as low or high risk. It forces auto-confirm in two places:
+
+- **Draft deletes**: `productEditDeleteProductWorkflow` defaults `auto_confirm` to `true` when the product is a `draft`
+- **Operator deletes**: the admin product delete route always passes `auto_confirm: true`
+
+An auto-confirmed change goes through the same `confirmProductChangeWorkflow` as a manual approval. It emits `product-change.confirmed` and fires the same hooks, with `confirmed_by` set to the change’s author.
+
+## Related
+
+- [Confirm, decline, or cancel a change in code](/platform/product-edit/guides/confirm-or-decline-a-change)
+- [Request a revision](/platform/product-edit/guides/request-a-revision)
+- [The events each transition emits](/platform/product-edit/reference/events)

@@ -28,6 +28,7 @@ export type RefundPaymentWorkflowHooks = [
       amount: BigNumberInput | null
       credit_line_amount: BigNumberInput
       refund_reason: { id: string; label: string; code: string | null } | null
+      is_replay: boolean
     },
     unknown
   >,

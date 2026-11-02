@@ -144,6 +144,7 @@ const useSidebarRoutes = () => {
         icon: Icon ? <Icon /> : undefined,
         translationNs: item.translationNs,
         group: item.group,
+        type: "extension" as const,
         items: addNestedItems(item.path, visibleMenuItems),
       };
     });

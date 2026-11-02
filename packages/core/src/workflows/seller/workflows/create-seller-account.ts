@@ -20,9 +20,12 @@ import {
 import { AdditionalData } from "@medusajs/framework/types"
 
 import {
+  associateSellersWithRegionsStep,
   createSellersStep,
   upsertMembersStep,
   createSellerMembersStep,
+  resolveSellerRegionIdsStep,
+  validateSellerRegionLinksStep,
 } from "../steps"
 import { SellerWorkflowEvents } from "../../events"
 import { updateSellerAddressWorkflow } from "./update-seller-address"
@@ -41,6 +44,7 @@ type CreateSellerAccountWorkflowInput = {
   address?: UpdateSellerAddressDTO
   professional_details?: UpdateProfessionalDetailsDTO
   payment_details?: UpdatePaymentDetailsDTO
+  region_ids?: string[]
 } & AdditionalData
 
 export const createSellerAccountWorkflow = createWorkflow(
@@ -56,6 +60,15 @@ export const createSellerAccountWorkflow = createWorkflow(
 
     const sellers = createSellersStep(sellerData)
     const seller = transform({ sellers }, ({ sellers }) => sellers[0])
+
+    const regionLinks = resolveSellerRegionIdsStep({
+      requests: transform({ seller, input }, ({ seller, input }) => [
+        { seller_id: seller.id, region_ids: input.region_ids },
+      ]),
+    })
+
+    validateSellerRegionLinksStep({ links: regionLinks })
+    associateSellersWithRegionsStep({ links: regionLinks })
 
     const newMember = when('no-existing-member', input, ({ member_id }) => !member_id).then(() => {
       const members = upsertMembersStep(

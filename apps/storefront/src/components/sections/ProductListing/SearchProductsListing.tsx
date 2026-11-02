@@ -1,148 +1,132 @@
-"use client"
+import { Suspense } from "react"
 
-import { HttpTypes } from "@medusajs/types"
-import {
-  ProductsPagination,
-  ProductSearchSidebar,
-  ProductListingActiveFilters,
-} from "@/components/organisms"
-import {
-  ProductListingLoadingView,
-  ProductListingNoResultsView,
-  ProductListingProductsView,
-} from "@/components/molecules"
-import { useSearchParams } from "next/navigation"
+import ProductListingNoResultsView from "@/components/molecules/ProductListingNoResultsView/ProductListingNoResultsView"
+import ProductListingProductsView from "@/components/molecules/ProductListingProductsView/ProductListingProductsView"
+import { ProductListingActiveFilters } from "@/components/organisms/ProductListingActiveFilters/ProductListingActiveFilters"
+import { ProductSearchSidebar } from "@/components/organisms/ProductSearchSidebar/ProductSearchSidebar"
+import { ProductsPagination } from "@/components/organisms/ProductsPagination/ProductsPagination"
 import { PRODUCT_LIMIT } from "@/const"
-import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
-import { useEffect, useMemo, useState } from "react"
-import {
-  getSearchFacets,
-  searchProducts,
-  type SearchFacets,
-} from "@/lib/data/products"
+import { getSearchFacets, searchProducts } from "@/lib/data/products"
 import type { SortOptions } from "@/types/product"
 
-const EMPTY_FACETS: SearchFacets = { attributes: {} }
+import { ListingResultsBoundary } from "./ListingResultsBoundary"
+
+export type ListingSearchParams = Promise<Record<string, string | string[] | undefined>>
 
 // URL params that drive the listing itself rather than attribute filters.
-const RESERVED_PARAMS = new Set([
-  "query",
-  "page",
-  "sortBy",
-  "min_price",
-  "max_price",
-])
+const RESERVED_PARAMS = new Set(["query", "page", "sortBy", "min_price", "max_price"])
+
+const firstValue = (value: string | string[] | undefined) =>
+  Array.isArray(value) ? value[0] : value
 
 export const SearchProductsListing = ({
   category_id,
   collection_id,
   seller_id,
-  locale = process.env.NEXT_PUBLIC_DEFAULT_REGION,
+  locale,
+  searchParams,
 }: {
   category_id?: string | string[]
   collection_id?: string
   seller_id?: string
-  locale?: string
+  locale: string
+  searchParams: ListingSearchParams
+}) => (
+  <div className="min-h-[70vh]" data-testid="product-listing-container">
+    <div className="hidden md:block min-h-6">
+      <Suspense fallback={null}>
+        <ProductListingActiveFilters />
+      </Suspense>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <aside className="md:col-span-1">
+        <Suspense fallback={null}>
+          <ListingFacets />
+        </Suspense>
+      </aside>
+      <div className="md:col-span-3 w-full flex flex-col">
+        <Suspense fallback={<ListingResultsSkeleton />}>
+          <ListingResultsBoundary fallback={<ListingResultsSkeleton />}>
+            <ListingResults
+              category_id={category_id}
+              collection_id={collection_id}
+              seller_id={seller_id}
+              locale={locale}
+              searchParams={searchParams}
+            />
+          </ListingResultsBoundary>
+        </Suspense>
+      </div>
+    </div>
+  </div>
+)
+
+const ListingFacets = async () => {
+  const facets = await getSearchFacets()
+  return <ProductSearchSidebar facets={facets} />
+}
+
+const ListingResults = async ({
+  category_id,
+  collection_id,
+  seller_id,
+  locale,
+  searchParams,
+}: {
+  category_id?: string | string[]
+  collection_id?: string
+  seller_id?: string
+  locale: string
+  searchParams: ListingSearchParams
 }) => {
-  const searchParams = useSearchParams()
-  const categoryKey = Array.isArray(category_id)
-    ? category_id.join(",")
-    : category_id
+  const params = await searchParams
 
-  const query = searchParams.get("query") || ""
-  const page = +(searchParams.get("page") || 1)
-  const sortBy = (searchParams.get("sortBy") as SortOptions | null) || undefined
+  const attributes: Record<string, string[]> = {}
+  for (const [key, raw] of Object.entries(params)) {
+    const value = firstValue(raw)
+    if (RESERVED_PARAMS.has(key) || !value) continue
+    attributes[key] = value.split(",").filter(Boolean)
+  }
 
-  const [facets, setFacets] = useState<SearchFacets>(EMPTY_FACETS)
-  const [products, setProducts] = useState<HttpTypes.StoreProduct[]>([])
-  const [count, setCount] = useState(0)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    getSearchFacets()
-      .then(setFacets)
-      .catch(() => setFacets(EMPTY_FACETS))
-  }, [])
-
-  const searchParamsKey = searchParams.toString()
-  const attributesKey = useMemo(() => {
-    const selected: Record<string, string[]> = {}
-    searchParams.forEach((raw, key) => {
-      if (RESERVED_PARAMS.has(key) || !raw) {
-        return
-      }
-      selected[key] = raw.split(",").filter(Boolean)
-    })
-    return JSON.stringify(selected)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParamsKey])
-  const attributes = useMemo(
-    () => JSON.parse(attributesKey) as Record<string, string[]>,
-    [attributesKey]
-  )
-
-  useEffect(() => {
-    async function fetchProducts() {
-      if (!locale) return
-
-      try {
-        setIsLoading(true)
-        const result = await searchProducts({
-          query: query || undefined,
-          countryCode: locale,
-          category_id,
-          collection_id,
-          seller_id,
-          attributes,
-          page,
-          limit: PRODUCT_LIMIT,
-          sortBy,
-        })
-
-        setProducts(result.products)
-        setCount(result.count)
-      } catch (error) {
-        setProducts([])
-        setCount(0)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchProducts()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale, categoryKey, collection_id, seller_id, query, page, sortBy, attributesKey])
-
-  if (isLoading && products.length === 0) return <ProductListingSkeleton />
+  const { products, count } = await searchProducts({
+    query: firstValue(params.query) || undefined,
+    countryCode: locale,
+    category_id,
+    collection_id,
+    seller_id,
+    attributes,
+    page: Math.max(Number(firstValue(params.page)) || 1, 1),
+    limit: PRODUCT_LIMIT,
+    sortBy: (firstValue(params.sortBy) as SortOptions | undefined) || undefined,
+  })
 
   const pages = Math.ceil(count / PRODUCT_LIMIT) || 1
 
   return (
-    <div className="min-h-[70vh]">
-      <div className="flex justify-between w-full items-center">
-        <div className="my-4 label-md">{`${count} listings`}</div>
+    <>
+      <div className="my-4 label-md" data-testid="product-listing-count">{`${count} listings`}</div>
+      {products.length ? (
+        <ProductListingProductsView products={products} />
+      ) : (
+        <ProductListingNoResultsView />
+      )}
+      <div className="mt-auto">
+        <ProductsPagination pages={pages} />
       </div>
-      <div className="hidden md:block">
-        <ProductListingActiveFilters />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <aside className="md:col-span-1">
-          <ProductSearchSidebar facets={facets} />
-        </aside>
-        <div className="md:col-span-3 w-full flex flex-col">
-          {isLoading && <ProductListingLoadingView />}
-
-          {!isLoading && !products.length && <ProductListingNoResultsView />}
-
-          {!isLoading && products.length > 0 && (
-            <ProductListingProductsView products={products} />
-          )}
-
-          <div className="mt-auto">
-            <ProductsPagination pages={pages} />
-          </div>
-        </div>
-      </div>
-    </div>
+    </>
   )
 }
+
+const ListingResultsSkeleton = () => (
+  <div aria-busy="true" data-testid="product-listing-results-skeleton">
+    <div className="my-4 h-5 w-24 animate-pulse rounded-sm bg-secondary" />
+    <ul className="flex flex-wrap gap-4">
+      {Array.from({ length: 8 }, (_, index) => (
+        <li
+          key={index}
+          className="h-[420px] w-full min-w-[250px] animate-pulse rounded-sm bg-secondary lg:w-[calc(25%-1rem)]"
+        />
+      ))}
+    </ul>
+  </div>
+)

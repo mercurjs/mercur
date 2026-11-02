@@ -1,61 +1,63 @@
 ---
-title: "Order splitting"
+title: "How checkout splits a cart into orders"
 sidebarTitle: "Order splitting"
-description: "How a multi-seller cart becomes a group of independent per-seller orders."
+description: "How completeCartWithSplitOrdersWorkflow turns one multi-seller cart into one order per seller under a group."
 ---
 
-This page covers how a single cart spanning multiple sellers is split into
-per-seller orders at checkout.
+Order splitting is what happens when a shopper completes a cart that holds offers from several sellers. Mercur replaces Medusa’s single-order checkout with `completeCartWithSplitOrdersWorkflow`, which creates one order per seller and wraps them in an order group. Understanding the split tells you where each seller’s items, shipping, promotions, and payment end up.
 
-## Why carts are split
+## Items follow the offer’s seller
 
-A marketplace cart can hold offers from many different sellers. Each seller
-fulfills, ships, and settles independently, so a single combined order would be
-impossible to operate. Instead, on completion the cart is divided along seller
-boundaries. Every seller with items in the cart gets its own `Order`, and all of
-those orders are attached to one parent `OrderGroup`.
+The workflow groups line items by `item.offer.seller_id`. Sellers sell against a shared master catalog through offers, so the offer, not the product, ties a line item to a seller. Every seller with at least one item gets one child order.
 
-The split is driven by the `completeCartWithSplitOrdersWorkflow`. It groups the
-cart's line items by the seller behind each offer, and builds one order per
-seller from that seller's items and shipping methods.
+The split enforces two rules before it creates anything:
+
+- **Every item has a seller**: `validateSellerCartItemsStep` throws `INVALID_DATA` when any line item has no offer with a `seller_id`
+- **Every seller’s shipping is covered**: `validateSellerCartShippingStep` throws when items that require shipping have no matching shipping method
+
+Each child order gets the seller’s line items plus the shipping methods whose shipping option belongs to that seller. Addresses, email, currency, locale, region, and sales channel are copied from the cart.
+
+## Promotions stay with their seller
+
+Promotion adjustments are split by scope. A promotion linked to a seller only keeps its adjustments on that seller’s items and shipping, and the workflow links the promotion to that seller’s child order. A marketplace promotion with no seller keeps its adjustments on every order it touched, and the workflow links it to no order.
+
+## What the split creates
+
+The workflow creates everything for the group in one run:
+
+1. Create the `OrderGroup` with the cart’s `customer_id` and `cart_id`.
+2. Create one `Order` per seller, with status `pending` unless the `setOrderStatus` hook says otherwise.
+3. Link each order to the group, its seller, and the cart, and link new customers to the sellers they bought from.
+4. Mirror each cart line item’s offer link onto the new order line item.
+5. Reserve inventory for offers that manage inventory, and register promotion usage.
+6. Set `completed_at` on the cart and emit `order.placed` and `order_group.created`.
+7. Authorize the payment session, split a captured payment, and refresh commission lines per order.
 
 ```ts
 import { completeCartWithSplitOrdersWorkflow } from "@mercurjs/core/workflows"
 
 const { result } = await completeCartWithSplitOrdersWorkflow(container).run({
-  input: { cart_id: "cart_123" },
+  input: { cart_id: "cart_01JD8Q1234567" },
 })
-// result.order_group_id -> the parent group
 ```
 
-<Note>
-  Items are grouped by `item.offer.seller_id`. Sellers list against the shared
-  master catalog through **offers**, so the offer, not the product, is what
-  ties a line item to a seller.
-</Note>
+The run returns `{ order_group_id }`. Mercur’s cart completion route and its `processPaymentWorkflow` both run this workflow, so a webhook-driven checkout also produces a group.
 
-## What the split produces
+## Payment stays on the cart until capture
 
-For each seller in the cart the workflow, in one transaction:
+The child orders share the cart’s payment collection until the payment is captured. Medusa allows a payment collection to belong to one order only, so the split doesn’t link the orders to it. Once the payment is captured, `splitCapturedCartPaymentWorkflow` gives each order a payment collection of its own for its share. It runs inside checkout for providers that capture on authorization, and from the `payment.captured` subscriber for the rest.
 
-- creates a child `Order` with that seller's line items and shipping methods
-- links each order to the group (`order_group_order`) and to its seller (`order_order_seller_seller`)
-- mirrors the line-item → offer links onto the new order lines
-- splits payment captures proportionally across the child orders
-- reserves offer-scoped inventory and refreshes commission lines per order
+## One group per cart
 
-Once every child order is created, the workflow emits `order.placed` for the
-orders and `order_group.created` for the group.
+The split runs at most once per cart. The workflow takes a lock on the cart id, then looks for an existing group with the same `cart_id`. If it finds one, it skips the split and returns that group’s id, so a retried request or a duplicate webhook can’t create a second set of orders.
 
-<Tip>
-  Promotions are attributed per seller: a seller-scoped promotion links only to
-  that seller's child order, while marketplace-wide promotions are applied as
-  cart adjustments and belong to no single order.
-</Tip>
+<Warning>
+  Child orders don’t carry the cart’s credit lines yet. The split creates every order with an empty `credit_lines` list.
+</Warning>
 
-## Independent child orders
+## Related
 
-After the split, each child order lives its own life. Fulfillment, returns, and
-refunds are handled per order, so one seller can ship while another is still
-preparing, without affecting the rest of the group. The group remains the
-single reference the shopper uses to see the purchase as a whole.
+- [Run the split from your own code](/platform/order-group/guides/split-a-cart)
+- [The workflow’s input, hooks, and events](/platform/order-group/reference/workflows#completecartwithsplitordersworkflow)
+- [How offers tie items to sellers](/platform/offer/concepts/what-is-an-offer)
+- [Commission lines per order](/platform/commission/concepts/order-commission-lines)
