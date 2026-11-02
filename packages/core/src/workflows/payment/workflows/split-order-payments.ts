@@ -11,7 +11,6 @@ import {
   addOrderTransactionStep,
   cancelPaymentStep,
   createPaymentCollectionsStep,
-  createRemoteLinkStep,
   emitEventStep,
   refundPaymentsStep,
   releaseLockStep,
@@ -19,6 +18,7 @@ import {
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 
+import { createLinksStep } from "../../common/steps"
 import { createOrderPaymentsStep } from "../steps/create-order-payments"
 import { recordPaymentCapturesStep } from "../steps/record-payment-captures"
 import {
@@ -42,6 +42,9 @@ export type SplitCapturedCartPaymentWorkflowInput = {
 }
 
 const LOCK_TIMEOUT_SECONDS = 30
+// Checkout runs this as a step of a stored workflow; compensating it there needs
+// a stored execution of its own, kept as long as checkout keeps its own.
+const THREE_DAYS = 3 * 24 * 60 * 60
 const LOCK_TTL_SECONDS = 120
 
 type CartPaymentCollectionLink = {
@@ -78,7 +81,11 @@ export const splitCapturedCartPaymentWorkflowId = "split-captured-cart-payment"
  * Split a captured cart payment into a payment per order.
  */
 export const splitCapturedCartPaymentWorkflow = createWorkflow(
-  splitCapturedCartPaymentWorkflowId,
+  {
+    name: splitCapturedCartPaymentWorkflowId,
+    store: true,
+    retentionTime: THREE_DAYS,
+  },
   (input: SplitCapturedCartPaymentWorkflowInput) => {
     // Not the cart id itself: checkout holds that lock while it runs this
     // workflow as a step.
@@ -125,7 +132,7 @@ export const splitCapturedCartPaymentWorkflow = createWorkflow(
       buildOrderPaymentCollectionLinks(plan, collections)
     )
 
-    createRemoteLinkStep(links).config({
+    createLinksStep(links).config({
       name: "link-order-payment-collections",
     })
 

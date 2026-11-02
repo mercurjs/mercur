@@ -6,6 +6,8 @@ import {
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { MercurModules } from "@mercurjs/types"
 
+import { dismissLinks } from "../../common/utils"
+
 export type LinkLineItemToOfferInput = Array<{
   line_item_id: string
   offer_id: string
@@ -44,6 +46,6 @@ export const linkLineItemToOfferStep = createStep(
       return
     }
     const link = container.resolve(ContainerRegistrationKeys.LINK)
-    await link.dismiss(createdLinks)
+    await dismissLinks(link, createdLinks)
   },
 )
