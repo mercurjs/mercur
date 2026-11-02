@@ -11,6 +11,7 @@ import {
   addOrderTransactionStep,
   cancelPaymentStep,
   createPaymentCollectionsStep,
+  createRemoteLinkStep,
   emitEventStep,
   refundPaymentsStep,
   releaseLockStep,
@@ -18,7 +19,6 @@ import {
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 
-import { createLinksStep } from "../../common/steps"
 import { createOrderPaymentsStep } from "../steps/create-order-payments"
 import { recordPaymentCapturesStep } from "../steps/record-payment-captures"
 import {
@@ -132,7 +132,7 @@ export const splitCapturedCartPaymentWorkflow = createWorkflow(
       buildOrderPaymentCollectionLinks(plan, collections)
     )
 
-    createLinksStep(links).config({
+    createRemoteLinkStep(links).config({
       name: "link-order-payment-collections",
     })
 

@@ -1,0 +1,28 @@
+diff --git a/dist/link.js b/dist/link.js
+index 98c7b69..238990f 100644
+--- a/dist/link.js
++++ b/dist/link.js
+@@ -236,10 +236,20 @@ class Link {
+     }
+     getLinkDataConfig(link) {
+         const moduleNames = Object.keys(link).filter((attr) => attr !== "data");
+-        const [moduleA, moduleB] = moduleNames;
++        let [moduleA, moduleB] = moduleNames;
++        let moduleAKey = Object.keys(link[moduleA]).join(",");
++        let moduleBKey = Object.keys(link[moduleB]).join(",");
++        // MERCUR: link definitions that went through a jsonb column (a stored workflow
++        // transaction) come back with their keys sorted, so the modules may be
++        // the other way round from the link they were created with. The link
++        // module is registered for one direction only.
++        if (moduleB &&
++            !this.getLinkModule(moduleA, moduleAKey, moduleB, moduleBKey) &&
++            this.getLinkModule(moduleB, moduleBKey, moduleA, moduleAKey)) {
++            [moduleA, moduleB] = [moduleB, moduleA];
++            [moduleAKey, moduleBKey] = [moduleBKey, moduleAKey];
++        }
+         const primaryKeys = Object.keys(link[moduleA]);
+-        const moduleAKey = primaryKeys.join(",");
+-        const moduleBKey = Object.keys(link[moduleB]).join(",");
+         return {
+             moduleA,
+             moduleB,

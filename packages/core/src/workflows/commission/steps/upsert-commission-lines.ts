@@ -75,14 +75,25 @@ export const upsertCommissionLinesStep = createStep(
       MercurModules.COMMISSION
     )
 
+    // Restore each anchor to its pre-step state: remove the lines the step
+    // wrote, then put back the ones it replaced.
     await service.deleteCommissionLines(compensation.created_ids)
 
-    if (compensation.replaced.length) {
-      await service.createCommissionLines(
-        compensation.replaced.map(
-          ({ created_at, updated_at, deleted_at, ...line }) => line
-        )
-      )
+    const replacedLines = compensation.replaced.map((line) => ({
+      id: line.id,
+      item_id: line.item_id,
+      shipping_method_id: line.shipping_method_id,
+      commission_rate_id: line.commission_rate_id,
+      provider_id: line.provider_id,
+      code: line.code,
+      rate: line.rate,
+      amount: line.amount,
+      description: line.description,
+      data: line.data,
+    }))
+
+    if (replacedLines.length) {
+      await service.createCommissionLines(replacedLines)
     }
   }
 )

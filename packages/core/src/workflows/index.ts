@@ -1,6 +1,5 @@
 import "../patches/register"
 
-export * from "./common"
 export * from "./campaign"
 export * from "./customer-group"
 export * from "./commission"
