@@ -8,6 +8,7 @@ import {
   _DataTable,
   useDataTable,
   useQueryParams,
+  type Filter,
 } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import { createColumnHelper } from "@tanstack/react-table"
@@ -24,6 +25,26 @@ import {
 
 const PAGE_SIZE = 10
 const PREFIX = "stmt"
+const SELECT_FILTERS = ["status", "payout_status"] as const
+const DATE_FILTERS = ["period_end"] as const
+
+const useFilters = (): Filter[] => [
+  {
+    key: "status",
+    label: "Status",
+    type: "select",
+    multiple: true,
+    options: Object.entries(SETTLEMENT_STATUS_LABEL).map(([value, label]) => ({ value, label })),
+  },
+  {
+    key: "payout_status",
+    label: "Bank payout",
+    type: "select",
+    multiple: true,
+    options: Object.entries(PAYOUT_STATUS_LABEL).map(([value, label]) => ({ value, label })),
+  },
+  { key: "period_end", label: "Period end", type: "date" },
+]
 
 const columnHelper = createColumnHelper<VendorSettlementRow>()
 
@@ -76,13 +97,31 @@ const useColumns = () =>
   )
 
 export const SettlementsSection = () => {
-  const raw = useQueryParams(["offset"], PREFIX)
-  const query = { limit: PAGE_SIZE, offset: raw.offset ? Number(raw.offset) : 0 }
+  const raw = useQueryParams(["offset", ...SELECT_FILTERS, ...DATE_FILTERS], PREFIX)
+
+  const query: Record<string, unknown> & { limit: number; offset: number } = {
+    limit: PAGE_SIZE,
+    offset: raw.offset ? Number(raw.offset) : 0,
+  }
+
+  // The client serializes `undefined` as a literal string, so only set what is present.
+  for (const key of SELECT_FILTERS) {
+    if (raw[key]) {
+      query[key] = raw[key].split(",")
+    }
+  }
+
+  for (const key of DATE_FILTERS) {
+    if (raw[key]) {
+      query[key] = JSON.parse(raw[key])
+    }
+  }
 
   const { settlements, count, isPending, isError, error } = useMySettlements(query, {
     placeholderData: keepPreviousData,
   })
   const columns = useColumns()
+  const filters = useFilters()
 
   const { table } = useDataTable({
     data: settlements ?? [],
@@ -115,6 +154,7 @@ export const SettlementsSection = () => {
         pageSize={PAGE_SIZE}
         isLoading={isPending}
         queryObject={raw}
+        filters={filters}
         prefix={PREFIX}
         pagination
         noRecords={{ message: "Settlements appear once your first payouts are settled." }}
