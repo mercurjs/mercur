@@ -40,13 +40,12 @@ export const OrderProductListItem = ({
               />
             )}
           </div>
-          <p className="label-md text-secondary">{item.product_title}</p>
           <LocalizedClientLink
-            href={`/products/${item.variant?.product?.handle}`}
+            href={`/products/${item.product_handle}`}
             target="_blank"
             className="heading-xs text-primary"
           >
-            {item.variant?.product?.title}
+            {item.product_title}
           </LocalizedClientLink>
         </div>
         <div className="flex items-center sm:col-span-2">

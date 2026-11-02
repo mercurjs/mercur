@@ -49,7 +49,7 @@ Returns a paginated list of the logged-in customer's order groups, the multi-sel
     <ResponseField name="seller_count" type="number">Number of per-seller orders in the group.</ResponseField>
     <ResponseField name="total" type="number">Combined total across all child orders.</ResponseField>
     <ResponseField name="orders" type="object[]">
-      Child orders, each with `seller_id` and its `items` (including each item's variant, product, and seller).
+      Child orders, each with `seller_id`, its `seller`, and its `items` (including each item's `variant_id`, `variant_title`, `product_title`, and `product_handle`).
     </ResponseField>
     <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
     <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
