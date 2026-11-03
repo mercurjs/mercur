@@ -11,7 +11,16 @@ import type {
   MedusaContainer,
 } from "@medusajs/framework/types"
 
-type IndexedShape = { [key: string]: true | IndexedShape }
+import {
+  type IndexedShape,
+  isIndexable,
+  isIndexEngineEnabled,
+  isOrderIndexable,
+  isPlainObject,
+  LOGICAL_OPERATORS,
+  reconcileCount,
+  withClause,
+} from "./index-engine"
 
 // The index rejects any key outside its schema, so only these reach it. `q` is
 // left out on purpose: the index matches whole tokens (plainto_tsquery) where
@@ -44,14 +53,7 @@ const INDEXED_PRODUCT: IndexedShape = {
 
 const CROSS_MODULE_KEYS = ["product_seller", "sales_channels"]
 const CROSS_MODULE_VARIANT_KEYS = ["prices"]
-const LOGICAL_OPERATORS = ["$and", "$or", "$not"]
 const INDEX_LIST_CACHE_TTL = 5
-
-const isPlainObject = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" &&
-  value !== null &&
-  !Array.isArray(value) &&
-  !(value instanceof Date)
 
 const needsIndex = (filters: Record<string, unknown>): boolean =>
   Object.entries(filters).some(([key, value]) => {
@@ -67,46 +69,6 @@ const needsIndex = (filters: Record<string, unknown>): boolean =>
       isPlainObject(value) &&
       Object.keys(value).some((k) => CROSS_MODULE_VARIANT_KEYS.includes(k))
     )
-  })
-
-const isIndexable = (
-  filters: Record<string, unknown>,
-  shape: IndexedShape
-): boolean =>
-  Object.entries(filters).every(([key, value]) => {
-    if (value === undefined) {
-      return true
-    }
-
-    if (LOGICAL_OPERATORS.includes(key)) {
-      const entries = Array.isArray(value) ? value : [value]
-      return entries.every(
-        (entry) => isPlainObject(entry) && isIndexable(entry, shape)
-      )
-    }
-
-    const node = shape[key]
-    if (!node) {
-      return false
-    }
-    if (node === true) {
-      return true
-    }
-
-    return isPlainObject(value) && isIndexable(value, node)
-  })
-
-const isOrderIndexable = (order: Record<string, unknown> | undefined) =>
-  !order ||
-  Object.keys(order).every((path) => {
-    let node: true | IndexedShape | undefined = INDEXED_PRODUCT
-    for (const segment of path.split(".")) {
-      if (!node || node === true) {
-        return false
-      }
-      node = node[segment]
-    }
-    return node === true
   })
 
 const toIndexFilters = (
@@ -136,11 +98,6 @@ const toIndexFilters = (
   return next
 }
 
-// Checked through the container, not FeatureFlag: core and the host can load
-// separate @medusajs/framework copies with separate flag routers.
-const isIndexEngineEnabled = (scope: MedusaContainer) =>
-  !!scope.resolve(Modules.INDEX, { allowUnregistered: true })
-
 type Pagination = {
   skip?: number
   take?: number
@@ -151,17 +108,6 @@ type Pagination = {
 export type ProductVisibility = {
   index: Record<string, unknown>
   graph: () => Promise<Record<string, unknown>>
-}
-
-const withClause = (
-  filters: Record<string, unknown>,
-  clause: Record<string, unknown> | undefined
-) => {
-  if (!clause) {
-    return filters
-  }
-  const existing = Array.isArray(filters.$and) ? filters.$and : []
-  return { ...filters, $and: [...existing, clause] }
 }
 
 type ListProductsCache = {
@@ -213,18 +159,6 @@ const toQueryOptions = (
     : {}),
   ...(locale ? { locale } : {}),
 })
-
-const reconcileCount = (
-  estimate: number,
-  skip: number,
-  take: number | undefined,
-  returned: number
-) => {
-  if (take === undefined || returned < take) {
-    return skip + returned
-  }
-  return Math.max(estimate, skip + returned + 1)
-}
 
 // query.index only reports the planner estimate, which undercounts JSONB
 // filters badly. This is the ids-only call query.index makes, without paging.
@@ -278,7 +212,7 @@ export const listProducts = async <T = Record<string, unknown>>(
     needsIndex(indexFilters) &&
     isIndexEngineEnabled(scope) &&
     isIndexable(indexFilters, INDEXED_PRODUCT) &&
-    isOrderIndexable(pagination?.order)
+    isOrderIndexable(pagination?.order, INDEXED_PRODUCT)
   ) {
     // One event clears the cache and starts the async index sync, so a request
     // in between re-caches pre-write index state; the TTL bounds that.

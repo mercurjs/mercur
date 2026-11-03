@@ -16,6 +16,8 @@ import {
     generatePublishableKey,
     generateStoreHeaders,
 } from "../../../helpers/create-admin-user"
+import { eventually } from "../../../helpers/eventually"
+import { waitForIndexedOffers } from "../../../helpers/wait-for-indexed-offers"
 
 const approveSeller = async (container: MedusaContainer, sellerId: string) => {
     const sellerModule: any = container.resolve(MercurModules.SELLER)
@@ -126,6 +128,14 @@ medusaIntegrationTestRunner({
                         headers
                     )
                 ).data.offer
+
+                await waitForIndexedOffers(appContainer, [
+                    {
+                        id: offer.id,
+                        visible:
+                            opts.approve !== false && opts.published !== false,
+                    },
+                ])
 
                 return {
                     headers,
@@ -347,6 +357,102 @@ medusaIntegrationTestRunner({
                     expect(response.data.offers).toHaveLength(0)
                 })
 
+                it("excludes offers from sellers inside a scheduled closure", async () => {
+                    const seed = await seedSellerOffer({
+                        email: "closed@test.com",
+                        name: "Closed",
+                        stocked: 10,
+                        offerPrice: 1000,
+                    })
+                    const sellerModule: any = appContainer.resolve(
+                        MercurModules.SELLER
+                    )
+                    const hour = 60 * 60 * 1000
+
+                    await sellerModule.updateSellers({
+                        id: seed.sellerId,
+                        closed_from: new Date(Date.now() - hour),
+                        closed_to: new Date(Date.now() + hour),
+                    })
+                    await eventually(async () => {
+                        const response = await api.get(
+                            `/store/offers?product_id=${seed.productId}`,
+                            storeHeaders
+                        )
+                        expect(response.data.offers).toHaveLength(0)
+                    })
+
+                    await sellerModule.updateSellers({
+                        id: seed.sellerId,
+                        closed_from: null,
+                        closed_to: null,
+                    })
+                    await eventually(async () => {
+                        const response = await api.get(
+                            `/store/offers?product_id=${seed.productId}`,
+                            storeHeaders
+                        )
+                        expect(response.data.offers).toHaveLength(1)
+                    })
+                })
+
+                it("never widens a seller_id filter beyond visible sellers", async () => {
+                    const hidden = await seedSellerOffer({
+                        email: "hidden-filter@test.com",
+                        name: "HiddenFilter",
+                        stocked: 10,
+                        offerPrice: 1000,
+                        approve: false,
+                    })
+                    const open = await seedSellerOffer({
+                        email: "open-filter@test.com",
+                        name: "OpenFilter",
+                        stocked: 10,
+                        offerPrice: 1000,
+                        productId: hidden.productId,
+                        variantId: hidden.variantId,
+                    })
+
+                    const response = await api.get(
+                        `/store/offers?seller_id[]=${hidden.sellerId}&seller_id[]=${open.sellerId}`,
+                        storeHeaders
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.offers.map((o: any) => o.id)).toEqual([
+                        open.offer.id,
+                    ])
+                })
+
+                it("keeps visibility on the search path, which bypasses the index", async () => {
+                    const hidden = await seedSellerOffer({
+                        email: "hidden-q@test.com",
+                        name: "HiddenQ",
+                        stocked: 10,
+                        offerPrice: 1000,
+                        approve: false,
+                    })
+                    const open = await seedSellerOffer({
+                        email: "open-q@test.com",
+                        name: "OpenQ",
+                        stocked: 10,
+                        offerPrice: 1000,
+                        productId: hidden.productId,
+                        variantId: hidden.variantId,
+                    })
+
+                    const response = await api.get(
+                        `/store/offers?q=OFFER-&product_id=${hidden.productId}`,
+                        storeHeaders
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.offers.map((o: any) => o.id)).toEqual([
+                        open.offer.id,
+                    ])
+                    expect(response.data.estimate_count).toBeUndefined()
+                })
+
                 it("computes inventory_quantity as floor(stocked / required_quantity)", async () => {
                     const seed = await seedSellerOffer({
                         email: "bundle@test.com",
@@ -461,6 +567,22 @@ medusaIntegrationTestRunner({
                     expect(
                         response.data.offer.calculated_price.calculated_amount
                     ).toEqual(3300)
+                })
+
+                it("404s for an offer on an unpublished product", async () => {
+                    const seed = await seedSellerOffer({
+                        email: "hidden-draft@test.com",
+                        name: "HiddenDraft",
+                        stocked: 4,
+                        offerPrice: 3300,
+                        published: false,
+                    })
+
+                    const error = await api
+                        .get(`/store/offers/${seed.offer.id}`, storeHeaders)
+                        .catch((e) => e)
+
+                    expect(error.response.status).toEqual(404)
                 })
 
                 it("404s for an offer whose seller is not open", async () => {

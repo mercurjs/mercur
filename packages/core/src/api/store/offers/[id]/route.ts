@@ -15,6 +15,7 @@ import {
   wrapOffersWithTaxPrices,
 } from "../helpers"
 import { StoreGetOfferParamsType } from "../validators"
+import { isOfferVisibleInStore } from "../../../utils/list-offers"
 
 export const GET = async (
   req: MedusaStoreRequest<StoreGetOfferParamsType>,
@@ -25,15 +26,33 @@ export const GET = async (
   const { fields, withCalculatedPrice, withInventoryQuantity, withEffectiveLeadtime } =
     splitComputedOfferFields(req.queryConfig.fields)
 
-  const {
-    data: [offer],
-  } = await query.graph({
-    entity: "offer",
-    fields: fields,
-    filters: { ...req.filterableFields, id: req.params.id },
-  })
+  const [
+    {
+      data: [offer],
+    },
+    {
+      data: [visibility],
+    },
+  ] = await Promise.all([
+    query.graph({
+      entity: "offer",
+      fields: fields,
+      filters: { ...req.filterableFields, id: req.params.id },
+    }),
+    query.graph({
+      entity: "offer",
+      fields: [
+        "id",
+        "seller.status",
+        "seller.closed_from",
+        "seller.closed_to",
+        "product.status",
+      ],
+      filters: { id: req.params.id },
+    }),
+  ])
 
-  if (!offer) {
+  if (!offer || !visibility || !isOfferVisibleInStore(visibility)) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,
       `Offer with id ${req.params.id} was not found`
