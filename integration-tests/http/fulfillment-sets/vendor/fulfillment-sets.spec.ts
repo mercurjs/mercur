@@ -385,6 +385,37 @@ medusaIntegrationTestRunner({
                     expect(response.status).toEqual(404)
                 })
 
+                it("should not expose another seller's service zone through the caller's own fulfillment set", async () => {
+                    const { fulfillmentSet: seller1Set } = await createStockLocationWithFulfillmentSet(
+                        seller1Headers,
+                        "Seller 1 Foreign SZ Location",
+                        "Seller 1 Foreign SZ FS"
+                    )
+                    const { fulfillmentSet: seller2Set } = await createStockLocationWithFulfillmentSet(
+                        seller2Headers,
+                        "Seller 2 Foreign SZ Location",
+                        "Seller 2 Foreign SZ FS"
+                    )
+
+                    const createZoneResponse = await api.post(
+                        `/vendor/fulfillment-sets/${seller1Set.id}/service-zones`,
+                        { name: "Seller 1 Private Zone" },
+                        seller1Headers
+                    )
+                    const serviceZone = createZoneResponse.data.fulfillment_set.service_zones.find(
+                        (z: any) => z.name === "Seller 1 Private Zone"
+                    )
+
+                    const response = await api
+                        .get(
+                            `/vendor/fulfillment-sets/${seller2Set.id}/service-zones/${serviceZone.id}`,
+                            seller2Headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(404)
+                })
+
                 it("should return 404 for non-existent service zone", async () => {
                     const { fulfillmentSet } = await createStockLocationWithFulfillmentSet(
                         seller1Headers,
