@@ -4,7 +4,11 @@ import {
     ISalesChannelModuleService,
     MedusaContainer,
 } from "@medusajs/framework/types"
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import {
+    ContainerRegistrationKeys,
+    Modules,
+    ProductStatus,
+} from "@medusajs/framework/utils"
 import { MercurModules } from "@mercurjs/types"
 import {
     adminHeaders,
@@ -13,6 +17,8 @@ import {
     generateStoreHeaders,
 } from "../../../helpers/create-admin-user"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { eventually } from "../../../helpers/eventually"
+import { waitForIndexedProducts } from "../../../helpers/wait-for-indexed-products"
 
 jest.setTimeout(60000)
 
@@ -116,6 +122,14 @@ medusaIntegrationTestRunner({
                     [Modules.PRODUCT]: { product_id: product.id },
                     [MercurModules.SELLER]: { seller_id: seller.id },
                 })
+
+                await waitForIndexedProducts(appContainer, [
+                    {
+                        id: product.id,
+                        status: product.status,
+                        restricted: true,
+                    },
+                ])
 
                 return product
             }
@@ -338,6 +352,104 @@ medusaIntegrationTestRunner({
                     expect(first.data.products[0].id).not.toEqual(
                         second.data.products[0].id
                     )
+                })
+            })
+
+            describe("cached responses", () => {
+                const listIds = async () =>
+                    (
+                        await api.get(`/store/products?limit=100`, storeHeaders)
+                    ).data.products.map((p: { id: string }) => p.id)
+
+                it("answers a plain product list with query.graph and an exact count", async () => {
+                    const ids = [
+                        (await createProduct(approvedSellerHeaders, { title: "Plain 1" })).id,
+                        (await createProduct(approvedSellerHeaders, { title: "Plain 2" })).id,
+                        (await createProduct(approvedSellerHeaders, { title: "Plain 3" })).id,
+                    ]
+                    const query = appContainer.resolve(
+                        ContainerRegistrationKeys.QUERY
+                    )
+                    const indexSpy = jest.spyOn(query, "index")
+
+                    const response = await api.get(
+                        `/store/products?limit=1`,
+                        storeHeaders
+                    )
+
+                    expect(indexSpy).not.toHaveBeenCalled()
+                    indexSpy.mockRestore()
+                    expect(response.data.products).toHaveLength(1)
+                    expect(response.data.count).toEqual(ids.length)
+                })
+
+                it("stores the product list in the caching module", async () => {
+                    await createProduct(approvedSellerHeaders, {
+                        title: "Cache Probe",
+                    })
+                    await listIds()
+
+                    const caching = appContainer.resolve(Modules.CACHING)
+                    const cached = await caching.get({
+                        tags: ["Product:list:*"],
+                    })
+                    expect(cached).toBeTruthy()
+                })
+
+                it("lists a product created after the list was cached", async () => {
+                    const first = await createProduct(approvedSellerHeaders, {
+                        title: "Cached First",
+                    })
+                    expect(await listIds()).toEqual([first.id])
+                    expect(await listIds()).toEqual([first.id])
+
+                    const second = await createProduct(approvedSellerHeaders, {
+                        title: "Cached Second",
+                    })
+
+                    expect((await listIds()).sort()).toEqual(
+                        [first.id, second.id].sort()
+                    )
+                })
+
+                it("drops an unpublished product from the cached list", async () => {
+                    const product = await createProduct(approvedSellerHeaders, {
+                        title: "Cached Unpublish",
+                    })
+                    expect(await listIds()).toContain(product.id)
+
+                    await productModuleService.updateProducts(product.id, {
+                        status: ProductStatus.DRAFT,
+                    })
+                    await waitForIndexedProducts(appContainer, [
+                        { id: product.id, status: "draft", restricted: true },
+                    ])
+
+                    expect(await listIds()).not.toContain(product.id)
+                })
+
+                it("serves an updated title from the cached detail route", async () => {
+                    const product = await createProduct(approvedSellerHeaders, {
+                        title: "Detail Before",
+                    })
+                    const titleOf = async () =>
+                        (
+                            await api.get(
+                                `/store/products/${product.id}`,
+                                storeHeaders
+                            )
+                        ).data.product.title
+
+                    expect(await titleOf()).toEqual("Detail Before")
+                    expect(await titleOf()).toEqual("Detail Before")
+
+                    await productModuleService.updateProducts(product.id, {
+                        title: "Detail After",
+                    })
+
+                    await eventually(async () => {
+                        expect(await titleOf()).toEqual("Detail After")
+                    })
                 })
             })
 

@@ -1,5 +1,10 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
-import { MedusaContainer } from "@medusajs/framework/types"
+import {
+  IEventBusModuleService,
+  MedusaContainer,
+} from "@medusajs/framework/types"
+import { Modules } from "@medusajs/framework/utils"
+import { eventually } from "../../../helpers/eventually"
 import {
   adminHeaders,
   createAdminUser,
@@ -46,6 +51,58 @@ medusaIntegrationTestRunner({
         })
         sellerC = resultC.seller
         memberC = resultC.member
+      })
+
+      describe("seller entity events", () => {
+        it("emits seller.seller.created / updated and lands the seller in the index", async () => {
+          const eventBus = appContainer.resolve<IEventBusModuleService>(
+            Modules.EVENT_BUS
+          )
+          const events: { name: string; id?: string }[] = []
+          eventBus.subscribe("*", async (event) => {
+            if (event.name.startsWith("seller.seller.")) {
+              events.push({
+                name: event.name,
+                id: (event.data as { id?: string } | undefined)?.id,
+              })
+            }
+          })
+
+          const created = await api.post(
+            `/admin/sellers`,
+            {
+              name: "Evented Seller",
+              email: "evented@test.com",
+              currency_code: "usd",
+              member: { email: "evented@test.com" },
+            },
+            adminHeaders
+          )
+          const sellerId = created.data.seller.id
+
+          await api.post(
+            `/admin/sellers/${sellerId}`,
+            { name: "Evented Seller Renamed" },
+            adminHeaders
+          )
+
+          await eventually(
+            async () => {
+              expect(events).toEqual(
+                expect.arrayContaining([
+                  { name: "seller.seller.created", id: sellerId },
+                  { name: "seller.seller.updated", id: sellerId },
+                ])
+              )
+              const { rows } = await dbConnection.raw(
+                `select id from index_data where name = 'Seller' and id = ?`,
+                [sellerId]
+              )
+              expect(rows).toHaveLength(1)
+            },
+            { timeout: 15000 }
+          )
+        })
       })
 
       describe("POST /admin/sellers", () => {

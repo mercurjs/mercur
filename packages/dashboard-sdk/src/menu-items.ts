@@ -276,7 +276,7 @@ export function parseMenuItemFile(
 
 /** Later layers win: a menu item at a path already declared replaces it. */
 export function generateMenuItems(config: BuiltMercurConfig): string {
-    const { header, names } = emitLayers(config)
+    const { header, names } = emitLayers(config, ["menuItemModule"])
 
     return `${header}
 

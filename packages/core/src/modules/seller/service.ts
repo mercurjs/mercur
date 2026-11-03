@@ -1,6 +1,13 @@
 import { configManager } from "@medusajs/framework/config"
-import { Context, DAL, FindConfig, InternalModuleDeclaration } from "@medusajs/framework/types"
 import {
+  Context,
+  DAL,
+  FindConfig,
+  InternalModuleDeclaration,
+  ModulesSdkTypes,
+} from "@medusajs/framework/types"
+import {
+  EmitEvents,
   generateJwtToken,
   InjectManager,
   isValidHandle,
@@ -35,12 +42,18 @@ import {
   SellerStatus,
 } from "@mercurjs/types"
 
+type SellerInput = Record<string, unknown> & {
+  name?: string
+  handle?: string | null
+}
+
 const DEFAULT_INVITE_VALID_DURATION_SECONDS = 60 * 60 * 24 * 7 // 7 days
 
 type InjectedDependencies = {
   orderGroupRepository: OrderGroupRepository
   sellerStatisticsRepository: SellerStatisticsRepository
   baseRepository: DAL.RepositoryService
+  sellerService: ModulesSdkTypes.IMedusaInternalService<typeof Seller>
 }
 
 class SellerModuleService extends MedusaService({
@@ -56,6 +69,9 @@ class SellerModuleService extends MedusaService({
   protected readonly orderGroupRepository_: OrderGroupRepository
   protected readonly sellerStatisticsRepository_: SellerStatisticsRepository
   protected readonly baseRepository_: DAL.RepositoryService
+  protected readonly sellerService_: ModulesSdkTypes.IMedusaInternalService<
+    typeof Seller
+  >
   protected readonly options_: SellerModuleOptions
 
   constructor(
@@ -63,6 +79,7 @@ class SellerModuleService extends MedusaService({
       orderGroupRepository,
       sellerStatisticsRepository,
       baseRepository,
+      sellerService,
     }: InjectedDependencies,
     protected readonly moduleDeclaration?: InternalModuleDeclaration,
   ) {
@@ -72,6 +89,7 @@ class SellerModuleService extends MedusaService({
     this.orderGroupRepository_ = orderGroupRepository
     this.sellerStatisticsRepository_ = sellerStatisticsRepository
     this.baseRepository_ = baseRepository
+    this.sellerService_ = sellerService
 
     const opts = (moduleDeclaration?.options as SellerModuleOptions) ?? {}
     this.options_ = {
@@ -106,33 +124,41 @@ class SellerModuleService extends MedusaService({
     }
   }
 
-  @InjectTransactionManager()
-  // @ts-ignore
+  // Entity events are only queued when the context carries a message aggregator,
+  // so overrides of generated methods need @EmitEvents to emit seller.seller.*.
+  @InjectManager()
+  @EmitEvents()
+  // @ts-expect-error
   async createSellers<T extends any | any[]>(
     data: T,
-    sharedContext?: Context,
+    @MedusaContext() sharedContext: Context = {},
   ): Promise<T extends any[] ? SellerDTO[] : SellerDTO> {
-    const input = (Array.isArray(data) ? data : [data]).map((seller) => {
-      this.validateSellerData_(seller)
-
-      if (!seller.handle && seller.name) {
-        seller.handle = toHandle(seller.name)
-      }
-
-      return seller
-    })
-
-    const result = await super.createSellers(input, sharedContext)
+    const sellers = await this.sellerService_.create(
+      this.prepareSellerInput_(data),
+      sharedContext,
+    )
+    const result = await this.baseRepository_.serialize<SellerDTO[]>(sellers)
     return (Array.isArray(data) ? result : result[0]) as any
   }
 
-  @InjectTransactionManager()
-  // @ts-ignore
+  @InjectManager()
+  @EmitEvents()
+  // @ts-expect-error
   async updateSellers<T extends any | any[]>(
     data: T,
-    sharedContext?: Context,
+    @MedusaContext() sharedContext: Context = {},
   ): Promise<T extends any[] ? SellerDTO[] : SellerDTO> {
-    const input = (Array.isArray(data) ? data : [data]).map((seller) => {
+    const sellers = await this.sellerService_.update(
+      this.prepareSellerInput_(data),
+      sharedContext,
+    )
+    const result = await this.baseRepository_.serialize<SellerDTO[]>(sellers)
+    return (Array.isArray(data) ? result : result[0]) as any
+  }
+
+  protected prepareSellerInput_(data: unknown) {
+    const input = (Array.isArray(data) ? data : [data]) as SellerInput[]
+    return input.map((seller) => {
       this.validateSellerData_(seller)
 
       if (!seller.handle && seller.name) {
@@ -141,9 +167,6 @@ class SellerModuleService extends MedusaService({
 
       return seller
     })
-
-    // @ts-ignore
-    return super.updateSellers(input, sharedContext) as any
   }
 
   @InjectTransactionManager()

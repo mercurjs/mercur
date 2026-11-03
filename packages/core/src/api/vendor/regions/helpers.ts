@@ -16,7 +16,15 @@ export const listSellerRegionIds = async (
       filters: { seller_id: sellerId },
       fields: ["region_id"],
     },
-    { cache: { enable: true } }
+    {
+      cache: {
+        enable: true,
+        // Assigning a region only emits LinkRegionSeller.attached, which clears
+        // nothing but this tag.
+        tags: ["LinkRegionSeller:list:*"],
+        computeAutomaticTags: true,
+      },
+    }
   )
 
   return links.map((link) => (link as { region_id: string }).region_id)

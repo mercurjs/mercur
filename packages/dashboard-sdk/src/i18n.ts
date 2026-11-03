@@ -3,7 +3,7 @@ import type { BuiltMercurConfig } from "./types"
 
 /** Deep-merged in layer order, so a later layer overrides a plugin's copy. */
 export function generateI18n(config: BuiltMercurConfig): string {
-    const { header, names } = emitLayers(config)
+    const { header, names } = emitLayers(config, ["i18nModule"])
 
     // deepMerge is inlined because the virtual module has no runtime dependency on @mercurjs/admin.
     return `${header}

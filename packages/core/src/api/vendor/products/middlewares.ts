@@ -13,14 +13,8 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework"
-import { ProductStatus } from "@mercurjs/types"
-
 import { applyOfferedProductsFilter } from "../../utils"
-import {
-  getProductIdsRestrictedFromSeller,
-  getProductStatus,
-  getSellerOwnedProductIds,
-} from "./helpers"
+import { isProductVisibleToSeller } from "./helpers"
 import {
   vendorProductQueryConfig,
   vendorProductVariantQueryConfig,
@@ -40,61 +34,19 @@ import {
 import {
   ContainerRegistrationKeys,
   MedusaError,
-  promiseAll,
 } from "@medusajs/framework/utils"
-
-const applySellerProductLinkFilter = async (
-  req: AuthenticatedMedusaRequest,
-  _res: MedusaResponse,
-  next: MedusaNextFunction
-) => {
-  const sellerId = req.seller_context!.seller_id
-
-  const [ownProductIds, restrictedFromSellerIds] = await promiseAll([
-    getSellerOwnedProductIds(req.scope, sellerId),
-    getProductIdsRestrictedFromSeller(req.scope, sellerId),
-  ])
-
-  req.filterableFields ??= {}
-  const existingAnd = (req.filterableFields.$and as object[] | undefined) ?? []
-  req.filterableFields.$and = [
-    ...existingAnd,
-    {
-      $or: [
-        {
-          id: ownProductIds,
-          status: { $in: [ProductStatus.DRAFT, ProductStatus.PROPOSED] },
-        },
-        {
-          status: ProductStatus.PUBLISHED,
-          id: { $nin: restrictedFromSellerIds },
-        },
-      ],
-    },
-  ]
-
-  return next()
-}
 
 const ensureProductVisibleToSeller = async (
   req: AuthenticatedMedusaRequest,
   _res: MedusaResponse,
   next: MedusaNextFunction
 ) => {
-  const sellerId = req.seller_context!.seller_id
   const productId = req.params.id
-
-  const [ownProductIds, restrictedFromSellerIds, product] = await promiseAll([
-    getSellerOwnedProductIds(req.scope, sellerId, [productId]),
-    getProductIdsRestrictedFromSeller(req.scope, sellerId, [productId]),
-    getProductStatus(req.scope, productId),
-  ])
-
-  const visible =
-    !!product &&
-    (ownProductIds.includes(productId) ||
-      (product.status === ProductStatus.PUBLISHED &&
-        !restrictedFromSellerIds.includes(productId)))
+  const visible = await isProductVisibleToSeller(
+    req.scope,
+    req.seller_context!.seller_id,
+    productId
+  )
 
   if (!visible) {
     return next(
@@ -152,7 +104,6 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         VendorGetProductsParams,
         vendorProductQueryConfig.list
       ),
-      applySellerProductLinkFilter,
       applyOfferedProductsFilter,
     ],
   },

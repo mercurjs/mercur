@@ -48,7 +48,16 @@ export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
       fields: req.queryConfig.fields,
       filters: { ...productFilters, id: req.params.id },
     },
-    { cache: { enable: true }, locale: req.locale }
+    {
+      // A miss (unpublished or not yet created) caches an empty result with no
+      // automatic tags; the list tag lets the next product write clear it.
+      cache: {
+        enable: true,
+        tags: ["Product:list:*"],
+        computeAutomaticTags: true,
+      },
+      locale: req.locale,
+    }
   )
 
   if (!product) {

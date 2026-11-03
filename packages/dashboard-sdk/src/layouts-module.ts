@@ -3,7 +3,7 @@ import type { BuiltMercurConfig } from "./types"
 
 /** A later layout with the same id replaces the earlier one; `core:` ids are reserved. */
 export function generateLayouts(config: BuiltMercurConfig): string {
-    const { header, names } = emitLayers(config)
+    const { header, names } = emitLayers(config, ["layoutModule"])
 
     return `${header}
 

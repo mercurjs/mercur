@@ -90,7 +90,7 @@
     "@hookform/resolvers": "^5.4.0"
   },
   "dependencies": {
-    "zod": "4.6.5"
+    "zod": "4.6.6"
   },
   "engines": {
     "node": ">=22.22.0"

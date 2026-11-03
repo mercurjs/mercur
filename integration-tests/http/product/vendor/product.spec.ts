@@ -1,5 +1,5 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { MedusaContainer } from "@medusajs/framework/types"
 
 import {
@@ -12,6 +12,7 @@ import {
   createAdminUser,
 } from "../../../helpers/create-admin-user"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { waitForIndexedProducts } from "../../../helpers/wait-for-indexed-products"
 import {
   AttributeType,
   MercurModules,
@@ -377,6 +378,7 @@ medusaIntegrationTestRunner({
     describe("Vendor - product list scoping", () => {
       let appContainer: MedusaContainer
       let sellerA: any
+      let sellerB: any
       let headersA: any
       let headersB: any
 
@@ -396,6 +398,7 @@ medusaIntegrationTestRunner({
           name: "Scope B Store",
         })
         headersB = b.headers
+        sellerB = b.seller
       })
 
       const createProduct = async (
@@ -410,7 +413,11 @@ medusaIntegrationTestRunner({
             created_by: createdBy,
           },
         })
-        return (result as { id: string }[])[0].id
+        const id = (result as { id: string }[])[0].id
+        await waitForIndexedProducts(appContainer, [
+          { id, status, restricted: !!sellerIds?.length },
+        ])
+        return id
       }
 
       it("scopes the vendor list to the seller's own proposed products plus published", async () => {
@@ -495,6 +502,171 @@ medusaIntegrationTestRunner({
         const stillThere = await api.get(`/vendor/products/${draftByA}`, headersA)
         expect(stillThere.status).toEqual(200)
         expect(stillThere.data.product.title).toEqual("A Draft")
+      })
+
+      it("applies the same scoping when a category filter forces the graph fallback", async () => {
+        const productModule = appContainer.resolve(Modules.PRODUCT)
+        const [category] = await productModule.createProductCategories([
+          { name: "Fallback Category", is_active: true },
+        ])
+
+        const create = async (
+          title: string,
+          status: string,
+          createdBy: string,
+          sellerIds?: string[]
+        ) => {
+          const { result } = await createProductsWorkflow(appContainer).run({
+            input: {
+              products: [
+                {
+                  title,
+                  status,
+                  seller_ids: sellerIds,
+                  category_ids: [category.id],
+                } as any,
+              ],
+              created_by: createdBy,
+            },
+          })
+          return (result as { id: string }[])[0].id
+        }
+
+        const open = await create("Fallback Open", "published", "other-actor")
+        const restrictedToA = await create(
+          "Fallback Restricted",
+          "published",
+          "other-actor",
+          [sellerA.id]
+        )
+        const proposedByA = await create("Fallback Proposed", "proposed", sellerA.id)
+
+        const asA = await api.get(
+          `/vendor/products?category_id=${category.id}&limit=100`,
+          headersA
+        )
+        expect(asA.data.products.map((p: { id: string }) => p.id).sort()).toEqual(
+          [open, restrictedToA, proposedByA].sort()
+        )
+
+        const asB = await api.get(
+          `/vendor/products?category_id=${category.id}&limit=100`,
+          headersB
+        )
+        expect(asB.data.products.map((p: { id: string }) => p.id)).toEqual([open])
+        expect(asB.data.count).toEqual(1)
+      })
+
+      it("paginates the index-backed list with a count that is exact on the last page", async () => {
+        const ids = [
+          await createProduct("CountProbe One", "published", "other-actor"),
+          await createProduct("CountProbe Two", "published", "other-actor"),
+          await createProduct("CountProbe Three", "published", "other-actor"),
+        ]
+
+        const idFilter = ids.map((id) => `id[]=${id}`).join("&")
+
+        const first = await api.get(`/vendor/products?${idFilter}&limit=2`, headersA)
+        expect(first.data.products).toHaveLength(2)
+        expect(first.data.count).toEqual(3)
+
+        const last = await api.get(
+          `/vendor/products?${idFilter}&limit=2&offset=2`,
+          headersA
+        )
+        expect(last.data.products).toHaveLength(1)
+        expect(last.data.count).toEqual(3)
+
+        const seen = [...first.data.products, ...last.data.products].map(
+          (p: { id: string }) => p.id
+        )
+        expect(seen.sort()).toEqual([...ids].sort())
+      })
+
+      it("matches a partial word in q, as before the index engine", async () => {
+        const shirt = await createProduct("Linen Shirt", "published", "other-actor")
+        await createProduct("Wool Scarf", "published", "other-actor")
+
+        const response = await api.get("/vendor/products?q=Shi", headersA)
+
+        expect(response.data.products.map((p: { id: string }) => p.id)).toEqual([
+          shirt,
+        ])
+      })
+
+      describe("cached list invalidation", () => {
+        const listIds = async (headers: any) =>
+          (await api.get("/vendor/products?limit=100", headers)).data.products.map(
+            (p: { id: string }) => p.id
+          )
+
+        it("drops a product from a cached list once it is restricted to another seller", async () => {
+          const productId = await createProduct("Cache Restrict", "published", "other-actor")
+
+          expect(await listIds(headersB)).toContain(productId)
+          expect(await listIds(headersB)).toContain(productId)
+
+          await appContainer.resolve(ContainerRegistrationKeys.LINK).create({
+            [Modules.PRODUCT]: { product_id: productId },
+            [MercurModules.SELLER]: { seller_id: sellerA.id },
+          })
+          await waitForIndexedProducts(appContainer, [
+            { id: productId, status: "published", restricted: true },
+          ])
+
+          expect(await listIds(headersB)).not.toContain(productId)
+          expect(await listIds(headersA)).toContain(productId)
+        })
+
+        it("serves a product update instead of the cached list entry", async () => {
+          const productId = await createProduct("Cache Before", "published", "other-actor")
+          const titleOf = async () =>
+            (await api.get("/vendor/products?limit=100", headersA)).data.products.find(
+              (p: { id: string }) => p.id === productId
+            )?.title
+
+          expect(await titleOf()).toEqual("Cache Before")
+
+          await appContainer
+            .resolve(Modules.PRODUCT)
+            .updateProducts(productId, { title: "Cache After" })
+          await waitForIndexedProducts(appContainer, [
+            { id: productId, title: "Cache After", restricted: false },
+          ])
+
+          expect(await titleOf()).toEqual("Cache After")
+        })
+      })
+
+      it("serves the seller-scoped list through the index engine", async () => {
+        await createProduct("Index Path", "published", "other-actor")
+        const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+        const indexSpy = jest.spyOn(query, "index")
+
+        await api.get("/vendor/products?limit=5", headersA)
+
+        expect(indexSpy).toHaveBeenCalled()
+        indexSpy.mockRestore()
+      })
+
+      it("returns the exact visible count on a full page, not the planner estimate", async () => {
+        const visible = [
+          await createProduct("Exact Open 1", "published", "other-actor"),
+          await createProduct("Exact Open 2", "published", "other-actor"),
+          await createProduct("Exact Allowlisted", "published", "other-actor", [
+            sellerA.id,
+          ]),
+          await createProduct("Exact Own Draft", "draft", sellerA.id),
+          await createProduct("Exact Own Proposed", "proposed", sellerA.id),
+        ]
+        await createProduct("Exact Hidden Restricted", "published", "other-actor", [
+          sellerB.id,
+        ])
+        await createProduct("Exact Hidden Draft", "draft", "other-actor")
+
+        const page = await api.get("/vendor/products?limit=2", headersA)
+        expect(page.data.products).toHaveLength(2)
+        expect(page.data.count).toEqual(visible.length)
       })
 
       it("hides a published product from its creator once restricted to other sellers", async () => {

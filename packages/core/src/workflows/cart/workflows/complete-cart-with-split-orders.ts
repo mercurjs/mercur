@@ -25,12 +25,14 @@ import {
 import {
     acquireLockStep,
     authorizePaymentSessionStep,
+    compensatePaymentIfNeededStep,
     createOrdersStep,
     emitEventStep,
     releaseLockStep,
     reserveInventoryStep,
     updateCartsStep,
     useQueryGraphStep,
+    validateCartItemsStep,
     validateCartPaymentsStep,
 } from "@medusajs/medusa/core-flows"
 import { CreateOrderGroupDTO, MercurModules, SellerDTO } from "@mercurjs/types"
@@ -96,7 +98,14 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             executeOnSubWorkflow: true,
         })
 
-        const [orderGroup, cartData] = parallelize(
+        const [orderCart, orderGroup, cartData] = parallelize(
+            useQueryGraphStep({
+                entity: "order_cart",
+                fields: ["cart_id", "order_id"],
+                filters: { cart_id: input.cart_id },
+            }).config({
+                name: "order-cart-query",
+            }),
             useQueryGraphStep({
                 entity: "order_group",
                 fields: ["id", "cart_id"],
@@ -104,6 +113,8 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 options: {
                     isList: false,
                 },
+            }).config({
+                name: "order-group-query",
             }),
             useQueryGraphStep({
                 entity: "cart",
@@ -117,11 +128,20 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             })
         )
 
-        const orderGroupId = transform({ orderGroup }, ({ orderGroup }) => {
-            return orderGroup?.data?.id
-        })
+        const { isCompleted, existingOrderGroupId } = transform(
+            { orderCart, orderGroup },
+            ({ orderCart, orderGroup }) => ({
+                isCompleted: orderCart.data.length > 0,
+                existingOrderGroupId: orderGroup?.data?.id as string | undefined,
+            })
+        )
+
+        validateCartItemsStep({ cart: cartData.data })
 
         const paymentSessions = validateCartPaymentsStep({ cart: cartData.data })
+        compensatePaymentIfNeededStep({
+            payment_session_id: paymentSessions[0].id,
+        })
 
         const validate = createHook("validate", {
             input,
@@ -137,8 +157,10 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             cart: cartData.data,
         })
 
-        const createdOrderGroup = when("create-order-group", { orderGroupId }, ({ orderGroupId }) => {
-            return !orderGroupId
+        // Orders are only linked to the cart once they exist, so the order_cart
+        // link (not the order group) marks a completed cart, as in Medusa.
+        const createdOrderGroup = when("create-order-group", { isCompleted }, ({ isCompleted }) => {
+            return !isCompleted
         }).then(() => {
             const cartOptionIds = transform({ cart: cartData.data }, ({ cart }) => {
                 return cart.shipping_methods?.map((sm) => sm.shipping_option_id)
@@ -418,10 +440,11 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             )
 
 
-            const [createdOrderGroup, createdOrders] = parallelize(
-                createOrderGroupStep(orderGroupData),
-                createOrdersStep(ordersToCreate)
-            )
+            // The group is persisted before the orders so a crash can't leave
+            // an order without one.
+            const createdOrderGroup = createOrderGroupStep(orderGroupData)
+
+            const createdOrders = createOrdersStep(ordersToCreate)
 
             const orderLineOfferPairs = transform(
                 { createdOrders, offerIdsByOrderId },
@@ -672,9 +695,12 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             executeOnSubWorkflow: true,
         })
 
-        const result = transform({ createdOrderGroup, orderGroupId }, ({ createdOrderGroup, orderGroupId }) => {
-            return { order_group_id: createdOrderGroup?.id ?? orderGroupId }
-        })
+        const result = transform(
+            { createdOrderGroup, existingOrderGroupId },
+            ({ createdOrderGroup, existingOrderGroupId }) => {
+                return { order_group_id: createdOrderGroup?.id ?? existingOrderGroupId }
+            }
+        )
 
         return new WorkflowResponse(result, {
             hooks: [validate, setOrderStatus],

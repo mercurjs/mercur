@@ -16,13 +16,21 @@ const makeDir = () => {
 const setup = async ({
   app,
   plugins = [],
+  routes = {},
 }: {
   app?: Record<string, unknown>
   plugins?: Record<string, unknown>[]
+  routes?: Record<string, string>
 }) => {
   const root = makeDir()
   const srcDir = path.join(root, "src")
   fs.mkdirSync(srcDir)
+
+  for (const [file, source] of Object.entries(routes)) {
+    const target = path.join(srcDir, "routes", file)
+    fs.mkdirSync(path.dirname(target), { recursive: true })
+    fs.writeFileSync(target, source)
+  }
 
   if (app) {
     fs.mkdirSync(path.join(srcDir, "i18n"))
@@ -42,7 +50,7 @@ const setup = async ({
   const out = path.join(root, "virtual-i18n.ts")
   fs.writeFileSync(out, code)
 
-  return (await import(out)).default
+  return { code, resources: (await import(out)).default }
 }
 
 afterEach(() => {
@@ -53,21 +61,21 @@ afterEach(() => {
 
 describe("generateI18n", () => {
   test("no app file and no plugins yields empty resources", async () => {
-    expect(await setup({})).toEqual({})
+    expect((await setup({})).resources).toEqual({})
   })
 
   test("app file only is returned verbatim", async () => {
     const app = { en: { translation: { a: "1" } } }
-    expect(await setup({ app })).toEqual(app)
+    expect((await setup({ app })).resources).toEqual(app)
   })
 
   test("plugin resources are included", async () => {
     const plugin = { en: { translation: { a: 1 } } }
-    expect(await setup({ plugins: [plugin] })).toEqual(plugin)
+    expect((await setup({ plugins: [plugin] })).resources).toEqual(plugin)
   })
 
   test("plugin and app deep-merge, app wins on conflicts", async () => {
-    const result = await setup({
+    const { resources: result } = await setup({
       plugins: [{ en: { translation: { x: { a: 1, c: "plugin" } } } }],
       app: { en: { translation: { x: { b: 2, c: "app" } } } },
     })
@@ -75,7 +83,7 @@ describe("generateI18n", () => {
   })
 
   test("languages from plugin and app are both kept", async () => {
-    const result = await setup({
+    const { resources: result } = await setup({
       plugins: [{ pl: { translation: { a: "pl" } } }],
       app: { en: { translation: { a: "en" } } },
     })
@@ -86,9 +94,21 @@ describe("generateI18n", () => {
   })
 
   test("later plugins win over earlier ones", async () => {
-    const result = await setup({
+    const { resources: result } = await setup({
       plugins: [{ en: { translation: { a: 1 } } }, { en: { translation: { a: 2 } } }],
     })
     expect(result).toEqual({ en: { translation: { a: 2 } } })
+  })
+
+  test("route files are not imported", async () => {
+    const app = { en: { translation: { a: "1" } } }
+    const { code, resources } = await setup({
+      app,
+      routes: {
+        "products/create/page.tsx": `throw new Error("route evaluated")\nexport default () => null`,
+      },
+    })
+    expect(code).not.toContain("/routes/")
+    expect(resources).toEqual(app)
   })
 })

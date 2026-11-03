@@ -6,7 +6,7 @@ import type { BuiltMercurConfig } from "./types"
  * items with the same id are combined field by field, later layers winning.
  */
 export function generateNavigation(config: BuiltMercurConfig): string {
-    const { header, names } = emitLayers(config)
+    const { header, names } = emitLayers(config, ["navigationModule"])
 
     return `${header}
 

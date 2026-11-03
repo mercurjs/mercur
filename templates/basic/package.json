@@ -11,7 +11,7 @@
   "dependencies": {
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "zod": "4.4.3",
+    "zod": "4.6.6",
     "@medusajs/icons": "2.22.0",
     "@medusajs/ui": "4.2.3",
     "@mercurjs/dashboard-sdk": "2.4.0",
@@ -62,7 +62,7 @@
     "@medusajs/test-utils": "2.22.0",
     "@medusajs/types": "2.22.0",
     "@medusajs/ui": "4.2.3",
-    "zod": "4.4.3",
+    "zod": "4.6.6",
     "@opentelemetry/api": "1.9.1"
   },
   "overrides": {
@@ -78,7 +78,7 @@
     "@medusajs/test-utils": "2.22.0",
     "@medusajs/types": "2.22.0",
     "@medusajs/ui": "4.2.3",
-    "zod": "4.4.3",
+    "zod": "4.6.6",
     "@opentelemetry/api": "1.9.1"
   },
   "pnpm": {
@@ -95,7 +95,7 @@
       "@medusajs/test-utils": "2.22.0",
       "@medusajs/types": "2.22.0",
       "@medusajs/ui": "4.2.3",
-      "zod": "4.4.3"
+      "zod": "4.6.6"
     }
   },
   "workspaces": [

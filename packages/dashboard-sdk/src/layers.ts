@@ -34,6 +34,19 @@ function findFile(dir: string, stem: string): string | null {
     return null
 }
 
+export const LAYER_KEYS = [
+    "routeModule",
+    "menuItemModule",
+    "widgetModule",
+    "customFieldsModule",
+    "layoutModule",
+    "i18nModule",
+    "navigationModule",
+    "preferenceModule",
+] as const
+
+export type LayerKey = (typeof LAYER_KEYS)[number]
+
 export type CollectedLayer = {
     imports: string[]
     /** Declares `const <name> = { routeModule, menuItemModule, ... }`. */
@@ -47,87 +60,99 @@ export type CollectedLayer = {
  * so every layer merges the same way. Identifiers carry the layer index so
  * several crawled layers can share one module.
  */
-export function collectLayer(srcDir: string, layer: number, startIndex = 0): CollectedLayer {
+export function collectLayer(
+    srcDir: string,
+    layer: number,
+    startIndex = 0,
+    keys: readonly LayerKey[] = LAYER_KEYS
+): CollectedLayer {
     const name = `__layer${layer}`
     const routesDir = path.join(srcDir, "routes")
+    const wants = (key: LayerKey) => keys.includes(key)
 
     let index = startIndex
-    const routeResults: NonNullable<ReturnType<typeof parseFile>>[] = []
-    const menuItemResults: NonNullable<ReturnType<typeof parseMenuItemFile>>[] = []
+    const imports: string[] = []
+    const fields: string[] = []
 
-    for (const file of crawlRoutes(routesDir)) {
-        const route = parseFile(file, routesDir, index)
-        if (route) routeResults.push(route)
+    if (wants("routeModule") || wants("menuItemModule")) {
+        const routeResults: NonNullable<ReturnType<typeof parseFile>>[] = []
+        const menuItemResults: NonNullable<ReturnType<typeof parseMenuItemFile>>[] = []
 
-        const menuItem = parseMenuItemFile(file, routesDir, index)
-        if (menuItem) menuItemResults.push(menuItem)
+        for (const file of crawlRoutes(routesDir)) {
+            if (wants("routeModule")) {
+                const route = parseFile(file, routesDir, index)
+                if (route) routeResults.push(route)
+            }
 
-        index++
+            if (wants("menuItemModule")) {
+                const menuItem = parseMenuItemFile(file, routesDir, index)
+                if (menuItem) menuItemResults.push(menuItem)
+            }
+
+            index++
+        }
+
+        if (wants("routeModule")) {
+            const routeTree = buildRouteTree(routeResults)
+            imports.push(...routeTree.flatMap((r) => r.imports))
+            fields.push(`routeModule: { routes: [
+${routeTree.map((r) => formatRoute(r.route)).join(",\n")}
+    ] }`)
+        }
+
+        if (wants("menuItemModule")) {
+            imports.push(...menuItemResults.map((r) => r.import))
+            fields.push(`menuItemModule: { menuItems: [
+${menuItemResults.map((r) => formatMenuItem(r.menuItem)).join(",\n")}
+    ] }`)
+        }
     }
 
-    const routeTree = buildRouteTree(routeResults)
-    const routeImports = routeTree.flatMap((r) => r.imports)
-    const routes = routeTree.map((r) => formatRoute(r.route))
+    if (wants("widgetModule")) {
+        const widgets = collectWidgets(srcDir, index)
+        index += widgets.entries.length
+        imports.push(...widgets.imports)
+        fields.push(`widgetModule: { widgets: [
+${widgets.entries.join(",\n")}
+    ] }`)
+    }
 
-    const menuItemImports = menuItemResults.map((r) => r.import)
-    const menuItems = menuItemResults.map((r) => formatMenuItem(r.menuItem))
+    if (wants("customFieldsModule")) {
+        const cfFiles = crawlModuleFiles(path.join(srcDir, "custom-fields"))
+        imports.push(
+            ...cfFiles.map((file, i) => `import __cf${layer}_${i} from "${normalizePath(file)}"`)
+        )
+        fields.push(`customFieldsModule: { configs: [
+${cfFiles.map((_, i) => `        __cf${layer}_${i}`).join(",\n")}
+    ] }`)
+    }
 
-    const widgets = collectWidgets(srcDir, index)
-    index += widgets.entries.length
+    if (wants("layoutModule")) {
+        const layoutFiles = crawlModuleFiles(path.join(srcDir, "layouts"))
+        imports.push(
+            ...layoutFiles.map(
+                (file, i) => `import __layout${layer}_${i} from "${normalizePath(file)}"`
+            )
+        )
+        fields.push(`layoutModule: { layouts: [
+${layoutFiles.map((_, i) => `        __layout${layer}_${i}`).join(",\n")}
+    ] }`)
+    }
 
-    const cfFiles = crawlModuleFiles(path.join(srcDir, "custom-fields"))
-    const cfImports = cfFiles.map(
-        (file, i) => `import __cf${layer}_${i} from "${normalizePath(file)}"`
-    )
-    const cfRefs = cfFiles.map((_, i) => `        __cf${layer}_${i}`)
-
-    const layoutFiles = crawlModuleFiles(path.join(srcDir, "layouts"))
-    const layoutImports = layoutFiles.map(
-        (file, i) => `import __layout${layer}_${i} from "${normalizePath(file)}"`
-    )
-    const layoutRefs = layoutFiles.map((_, i) => `        __layout${layer}_${i}`)
-
-    const i18nFile = findFile(path.join(srcDir, "i18n"), "index")
-    const i18nName = `__i18n${layer}`
-    const navigationFile = findFile(srcDir, NAVIGATION_FILE)
-    const navigationName = `__navigation${layer}`
-    const preferencesFile = findFile(srcDir, LAYOUT_PREFERENCES_FILE)
-    const preferencesName = `__preferences${layer}`
-
-    const imports = [
-        ...routeImports,
-        ...menuItemImports,
-        ...widgets.imports,
-        ...cfImports,
-        ...layoutImports,
-        ...(i18nFile ? [`import ${i18nName} from "${normalizePath(i18nFile)}"`] : []),
-        ...(navigationFile
-            ? [`import ${navigationName} from "${normalizePath(navigationFile)}"`]
-            : []),
-        ...(preferencesFile
-            ? [`import ${preferencesName} from "${normalizePath(preferencesFile)}"`]
-            : []),
+    const singleFiles: [LayerKey, string | null, string][] = [
+        ["i18nModule", findFile(path.join(srcDir, "i18n"), "index"), `__i18n${layer}`],
+        ["navigationModule", findFile(srcDir, NAVIGATION_FILE), `__navigation${layer}`],
+        ["preferenceModule", findFile(srcDir, LAYOUT_PREFERENCES_FILE), `__preferences${layer}`],
     ]
 
+    for (const [key, file, ident] of singleFiles) {
+        if (!wants(key)) continue
+        if (file) imports.push(`import ${ident} from "${normalizePath(file)}"`)
+        fields.push(`${key}: ${file ? ident : "{}"}`)
+    }
+
     const declaration = `const ${name} = {
-    routeModule: { routes: [
-${routes.join(",\n")}
-    ] },
-    menuItemModule: { menuItems: [
-${menuItems.join(",\n")}
-    ] },
-    widgetModule: { widgets: [
-${widgets.entries.join(",\n")}
-    ] },
-    customFieldsModule: { configs: [
-${cfRefs.join(",\n")}
-    ] },
-    layoutModule: { layouts: [
-${layoutRefs.join(",\n")}
-    ] },
-    i18nModule: ${i18nFile ? i18nName : "{}"},
-    navigationModule: ${navigationFile ? navigationName : "{}"},
-    preferenceModule: ${preferencesFile ? preferencesName : "{}"},
+${fields.map((field) => `    ${field},`).join("\n")}
 }`
 
     return { imports, declaration, name, nextIndex: index }
@@ -140,7 +165,15 @@ export type EmittedLayers = {
     names: string[]
 }
 
-export function emitLayers(config: Pick<BuiltMercurConfig, "pluginExtensions" | "projectDir" | "srcDir">): EmittedLayers {
+/**
+ * Crawled layers only import what `keys` names. A module that reads, say, only
+ * `i18nModule` must not import route files: a route that imports the host
+ * package would close an import cycle back into that module.
+ */
+export function emitLayers(
+    config: Pick<BuiltMercurConfig, "pluginExtensions" | "projectDir" | "srcDir">,
+    keys: readonly LayerKey[]
+): EmittedLayers {
     const lines: string[] = []
     const declarations: string[] = []
     const names: string[] = []
@@ -154,7 +187,7 @@ export function emitLayers(config: Pick<BuiltMercurConfig, "pluginExtensions" | 
             return
         }
 
-        const collected = collectLayer(source.srcDir, layer, index)
+        const collected = collectLayer(source.srcDir, layer, index, keys)
         index = collected.nextIndex
         lines.push(...collected.imports)
         declarations.push(collected.declaration)
