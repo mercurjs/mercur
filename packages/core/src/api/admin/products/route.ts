@@ -41,6 +41,7 @@ export const GET = async (
     filters,
     pagination: req.queryConfig.pagination,
     withDeleted: req.queryConfig.withDeleted,
+    cache: { ttl: 60 },
   })
 
   await enrichProductAttributes(req.scope, products as any[])

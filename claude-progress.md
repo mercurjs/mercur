@@ -31,6 +31,14 @@ with deterministic index waits (`helpers/wait-for-indexed-products.ts`). Core ts
 Open risk: sellers created after boot never land in the index (`seller.seller.created` doesn't reach it), so
 `sellers.id` filters are unusable. Production needs the Redis event bus for incremental index sync.
 
+Follow-up (same day, same PR #1740): Medusa Caching Module. `withMercur` sets the `caching` flag and registers
+`@medusajs/medusa/caching`, using the Redis provider when `projectConfig.redisUrl` is set (dep in apps/api +
+template) and in-memory otherwise (tests). `listProducts` takes `cache: { ttl, tags }`, always tags
+`Product:list:*` (automatic tags come from rows, so empty pages would otherwise never clear) and caps index-backed
+entries at 5s: one event clears the cache and starts the async index sync, so a request in between re-caches the
+pre-write state. Store 300s / admin 60s / vendor 60s + `LinkProductSeller:list:*` (link attach only clears that
+tag). Invalidation tests: store 22/22, vendor 19/19, admin 26 pass.
+
 ## Session — Extendable offer tables, grid and form fields (2026-10-26), branch `feat/extendable-offer-tables-forms`
 
 Panel extensions can now hide, replace, and add columns and fields beyond list pages, reusing the existing

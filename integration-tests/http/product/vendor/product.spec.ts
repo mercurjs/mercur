@@ -579,6 +579,53 @@ medusaIntegrationTestRunner({
         expect(seen.sort()).toEqual([...ids].sort())
       })
 
+      describe("cached list invalidation", () => {
+        const listIds = async (headers: any) =>
+          (await api.get("/vendor/products?limit=100", headers)).data.products.map(
+            (p: { id: string }) => p.id
+          )
+
+        // Each test lets the index settle without touching the route, then reads
+        // once: a stale answer can only come from an entry the write never
+        // cleared, since there is no TTL wait.
+        it("drops a product from a cached list once it is restricted to another seller", async () => {
+          const productId = await createProduct("Cache Restrict", "published", "other-actor")
+
+          expect(await listIds(headersB)).toContain(productId)
+          expect(await listIds(headersB)).toContain(productId)
+
+          await appContainer.resolve(ContainerRegistrationKeys.LINK).create({
+            [Modules.PRODUCT]: { product_id: productId },
+            [MercurModules.SELLER]: { seller_id: sellerA.id },
+          })
+          await waitForIndexedProducts(appContainer, [
+            { id: productId, status: "published", restricted: true },
+          ])
+
+          expect(await listIds(headersB)).not.toContain(productId)
+          expect(await listIds(headersA)).toContain(productId)
+        })
+
+        it("serves a product update instead of the cached list entry", async () => {
+          const productId = await createProduct("Cache Before", "published", "other-actor")
+          const titleOf = async () =>
+            (await api.get("/vendor/products?limit=100", headersA)).data.products.find(
+              (p: { id: string }) => p.id === productId
+            )?.title
+
+          expect(await titleOf()).toEqual("Cache Before")
+
+          await appContainer
+            .resolve(Modules.PRODUCT)
+            .updateProducts(productId, { title: "Cache After" })
+          await waitForIndexedProducts(appContainer, [
+            { id: productId, title: "Cache After", restricted: false },
+          ])
+
+          expect(await titleOf()).toEqual("Cache After")
+        })
+      })
+
       it("hides a published product from its creator once restricted to other sellers", async () => {
         const b = await createSellerUser(appContainer, {
           email: "scope-c@test.com",

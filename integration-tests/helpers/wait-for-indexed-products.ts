@@ -10,7 +10,12 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
  */
 export const waitForIndexedProducts = async (
   container: MedusaContainer,
-  expected: { id: string; status?: string; restricted: boolean }[],
+  expected: {
+    id: string
+    status?: string
+    title?: string
+    restricted: boolean
+  }[],
   { timeout = 15000, interval = 100 }: { timeout?: number; interval?: number } = {}
 ) => {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
@@ -23,6 +28,7 @@ export const waitForIndexedProducts = async (
       filters: {
         id: entry.id,
         ...(entry.status ? { status: entry.status } : {}),
+        ...(entry.title ? { title: entry.title } : {}),
         product_seller: {
           id: entry.restricted ? { $ne: null } : { $eq: null },
         },

@@ -40,6 +40,7 @@ export const GET = async (
     filters: req.filterableFields,
     visibility: await getSellerProductVisibility(req.scope, sellerId),
     pagination: req.queryConfig.pagination,
+    cache: { ttl: 60, tags: ["LinkProductSeller:list:*"] },
   })
 
   await enrichProductAttributes(req.scope, products as any[])

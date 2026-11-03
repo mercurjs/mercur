@@ -161,8 +161,42 @@ export type ListProductsInput = {
   pagination?: Pagination
   withDeleted?: boolean
   locale?: string
-  cache?: boolean
+  cache?: ListProductsCache
 }
+
+export type ListProductsCache = {
+  ttl?: number
+  /**
+   * Tags for data the automatic tags cannot see, kept alongside them. Link
+   * rows are the usual case: attaching one only clears `Link…:list:*`.
+   */
+  tags?: string[]
+}
+
+// A write clears the cache and starts the asynchronous index sync from the same
+// event, so any request in between re-caches the pre-write index state and
+// nothing clears it afterwards. The TTL is the only bound on that staleness.
+export const INDEX_LIST_CACHE_TTL = 5
+
+const toQueryOptions = (
+  cache: ListProductsCache | undefined,
+  locale: string | undefined,
+  ttl: number | undefined
+) => ({
+  ...(cache
+    ? {
+        cache: {
+          enable: true,
+          ...(ttl !== undefined ? { ttl } : {}),
+          // Automatic tags come from the returned rows, so an empty page would
+          // carry none and survive the next product create until its TTL.
+          tags: ["Product:list:*", ...(cache.tags ?? [])],
+          computeAutomaticTags: true,
+        },
+      }
+    : {}),
+  ...(locale ? { locale } : {}),
+})
 
 export type ListProductsResult<T> = {
   products: T[]
@@ -199,10 +233,6 @@ export const listProducts = async <T = Record<string, unknown>>(
   }: ListProductsInput
 ): Promise<ListProductsResult<T>> => {
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
-  const options = {
-    ...(cache ? { cache: { enable: true } } : {}),
-    ...(locale ? { locale } : {}),
-  }
 
   const indexFilters = withClause(toIndexFilters(filters), visibility?.index)
 
@@ -219,7 +249,11 @@ export const listProducts = async <T = Record<string, unknown>>(
         filters: indexFilters,
         pagination,
       },
-      options
+      toQueryOptions(
+        cache,
+        locale,
+        Math.min(cache?.ttl ?? INDEX_LIST_CACHE_TTL, INDEX_LIST_CACHE_TTL)
+      )
     )
 
     const skip = metadata?.skip ?? pagination?.skip ?? 0
@@ -248,7 +282,7 @@ export const listProducts = async <T = Record<string, unknown>>(
       pagination,
       withDeleted,
     },
-    options
+    toQueryOptions(cache, locale, cache?.ttl)
   )
 
   return {

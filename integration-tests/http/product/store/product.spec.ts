@@ -350,6 +350,97 @@ medusaIntegrationTestRunner({
                 })
             })
 
+            describe("cached responses", () => {
+                // List tests let the index settle without touching the route,
+                // then read once, so a stale answer can only be an entry the
+                // write never cleared. The detail route is a graph read with a
+                // long TTL, so polling there still proves invalidation.
+                const eventually = async (assertion: () => Promise<void>) => {
+                    const deadline = Date.now() + 10000
+                    while (true) {
+                        try {
+                            return await assertion()
+                        } catch (e) {
+                            if (Date.now() > deadline) throw e
+                            await new Promise((r) => setTimeout(r, 200))
+                        }
+                    }
+                }
+                const listIds = async () =>
+                    (
+                        await api.get(`/store/products?limit=100`, storeHeaders)
+                    ).data.products.map((p: { id: string }) => p.id)
+
+                it("stores the product list in the caching module", async () => {
+                    await createProduct(approvedSellerHeaders, {
+                        title: "Cache Probe",
+                    })
+                    await listIds()
+
+                    const caching = appContainer.resolve(Modules.CACHING)
+                    const cached = await caching.get({
+                        tags: ["Product:list:*"],
+                    })
+                    expect(cached).toBeTruthy()
+                })
+
+                it("lists a product created after the list was cached", async () => {
+                    const first = await createProduct(approvedSellerHeaders, {
+                        title: "Cached First",
+                    })
+                    expect(await listIds()).toEqual([first.id])
+                    expect(await listIds()).toEqual([first.id])
+
+                    const second = await createProduct(approvedSellerHeaders, {
+                        title: "Cached Second",
+                    })
+
+                    expect((await listIds()).sort()).toEqual(
+                        [first.id, second.id].sort()
+                    )
+                })
+
+                it("drops an unpublished product from the cached list", async () => {
+                    const product = await createProduct(approvedSellerHeaders, {
+                        title: "Cached Unpublish",
+                    })
+                    expect(await listIds()).toContain(product.id)
+
+                    await productModuleService.updateProducts(product.id, {
+                        status: "draft" as never,
+                    })
+                    await waitForIndexedProducts(appContainer, [
+                        { id: product.id, status: "draft", restricted: true },
+                    ])
+
+                    expect(await listIds()).not.toContain(product.id)
+                })
+
+                it("serves an updated title from the cached detail route", async () => {
+                    const product = await createProduct(approvedSellerHeaders, {
+                        title: "Detail Before",
+                    })
+                    const titleOf = async () =>
+                        (
+                            await api.get(
+                                `/store/products/${product.id}`,
+                                storeHeaders
+                            )
+                        ).data.product.title
+
+                    expect(await titleOf()).toEqual("Detail Before")
+                    expect(await titleOf()).toEqual("Detail Before")
+
+                    await productModuleService.updateProducts(product.id, {
+                        title: "Detail After",
+                    })
+
+                    await eventually(async () => {
+                        expect(await titleOf()).toEqual("Detail After")
+                    })
+                })
+            })
+
             describe("GET /store/products/:id", () => {
                 it("should retrieve a single published product from an approved seller", async () => {
                     const product = await createProduct(approvedSellerHeaders, {

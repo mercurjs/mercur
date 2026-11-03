@@ -36,7 +36,7 @@ export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
       filters: productFilters,
       pagination: req.queryConfig.pagination,
       locale: req.locale,
-      cache: true,
+      cache: { ttl: 300 },
     }
   )
 

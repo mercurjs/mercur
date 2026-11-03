@@ -49,17 +49,42 @@ export function withMercur(config: MercurInputConfig = {}): InputConfigWithArray
   const featureFlags = {
     ...config.featureFlags,
     index_engine: config.featureFlags?.index_engine ?? true,
+    caching: config.featureFlags?.caching ?? true,
   }
 
-  const hasIndexModule = (config.modules ?? []).some(
-    (m) =>
-      typeof m === "object" && "resolve" in m && m.resolve === "@medusajs/index"
-  )
+  const hasModule = (resolve: string) =>
+    (config.modules ?? []).some(
+      (m) => typeof m === "object" && "resolve" in m && m.resolve === resolve
+    )
+
+  const redisUrl = config.projectConfig?.redisUrl
+
+  // The in-memory provider is per process: with several API instances, a
+  // write handled by one never clears the others' caches, so Redis is used
+  // whenever the project has it.
+  const cachingModule = {
+    resolve: "@medusajs/medusa/caching",
+    options: redisUrl
+      ? {
+          providers: [
+            {
+              resolve: "@medusajs/caching-redis",
+              id: "caching-redis",
+              is_default: true,
+              options: { redisUrl, prefix: "mercur:" },
+            },
+          ],
+        }
+      : { in_memory: { enable: true } },
+  }
 
   const modules = [
     ...(config.modules ?? []),
-    ...(featureFlags.index_engine && !hasIndexModule
+    ...(featureFlags.index_engine && !hasModule("@medusajs/index")
       ? [{ resolve: "@medusajs/index" }]
+      : []),
+    ...(featureFlags.caching && !hasModule("@medusajs/medusa/caching")
+      ? [cachingModule]
       : []),
   ]
 
