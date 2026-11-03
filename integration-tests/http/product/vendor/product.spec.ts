@@ -378,6 +378,7 @@ medusaIntegrationTestRunner({
     describe("Vendor - product list scoping", () => {
       let appContainer: MedusaContainer
       let sellerA: any
+      let sellerB: any
       let headersA: any
       let headersB: any
 
@@ -397,6 +398,7 @@ medusaIntegrationTestRunner({
           name: "Scope B Store",
         })
         headersB = b.headers
+        sellerB = b.seller
       })
 
       const createProduct = async (
@@ -564,7 +566,7 @@ medusaIntegrationTestRunner({
 
         const first = await api.get("/vendor/products?q=CountProbe&limit=2", headersA)
         expect(first.data.products).toHaveLength(2)
-        expect(first.data.count).toBeGreaterThanOrEqual(3)
+        expect(first.data.count).toEqual(3)
 
         const last = await api.get(
           "/vendor/products?q=CountProbe&limit=2&offset=2",
@@ -624,6 +626,26 @@ medusaIntegrationTestRunner({
 
           expect(await titleOf()).toEqual("Cache After")
         })
+      })
+
+      it("returns the exact visible count on a full page, not the planner estimate", async () => {
+        const visible = [
+          await createProduct("Exact Open 1", "published", "other-actor"),
+          await createProduct("Exact Open 2", "published", "other-actor"),
+          await createProduct("Exact Allowlisted", "published", "other-actor", [
+            sellerA.id,
+          ]),
+          await createProduct("Exact Own Draft", "draft", sellerA.id),
+          await createProduct("Exact Own Proposed", "proposed", sellerA.id),
+        ]
+        await createProduct("Exact Hidden Restricted", "published", "other-actor", [
+          sellerB.id,
+        ])
+        await createProduct("Exact Hidden Draft", "draft", "other-actor")
+
+        const page = await api.get("/vendor/products?limit=2", headersA)
+        expect(page.data.products).toHaveLength(2)
+        expect(page.data.count).toEqual(visible.length)
       })
 
       it("hides a published product from its creator once restricted to other sellers", async () => {

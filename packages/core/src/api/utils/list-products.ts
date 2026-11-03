@@ -2,8 +2,13 @@ import {
   ContainerRegistrationKeys,
   isPresent,
   Modules,
+  useCache,
 } from "@medusajs/framework/utils"
-import type { MedusaContainer } from "@medusajs/framework/types"
+import type {
+  IIndexService,
+  IndexQueryConfig,
+  MedusaContainer,
+} from "@medusajs/framework/types"
 
 type IndexedShape = { [key: string]: true | IndexedShape }
 
@@ -162,6 +167,12 @@ export type ListProductsInput = {
   withDeleted?: boolean
   locale?: string
   cache?: ListProductsCache
+  /**
+   * Count every match instead of returning the planner estimate. The index
+   * estimate badly undercounts filters on product fields (they are JSONB
+   * containment checks with no statistics), so paginated tables need this.
+   */
+  exactCount?: boolean
 }
 
 export type ListProductsCache = {
@@ -220,6 +231,37 @@ const reconcileCount = (
   return Math.max(estimate, skip + returned + 1)
 }
 
+// query.index only exposes the planner estimate. This issues the same ids-only
+// call query.index makes (fields and filters keyed by the entity), minus the
+// pagination, which returns every match with no LIMIT and no count_estimate.
+const countIndexedProducts = async (
+  scope: MedusaContainer,
+  filters: Record<string, unknown>,
+  cache: ListProductsCache | undefined,
+  ttl: number
+): Promise<number> => {
+  const { count } = await useCache(
+    async () => {
+      const { data } = await scope
+        .resolve<IIndexService>(Modules.INDEX)
+        .query({
+          fields: ["product.id"],
+          filters: { product: filters } as IndexQueryConfig<"product">["filters"],
+          idsOnly: true,
+        })
+      return { count: data.length }
+    },
+    {
+      enable: !!cache,
+      key: ["mercur:product-count", filters],
+      tags: ["Product:list:*", ...(cache?.tags ?? [])],
+      ttl,
+      container: scope,
+    }
+  )
+  return count
+}
+
 export const listProducts = async <T = Record<string, unknown>>(
   scope: MedusaContainer,
   {
@@ -230,6 +272,7 @@ export const listProducts = async <T = Record<string, unknown>>(
     withDeleted,
     locale,
     cache,
+    exactCount,
   }: ListProductsInput
 ): Promise<ListProductsResult<T>> => {
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
@@ -242,19 +285,25 @@ export const listProducts = async <T = Record<string, unknown>>(
     isIndexable(indexFilters, INDEXED_PRODUCT) &&
     isOrderIndexable(pagination?.order)
   ) {
-    const { data, metadata } = await query.index(
-      {
-        entity: "product",
-        fields,
-        filters: indexFilters,
-        pagination,
-      },
-      toQueryOptions(
-        cache,
-        locale,
-        Math.min(cache?.ttl ?? INDEX_LIST_CACHE_TTL, INDEX_LIST_CACHE_TTL)
-      )
+    const indexTtl = Math.min(
+      cache?.ttl ?? INDEX_LIST_CACHE_TTL,
+      INDEX_LIST_CACHE_TTL
     )
+
+    const [{ data, metadata }, exact] = await Promise.all([
+      query.index(
+        {
+          entity: "product",
+          fields,
+          filters: indexFilters,
+          pagination,
+        },
+        toQueryOptions(cache, locale, indexTtl)
+      ),
+      exactCount
+        ? countIndexedProducts(scope, indexFilters, cache, indexTtl)
+        : undefined,
+    ])
 
     const skip = metadata?.skip ?? pagination?.skip ?? 0
     const take = metadata?.take ?? pagination?.take
@@ -262,7 +311,7 @@ export const listProducts = async <T = Record<string, unknown>>(
 
     return {
       products: data as T[],
-      count: reconcileCount(estimate, skip, take, data.length),
+      count: exact ?? reconcileCount(estimate, skip, take, data.length),
       estimate_count: estimate,
       offset: skip,
       limit: take ?? data.length,
