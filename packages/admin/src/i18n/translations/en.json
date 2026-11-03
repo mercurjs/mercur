@@ -4362,6 +4362,7 @@
     },
     "bulkEdit": {
       "successToast": "{{count}} store(s) updated",
+      "errorToast": "Bulk update failed: {{message}}",
       "emptyHeading": "No stores selected",
       "emptyDescription": "Select stores from the list to edit them here."
     },

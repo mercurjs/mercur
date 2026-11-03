@@ -15,6 +15,7 @@ import {
   prepareOfferInventoryInput,
   requiredOfferFieldsForInventoryConfirmation,
 } from "../../offer/utils"
+import { resolveOrderableSellerIds } from "../../seller/utils"
 
 type OfferDemandLine = {
   id: string
@@ -144,7 +145,7 @@ const hasCartOfferInventoryCoverage = async ({
 // Medusa calculates prices per variant, so two offers on one variant would
 // both resolve to the cheaper offer's price. A variant is sold by one offer
 // per cart; switching offers means removing the line first.
-const assertOneOfferPerVariant = async (
+const validateOneOfferPerVariant = async (
   container: MedusaContainer,
   cartId: string,
   incoming: Array<{ variant_id?: string; offer_id: string }>,
@@ -181,6 +182,43 @@ const assertOneOfferPerVariant = async (
   }
 }
 
+const validateOrderableSellers = async (
+  container: MedusaContainer,
+  offerIds: string[],
+): Promise<void> => {
+  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+  const { data: offers } = await query.graph({
+    entity: "offer",
+    fields: ["id", "seller_id"],
+    filters: { id: offerIds },
+  })
+  if (offers.length !== offerIds.length) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `Offer ${offerIds.find((id) => !offers.some((offer) => offer.id === id))} was not found`,
+    )
+  }
+  const sellerIds = [
+    ...new Set(
+      (offers as { seller_id?: string | null }[])
+        .map((offer) => offer.seller_id)
+        .filter((id): id is string => !!id),
+    ),
+  ]
+  const orderable = new Set(
+    sellerIds.length ? await resolveOrderableSellerIds(container, sellerIds) : [],
+  )
+  const unavailable = (offers as { id: string; seller_id?: string | null }[]).find(
+    (offer) => !offer.seller_id || !orderable.has(offer.seller_id),
+  )
+  if (unavailable) {
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      `Offer ${unavailable.id} is not available: its seller is not accepting orders`,
+    )
+  }
+}
+
 addToCartWorkflow.hooks.validate(async ({ input, cart }, { container }) => {
   const incoming = (input.items ?? []).filter(
     (i): i is typeof i & { offer_id: string } =>
@@ -190,7 +228,11 @@ addToCartWorkflow.hooks.validate(async ({ input, cart }, { container }) => {
     return
   }
 
-  await assertOneOfferPerVariant(container, cart.id, incoming)
+  await validateOneOfferPerVariant(container, cart.id, incoming)
+  await validateOrderableSellers(
+    container,
+    [...new Set(incoming.map((i) => i.offer_id))],
+  )
 
   const incomingLines = incoming.map((i, index) => ({
     id: `incoming_${index}`,

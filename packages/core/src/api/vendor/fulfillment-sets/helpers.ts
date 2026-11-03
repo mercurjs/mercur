@@ -87,16 +87,5 @@ export const validateSellerServiceZone = async (
     )
   }
 
-  try {
-    await validateSellerFulfillmentSet(
-      scope,
-      sellerId,
-      serviceZone.fulfillment_set_id
-    )
-  } catch {
-    throw new MedusaError(
-      MedusaError.Types.NOT_FOUND,
-      `Service zone with id: ${serviceZoneId} was not found`
-    )
-  }
+  await validateSellerFulfillmentSet(scope, sellerId, serviceZone.fulfillment_set_id)
 }

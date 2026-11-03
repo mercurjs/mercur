@@ -3,7 +3,8 @@ import type { MedusaContainer } from "@medusajs/framework/types"
 import { SellerStatus } from "@mercurjs/types"
 
 export const resolveVisibleSellerIds = async (
-  scope: MedusaContainer
+  scope: MedusaContainer,
+  sellerIds?: string[]
 ): Promise<string[]> => {
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
   // `now` is part of the cache key, so it is truncated to the minute to let
@@ -14,6 +15,7 @@ export const resolveVisibleSellerIds = async (
     entity: "seller",
     fields: ["id"],
     filters: {
+      ...(sellerIds ? { id: sellerIds } : {}),
       status: SellerStatus.OPEN,
       $and: [
         { $or: [{ closed_from: null }, { closed_from: { $gt: now } }] },
@@ -31,7 +33,8 @@ export const resolveVisibleSellerIds = async (
  * catalog is already reachable and the operator gate is on the payout side.
  */
 export const resolveOrderableSellerIds = async (
-  scope: MedusaContainer
+  scope: MedusaContainer,
+  sellerIds?: string[]
 ): Promise<string[]> => {
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
   const now = new Date(Math.floor(Date.now() / 60_000) * 60_000)
@@ -40,6 +43,7 @@ export const resolveOrderableSellerIds = async (
     entity: "seller",
     fields: ["id"],
     filters: {
+      ...(sellerIds ? { id: sellerIds } : {}),
       status: { $nin: [SellerStatus.SUSPENDED, SellerStatus.TERMINATED] },
       $and: [
         { $or: [{ closed_from: null }, { closed_from: { $gt: now } }] },

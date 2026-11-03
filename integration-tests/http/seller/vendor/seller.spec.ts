@@ -1332,7 +1332,7 @@ medusaIntegrationTestRunner({
 
         it("keeps the seller's own payment details readable while blocking traversal out of it", async () => {
           const response = await api.get(
-            `/vendor/sellers/me?fields=+payment_details.*,+customers.sellers.payment_details.*`,
+            `/vendor/sellers/${sellerA.id}?fields=+payment_details.*,+customers.sellers.payment_details.*`,
             headersA
           )
 

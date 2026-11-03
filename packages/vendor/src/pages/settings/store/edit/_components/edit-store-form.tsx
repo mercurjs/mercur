@@ -57,7 +57,6 @@ const SUPPORTED_FORMATS = [
   "image/gif",
   "image/webp",
   "image/heic",
-  "image/svg+xml",
 ];
 
 const SUPPORTED_FORMATS_FILE_EXTENSIONS = [
@@ -66,7 +65,6 @@ const SUPPORTED_FORMATS_FILE_EXTENSIONS = [
   ".gif",
   ".webp",
   ".heic",
-  ".svg",
 ];
 
 const stripWebsiteProtocol = (url: string | null | undefined): string =>

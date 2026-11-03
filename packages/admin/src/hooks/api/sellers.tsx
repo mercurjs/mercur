@@ -247,19 +247,30 @@ export const useUnterminateSeller = (
   });
 };
 
-/**
- * Lifecycle changes only go through the dedicated approve / suspend /
- * terminate routes; the generic update no longer accepts `status`.
- */
-export const transitionSellerStatus = async (
+const SELLER_STATUS_TRANSITIONS: Record<SellerStatus, SellerStatus[]> = {
+  [SellerStatus.PENDING_APPROVAL]: [SellerStatus.OPEN, SellerStatus.SUSPENDED, SellerStatus.TERMINATED],
+  [SellerStatus.OPEN]: [SellerStatus.SUSPENDED],
+  [SellerStatus.SUSPENDED]: [SellerStatus.OPEN, SellerStatus.TERMINATED],
+  [SellerStatus.TERMINATED]: [SellerStatus.OPEN],
+};
+
+export const SELLER_STATUS_LABELS: Record<SellerStatus, string> = {
+  [SellerStatus.OPEN]: "stores.status.open",
+  [SellerStatus.PENDING_APPROVAL]: "stores.status.pendingApproval",
+  [SellerStatus.SUSPENDED]: "stores.status.suspended",
+  [SellerStatus.TERMINATED]: "stores.status.terminated",
+};
+
+export const sellerStatusOptions = (from: SellerStatus): SellerStatus[] => [
+  from,
+  ...(SELLER_STATUS_TRANSITIONS[from] ?? []),
+];
+
+const runSellerStatusTransition = async (
   id: string,
   from: SellerStatus,
   to: SellerStatus,
 ) => {
-  if (from === to) {
-    return;
-  }
-
   switch (to) {
     case SellerStatus.OPEN:
       if (from === SellerStatus.PENDING_APPROVAL) {
@@ -280,6 +291,23 @@ export const transitionSellerStatus = async (
       throw new Error(`Cannot move a seller back to ${to}`);
   }
 };
+
+export const transitionSellerStatus = async (
+  id: string,
+  from: SellerStatus,
+  to: SellerStatus,
+) => {
+  if (from === to) {
+    return;
+  }
+
+  await runSellerStatusTransition(id, from, to);
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: sellersQueryKeys.detail(id) }),
+    queryClient.invalidateQueries({ queryKey: sellersQueryKeys.lists() }),
+  ]);
+};
+
 
 export const useUpdateSeller = (
   id: string,

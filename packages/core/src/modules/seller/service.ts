@@ -37,9 +37,6 @@ import {
 
 const DEFAULT_INVITE_VALID_DURATION_SECONDS = 60 * 60 * 24 * 7 // 7 days
 
-export const hashInviteToken = (token: string): string =>
-  crypto.createHash("sha256").update(token).digest("hex")
-
 type InjectedDependencies = {
   orderGroupRepository: OrderGroupRepository
   sellerStatisticsRepository: SellerStatisticsRepository
@@ -199,6 +196,10 @@ class SellerModuleService extends MedusaService({
     )
   }
 
+  protected hashInviteToken(token: string): string {
+    return crypto.createHash("sha256").update(token).digest("hex")
+  }
+
   @InjectTransactionManager()
   // @ts-ignore
   async createMemberInvites<T extends any | any[]>(
@@ -270,7 +271,7 @@ class SellerModuleService extends MedusaService({
       return {
         ...invite,
         id,
-        token_hash: hashInviteToken(token),
+        token_hash: this.hashInviteToken(token),
         accepted: invite.accepted ?? false,
         expires_at: invite.expires_at ?? new Date(Date.now() + validDuration * 1000),
       }
@@ -308,7 +309,7 @@ class SellerModuleService extends MedusaService({
       sharedContext,
     ) as MemberInviteDTO
 
-    const presented = Buffer.from(hashInviteToken(token))
+    const presented = Buffer.from(this.hashInviteToken(token))
     const stored = Buffer.from(invite.token_hash ?? "")
     if (
       presented.length !== stored.length ||

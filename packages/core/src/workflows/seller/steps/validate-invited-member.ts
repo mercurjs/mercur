@@ -4,14 +4,14 @@ import { MercurModules } from "@mercurjs/types"
 
 import SellerModuleService from "../../../modules/seller/service"
 
-type ResolveInvitedMemberStepInput = {
+type ValidateInvitedMemberStepInput = {
   email: string
   member_id?: string
 }
 
-export const resolveInvitedMemberStep = createStep(
-  "resolve-invited-member",
-  async (input: ResolveInvitedMemberStepInput, { container }) => {
+export const validateInvitedMemberStep = createStep(
+  "validate-invited-member",
+  async (input: ValidateInvitedMemberStepInput, { container }) => {
     const service = container.resolve<SellerModuleService>(MercurModules.SELLER)
 
     const [existing] = await service.listMembers(
@@ -33,7 +33,7 @@ export const resolveInvitedMemberStep = createStep(
     if (existing) {
       throw new MedusaError(
         MedusaError.Types.CONFLICT,
-        "A member with this email already exists. Sign in with that account to accept the invite"
+        "A member with this email already exists"
       )
     }
 

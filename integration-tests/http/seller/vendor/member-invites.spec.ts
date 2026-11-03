@@ -321,6 +321,18 @@ medusaIntegrationTestRunner({
           expect(target.role_id).toEqual(SellerRole.ORDER_MANAGEMENT)
         })
 
+        it("rejects a non-administrator inviting an administrator", async () => {
+          const response = await api
+            .post(
+              `/vendor/sellers/${sellerA.id}/members`,
+              { email: "admin-invite@test.com", role_id: SellerRole.SELLER_ADMINISTRATION },
+              headersBInA()
+            )
+            .catch((e) => e.response)
+
+          expect(response.status).toEqual(400)
+        })
+
         it("rejects a non-administrator granting the administration role", async () => {
           const created = await invite("third@test.com", SellerRole.SUPPORT)
           const thirdHeaders = await registerIdentity("third@test.com")

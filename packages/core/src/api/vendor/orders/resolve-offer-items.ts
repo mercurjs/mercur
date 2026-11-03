@@ -38,9 +38,9 @@ const OFFER_FIELDS = [
   "prices.currency_code",
 ]
 
-export const RESERVED_ITEM_METADATA_KEYS = ["offer_id", "seller_id"] as const
+const RESERVED_ITEM_METADATA_KEYS = ["offer_id", "seller_id"] as const
 
-export const stripReservedItemMetadata = (
+const stripReservedItemMetadata = (
   metadata: Record<string, unknown> | null | undefined
 ): Record<string, unknown> => {
   const clean = { ...(metadata ?? {}) }

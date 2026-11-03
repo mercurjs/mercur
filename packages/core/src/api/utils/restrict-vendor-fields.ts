@@ -16,6 +16,7 @@ export const VENDOR_CROSS_SELLER_FIELD_SEGMENTS = [
   "sellers",
   "seller_members",
   "token",
+  "token_hash",
 ]
 
 export const VENDOR_SELLER_PRIVATE_FIELD_SEGMENTS = [

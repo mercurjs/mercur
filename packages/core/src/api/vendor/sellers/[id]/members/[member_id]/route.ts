@@ -6,7 +6,7 @@ import { MedusaError } from "@medusajs/framework/utils"
 import { SellerRole } from "@mercurjs/types"
 
 import { VendorUpdateMemberRoleType } from "../../../validators"
-import { satisfiesRight } from "../../../../../../permissions"
+import { canAssignAdministration } from "../../../helpers"
 import {
   updateMemberRoleWorkflow,
   removeSellerMemberWorkflow,
@@ -61,15 +61,4 @@ export const DELETE = async (
     object: "seller_member",
     deleted: true,
   })
-}
-
-function canAssignAdministration(
-  req: AuthenticatedMedusaRequest,
-  callerRoleId: string | null
-): boolean {
-  if (req.permissions_enforced) {
-    return satisfiesRight(req.permissions?.members, "manage")
-  }
-
-  return callerRoleId === SellerRole.SELLER_ADMINISTRATION
 }

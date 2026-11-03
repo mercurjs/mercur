@@ -17,7 +17,7 @@ import {
 
 import { storeOfferQueryConfig } from "./query-config"
 import { StoreGetOfferParams, StoreGetOffersParams } from "./validators"
-import { resolveVisibleSellerIds } from "../../utils/sellers"
+import { resolveVisibleSellerIds } from "../../../workflows/seller/utils"
 
 async function applyVisibleSellerIdsFilter(
   req: MedusaRequest,

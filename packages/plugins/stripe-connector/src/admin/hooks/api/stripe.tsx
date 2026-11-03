@@ -42,7 +42,7 @@ type QueryOptions<T> = Omit<UseQueryOptions<T, Error, T>, "queryKey" | "queryFn"
 type MutationOptions<TData, TVariables = void> = UseMutationOptions<TData, Error, TVariables>
 
 const ACCOUNT_FIELDS = "+seller.name,+seller.metadata,+onboarding.id,+onboarding.data"
-const PAYOUT_FIELDS = "+reversals.*,+seller.name,+seller.handle"
+const PAYOUT_FIELDS = "+data,+reversals.*,+seller.name,+seller.handle"
 
 // Every Stripe operation can move several entities at once (a capture decides
 // payouts, a settlement retry touches adjustments), so mutations refresh them all.

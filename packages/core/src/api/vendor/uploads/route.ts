@@ -5,29 +5,6 @@ import {
 } from "@medusajs/framework/http"
 import { HttpTypes } from "@medusajs/framework/types"
 import { MedusaError } from "@medusajs/framework/utils"
-import { extname } from "path"
-
-const ALLOWED_UPLOADS: Record<string, readonly string[]> = {
-  "image/png": [".png"],
-  "image/jpeg": [".jpg", ".jpeg"],
-  "image/gif": [".gif"],
-  "image/webp": [".webp"],
-  "image/avif": [".avif"],
-  "image/heic": [".heic"],
-}
-
-const assertAllowedFile = (file: Express.Multer.File) => {
-  const mimeType = file.mimetype?.split(";")[0].trim().toLowerCase() ?? ""
-  const extension = extname(file.originalname ?? "").toLowerCase()
-  const extensions = ALLOWED_UPLOADS[mimeType]
-
-  if (!extensions || !extensions.includes(extension)) {
-    throw new MedusaError(
-      MedusaError.Types.INVALID_DATA,
-      `File "${file.originalname}" is not an allowed upload type`
-    )
-  }
-}
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<HttpTypes.AdminUploadFile>,
@@ -41,8 +18,6 @@ export const POST = async (
       "No files were uploaded"
     )
   }
-
-  input.forEach(assertAllowedFile)
 
   const { result: files } = await uploadFilesWorkflow(req.scope).run({
     input: {

@@ -103,7 +103,7 @@ export function normalizeAdminPath(url: string): string {
   return path.length > 1 ? path.replace(/\/+$/, "") : path
 }
 
-export type CoreRoutePermissionMatch = {
+type CoreRoutePermissionMatch = {
   key: string
   right: PermissionRight
   anyOf?: string[]

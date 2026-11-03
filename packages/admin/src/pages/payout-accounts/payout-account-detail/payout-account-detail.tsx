@@ -21,7 +21,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
   const { payout_account, isLoading, isError, error } = usePayoutAccount(
     id!,
-    undefined,
+    { fields: "+onboarding.data" },
     { initialData },
   )
 

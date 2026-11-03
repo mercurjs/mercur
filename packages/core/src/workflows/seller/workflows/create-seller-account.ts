@@ -25,7 +25,7 @@ import {
   upsertMembersStep,
   createSellerMembersStep,
   resolveSellerRegionIdsStep,
-  validateMemberEmailAvailableStep,
+  validateInvitedMemberStep,
   validateSellerRegionLinksStep,
 } from "../steps"
 import { SellerWorkflowEvents } from "../../events"
@@ -72,7 +72,7 @@ export const createSellerAccountWorkflow = createWorkflow(
     associateSellersWithRegionsStep({ links: regionLinks })
 
     const newMember = when('no-existing-member', input, ({ member_id }) => !member_id).then(() => {
-      validateMemberEmailAvailableStep(
+      validateInvitedMemberStep(
         transform(input, ({ member_email }) => ({ email: member_email! }))
       )
 

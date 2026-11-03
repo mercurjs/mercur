@@ -117,9 +117,8 @@ export function capturedNetOf(order: Pick<PayoutOrder, "payment_collections">): 
   return MathBN.sub(captured, sum(payments.flatMap((p) => p.refunds ?? [])))
 }
 
-// Providers resolve the charge from the payment's provider id and
-// `latest_charge`; the rest of the raw provider payload (card, billing
-// details) has no business being copied onto every payout row.
+// The rest of the provider payload is card and billing data and must not be
+// copied onto payout rows.
 export function sourcePaymentDataOf(data: Record<string, unknown> | null | undefined): Record<string, unknown> {
   if (!data) {
     return {}
@@ -164,17 +163,17 @@ const countBy = (statuses: string[]) =>
     return counts
   }, {})
 
-const REFUND_CREDIT_LINE_REFERENCE = "payment_collection"
+const STORE_CREDIT_REFERENCE = "store_credit"
 
 /**
- * Order total before refunds: Medusa books a refund as a credit line
- * referencing the payment collection, which lowers `total`. Store-credit
- * lines copied from the cart are real discounts the seller never receives
- * and stay deducted.
+ * Order total before refunds. Medusa books a refund as a credit line that
+ * lowers `total`, tagged with the payment collection or, when a reason was
+ * given, the reason label. Store-credit lines copied from the cart are real
+ * discounts the seller never receives and stay deducted.
  */
 export function grossTotalOf(order: Pick<PayoutOrder, "total" | "credit_lines">): BigNumberInput {
   return (order.credit_lines ?? [])
-    .filter((line) => line.reference === REFUND_CREDIT_LINE_REFERENCE)
+    .filter((line) => line.reference !== STORE_CREDIT_REFERENCE)
     .reduce<BigNumberInput>((acc, line) => MathBN.add(acc, line.amount), order.total)
 }
 

@@ -37,7 +37,8 @@ export const validateSellerCartItemsStep = createStep(
             )
         }
 
-        const visibleSellerIds = new Set(await resolveOrderableSellerIds(container))
+        const cartSellerIds = [...new Set(items.map((item) => item.offer!.seller_id!))]
+        const visibleSellerIds = new Set(await resolveOrderableSellerIds(container, cartSellerIds))
         const itemsOfUnavailableSellers = items.filter(
             (item) => !visibleSellerIds.has(item.offer!.seller_id!)
         )

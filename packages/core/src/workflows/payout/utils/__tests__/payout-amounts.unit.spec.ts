@@ -195,9 +195,10 @@ describe("grossTotalOf", () => {
         { amount: 30, reference: "payment_collection" },
         { amount: 25, reference: "store_credit" },
         { amount: 10, reference: null },
+        { amount: 5, reference: "Damaged in transit" },
       ],
     })
-    expect(Number(gross)).toBe(130)
+    expect(Number(gross)).toBe(145)
   })
 
   it("is the total when nothing was refunded", () => {

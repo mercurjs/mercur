@@ -7,6 +7,7 @@ import {
 } from "@medusajs/medusa/api/utils/validators"
 import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
 import { AdditionalData } from "@medusajs/framework/types"
+import { SellerRole } from "@mercurjs/types"
 
 import { httpUrl } from "../../utils/http-url"
 
@@ -136,7 +137,7 @@ export type AdminInviteSellerMemberType = z.infer<
 >
 export const AdminInviteSellerMember = z.object({
   email: z.string().email(),
-  role_id: z.string(),
+  role_id: z.nativeEnum(SellerRole),
 })
 
 export type AdminUpsertSellerAddressType = z.infer<typeof UpsertSellerAddress> & AdditionalData

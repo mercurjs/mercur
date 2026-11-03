@@ -6,7 +6,8 @@ import { queryClient } from "../../../lib/query-client"
 
 const payoutAccountDetailQuery = (id: string) => ({
   queryKey: payoutAccountsQueryKeys.detail(id),
-  queryFn: async () => sdk.admin.payoutAccounts.$id.query({ $id: id }),
+  queryFn: async () =>
+    sdk.admin.payoutAccounts.$id.query({ $id: id, fields: "+onboarding.data" }),
 })
 
 export const payoutAccountLoader = async ({ params }: LoaderFunctionArgs) => {

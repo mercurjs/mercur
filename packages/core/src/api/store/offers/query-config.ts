@@ -43,8 +43,7 @@ export const defaultStoreOfferFields = [
   "inventory_item_link.inventory_item.location_levels.reserved_quantity",
 ]
 
-// Computed by the route after the graph read, see `splitComputedOfferFields`.
-export const computedStoreOfferFields = [
+const computedStoreOfferFields = [
   "calculated_price",
   "inventory_quantity",
   "in_stock",

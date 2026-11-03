@@ -18,4 +18,5 @@ export const STORE_RESTRICTED_FIELDS = [
   "auth_identity",
   "auth_identities",
   "token",
+  "token_hash",
 ]

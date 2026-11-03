@@ -341,6 +341,7 @@ const InviteActions = ({
           icon: <LinkIcon />,
           label: t("users.copyInviteLink"),
           onClick: handleCopyLink,
+          permission: "members.invites:edit" as const,
         },
       ],
     },

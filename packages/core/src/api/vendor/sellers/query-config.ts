@@ -40,7 +40,8 @@ export const retrieveVendorSellerQueryConfig = {
 }
 
 // `GET /vendor/sellers/me` has no permission gate, so it carries the public
-// profile only; payment and professional details stay behind `store:view`.
+// profile only; payment and professional details are blocked on it and read
+// through `GET /vendor/sellers/:id` behind `store:view`.
 export const retrieveVendorSellerMeQueryConfig = {
   defaults: retrieveVendorSellerQueryConfig.defaults.filter(
     (field) => field !== "*payment_details" && field !== "*professional_details"

@@ -1,6 +1,6 @@
 import { MedusaContainer } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
-import { findOrphanSellerShippingMethods } from "../steps/validate-seller-cart-shipping"
+import { findOrphanSellerShippingMethods } from "./find-orphan-seller-shipping-methods"
 
 type CartShippingRows = {
   items?: Array<{ offer?: { seller_id?: string | null } | null } | null>

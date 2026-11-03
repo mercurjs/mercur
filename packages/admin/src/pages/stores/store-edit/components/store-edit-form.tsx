@@ -27,7 +27,13 @@ import {
 import { MediaSchema } from "@pages/products/product-create/constants";
 import { InferClientOutput } from "@mercurjs/client";
 import { sdk } from "@lib/client";
-import { transitionSellerStatus, useUpdateSeller } from "@hooks/api/sellers";
+import {
+  SELLER_STATUS_LABELS,
+  sellerStatusOptions,
+  transitionSellerStatus,
+  useUpdateSeller,
+} from "@hooks/api/sellers";
+import { useCan } from "@mercurjs/dashboard-shared";
 import { currencies } from "@/lib/data/currencies";
 import { SellerStatus } from "@mercurjs/types";
 
@@ -104,6 +110,8 @@ const ensureWebsiteProtocol = (url: string): string | null => {
 export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
+  const canEditStatus = useCan("sellers.approval", "edit");
+  const canEditPremium = useCan("sellers.premium", "edit");
 
   const form = useExtendableForm({
     schema: EditStoreSchema,
@@ -291,34 +299,34 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
       >
         <RouteDrawer.Body className="flex flex-col gap-y-8 overflow-y-auto">
           <div className="flex flex-col gap-y-4">
-            <Form.Field
-              control={form.control}
-              name="status"
-              render={({ field: { onChange, value, ref: _ref, ...field } }) => (
-                <Form.Item>
-                  <Form.Label>{t("fields.status")}</Form.Label>
-                  <Form.Control>
-                    <Select {...field} value={value} onValueChange={onChange}>
-                      <Select.Trigger>
-                        <Select.Value />
-                      </Select.Trigger>
-                      <Select.Content>
-                        <Select.Item value={SellerStatus.OPEN}>
-                          {t("stores.status.open")}
-                        </Select.Item>
-                        <Select.Item value={SellerStatus.PENDING_APPROVAL}>
-                          {t("stores.status.pendingApproval")}
-                        </Select.Item>
-                        <Select.Item value={SellerStatus.SUSPENDED}>
-                          {t("stores.status.suspended")}
-                        </Select.Item>
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
+            {canEditStatus && (
+              <Form.Field
+                control={form.control}
+                name="status"
+                render={({ field: { onChange, value, ref: _ref, ...field } }) => (
+                  <Form.Item>
+                    <Form.Label>{t("fields.status")}</Form.Label>
+                    <Form.Control>
+                      <Select {...field} value={value} onValueChange={onChange}>
+                        <Select.Trigger>
+                          <Select.Value />
+                        </Select.Trigger>
+                        <Select.Content>
+                          {sellerStatusOptions(
+                            seller.status as SellerStatus,
+                          ).map((status) => (
+                            <Select.Item key={status} value={status}>
+                              {t(SELLER_STATUS_LABELS[status])}
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select>
+                    </Form.Control>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                )}
+              />
+            )}
             <Form.Field
               control={form.control}
               name="name"
@@ -434,12 +442,14 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
               </Form.Item>
             )}
           />
-          <SwitchBox
-            control={form.control}
-            name="is_premium"
-            label={t("fields.premium")}
-            description={t("stores.premium.description")}
-          />
+          {canEditPremium && (
+            <SwitchBox
+              control={form.control}
+              name="is_premium"
+              label={t("fields.premium")}
+              description={t("stores.premium.description")}
+            />
+          )}
           <div className="border-ui-border-base border-t" />
           <div className="flex flex-col gap-y-4">
             <Heading level="h2">{t("stores.edit.mediaHeading")}</Heading>
