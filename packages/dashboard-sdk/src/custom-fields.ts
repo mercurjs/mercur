@@ -8,7 +8,7 @@ import type { BuiltMercurConfig } from "./types"
  * `ExtensionRegistry` keys them so a later config replaces an earlier one.
  */
 export function generateCustomFields(config: BuiltMercurConfig): string {
-    const { header, names } = emitLayers(config)
+    const { header, names } = emitLayers(config, ["customFieldsModule"])
 
     return `${header}
 

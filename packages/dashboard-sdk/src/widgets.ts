@@ -216,7 +216,7 @@ export function collectWidgets(
  * the earlier one so a project can swap a plugin's widget without a new id.
  */
 export function generateWidgets(config: BuiltMercurConfig): string {
-    const { header, names } = emitLayers(config)
+    const { header, names } = emitLayers(config, ["widgetModule"])
 
     return `${header}
 
