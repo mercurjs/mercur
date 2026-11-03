@@ -5,7 +5,7 @@ import {
 } from "@medusajs/framework/utils"
 import { MercurModules } from "@mercurjs/types"
 
-import handler from "../link-order-line-items-to-offers"
+import handler from "../../subscribers/link-order-line-items-to-offers"
 
 type Item = {
   id: string
