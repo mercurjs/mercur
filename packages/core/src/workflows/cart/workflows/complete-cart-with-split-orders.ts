@@ -441,19 +441,8 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
 
 
             // The group is persisted before the orders so a crash can't leave
-            // an order without one; a group left by a crashed run is reused.
-            const newOrderGroup = when(
-                "create-new-order-group",
-                { existingOrderGroupId },
-                ({ existingOrderGroupId }) => !existingOrderGroupId
-            ).then(() => createOrderGroupStep(orderGroupData))
-
-            const createdOrderGroup = transform(
-                { newOrderGroup, existingOrderGroupId },
-                ({ newOrderGroup, existingOrderGroupId }) => ({
-                    id: (newOrderGroup?.id ?? existingOrderGroupId) as string,
-                })
-            )
+            // an order without one.
+            const createdOrderGroup = createOrderGroupStep(orderGroupData)
 
             const createdOrders = createOrdersStep(ordersToCreate)
 
