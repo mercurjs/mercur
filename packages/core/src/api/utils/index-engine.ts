@@ -5,6 +5,28 @@ export type IndexedShape = { [key: string]: true | IndexedShape }
 
 export const LOGICAL_OPERATORS = ["$and", "$or", "$not"]
 
+// The operators the index query builder compiles; the rest throw there, where
+// query.graph would accept them.
+const INDEX_OPERATORS = [
+  "$eq",
+  "$ne",
+  "$lt",
+  "$lte",
+  "$gt",
+  "$gte",
+  "$in",
+  "$nin",
+  "$is",
+  "$like",
+  "$ilike",
+]
+
+export type Pagination = {
+  skip?: number
+  take?: number
+  order?: Record<string, unknown>
+}
+
 export const isPlainObject = (
   value: unknown
 ): value is Record<string, unknown> =>
@@ -36,7 +58,12 @@ export const isIndexable = (
       return false
     }
     if (node === true) {
-      return true
+      return (
+        !isPlainObject(value) ||
+        Object.keys(value).every((operator) =>
+          INDEX_OPERATORS.includes(operator)
+        )
+      )
     }
 
     return isPlainObject(value) && isIndexable(value, node)

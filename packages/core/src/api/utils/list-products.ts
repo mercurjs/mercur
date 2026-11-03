@@ -13,6 +13,7 @@ import type {
 
 import {
   type IndexedShape,
+  type Pagination,
   isIndexable,
   isIndexEngineEnabled,
   isOrderIndexable,
@@ -96,12 +97,6 @@ const toIndexFilters = (
   }
 
   return next
-}
-
-type Pagination = {
-  skip?: number
-  take?: number
-  order?: Record<string, unknown>
 }
 
 // query.graph cannot filter on linked-module fields, hence one shape per engine.

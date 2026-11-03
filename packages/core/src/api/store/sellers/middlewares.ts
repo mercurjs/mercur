@@ -5,25 +5,23 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { MiddlewareRoute } from "@medusajs/medusa"
-import { SellerStatus } from "@mercurjs/types"
 
 import * as QueryConfig from "./query-config"
 import { StoreGetSellersParams, StoreGetSellerParams } from "./validators"
+import { storeSellerVisibilityFilter } from "../../utils/sellers"
 
 function applySellerOpenFilters(
   req: MedusaRequest,
   _res: MedusaResponse,
   next: MedusaNextFunction
 ) {
-  const now = new Date()
+  const { status, $and } = storeSellerVisibilityFilter(new Date())
 
-  req.filterableFields.status ??= SellerStatus.OPEN
-
-  req.filterableFields.$and ??= []
-    ; (req.filterableFields.$and as any[]).push(
-      { $or: [{ closed_from: null }, { closed_from: { $gt: now } }] },
-      { $or: [{ closed_to: null }, { closed_to: { $lt: now } }] }
-    )
+  req.filterableFields.status ??= status
+  req.filterableFields.$and = [
+    ...((req.filterableFields.$and as unknown[] | undefined) ?? []),
+    ...$and,
+  ]
 
   next()
 }

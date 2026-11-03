@@ -3,10 +3,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 import { eventually } from "./eventually"
 
-/**
- * The index syncs asynchronously after writes. `visible` mirrors the store
- * offer visibility rule: open seller, published product.
- */
+// The index syncs asynchronously after writes.
 export const waitForIndexedOffers = async (
   container: MedusaContainer,
   expected: { id: string; visible: boolean }[]

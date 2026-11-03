@@ -8,7 +8,11 @@ import {
     ContainerRegistrationKeys,
     Modules,
 } from "@medusajs/framework/utils"
-import { MercurModules, SellerStatus } from "@mercurjs/types"
+import {
+    ISellerModuleService,
+    MercurModules,
+    SellerStatus,
+} from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { createVendorProduct } from "../../../helpers/create-product"
@@ -364,7 +368,7 @@ medusaIntegrationTestRunner({
                         stocked: 10,
                         offerPrice: 1000,
                     })
-                    const sellerModule: any = appContainer.resolve(
+                    const sellerModule = appContainer.resolve<ISellerModuleService>(
                         MercurModules.SELLER
                     )
                     const hour = 60 * 60 * 1000
@@ -419,9 +423,10 @@ medusaIntegrationTestRunner({
                     )
 
                     expect(response.status).toEqual(200)
-                    expect(response.data.offers.map((o: any) => o.id)).toEqual([
-                        open.offer.id,
-                    ])
+                    expect(typeof response.data.estimate_count).toBe("number")
+                    expect(
+                        response.data.offers.map((o: { id: string }) => o.id)
+                    ).toEqual([open.offer.id])
                 })
 
                 it("keeps visibility on the search path, which bypasses the index", async () => {
@@ -447,9 +452,9 @@ medusaIntegrationTestRunner({
                     )
 
                     expect(response.status).toEqual(200)
-                    expect(response.data.offers.map((o: any) => o.id)).toEqual([
-                        open.offer.id,
-                    ])
+                    expect(
+                        response.data.offers.map((o: { id: string }) => o.id)
+                    ).toEqual([open.offer.id])
                     expect(response.data.estimate_count).toBeUndefined()
                 })
 

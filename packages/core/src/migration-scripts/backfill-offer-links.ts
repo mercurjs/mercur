@@ -1,6 +1,12 @@
 import { ExecArgs } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
+type PgConnection = {
+  transaction: (
+    work: (trx: { raw: (sql: string) => Promise<unknown> }) => Promise<void>
+  ) => Promise<void>
+}
+
 const LINK_TABLES = [
   { table: "offer_seller", column: "seller_id" },
   { table: "offer_product", column: "product_id" },
@@ -10,9 +16,11 @@ const LINK_TABLES = [
 // the offer's own columns. Offers created before they became link tables have
 // no rows there, so this seeds them. Runs after `db:migrate` syncs the links.
 export default async function backfillOfferLinks({ container }: ExecArgs) {
-  const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION)
+  const knex = container.resolve<PgConnection>(
+    ContainerRegistrationKeys.PG_CONNECTION
+  )
 
-  await knex.transaction(async (trx: any) => {
+  await knex.transaction(async (trx) => {
     for (const { table, column } of LINK_TABLES) {
       await trx.raw(
         `INSERT INTO "${table}" (id, offer_id, "${column}", created_at, updated_at)

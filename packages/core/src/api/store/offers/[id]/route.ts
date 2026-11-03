@@ -17,6 +17,13 @@ import {
 import { StoreGetOfferParamsType } from "../validators"
 import { isOfferVisibleInStore } from "../../../utils/list-offers"
 
+const VISIBILITY_FIELDS = [
+  "seller.status",
+  "seller.closed_from",
+  "seller.closed_to",
+  "product.status",
+]
+
 export const GET = async (
   req: MedusaStoreRequest<StoreGetOfferParamsType>,
   res: MedusaResponse
@@ -26,37 +33,30 @@ export const GET = async (
   const { fields, withCalculatedPrice, withInventoryQuantity, withEffectiveLeadtime } =
     splitComputedOfferFields(req.queryConfig.fields)
 
-  const [
-    {
-      data: [offer],
-    },
-    {
-      data: [visibility],
-    },
-  ] = await Promise.all([
-    query.graph({
-      entity: "offer",
-      fields: fields,
-      filters: { ...req.filterableFields, id: req.params.id },
-    }),
-    query.graph({
-      entity: "offer",
-      fields: [
-        "id",
-        "seller.status",
-        "seller.closed_from",
-        "seller.closed_to",
-        "product.status",
-      ],
-      filters: { id: req.params.id },
-    }),
-  ])
+  const {
+    data: [offer],
+  } = await query.graph({
+    entity: "offer",
+    fields: Array.from(new Set([...fields, ...VISIBILITY_FIELDS])),
+    filters: { ...req.filterableFields, id: req.params.id },
+  })
 
-  if (!offer || !visibility || !isOfferVisibleInStore(visibility)) {
+  if (!offer || !isOfferVisibleInStore(offer)) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,
       `Offer with id ${req.params.id} was not found`
     )
+  }
+
+  for (const path of VISIBILITY_FIELDS) {
+    const [relation, column] = path.split(".")
+    if (fields.some((field) => field === relation || field.startsWith(`${relation}.`))) {
+      if (!fields.includes(path) && !fields.includes(`${relation}.*`)) {
+        delete offer[relation]?.[column]
+      }
+    } else {
+      delete offer[relation]
+    }
   }
 
   const offers = [offer]

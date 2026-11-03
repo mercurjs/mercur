@@ -1,19 +1,23 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import type { MedusaContainer } from "@medusajs/framework/types"
-import { ProductStatus, SellerStatus } from "@mercurjs/types"
+import { ProductStatus } from "@mercurjs/types"
 
 import {
   type IndexedShape,
+  type Pagination,
   isIndexable,
   isIndexEngineEnabled,
   isOrderIndexable,
   reconcileCount,
   withClause,
 } from "./index-engine"
-import { resolveVisibleSellerIds } from "./sellers"
+import {
+  isSellerVisibleInStore,
+  resolveVisibleSellerIds,
+  storeSellerVisibilityFilter,
+} from "./sellers"
 
-// `q` is left out on purpose: the index matches whole tokens where query.graph
-// matches substrings, and search must not change with the engine.
+// `q` is left out on purpose, see INDEXED_PRODUCT in list-products.ts.
 const INDEXED_OFFER: IndexedShape = {
   id: true,
   seller_id: true,
@@ -27,29 +31,11 @@ const INDEXED_OFFER: IndexedShape = {
   product: { id: true, status: true },
 }
 
-type Pagination = {
-  skip?: number
-  take?: number
-  order?: Record<string, unknown>
-}
-
 // query.graph cannot filter on linked-module fields, hence one shape per engine.
 export type OfferVisibility = {
   index: Record<string, unknown>
   graph: (filters: Record<string, unknown>) => Promise<Record<string, unknown>>
 }
-
-// Truncated to the minute so requests within the same minute share one cached
-// seller lookup and one index query plan.
-const visibilityNow = () => new Date(Math.floor(Date.now() / 60_000) * 60_000)
-
-export const storeSellerVisibilityFilter = (now: Date = visibilityNow()) => ({
-  status: SellerStatus.OPEN,
-  $and: [
-    { $or: [{ closed_from: { $eq: null } }, { closed_from: { $gt: now } }] },
-    { $or: [{ closed_to: { $eq: null } }, { closed_to: { $lt: now } }] },
-  ],
-})
 
 export const getStoreOfferVisibility = (
   scope: MedusaContainer
@@ -105,7 +91,12 @@ export const listOffers = async <T = Record<string, unknown>>(
 ): Promise<ListOffersResult<T>> => {
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const indexFilters = withClause(filters, visibility?.index)
+  const indexFilters = withClause(
+    Object.fromEntries(
+      Object.entries(filters).filter(([, value]) => value !== undefined)
+    ),
+    visibility?.index
+  )
 
   if (
     isIndexEngineEnabled(scope) &&
@@ -153,30 +144,13 @@ export const listOffers = async <T = Record<string, unknown>>(
 }
 
 type VisibilityOffer = {
-  seller?: {
-    status?: string | null
-    closed_from?: string | Date | null
-    closed_to?: string | Date | null
-  } | null
+  seller?: Parameters<typeof isSellerVisibleInStore>[0] | null
   product?: { status?: string | null } | null
 }
 
-// Mirrors storeSellerVisibilityFilter for a single row read from the database,
-// where the index's asynchronous sync must not decide a 404.
-export const isOfferVisibleInStore = (
-  offer: VisibilityOffer,
-  now: Date = visibilityNow()
-) => {
-  const { seller, product } = offer
-  if (!seller || seller.status !== SellerStatus.OPEN) {
-    return false
-  }
-  if (product?.status !== ProductStatus.PUBLISHED) {
-    return false
-  }
-  const closedFrom = seller.closed_from ? new Date(seller.closed_from) : null
-  const closedTo = seller.closed_to ? new Date(seller.closed_to) : null
-  return (
-    (!closedFrom || closedFrom > now) && (!closedTo || closedTo < now)
-  )
-}
+// Read from the database, not the index: the index syncs asynchronously and
+// must not decide a 404.
+export const isOfferVisibleInStore = (offer: VisibilityOffer) =>
+  !!offer.seller &&
+  isSellerVisibleInStore(offer.seller) &&
+  offer.product?.status === ProductStatus.PUBLISHED
