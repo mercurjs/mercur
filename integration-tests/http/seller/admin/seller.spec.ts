@@ -1,6 +1,10 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
-import { MedusaContainer } from "@medusajs/framework/types"
+import {
+  IEventBusModuleService,
+  MedusaContainer,
+} from "@medusajs/framework/types"
 import { Modules } from "@medusajs/framework/utils"
+import { eventually } from "../../../helpers/eventually"
 import {
   adminHeaders,
   createAdminUser,
@@ -51,16 +55,16 @@ medusaIntegrationTestRunner({
 
       describe("seller entity events", () => {
         it("emits seller.seller.created / updated and lands the seller in the index", async () => {
-          const eventBus = appContainer.resolve(Modules.EVENT_BUS) as {
-            subscribe: (
-              name: string,
-              fn: (event: { name: string; data: { id: string } }) => Promise<void>
-            ) => void
-          }
-          const events: { name: string; id: string }[] = []
+          const eventBus = appContainer.resolve<IEventBusModuleService>(
+            Modules.EVENT_BUS
+          )
+          const events: { name: string; id?: string }[] = []
           eventBus.subscribe("*", async (event) => {
             if (event.name.startsWith("seller.seller.")) {
-              events.push({ name: event.name, id: event.data?.id })
+              events.push({
+                name: event.name,
+                id: (event.data as { id?: string } | undefined)?.id,
+              })
             }
           })
 
@@ -82,30 +86,22 @@ medusaIntegrationTestRunner({
             adminHeaders
           )
 
-          const deadline = Date.now() + 15000
-          let indexed = false
-          while (Date.now() < deadline) {
-            const { rows } = await dbConnection.raw(
-              `select id from index_data where name = 'Seller' and id = ?`,
-              [sellerId]
-            )
-            indexed = rows.length === 1
-            if (
-              indexed &&
-              events.some((e) => e.name === "seller.seller.updated")
-            ) {
-              break
-            }
-            await new Promise((r) => setTimeout(r, 200))
-          }
-
-          expect(events).toEqual(
-            expect.arrayContaining([
-              { name: "seller.seller.created", id: sellerId },
-              { name: "seller.seller.updated", id: sellerId },
-            ])
+          await eventually(
+            async () => {
+              expect(events).toEqual(
+                expect.arrayContaining([
+                  { name: "seller.seller.created", id: sellerId },
+                  { name: "seller.seller.updated", id: sellerId },
+                ])
+              )
+              const { rows } = await dbConnection.raw(
+                `select id from index_data where name = 'Seller' and id = ?`,
+                [sellerId]
+              )
+              expect(rows).toHaveLength(1)
+            },
+            { timeout: 15000 }
           )
-          expect(indexed).toBe(true)
         })
       })
 

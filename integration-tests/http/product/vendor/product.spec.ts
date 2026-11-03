@@ -564,12 +564,14 @@ medusaIntegrationTestRunner({
           await createProduct("CountProbe Three", "published", "other-actor"),
         ]
 
-        const first = await api.get("/vendor/products?q=CountProbe&limit=2", headersA)
+        const idFilter = ids.map((id) => `id[]=${id}`).join("&")
+
+        const first = await api.get(`/vendor/products?${idFilter}&limit=2`, headersA)
         expect(first.data.products).toHaveLength(2)
         expect(first.data.count).toEqual(3)
 
         const last = await api.get(
-          "/vendor/products?q=CountProbe&limit=2&offset=2",
+          `/vendor/products?${idFilter}&limit=2&offset=2`,
           headersA
         )
         expect(last.data.products).toHaveLength(1)
@@ -581,15 +583,23 @@ medusaIntegrationTestRunner({
         expect(seen.sort()).toEqual([...ids].sort())
       })
 
+      it("matches a partial word in q, as before the index engine", async () => {
+        const shirt = await createProduct("Linen Shirt", "published", "other-actor")
+        await createProduct("Wool Scarf", "published", "other-actor")
+
+        const response = await api.get("/vendor/products?q=Shi", headersA)
+
+        expect(response.data.products.map((p: { id: string }) => p.id)).toEqual([
+          shirt,
+        ])
+      })
+
       describe("cached list invalidation", () => {
         const listIds = async (headers: any) =>
           (await api.get("/vendor/products?limit=100", headers)).data.products.map(
             (p: { id: string }) => p.id
           )
 
-        // Each test lets the index settle without touching the route, then reads
-        // once: a stale answer can only come from an entry the write never
-        // cleared, since there is no TTL wait.
         it("drops a product from a cached list once it is restricted to another seller", async () => {
           const productId = await createProduct("Cache Restrict", "published", "other-actor")
 

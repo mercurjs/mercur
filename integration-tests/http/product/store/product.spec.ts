@@ -4,7 +4,11 @@ import {
     ISalesChannelModuleService,
     MedusaContainer,
 } from "@medusajs/framework/types"
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import {
+    ContainerRegistrationKeys,
+    Modules,
+    ProductStatus,
+} from "@medusajs/framework/utils"
 import { MercurModules } from "@mercurjs/types"
 import {
     adminHeaders,
@@ -13,6 +17,7 @@ import {
     generateStoreHeaders,
 } from "../../../helpers/create-admin-user"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { eventually } from "../../../helpers/eventually"
 import { waitForIndexedProducts } from "../../../helpers/wait-for-indexed-products"
 
 jest.setTimeout(60000)
@@ -351,21 +356,6 @@ medusaIntegrationTestRunner({
             })
 
             describe("cached responses", () => {
-                // List tests let the index settle without touching the route,
-                // then read once, so a stale answer can only be an entry the
-                // write never cleared. The detail route is a graph read with a
-                // long TTL, so polling there still proves invalidation.
-                const eventually = async (assertion: () => Promise<void>) => {
-                    const deadline = Date.now() + 10000
-                    while (true) {
-                        try {
-                            return await assertion()
-                        } catch (e) {
-                            if (Date.now() > deadline) throw e
-                            await new Promise((r) => setTimeout(r, 200))
-                        }
-                    }
-                }
                 const listIds = async () =>
                     (
                         await api.get(`/store/products?limit=100`, storeHeaders)
@@ -429,7 +419,7 @@ medusaIntegrationTestRunner({
                     expect(await listIds()).toContain(product.id)
 
                     await productModuleService.updateProducts(product.id, {
-                        status: "draft" as never,
+                        status: ProductStatus.DRAFT,
                     })
                     await waitForIndexedProducts(appContainer, [
                         { id: product.id, status: "draft", restricted: true },

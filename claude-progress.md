@@ -39,6 +39,19 @@ entries at 5s: one event clears the cache and starts the async index sync, so a 
 pre-write state. Store 300s / admin 60s / vendor 60s + `LinkProductSeller:list:*` (link attach only clears that
 tag). Invalidation tests: store 22/22, vendor 19/19, admin 26 pass.
 
+Follow-ups (same day, same PR):
+- **Exact counts** on admin/vendor via an ids-only index call; it's what `query.index` sends internally, minus
+  pagination. Measured cost: 234ms vendor / 33ms admin at 20k.
+- **Routing:** plain lists go to `query.graph`; the index is only used for `product_seller` / sales channel / price
+  filters.
+- **Seller events:** the service overrides now use `@InjectManager` + `@EmitEvents` + `@MedusaContext`, so
+  `seller.seller.*` is emitted and sellers reach the index. Deployments need one full index sync.
+- **Previously no-op cache calls**, now live:
+  - CI caught them (store-offers, offer-region-prices). Each got the link/list tag that actually clears.
+  - Membership checks are no longer cached.
+- **Open:** tie ordering. `query.index` takes one sort key only, so there's no `id` tiebreak and paging can repeat or
+  skip products when `created_at` ties (on main too).
+
 ## Session — Extendable offer tables, grid and form fields (2026-10-26), branch `feat/extendable-offer-tables-forms`
 
 Panel extensions can now hide, replace, and add columns and fields beyond list pages, reusing the existing

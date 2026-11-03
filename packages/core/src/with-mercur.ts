@@ -1,7 +1,11 @@
 import "./patches/register"
 
 import type { InputConfigWithArrayModules } from "@medusajs/framework/types"
-import { defineConfig } from '@medusajs/framework/utils'
+import {
+  defineConfig,
+  MODULE_PACKAGE_NAMES,
+  Modules,
+} from '@medusajs/framework/utils'
 import { assertPatchesDisabled } from "./patches"
 import { disableMedusaMiddlewares } from "./utils/disable-medusa-middlewares"
 
@@ -52,40 +56,35 @@ export function withMercur(config: MercurInputConfig = {}): InputConfigWithArray
     caching: config.featureFlags?.caching ?? true,
   }
 
-  const hasModule = (resolve: string) =>
-    (config.modules ?? []).some(
-      (m) => typeof m === "object" && "resolve" in m && m.resolve === resolve
-    )
-
   const redisUrl = config.projectConfig?.redisUrl
 
-  // The in-memory provider is per process: with several API instances, a
-  // write handled by one never clears the others' caches, so Redis is used
-  // whenever the project has it.
+  // The in-memory provider is per process, so multi-instance setups need Redis
+  // for invalidation to reach every instance. Without clones it hands out the
+  // cached objects themselves, and routes decorate rows (offers, prices).
   const cachingModule = {
-    resolve: "@medusajs/medusa/caching",
+    resolve: MODULE_PACKAGE_NAMES[Modules.CACHING],
     options: redisUrl
       ? {
           providers: [
             {
-              resolve: "@medusajs/caching-redis",
+              resolve: "@medusajs/medusa/caching-redis",
               id: "caching-redis",
               is_default: true,
               options: { redisUrl, prefix: "mercur:" },
             },
           ],
         }
-      : { in_memory: { enable: true } },
+      : { in_memory: { enable: true, useClones: true } },
   }
 
+  // Defaults go first: defineConfig keys modules by service name and the last
+  // entry wins, so any registration (or `disable`) in the project overrides them.
   const modules = [
+    ...(featureFlags.index_engine
+      ? [{ resolve: MODULE_PACKAGE_NAMES[Modules.INDEX] }]
+      : []),
+    ...(featureFlags.caching ? [cachingModule] : []),
     ...(config.modules ?? []),
-    ...(featureFlags.index_engine && !hasModule("@medusajs/index")
-      ? [{ resolve: "@medusajs/index" }]
-      : []),
-    ...(featureFlags.caching && !hasModule("@medusajs/medusa/caching")
-      ? [cachingModule]
-      : []),
   ]
 
   const plugins = [

@@ -2,6 +2,7 @@ import {
   ContainerRegistrationKeys,
   isPresent,
   Modules,
+  promiseAll,
   useCache,
 } from "@medusajs/framework/utils"
 import type {
@@ -12,13 +13,11 @@ import type {
 
 type IndexedShape = { [key: string]: true | IndexedShape }
 
-// Mirrors the Product slice of @medusajs/index's default schema plus the
-// filterable product_seller link. Anything outside it (categories, tags,
-// variant options, deleted rows, ...) is answered by query.graph instead,
-// because the index rejects non-indexed keys outright.
+// The index rejects any key outside its schema, so only these reach it. `q` is
+// left out on purpose: the index matches whole tokens (plainto_tsquery) where
+// query.graph matches substrings, and search must not change with the engine.
 const INDEXED_PRODUCT: IndexedShape = {
   id: true,
-  q: true,
   title: true,
   handle: true,
   status: true,
@@ -43,14 +42,16 @@ const INDEXED_PRODUCT: IndexedShape = {
   product_seller: { id: true },
 }
 
-const LOGICAL_OPERATORS = ["$and", "$or", "$not"]
-
-// Relations that live in another module (links, pricing). query.graph cannot
-// filter on them, which is where the index pays off; product-only filters are
-// answered faster by a single query.graph than by the index's id lookup plus
-// the graph hydration query.index always runs afterwards.
 const CROSS_MODULE_KEYS = ["product_seller", "sales_channels"]
 const CROSS_MODULE_VARIANT_KEYS = ["prices"]
+const LOGICAL_OPERATORS = ["$and", "$or", "$not"]
+const INDEX_LIST_CACHE_TTL = 5
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" &&
+  value !== null &&
+  !Array.isArray(value) &&
+  !(value instanceof Date)
 
 const needsIndex = (filters: Record<string, unknown>): boolean =>
   Object.entries(filters).some(([key, value]) => {
@@ -67,12 +68,6 @@ const needsIndex = (filters: Record<string, unknown>): boolean =>
       Object.keys(value).some((k) => CROSS_MODULE_VARIANT_KEYS.includes(k))
     )
   })
-
-const isPlainObject = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" &&
-  value !== null &&
-  !Array.isArray(value) &&
-  !(value instanceof Date)
 
 const isIndexable = (
   filters: Record<string, unknown>,
@@ -138,24 +133,13 @@ const toIndexFilters = (
     next.variants = { ...variants, prices: { ...prices, price_list_id: priceListId } }
   }
 
-  // Same workaround as Medusa's own index-backed product routes: full-text
-  // search only spans joined entities that appear in the filter structure.
-  if (isPresent(next.q) && !next.variants) {
-    next.variants = {}
-  }
-
   return next
 }
 
-// Detect via the container, not FeatureFlag: core and the host app can load
-// different @medusajs/framework copies, each with its own flag router.
-export const isIndexEngineEnabled = (scope: MedusaContainer): boolean => {
-  try {
-    return Boolean(scope.resolve(Modules.INDEX, { allowUnregistered: true }))
-  } catch {
-    return false
-  }
-}
+// Checked through the container, not FeatureFlag: core and the host can load
+// separate @medusajs/framework copies with separate flag routers.
+const isIndexEngineEnabled = (scope: MedusaContainer) =>
+  !!scope.resolve(Modules.INDEX, { allowUnregistered: true })
 
 type Pagination = {
   skip?: number
@@ -163,9 +147,7 @@ type Pagination = {
   order?: Record<string, unknown>
 }
 
-// query.graph cannot filter on linked-module fields, so a scope that relies on
-// a link (e.g. product_seller) needs its own shape per engine. The graph shape
-// is lazy because it usually needs a prefetch only the fallback pays for.
+// query.graph cannot filter on linked-module fields, hence one shape per engine.
 export type ProductVisibility = {
   index: Record<string, unknown>
   graph: () => Promise<Record<string, unknown>>
@@ -182,7 +164,12 @@ const withClause = (
   return { ...filters, $and: [...existing, clause] }
 }
 
-export type ListProductsInput = {
+type ListProductsCache = {
+  ttl?: number
+  tags?: string[]
+}
+
+type ListProductsInput = {
   fields: string[]
   filters?: Record<string, unknown>
   visibility?: ProductVisibility
@@ -190,27 +177,24 @@ export type ListProductsInput = {
   withDeleted?: boolean
   locale?: string
   cache?: ListProductsCache
-  /**
-   * Count every match instead of returning the planner estimate. The index
-   * estimate badly undercounts filters on product fields (they are JSONB
-   * containment checks with no statistics), so paginated tables need this.
-   */
   exactCount?: boolean
 }
 
-export type ListProductsCache = {
-  ttl?: number
-  /**
-   * Tags for data the automatic tags cannot see, kept alongside them. Link
-   * rows are the usual case: attaching one only clears `Link…:list:*`.
-   */
-  tags?: string[]
+type ListProductsResult<T> = {
+  products: T[]
+  count: number
+  estimate_count?: number
+  offset: number
+  limit: number
 }
 
-// A write clears the cache and starts the asynchronous index sync from the same
-// event, so any request in between re-caches the pre-write index state and
-// nothing clears it afterwards. The TTL is the only bound on that staleness.
-export const INDEX_LIST_CACHE_TTL = 5
+// Automatic tags come from the returned rows, so an empty page has none, and
+// variant writes only clear ProductVariant tags.
+const listCacheTags = (cache: ListProductsCache | undefined) => [
+  "Product:list:*",
+  "ProductVariant:list:*",
+  ...(cache?.tags ?? []),
+]
 
 const toQueryOptions = (
   cache: ListProductsCache | undefined,
@@ -222,9 +206,7 @@ const toQueryOptions = (
         cache: {
           enable: true,
           ...(ttl !== undefined ? { ttl } : {}),
-          // Automatic tags come from the returned rows, so an empty page would
-          // carry none and survive the next product create until its TTL.
-          tags: ["Product:list:*", ...(cache.tags ?? [])],
+          tags: listCacheTags(cache),
           computeAutomaticTags: true,
         },
       }
@@ -232,16 +214,6 @@ const toQueryOptions = (
   ...(locale ? { locale } : {}),
 })
 
-export type ListProductsResult<T> = {
-  products: T[]
-  count: number
-  estimate_count?: number
-  offset: number
-  limit: number
-}
-
-// estimate_count comes from the Postgres planner and is meaningless for small
-// result sets, so pin it to the exact value whenever the page is not full.
 const reconcileCount = (
   estimate: number,
   skip: number,
@@ -254,9 +226,8 @@ const reconcileCount = (
   return Math.max(estimate, skip + returned + 1)
 }
 
-// query.index only exposes the planner estimate. This issues the same ids-only
-// call query.index makes (fields and filters keyed by the entity), minus the
-// pagination, which returns every match with no LIMIT and no count_estimate.
+// query.index only reports the planner estimate, which undercounts JSONB
+// filters badly. This is the ids-only call query.index makes, without paging.
 const countIndexedProducts = async (
   scope: MedusaContainer,
   filters: Record<string, unknown>,
@@ -277,7 +248,7 @@ const countIndexedProducts = async (
     {
       enable: !!cache,
       key: ["mercur:product-count", filters],
-      tags: ["Product:list:*", ...(cache?.tags ?? [])],
+      tags: listCacheTags(cache),
       ttl,
       container: scope,
     }
@@ -309,12 +280,14 @@ export const listProducts = async <T = Record<string, unknown>>(
     isIndexable(indexFilters, INDEXED_PRODUCT) &&
     isOrderIndexable(pagination?.order)
   ) {
+    // One event clears the cache and starts the async index sync, so a request
+    // in between re-caches pre-write index state; the TTL bounds that.
     const indexTtl = Math.min(
       cache?.ttl ?? INDEX_LIST_CACHE_TTL,
       INDEX_LIST_CACHE_TTL
     )
 
-    const [{ data, metadata }, exact] = await Promise.all([
+    const [{ data, metadata }, exact] = await promiseAll([
       query.index(
         {
           entity: "product",

@@ -76,10 +76,6 @@ export const getProductIdsRestrictedFromSeller = async (
   return Array.from(restricted)
 }
 
-/**
- * A seller sees its own draft/proposed submissions, plus published products
- * that are either unrestricted or allowlisted to it through `product_seller`.
- */
 export const getSellerProductVisibility = async (
   scope: MedusaContainer,
   sellerId: string
@@ -108,11 +104,7 @@ export const getSellerProductVisibility = async (
     .filter((id): id is string => !!id)
 
   return {
-    // Sellers created after boot are not ingested by the index (no
-    // `seller.seller.created` reaches it), so the allowlist cannot be matched
-    // through `sellers.id`. Only the link row's own id resolves, which is
-    // enough to tell unrestricted products apart. A bare `null` compiles to
-    // `= NULL` in the index query builder, hence `$eq`.
+    // A bare `null` compiles to `= NULL` in the index query builder, hence `$eq`.
     index: {
       $or: [
         ...ownSubmissions,
@@ -150,27 +142,26 @@ export const isProductVisibleToSeller = async (
 ): Promise<boolean> => {
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const [ownProductIds, { data: [product] }] = await promiseAll([
-    getSellerOwnedProductIds(scope, sellerId, [productId]),
-    query.graph({
-      entity: "product",
-      fields: ["id", "status", "sellers.id"],
-      filters: { id: productId },
-    }),
-  ])
+  const [ownProductIds, restrictedFromSellerIds, { data: [product] }] =
+    await promiseAll([
+      getSellerOwnedProductIds(scope, sellerId, [productId]),
+      getProductIdsRestrictedFromSeller(scope, sellerId, [productId]),
+      query.graph({
+        entity: "product",
+        fields: ["id", "status"],
+        filters: { id: productId },
+      }),
+    ])
 
   if (!product) {
     return false
   }
-  if (ownProductIds.includes(productId)) {
-    return true
-  }
 
-  const sellers = (product.sellers ?? []) as ({ id: string } | null)[]
-  const restricted =
-    sellers.length > 0 && !sellers.some((seller) => seller?.id === sellerId)
-
-  return product.status === ProductStatus.PUBLISHED && !restricted
+  return (
+    ownProductIds.includes(productId) ||
+    (product.status === ProductStatus.PUBLISHED &&
+      !restrictedFromSellerIds.includes(productId))
+  )
 }
 
 export const ensureSellerOwnsProduct = async (

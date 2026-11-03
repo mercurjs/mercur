@@ -124,10 +124,8 @@ class SellerModuleService extends MedusaService({
     }
   }
 
-  // The generated createSellers/updateSellers emit `seller.seller.*` through the
-  // ORM entity subscriber, which only queues events when the context carries a
-  // message aggregator at registration. Overriding them without @EmitEvents left
-  // it missing, so Seller never reached the index or the cache invalidation.
+  // Entity events are only queued when the context carries a message aggregator,
+  // so overrides of generated methods need @EmitEvents to emit seller.seller.*.
   @InjectManager()
   @EmitEvents()
   // @ts-expect-error
@@ -158,7 +156,7 @@ class SellerModuleService extends MedusaService({
     return (Array.isArray(data) ? result : result[0]) as any
   }
 
-  private prepareSellerInput_(data: unknown) {
+  protected prepareSellerInput_(data: unknown) {
     const input = (Array.isArray(data) ? data : [data]) as SellerInput[]
     return input.map((seller) => {
       this.validateSellerData_(seller)
