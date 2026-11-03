@@ -38,12 +38,12 @@ The workflow stores its execution (`store: true`) and keeps it for 3 days. It ho
 
 ### Steps
 
-The workflow runs these steps in order. Steps 3 to 6 run only when no group exists for the cart:
+The workflow runs these steps in order. Steps 3 to 6 run only when the cart has no `order_cart` link yet, so a cart counts as completed once its orders are linked to it:
 
-1. `acquireLockStep` on the cart id, then a query for an existing group and the cart.
-2. `validateCartPaymentsStep`, then the `validate` and `setOrderStatus` hooks.
+1. `acquireLockStep` on the cart id, then queries for the cart's `order_cart` links, an existing group, and the cart.
+2. `validateCartItemsStep`, `validateCartPaymentsStep` and `compensatePaymentIfNeededStep`, then the `validate` and `setOrderStatus` hooks.
 3. `validateSellerCartItemsStep` and `validateSellerCartShippingStep`.
-4. `createOrderGroupStep` and `createOrdersStep`, in parallel.
+4. `createOrderGroupStep`, then `createOrdersStep`.
 5. `createRemoteLinkStep`, `mirrorLineItemOfferLinksToOrderStep`, `updateCartsStep` to set `completed_at`, `reserveInventoryStep`, `registerUsageStep`, and two `emitEventStep` calls.
 6. `authorizePaymentSessionStep`, then `splitCapturedCartPaymentWorkflow` and `refreshOrderCommissionLinesWorkflow` as steps.
 7. `releaseLockStep` on the cart id.
@@ -88,11 +88,11 @@ It returns `{ rows, metadata }`, where `metadata` holds `count`, `skip`, and `ta
 
 ## createOrderGroupStep
 
-Creates one `OrderGroup` record. Step id `create-order-group`.
+Creates one `OrderGroup` record, or returns the cart's existing group when there is one. Step id `create-order-group`.
 
 | Input | Type | Description |
 | --- | --- | --- |
 | `cart_id` | `string` | The completed cart |
 | `customer_id` | `string \| null`, optional | The customer on the cart |
 
-It returns the created group. On rollback, it deletes the group with `deleteOrderGroups`. Use it in your own workflow only when you also create and link the child orders yourself.
+It returns the group. On rollback, it deletes the group with `deleteOrderGroups` only if the step created it. Use it in your own workflow only when you also create and link the child orders yourself.
