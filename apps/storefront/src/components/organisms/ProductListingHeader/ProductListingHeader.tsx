@@ -1,29 +1,53 @@
-'use client';
+"use client"
 
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useTransition } from "react"
 
-import { SelectField } from '@/components/molecules/SelectField/SelectField';
+import { SelectField } from "@/components/molecules/SelectField/SelectField"
+import { usePublishedListing } from "@/components/sections/ProductListing/ListingFacetsStore"
+import {
+  LISTING_SORT_OPTIONS,
+  parseListingParams,
+  withSortHref,
+} from "@/lib/helpers/listing-params"
+import type { SortOptions } from "@/types/product"
 
-const selectOptions = [
-  { label: 'Newest', value: 'created_at' },
-  { label: 'Price: Low to High', value: 'price_asc' },
-  { label: 'Price: High to Low', value: 'price_desc' }
-];
+export const ProductListingHeader = ({ total }: { total?: number }) => {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const published = usePublishedListing()
+  const [isPending, startTransition] = useTransition()
 
-export const ProductListingHeader = ({ total }: { total: number }) => {
-  const router = useRouter();
-  const pathname = usePathname();
+  const { sortBy } = parseListingParams(searchParams)
+  const count = total ?? published?.count
 
-  const selectOptionHandler = (value: string) => {
-    router.push(`${pathname}?sortBy=${value}`);
-  };
+  const selectSort = (value: string) => {
+    startTransition(() => {
+      router.push(`${pathname}${withSortHref(searchParams, value as SortOptions)}`, {
+        scroll: false,
+      })
+    })
+  }
 
   return (
     <div
-      className="flex w-full items-center justify-between"
+      className="flex w-full items-center justify-between gap-4 my-4"
       data-testid="product-listing-header"
+      aria-busy={isPending}
     >
-      <div data-testid="product-listing-total">{total} listings</div>
+      <div className="label-md" data-testid="product-listing-count">
+        {count === undefined ? "" : `${count} listings`}
+      </div>
+      <div className="w-[200px]" data-testid="product-listing-sort">
+        <SelectField
+          key={sortBy}
+          options={LISTING_SORT_OPTIONS}
+          selected={sortBy}
+          selectOption={selectSort}
+          className={isPending ? "opacity-60" : ""}
+        />
+      </div>
     </div>
-  );
-};
+  )
+}

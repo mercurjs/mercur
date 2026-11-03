@@ -1,25 +1,20 @@
 import { HttpTypes } from '@medusajs/types';
 import { cacheLife, cacheTag } from 'next/cache';
 
-import { sortProducts } from '@/lib/helpers/sort-products';
-import { SortOptions } from '@/types/product';
-
 import { sdk } from '../client';
 import { CACHE_TAGS, cacheFailedRead } from './cache-tags';
 import { getRegion, retrieveRegion } from './regions';
 
+// Every field is `+`-prefixed so it merges with the route defaults, which
+// already carry the linked attribute values the product page displays.
 const PRODUCT_LIST_FIELDS =
-  '*variants.calculated_price,+variants.inventory_quantity,*variants.options,*attribute_values,*attribute_values.attribute';
+  '+variants.calculated_price,+variants.inventory_quantity,+variants.options.*';
 
-export type SearchFacetBucket = { value: string; count: number };
-
-/**
- * Storefront filter facets. `attributes` is keyed by the global product
- * attribute handle (e.g. `size`, `color`, `condition`); each entry is the list
- * of selectable values. Backed by `GET /store/product-attributes`.
- */
-export type SearchFacets = {
-  attributes: Record<string, SearchFacetBucket[]>;
+export type AttributeCatalogEntry = {
+  handle: string;
+  name: string;
+  is_variant_axis: boolean;
+  values: string[];
 };
 
 type StoreProductAttribute = {
@@ -45,7 +40,12 @@ const queryProducts = (query: Record<string, unknown>) =>
     fetchOptions: { cache: 'no-store' },
   } as never) as unknown as Promise<{ products: HttpTypes.StoreProduct[]; count: number }>;
 
-export const getSearchFacets = async (): Promise<SearchFacets> => {
+/**
+ * The filterable global attributes in operator order with their full value
+ * lists. Facet counts come from the search index; this supplies names, order
+ * and the values that currently match nothing.
+ */
+export const getAttributeCatalog = async (): Promise<AttributeCatalogEntry[]> => {
   'use cache';
   cacheLife('hours');
   cacheTag(CACHE_TAGS.products);
@@ -54,6 +54,7 @@ export const getSearchFacets = async (): Promise<SearchFacets> => {
     sdk.store.productAttributes.query({
       is_filterable: true,
       limit: 100,
+      order: 'rank',
       fields: 'handle,name,is_variant_axis,values.name,values.rank',
       fetchOptions: { cache: 'no-store' },
     } as never) as unknown as Promise<{
@@ -64,18 +65,15 @@ export const getSearchFacets = async (): Promise<SearchFacets> => {
     return { product_attributes: [] as StoreProductAttribute[] };
   });
 
-  const attributes: Record<string, SearchFacetBucket[]> = {};
-  for (const attribute of product_attributes) {
-    attributes[attribute.handle] = (attribute.values ?? [])
+  return product_attributes.map((attribute) => ({
+    handle: attribute.handle,
+    name: attribute.name,
+    is_variant_axis: attribute.is_variant_axis,
+    values: (attribute.values ?? [])
       .slice()
       .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
-      .map((value) => ({
-        value: value.name,
-        count: 1,
-      }));
-  }
-
-  return { attributes };
+      .map((value) => value.name),
+  }));
 };
 
 /**
@@ -153,113 +151,3 @@ export const listProducts = async ({
     });
 };
 
-export type ProductSearchParams = {
-  query?: string;
-  countryCode?: string;
-  regionId?: string;
-  category_id?: string | string[];
-  collection_id?: string | string[];
-  seller_id?: string | string[];
-  attributes?: Record<string, string | string[]>;
-  page?: number;
-  limit?: number;
-  sortBy?: SortOptions;
-};
-
-export type ProductSearchResult = {
-  products: HttpTypes.StoreProduct[];
-  count: number;
-  nextPage: number | null;
-};
-
-export const isDefaultProductSearch = ({
-  query,
-  attributes,
-  page = 1,
-  sortBy,
-}: ProductSearchParams) =>
-  !query &&
-  page <= 1 &&
-  (!sortBy || sortBy === 'created_at') &&
-  !Object.keys(attributes ?? {}).length;
-
-/**
- * Price sorts are applied after fetching because `/store/products` can only order
- * by product columns.
- */
-const fetchProductSearch = async ({
-  query,
-  countryCode,
-  regionId,
-  category_id,
-  collection_id,
-  seller_id,
-  attributes,
-  page = 1,
-  limit = 12,
-  sortBy,
-}: ProductSearchParams): Promise<ProductSearchResult & { failed?: boolean }> => {
-  const region = countryCode ? await getRegion(countryCode) : { id: regionId };
-
-  if (!region?.id) {
-    return { products: [], count: 0, nextPage: null, failed: true };
-  }
-
-  const offset = Math.max(page - 1, 0) * limit;
-  const order = !sortBy || sortBy === 'created_at' ? '-created_at' : undefined;
-
-  const hasAttributeFilters = attributes && Object.keys(attributes).length > 0;
-
-  const result = await queryProducts({
-    ...(query ? { q: query } : {}),
-    region_id: region.id,
-    category_id,
-    collection_id,
-    seller_id,
-    ...(hasAttributeFilters ? { attributes } : {}),
-    order,
-    limit,
-    offset,
-  }).catch(() => null);
-
-  if (!result) {
-    return { products: [], count: 0, nextPage: null, failed: true };
-  }
-
-  const ordered =
-    sortBy === 'price_asc' || sortBy === 'price_desc'
-      ? sortProducts(result.products, sortBy)
-      : result.products;
-
-  const nextPage = result.count > offset + limit ? page + 1 : null;
-
-  return { products: ordered, count: result.count, nextPage };
-};
-
-// Only the default first page of a listing is cached: each filter, sort, query
-// and page combination would be a rarely reused cache entry.
-const getDefaultProductSearch = async (
-  params: ProductSearchParams
-): Promise<ProductSearchResult> => {
-  'use cache';
-  cacheLife('max');
-  cacheTag(CACHE_TAGS.products);
-
-  const { failed, ...result } = await fetchProductSearch(params);
-  if (failed) {
-    cacheFailedRead();
-  }
-  return result;
-};
-
-export const searchProducts = async (
-  params: ProductSearchParams
-): Promise<ProductSearchResult> => {
-  if (isDefaultProductSearch(params)) {
-    const { countryCode, regionId, category_id, collection_id, seller_id, limit } = params;
-    return getDefaultProductSearch({ countryCode, regionId, category_id, collection_id, seller_id, limit });
-  }
-
-  const { failed: _failed, ...result } = await fetchProductSearch(params);
-  return result;
-};

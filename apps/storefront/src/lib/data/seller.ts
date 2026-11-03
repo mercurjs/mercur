@@ -28,3 +28,25 @@ export const getSellerByHandle = async (
       return null;
     });
 };
+
+export type SellerDirectoryEntry = { id: string; handle: string; name: string };
+
+// Labels for the listing's seller facet, which the index keys by handle.
+export const listSellers = async (): Promise<SellerDirectoryEntry[]> => {
+  'use cache';
+  cacheLife('hours');
+  cacheTag(CACHE_TAGS.sellers);
+
+  return (
+    sdk.store.sellers.query({
+      fields: 'id,handle,name',
+      limit: 200,
+      fetchOptions: { cache: 'no-store' },
+    } as never) as unknown as Promise<{ sellers: SellerDirectoryEntry[] }>
+  )
+    .then(({ sellers }) => sellers)
+    .catch(() => {
+      cacheFailedRead();
+      return [];
+    });
+};

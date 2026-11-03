@@ -8,7 +8,8 @@ import { Breadcrumbs } from '@/components/atoms/Breadcrumbs/Breadcrumbs';
 import { SearchProductsListing } from '@/components/sections/ProductListing/SearchProductsListing';
 import { notFound } from "next/navigation"
 import { listRegions } from "@/lib/data/regions"
-import { searchProducts } from "@/lib/data/products"
+import { searchListing } from "@/lib/data/search"
+import { isDefaultListing, parseListingParams } from "@/lib/helpers/listing-params"
 import { PRODUCT_LIMIT } from "@/const"
 import {
   buildHreflangAlternates,
@@ -18,10 +19,15 @@ import {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ category: string; locale: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }): Promise<Metadata> {
   const { category: categoryHandle, locale } = await params
+  // Filtered, sorted and paged views are near-duplicates of the category
+  // page, so crawlers index the canonical view only.
+  const isRefined = !isDefaultListing(parseListingParams(await searchParams))
   const baseUrl = getBaseUrl()
 
   const cat = await getCategoryByHandle(categoryHandle)
@@ -55,7 +61,7 @@ export async function generateMetadata({
       canonical,
       languages,
     },
-    robots: { index: true, follow: true },
+    robots: { index: !isRefined, follow: true },
     openGraph: {
       title: `${title} | ${process.env.NEXT_PUBLIC_SITE_NAME || "Storefront"}`,
       description,
@@ -109,11 +115,10 @@ async function Category({
   ]
 
   const baseUrl = getBaseUrl()
-  const { products: jsonLdProducts } = await searchProducts({
-    countryCode: locale,
-    category_id: categoryIds,
-    limit: PRODUCT_LIMIT,
-  })
+  const { products: jsonLdProducts } = await searchListing(
+    { countryCode: locale, category_ids: categoryIds, limit: PRODUCT_LIMIT },
+    parseListingParams({})
+  )
 
   const itemList = jsonLdProducts.slice(0, 8).map((p, idx) => ({
     "@type": "ListItem",

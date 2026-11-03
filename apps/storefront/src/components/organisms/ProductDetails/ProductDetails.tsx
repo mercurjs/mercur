@@ -10,8 +10,8 @@ import {
   rankOffers,
   StoreOffer,
 } from "@/lib/helpers/buybox"
-import { AdditionalAttributeProps } from "@/types/product"
 import { HttpTypes } from "@medusajs/types"
+import type { WrappedProductAttributeDTO } from "@mercurjs/types"
 
 export const ProductDetails = ({
   product,
@@ -20,7 +20,7 @@ export const ProductDetails = ({
   user,
 }: {
   product: HttpTypes.StoreProduct & {
-    attribute_values?: AdditionalAttributeProps[]
+    attributes?: WrappedProductAttributeDTO[]
   }
   locale: string
   offers?: StoreOffer[]
@@ -40,9 +40,7 @@ export const ProductDetails = ({
         seller={seller}
       />
       <ProductPageDetails details={product?.description || ""} />
-      <ProductAdditionalAttributes
-        attributes={product?.attribute_values || []}
-      />
+      <ProductAdditionalAttributes attributes={product?.attributes || []} />
       <ProductDetailsShipping />
       <ProductDetailsSeller seller={seller} />
       <ProductDetailsFooter

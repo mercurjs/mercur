@@ -14,6 +14,22 @@ session detail aggressively. The per-spec source of truth lives in
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
 
+## Session — Storefront listing on Medusa Search (2026-11-03), branch `feat/storefront-medusa-search`
+
+The category listing reads `POST /store/search` instead of `/store/products`. The `product` index lives in the apps,
+not core: `apps/api/src/search/product.ts` + `product-documents.ts` (same files in `templates/basic/packages/api`),
+exposed by `configureStoreSearch` in `src/api/middlewares.ts`. One document per product **and currency**
+(`id = <product_id>:<currency>`, `min_price` = cheapest offer of an open, not-closed seller in that currency), so
+price filter/sort/stats are exact per region and currencies come straight from offer prices. `attribute_values`
+holds `<handle>:<value>` keys of filterable attributes, `seller_handles` the sellers; products with no visible offer
+leave the index. Custom `seed`/`consume` (composite ids) react to product/offer/seller events. The index deliberately
+has no `sales_channel_ids`: Mercur's catalog is not channel-scoped and seeded products carry no channel link.
+Storefront: `lib/data/search.ts` (one request = hits + exact count + disjunctive facets), `lib/helpers/listing-params.ts`
+(URL state), sidebar/badges/toolbar as link-based filters with counts and pending state (vercel.shop pattern),
+cached default view only, `noindex` on refined URLs, PDP "Additional attributes" fixed to read `product.attributes`.
+Seed adds a `brand` single-select attribute. Verified locally against a fresh DB (migrate + seed + dev servers on
+9001/3001): facets, brand/seller/price/sort filters, PDP attributes. Spec: `apps/api/integration-tests/http/search.spec.ts`.
+
 ## Session — Product lists on the Medusa index engine (2026-11-03), branch `feat/index-engine-product-lists`
 
 `GET /admin|/vendor|/store/products` now go through `api/utils/list-products.ts` `listProducts()`. It uses
