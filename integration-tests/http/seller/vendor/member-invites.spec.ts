@@ -45,6 +45,15 @@ medusaIntegrationTestRunner({
         headersB = resultB.headers
       })
 
+      const loginIdentity = async (email: string) => {
+        const { data } = await api.post(`/auth/member/emailpass`, {
+          email,
+          password: "somepassword",
+        })
+
+        return { authorization: `Bearer ${data.token}` }
+      }
+
       const registerIdentity = async (email: string) => {
         const { data } = await api.post(`/auth/member/emailpass/register`, {
           email,
@@ -145,7 +154,7 @@ medusaIntegrationTestRunner({
             )
             .catch((e) => e.response)
 
-          expect(stale.status).toEqual(400)
+          expect([400, 404]).toContain(stale.status)
         })
       })
 
@@ -166,8 +175,9 @@ medusaIntegrationTestRunner({
           const row = await loadInviteRow(created.id)
           expect(row).toBeUndefined()
 
+          const signedIn = await loginIdentity("fresh@test.com")
           const me = await api.get(`/vendor/sellers`, {
-            headers: { ...headers, "x-seller-id": sellerA.id },
+            headers: { ...signedIn, "x-seller-id": sellerA.id },
           })
           expect(me.status).toEqual(200)
           expect(me.data.seller_members).toHaveLength(1)

@@ -402,7 +402,7 @@ medusaIntegrationTestRunner({
                     expect(addSingleAgain.data.cart.items[0].quantity).toEqual(2)
                 })
 
-                it("should reject an offer whose seller is closed, suspended or pending", async () => {
+                it("should reject an offer whose seller is closed or suspended but not one pending approval", async () => {
                     const sellerModule = appContainer.resolve(MercurModules.SELLER)
                     const seed: SellerSeed = await seedSellerOffer({
                         email: "closed-seller@test.com",
@@ -442,7 +442,7 @@ medusaIntegrationTestRunner({
                         id: seed.sellerId,
                         status: SellerStatus.PENDING_APPROVAL,
                     })
-                    expect((await addOffer()).status).toEqual(400)
+                    expect((await addOffer()).status).toEqual(200)
 
                     await sellerModule.updateSellers({
                         id: seed.sellerId,

@@ -27,7 +27,6 @@ const StoreGetProductsParamsFields = z.object({
   category_id: z.union([z.string(), z.array(z.string())]).optional(),
   tag_id: z.union([z.string(), z.array(z.string())]).optional(),
   is_giftcard: booleanString().optional(),
-  sales_channel_id: z.union([z.string(), z.array(z.string())]).optional(),
   region_id: z.string().optional(),
   currency_code: z.string().optional(),
   created_at: createOperatorMap().optional(),

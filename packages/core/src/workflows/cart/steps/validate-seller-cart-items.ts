@@ -2,7 +2,7 @@ import { CartLineItemDTO, CartWorkflowDTO } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { Logger } from "@medusajs/medusa"
-import { resolveVisibleSellerIds } from "../../seller/utils"
+import { resolveOrderableSellerIds } from "../../seller/utils"
 
 type ValidateSellerCartItemsStepInput = {
     cart: Omit<CartWorkflowDTO, "items"> & {
@@ -37,7 +37,7 @@ export const validateSellerCartItemsStep = createStep(
             )
         }
 
-        const visibleSellerIds = new Set(await resolveVisibleSellerIds(container))
+        const visibleSellerIds = new Set(await resolveOrderableSellerIds(container))
         const itemsOfUnavailableSellers = items.filter(
             (item) => !visibleSellerIds.has(item.offer!.seller_id!)
         )

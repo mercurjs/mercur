@@ -1,16 +1,14 @@
 import {
   applyDefaultFilters,
   authenticate,
-  maybeApplyLinkFilter,
   MedusaNextFunction,
   MedusaRequest,
   MedusaResponse,
   MiddlewareRoute,
 } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys, isPresent } from "@medusajs/framework/utils"
+import { isPresent } from "@medusajs/framework/utils"
 import { validateAndTransformQuery } from "@medusajs/framework"
 import {
-  filterByValidSalesChannels,
   normalizeDataForContext,
   setPricingContext,
   setTaxContext,
@@ -87,42 +85,6 @@ function transformAttributeFilters(
 }
 
 /**
- * Scope products to the publishable key's sales channels, as vanilla
- * `/store/products` does. Vendor-submitted products are not linked to a sales
- * channel on creation, so the link filter only kicks in once the store runs
- * more than one channel — mirroring Medusa's own list route — and the detail
- * route is gated the same way instead of 404-ing every unlinked product.
- */
-async function applySalesChannelLinkFilter(
-  req: MedusaRequest,
-  res: MedusaResponse,
-  next: MedusaNextFunction
-) {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const { metadata } = await query.graph({
-    entity: "sales_channels",
-    fields: ["id"],
-    pagination: { skip: 0, take: 1 },
-  })
-
-  if (!((metadata?.count ?? 0) > 1)) {
-    delete req.filterableFields.sales_channel_id
-    return next()
-  }
-
-  return maybeApplyLinkFilter({
-    entryPoint: "product_sales_channel",
-    resourceId: "product_id",
-    filterableField: "sales_channel_id",
-  })(req, res, next)
-}
-
-const salesChannelMiddlewares = [
-  filterByValidSalesChannels(),
-  applySalesChannelLinkFilter,
-]
-
-/**
  * Resolve the pricing/tax context consumed by the offer-price wrap. Reuses
  * Medusa's product-pricing middlewares so the gate matches vanilla
  * `/store/products`: prices compute only when the client requests
@@ -146,7 +108,6 @@ export const storeProductsMiddlewares: MiddlewareRoute[] = [
         StoreGetProductsParams,
         storeProductQueryConfig.list
       ),
-      ...salesChannelMiddlewares,
       applyProductFilters,
       transformAttributeFilters,
       ...pricingMiddlewares,
@@ -160,7 +121,6 @@ export const storeProductsMiddlewares: MiddlewareRoute[] = [
         StoreGetProductParams,
         storeProductQueryConfig.retrieve
       ),
-      ...salesChannelMiddlewares,
       applyProductFilters,
       ...pricingMiddlewares,
     ],

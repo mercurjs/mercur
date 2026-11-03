@@ -1,3 +1,4 @@
+import linkOrderLineItemsToOffersHandler from "@mercurjs/core/subscribers/link-order-line-items-to-offers"
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import {
     IRegionModuleService,
@@ -456,7 +457,11 @@ medusaIntegrationTestRunner({
 
                     await confirmEdit(order.id, seller1Seed.headers)
 
-                    const items = await loadItems(order.id)
+                    let items = await loadItems(order.id)
+                    for (let i = 0; i < 100 && items.some((item) => !item.offer?.id); i++) {
+                        await new Promise((r) => setTimeout(r, 100))
+                        items = await loadItems(order.id)
+                    }
                     expect(items).toHaveLength(2)
                     for (const item of items) {
                         expect(item.offer?.id).toEqual(seller1Seed.offer.id)
@@ -486,17 +491,15 @@ medusaIntegrationTestRunner({
                         },
                     ])
 
-                    const eventBus: any = appContainer.resolve(Modules.EVENT_BUS)
-                    await eventBus.emit({
-                        name: OrderEditWorkflowEvents.CONFIRMED,
-                        data: { order_id: order.id },
-                    })
+                    await linkOrderLineItemsToOffersHandler({
+                        event: {
+                            name: OrderEditWorkflowEvents.CONFIRMED,
+                            data: { order_id: order.id },
+                        },
+                        container: appContainer,
+                    } as Parameters<typeof linkOrderLineItemsToOffersHandler>[0])
 
-                    let current = (await loadItems(order.id))[0]
-                    for (let i = 0; i < 50 && current.metadata?.offer_id; i++) {
-                        await new Promise((r) => setTimeout(r, 100))
-                        current = (await loadItems(order.id))[0]
-                    }
+                    const current = (await loadItems(order.id))[0]
 
                     expect(current.metadata?.offer_id).toBeUndefined()
                     expect(current.offer?.id ?? null).toBeNull()

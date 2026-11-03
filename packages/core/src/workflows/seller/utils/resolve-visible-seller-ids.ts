@@ -24,3 +24,29 @@ export const resolveVisibleSellerIds = async (
 
   return visibleSellers.map((s: { id: string }) => s.id)
 }
+
+/**
+ * Sellers whose offers may be added to a cart and checked out. Unlike the
+ * storefront listing, a seller awaiting approval is not blocked here: its
+ * catalog is already reachable and the operator gate is on the payout side.
+ */
+export const resolveOrderableSellerIds = async (
+  scope: MedusaContainer
+): Promise<string[]> => {
+  const query = scope.resolve(ContainerRegistrationKeys.QUERY)
+  const now = new Date(Math.floor(Date.now() / 60_000) * 60_000)
+
+  const { data: sellers } = await query.graph({
+    entity: "seller",
+    fields: ["id"],
+    filters: {
+      status: { $nin: [SellerStatus.SUSPENDED, SellerStatus.TERMINATED] },
+      $and: [
+        { $or: [{ closed_from: null }, { closed_from: { $gt: now } }] },
+        { $or: [{ closed_to: null }, { closed_to: { $lt: now } }] },
+      ],
+    },
+  }, { cache: { enable: true } })
+
+  return sellers.map((s: { id: string }) => s.id)
+}

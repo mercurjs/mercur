@@ -5,7 +5,7 @@ import {
 } from "@medusajs/framework/utils"
 import { addToCartWorkflow } from "@medusajs/medusa/core-flows"
 import { defaultStoreCartFields, refetchCart } from "../../helpers"
-import { resolveVisibleSellerIds } from "../../../../utils/sellers"
+import { resolveOrderableSellerIds } from "../../../../../workflows/seller/utils"
 import { StoreAddCartLineItemType } from "./validators"
 
 export const POST = async (
@@ -32,7 +32,7 @@ export const POST = async (
     )
   }
 
-  const visibleSellerIds = await resolveVisibleSellerIds(req.scope)
+  const visibleSellerIds = await resolveOrderableSellerIds(req.scope)
   if (!offer.seller_id || !visibleSellerIds.includes(offer.seller_id)) {
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,

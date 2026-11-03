@@ -63,15 +63,6 @@ medusaIntegrationTestRunner({
         )
       })
 
-      it("rejects a publishable key without a sales channel", async () => {
-        const bareKey = await generatePublishableKey(appContainer)
-        const response = await api
-          .get(`/store/products`, generateStoreHeaders({ publishableKey: bareKey }))
-          .catch((e: any) => e.response)
-
-        expect(response.status).toEqual(400)
-      })
-
       it("drops seller private relations requested through product offers", async () => {
         const product = await createVendorProduct(api, sellerHeaders, {
           title: "Public Product",

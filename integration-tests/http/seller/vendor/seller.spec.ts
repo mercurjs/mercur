@@ -1258,7 +1258,7 @@ medusaIntegrationTestRunner({
         it("locks a terminated seller out of the Vendor API", async () => {
           await api.post(
             `/admin/sellers/${sellerA.id}/terminate`,
-            { reason: "fraud" },
+            {},
             adminHeaders
           )
 
@@ -1331,7 +1331,7 @@ medusaIntegrationTestRunner({
 
         it("keeps the seller's own payment details readable while blocking traversal out of it", async () => {
           const response = await api.get(
-            `/vendor/sellers/me?fields=+customers.sellers.payment_details.*`,
+            `/vendor/sellers/me?fields=+payment_details.*,+customers.sellers.payment_details.*`,
             headersA
           )
 
