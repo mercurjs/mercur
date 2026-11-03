@@ -1,162 +1,171 @@
 "use client"
 
-import { Button } from '@/components/atoms/Button/Button';
-import { Chip } from '@/components/atoms/Chip/Chip';
-import { Input } from '@/components/atoms/Input/Input';
-import { Accordion } from '@/components/molecules/Accordion/Accordion';
-import { FilterCheckboxOption } from '@/components/molecules/FilterCheckboxOption/FilterCheckboxOption';
-import { Modal } from '@/components/molecules/Modal/Modal';
-import useFilters from "@/hooks/useFilters"
-import useUpdateSearchParams from "@/hooks/useUpdateSearchParams"
-import { cn } from "@/lib/utils"
 import { useSearchParams } from "next/navigation"
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
+
+import { Button } from "@/components/atoms/Button/Button"
+import { Checkbox } from "@/components/atoms/Checkbox/Checkbox"
+import { Accordion } from "@/components/molecules/Accordion/Accordion"
+import { Modal } from "@/components/molecules/Modal/Modal"
+import type { FacetValue, ListingFacets } from "@/lib/data/search"
+import { isValueActive, toggleValueHref } from "@/lib/helpers/listing-params"
+import { cn } from "@/lib/utils"
+
 import { ProductListingActiveFilters } from "../ProductListingActiveFilters/ProductListingActiveFilters"
-import useGetAllSearchParams from "@/hooks/useGetAllSearchParams"
-import type { SearchFacets } from "@/lib/data/products"
+import { FilterOptionLink } from "./FilterOptionLink"
+import { PriceFilter } from "./PriceFilter"
+import { usePublishedListing } from "@/components/sections/ProductListing/ListingFacetsStore"
 
-export type FacetModel = {
-  value: string
-  count: number
-}
-
-export const ProductSearchSidebar = ({ facets }: { facets: SearchFacets }) => {
+export const ProductSearchSidebar = ({
+  fallback,
+}: {
+  fallback?: ListingFacets
+}) => {
+  const published = usePublishedListing()
+  const facets = published?.facets ?? fallback
   const [isMobile, setIsMobile] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
-  const { allSearchParams } = useGetAllSearchParams()
-
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
     handleResize()
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
-  const attributeEntries = Object.entries(facets.attributes || {})
+  if (!facets) {
+    return <SidebarSkeleton />
+  }
 
-  const renderAttributeFilters = () =>
-    attributeEntries.map(([key, items]) => (
-      <AttributeFilter
-        key={key}
-        attributeKey={key}
-        items={items}
-        defaultOpen={Boolean(allSearchParams[key])}
-      />
-    ))
+  const filters = <FilterSections facets={facets} />
 
   return isMobile ? (
     <>
-      <Button onClick={() => setIsOpen(true)} className="w-full uppercase mb-4">
+      <Button
+        onClick={() => setIsOpen(true)}
+        className="w-full uppercase mb-4"
+        data-testid="filters-open-button"
+      >
         Filters
       </Button>
       {isOpen && (
         <Modal heading="Filters" onClose={() => setIsOpen(false)}>
           <div className="px-4">
             <ProductListingActiveFilters />
-            {/* TODO: price filter — native /store/products has no price filter
-                (calculated_price is computed post-query, schema is .strict()).
-                Needs a custom core endpoint or client-side filtering first. */}
-            {/* <PriceFilter
-              defaultOpen={Boolean(
-                allSearchParams.min_price || allSearchParams.max_price
-              )}
-            /> */}
-            {renderAttributeFilters()}
+            {filters}
           </div>
         </Modal>
       )}
     </>
   ) : (
-    <div>
-      {/* TODO: price filter — native /store/products has no price filter
-          (calculated_price is computed post-query, schema is .strict()).
-          Needs a custom core endpoint or client-side filtering first. */}
-      {/* <PriceFilter /> */}
-      {renderAttributeFilters()}
-    </div>
+    <div data-testid="product-listing-filters">{filters}</div>
   )
 }
 
-function AttributeFilter({
-  attributeKey,
-  items,
-  defaultOpen = true,
+const FilterSections = ({ facets }: { facets: ListingFacets }) => {
+  const searchParams = useSearchParams()
+
+  return (
+    <>
+      {facets.price && (
+        <PriceFilter
+          bounds={facets.price}
+          defaultOpen={Boolean(
+            searchParams.get("min_price") || searchParams.get("max_price")
+          )}
+        />
+      )}
+      {facets.sellers.length > 0 && (
+        <Accordion
+          heading="Sellers"
+          defaultOpen={Boolean(searchParams.get("seller"))}
+        >
+          <ul className="px-4" data-testid="filter-seller-options">
+            {facets.sellers.map((seller) => (
+              <li key={seller.value} className="mb-4">
+                <CheckboxOption
+                  paramKey="seller"
+                  option={seller}
+                  testId={`filter-seller-${seller.value}`}
+                />
+              </li>
+            ))}
+          </ul>
+        </Accordion>
+      )}
+      {facets.attributes.map((attribute) => (
+        <AttributeFilter
+          key={attribute.handle}
+          handle={attribute.handle}
+          name={attribute.name}
+          values={attribute.values}
+          defaultOpen={Boolean(searchParams.get(attribute.handle))}
+        />
+      ))}
+    </>
+  )
+}
+
+const AttributeFilter = ({
+  handle,
+  name,
+  values,
+  defaultOpen,
 }: {
-  attributeKey: string
-  items: FacetModel[]
-  defaultOpen?: boolean
-}) {
-  const { updateFilters, isFilterActive } = useFilters(attributeKey)
+  handle: string
+  name: string
+  values: FacetValue[]
+  defaultOpen: boolean
+}) => {
+  const searchParams = useSearchParams()
 
-  const selectHandler = (option: string) => {
-    updateFilters(option)
-  }
-
-  const heading =
-    attributeKey.charAt(0).toUpperCase() + attributeKey.slice(1)
-
-  if (attributeKey === "size") {
+  if (handle === "size") {
     return (
-      <Accordion heading={heading} defaultOpen={defaultOpen}>
-        <ul className="grid grid-cols-4 mt-2 gap-2">
-          {(items || []).map(({ value, count }) => (
-            <li key={value} className="mb-4">
-              <Chip
-                selected={isFilterActive(value)}
-                onSelect={() => selectHandler(value)}
-                value={value}
-                className="w-full !justify-center !py-2 !font-normal"
-              />
-            </li>
-          ))}
-        </ul>
-      </Accordion>
-    )
-  }
-
-  if (attributeKey === "color") {
-    return (
-      <Accordion heading={heading} defaultOpen={defaultOpen}>
-        <ul className="px-4">
-          {(items || []).map(({ value, count }) => (
-            <li
-              key={value}
-              className="mb-4 flex items-center justify-between"
-            >
-              <FilterCheckboxOption
-                checked={isFilterActive(value)}
-                disabled={count === 0}
-                onCheck={selectHandler}
-                label={value}
-              />
-              <div
-                style={{ backgroundColor: value.toLowerCase() }}
-                className={cn(
-                  "w-5 h-5 border border-primary rounded-xs",
-                  !value && "opacity-30"
-                )}
-              />
-            </li>
-          ))}
+      <Accordion heading={name} defaultOpen={defaultOpen}>
+        <ul className="grid grid-cols-4 mt-2 gap-2" data-testid="filter-size-options">
+          {values.map((option) => {
+            const selected = isValueActive(searchParams, handle, option.value)
+            return (
+              <li key={option.value} className="mb-4">
+                <FilterOptionLink
+                  href={toggleValueHref(searchParams, handle, option.value)}
+                  selected={selected}
+                  disabled={option.count === 0 && !selected}
+                  aria-label={`Filter by ${name}: ${option.label}`}
+                  className={cn(
+                    "chip-wrapper w-full !justify-center !py-2 !font-normal",
+                    selected && "border-primary"
+                  )}
+                  data-testid={`filter-size-${option.value}`}
+                >
+                  {option.label}
+                </FilterOptionLink>
+              </li>
+            )
+          })}
         </ul>
       </Accordion>
     )
   }
 
   return (
-    <Accordion heading={heading} defaultOpen={defaultOpen}>
-      <ul className="px-4">
-        {(items || []).map(({ value, count }) => (
-          <li key={value} className="mb-4">
-            <FilterCheckboxOption
-              checked={isFilterActive(value)}
-              disabled={count === 0}
-              onCheck={selectHandler}
-              label={value}
+    <Accordion heading={name} defaultOpen={defaultOpen}>
+      <ul className="px-4" data-testid={`filter-${handle}-options`}>
+        {values.map((option) => (
+          <li key={option.value} className="mb-4 flex items-center justify-between">
+            <CheckboxOption
+              paramKey={handle}
+              option={option}
+              label={`Filter by ${name}: ${option.label}`}
+              testId={`filter-${handle}-${option.value}`}
             />
+            {handle === "color" && (
+              <span
+                aria-hidden="true"
+                style={{ backgroundColor: option.value.toLowerCase() }}
+                className="w-5 h-5 border border-primary rounded-xs"
+              />
+            )}
           </li>
         ))}
       </ul>
@@ -164,65 +173,49 @@ function AttributeFilter({
   )
 }
 
-function PriceFilter({ defaultOpen = true }: { defaultOpen?: boolean }) {
-  const [min, setMin] = useState("")
-  const [max, setMax] = useState("")
-
-  const updateSearchParams = useUpdateSearchParams()
+const CheckboxOption = ({
+  paramKey,
+  option,
+  label,
+  testId,
+}: {
+  paramKey: string
+  option: FacetValue
+  label?: string
+  testId: string
+}) => {
   const searchParams = useSearchParams()
+  const selected = isValueActive(searchParams, paramKey, option.value)
+  const disabled = option.count === 0 && !selected
 
-  useEffect(() => {
-    setMin(searchParams.get("min_price") || "")
-    setMax(searchParams.get("max_price") || "")
-  }, [searchParams])
-
-  const updateMinPriceHandler = (
-    e: React.FormEvent<HTMLFormElement> | React.FocusEvent<HTMLInputElement>
-  ) => {
-    e.preventDefault()
-    updateSearchParams("min_price", min)
-  }
-
-  const updateMaxPriceHandler = (
-    e: React.FormEvent<HTMLFormElement> | React.FocusEvent<HTMLInputElement>
-  ) => {
-    e.preventDefault()
-    updateSearchParams("max_price", max)
-  }
   return (
-    <Accordion heading="Price" defaultOpen={defaultOpen}>
-      <div className="flex gap-2 mb-4">
-        <form method="POST" onSubmit={updateMinPriceHandler}>
-          <Input
-            placeholder="Min"
-            onChange={(e) => setMin(e.target.value)}
-            value={min}
-            onBlur={(e) => {
-              setTimeout(() => {
-                updateMinPriceHandler(e)
-              }, 500)
-            }}
-            type="number"
-            className="no-arrows-number-input"
-          />
-          <input type="submit" className="hidden" />
-        </form>
-        <form method="POST" onSubmit={updateMaxPriceHandler}>
-          <Input
-            placeholder="Max"
-            onChange={(e) => setMax(e.target.value)}
-            onBlur={(e) => {
-              setTimeout(() => {
-                updateMaxPriceHandler(e)
-              }, 500)
-            }}
-            value={max}
-            type="number"
-            className="no-arrows-number-input"
-          />
-          <input type="submit" className="hidden" />
-        </form>
-      </div>
-    </Accordion>
+    <FilterOptionLink
+      href={toggleValueHref(searchParams, paramKey, option.value)}
+      selected={selected}
+      disabled={disabled}
+      aria-label={label ?? `Filter by ${option.label}`}
+      className="gap-4"
+      data-testid={testId}
+    >
+      <Checkbox checked={selected} disabled={disabled} readOnly tabIndex={-1} />
+      <span
+        className={cn(
+          "label-md !font-normal",
+          selected && "!font-semibold",
+          disabled && "text-disabled"
+        )}
+      >
+        {option.label}{" "}
+        <span className="label-sm !font-light">({option.count})</span>
+      </span>
+    </FilterOptionLink>
   )
 }
+
+const SidebarSkeleton = () => (
+  <div aria-busy="true" className="flex flex-col gap-4" data-testid="product-listing-filters-skeleton">
+    {Array.from({ length: 4 }, (_, index) => (
+      <div key={index} className="h-14 animate-pulse rounded-sm bg-secondary" />
+    ))}
+  </div>
+)

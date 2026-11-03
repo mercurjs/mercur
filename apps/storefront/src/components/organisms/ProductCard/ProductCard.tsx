@@ -6,22 +6,47 @@ import { HttpTypes } from "@medusajs/types"
 import { cn } from "@/lib/utils"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { getProductPrice } from "@/lib/helpers/get-product-price"
+import { convertToLocale } from "@/lib/helpers/money"
+import type { ListingProduct } from "@/lib/data/search"
 import { Product } from "@/types/product"
+
+type CardProduct = HttpTypes.StoreProduct | Product | ListingProduct
+
+const isListingProduct = (product: CardProduct): product is ListingProduct =>
+  "min_price" in product && "currency_code" in product
+
+const getCardPrice = (product: CardProduct) => {
+  if (isListingProduct(product)) {
+    return {
+      calculated_price: convertToLocale({
+        amount: product.min_price,
+        currency_code: product.currency_code,
+      }),
+      original_price: null,
+    }
+  }
+  const { cheapestPrice } = getProductPrice({ product: product as HttpTypes.StoreProduct })
+  return cheapestPrice
+}
 
 export const ProductCard = ({
   product,
   className,
+  eager = false,
 }: {
-  product: HttpTypes.StoreProduct | Product,
+  product: CardProduct,
   className?: string
+  eager?: boolean
 }) => {
   if (!product) {
     return null
   }
 
-  const { cheapestPrice } = getProductPrice({ product: product as HttpTypes.StoreProduct })
-
+  const price = getCardPrice(product)
   const productName = String(product.title || "Product")
+  const imageProps = eager
+    ? { priority: true, fetchPriority: "high" as const }
+    : { loading: "lazy" as const }
 
   return (
     <div
@@ -42,8 +67,7 @@ export const ProductCard = ({
           <div className="overflow-hidden rounded-sm w-full h-full flex justify-center align-center ">
             {product.thumbnail ? (
               <Image
-                priority
-                fetchPriority="high"
+                {...imageProps}
                 src={decodeURIComponent(product.thumbnail)}
                 alt={`${productName} image`}
                 width={100}
@@ -54,8 +78,7 @@ export const ProductCard = ({
               />
             ) : (
               <Image
-                priority
-                fetchPriority="high"
+                {...imageProps}
                 src="/images/placeholder.svg"
                 alt={`${productName} image placeholder`}
                 width={100}
@@ -85,11 +108,10 @@ export const ProductCard = ({
           <div className="w-full">
             <h3 className="heading-sm truncate" data-testid="product-card-title">{product.title}</h3>
             <div className="flex items-center gap-2 mt-2" data-testid="product-card-price">
-              <p className="font-medium" data-testid="product-card-current-price">{cheapestPrice?.calculated_price}</p>
-              {cheapestPrice?.calculated_price !==
-                cheapestPrice?.original_price && (
+              <p className="font-medium" data-testid="product-card-current-price">{price?.calculated_price}</p>
+              {price?.original_price && price.calculated_price !== price.original_price && (
                 <p className="text-sm text-gray-500 line-through" data-testid="product-card-original-price">
-                  {cheapestPrice?.original_price}
+                  {price.original_price}
                 </p>
               )}
             </div>

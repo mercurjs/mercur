@@ -323,11 +323,17 @@ export default async function seedDemoData({ container }: ExecArgs) {
     "Multicolor",
   ];
   const CONDITION_VALUES = ["New", "Like New", "Used"];
+  const BRAND_VALUES = Array.from(
+    new Set(seedCatalog.map((item) => item.brand))
+  ).sort();
 
+  // Brand is a plain filterable attribute, not a variant axis: it describes
+  // the product and feeds the listing's filters without creating variants.
   const ATTRIBUTE_DEFS = [
-    { name: "Size", handle: "size", values: FOOTWEAR_SIZES },
-    { name: "Color", handle: "color", values: COLOR_VALUES },
-    { name: "Condition", handle: "condition", values: CONDITION_VALUES },
+    { name: "Size", handle: "size", values: FOOTWEAR_SIZES, is_variant_axis: true },
+    { name: "Color", handle: "color", values: COLOR_VALUES, is_variant_axis: true },
+    { name: "Condition", handle: "condition", values: CONDITION_VALUES, is_variant_axis: true },
+    { name: "Brand", handle: "brand", values: BRAND_VALUES, is_variant_axis: false },
   ];
 
   type SeededAttribute = {
@@ -359,8 +365,10 @@ export default async function seedDemoData({ container }: ExecArgs) {
         attributes: missingAttrs.map((attr, index) => ({
           name: attr.name,
           handle: attr.handle,
-          type: AttributeType.MULTI_SELECT,
-          is_variant_axis: true,
+          type: attr.is_variant_axis
+            ? AttributeType.MULTI_SELECT
+            : AttributeType.SINGLE_SELECT,
+          is_variant_axis: attr.is_variant_axis,
           is_filterable: true,
           rank: index,
           values: attr.values.map((name, rank) => ({ name, rank })),
@@ -373,6 +381,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
   const sizeAttr = attrByHandle.get("size")!;
   const colorAttr = attrByHandle.get("color")!;
   const conditionAttr = attrByHandle.get("condition")!;
+  const brandAttr = attrByHandle.get("brand")!;
 
   const valueId = (attr: SeededAttribute, name: string) =>
     attr.values.find((v) => v.name === name)?.id;
@@ -751,6 +760,12 @@ export default async function seedDemoData({ container }: ExecArgs) {
       {
         id: conditionAttr.id,
         value_ids: [valueId(conditionAttr, condition)].filter(
+          (id): id is string => Boolean(id)
+        ),
+      },
+      {
+        id: brandAttr.id,
+        value_ids: [valueId(brandAttr, item.brand)].filter(
           (id): id is string => Boolean(id)
         ),
       },

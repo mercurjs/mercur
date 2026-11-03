@@ -3,7 +3,8 @@ import { SearchProductsListing } from '@/components/sections/ProductListing/Sear
 import type { Metadata } from "next"
 import { getBaseUrl } from "@/lib/helpers/base-url"
 import { listRegions } from "@/lib/data/regions"
-import { searchProducts } from "@/lib/data/products"
+import { searchListing } from "@/lib/data/search"
+import { isDefaultListing, parseListingParams } from "@/lib/helpers/listing-params"
 import { PRODUCT_LIMIT } from "@/const"
 import {
   buildHreflangAlternates,
@@ -13,10 +14,13 @@ import {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }): Promise<Metadata> {
   const { locale } = await params
+  const isRefined = !isDefaultListing(parseListingParams(await searchParams))
   const baseUrl = getBaseUrl()
 
   let locales: string[] = []
@@ -45,7 +49,7 @@ export async function generateMetadata({
       canonical,
       languages,
     },
-    robots: { index: true, follow: true },
+    robots: { index: !isRefined, follow: true },
     openGraph: {
       title: `${title} | ${process.env.NEXT_PUBLIC_SITE_NAME || "Storefront"}`,
       description,
@@ -70,10 +74,10 @@ export default async function AllCategories({
   ]
 
   const baseUrl = getBaseUrl()
-  const { products: jsonLdProducts } = await searchProducts({
-    countryCode: locale,
-    limit: PRODUCT_LIMIT,
-  })
+  const { products: jsonLdProducts } = await searchListing(
+    { countryCode: locale, limit: PRODUCT_LIMIT },
+    parseListingParams({})
+  )
 
   const itemList = jsonLdProducts.slice(0, 8).map((p, idx) => ({
     "@type": "ListItem",

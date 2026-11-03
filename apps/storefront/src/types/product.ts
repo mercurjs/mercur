@@ -1,15 +1,5 @@
 import { SellerDTO } from "@mercurjs/types"
 
-export interface AdditionalAttributeProps {
-  id: string
-  attribute_id: string
-  value: string
-  attribute: {
-    id: string
-    name: string
-  }
-}
-
 export interface Product {
   id: number
   brand: string
