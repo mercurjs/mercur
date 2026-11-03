@@ -30,17 +30,16 @@ export async function ensureSellerMiddleware(
   const memberId = req.auth_context.actor_id
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: sellerMembers } = await query.graph(
-    {
-      entity: "seller_member",
-      fields: ["id", "seller_id", "member_id", "role_id", "seller.*"],
-      filters: {
-        seller_id: sellerId,
-        member_id: memberId,
-      },
+  // Not cached: an authorization read must reflect a removed member or a
+  // suspended seller on the very next request, not after a TTL.
+  const { data: sellerMembers } = await query.graph({
+    entity: "seller_member",
+    fields: ["id", "seller_id", "member_id", "role_id", "seller.*"],
+    filters: {
+      seller_id: sellerId,
+      member_id: memberId,
     },
-    { cache: { enable: true } }
-  )
+  })
 
   if (!sellerMembers.length) {
     return next(

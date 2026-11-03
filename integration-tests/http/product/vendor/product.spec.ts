@@ -628,6 +628,17 @@ medusaIntegrationTestRunner({
         })
       })
 
+      it("serves the seller-scoped list through the index engine", async () => {
+        await createProduct("Index Path", "published", "other-actor")
+        const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+        const indexSpy = jest.spyOn(query, "index")
+
+        await api.get("/vendor/products?limit=5", headersA)
+
+        expect(indexSpy).toHaveBeenCalled()
+        indexSpy.mockRestore()
+      })
+
       it("returns the exact visible count on a full page, not the planner estimate", async () => {
         const visible = [
           await createProduct("Exact Open 1", "published", "other-actor"),

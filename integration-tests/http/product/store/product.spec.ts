@@ -371,6 +371,28 @@ medusaIntegrationTestRunner({
                         await api.get(`/store/products?limit=100`, storeHeaders)
                     ).data.products.map((p: { id: string }) => p.id)
 
+                it("answers a plain product list with query.graph and an exact count", async () => {
+                    const ids = [
+                        (await createProduct(approvedSellerHeaders, { title: "Plain 1" })).id,
+                        (await createProduct(approvedSellerHeaders, { title: "Plain 2" })).id,
+                        (await createProduct(approvedSellerHeaders, { title: "Plain 3" })).id,
+                    ]
+                    const query = appContainer.resolve(
+                        ContainerRegistrationKeys.QUERY
+                    )
+                    const indexSpy = jest.spyOn(query, "index")
+
+                    const response = await api.get(
+                        `/store/products?limit=1`,
+                        storeHeaders
+                    )
+
+                    expect(indexSpy).not.toHaveBeenCalled()
+                    indexSpy.mockRestore()
+                    expect(response.data.products).toHaveLength(1)
+                    expect(response.data.count).toEqual(ids.length)
+                })
+
                 it("stores the product list in the caching module", async () => {
                     await createProduct(approvedSellerHeaders, {
                         title: "Cache Probe",

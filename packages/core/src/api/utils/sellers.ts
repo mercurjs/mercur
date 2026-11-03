@@ -20,7 +20,15 @@ export const resolveVisibleSellerIds = async (
         { $or: [{ closed_to: null }, { closed_to: { $lt: now } }] },
       ],
     },
-  }, { cache: { enable: true } })
+  }, {
+    cache: {
+      enable: true,
+      // An empty result carries no automatic tags, so without the list tag it
+      // would survive the next seller approval until its TTL.
+      tags: ["Seller:list:*"],
+      computeAutomaticTags: true,
+    },
+  })
 
   return visibleSellers.map((s: { id: string }) => s.id)
 }

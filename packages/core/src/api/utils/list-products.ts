@@ -45,6 +45,29 @@ const INDEXED_PRODUCT: IndexedShape = {
 
 const LOGICAL_OPERATORS = ["$and", "$or", "$not"]
 
+// Relations that live in another module (links, pricing). query.graph cannot
+// filter on them, which is where the index pays off; product-only filters are
+// answered faster by a single query.graph than by the index's id lookup plus
+// the graph hydration query.index always runs afterwards.
+const CROSS_MODULE_KEYS = ["product_seller", "sales_channels"]
+const CROSS_MODULE_VARIANT_KEYS = ["prices"]
+
+const needsIndex = (filters: Record<string, unknown>): boolean =>
+  Object.entries(filters).some(([key, value]) => {
+    if (LOGICAL_OPERATORS.includes(key)) {
+      const entries = Array.isArray(value) ? value : [value]
+      return entries.some((entry) => isPlainObject(entry) && needsIndex(entry))
+    }
+    if (CROSS_MODULE_KEYS.includes(key)) {
+      return true
+    }
+    return (
+      key === "variants" &&
+      isPlainObject(value) &&
+      Object.keys(value).some((k) => CROSS_MODULE_VARIANT_KEYS.includes(k))
+    )
+  })
+
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" &&
   value !== null &&
@@ -281,6 +304,7 @@ export const listProducts = async <T = Record<string, unknown>>(
 
   if (
     !withDeleted &&
+    needsIndex(indexFilters) &&
     isIndexEngineEnabled(scope) &&
     isIndexable(indexFilters, INDEXED_PRODUCT) &&
     isOrderIndexable(pagination?.order)

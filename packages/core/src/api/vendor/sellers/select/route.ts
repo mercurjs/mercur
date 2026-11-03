@@ -18,17 +18,15 @@ export const POST = async (
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: sellerMembers } = await query.graph(
-    {
-      entity: "seller_member",
-      fields: ["id", "seller_id", "member_id"],
-      filters: {
-        seller_id,
-        member_id: memberId,
-      },
+  // Not cached: membership decides which store the session may switch to.
+  const { data: sellerMembers } = await query.graph({
+    entity: "seller_member",
+    fields: ["id", "seller_id", "member_id"],
+    filters: {
+      seller_id,
+      member_id: memberId,
     },
-    { cache: { enable: true } }
-  )
+  })
 
   if (!sellerMembers.length) {
     throw new MedusaError(
