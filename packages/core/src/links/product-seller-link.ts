@@ -10,6 +10,7 @@ export default defineLink(
   {
     linkable: SellerModule.linkable.seller,
     isList: true,
+    filterable: ["id"],
   },
   {
     database: {

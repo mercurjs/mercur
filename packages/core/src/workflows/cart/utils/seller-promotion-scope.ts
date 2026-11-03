@@ -26,7 +26,14 @@ export const loadPromotionSellerIds = async (
             fields: ["id", "seller.id"],
             filters: { id: ids },
         },
-        { cache: { enable: true } }
+        {
+            cache: {
+                enable: true,
+                // Scoping a promotion to a seller only clears this link tag.
+                tags: ["LinkPromotionPromotionSellerSeller:list:*"],
+                computeAutomaticTags: true,
+            },
+        }
     )
 
     const result: PromotionSellerIds = {}
