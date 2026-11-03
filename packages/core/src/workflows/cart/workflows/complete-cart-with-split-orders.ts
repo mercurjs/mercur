@@ -25,6 +25,7 @@ import {
 import {
     acquireLockStep,
     authorizePaymentSessionStep,
+    compensatePaymentIfNeededStep,
     createOrdersStep,
     emitEventStep,
     releaseLockStep,
@@ -122,6 +123,12 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
         })
 
         const paymentSessions = validateCartPaymentsStep({ cart: cartData.data })
+        // Kept ahead of every write so its compensation runs after the orders
+        // are rolled back: a payment the provider already captured (a
+        // `captured` webhook) is refunded instead of left without an order.
+        compensatePaymentIfNeededStep({
+            payment_session_id: paymentSessions[0].id,
+        })
 
         const validate = createHook("validate", {
             input,

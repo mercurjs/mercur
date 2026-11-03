@@ -432,6 +432,66 @@ medusaIntegrationTestRunner({
                 })
                 expect((after as { captures?: unknown[] }).captures).toHaveLength(1)
             })
+
+            it("refunds a payment captured by the webhook when the split-order completion fails", async () => {
+                const { cart, sessionId } = await seedReadyCart(
+                    sellerSeed.offer.id
+                )
+                const query = appContainer.resolve(
+                    ContainerRegistrationKeys.QUERY
+                )
+                const cartModule = appContainer.resolve(Modules.CART)
+                const { processPaymentWorkflow } = await import(
+                    "@mercurjs/core/workflows/payment/workflows/process-payment"
+                )
+
+                const {
+                    data: [withMethods],
+                } = await query.graph({
+                    entity: "cart",
+                    fields: ["shipping_methods.id"],
+                    filters: { id: cart.id },
+                })
+                await cartModule.deleteShippingMethods(
+                    (withMethods.shipping_methods ?? []).map((sm) => sm!.id)
+                )
+
+                await processPaymentWorkflow(appContainer).run({
+                    input: {
+                        action: "captured",
+                        data: { session_id: sessionId },
+                    },
+                })
+
+                const { data: groups } = await query.graph({
+                    entity: "order_group",
+                    fields: ["id"],
+                    filters: { cart_id: cart.id },
+                })
+                expect(groups).toHaveLength(0)
+
+                const {
+                    data: [payment],
+                } = await query.graph({
+                    entity: "payment",
+                    fields: [
+                        "amount",
+                        "captured_at",
+                        "captures.amount",
+                        "refunds.amount",
+                        "refunds.note",
+                    ],
+                    filters: { payment_session_id: sessionId },
+                })
+                expect(payment.captured_at).toBeTruthy()
+                expect(payment.captures).toHaveLength(1)
+                expect(payment.refunds).toEqual([
+                    expect.objectContaining({
+                        amount: payment.amount,
+                        note: "Refunded due to cart completion failure",
+                    }),
+                ])
+            })
         })
     },
 })
