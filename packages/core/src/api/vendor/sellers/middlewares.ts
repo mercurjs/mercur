@@ -50,7 +50,7 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       restrictVendorFields(VENDOR_CROSS_SELLER_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetSellerParams,
-        QueryConfig.retrieveVendorSellerQueryConfig
+        QueryConfig.retrieveVendorSellerMeQueryConfig
       ),
     ],
   },

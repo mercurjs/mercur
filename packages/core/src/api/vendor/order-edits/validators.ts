@@ -15,7 +15,6 @@ export type VendorPostOrderEditsShippingReqType = z.infer<
 >
 export const VendorPostOrderEditsShippingReq = z.object({
   shipping_option_id: z.string(),
-  custom_amount: z.number().optional(),
   description: z.string().optional(),
   internal_note: z.string().optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
@@ -25,7 +24,6 @@ export type VendorPostOrderEditsShippingActionReqType = z.infer<
   typeof VendorPostOrderEditsShippingActionReq
 >
 export const VendorPostOrderEditsShippingActionReq = z.object({
-  custom_amount: z.number().nullish().optional(),
   internal_note: z.string().nullish().optional(),
   metadata: z.record(z.string(), z.unknown()).nullish().optional(),
 })
@@ -40,8 +38,6 @@ export const VendorPostOrderEditsAddItemsReq = z.object({
         variant_id: z.string().optional(),
         offer_id: z.string().optional(),
         quantity: z.number(),
-        unit_price: z.number().nullish(),
-        compare_at_unit_price: z.number().nullish(),
         internal_note: z.string().nullish(),
         allow_backorder: z.boolean().optional(),
         metadata: z.record(z.string(), z.unknown()).optional(),
@@ -58,8 +54,6 @@ export type VendorPostOrderEditsItemsActionReqType = z.infer<
 >
 export const VendorPostOrderEditsItemsActionReq = z.object({
   quantity: z.number().optional(),
-  unit_price: z.number().nullish(),
-  compare_at_unit_price: z.number().nullish(),
   internal_note: z.string().nullish().optional(),
 })
 
@@ -68,8 +62,6 @@ export type VendorPostOrderEditsUpdateItemQuantityReqType = z.infer<
 >
 export const VendorPostOrderEditsUpdateItemQuantityReq = z.object({
   quantity: z.number(),
-  unit_price: z.number().nullish(),
-  compare_at_unit_price: z.number().nullish(),
   internal_note: z.string().nullish().optional(),
   metadata: z.record(z.string(), z.unknown()).nullish(),
 })

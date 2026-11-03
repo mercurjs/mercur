@@ -1114,6 +1114,106 @@ medusaIntegrationTestRunner({
                     expect(response.status).toEqual(404)
                 })
             })
+
+            describe("cross-resource ownership", () => {
+                const createPromotion = async (code: string, headers: any) => {
+                    const response = await api.post(
+                        `/vendor/promotions`,
+                        {
+                            code,
+                            type: "standard",
+                            application_method: {
+                                type: "percentage",
+                                target_type: "order",
+                                value: 10,
+                            },
+                        },
+                        headers
+                    )
+                    return response.data.promotion
+                }
+
+                it("should not update or delete a rule that belongs to another promotion", async () => {
+                    const promotionA = await createPromotion("RULE-OWNER", seller1Headers)
+                    const promotionB = await createPromotion("RULE-OTHER", seller1Headers)
+
+                    const ruleResponse = await api.post(
+                        `/vendor/promotions/${promotionA.id}/rules/batch`,
+                        {
+                            create: [
+                                {
+                                    attribute: "currency_code",
+                                    operator: "eq",
+                                    values: ["usd"],
+                                },
+                            ],
+                        },
+                        seller1Headers
+                    )
+                    const ruleId = ruleResponse.data.created[0].id
+
+                    const updateResponse = await api
+                        .post(
+                            `/vendor/promotions/${promotionB.id}/rules/batch`,
+                            { update: [{ id: ruleId, operator: "eq", values: ["eur"] }] },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+                    expect(updateResponse.status).toEqual(404)
+
+                    const deleteResponse = await api
+                        .post(
+                            `/vendor/promotions/${promotionB.id}/rules/batch`,
+                            { delete: [ruleId] },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+                    expect(deleteResponse.status).toEqual(404)
+
+                    const stillThere = await api.get(
+                        `/vendor/promotions/${promotionA.id}?fields=*rules`,
+                        seller1Headers
+                    )
+                    expect(stillThere.data.promotion.rules.map((r: any) => r.id)).toContain(ruleId)
+                })
+
+                it("should not attach another seller's campaign on create or update", async () => {
+                    const campaignResponse = await api.post(
+                        `/vendor/campaigns`,
+                        { name: "Seller 2 Campaign", campaign_identifier: "seller-2-campaign" },
+                        seller2Headers
+                    )
+                    const campaignId = campaignResponse.data.campaign.id
+
+                    const createResponse = await api
+                        .post(
+                            `/vendor/promotions`,
+                            {
+                                code: "FOREIGN-CAMPAIGN",
+                                type: "standard",
+                                campaign_id: campaignId,
+                                application_method: {
+                                    type: "percentage",
+                                    target_type: "order",
+                                    value: 10,
+                                },
+                            },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+                    expect(createResponse.status).toEqual(404)
+
+                    const promotion = await createPromotion("OWN-PROMO", seller1Headers)
+                    const updateResponse = await api
+                        .post(
+                            `/vendor/promotions/${promotion.id}`,
+                            { campaign_id: campaignId },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+                    expect(updateResponse.status).toEqual(404)
+                })
+            })
         })
     },
 })

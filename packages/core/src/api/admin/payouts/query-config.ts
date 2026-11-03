@@ -3,7 +3,6 @@ export const adminPayoutFields = [
   "amount",
   "currency_code",
   "status",
-  "data",
   "created_at",
   "updated_at",
   "account.id",
@@ -29,7 +28,7 @@ export const adminPayoutQueryConfig = {
     isList: true,
   },
   retrieve: {
-    defaults: adminPayoutFields,
+    defaults: [...adminPayoutFields, "data"],
     isList: false,
   },
 }

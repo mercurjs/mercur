@@ -27,7 +27,7 @@ import {
 import { MediaSchema } from "@pages/products/product-create/constants";
 import { InferClientOutput } from "@mercurjs/client";
 import { sdk } from "@lib/client";
-import { useUpdateSeller } from "@hooks/api/sellers";
+import { transitionSellerStatus, useUpdateSeller } from "@hooks/api/sellers";
 import { currencies } from "@/lib/data/currencies";
 import { SellerStatus } from "@mercurjs/types";
 
@@ -190,16 +190,32 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
       return;
     }
 
+    if (values.status !== seller.status) {
+      try {
+        await transitionSellerStatus(
+          seller.id,
+          seller.status as SellerStatus,
+          values.status,
+        );
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        }
+        return;
+      }
+    }
+
     await mutateAsync(
       {
-        status: values.status,
         name: values.name,
         handle: values.handle || undefined,
         email: values.email || undefined,
         phone: values.phone || null,
         description: values.description || null,
         website_url: ensureWebsiteProtocol(values.website_url ?? ""),
-        is_premium: values.is_premium,
+        ...(values.is_premium !== (seller.is_premium ?? false)
+          ? { is_premium: values.is_premium }
+          : {}),
         default_leadtime_to_ship: values.default_leadtime_to_ship
           ? Number(values.default_leadtime_to_ship)
           : null,

@@ -14,6 +14,7 @@ import { sdk } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
 import { regionsQueryKeys } from "./regions";
+import { SellerStatus } from "@mercurjs/types";
 
 const SELLERS_QUERY_KEY = "sellers" as const;
 export const sellersQueryKeys = queryKeysFactory(SELLERS_QUERY_KEY);
@@ -244,6 +245,40 @@ export const useUnterminateSeller = (
     },
     ...options,
   });
+};
+
+/**
+ * Lifecycle changes only go through the dedicated approve / suspend /
+ * terminate routes; the generic update no longer accepts `status`.
+ */
+export const transitionSellerStatus = async (
+  id: string,
+  from: SellerStatus,
+  to: SellerStatus,
+) => {
+  if (from === to) {
+    return;
+  }
+
+  switch (to) {
+    case SellerStatus.OPEN:
+      if (from === SellerStatus.PENDING_APPROVAL) {
+        await sdk.admin.sellers.$id.approve.mutate({ $id: id });
+      } else if (from === SellerStatus.SUSPENDED) {
+        await sdk.admin.sellers.$id.unsuspend.mutate({ $id: id });
+      } else {
+        await sdk.admin.sellers.$id.unterminate.mutate({ $id: id });
+      }
+      return;
+    case SellerStatus.SUSPENDED:
+      await sdk.admin.sellers.$id.suspend.mutate({ $id: id });
+      return;
+    case SellerStatus.TERMINATED:
+      await sdk.admin.sellers.$id.terminate.mutate({ $id: id });
+      return;
+    default:
+      throw new Error(`Cannot move a seller back to ${to}`);
+  }
 };
 
 export const useUpdateSeller = (

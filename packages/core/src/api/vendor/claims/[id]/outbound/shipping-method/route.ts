@@ -5,6 +5,7 @@ import {
 } from "@medusajs/framework/http"
 import { HttpTypes } from "@medusajs/framework/types"
 
+import { validateSellerShippingOption } from "../../../../shipping-options/helpers"
 import { VendorPostClaimsShippingReqType } from "../../../validators"
 
 export const POST = async (
@@ -14,6 +15,12 @@ export const POST = async (
   }>
 ) => {
   const { id } = req.params
+
+  await validateSellerShippingOption(
+    req.scope,
+    req.seller_context!.seller_id,
+    req.validatedBody.shipping_option_id
+  )
 
   const { result } = await createClaimShippingMethodWorkflow(req.scope).run({
     input: { ...req.validatedBody, claim_id: id },

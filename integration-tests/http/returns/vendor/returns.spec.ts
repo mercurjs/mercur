@@ -30,6 +30,7 @@ medusaIntegrationTestRunner({
             let offer2: any
             let stockLocation1: any
             let stockLocation2: any
+            let shippingOption2: any
 
             beforeAll(async () => {
                 appContainer = getContainer()
@@ -169,7 +170,7 @@ medusaIntegrationTestRunner({
                 stockLocation2 = shippingPrerequisites2.stockLocation
 
                 // Create shipping option for seller 2
-                await api.post(
+                shippingOption2 = (await api.post(
                     `/vendor/shipping-options`,
                     {
                         name: "Returns Seller 2 Shipping",
@@ -192,7 +193,7 @@ medusaIntegrationTestRunner({
                         ],
                     },
                     seller2Headers
-                )
+                )).data.shipping_option
 
                 // Create a store offer for seller 2's product.
                 offer2 = (
@@ -955,6 +956,71 @@ medusaIntegrationTestRunner({
                         .catch((e) => e.response)
 
                     expect(response.status).toEqual(404)
+                })
+            })
+
+            describe("cross-resource ownership", () => {
+                it("should not create or update a return with another vendor's stock location", async () => {
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
+
+                    const createResponse = await api
+                        .post(
+                            `/vendor/returns`,
+                            { order_id: order.id, location_id: stockLocation2.id },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+                    expect(createResponse.status).toEqual(404)
+
+                    const returnId = (
+                        await api.post(`/vendor/returns`, { order_id: order.id }, seller1Headers)
+                    ).data.return.id
+
+                    const updateResponse = await api
+                        .post(
+                            `/vendor/returns/${returnId}`,
+                            { location_id: stockLocation2.id },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+                    expect(updateResponse.status).toEqual(404)
+                })
+
+                it("should not add another vendor's shipping option to a return", async () => {
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
+                    const returnId = (
+                        await api.post(`/vendor/returns`, { order_id: order.id }, seller1Headers)
+                    ).data.return.id
+
+                    const response = await api
+                        .post(
+                            `/vendor/returns/${returnId}/shipping-method`,
+                            { shipping_option_id: shippingOption2.id },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(404)
+                })
+
+                it("should ignore an id query param on the mutation readback", async () => {
+                    const first = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
+                    const second = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
+                    const returnA = (
+                        await api.post(`/vendor/returns`, { order_id: first.order.id }, seller1Headers)
+                    ).data.return.id
+                    const returnB = (
+                        await api.post(`/vendor/returns`, { order_id: second.order.id }, seller1Headers)
+                    ).data.return.id
+
+                    const response = await api.post(
+                        `/vendor/returns/${returnA}?id=${returnB}`,
+                        { location_id: stockLocation1.id },
+                        seller1Headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.return.id).toEqual(returnA)
                 })
             })
         })

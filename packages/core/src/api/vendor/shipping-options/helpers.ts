@@ -93,3 +93,32 @@ export const refetchBatchRules = async (
     },
   }
 }
+
+export const validateShippingOptionRules = async (
+  scope: MedusaContainer,
+  shippingOptionId: string,
+  ruleIds: string[]
+) => {
+  const ids = Array.from(new Set(ruleIds))
+  if (!ids.length) {
+    return
+  }
+
+  const query = scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const { data: rules } = await query.graph({
+    entity: "shipping_option_rule",
+    filters: { id: ids, shipping_option_id: shippingOptionId },
+    fields: ["id"],
+  })
+
+  const owned = new Set(rules.map((rule) => rule.id))
+  const missing = ids.find((id) => !owned.has(id))
+
+  if (missing) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `Shipping option rule with id: ${missing} was not found`
+    )
+  }
+}

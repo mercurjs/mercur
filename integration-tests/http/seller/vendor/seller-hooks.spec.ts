@@ -192,20 +192,13 @@ medusaIntegrationTestRunner({
             name: "Inviting Store",
           })
 
-          await api.post(
+          const {
+            data: { member_invite: invite },
+          } = await api.post(
             `/vendor/sellers/${owner.seller.id}/members`,
             { email, role_id: SellerRole.SELLER_ADMINISTRATION },
             owner.headers
           )
-
-          const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
-          const {
-            data: [invite],
-          } = await query.graph({
-            entity: "member_invite",
-            fields: ["id", "token"],
-            filters: { email },
-          })
 
           return { seller: owner.seller, invite }
         }

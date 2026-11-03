@@ -25,6 +25,7 @@ import {
 import {
     acquireLockStep,
     authorizePaymentSessionStep,
+    compensatePaymentIfNeededStep,
     createOrdersStep,
     emitEventStep,
     releaseLockStep,
@@ -122,6 +123,10 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
         })
 
         const paymentSessions = validateCartPaymentsStep({ cart: cartData.data })
+
+        compensatePaymentIfNeededStep({
+            payment_session_id: paymentSessions[0].id,
+        })
 
         const validate = createHook("validate", {
             input,

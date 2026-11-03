@@ -141,6 +141,46 @@ const hasCartOfferInventoryCoverage = async ({
   return coverage.every(Boolean)
 }
 
+// Medusa calculates prices per variant, so two offers on one variant would
+// both resolve to the cheaper offer's price. A variant is sold by one offer
+// per cart; switching offers means removing the line first.
+const assertOneOfferPerVariant = async (
+  container: MedusaContainer,
+  cartId: string,
+  incoming: Array<{ variant_id?: string; offer_id: string }>,
+): Promise<void> => {
+  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+  const { data } = await query.graph({
+    entity: "cart",
+    fields: ["items.variant_id", "items.offer.id"],
+    filters: { id: cartId },
+  })
+
+  const offerByVariant = new Map<string, string>()
+  for (const item of (data[0]?.items ?? []) as Array<{
+    variant_id?: string | null
+    offer?: { id?: string } | null
+  } | null>) {
+    if (item?.variant_id && item.offer?.id) {
+      offerByVariant.set(item.variant_id, item.offer.id)
+    }
+  }
+
+  for (const item of incoming) {
+    if (!item.variant_id) {
+      continue
+    }
+    const existingOfferId = offerByVariant.get(item.variant_id)
+    if (existingOfferId && existingOfferId !== item.offer_id) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        `Variant ${item.variant_id} is already in the cart through offer ${existingOfferId}. Remove that line before adding offer ${item.offer_id}.`,
+      )
+    }
+    offerByVariant.set(item.variant_id, item.offer_id)
+  }
+}
+
 addToCartWorkflow.hooks.validate(async ({ input, cart }, { container }) => {
   const incoming = (input.items ?? []).filter(
     (i): i is typeof i & { offer_id: string } =>
@@ -149,6 +189,8 @@ addToCartWorkflow.hooks.validate(async ({ input, cart }, { container }) => {
   if (!incoming.length) {
     return
   }
+
+  await assertOneOfferPerVariant(container, cart.id, incoming)
 
   const incomingLines = incoming.map((i, index) => ({
     id: `incoming_${index}`,

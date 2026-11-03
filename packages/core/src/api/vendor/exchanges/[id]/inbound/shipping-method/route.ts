@@ -6,6 +6,7 @@ import {
 } from "@medusajs/framework/http"
 import { HttpTypes } from "@medusajs/framework/types"
 
+import { validateSellerShippingOption } from "../../../../shipping-options/helpers"
 import { VendorPostExchangesShippingReqType } from "../../../validators"
 
 export const POST = async (
@@ -15,6 +16,12 @@ export const POST = async (
   }>
 ) => {
   const { id } = req.params
+
+  await validateSellerShippingOption(
+    req.scope,
+    req.seller_context!.seller_id,
+    req.validatedBody.shipping_option_id
+  )
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 

@@ -85,7 +85,7 @@ export const prepareOfferInventoryInput = (
   )
 
   const availability = new Map<string, Map<string, Map<string, BigNumber>>>()
-  const channelLocations = new Set<string>()
+  const channelLocations = new Map<string, Set<string>>()
   const anyLocations = new Map<string, Set<string>>()
   const requiredByPivot = new Map<string, number>()
 
@@ -102,6 +102,11 @@ export const prepareOfferInventoryInput = (
         anyLocations.get(`${offer.id}:${inventoryItemId}`) ??
         new Set<string>()
       anyLocations.set(`${offer.id}:${inventoryItemId}`, itemAny)
+
+      const itemChannel =
+        channelLocations.get(`${offer.id}:${inventoryItemId}`) ??
+        new Set<string>()
+      channelLocations.set(`${offer.id}:${inventoryItemId}`, itemChannel)
 
       requiredByPivot.set(
         `${offer.id}:${inventoryItemId}`,
@@ -125,7 +130,7 @@ export const prepareOfferInventoryInput = (
             sales_channel_id &&
             sl.sales_channels?.some((sc) => sc.id === sales_channel_id)
           ) {
-            channelLocations.add(sl.id)
+            itemChannel.add(sl.id)
           }
         }
       }
@@ -173,29 +178,43 @@ export const prepareOfferInventoryInput = (
         requiredByPivot.get(`${offer.id}:${inventoryItemId}`) ?? 1
       const required = MathBN.mult(requiredQuantity, item.quantity)
 
+      const manageInventory = offer.manage_inventory ?? true
+      const allowBackorder = offer.allow_backorder ?? false
+
+      // Like Medusa's prepareConfirmInventoryInput: a cart on a sales channel
+      // only draws on that channel's locations.
+      const itemChannel =
+        channelLocations.get(`${offer.id}:${inventoryItemId}`) ?? new Set()
+      if (
+        sales_channel_id &&
+        !itemChannel.size &&
+        manageInventory &&
+        !allowBackorder
+      ) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          `Sales channel ${sales_channel_id} is not associated with any stock location for offer ${offer.id}.`,
+        )
+      }
+
+      const candidates =
+        sales_channel_id && itemChannel.size ? itemChannel : itemAny
+
       const fullLocations: string[] = []
-      for (const [locId, qty] of itemAvail) {
-        if (MathBN.gte(qty, required)) {
+      for (const locId of candidates) {
+        if (MathBN.gte(itemAvail.get(locId) ?? 0, required)) {
           fullLocations.push(locId)
         }
       }
 
-      const anyLocationsArr = Array.from(itemAny)
-
-      const channelLocationsArr = Array.from(channelLocations)
-
-      const dedup = new Set<string>([
-        ...fullLocations,
-        ...anyLocationsArr,
-        ...channelLocationsArr,
-      ])
+      const dedup = new Set<string>([...fullLocations, ...candidates])
 
       result.push({
         id: item.id,
         inventory_item_id: inventoryItemId,
         required_quantity: requiredQuantity,
-        manage_inventory: offer.manage_inventory ?? true,
-        allow_backorder: offer.allow_backorder ?? false,
+        manage_inventory: manageInventory,
+        allow_backorder: allowBackorder,
         quantity: item.quantity,
         location_ids: Array.from(dedup),
       })

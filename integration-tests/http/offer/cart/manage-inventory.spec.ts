@@ -13,6 +13,7 @@ import {
     generateStoreHeaders,
 } from "../../../helpers/create-admin-user"
 import { createVendorProduct } from "../../../helpers/create-product"
+import { approveSeller } from "../../../helpers/split-order-checkout"
 
 jest.setTimeout(120000)
 
@@ -41,6 +42,7 @@ medusaIntegrationTestRunner({
                     appContainer,
                     { email: opts.email, name: opts.name }
                 )
+                await approveSeller(appContainer, seller.id)
 
                 const stockLocation = (
                     await api.post(

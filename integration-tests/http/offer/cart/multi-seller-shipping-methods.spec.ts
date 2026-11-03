@@ -342,6 +342,141 @@ medusaIntegrationTestRunner({
                 expect(completeResp.status).toEqual(200)
                 expect(completeResp.data.type).toEqual("order_group")
             })
+
+            const createAddressedCart = async () =>
+                (
+                    await api.post(
+                        `/store/carts`,
+                        {
+                            region_id: region.id,
+                            sales_channel_id: salesChannel.id,
+                            currency_code: "usd",
+                            email: "multisellerbuyer@test.com",
+                            shipping_address: {
+                                first_name: "Multi",
+                                last_name: "Buyer",
+                                address_1: "123 Main St",
+                                city: "New York",
+                                country_code: "us",
+                                postal_code: "10001",
+                            },
+                        },
+                        storeHeaders
+                    )
+                ).data.cart
+
+            const createPaymentSession = async (cartId: string) => {
+                const paymentCollection = (
+                    await api.post(
+                        `/store/payment-collections`,
+                        { cart_id: cartId },
+                        storeHeaders
+                    )
+                ).data.payment_collection
+                await api.post(
+                    `/store/payment-collections/${paymentCollection.id}/payment-sessions`,
+                    { provider_id: "pp_system_default" },
+                    storeHeaders
+                )
+            }
+
+            it("drops a seller's shipping method once its last item leaves the cart", async () => {
+                const sellerA = await seedSeller({
+                    email: "drop-a@test.com",
+                    name: "DropA",
+                    offerPrice: 3000,
+                })
+                const sellerB = await seedSeller({
+                    email: "drop-b@test.com",
+                    name: "DropB",
+                    offerPrice: 1000,
+                })
+
+                const cart = await createAddressedCart()
+                const withA = await api.post(
+                    `/store/carts/${cart.id}/line-items`,
+                    { offer_id: sellerA.offer.id, quantity: 1 },
+                    storeHeaders
+                )
+                const lineA = withA.data.cart.items[0]
+                await api.post(
+                    `/store/carts/${cart.id}/line-items`,
+                    { offer_id: sellerB.offer.id, quantity: 1 },
+                    storeHeaders
+                )
+                await addShippingMethod(cart.id, sellerA.shippingOptionId)
+                const bothMethods = await addShippingMethod(
+                    cart.id,
+                    sellerB.shippingOptionId
+                )
+                expect(bothMethods).toHaveLength(2)
+
+                const removed = await api.delete(
+                    `/store/carts/${cart.id}/line-items/${lineA.id}`,
+                    storeHeaders
+                )
+                expect(removed.status).toEqual(200)
+
+                const refreshed = (
+                    await api.get(`/store/carts/${cart.id}`, storeHeaders)
+                ).data.cart
+                expect(refreshed.items).toHaveLength(1)
+                expect(
+                    refreshed.shipping_methods.map(
+                        (m: any) => m.shipping_option_id
+                    )
+                ).toEqual([sellerB.shippingOptionId])
+                expect(refreshed.shipping_total).toEqual(500)
+
+                await createPaymentSession(cart.id)
+                const completeResp = await api.post(
+                    `/store/carts/${cart.id}/complete`,
+                    {},
+                    storeHeaders
+                )
+                expect(completeResp.status).toEqual(200)
+            })
+
+            it("rejects checkout when a shipping method belongs to a seller with no items in the cart", async () => {
+                const sellerA = await seedSeller({
+                    email: "orphan-a@test.com",
+                    name: "OrphanA",
+                    offerPrice: 3000,
+                })
+                const sellerB = await seedSeller({
+                    email: "orphan-b@test.com",
+                    name: "OrphanB",
+                    offerPrice: 1000,
+                })
+
+                const cart = await createAddressedCart()
+                await api.post(
+                    `/store/carts/${cart.id}/line-items`,
+                    { offer_id: sellerB.offer.id, quantity: 1 },
+                    storeHeaders
+                )
+                await addShippingMethod(cart.id, sellerB.shippingOptionId)
+
+                // Written straight into the cart module so the refresh that
+                // normally clears orphan methods never runs.
+                const cartModule = appContainer.resolve(Modules.CART)
+                await cartModule.addShippingMethods({
+                    cart_id: cart.id,
+                    name: "Orphan",
+                    amount: 500,
+                    shipping_option_id: sellerA.shippingOptionId,
+                })
+                await createPaymentSession(cart.id)
+
+                const completeResp = await api
+                    .post(`/store/carts/${cart.id}/complete`, {}, storeHeaders)
+                    .catch((e) => e.response)
+
+                expect(completeResp.status).toEqual(400)
+                expect(completeResp.data.message).toContain(
+                    "belong to sellers with no items in the cart"
+                )
+            })
         })
     },
 })

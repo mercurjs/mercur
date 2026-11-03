@@ -82,6 +82,7 @@ export const POST = async (
     sellerId,
     currencyCode,
     items: resolverInput,
+    trustUnitPrice: true,
   })
 
   const { result } = await orderExchangeAddNewItemWorkflow(req.scope).run({

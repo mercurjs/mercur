@@ -14,6 +14,8 @@ import {
   MedusaError,
 } from "@medusajs/framework/utils"
 
+import { validateSellerOrder } from "../orders/helpers"
+import { validateSellerStockLocations } from "../stock-locations/helpers"
 import { vendorReservationQueryConfig } from "./query-config"
 import {
   VendorCreateReservation,
@@ -160,14 +162,62 @@ const assertReservationOwnership = async (
   }
 }
 
+type ReservationBody = {
+  inventory_item_id?: string
+  location_id?: string
+  line_item_id?: string | null
+}
+
+const assertSellerOwnsLineItem = async (
+  req: AuthenticatedMedusaRequest,
+  lineItemId: string
+) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const {
+    data: [orderItem],
+  } = await query.graph({
+    entity: "order_item",
+    fields: ["order_id"],
+    filters: { item_id: lineItemId },
+  })
+
+  if (!orderItem?.order_id) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `Line item with id: ${lineItemId} was not found`
+    )
+  }
+
+  await validateSellerOrder(
+    req.scope,
+    req.seller_context!.seller_id,
+    orderItem.order_id
+  )
+}
+
+const assertReservationBodyOwnership = async (
+  req: AuthenticatedMedusaRequest
+) => {
+  const body = (req.validatedBody ?? {}) as ReservationBody
+
+  if (body.location_id) {
+    await validateSellerStockLocations(req.scope, req.seller_context!.seller_id, [
+      body.location_id,
+    ])
+  }
+
+  if (body.line_item_id) {
+    await assertSellerOwnsLineItem(req, body.line_item_id)
+  }
+}
+
 const assertCreateReservationOwnership = async (
   req: AuthenticatedMedusaRequest,
   _res: MedusaResponse,
   next: MedusaNextFunction
 ) => {
   try {
-    const itemId = (req.validatedBody as { inventory_item_id?: string })
-      ?.inventory_item_id
+    const itemId = (req.validatedBody as ReservationBody)?.inventory_item_id
     const owned = itemId ? await getSellerInventoryItemIds(req, [itemId]) : []
 
     if (!owned.length) {
@@ -177,6 +227,21 @@ const assertCreateReservationOwnership = async (
       )
     }
 
+    await assertReservationBodyOwnership(req)
+
+    return next()
+  } catch (error) {
+    return next(error)
+  }
+}
+
+const assertUpdateReservationOwnership = async (
+  req: AuthenticatedMedusaRequest,
+  _res: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  try {
+    await assertReservationBodyOwnership(req)
     return next()
   } catch (error) {
     return next(error)
@@ -229,6 +294,7 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
       requirePermission("reservations", "edit"),
       validateAndTransformBody(VendorUpdateReservation),
       assertReservationOwnership,
+      assertUpdateReservationOwnership,
       validateAndTransformQuery(
         VendorGetReservationParams,
         vendorReservationQueryConfig.retrieve

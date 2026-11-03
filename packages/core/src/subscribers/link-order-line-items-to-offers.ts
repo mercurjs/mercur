@@ -30,8 +30,15 @@ const METADATA_KEY = "offer_id"
 
 type LineItem = {
   id: string
+  variant_id?: string | null
   metadata?: Record<string, unknown> | null
   offer?: { id?: string | null } | null
+}
+
+type OfferRow = {
+  id: string
+  seller_id: string | null
+  variant_id: string | null
 }
 
 export default async function linkOrderLineItemsToOffersHandler({
@@ -48,23 +55,29 @@ export default async function linkOrderLineItemsToOffersHandler({
 
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const link = container.resolve(ContainerRegistrationKeys.LINK)
+  const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
   const orderModuleService = container.resolve(Modules.ORDER)
 
   const { data: orders } = await query.graph({
     entity: "orders",
     fields: [
       "id",
+      "seller.id",
       "items.id",
+      "items.variant_id",
       "items.metadata",
       "items.offer.id",
     ],
     filters: { id: orderId },
   })
 
-  const order = orders?.[0] as { items?: LineItem[] } | undefined
+  const order = orders?.[0] as
+    | { seller?: { id?: string | null } | null; items?: LineItem[] }
+    | undefined
   const items = order?.items ?? []
+  const sellerId = order?.seller?.id ?? null
 
-  const pairs: Array<{ line_item_id: string; offer_id: string }> = []
+  const candidates: Array<{ item: LineItem; offer_id: string }> = []
 
   for (const item of items) {
     const metadata = (item.metadata ?? {}) as Record<string, unknown>
@@ -77,28 +90,58 @@ export default async function linkOrderLineItemsToOffersHandler({
     if (item.offer?.id) {
       continue
     }
-    pairs.push({ line_item_id: item.id, offer_id: offerId })
+    candidates.push({ item, offer_id: offerId })
   }
 
-  if (!pairs.length) {
+  if (!candidates.length) {
     return
   }
 
-  await link.create(
-    pairs.map((pair) => ({
-      [Modules.ORDER]: { order_line_item_id: pair.line_item_id },
-      [MercurModules.OFFER]: { offer_id: pair.offer_id },
-    }))
-  )
+  const { data: offers } = await query.graph({
+    entity: "offer",
+    fields: ["id", "seller_id", "variant_id"],
+    filters: { id: [...new Set(candidates.map((c) => c.offer_id))] },
+  })
+  const offersById = new Map((offers as OfferRow[]).map((o) => [o.id, o]))
 
-  // Clean up the metadata marker so the link isn't re-attempted on later
-  // events for the same order.
-  const updates = pairs.map((pair) => {
-    const item = items.find((i) => i.id === pair.line_item_id)
-    const nextMetadata = { ...(item?.metadata ?? {}) }
+  const pairs: Array<{ line_item_id: string; offer_id: string }> = []
+
+  for (const { item, offer_id } of candidates) {
+    const offer = offersById.get(offer_id)
+    const reason = !offer
+      ? "offer not found"
+      : !sellerId || offer.seller_id !== sellerId
+        ? "offer belongs to a different seller"
+        : offer.variant_id !== item.variant_id
+          ? "offer variant does not match the line item"
+          : null
+
+    if (reason) {
+      logger.warn(
+        `Skipping offer link for line item ${item.id} on order ${orderId}: ${reason} (offer ${offer_id})`
+      )
+      continue
+    }
+
+    pairs.push({ line_item_id: item.id, offer_id })
+  }
+
+  if (pairs.length) {
+    await link.create(
+      pairs.map((pair) => ({
+        [Modules.ORDER]: { order_line_item_id: pair.line_item_id },
+        [MercurModules.OFFER]: { offer_id: pair.offer_id },
+      }))
+    )
+  }
+
+  // Clean up the metadata marker on every candidate, linked or rejected, so
+  // the link isn't re-attempted on later events for the same order.
+  const updates = candidates.map(({ item }) => {
+    const nextMetadata = { ...(item.metadata ?? {}) }
     delete nextMetadata[METADATA_KEY]
     return {
-      selector: { id: pair.line_item_id },
+      selector: { id: item.id },
       data: { metadata: nextMetadata },
     }
   })

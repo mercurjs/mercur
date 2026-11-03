@@ -25,10 +25,29 @@ describe("telemetryDisabledReason", () => {
     expect(telemetryDisabledReason({ env: base, workerMode: "server" })).toBeNull()
   })
 
-  it("lets an explicit opt-out win over the test override", () => {
+  it("lets the force flag override only the environment heuristics", () => {
+    const force = { MERCUR_TELEMETRY_FORCE_ENABLED: "true" }
+
+    expect(telemetryDisabledReason({ env: { NODE_ENV: "test", ...force } })).toBeNull()
+    expect(telemetryDisabledReason({ env: { ...base, CI: "true", ...force } })).toBeNull()
     expect(
-      telemetryDisabledReason({ env: { NODE_ENV: "test", MERCUR_TELEMETRY_FORCE_ENABLED: "true" } }),
+      telemetryDisabledReason({ env: { ...base, MEDUSA_WORKER_MODE: "worker", ...force } }),
     ).toBeNull()
+    expect(telemetryDisabledReason({ env: { ...base, ...force }, workerMode: "worker" })).toBeNull()
+  })
+
+  it("keeps explicit opt-outs ahead of the force flag", () => {
+    const force = { MERCUR_TELEMETRY_FORCE_ENABLED: "true" }
+
+    expect(
+      telemetryDisabledReason({ env: { ...base, MERCUR_DISABLE_TELEMETRY: "1", ...force } }),
+    ).toBe("env")
+    expect(telemetryDisabledReason({ env: { ...base, DO_NOT_TRACK: "1", ...force } })).toBe(
+      "do_not_track",
+    )
+    expect(telemetryDisabledReason({ env: { ...base, ...force }, configEnabled: false })).toBe(
+      "config",
+    )
   })
 })
 

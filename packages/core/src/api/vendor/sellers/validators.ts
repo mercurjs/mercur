@@ -7,6 +7,8 @@ import { AdditionalData } from "@medusajs/framework/types"
 import { SellerRole } from "@mercurjs/types"
 import { z } from "zod"
 
+import { httpUrl } from "../../utils/http-url"
+
 export type VendorGetSellersParamsType = z.infer<typeof VendorGetSellersParams>
 export const VendorGetSellersParams = createFindParams({
   offset: 0,
@@ -78,9 +80,9 @@ export const UpdateSeller = z.object({
   email: z.string().email().optional(),
   phone: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
-  logo: z.string().url().nullable().optional(),
-  banner: z.string().url().nullable().optional(),
-  website_url: z.string().nullable().optional(),
+  logo: httpUrl.nullable().optional(),
+  banner: httpUrl.nullable().optional(),
+  website_url: httpUrl.nullable().optional(),
   closed_from: z.coerce.date().nullable().optional(),
   closed_to: z.coerce.date().nullable().optional(),
   closure_note: z.string().nullable().optional(),

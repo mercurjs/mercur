@@ -11,6 +11,7 @@ import { HttpTypes } from "@mercurjs/types"
 
 import { refetchPromotion, validateSellerPromotion } from "../helpers"
 import { VendorUpdatePromotionType } from "../validators"
+import { validateSellerCampaign } from "../../campaigns/helpers"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -43,6 +44,14 @@ export const POST = async (
   const { id } = req.params
 
   await validateSellerPromotion(req.scope, req.seller_context!.seller_id, id)
+
+  if (req.validatedBody.campaign_id) {
+    await validateSellerCampaign(
+      req.scope,
+      req.seller_context!.seller_id,
+      req.validatedBody.campaign_id
+    )
+  }
 
   await updatePromotionsWorkflow(req.scope).run({
     input: {

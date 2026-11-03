@@ -11,7 +11,6 @@ export const adminPayoutAccountFields = [
   "created_at",
   "updated_at",
   "onboarding.id",
-  "onboarding.data",
   "seller.id",
   "seller.name",
   "seller.handle",

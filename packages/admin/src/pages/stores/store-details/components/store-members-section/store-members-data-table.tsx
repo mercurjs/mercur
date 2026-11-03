@@ -47,7 +47,7 @@ type InviteRow = {
   id: string;
   email: string;
   role_id: string;
-  token: string;
+  token?: string;
   is_owner: boolean;
   created_at: Date;
   updated_at: Date;
@@ -297,7 +297,7 @@ const InviteActions = ({
 
   const handleCopyLink = async () => {
     try {
-      let token: string | null = invite.token;
+      let token: string | null = invite.token ?? null;
       if (!token) {
         const response = (await resend({ invite_id: invite.id })) as {
           member_invite?: { token?: string | null };

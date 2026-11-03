@@ -10,9 +10,12 @@ import {
 } from "@components/data-grid";
 import { RouteFocusModal, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
-import { sdk } from "@lib/client";
 import { queryClient } from "@lib/query-client";
-import { sellersQueryKeys, useSellers } from "@hooks/api/sellers";
+import {
+  sellersQueryKeys,
+  transitionSellerStatus,
+  useSellers,
+} from "@hooks/api/sellers";
 import { SellerDTO, SellerStatus } from "@mercurjs/types";
 
 type FormValues = {
@@ -110,10 +113,11 @@ export const StoreBulkEditForm = () => {
     const updates = sellers
       .filter((seller) => statuses[seller.id] !== seller.status)
       .map((seller) =>
-        sdk.admin.sellers.$id.mutate({
-          $id: seller.id,
-          status: statuses[seller.id],
-        }),
+        transitionSellerStatus(
+          seller.id,
+          seller.status as SellerStatus,
+          statuses[seller.id],
+        ),
       );
 
     if (!updates.length) {

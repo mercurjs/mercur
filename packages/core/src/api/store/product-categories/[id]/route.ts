@@ -6,6 +6,7 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
+import { publishedProductsContext } from "@medusajs/medusa/api/store/utils/published-products-context"
 
 export const GET = async (
   req: MedusaRequest,
@@ -19,6 +20,7 @@ export const GET = async (
     entity: "product_category",
     fields: req.queryConfig.fields,
     filters: { ...req.filterableFields, id: req.params.id },
+    context: publishedProductsContext(),
   })
 
   if (!product_category) {

@@ -14,6 +14,7 @@ import { MemberInviteDTO } from "@mercurjs/types"
 
 import {
   validateMemberInviteTokenStep,
+  resolveInvitedMemberStep,
   upsertMembersStep,
   createSellerMembersStep,
   deleteMemberInviteStep,
@@ -44,6 +45,13 @@ export const acceptMemberInviteWorkflow = createWorkflow(
       input,
       invite: inviteDTO,
     })
+
+    resolveInvitedMemberStep(
+      transform({ invite, input }, ({ invite, input }) => ({
+        email: invite.email,
+        member_id: input.member_id,
+      }))
+    )
 
     const members = upsertMembersStep(
       transform({ invite, input }, ({ invite, input }) => [

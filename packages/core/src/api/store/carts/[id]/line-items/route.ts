@@ -5,6 +5,7 @@ import {
 } from "@medusajs/framework/utils"
 import { addToCartWorkflow } from "@medusajs/medusa/core-flows"
 import { defaultStoreCartFields, refetchCart } from "../../helpers"
+import { resolveVisibleSellerIds } from "../../../../utils/sellers"
 import { StoreAddCartLineItemType } from "./validators"
 
 export const POST = async (
@@ -17,15 +18,25 @@ export const POST = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const { data: offers } = await query.graph({
     entity: "offer",
-    fields: ["id", "variant_id"],
+    fields: ["id", "variant_id", "seller_id"],
     filters: { id: offer_id },
   })
 
-  const offer = offers[0] as { id: string; variant_id: string } | undefined
+  const offer = offers[0] as
+    | { id: string; variant_id: string; seller_id: string | null }
+    | undefined
   if (!offer) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,
       `Offer ${offer_id} not found`,
+    )
+  }
+
+  const visibleSellerIds = await resolveVisibleSellerIds(req.scope)
+  if (!offer.seller_id || !visibleSellerIds.includes(offer.seller_id)) {
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      `Offer ${offer_id} is not available: its seller is not accepting orders`,
     )
   }
 

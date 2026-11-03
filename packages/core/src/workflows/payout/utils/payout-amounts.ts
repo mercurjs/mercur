@@ -33,7 +33,7 @@ export type PayoutOrder = FulfillableOrder & {
   canceled_at: Date | string | null
   total: BigNumberInput
   currency_code: string
-  credit_lines?: { amount: BigNumberInput }[] | null
+  credit_lines?: { amount: BigNumberInput; reference?: string | null }[] | null
   shipping_methods?: { id: string }[] | null
   seller?: {
     id: string
@@ -71,6 +71,7 @@ export const PAYOUT_ORDER_FIELDS = [
   "currency_code",
   ...ORDER_FULFILLMENT_FIELDS,
   "credit_lines.amount",
+  "credit_lines.reference",
   "shipping_methods.id",
   "seller.id",
   "seller.payout_account.id",
@@ -93,6 +94,7 @@ export const REVERSAL_ORDER_FIELDS = [
   "total",
   "currency_code",
   "credit_lines.amount",
+  "credit_lines.reference",
   "items.id",
   "shipping_methods.id",
   "payment_collections.payments.refunds.id",
@@ -107,6 +109,33 @@ const sum = (rows: AmountRow[] | null | undefined) =>
 
 const refundsOf = (order: Pick<PayoutOrder, "payment_collections">) =>
   (order.payment_collections ?? []).flatMap((c) => c.payments ?? []).flatMap((p) => p.refunds ?? [])
+
+/** Captured minus refunded across the order's live payments: the most a payout can ever be built from. */
+export function capturedNetOf(order: Pick<PayoutOrder, "payment_collections">): BigNumberInput {
+  const payments = (order.payment_collections ?? []).flatMap((c) => c.payments ?? []).filter((p) => !p.canceled_at)
+  const captured = sum(payments.flatMap((p) => p.captures ?? []))
+  return MathBN.sub(captured, sum(payments.flatMap((p) => p.refunds ?? [])))
+}
+
+// Providers resolve the charge from the payment's provider id and
+// `latest_charge`; the rest of the raw provider payload (card, billing
+// details) has no business being copied onto every payout row.
+export function sourcePaymentDataOf(data: Record<string, unknown> | null | undefined): Record<string, unknown> {
+  if (!data) {
+    return {}
+  }
+  const trimmed: Record<string, unknown> = {}
+  if (typeof data.id === "string") {
+    trimmed.id = data.id
+  }
+  const latestCharge = data.latest_charge
+  if (typeof latestCharge === "string") {
+    trimmed.latest_charge = latestCharge
+  } else if (latestCharge && typeof latestCharge === "object" && typeof (latestCharge as { id?: unknown }).id === "string") {
+    trimmed.latest_charge = (latestCharge as { id: string }).id
+  }
+  return trimmed
+}
 
 const hold = (reason: PayoutStatusReasonCode, detail: string | null = null): PayoutDecision => ({
   status: PayoutStatus.ON_HOLD,
@@ -135,9 +164,18 @@ const countBy = (statuses: string[]) =>
     return counts
   }, {})
 
-/** Order total before refunds: Medusa books a refund as a credit line that lowers `total`. */
+const REFUND_CREDIT_LINE_REFERENCE = "payment_collection"
+
+/**
+ * Order total before refunds: Medusa books a refund as a credit line
+ * referencing the payment collection, which lowers `total`. Store-credit
+ * lines copied from the cart are real discounts the seller never receives
+ * and stay deducted.
+ */
 export function grossTotalOf(order: Pick<PayoutOrder, "total" | "credit_lines">): BigNumberInput {
-  return (order.credit_lines ?? []).reduce<BigNumberInput>((acc, line) => MathBN.add(acc, line.amount), order.total)
+  return (order.credit_lines ?? [])
+    .filter((line) => line.reference === REFUND_CREDIT_LINE_REFERENCE)
+    .reduce<BigNumberInput>((acc, line) => MathBN.add(acc, line.amount), order.total)
 }
 
 export function paymentStateOf(order: Pick<PayoutOrder, "payment_collections">): PaymentState {
@@ -209,6 +247,7 @@ export function decideOrderPayout(input: {
   account: { id: string; payouts_enabled: boolean } | null
   payment: PaymentState
   commission_total: BigNumberInput
+  captured_total?: BigNumberInput | null
   required_fulfillment_status: FulfillmentStatus
 }): PayoutDecision {
   const { order, account, payment } = input
@@ -241,7 +280,13 @@ export function decideOrderPayout(input: {
     return hold(PayoutStatusReason.PAYMENT_NOT_READY, `Payment ${payment.id} is not ready yet, status is authorized`)
   }
 
-  return ready(MathBN.sub(order.total, input.commission_total), order.currency_code)
+  // The order total can grow after capture (vendor edits, claims, exchanges);
+  // the seller is never paid more than the buyer's money actually on hand.
+  const captured = input.captured_total
+  const base =
+    captured != null && MathBN.gt(captured, 0) && MathBN.lt(captured, order.total) ? captured : order.total
+
+  return ready(MathBN.sub(base, input.commission_total), order.currency_code)
 }
 
 /**
@@ -341,11 +386,12 @@ export function planOrderPayouts(input: {
       payment,
       commission_total:
         MathBN.gt(absorbed, 0) && MathBN.gt(gross, 0) ? MathBN.div(MathBN.mult(commission, net), gross) : commission,
+      captured_total: capturedNetOf(order),
       required_fulfillment_status: input.required_fulfillment_status,
     })
 
     const data = {
-      source_payment: payment ? { id: payment.id, data: payment.data } : null,
+      source_payment: payment ? { id: payment.id, data: sourcePaymentDataOf(payment.data) } : null,
       status_detail: decision.status_detail,
       absorbed_refund_ids: refunds.map((refund) => refund.id),
     }

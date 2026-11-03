@@ -10,6 +10,7 @@ import { ConfigModule } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 import { adminHeaders, createAdminUser } from "../../../helpers/create-admin-user"
+import { createSellerUser } from "../../../helpers/create-seller-user"
 
 jest.setTimeout(90000)
 
@@ -75,6 +76,80 @@ medusaIntegrationTestRunner({
 
         const orders = await api.get("/admin/orders", adminHeaders)
         expect(orders.status).toEqual(200)
+      })
+
+      it("guards case and slash variants of core routes", async () => {
+        useResolver({ orders: "view" })
+
+        for (const url of [
+          "/admin/Products",
+          "/admin/PRODUCTS/",
+          "/admin//products",
+        ]) {
+          const response = await api
+            .post(url, { title: "Bypass" }, adminHeaders)
+            .catch((error) => error.response)
+
+          expect(response.status).toEqual(403)
+          expect(response.data).toEqual(
+            expect.objectContaining({
+              code: "MISSING_PERMISSION",
+              permission: "products",
+              right: "edit",
+            })
+          )
+        }
+      })
+
+      it("fails closed on unknown admin paths for an actor without grants", async () => {
+        useResolver({})
+
+        const response = await api
+          .get("/admin/not-a-route", adminHeaders)
+          .catch((error) => error.response)
+
+        expect(response.status).toEqual(403)
+        expect(response.data.code).toEqual("MISSING_PERMISSION")
+      })
+
+      it("requires sellers.premium:edit to change is_premium", async () => {
+        const { seller } = await createSellerUser(container, {
+          email: "premium@test.com",
+          name: "Premium Candidate",
+        })
+
+        useResolver({ sellers: "edit" })
+
+        const denied = await api
+          .post(`/admin/sellers/${seller.id}`, { is_premium: true }, adminHeaders)
+          .catch((error) => error.response)
+
+        expect(denied.status).toEqual(403)
+        expect(denied.data).toEqual(
+          expect.objectContaining({
+            code: "MISSING_PERMISSION",
+            permission: "sellers.premium",
+            right: "edit",
+          })
+        )
+
+        const plain = await api.post(
+          `/admin/sellers/${seller.id}`,
+          { name: "Renamed Candidate" },
+          adminHeaders
+        )
+        expect(plain.status).toEqual(200)
+        expect(plain.data.seller.is_premium).toBe(false)
+
+        useResolver({ sellers: "edit", "sellers.premium": "edit" })
+
+        const allowed = await api.post(
+          `/admin/sellers/${seller.id}`,
+          { is_premium: true },
+          adminHeaders
+        )
+        expect(allowed.status).toEqual(200)
+        expect(allowed.data.seller.is_premium).toBe(true)
       })
 
       it("guards seller approval separately from seller editing", async () => {

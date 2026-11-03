@@ -205,6 +205,51 @@ medusaIntegrationTestRunner({
                     expect(response.status).toEqual(200)
                     expect(response.data.collection).toBeDefined()
                 })
+
+                it("should not allow seller to add or remove another seller's product", async () => {
+                    const [collection] = await productModuleService.createProductCollections([
+                        { title: "Foreign Products Collection", handle: "foreign-products" },
+                    ])
+
+                    const productResponse = await api.post(
+                        `/vendor/products`,
+                        {
+                            title: "Seller One Product",
+                            options: [{ title: "Default", values: ["Default"] }],
+                        },
+                        sellerHeaders
+                    )
+                    const productId = productResponse.data.product.id
+
+                    const seller2Result = await createSellerUser(appContainer, {
+                        email: "seller2-collections@test.com",
+                        name: "Seller Two",
+                    })
+
+                    const addResponse = await api
+                        .post(
+                            `/vendor/collections/${collection.id}/products`,
+                            { add: [productId] },
+                            seller2Result.headers
+                        )
+                        .catch((e) => e.response)
+                    expect(addResponse.status).toEqual(404)
+
+                    await api.post(
+                        `/vendor/collections/${collection.id}/products`,
+                        { add: [productId] },
+                        sellerHeaders
+                    )
+
+                    const removeResponse = await api
+                        .post(
+                            `/vendor/collections/${collection.id}/products`,
+                            { remove: [productId] },
+                            seller2Result.headers
+                        )
+                        .catch((e) => e.response)
+                    expect(removeResponse.status).toEqual(404)
+                })
             })
         })
     },

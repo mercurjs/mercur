@@ -5,7 +5,7 @@ const MemberInvite = model
   .define("MemberInvite", {
     id: model.id({ prefix: "meminv" }).primaryKey(),
     email: model.text().searchable(),
-    token: model.text(),
+    token_hash: model.text(),
     accepted: model.boolean().default(false),
     expires_at: model.dateTime(),
     role_id: model.text(),
@@ -21,7 +21,7 @@ const MemberInvite = model
       where: "deleted_at IS NULL AND accepted = false",
     },
     {
-      on: ["token"],
+      on: ["token_hash"],
       where: "deleted_at IS NULL",
     },
   ])

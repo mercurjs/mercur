@@ -44,9 +44,6 @@ export function telemetryDisabledReason({
   configEnabled = true,
   workerMode,
 }: TelemetryEnablementInput = {}): TelemetryDisabledReason | null {
-  if (isTruthy(env.MERCUR_TELEMETRY_FORCE_ENABLED)) {
-    return null
-  }
   if (isTruthy(env.MERCUR_DISABLE_TELEMETRY)) {
     return "env"
   }
@@ -55,6 +52,9 @@ export function telemetryDisabledReason({
   }
   if (!configEnabled) {
     return "config"
+  }
+  if (isTruthy(env.MERCUR_TELEMETRY_FORCE_ENABLED)) {
+    return null
   }
   if (env.NODE_ENV === "test") {
     return "test"

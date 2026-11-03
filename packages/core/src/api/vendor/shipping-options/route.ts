@@ -8,6 +8,7 @@ import { HttpTypes } from "@mercurjs/types"
 import { createSellerShippingOptionsWorkflow } from "../../../workflows/shipping-option"
 import { refetchShippingOption } from "./helpers"
 import { validateSellerRegionPrices } from "../regions/helpers"
+import { validateSellerServiceZone } from "../fulfillment-sets/helpers"
 import { VendorCreateShippingOptionType } from "./validators"
 
 export const GET = async (
@@ -37,6 +38,11 @@ export const POST = async (
 ) => {
   const sellerId = req.seller_context!.seller_id
 
+  await validateSellerServiceZone(
+    req.scope,
+    sellerId,
+    req.validatedBody.service_zone_id
+  )
   await validateSellerRegionPrices(
     req.scope,
     sellerId,

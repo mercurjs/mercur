@@ -12,7 +12,11 @@ import { PermissionRequirement } from "@mercurjs/types"
 
 import { adminMiddlewares } from "../admin/middlewares"
 import { vendorMiddlewares } from "../vendor/middlewares"
-import { matchCoreRoutePermission } from "../admin/core-route-permissions"
+import {
+  enforceCoreRoutePermissions,
+  matchCoreRoutePermission,
+  normalizeAdminPath,
+} from "../admin/core-route-permissions"
 import { REQUIRED_PERMISSION } from "../utils/permissions-middleware"
 import { getPermission } from "../../permissions"
 
@@ -158,6 +162,140 @@ describe("route permissions", () => {
     })
 
     expect([...new Set(unknown)]).toEqual([])
+  })
+
+  it("covers every core Medusa admin route family", () => {
+    const medusaAdminDir = path.join(
+      path.dirname(
+        require.resolve("@medusajs/medusa/api/admin/orders/query-config")
+      ),
+      ".."
+    )
+    const families = fs
+      .readdirSync(medusaAdminDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+
+    const uncovered = families.filter(
+      (family) =>
+        matchCoreRoutePermission(`/admin/${family}`, "POST") === undefined
+    )
+
+    expect(uncovered).toEqual([])
+  })
+
+  it("matches case, encoding and slash variants of a core route", () => {
+    expect(normalizeAdminPath("/admin//Products/?limit=1")).toEqual(
+      "/admin/products"
+    )
+    expect(normalizeAdminPath("/admin/%50roducts/prod_1/")).toEqual(
+      "/admin/products/prod_1"
+    )
+    expect(normalizeAdminPath("/admin/%E0%A4%A")).toEqual("/admin/%E0%A4%A")
+
+    for (const variant of [
+      "/admin/Products",
+      "/admin/PRODUCTS/",
+      "/admin//products",
+      "/admin/%50roducts",
+    ]) {
+      expect(matchCoreRoutePermission(variant, "POST")).toEqual({
+        key: "products",
+        right: "edit",
+      })
+    }
+  })
+
+  it("guards the whole orders subtree", () => {
+    expect(matchCoreRoutePermission("/admin/orders/order_1", "GET")).toEqual({
+      key: "orders",
+      right: "view",
+    })
+    expect(
+      matchCoreRoutePermission("/admin/orders/order_1/fulfillments", "POST")
+    ).toEqual({ key: "orders", right: "edit" })
+    expect(
+      matchCoreRoutePermission("/admin/orders/order_1/refund", "POST")
+    ).toEqual({ key: "orders.refunds", right: "edit" })
+    expect(
+      matchCoreRoutePermission("/admin/draft-orders/order_1", "DELETE")
+    ).toEqual({ key: "orders", right: "manage" })
+    expect(matchCoreRoutePermission("/admin/order-edits", "POST")).toEqual({
+      key: "orders.edits",
+      right: "edit",
+    })
+    expect(
+      matchCoreRoutePermission("/admin/returns/return_1/receive", "POST")
+    ).toEqual({ key: "orders.returns", right: "edit" })
+    expect(matchCoreRoutePermission("/admin/claims", "GET")).toEqual({
+      key: "orders.returns",
+      right: "view",
+    })
+    expect(
+      matchCoreRoutePermission("/admin/exchanges/exc_1", "DELETE")
+    ).toEqual({ key: "orders.returns", right: "manage" })
+    expect(
+      matchCoreRoutePermission("/admin/fulfillments/ful_1/cancel", "POST")
+    ).toEqual({ key: "fulfillment_sets", right: "edit" })
+  })
+
+  describe("enforceCoreRoutePermissions", () => {
+    const run = (
+      url: string,
+      method: string,
+      permissions: Record<string, string>
+    ) => {
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn().mockReturnThis(),
+      }
+      const next = jest.fn()
+      const req = {
+        originalUrl: url,
+        method,
+        permissions,
+        permissions_enforced: true,
+      }
+
+      enforceCoreRoutePermissions(
+        req as never,
+        res as unknown as Parameters<typeof enforceCoreRoutePermissions>[1],
+        next
+      )
+
+      return { res, next }
+    }
+
+    it("denies a case variant of a guarded core route", () => {
+      const { res, next } = run("/admin/Products", "POST", { orders: "view" })
+
+      expect(next).not.toHaveBeenCalled()
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ permission: "products", right: "edit" })
+      )
+    })
+
+    it("passes Mercur-owned routes to their own guards", () => {
+      const { next } = run("/admin/sellers", "GET", { sellers: "view" })
+
+      expect(next).toHaveBeenCalled()
+    })
+
+    it("fails closed on unknown admin paths for an actor without grants", () => {
+      const { res, next } = run("/admin/not-a-route", "GET", {})
+
+      expect(next).not.toHaveBeenCalled()
+      expect(res.status).toHaveBeenCalledWith(403)
+    })
+
+    it("accepts any of the shared permissions on uploads", () => {
+      expect(run("/admin/uploads", "POST", { sellers: "edit" }).next).toHaveBeenCalled()
+
+      const denied = run("/admin/uploads", "POST", { orders: "view" })
+      expect(denied.next).not.toHaveBeenCalled()
+      expect(denied.res.status).toHaveBeenCalledWith(403)
+    })
   })
 
   it("lets an admin read and edit their own profile without users permissions", () => {

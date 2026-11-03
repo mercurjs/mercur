@@ -221,6 +221,89 @@ medusaIntegrationTestRunner({
         expect(await calc(offerA.id)).toEqual(300)
         expect(await calc(offerB.id)).toEqual(1000)
       })
+      it("rejects batch prices that reference another seller's offer or another price list", async () => {
+        const createPriceList = async (title: string) =>
+          (
+            await api.post(
+              "/vendor/price-lists",
+              {
+                title,
+                description: "ownership",
+                type: "override",
+                status: "active",
+                prices: [
+                  {
+                    variant_id: variantId,
+                    currency_code: "usd",
+                    amount: 500,
+                    rules: { offer_id: offerA.id },
+                  },
+                ],
+              },
+              seller1Headers
+            )
+          ).data.price_list.id
+
+        const priceListA = await createPriceList("Owner PL")
+        const priceListB = await createPriceList("Other PL")
+
+        const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+        const { data: pricesA } = await query.graph({
+          entity: "price",
+          filters: { price_list_id: priceListA },
+          fields: ["id"],
+        })
+        const foreignPriceId = (pricesA[0] as any).id
+
+        const foreignOffer = await api
+          .post(
+            `/vendor/price-lists/${priceListA}/prices/batch`,
+            {
+              create: [
+                {
+                  variant_id: variantId,
+                  currency_code: "usd",
+                  amount: 100,
+                  rules: { offer_id: offerB.id },
+                },
+              ],
+            },
+            seller1Headers
+          )
+          .catch((e) => e.response)
+        expect(foreignOffer.status).toEqual(404)
+
+        const foreignUpdate = await api
+          .post(
+            `/vendor/price-lists/${priceListB}/prices/batch`,
+            {
+              update: [
+                {
+                  id: foreignPriceId,
+                  variant_id: variantId,
+                  currency_code: "usd",
+                  amount: 1,
+                  rules: { offer_id: offerA.id },
+                },
+              ],
+            },
+            seller1Headers
+          )
+          .catch((e) => e.response)
+        expect(foreignUpdate.status).toEqual(404)
+
+        const foreignDelete = await api
+          .post(
+            `/vendor/price-lists/${priceListB}/prices/batch`,
+            { delete: [foreignPriceId] },
+            seller1Headers
+          )
+          .catch((e) => e.response)
+        expect(foreignDelete.status).toEqual(404)
+
+        expect(await calc(offerA.id)).toEqual(500)
+        expect(await calc(offerB.id)).toEqual(1000)
+      })
     })
   },
 })

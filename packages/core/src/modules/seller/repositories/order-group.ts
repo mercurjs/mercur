@@ -16,6 +16,15 @@ const OPERATOR_MAP = {
   $ilike: "ILIKE",
 }
 
+const MAX_PAGE_SIZE = 1000
+
+const clampPageSize = (take: number): number => {
+  if (!Number.isFinite(take) || take < 0) {
+    return 0
+  }
+  return Math.min(Math.floor(take), MAX_PAGE_SIZE)
+}
+
 const SORTABLE_COLUMNS = ["display_id", "created_at", "updated_at"] as const
 
 // SQL twin of `getLastPaymentStatus` in workflows/order-group/utils, applied
@@ -318,13 +327,15 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
 
     const paginationParams: any[] = []
 
-    if (findOptions_.options.take) {
+    const take = findOptions_.options.take
+    if (take != null) {
       query += " LIMIT ?"
-      paginationParams.push(findOptions_.options.take)
+      paginationParams.push(clampPageSize(take))
     }
-    if (findOptions_.options.skip) {
+    const skip = findOptions_.options.skip
+    if (skip != null && skip > 0) {
       query += " OFFSET ?"
-      paginationParams.push(findOptions_.options.skip)
+      paginationParams.push(Math.floor(skip))
     }
 
     const [result, countResult] = await Promise.all([

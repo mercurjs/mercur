@@ -7,6 +7,7 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
   promiseAll,
+  RuleType,
 } from "@medusajs/framework/utils"
 
 export const refetchPromotion = async (
@@ -102,5 +103,50 @@ export const refetchBatchRules = async (
       object: "promotion-rule",
       deleted: true,
     },
+  }
+}
+
+export const validatePromotionRules = async (
+  scope: MedusaContainer,
+  promotionId: string,
+  ruleType: RuleType,
+  ruleIds: string[]
+) => {
+  const ids = Array.from(new Set(ruleIds))
+  if (!ids.length) {
+    return
+  }
+
+  const query = scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const {
+    data: [promotion],
+  } = await query.graph({
+    entity: "promotion",
+    filters: { id: promotionId },
+    fields: [
+      "id",
+      "rules.id",
+      "application_method.buy_rules.id",
+      "application_method.target_rules.id",
+    ],
+  })
+
+  type RuleRef = { id: string }
+  const rules: RuleRef[] =
+    ruleType === RuleType.RULES
+      ? promotion?.rules ?? []
+      : ruleType === RuleType.BUY_RULES
+        ? promotion?.application_method?.buy_rules ?? []
+        : promotion?.application_method?.target_rules ?? []
+
+  const owned = new Set(rules.map((rule) => rule.id))
+  const missing = ids.find((id) => !owned.has(id))
+
+  if (missing) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `Promotion rule with id: ${missing} was not found`
+    )
   }
 }
