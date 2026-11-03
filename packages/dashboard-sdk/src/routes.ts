@@ -284,7 +284,7 @@ export function buildRouteTree(results: RouteResult[]): RouteResult[] {
  * the override and hands the overridden page to the new one as `renderDefault`.
  */
 export function generateRoutes(config: BuiltMercurConfig): string {
-    const { header, names } = emitLayers(config)
+    const { header, names } = emitLayers(config, ["routeModule"])
 
     return `${header}
 

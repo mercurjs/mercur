@@ -6,7 +6,7 @@ import type { BuiltMercurConfig } from "./types"
  * the runtime registry, field by field per zone entry, later layers winning.
  */
 export function generatePreferences(config: BuiltMercurConfig): string {
-    const { header, names } = emitLayers(config)
+    const { header, names } = emitLayers(config, ["preferenceModule"])
 
     return `${header}
 
