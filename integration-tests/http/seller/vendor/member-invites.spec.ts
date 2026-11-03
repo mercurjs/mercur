@@ -18,7 +18,6 @@ medusaIntegrationTestRunner({
       let appContainer: MedusaContainer
       let sellerA: any
       let sellerB: any
-      let memberA: any
       let memberB: any
       let headersA: any
       let headersB: any
@@ -35,7 +34,6 @@ medusaIntegrationTestRunner({
           name: "Alpha Store",
         })
         sellerA = resultA.seller
-        memberA = resultA.member
         headersA = resultA.headers
 
         const resultB = await createSellerUser(appContainer, {
