@@ -26,6 +26,19 @@ export const VENDOR_SELLER_PRIVATE_FIELD_SEGMENTS = [
   "members",
 ]
 
+/**
+ * Offer prices live on the variant's shared price set, keyed only by an
+ * `offer_id` rule, so walking `variants.prices` from a catalog read returns
+ * every seller's prices. Catalog routes block the price relations; a seller's
+ * own prices are read through the offer and price-list routes.
+ */
+export const VENDOR_CATALOG_FIELD_SEGMENTS = [
+  ...VENDOR_SELLER_PRIVATE_FIELD_SEGMENTS,
+  "prices",
+  "price_set",
+  "price_sets",
+]
+
 export const restrictVendorFields =
   (disallowed: string[]) =>
   (req: MedusaRequest, _res: MedusaResponse, next: MedusaNextFunction) => {

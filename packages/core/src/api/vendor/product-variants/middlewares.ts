@@ -1,5 +1,9 @@
 import { requirePermission } from "../../utils"
 import {
+  restrictVendorFields,
+  VENDOR_CATALOG_FIELD_SEGMENTS,
+} from "../../utils/restrict-vendor-fields"
+import {
   AuthenticatedMedusaRequest,
   MedusaNextFunction,
   MedusaResponse,
@@ -56,6 +60,7 @@ export const vendorProductVariantsMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/product-variants",
     middlewares: [
       requirePermission("products", "view"),
+      restrictVendorFields(VENDOR_CATALOG_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetProductVariantsParams,
         vendorProductVariantsQueryConfig.list

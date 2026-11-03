@@ -572,6 +572,50 @@ medusaIntegrationTestRunner({
                 })
             })
 
+            describe("catalog price traversal", () => {
+                it("does not expose variant prices through the product and variant routes", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+
+                    const created = await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "PRICE-TRAVERSAL",
+                            variant_id: deps.variant_id,
+                            shipping_profile_id: deps.shipping_profile_id,
+                            inventory_items: [{}],
+                            prices: [{ amount: 1234, currency_code: "usd" }],
+                        },
+                        seller1Headers
+                    )
+                    expect(created.status).toEqual(201)
+
+                    const product = await api.get(
+                        `/vendor/products/${deps.product_id}?fields=id,*variants.prices,*variants.price_set`,
+                        seller1Headers
+                    )
+                    expect(product.status).toEqual(200)
+                    expect(JSON.stringify(product.data)).not.toContain("1234")
+                    for (const variant of product.data.product.variants ?? []) {
+                        expect(variant.prices).toBeUndefined()
+                        expect(variant.price_set).toBeUndefined()
+                    }
+
+                    const variants = await api.get(
+                        `/vendor/product-variants?fields=id,*prices&id=${deps.variant_id}`,
+                        seller1Headers
+                    )
+                    expect(variants.status).toEqual(200)
+                    expect(JSON.stringify(variants.data)).not.toContain("1234")
+
+                    const offer = await api.get(
+                        `/vendor/offers/${created.data.offer.id}?fields=id,*prices`,
+                        seller1Headers
+                    )
+                    expect(offer.status).toEqual(200)
+                    expect(offer.data.offer.prices.map((p: any) => p.amount)).toContain(1234)
+                })
+            })
+
             describe("GET /vendor/offers/:id", () => {
                 it("should not allow seller to read another seller's offer", async () => {
                     const deps = await seedSellerOfferDeps(seller1Headers)
