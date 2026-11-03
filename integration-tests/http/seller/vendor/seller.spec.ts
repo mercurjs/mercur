@@ -1256,6 +1256,7 @@ medusaIntegrationTestRunner({
         })
 
         it("locks a terminated seller out of the Vendor API", async () => {
+          await api.post(`/admin/sellers/${sellerA.id}/suspend`, {}, adminHeaders)
           await api.post(
             `/admin/sellers/${sellerA.id}/terminate`,
             {},

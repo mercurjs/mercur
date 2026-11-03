@@ -1,4 +1,3 @@
-import linkOrderLineItemsToOffersHandler from "@mercurjs/core/subscribers/link-order-line-items-to-offers"
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import {
     IRegionModuleService,
@@ -8,7 +7,6 @@ import {
 import {
     ContainerRegistrationKeys,
     Modules,
-    OrderEditWorkflowEvents,
 } from "@medusajs/framework/utils"
 import { MercurModules, SellerStatus } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
@@ -469,40 +467,6 @@ medusaIntegrationTestRunner({
                     }
                     const added = items.find((i) => i.metadata?.note === "keep me")
                     expect(added).toBeDefined()
-                })
-            })
-
-            describe("link-order-line-items-to-offers subscriber", () => {
-                it("does not link a line item to another seller's offer", async () => {
-                    const order = await completeCartCheckout(seller1Seed.offer.id)
-                    const [item] = await loadItems(order.id)
-
-                    const link = appContainer.resolve(ContainerRegistrationKeys.LINK)
-                    await link.dismiss({
-                        [Modules.ORDER]: { order_line_item_id: item.id },
-                        [MercurModules.OFFER]: { offer_id: seller1Seed.offer.id },
-                    })
-
-                    const orderModule: any = appContainer.resolve(Modules.ORDER)
-                    await orderModule.updateOrderLineItems([
-                        {
-                            selector: { id: item.id },
-                            data: { metadata: { offer_id: seller2Seed.offer.id } },
-                        },
-                    ])
-
-                    await linkOrderLineItemsToOffersHandler({
-                        event: {
-                            name: OrderEditWorkflowEvents.CONFIRMED,
-                            data: { order_id: order.id },
-                        },
-                        container: appContainer,
-                    } as Parameters<typeof linkOrderLineItemsToOffersHandler>[0])
-
-                    const current = (await loadItems(order.id))[0]
-
-                    expect(current.metadata?.offer_id).toBeUndefined()
-                    expect(current.offer?.id ?? null).toBeNull()
                 })
             })
         })

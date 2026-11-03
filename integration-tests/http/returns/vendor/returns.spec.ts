@@ -1003,7 +1003,7 @@ medusaIntegrationTestRunner({
                     expect(response.status).toEqual(404)
                 })
 
-                it("should ignore an id query param on the mutation readback", async () => {
+                it("should reject an id query param on the mutation readback", async () => {
                     const first = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
                     const second = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
                     const returnA = (
@@ -1013,14 +1013,22 @@ medusaIntegrationTestRunner({
                         await api.post(`/vendor/returns`, { order_id: second.order.id }, seller1Headers)
                     ).data.return.id
 
-                    const response = await api.post(
-                        `/vendor/returns/${returnA}?id=${returnB}`,
+                    const response = await api
+                        .post(
+                            `/vendor/returns/${returnA}?id=${returnB}`,
+                            { location_id: stockLocation1.id },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
+
+                    const readback = await api.post(
+                        `/vendor/returns/${returnA}`,
                         { location_id: stockLocation1.id },
                         seller1Headers
                     )
-
-                    expect(response.status).toEqual(200)
-                    expect(response.data.return.id).toEqual(returnA)
+                    expect(readback.data.return.id).toEqual(returnA)
                 })
             })
         })
