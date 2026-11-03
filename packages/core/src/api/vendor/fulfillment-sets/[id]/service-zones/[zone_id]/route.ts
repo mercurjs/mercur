@@ -31,7 +31,7 @@ export const GET = async (
     data: [service_zone],
   } = await query.graph({
     entity: "service_zone",
-    filters: { id: zone_id },
+    filters: { id: zone_id, fulfillment_set_id: id },
     fields: req.queryConfig.fields,
   })
 
