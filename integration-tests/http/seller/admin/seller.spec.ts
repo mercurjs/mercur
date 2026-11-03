@@ -1,5 +1,6 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { MedusaContainer } from "@medusajs/framework/types"
+import { Modules } from "@medusajs/framework/utils"
 import {
   adminHeaders,
   createAdminUser,
@@ -46,6 +47,66 @@ medusaIntegrationTestRunner({
         })
         sellerC = resultC.seller
         memberC = resultC.member
+      })
+
+      describe("seller entity events", () => {
+        it("emits seller.seller.created / updated and lands the seller in the index", async () => {
+          const eventBus = appContainer.resolve(Modules.EVENT_BUS) as {
+            subscribe: (
+              name: string,
+              fn: (event: { name: string; data: { id: string } }) => Promise<void>
+            ) => void
+          }
+          const events: { name: string; id: string }[] = []
+          eventBus.subscribe("*", async (event) => {
+            if (event.name.startsWith("seller.seller.")) {
+              events.push({ name: event.name, id: event.data?.id })
+            }
+          })
+
+          const created = await api.post(
+            `/admin/sellers`,
+            {
+              name: "Evented Seller",
+              email: "evented@test.com",
+              currency_code: "usd",
+              member: { email: "evented@test.com" },
+            },
+            adminHeaders
+          )
+          const sellerId = created.data.seller.id
+
+          await api.post(
+            `/admin/sellers/${sellerId}`,
+            { name: "Evented Seller Renamed" },
+            adminHeaders
+          )
+
+          const deadline = Date.now() + 15000
+          let indexed = false
+          while (Date.now() < deadline) {
+            const { rows } = await dbConnection.raw(
+              `select id from index_data where name = 'Seller' and id = ?`,
+              [sellerId]
+            )
+            indexed = rows.length === 1
+            if (
+              indexed &&
+              events.some((e) => e.name === "seller.seller.updated")
+            ) {
+              break
+            }
+            await new Promise((r) => setTimeout(r, 200))
+          }
+
+          expect(events).toEqual(
+            expect.arrayContaining([
+              { name: "seller.seller.created", id: sellerId },
+              { name: "seller.seller.updated", id: sellerId },
+            ])
+          )
+          expect(indexed).toBe(true)
+        })
       })
 
       describe("POST /admin/sellers", () => {
