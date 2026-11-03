@@ -21,7 +21,7 @@
     "react-router-dom": "7.18.1",
     "@tanstack/react-table": "8.21.3",
     "@mercurjs/client": "2.4.0",
-    "zod": "4.6.5",
+    "zod": "4.6.6",
     "@mercurjs/core": "2.4.0",
     "@mercurjs/vendor": "2.4.0",
     "@medusajs/core-flows": "2.22.0",
