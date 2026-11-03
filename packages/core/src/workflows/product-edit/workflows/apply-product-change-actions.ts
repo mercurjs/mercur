@@ -275,6 +275,7 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
     })
 
     const deletedProductOffers = when(
+      "delete-products-and-load-offers",
       { buckets },
       ({ buckets }) => buckets.productsToDelete.length > 0,
     ).then(() => {
