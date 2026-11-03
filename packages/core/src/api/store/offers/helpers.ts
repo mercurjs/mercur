@@ -346,7 +346,7 @@ export const splitComputedOfferFields = (fields: string[]) => {
 
 export const EFFECTIVE_LEADTIME_FIELD = "effective_leadtime_to_ship"
 
-type LeadtimeOffer = {
+export type LeadtimeOffer = {
   seller_id?: string | null
   leadtime_to_ship?: number | null
   effective_leadtime_to_ship?: number | null

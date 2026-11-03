@@ -218,6 +218,27 @@ export const createOffersWorkflow: ReturnWorkflow<
 
     const offers = createOffersStep(stripped)
 
+    const offerOwnershipLinks = transform({ offers }, ({ offers }) => {
+      const links: LinkDefinition[] = []
+      for (const offer of offers) {
+        links.push({
+          [MercurModules.OFFER]: { offer_id: offer.id },
+          [MercurModules.SELLER]: { seller_id: offer.seller_id },
+        })
+        if (offer.product_id) {
+          links.push({
+            [MercurModules.OFFER]: { offer_id: offer.id },
+            [Modules.PRODUCT]: { product_id: offer.product_id },
+          })
+        }
+      }
+      return links
+    })
+
+    createRemoteLinkStep(offerOwnershipLinks).config({
+      name: "create-offer-ownership-links",
+    })
+
     // Link each offer's product to the offer's shipping profile. Medusa's
     // cart-refresh keeps a shipping method only when its option's profile
     // matches a profile on the cart's products (`item.variant.product

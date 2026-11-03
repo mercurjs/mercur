@@ -8,8 +8,8 @@ The Offer module never references another module directly. Eight module links in
 
 | Link | Other side | Kind | File |
 | --- | --- | --- | --- |
-| Offer to store | `Seller` | Read-only, on `seller_id` | `offer-seller-link.ts` |
-| Offer to product | `Product` | Read-only, on `product_id` | `offer-product-link.ts` |
+| Offer to store | `Seller` | Writable, many offers to one store, table `offer_seller` | `offer-seller-link.ts` |
+| Offer to product | `Product` | Writable, many offers to one product, table `offer_product` | `offer-product-link.ts` |
 | Offer to variant | `ProductVariant` | Read-only, on `variant_id` | `offer-variant-link.ts` |
 | Offer to shipping profile | `ShippingProfile` | Read-only, on `shipping_profile_id` | `offer-shipping-profile-link.ts` |
 | Offer to price | `Price` | Writable, one offer to many prices | `offer-price-link.ts` |
@@ -19,7 +19,7 @@ The Offer module never references another module directly. Eight module links in
 
 ## Offer to store
 
-Each offer belongs to one store. The link reads `offer.seller_id`, so you write the store by setting that field, not through the link.
+Each offer belongs to one store. The offer row keeps `seller_id` for filters and the unique SKU index, and the `offer_seller` link table mirrors it so the Medusa index engine can join offers to stores. `createOffersWorkflow` writes both; set `seller_id` and let the workflow create the link.
 
 ```ts
 const { data: offers } = await query.graph({
@@ -31,7 +31,7 @@ const { data: offers } = await query.graph({
 
 ## Offer to product and variant
 
-Each offer points at one master product and one master variant. Both links are read-only and read `offer.product_id` and `offer.variant_id`.
+Each offer points at one master product and one master variant. The product link is a writable `offer_product` table, mirrored from `offer.product_id` by `createOffersWorkflow`, so the index engine can filter offers by product status. The variant link is read-only and reads `offer.variant_id`.
 
 ```ts
 const { data: offers } = await query.graph({

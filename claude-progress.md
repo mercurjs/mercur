@@ -14,6 +14,23 @@ session detail aggressively. The per-spec source of truth lives in
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
 
+## Session — Store offers on the Medusa index engine (2026-11-03), branch `feat/index-engine-store-offers`
+
+`GET /store/offers` goes through `api/utils/list-offers.ts` `listOffers()`: `query.index` with seller visibility
+(`seller.status = open`, scheduled-closure dates) and `product.status = published` as index filters, `query.graph`
+with the previous id-list prefetch when a filter isn't indexed (`q`) or the index is off. The index can only join
+across modules through link tables, so `offer_seller` and `offer_product` are now writable links (`isList` on the
+offer side) that `createOffersWorkflow` writes next to `offer.seller_id` / `product_id`; migration script
+`backfill-offer-links.ts` seeds rows for existing offers after `db:migrate` syncs the tables. `withMercur` passes
+`utils/index-schema.ts` (Medusa's product schema + `Offer` + `Seller`) as the index module's `schema` option. Shared
+index helpers moved to `api/utils/index-engine.ts`. The detail route checks seller/product visibility from the
+database (the index is async). Tests: store `store-offers.spec` 16/16 with `helpers/wait-for-indexed-offers.ts`;
+`http/offer` vendor + store specs pass; `order.spec` / `multi-seller-shipping-methods.spec` 500 locally with the
+nested-worktree awilix leak, not this change (CI is the source of truth).
+
+Pre-existing, unchanged: the seller visibility rule hides a seller whenever `closed_to` is in the future, even
+before `closed_from`, in both `resolveVisibleSellerIds` and `store/sellers/middlewares.ts`.
+
 ## Session — Product lists on the Medusa index engine (2026-11-03), branch `feat/index-engine-product-lists`
 
 `GET /admin|/vendor|/store/products` now go through `api/utils/list-products.ts` `listProducts()`. It uses

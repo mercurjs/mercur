@@ -26,7 +26,7 @@ const { data: [offer] } = await query.graph({
 })
 ```
 
-This query reads one offer with its store and master variant. `seller` and `product_variant` resolve through read-only links on `seller_id` and `variant_id`.
+This query reads one offer with its store and master variant. `seller` resolves through the `offer_seller` link table, which `createOffersWorkflow` writes next to `seller_id`; `product_variant` resolves through a read-only link on `variant_id`.
 
 ## Offers and master products
 
