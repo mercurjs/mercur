@@ -19,6 +19,7 @@ import {
     generatePublishableKey,
     generateStoreHeaders,
 } from "../../../helpers/create-admin-user"
+import { waitForIndexedProducts } from "../../../helpers/wait-for-indexed-products"
 
 const approveSeller = async (container: MedusaContainer, sellerId: string) => {
     const sellerModule: any = container.resolve(MercurModules.SELLER)
@@ -93,6 +94,9 @@ medusaIntegrationTestRunner({
                     result.seller.id as string,
                     [productId]
                 )
+                await waitForIndexedProducts(appContainer, [
+                    { id: productId, restricted: true },
+                ])
 
                 const shippingProfile = await createShippingProfile(appContainer, {
                     name: `${opts.name} Profile ${tag}`,

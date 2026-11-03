@@ -4,7 +4,9 @@ import {
   promiseAll,
 } from "@medusajs/framework/utils"
 import type { MedusaContainer } from "@medusajs/framework/types"
-import { ProductChangeActionType } from "@mercurjs/types"
+import { ProductChangeActionType, ProductStatus } from "@mercurjs/types"
+
+import type { ProductVisibility } from "../../utils/list-products"
 
 export const getSellerOwnedProductIds = async (
   scope: MedusaContainer,
@@ -74,21 +76,101 @@ export const getProductIdsRestrictedFromSeller = async (
   return Array.from(restricted)
 }
 
-export const getProductStatus = async (
+/**
+ * A seller sees its own draft/proposed submissions, plus published products
+ * that are either unrestricted or allowlisted to it through `product_seller`.
+ */
+export const getSellerProductVisibility = async (
   scope: MedusaContainer,
-  productId: string
-): Promise<{ id: string; status: string } | undefined> => {
+  sellerId: string
+): Promise<ProductVisibility> => {
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const {
-    data: [product],
-  } = await query.graph({
-    entity: "product",
-    fields: ["id", "status"],
-    filters: { id: productId },
-  })
+  const [ownProductIds, { data: allowlistLinks }] = await promiseAll([
+    getSellerOwnedProductIds(scope, sellerId),
+    query.graph({
+      entity: "product_seller",
+      fields: ["product_id"],
+      filters: { seller_id: sellerId },
+    }),
+  ])
 
-  return product
+  const ownSubmissions = ownProductIds.length
+    ? [
+        {
+          id: ownProductIds,
+          status: { $in: [ProductStatus.DRAFT, ProductStatus.PROPOSED] },
+        },
+      ]
+    : []
+  const allowlistedIds = (allowlistLinks as { product_id: string | null }[])
+    .map((link) => link.product_id)
+    .filter((id): id is string => !!id)
+
+  return {
+    // Sellers created after boot are not ingested by the index (no
+    // `seller.seller.created` reaches it), so the allowlist cannot be matched
+    // through `sellers.id`. Only the link row's own id resolves, which is
+    // enough to tell unrestricted products apart. A bare `null` compiles to
+    // `= NULL` in the index query builder, hence `$eq`.
+    index: {
+      $or: [
+        ...ownSubmissions,
+        {
+          status: ProductStatus.PUBLISHED,
+          product_seller: { id: { $eq: null } },
+        },
+        ...(allowlistedIds.length
+          ? [{ status: ProductStatus.PUBLISHED, id: allowlistedIds }]
+          : []),
+      ],
+    },
+    graph: async () => {
+      const restrictedFromSellerIds = await getProductIdsRestrictedFromSeller(
+        scope,
+        sellerId
+      )
+      return {
+        $or: [
+          ...ownSubmissions,
+          {
+            status: ProductStatus.PUBLISHED,
+            id: { $nin: restrictedFromSellerIds },
+          },
+        ],
+      }
+    },
+  }
+}
+
+export const isProductVisibleToSeller = async (
+  scope: MedusaContainer,
+  sellerId: string,
+  productId: string
+): Promise<boolean> => {
+  const query = scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const [ownProductIds, { data: [product] }] = await promiseAll([
+    getSellerOwnedProductIds(scope, sellerId, [productId]),
+    query.graph({
+      entity: "product",
+      fields: ["id", "status", "sellers.id"],
+      filters: { id: productId },
+    }),
+  ])
+
+  if (!product) {
+    return false
+  }
+  if (ownProductIds.includes(productId)) {
+    return true
+  }
+
+  const sellers = (product.sellers ?? []) as ({ id: string } | null)[]
+  const restricted =
+    sellers.length > 0 && !sellers.some((seller) => seller?.id === sellerId)
+
+  return product.status === ProductStatus.PUBLISHED && !restricted
 }
 
 export const ensureSellerOwnsProduct = async (

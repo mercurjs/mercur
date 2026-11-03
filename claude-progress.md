@@ -14,6 +14,23 @@ session detail aggressively. The per-spec source of truth lives in
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
 
+## Session — Product lists on the Medusa index engine (2026-11-03), branch `feat/index-engine-product-lists`
+
+`GET /admin|/vendor|/store/products` now go through `api/utils/list-products.ts` `listProducts()`. It uses
+`query.index` when every filter key and the sort fall in the indexed whitelist, otherwise `query.graph` (categories,
+tags, variant options, withDeleted, admin `seller_id`). `count` = `estimate_count`, exact when the page isn't full;
+`estimate_count` is also returned. `withMercur` enables `index_engine` and injects `@medusajs/index` (direct dep
+of apps/api, integration-tests, templates/basic api). `product_seller` link is `filterable`. Vendor list no longer
+scans every seller's `product_seller` rows: visibility is own PRODUCT_ADD ids (draft/proposed), plus published with
+no `product_seller` row, plus published `id IN` this seller's own rows. It's passed per engine through
+`ProductVisibility`. The detail guard is one product query + the scoped authorship lookup. `has_offer` filters by
+`offer.product_id`. New index `IDX_product_change_created_by`. Tests: vendor `product.spec` 17/17 (new graph-fallback
+and count cases), admin `product` + `product-publish-and-sku` 26 pass (4 pre-existing skips), store `product/` 18/18,
+with deterministic index waits (`helpers/wait-for-indexed-products.ts`). Core tsc green; full `bun run build` not run.
+
+Open risk: sellers created after boot never land in the index (`seller.seller.created` doesn't reach it), so
+`sellers.id` filters are unusable. Production needs the Redis event bus for incremental index sync.
+
 ## Session — Extendable offer tables, grid and form fields (2026-10-26), branch `feat/extendable-offer-tables-forms`
 
 Panel extensions can now hide, replace, and add columns and fields beyond list pages, reusing the existing

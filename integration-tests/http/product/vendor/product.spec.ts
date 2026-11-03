@@ -1,5 +1,5 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { MedusaContainer } from "@medusajs/framework/types"
 
 import {
@@ -12,6 +12,7 @@ import {
   createAdminUser,
 } from "../../../helpers/create-admin-user"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { waitForIndexedProducts } from "../../../helpers/wait-for-indexed-products"
 import {
   AttributeType,
   MercurModules,
@@ -410,7 +411,11 @@ medusaIntegrationTestRunner({
             created_by: createdBy,
           },
         })
-        return (result as { id: string }[])[0].id
+        const id = (result as { id: string }[])[0].id
+        await waitForIndexedProducts(appContainer, [
+          { id, status, restricted: !!sellerIds?.length },
+        ])
+        return id
       }
 
       it("scopes the vendor list to the seller's own proposed products plus published", async () => {
@@ -495,6 +500,83 @@ medusaIntegrationTestRunner({
         const stillThere = await api.get(`/vendor/products/${draftByA}`, headersA)
         expect(stillThere.status).toEqual(200)
         expect(stillThere.data.product.title).toEqual("A Draft")
+      })
+
+      it("applies the same scoping when a category filter forces the graph fallback", async () => {
+        const productModule = appContainer.resolve(Modules.PRODUCT)
+        const [category] = await productModule.createProductCategories([
+          { name: "Fallback Category", is_active: true },
+        ])
+
+        const create = async (
+          title: string,
+          status: string,
+          createdBy: string,
+          sellerIds?: string[]
+        ) => {
+          const { result } = await createProductsWorkflow(appContainer).run({
+            input: {
+              products: [
+                {
+                  title,
+                  status,
+                  seller_ids: sellerIds,
+                  category_ids: [category.id],
+                } as any,
+              ],
+              created_by: createdBy,
+            },
+          })
+          return (result as { id: string }[])[0].id
+        }
+
+        const open = await create("Fallback Open", "published", "other-actor")
+        const restrictedToA = await create(
+          "Fallback Restricted",
+          "published",
+          "other-actor",
+          [sellerA.id]
+        )
+        const proposedByA = await create("Fallback Proposed", "proposed", sellerA.id)
+
+        const asA = await api.get(
+          `/vendor/products?category_id=${category.id}&limit=100`,
+          headersA
+        )
+        expect(asA.data.products.map((p: { id: string }) => p.id).sort()).toEqual(
+          [open, restrictedToA, proposedByA].sort()
+        )
+
+        const asB = await api.get(
+          `/vendor/products?category_id=${category.id}&limit=100`,
+          headersB
+        )
+        expect(asB.data.products.map((p: { id: string }) => p.id)).toEqual([open])
+        expect(asB.data.count).toEqual(1)
+      })
+
+      it("paginates the index-backed list with a count that is exact on the last page", async () => {
+        const ids = [
+          await createProduct("CountProbe One", "published", "other-actor"),
+          await createProduct("CountProbe Two", "published", "other-actor"),
+          await createProduct("CountProbe Three", "published", "other-actor"),
+        ]
+
+        const first = await api.get("/vendor/products?q=CountProbe&limit=2", headersA)
+        expect(first.data.products).toHaveLength(2)
+        expect(first.data.count).toBeGreaterThanOrEqual(3)
+
+        const last = await api.get(
+          "/vendor/products?q=CountProbe&limit=2&offset=2",
+          headersA
+        )
+        expect(last.data.products).toHaveLength(1)
+        expect(last.data.count).toEqual(3)
+
+        const seen = [...first.data.products, ...last.data.products].map(
+          (p: { id: string }) => p.id
+        )
+        expect(seen.sort()).toEqual([...ids].sort())
       })
 
       it("hides a published product from its creator once restricted to other sellers", async () => {

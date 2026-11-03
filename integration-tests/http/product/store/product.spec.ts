@@ -13,6 +13,7 @@ import {
     generateStoreHeaders,
 } from "../../../helpers/create-admin-user"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { waitForIndexedProducts } from "../../../helpers/wait-for-indexed-products"
 
 jest.setTimeout(60000)
 
@@ -116,6 +117,14 @@ medusaIntegrationTestRunner({
                     [Modules.PRODUCT]: { product_id: product.id },
                     [MercurModules.SELLER]: { seller_id: seller.id },
                 })
+
+                await waitForIndexedProducts(appContainer, [
+                    {
+                        id: product.id,
+                        status: product.status,
+                        restricted: true,
+                    },
+                ])
 
                 return product
             }

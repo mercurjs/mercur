@@ -48,9 +48,20 @@ export function withMercur(config: MercurInputConfig = {}): InputConfigWithArray
 
   const featureFlags = {
     ...config.featureFlags,
+    index_engine: config.featureFlags?.index_engine ?? true,
   }
 
-  const modules = [...(config.modules ?? [])]
+  const hasIndexModule = (config.modules ?? []).some(
+    (m) =>
+      typeof m === "object" && "resolve" in m && m.resolve === "@medusajs/index"
+  )
+
+  const modules = [
+    ...(config.modules ?? []),
+    ...(featureFlags.index_engine && !hasIndexModule
+      ? [{ resolve: "@medusajs/index" }]
+      : []),
+  ]
 
   const plugins = [
     ...(config.plugins ?? []),

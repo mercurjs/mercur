@@ -125,14 +125,14 @@ export const applyOfferedProductsFilter = async (
 
   const { data: offers } = await query.graph({
     entity: "offer",
-    fields: ["variant_id"],
+    fields: ["product_id"],
     filters: sellerId ? { seller_id: sellerId } : {},
   })
 
-  const variantIds = Array.from(
+  const productIds = Array.from(
     new Set(
       offers
-        .map((offer: { variant_id: string | null }) => offer.variant_id)
+        .map((offer: { product_id: string | null }) => offer.product_id)
         .filter((id: string | null): id is string => Boolean(id))
     )
   )
@@ -140,7 +140,7 @@ export const applyOfferedProductsFilter = async (
   const existingAnd = (req.filterableFields.$and as object[] | undefined) ?? []
   req.filterableFields.$and = [
     ...existingAnd,
-    { variants: { id: variantIds.length ? variantIds : ["__none__"] } },
+    { id: productIds.length ? productIds : ["__none__"] },
   ]
 
   return next()

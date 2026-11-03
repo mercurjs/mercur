@@ -12,15 +12,17 @@ import {
 } from "../../../workflows/product/workflows/create-products"
 import {
   enrichProductAttributes,
+  listProducts,
   wrapProductVariantsWithOffers,
 } from "../../utils"
+import { getSellerProductVisibility } from "./helpers"
 import { VendorCreateProductType, VendorGetProductsParamsType } from "./validators"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest<VendorGetProductsParamsType>,
   res: MedusaResponse<HttpTypes.VendorProductListResponse>
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const sellerId = req.seller_context!.seller_id
 
   const withOffers = req.queryConfig.fields.some((field) =>
     field.includes("variants.offers")
@@ -31,10 +33,12 @@ export const GET = async (
     )
   }
 
-  const { data: products, metadata } = await query.graph({
-    entity: "product",
+  const { products, count, estimate_count, offset, limit } = await listProducts<
+    HttpTypes.VendorProductListResponse["products"][number]
+  >(req.scope, {
     fields: req.queryConfig.fields,
     filters: req.filterableFields,
+    visibility: await getSellerProductVisibility(req.scope, sellerId),
     pagination: req.queryConfig.pagination,
   })
 
@@ -44,16 +48,11 @@ export const GET = async (
     await wrapProductVariantsWithOffers(
       req.scope,
       products as Parameters<typeof wrapProductVariantsWithOffers>[1],
-      req.seller_context!.seller_id
+      sellerId
     )
   }
 
-  res.json({
-    products,
-    count: metadata?.count ?? 0,
-    offset: metadata?.skip ?? 0,
-    limit: metadata?.take ?? 0,
-  })
+  res.json({ products, count, estimate_count, offset, limit })
 }
 
 export const POST = async (
