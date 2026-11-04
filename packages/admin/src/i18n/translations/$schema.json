@@ -823,6 +823,24 @@
     "app": {
       "type": "object",
       "properties": {
+        "topbar": {
+          "type": "object",
+          "properties": {
+            "version": { "type": "string" },
+            "feedback": {
+              "type": "object",
+              "properties": {
+                "label": { "type": "string" },
+                "placeholder": { "type": "string" },
+                "submit": { "type": "string" },
+                "successToast": { "type": "string" },
+                "errorToast": { "type": "string" }
+              },
+              "required": ["label", "placeholder", "submit", "successToast", "errorToast"]
+            }
+          },
+          "required": ["version", "feedback"]
+        },
         "search": {
           "type": "object",
           "properties": {

@@ -155,6 +155,16 @@
     "in": "In"
   },
   "app": {
+    "topbar": {
+      "version": "v{{version}}",
+      "feedback": {
+        "label": "Feedback",
+        "placeholder": "Type your feedback here...",
+        "submit": "Submit",
+        "successToast": "Thanks for your feedback",
+        "errorToast": "Your feedback could not be sent. Please try again."
+      }
+    },
     "search": {
       "label": "Search",
       "title": "Search",
