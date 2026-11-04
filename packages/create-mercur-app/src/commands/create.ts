@@ -18,8 +18,12 @@ import waitOn from "wait-on";
 import packageJson from "../../package.json";
 import { ErrorCategory, sendTelemetryEvent, showTelemetryNoticeIfNeeded } from "../telemetry";
 import { finishCommand } from "../telemetry/command-tracking";
-import { checkPostgres, hostAndPort, printPostgresFix } from "../utils/check-postgres";
-import { setupDatabase, type SetupDatabaseResult } from "../utils/create-db";
+import {
+  initializeDatabase,
+  prepareDatabase,
+  type PreparedDatabase,
+  type SetupDatabaseResult,
+} from "../utils/create-db";
 import {
   resolveProjectPackageManager,
   type PackageManager,
@@ -148,12 +152,24 @@ export const create = new Command()
         addStorefront = Boolean(wantsStorefront);
       }
 
+      let preparedDb: PreparedDatabase | null = null;
       if (!opts.skipDb) {
-        await ensurePostgresReachable({
-          connectionString: opts.dbConnectionString,
-          host: opts.dbHost,
-          port: parseInt(opts.dbPort, 10),
+        const prepareSpinner = spinner("Preparing database...").start();
+        preparedDb = await prepareDatabase({
+          projectName,
+          dbConnectionString: opts.dbConnectionString,
+          dbHost: opts.dbHost,
+          dbPort: parseInt(opts.dbPort, 10),
+          spinner: prepareSpinner,
         });
+
+        if (!preparedDb) {
+          prepareSpinner.fail("Failed to prepare database.");
+          logger.log(feedbackOutro());
+          await finishCommand(1, { name: ErrorCategory.DATABASE });
+          process.exit(1);
+        }
+        prepareSpinner.succeed(`Database ${highlighter.info(preparedDb.dbName)} is ready.`);
       }
 
       const projectDir = path.resolve(opts.cwd, projectName);
@@ -224,27 +240,18 @@ export const create = new Command()
       let dbConnectionString: string | undefined = opts.dbConnectionString;
       let dbResult: SetupDatabaseResult | undefined;
 
-      if (!opts.skipDb) {
+      if (preparedDb) {
         const dbSpinner = spinner("Setting up database...").start();
-        dbResult = await setupDatabase({
+        dbResult = await initializeDatabase({
           projectDir,
-          projectName,
-          dbConnectionString,
-          dbHost: opts.dbHost,
-          dbPort: parseInt(opts.dbPort, 10),
           spinner: dbSpinner,
+          ...preparedDb,
         });
 
         if (dbResult.success) {
-          if (dbResult.alreadyExists) {
-            dbSpinner.warn(
-              `Database ${highlighter.info(dbResult.dbName)} already exists. Skipping database creation.`
-            );
-          } else {
-            dbSpinner.succeed(
-              `Database ${highlighter.info(dbResult.dbName)} setup successfully.`
-            );
-          }
+          dbSpinner.succeed(
+            `Database ${highlighter.info(dbResult.dbName)} setup successfully.`
+          );
           dbConnectionString = dbResult.connectionString!;
         } else {
           dbSpinner.fail("Failed to setup database.");
@@ -340,34 +347,6 @@ export const create = new Command()
       handleError(error);
     }
   });
-
-async function ensurePostgresReachable({
-  connectionString,
-  host,
-  port,
-}: {
-  connectionString?: string;
-  host: string;
-  port: number;
-}): Promise<void> {
-  const checkSpinner = spinner("Checking PostgreSQL...").start();
-  const result = await checkPostgres(connectionString ? { connectionString } : { host, port });
-
-  // Without a connection string a credentials error still proves the server is
-  // up; the database step prompts for the username and password later.
-  if (result.ok || (!connectionString && result.reason === "auth")) {
-    checkSpinner.succeed("PostgreSQL is reachable.");
-    return;
-  }
-
-  checkSpinner.fail("PostgreSQL check failed.");
-  printPostgresFix(
-    result,
-    connectionString ? hostAndPort(connectionString, { host, port }) : { host, port }
-  );
-  await finishCommand(1, { name: ErrorCategory.DATABASE });
-  process.exit(1);
-}
 
 function resolveChannel(tag?: string): ReleaseChannel {
   if (!tag) {

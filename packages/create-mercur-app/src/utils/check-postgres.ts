@@ -3,13 +3,17 @@ import pg from "pg";
 import { highlighter } from "./highlighter";
 import { logger } from "./logger";
 
-export type PostgresCheckResult =
-  | { ok: true }
-  | { ok: false; reason: "unreachable" | "auth" | "missing-database" | "unknown"; message: string };
+export type PostgresFailure = {
+  ok: false;
+  reason: "unreachable" | "auth" | "missing-database" | "unknown";
+  message: string;
+};
+
+export type PostgresCheckResult = { ok: true } | PostgresFailure;
 
 const UNREACHABLE_CODES = ["ECONNREFUSED", "ENOTFOUND", "EHOSTUNREACH", "ETIMEDOUT", "EAI_AGAIN"];
 
-export function classifyPostgresError(error: unknown): PostgresCheckResult {
+export function classifyPostgresError(error: unknown): PostgresFailure {
   const code = (error as { code?: string } | null)?.code ?? "";
   // Node raises an AggregateError with an empty message when both the IPv4 and
   // IPv6 attempts are refused.
@@ -88,7 +92,7 @@ function startCommands(port: number): string[] {
 }
 
 export function printPostgresFix(
-  result: Exclude<PostgresCheckResult, { ok: true }>,
+  result: PostgresFailure,
   { host, port }: { host: string; port: number }
 ): void {
   const target = `${host}:${port}`;
