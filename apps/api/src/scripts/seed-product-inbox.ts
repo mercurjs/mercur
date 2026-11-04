@@ -66,14 +66,6 @@ export default async function seedProductInbox({ container }: ExecArgs) {
         description: proposal.description,
         status: ProductStatus.PROPOSED,
         seller_ids: [store.id],
-        options: [{ title: "Default", values: ["Default"] }],
-        variants: [
-          {
-            title: "Default",
-            options: { Default: "Default" },
-            manage_inventory: false,
-          },
-        ],
       }
     })
 
