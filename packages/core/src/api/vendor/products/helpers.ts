@@ -201,3 +201,113 @@ export const ensureSellerOwnsProduct = async (
     )
   }
 }
+
+type ChangeRequestCandidate = {
+  id: string
+  product_id: string
+  message: string | null
+  requested_at: string | Date
+}
+
+/**
+ * Attaches the operator's open change request to each product. A request
+ * stays open while it is the most recent change on the product: the next
+ * change, whoever writes it, closes it.
+ */
+export const enrichProductChangeRequests = async (
+  scope: MedusaContainer,
+  products: Array<{ id: string; change_request?: unknown }>
+): Promise<void> => {
+  for (const product of products) {
+    product.change_request = null
+  }
+  if (!products.length) {
+    return
+  }
+
+  const query = scope.resolve(ContainerRegistrationKeys.QUERY)
+  const productIds = products.map((product) => product.id)
+
+  const { data: requestActions } = await query.graph({
+    entity: "product_change_action",
+    fields: [
+      "product_id",
+      "product_change.id",
+      "product_change.external_note",
+      "product_change.created_at",
+    ],
+    filters: {
+      action: ProductChangeActionType.CHANGE_REQUESTED,
+      product_id: productIds,
+    },
+  })
+
+  const candidates = new Map<string, ChangeRequestCandidate>()
+  for (const action of requestActions as Array<{
+    product_id: string
+    product_change?: {
+      id: string
+      external_note: string | null
+      created_at: string | Date
+    } | null
+  }>) {
+    const change = action.product_change
+    if (!change) {
+      continue
+    }
+    const current = candidates.get(action.product_id)
+    if (
+      !current ||
+      new Date(change.created_at) > new Date(current.requested_at)
+    ) {
+      candidates.set(action.product_id, {
+        id: change.id,
+        product_id: action.product_id,
+        message: change.external_note,
+        requested_at: change.created_at,
+      })
+    }
+  }
+
+  if (!candidates.size) {
+    return
+  }
+
+  const earliest = Array.from(candidates.values()).reduce(
+    (min, c) => (new Date(c.requested_at) < min ? new Date(c.requested_at) : min),
+    new Date(8640000000000000)
+  )
+
+  const { data: laterChanges } = await query.graph({
+    entity: "product_change",
+    fields: ["product_id", "created_at"],
+    filters: {
+      product_id: Array.from(candidates.keys()),
+      created_at: { $gt: earliest },
+    },
+  })
+
+  for (const change of laterChanges as Array<{
+    product_id: string
+    created_at: string | Date
+  }>) {
+    const candidate = candidates.get(change.product_id)
+    if (
+      candidate &&
+      new Date(change.created_at) > new Date(candidate.requested_at)
+    ) {
+      candidates.delete(change.product_id)
+    }
+  }
+
+  for (const product of products) {
+    const candidate = candidates.get(product.id)
+    if (candidate) {
+      product.change_request = {
+        id: candidate.id,
+        message: candidate.message,
+        requested_at: candidate.requested_at,
+      }
+    }
+  }
+}

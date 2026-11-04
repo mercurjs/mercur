@@ -177,11 +177,20 @@ export interface ProductChangeDTO {
   declined_reason: string | null
   canceled_by: string | null
   canceled_at: string | Date | null
+  requires_action_by?: string | null
+  requires_action_at?: string | Date | null
+  requires_action_reason?: string | null
   metadata: Record<string, unknown> | null
   actions?: ProductChangeActionDTO[]
   created_at: string | Date
   updated_at: string | Date
   deleted_at: string | Date | null
+}
+
+export interface ProductChangeRequestDTO {
+  id: string
+  message: string | null
+  requested_at: string | Date
 }
 
 // --- Mercur-extended DTOs (Omit + intersection over upstream) ---
@@ -217,4 +226,5 @@ export type ProductDTO = UpstreamProductDTO & {
   attributes?: ProductAttributeDTO[]
   sellers?: SellerDTO[]
   changes?: ProductChangeDTO[]
+  change_request?: ProductChangeRequestDTO | null
 }

@@ -10,6 +10,7 @@ import {
 } from "@mercurjs/dashboard-shared";
 
 import { ActionMenu } from "@components/common/action-menu";
+import { ProductChangeRequestIcon } from "@components/common/product-change-request-icon";
 import { SectionRow } from "@components/common/section";
 import { useDeleteProduct } from "@hooks/api/products";
 
@@ -76,6 +77,7 @@ export const ProductGeneralSection = ({
           <Heading>{product.title}</Heading>
         </DisplayField>
         <div className="flex items-center gap-x-4">
+          <ProductChangeRequestIcon changeRequest={product.change_request} />
           <DisplayField
             model="product"
             zone="general"

@@ -887,6 +887,27 @@
           "header": "Failed to delete product"
         }
       }
+    },
+    "inbox": {
+      "domain": "Inbox",
+      "subtitle": "Review products and updates submitted by stores.",
+      "fields": {
+        "store": "Store",
+        "type": "Type",
+        "changes": "Changes",
+        "submitted": "Submitted"
+      },
+      "types": {
+        "new_product": "New product",
+        "update": "Update",
+        "delete": "Deletion"
+      },
+      "changeCount_one": "{{count}} change",
+      "changeCount_other": "{{count}} changes",
+      "empty": {
+        "heading": "Inbox is empty",
+        "description": "There is nothing waiting for review."
+      }
     }
   },
   "collections": {

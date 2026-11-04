@@ -15,6 +15,7 @@ export const productListLoader = async () => {
   return sdk.vendor.products.query({
     limit: PAGE_SIZE,
     offset: 0,
+    order: "-created_at",
     fields,
   } as Parameters<typeof sdk.vendor.products.query>[0]);
 };

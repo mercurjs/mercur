@@ -2628,6 +2628,93 @@
           ],
           "additionalProperties": false
         },
+        "inbox": {
+          "type": "object",
+          "properties": {
+            "domain": {
+              "type": "string"
+            },
+            "subtitle": {
+              "type": "string"
+            },
+            "fields": {
+              "type": "object",
+              "properties": {
+                "store": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "changes": {
+                  "type": "string"
+                },
+                "submitted": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "store",
+                "type",
+                "changes",
+                "submitted"
+              ],
+              "additionalProperties": false
+            },
+            "types": {
+              "type": "object",
+              "properties": {
+                "new_product": {
+                  "type": "string"
+                },
+                "update": {
+                  "type": "string"
+                },
+                "delete": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "new_product",
+                "update",
+                "delete"
+              ],
+              "additionalProperties": false
+            },
+            "changeCount_one": {
+              "type": "string"
+            },
+            "changeCount_other": {
+              "type": "string"
+            },
+            "empty": {
+              "type": "object",
+              "properties": {
+                "heading": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "heading",
+                "description"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "domain",
+            "subtitle",
+            "fields",
+            "types",
+            "changeCount_one",
+            "changeCount_other",
+            "empty"
+          ],
+          "additionalProperties": false
+        },
         "edits": {
           "type": "object",
           "properties": {
@@ -3572,6 +3659,7 @@
         "deleteVariantWarning",
         "productStatus",
         "request",
+        "inbox",
         "edits",
         "columns",
         "fields",

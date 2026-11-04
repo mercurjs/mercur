@@ -3,11 +3,12 @@ import {
   transform,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
-import { emitEventStep } from "@medusajs/medusa/core-flows"
+import { emitEventStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
 import {
   CreateProductChangeActionDTO,
   ProductChangeDTO,
   ProductChangeStatus,
+  ProductStatus,
 } from "@mercurjs/types"
 
 import { ProductChangeWorkflowEvents } from "../events"
@@ -30,9 +31,22 @@ export type StageProductChangeWorkflowInput = {
 
 export const stageProductChangeWorkflowId = "stage-product-change"
 
+// Unpublished products are reviewed as a whole when they go live, so edits
+// to them never wait for a separate approval.
+const UNREVIEWED_STATUSES: string[] = [
+  ProductStatus.DRAFT,
+  ProductStatus.PROPOSED,
+]
+
 export const stageProductChangeWorkflow = createWorkflow(
   stageProductChangeWorkflowId,
   function (input: StageProductChangeWorkflowInput) {
+    const { data: products } = useQueryGraphStep({
+      entity: "product",
+      fields: ["id", "status"],
+      filters: { id: input.product_id },
+    }).config({ name: "stage-product-change-load-product" })
+
     const changes = createProductChangesStep(
       transform({ input }, ({ input }) => [
         {
@@ -69,11 +83,16 @@ export const stageProductChangeWorkflow = createWorkflow(
     })
 
     autoConfirmProductChangeWorkflow.runAsStep({
-      input: transform({ changes, input }, ({ changes, input }) => ({
-        change_id: changes[0]?.id as string,
-        confirmed_by: input.created_by,
-        force: input.auto_confirm,
-      })),
+      input: transform(
+        { changes, input, products },
+        ({ changes, input, products }) => ({
+          change_id: changes[0]?.id as string,
+          confirmed_by: input.created_by,
+          force:
+            input.auto_confirm ??
+            UNREVIEWED_STATUSES.includes(products[0]?.status as string),
+        }),
+      ),
     })
 
     return new WorkflowResponse(

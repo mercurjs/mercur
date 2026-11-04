@@ -70,6 +70,7 @@ import {
   getNestedMenuItems,
 } from "../../../utils/routes";
 import { canReachRoute } from "../../../lib/permissions/can-reach-route";
+import { useFeatureFlag } from "../../../providers/feature-flag-provider";
 
 export const MainLayout = () => {
   return (
@@ -415,6 +416,7 @@ const Header = () => {
 
 const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
   const { t } = useTranslation();
+  const inboxEnabled = useFeatureFlag("product_request");
 
   return [
     {
@@ -434,6 +436,9 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       label: t("products.domain"),
       to: "/products",
       items: [
+        ...(inboxEnabled
+          ? [{ label: t("products.inbox.domain"), to: "/products/inbox" }]
+          : []),
         {
           label: t("offers.domain"),
           to: "/offers",

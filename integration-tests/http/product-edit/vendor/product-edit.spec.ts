@@ -7,6 +7,10 @@ import {
   ProductChangeStatus,
 } from "@mercurjs/types"
 
+import {
+  adminHeaders,
+  createAdminUser,
+} from "../../../helpers/create-admin-user"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 
 jest.setTimeout(60_000)
@@ -21,7 +25,7 @@ jest.setTimeout(60_000)
  * service before hitting the cancel/preview endpoints.
  */
 medusaIntegrationTestRunner({
-  testSuite: ({ getContainer, api }) => {
+  testSuite: ({ getContainer, dbConnection, api }) => {
     describe("Vendor /vendor/products/:id — product-edit flow (SPEC-008)", () => {
       let container: MedusaContainer
       let sellerHeaders: { headers: Record<string, string> }
@@ -34,6 +38,7 @@ medusaIntegrationTestRunner({
       })
 
       beforeEach(async () => {
+        await createAdminUser(dbConnection, adminHeaders, container)
         const a = await createSellerUser(container, {
           email: "edit-seller@test.com",
           name: "Edit Seller",
@@ -323,6 +328,98 @@ medusaIntegrationTestRunner({
             .catch((e) => e.response)
 
           expect(res.status).toBe(404)
+        })
+      })
+
+      describe("change_request on vendor product responses", () => {
+        const getChangeRequest = async (productId: string) => {
+          const detail = await api.get(
+            `/vendor/products/${productId}`,
+            sellerHeaders,
+          )
+          expect(detail.status).toBe(200)
+          const list = await api.get(
+            `/vendor/products?limit=100&fields=id,title,status`,
+            sellerHeaders,
+          )
+          expect(list.status).toBe(200)
+          const row = (list.data.products as Array<{ id: string }>).find(
+            (p) => p.id === productId,
+          )
+          expect(row).toBeDefined()
+          return {
+            detail: detail.data.product.change_request,
+            list: (row as { change_request?: unknown }).change_request,
+          }
+        }
+
+        const requestChanges = async (productId: string, message: string) => {
+          const res = await api.post(
+            `/admin/products/${productId}/request-changes`,
+            { message },
+            adminHeaders,
+          )
+          expect(res.status).toBe(200)
+        }
+
+        it("is null until the operator asks for changes", async () => {
+          const productId = await createVendorProduct("Quiet Product")
+
+          const before = await getChangeRequest(productId)
+          expect(before.detail).toBeNull()
+          expect(before.list).toBeNull()
+
+          await requestChanges(productId, "Please add photos")
+
+          const after = await getChangeRequest(productId)
+          expect(after.detail).toEqual(
+            expect.objectContaining({
+              id: expect.stringMatching(/^prodch_/),
+              message: "Please add photos",
+              requested_at: expect.any(String),
+            }),
+          )
+          expect(after.list).toEqual(after.detail)
+        })
+
+        it("closes once the seller updates the product", async () => {
+          const productId = await createVendorProduct("Needs Work")
+          await requestChanges(productId, "Fix the title")
+
+          const res = await api.post(
+            `/vendor/products/${productId}`,
+            { title: "Fixed Title" },
+            sellerHeaders,
+          )
+          expect(res.status).toBe(202)
+
+          const after = await getChangeRequest(productId)
+          expect(after.detail).toBeNull()
+          expect(after.list).toBeNull()
+        })
+
+        it("closes once the operator confirms the product", async () => {
+          const productId = await createVendorProduct("Approve Later")
+          await requestChanges(productId, "Looks fine after all")
+
+          const res = await api.post(
+            `/admin/products/${productId}/confirm`,
+            {},
+            adminHeaders,
+          )
+          expect(res.status).toBe(200)
+
+          const after = await getChangeRequest(productId)
+          expect(after.detail).toBeNull()
+        })
+
+        it("keeps the latest request when the operator asks twice", async () => {
+          const productId = await createVendorProduct("Asked Twice")
+          await requestChanges(productId, "First note")
+          await requestChanges(productId, "Second note")
+
+          const after = await getChangeRequest(productId)
+          expect(after.detail.message).toBe("Second note")
         })
       })
 

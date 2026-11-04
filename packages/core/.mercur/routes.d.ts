@@ -259,7 +259,7 @@ export type Routes = {
                 sellers: typeof import("../src/api/admin/product-categories/[id]/sellers/route");
             };
         };
-        productChanges: {
+        productChanges: typeof import("../src/api/admin/product-changes/route") & {
             $id: {
                 cancel: typeof import("../src/api/admin/product-changes/[id]/cancel/route");
                 confirm: typeof import("../src/api/admin/product-changes/[id]/confirm/route");

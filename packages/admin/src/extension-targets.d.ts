@@ -115,6 +115,8 @@ declare module "@mercurjs/dashboard-sdk" {
     "product.detail.side": true
     "product.detail.side.after": true
     "product.detail.side.before": true
+    "products.inbox.after": true
+    "products.inbox.before": true
     "products.list.after": true
     "products.list.before": true
     "profile.detail.main.after": true
@@ -198,6 +200,7 @@ declare module "@mercurjs/dashboard-sdk" {
     "payouts": true
     "price-lists": true
     "products": true
+    "products/inbox": true
     "promotions": true
     "reservations": true
     "reviews": true
