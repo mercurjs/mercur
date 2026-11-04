@@ -13,12 +13,14 @@ import {
   useNavigation,
 } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { TopbarActions, WidgetZone } from "@mercurjs/dashboard-shared"
 import { KeybindProvider } from "../../../providers/keybind-provider"
 import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks"
 import { useSidebar } from "../../../providers/sidebar-provider"
 import { useMe } from "../../../hooks/api"
 import { ProgressBar } from "../../common/progress-bar"
+import { submitFeedback } from "../../../lib/feedback"
+import { version } from "../../../../package.json"
 
 type ShellProps = PropsWithChildren<{
   /**
@@ -212,6 +214,10 @@ const Topbar = () => {
       </div>
       <div className="flex items-center justify-end gap-x-3">
         <WidgetZone id="topbar" />
+        <TopbarActions
+          version={version}
+          onSubmitFeedback={submitFeedback}
+        />
       </div>
     </div>
   )
