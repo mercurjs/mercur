@@ -174,7 +174,8 @@ medusaIntegrationTestRunner({
         expect(claimed).toEqual([true, true, true])
 
         const { milestones } = await service.getOrCreateInstallation()
-        const expected = ["first_seller", "first_seller_approved", "first_commission_rule", ...distinct]
+        // The runner restores the database before each test, so only this test's flags exist here.
+        const expected = ["first_commission_rule", ...distinct]
         expect(milestones).toEqual(
           expect.objectContaining(Object.fromEntries(expected.map((name) => [name, expect.any(String)]))),
         )
