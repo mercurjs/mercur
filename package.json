@@ -13,7 +13,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@typescript/native-preview": "^7.0.0-dev.20260707.2",
     "eslint": "^10.6.0",
     "globals": "^17.0.0",
     "oxlint": "^1.64.0",

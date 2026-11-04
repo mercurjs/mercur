@@ -50,9 +50,7 @@
     "build": "bun ./node_modules/@mercurjs/cli/dist/index.js codegen && rm -rf .medusa && tsc --declaration --outDir .medusa/server && bun run copy:patches",
     "copy:patches": "mkdir -p .medusa/server/src/patches/patches && cp src/patches/patches/*.patch .medusa/server/src/patches/patches/",
     "dev": "medusa plugin:develop",
-    "prepublishOnly": "tsc --declaration --outDir .medusa/server && bun run copy:patches",
-    "typecheck": "tsgo --noEmit",
-    "typecheck:tsc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tsc-noemit.tsbuildinfo"
+    "prepublishOnly": "tsc --declaration --outDir .medusa/server && bun run copy:patches"
   },
   "devDependencies": {
     "cors": "^2.8.5",
