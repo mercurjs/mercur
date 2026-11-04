@@ -10,6 +10,7 @@ import { PRODUCT_DETAIL_QUERY } from "../common/constants";
 import { loader } from "./loader";
 
 import { ProductActiveEditSection } from "./_components/product-active-edit-section";
+import { ProductChangeRequestSection } from "./_components/product-change-request-section";
 import { ProductGeneralSection } from "./_components/product-general-section";
 import { ProductMediaSection } from "./_components/product-media-section";
 import { ProductOrganizationSection } from "./_components/product-organization-section";
@@ -43,6 +44,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     <TwoColumnPage data={product} data-testid="product-detail-page">
       <TwoColumnPage.Main data-testid="product-detail-main">
         <WidgetZone id="product.detail.main" data={product}>
+          <ProductChangeRequestSection product={product} />
           <ProductActiveEditSection product={product} />
           <ProductGeneralSection product={product} />
           <ProductMediaSection product={product} />
@@ -62,6 +64,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
 export const ProductDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
+  MainChangeRequestSection: ProductChangeRequestSection,
   MainActiveEditSection: ProductActiveEditSection,
   MainGeneralSection: ProductGeneralSection,
   MainMediaSection: ProductMediaSection,

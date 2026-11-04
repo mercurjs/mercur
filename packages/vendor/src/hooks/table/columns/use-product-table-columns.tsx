@@ -23,6 +23,8 @@ import {
 } from "../../../components/table/table-cells/product/variant-cell";
 import { HttpTypes } from "@mercurjs/types";
 
+import { ProductChangeRequestIcon } from "../../../components/common/product-change-request-icon";
+
 const columnHelper = createColumnHelper<HttpTypes.VendorProduct>();
 
 export const useProductTableColumns = () => {
@@ -51,7 +53,14 @@ export const useProductTableColumns = () => {
       }),
       columnHelper.accessor("status", {
         header: () => <ProductStatusHeader />,
-        cell: ({ row }) => <ProductStatusCell status={row.original.status} />,
+        cell: ({ row }) => (
+          <div className="flex items-center gap-x-2">
+            <ProductStatusCell status={row.original.status} />
+            <ProductChangeRequestIcon
+              changeRequest={row.original.change_request}
+            />
+          </div>
+        ),
       }),
     ],
     [],

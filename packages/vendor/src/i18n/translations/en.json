@@ -492,6 +492,13 @@
         "description": "Attributes used for informational purposes"
       }
     },
+    "changeRequest": {
+      "title": "Changes requested",
+      "message": "Message",
+      "requestedAt": "Requested",
+      "noMessage": "The marketplace asked for changes without leaving a message.",
+      "hint": "Update the product to send it back for review."
+    },
     "edits": {
       "panel": {
         "title": "Product update request",

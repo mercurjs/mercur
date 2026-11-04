@@ -1974,6 +1974,34 @@
           ],
           "additionalProperties": false
         },
+        "changeRequest": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "requestedAt": {
+              "type": "string"
+            },
+            "noMessage": {
+              "type": "string"
+            },
+            "hint": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "message",
+            "requestedAt",
+            "noMessage",
+            "hint"
+          ],
+          "additionalProperties": false
+        },
         "edits": {
           "type": "object",
           "properties": {
@@ -3756,6 +3784,7 @@
         "bulkDelete",
         "list",
         "edit",
+        "changeRequest",
         "edits",
         "create",
         "export",

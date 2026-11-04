@@ -15,7 +15,10 @@ import {
   listProducts,
   wrapProductVariantsWithOffers,
 } from "../../utils"
-import { getSellerProductVisibility } from "./helpers"
+import {
+  enrichProductChangeRequests,
+  getSellerProductVisibility,
+} from "./helpers"
 import { VendorCreateProductType, VendorGetProductsParamsType } from "./validators"
 
 export const GET = async (
@@ -45,6 +48,10 @@ export const GET = async (
   })
 
   await enrichProductAttributes(req.scope, products as any[])
+  await enrichProductChangeRequests(
+    req.scope,
+    products as Parameters<typeof enrichProductChangeRequests>[1]
+  )
 
   if (withOffers) {
     await wrapProductVariantsWithOffers(
