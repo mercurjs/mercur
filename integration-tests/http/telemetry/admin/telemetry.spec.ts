@@ -174,9 +174,10 @@ medusaIntegrationTestRunner({
         expect(claimed).toEqual([true, true, true])
 
         const { milestones } = await service.getOrCreateInstallation()
-        for (const name of ["first_seller", "first_seller_approved", "first_commission_rule", ...distinct]) {
-          expect(milestones?.[name]).toEqual(expect.any(String))
-        }
+        const expected = ["first_seller", "first_seller_approved", "first_commission_rule", ...distinct]
+        expect(milestones).toEqual(
+          expect.objectContaining(Object.fromEntries(expected.map((name) => [name, expect.any(String)]))),
+        )
       })
     })
   },
