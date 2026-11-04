@@ -99,6 +99,14 @@ export function getRouteMap({
                 },
                 children: [
                   {
+                    path: "inbox",
+                    handle: {
+                      breadcrumb: () => t("products.inbox.domain"),
+                      permissions: ["product_changes:view", "products:view"],
+                    },
+                    lazy: () => import("./pages/products/product-inbox"),
+                  },
+                  {
                     path: "",
                     lazy: () => import("./pages/products/product-list"),
                     children: [

@@ -6,6 +6,7 @@ export type FeatureFlags = {
   view_configurations?: boolean
   translation?: boolean
   rbac?: boolean
+  product_request?: boolean
   [key: string]: boolean | undefined
 }
 

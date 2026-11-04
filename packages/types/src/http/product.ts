@@ -3,7 +3,12 @@ import {
   PaginatedResponse,
   SalesChannelDTO,
 } from "@medusajs/types"
-import { ProductDTO, ProductVariantDTO } from "../product/common"
+import {
+  ProductChangeStatus,
+  ProductDTO,
+  ProductVariantDTO,
+} from "../product/common"
+import { ProductStatus } from "../product/status"
 
 export interface AdminProductResponse {
   product: ProductDTO
@@ -69,3 +74,27 @@ export interface VendorDeleteResponse {
 export interface VendorProduct extends ProductDTO {
   sales_channels?: SalesChannelDTO[];
 }
+export type AdminProductChangeInboxType = "new_product" | "update" | "delete"
+
+export interface AdminProductChangeInboxItem {
+  id: string
+  product_id: string
+  status: ProductChangeStatus
+  type: AdminProductChangeInboxType
+  action_count: number
+  product_title: string
+  product_thumbnail: string | null
+  product_status: ProductStatus
+  seller_id: string
+  seller_name: string
+  seller_handle: string
+  created_by: string | null
+  external_note: string | null
+  internal_note: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type AdminProductChangeInboxListResponse = PaginatedResponse<{
+  product_changes: AdminProductChangeInboxItem[]
+}>
