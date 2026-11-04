@@ -21,7 +21,7 @@ export const POST = async (
 
   const { result: files } = await uploadFilesWorkflow(req.scope).run({
     input: {
-      files: input?.map((f: any) => ({
+      files: input.map((f) => ({
         filename: f.originalname,
         mimeType: f.mimetype,
         content: f.buffer.toString("base64"),

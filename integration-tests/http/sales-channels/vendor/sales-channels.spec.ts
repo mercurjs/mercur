@@ -223,6 +223,43 @@ medusaIntegrationTestRunner({
 
                     expect(response.status).toEqual(404)
                 })
+
+                it("should not allow seller to remove another seller's product from sales channel", async () => {
+                    const [salesChannel] = await salesChannelModuleService.createSalesChannels([
+                        { name: "Remove Auth Channel", description: "For remove auth test" },
+                    ])
+
+                    const seller1ProductResponse = await api.post(
+                        `/vendor/products`,
+                        {
+                            title: "Seller 1 Linked Product",
+                            options: [{ title: "Default", values: ["Default"] }],
+                        },
+                        sellerHeaders
+                    )
+                    const seller1ProductId = seller1ProductResponse.data.product.id
+
+                    await api.post(
+                        `/vendor/sales-channels/${salesChannel.id}/products`,
+                        { add: [seller1ProductId] },
+                        sellerHeaders
+                    )
+
+                    const seller2Result = await createSellerUser(appContainer, {
+                        email: "seller2-remove@test.com",
+                        name: "Seller Two Remove",
+                    })
+
+                    const response = await api
+                        .post(
+                            `/vendor/sales-channels/${salesChannel.id}/products`,
+                            { remove: [seller1ProductId] },
+                            seller2Result.headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(404)
+                })
             })
         })
     },

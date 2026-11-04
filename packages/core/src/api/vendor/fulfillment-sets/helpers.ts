@@ -64,3 +64,28 @@ export const refetchFulfillmentSet = async (
 
   return fulfillmentSet
 }
+
+export const validateSellerServiceZone = async (
+  scope: MedusaContainer,
+  sellerId: string,
+  serviceZoneId: string
+) => {
+  const query = scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const {
+    data: [serviceZone],
+  } = await query.graph({
+    entity: "service_zone",
+    filters: { id: serviceZoneId },
+    fields: ["id", "fulfillment_set_id"],
+  })
+
+  if (!serviceZone?.fulfillment_set_id) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `Service zone with id: ${serviceZoneId} was not found`
+    )
+  }
+
+  await validateSellerFulfillmentSet(scope, sellerId, serviceZone.fulfillment_set_id)
+}

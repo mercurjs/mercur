@@ -908,6 +908,68 @@ medusaIntegrationTestRunner({
                     expect(response.status).toEqual(404)
                 })
             })
+
+            describe("cross-resource ownership", () => {
+                it("should not create a shipping option in another seller's service zone", async () => {
+                    const prerequisites1 = await createShippingPrerequisites(seller1Headers)
+                    const prerequisites2 = await createShippingPrerequisites(seller2Headers)
+
+                    const response = await api
+                        .post(
+                            `/vendor/shipping-options`,
+                            {
+                                name: "Foreign Zone Option",
+                                service_zone_id: prerequisites2.serviceZone.id,
+                                shipping_profile_id: prerequisites1.shippingProfile.id,
+                                provider_id: "manual_manual",
+                                price_type: "flat",
+                                type: { label: "Standard", description: "Standard", code: "standard" },
+                                prices: [{ currency_code: "usd", amount: 1000 }],
+                            },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(404)
+                })
+
+                it("should not update or delete a rule that belongs to another shipping option", async () => {
+                    const prerequisites = await createShippingPrerequisites(seller1Headers)
+                    const optionA = await createShippingOption(seller1Headers, prerequisites)
+                    const optionB = await createShippingOption(seller1Headers, prerequisites, {
+                        name: "Second Option",
+                    })
+
+                    const ruleResponse = await api.post(
+                        `/vendor/shipping-options/${optionA.id}/rules/batch`,
+                        {
+                            create: [{ attribute: "enabled_in_store", value: "true", operator: "eq" }],
+                        },
+                        seller1Headers
+                    )
+                    const ruleId = ruleResponse.data.created[0].id
+
+                    const updateResponse = await api
+                        .post(
+                            `/vendor/shipping-options/${optionB.id}/rules/batch`,
+                            {
+                                update: [{ id: ruleId, attribute: "enabled_in_store", value: "false", operator: "eq" }],
+                            },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+                    expect(updateResponse.status).toEqual(404)
+
+                    const deleteResponse = await api
+                        .post(
+                            `/vendor/shipping-options/${optionB.id}/rules/batch`,
+                            { delete: [ruleId] },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+                    expect(deleteResponse.status).toEqual(404)
+                })
+            })
         })
     },
 })

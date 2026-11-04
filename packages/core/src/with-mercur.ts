@@ -8,6 +8,7 @@ import {
 } from '@medusajs/framework/utils'
 import { assertPatchesDisabled } from "./patches"
 import { disableMedusaMiddlewares } from "./utils/disable-medusa-middlewares"
+import { STORE_RESTRICTED_FIELDS } from "./utils/store-restricted-fields"
 import { mercurIndexSchema } from "./utils/index-schema"
 
 type HttpConfig = NonNullable<NonNullable<InputConfigWithArrayModules["projectConfig"]>["http"]>
@@ -43,6 +44,15 @@ export function withMercur(config: MercurInputConfig = {}): InputConfigWithArray
     ...config.projectConfig,
     http: {
       ...config.projectConfig?.http,
+      restrictedFields: {
+        ...config.projectConfig?.http?.restrictedFields,
+        store: [
+          ...new Set([
+            ...STORE_RESTRICTED_FIELDS,
+            ...(config.projectConfig?.http?.restrictedFields?.store ?? []),
+          ]),
+        ],
+      },
     } as any,
   }
 

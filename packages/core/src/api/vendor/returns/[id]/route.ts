@@ -7,6 +7,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
 import { validateSellerReturn } from "../helpers"
+import { validateSellerStockLocations } from "../../stock-locations/helpers"
 import { VendorPostReturnsReturnReqType } from "../validators"
 
 export const GET = async (
@@ -25,8 +26,8 @@ export const GET = async (
     entity: "return",
     fields: req.queryConfig.fields,
     filters: {
-      id,
       ...req.filterableFields,
+      id,
     },
   })
 
@@ -42,6 +43,11 @@ export const POST = async (
   const { id } = req.params
 
   await validateSellerReturn(req.scope, req.seller_context!.seller_id, id)
+  await validateSellerStockLocations(
+    req.scope,
+    req.seller_context!.seller_id,
+    req.validatedBody.location_id ? [req.validatedBody.location_id] : []
+  )
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -55,8 +61,8 @@ export const POST = async (
     entity: "return",
     fields: req.queryConfig.fields,
     filters: {
-      id,
       ...req.filterableFields,
+      id,
     },
   })
 

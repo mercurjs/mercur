@@ -673,6 +673,18 @@ medusaIntegrationTestRunner({
       })
 
       describe("POST /admin/sellers/:id", () => {
+        it.each([
+          ["logo", "javascript:alert(1)"],
+          ["banner", "data:image/svg+xml;base64,PHN2Zz4="],
+          ["website_url", "javascript:alert(1)"],
+        ])("rejects a non-http %s", async (field, value) => {
+          const response = await api
+            .post(`/admin/sellers/${sellerA.id}`, { [field]: value }, adminHeaders)
+            .catch((e: any) => e.response)
+
+          expect(response.status).toEqual(400)
+        })
+
         it("should update seller name", async () => {
           const response = await api.post(
             `/admin/sellers/${sellerA.id}`,
@@ -695,6 +707,22 @@ medusaIntegrationTestRunner({
           expect(response.data.seller.description).toEqual(
             "Updated description"
           )
+        })
+
+        it("should not change status through the generic update", async () => {
+          const response = await api
+            .post(
+              `/admin/sellers/${sellerA.id}`,
+              { status: "suspended", status_reason: "bypass" },
+              adminHeaders
+            )
+            .catch((error) => error.response)
+
+          expect(response.status).toEqual(400)
+
+          const seller = await api.get(`/admin/sellers/${sellerA.id}`, adminHeaders)
+          expect(seller.data.seller.status).toEqual("pending_approval")
+          expect(seller.data.seller.status_reason).toBeFalsy()
         })
 
         it("should update is_premium flag", async () => {

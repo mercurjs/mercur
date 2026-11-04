@@ -1,5 +1,9 @@
 import { requirePermission } from "../../utils"
 import {
+  restrictVendorFields,
+  VENDOR_CATALOG_FIELD_SEGMENTS,
+} from "../../utils/restrict-vendor-fields"
+import {
   AuthenticatedMedusaRequest,
   MedusaNextFunction,
   MedusaResponse,
@@ -95,6 +99,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/products",
     middlewares: [
       requirePermission("products", "view"),
+      restrictVendorFields(VENDOR_CATALOG_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetProductsParams,
         vendorProductQueryConfig.list
@@ -121,6 +126,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       requirePermission("products", "view"),
       ensureProductVisibleToSeller,
+      restrictVendorFields(VENDOR_CATALOG_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetProductParams,
         vendorProductQueryConfig.retrieve
@@ -164,6 +170,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       requirePermission("products", "view"),
       ensureProductVisibleToSeller,
+      restrictVendorFields(VENDOR_CATALOG_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetProductVariantsParams,
         vendorProductVariantQueryConfig.list
@@ -190,6 +197,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       requirePermission("products", "view"),
       ensureProductVisibleToSeller,
+      restrictVendorFields(VENDOR_CATALOG_FIELD_SEGMENTS),
       validateAndTransformQuery(
         VendorGetProductVariantParams,
         vendorProductVariantQueryConfig.retrieve

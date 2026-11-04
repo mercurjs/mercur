@@ -14,7 +14,8 @@ export const createMemberInvitesStep = createStep(
   async (input: CreateMemberInviteStepInput[], { container }) => {
     const service = container.resolve<SellerModuleService>(MercurModules.SELLER)
 
-    const invites: MemberInviteDTO[] = await service.createMemberInvites(input)
+    const created: MemberInviteDTO[] = await service.createMemberInvites(input)
+    const invites = created.map(({ token_hash: _hash, ...invite }) => invite)
 
     return new StepResponse(invites, invites.map((inv) => inv.id))
   },

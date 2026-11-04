@@ -174,7 +174,13 @@ medusaIntegrationTestRunner({
           )
         ).data.reservation
 
-        return { sellerId, headers, itemId: item.id, reservationId: reservation.id }
+        return {
+          sellerId,
+          headers,
+          itemId: item.id,
+          locationId: stockLocation.id,
+          reservationId: reservation.id,
+        }
       }
 
       it("lists only the caller's own reservations", async () => {
@@ -309,6 +315,24 @@ medusaIntegrationTestRunner({
             a.headers
           )
         ).rejects.toMatchObject({ response: { status: expect.any(Number) } })
+
+        // A cannot reserve its own item at B's stock location.
+        await expect(
+          api.post(
+            `/vendor/reservations`,
+            { inventory_item_id: a.itemId, location_id: b.locationId, quantity: 1 },
+            a.headers
+          )
+        ).rejects.toMatchObject({ response: { status: 404 } })
+
+        // A cannot move its own reservation to B's stock location.
+        await expect(
+          api.post(
+            `/vendor/reservations/${a.reservationId}`,
+            { location_id: b.locationId },
+            a.headers
+          )
+        ).rejects.toMatchObject({ response: { status: 404 } })
 
         // B's reservation still exists (A's failed calls didn't touch it).
         const stillThere = await api.get(

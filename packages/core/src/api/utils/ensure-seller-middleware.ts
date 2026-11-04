@@ -7,9 +7,20 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
+import { SellerStatus } from "@mercurjs/types"
 import { SellerContext } from "../../types/seller-context"
 
 const SELLER_ID_HEADER = "x-seller-id"
+
+const INACTIVE_STATUSES: string[] = [
+  SellerStatus.SUSPENDED,
+  SellerStatus.TERMINATED,
+]
+
+// The vendor panel still reads the seller profile to show the suspension /
+// termination notice, so the self read stays reachable.
+const isSelfProfileRead = (req: AuthenticatedMedusaRequest) =>
+  req.method.toUpperCase() === "GET" && /^\/vendor\/sellers\/me$/.test(req.baseUrl)
 
 export async function ensureSellerMiddleware(
   req: AuthenticatedMedusaRequest,
@@ -51,6 +62,20 @@ export async function ensureSellerMiddleware(
   }
 
   const sellerMember = sellerMembers[0]
+  const sellerStatus = sellerMember.seller?.status as string | undefined
+
+  if (
+    sellerStatus &&
+    INACTIVE_STATUSES.includes(sellerStatus) &&
+    !isSelfProfileRead(req)
+  ) {
+    return next(
+      new MedusaError(
+        MedusaError.Types.FORBIDDEN,
+        `This seller account is ${sellerStatus}`
+      )
+    )
+  }
 
   req.seller_context = {
     seller_id: sellerId,

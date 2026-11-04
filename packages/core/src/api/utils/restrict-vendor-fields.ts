@@ -16,6 +16,7 @@ export const VENDOR_CROSS_SELLER_FIELD_SEGMENTS = [
   "sellers",
   "seller_members",
   "token",
+  "token_hash",
 ]
 
 export const VENDOR_SELLER_PRIVATE_FIELD_SEGMENTS = [
@@ -24,6 +25,19 @@ export const VENDOR_SELLER_PRIVATE_FIELD_SEGMENTS = [
   "professional_details",
   "member_invites",
   "members",
+]
+
+/**
+ * Offer prices live on the variant's shared price set, keyed only by an
+ * `offer_id` rule, so walking `variants.prices` from a catalog read returns
+ * every seller's prices. Catalog routes block the price relations; a seller's
+ * own prices are read through the offer and price-list routes.
+ */
+export const VENDOR_CATALOG_FIELD_SEGMENTS = [
+  ...VENDOR_SELLER_PRIVATE_FIELD_SEGMENTS,
+  "prices",
+  "price_set",
+  "price_sets",
 ]
 
 export const restrictVendorFields =

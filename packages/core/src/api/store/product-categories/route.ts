@@ -3,6 +3,7 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { publishedProductsContext } from "@medusajs/medusa/api/store/utils/published-products-context"
 
 export const GET = async (
   req: MedusaRequest,
@@ -15,6 +16,7 @@ export const GET = async (
     fields: req.queryConfig.fields,
     filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
+    context: publishedProductsContext(),
   })
 
   res.json({

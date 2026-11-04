@@ -36,8 +36,8 @@ export const POST = async (
     entity: "return",
     fields: req.queryConfig.fields,
     filters: {
-      id,
       ...req.filterableFields,
+      id,
     },
   })
 
@@ -72,8 +72,8 @@ export const DELETE = async (
     entity: "return",
     fields: req.queryConfig.fields,
     filters: {
-      id,
       ...req.filterableFields,
+      id,
     },
   })
 

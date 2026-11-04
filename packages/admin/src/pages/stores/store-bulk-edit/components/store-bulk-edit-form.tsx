@@ -10,9 +10,12 @@ import {
 } from "@components/data-grid";
 import { RouteFocusModal, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
-import { sdk } from "@lib/client";
-import { queryClient } from "@lib/query-client";
-import { sellersQueryKeys, useSellers } from "@hooks/api/sellers";
+import {
+  SELLER_STATUS_LABELS,
+  sellerStatusOptions,
+  transitionSellerStatus,
+  useSellers,
+} from "@hooks/api/sellers";
 import { SellerDTO, SellerStatus } from "@mercurjs/types";
 
 type FormValues = {
@@ -47,20 +50,12 @@ const useColumns = () => {
         cell: (context) => (
           <DataGrid.SelectCell
             context={context}
-            options={[
-              {
-                label: t("stores.status.open"),
-                value: SellerStatus.OPEN,
-              },
-              {
-                label: t("stores.status.pendingApproval"),
-                value: SellerStatus.PENDING_APPROVAL,
-              },
-              {
-                label: t("stores.status.suspended"),
-                value: SellerStatus.SUSPENDED,
-              },
-            ]}
+            options={sellerStatusOptions(
+              context.row.original.status as SellerStatus,
+            ).map((status) => ({
+              label: t(SELLER_STATUS_LABELS[status]),
+              value: status,
+            }))}
           />
         ),
       }),
@@ -110,10 +105,11 @@ export const StoreBulkEditForm = () => {
     const updates = sellers
       .filter((seller) => statuses[seller.id] !== seller.status)
       .map((seller) =>
-        sdk.admin.sellers.$id.mutate({
-          $id: seller.id,
-          status: statuses[seller.id],
-        }),
+        transitionSellerStatus(
+          seller.id,
+          seller.status as SellerStatus,
+          statuses[seller.id],
+        ),
       );
 
     if (!updates.length) {
@@ -121,18 +117,22 @@ export const StoreBulkEditForm = () => {
       return;
     }
 
-    try {
-      await Promise.all(updates);
-      await queryClient.invalidateQueries({
-        queryKey: sellersQueryKeys.lists(),
-      });
-      toast.success(
-        t("stores.bulkEdit.successToast", { count: updates.length }),
+    const results = await Promise.allSettled(updates);
+    const fulfilled = results.filter((result) => result.status === "fulfilled").length;
+
+    if (fulfilled < updates.length) {
+      toast.warning(
+        t("stores.bulkEdit.errorToast", {
+          message: `${fulfilled}/${updates.length} succeeded`,
+        }),
       );
-      handleSuccess();
-    } catch (error) {
-      toast.error((error as Error).message);
+      return;
     }
+
+    toast.success(
+      t("stores.bulkEdit.successToast", { count: updates.length }),
+    );
+    handleSuccess();
   });
 
   const { isSubmitting } = form.formState;

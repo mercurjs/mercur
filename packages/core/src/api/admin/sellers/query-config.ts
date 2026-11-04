@@ -28,10 +28,8 @@ export const adminSellerFields = [
   "updated_at",
   "payout_account.id",
   "payout_account.status",
-  "payout_account.data",
   "payout_account.created_at",
   "payout_account.onboarding.id",
-  "payout_account.onboarding.data",
 ]
 
 export const adminSellerRetrieveFields = [
@@ -77,7 +75,6 @@ export const adminMemberInvitesQueryConfig = {
       "email",
       "accepted",
       "role_id",
-      "token",
       "expires_at",
       "created_at",
       "updated_at",

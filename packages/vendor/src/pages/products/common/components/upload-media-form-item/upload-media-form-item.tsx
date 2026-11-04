@@ -14,9 +14,9 @@ import { EditProductMediaSchemaType, ProductCreateSchemaType } from '../../../cr
 
 type Media = z.infer<typeof MediaSchema>;
 
-const SUPPORTED_FORMATS = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/svg+xml'];
+const SUPPORTED_FORMATS = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
 
-const SUPPORTED_FORMATS_FILE_EXTENSIONS = ['.jpeg', '.png', '.webp', '.heic', '.svg'];
+const SUPPORTED_FORMATS_FILE_EXTENSIONS = ['.jpeg', '.png', '.webp', '.heic'];
 
 export const UploadMediaFormItem = ({
   form,

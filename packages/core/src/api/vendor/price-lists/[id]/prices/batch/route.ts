@@ -10,7 +10,11 @@ import { BatchMethodRequest } from "@medusajs/framework/types"
 import { batchPriceListPricesWorkflow } from "@medusajs/core-flows"
 import { HttpTypes } from "@mercurjs/types"
 
-import { validateSellerPriceList } from "../../../helpers"
+import {
+  validatePriceListPrices,
+  validateSellerPriceList,
+  validateSellerPriceListPriceOffers,
+} from "../../../helpers"
 import { vendorPriceListPriceFields } from "../../../query-config"
 import {
   VendorCreatePriceListPriceType,
@@ -50,6 +54,15 @@ export const POST = async (
     update = [],
     delete: deletePriceIds = [],
   } = req.validatedBody
+
+  await validatePriceListPrices(req.scope, id, [
+    ...update.map((price) => price.id),
+    ...deletePriceIds,
+  ])
+  await validateSellerPriceListPriceOffers(req.scope, sellerId, [
+    ...create,
+    ...update,
+  ])
 
   const workflow = batchPriceListPricesWorkflow(req.scope)
   const { result } = await workflow.run({

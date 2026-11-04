@@ -41,8 +41,8 @@ export const POST = async (
       entity: "return",
       fields: req.queryConfig.fields,
       filters: {
-        id: result.return_id,
         ...req.filterableFields,
+        id: result.return_id,
       },
     }),
   ])

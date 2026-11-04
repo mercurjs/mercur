@@ -2,8 +2,11 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework"
+import { MedusaError } from "@medusajs/framework/utils"
+import { SellerRole } from "@mercurjs/types"
 
 import { VendorUpdateMemberRoleType } from "../../../validators"
+import { canAssignAdministration } from "../../../helpers"
 import {
   updateMemberRoleWorkflow,
   removeSellerMemberWorkflow,
@@ -13,6 +16,25 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorUpdateMemberRoleType>,
   res: MedusaResponse
 ) => {
+  const caller = req.seller_context!.seller_member
+
+  if (caller.id === req.params.member_id) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_ALLOWED,
+      "You cannot change your own role"
+    )
+  }
+
+  if (
+    req.validatedBody.role_id === SellerRole.SELLER_ADMINISTRATION &&
+    !canAssignAdministration(req, caller.role_id)
+  ) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_ALLOWED,
+      "Only administrators can grant the administration role"
+    )
+  }
+
   await updateMemberRoleWorkflow(req.scope).run({
     input: {
       seller_member_id: req.params.member_id,

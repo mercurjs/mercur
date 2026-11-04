@@ -47,10 +47,14 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/sellers/me",
     middlewares: [
-      restrictVendorFields(VENDOR_CROSS_SELLER_FIELD_SEGMENTS),
+      restrictVendorFields([
+        ...VENDOR_CROSS_SELLER_FIELD_SEGMENTS,
+        "payment_details",
+        "professional_details",
+      ]),
       validateAndTransformQuery(
         VendorGetSellerParams,
-        QueryConfig.retrieveVendorSellerQueryConfig
+        QueryConfig.retrieveVendorSellerMeQueryConfig
       ),
     ],
   },

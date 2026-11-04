@@ -6,6 +6,7 @@ import {
 } from "@medusajs/framework/http"
 import { HttpTypes } from "@medusajs/framework/types"
 
+import { validateSellerStockLocations } from "../../../../stock-locations/helpers"
 import { VendorPostExchangesReturnRequestItemsReqType } from "../../../validators"
 
 export const POST = async (
@@ -15,6 +16,12 @@ export const POST = async (
   }>
 ) => {
   const { id } = req.params
+
+  await validateSellerStockLocations(
+    req.scope,
+    req.seller_context!.seller_id,
+    req.validatedBody.location_id ? [req.validatedBody.location_id] : []
+  )
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 

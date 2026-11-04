@@ -17,7 +17,7 @@ export const validateReviewStep = createStep(
       data: [order],
     } = await query.graph({
       entity: "order",
-      fields: ["id"],
+      fields: ["id", "items.product_id", "seller.id"],
       filters: {
         id: reviewToCreate.order_id,
         customer_id: reviewToCreate.customer_id,
@@ -26,6 +26,20 @@ export const validateReviewStep = createStep(
 
     if (!order) {
       throw new MedusaError(MedusaError.Types.INVALID_DATA, "Order not found!")
+    }
+
+    const referenceBelongsToOrder =
+      reviewToCreate.reference === "seller"
+        ? order.seller?.id === reviewToCreate.reference_id
+        : (order.items ?? []).some(
+            (item) => item?.product_id === reviewToCreate.reference_id
+          )
+
+    if (!referenceBelongsToOrder) {
+      throw new MedusaError(
+        MedusaError.Types.NOT_FOUND,
+        `${reviewToCreate.reference} ${reviewToCreate.reference_id} is not part of order ${reviewToCreate.order_id}`
+      )
     }
 
     const { data } = await query.graph({

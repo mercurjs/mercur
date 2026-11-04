@@ -7,7 +7,11 @@ import { BatchMethodRequest } from "@medusajs/framework/types"
 import { RuleType } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
-import { refetchBatchRules, validateSellerPromotion } from "../../../helpers"
+import {
+  refetchBatchRules,
+  validatePromotionRules,
+  validateSellerPromotion,
+} from "../../../helpers"
 import {
   VendorCreatePromotionRuleType,
   VendorUpdatePromotionRuleType,
@@ -22,6 +26,10 @@ export const POST = async (
   const { id } = req.params
 
   await validateSellerPromotion(req.scope, req.seller_context!.seller_id, id)
+  await validatePromotionRules(req.scope, id, RuleType.RULES, [
+    ...(req.validatedBody.update ?? []).map((rule) => rule.id),
+    ...(req.validatedBody.delete ?? []),
+  ])
 
   const { result } = await batchPromotionRulesWorkflow(req.scope).run({
     input: {

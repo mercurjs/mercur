@@ -164,7 +164,12 @@ export interface SellerMemberDTO {
 export interface MemberInviteDTO {
   id: string
   email: string
-  token: string
+  token_hash: string
+  /**
+   * The raw invite token. Only present on the result of creating or
+   * resending an invite; it is never persisted or returned by reads.
+   */
+  token?: string
   accepted: boolean
   expires_at: Date
   role_id: string

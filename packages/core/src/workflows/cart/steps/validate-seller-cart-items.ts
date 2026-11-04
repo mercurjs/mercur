@@ -2,6 +2,7 @@ import { CartLineItemDTO, CartWorkflowDTO } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { Logger } from "@medusajs/medusa"
+import { resolveOrderableSellerIds } from "../../seller/utils"
 
 type ValidateSellerCartItemsStepInput = {
     cart: Omit<CartWorkflowDTO, "items"> & {
@@ -13,10 +14,11 @@ type ValidateSellerCartItemsStepInput = {
 
 export const validateSellerCartItemsStep = createStep(
     "validate-seller-cart-items",
-    (input: ValidateSellerCartItemsStepInput, { container }) => {
+    async (input: ValidateSellerCartItemsStepInput, { container }) => {
         const logger: Logger = container.resolve(ContainerRegistrationKeys.LOGGER)
+        const items = input.cart.items ?? []
 
-        const itemsWithMissingSellers = (input.cart.items ?? []).filter(
+        const itemsWithMissingSellers = items.filter(
             (item) => {
                 return !item.offer?.seller_id
             }
@@ -32,6 +34,21 @@ export const validateSellerCartItemsStep = createStep(
             throw new MedusaError(
                 MedusaError.Types.INVALID_DATA,
                 `The cart items required to be assigned to a seller but some of them are missing`
+            )
+        }
+
+        const cartSellerIds = [...new Set(items.map((item) => item.offer!.seller_id!))]
+        const visibleSellerIds = new Set(await resolveOrderableSellerIds(container, cartSellerIds))
+        const itemsOfUnavailableSellers = items.filter(
+            (item) => !visibleSellerIds.has(item.offer!.seller_id!)
+        )
+
+        if (itemsOfUnavailableSellers.length > 0) {
+            throw new MedusaError(
+                MedusaError.Types.INVALID_DATA,
+                `Some cart items belong to sellers that are not accepting orders: ${itemsOfUnavailableSellers
+                    .map((item) => item.id)
+                    .join(", ")}`
             )
         }
 

@@ -16,7 +16,10 @@ import {
 } from "../../../helpers/create-admin-user"
 import { createVendorProduct } from "../../../helpers/create-product"
 import { createCustomerUser } from "../../../helpers/create-customer-user"
-import { seedSellerOfferWithShipping } from "../../../helpers/split-order-checkout"
+import {
+  approveSeller,
+  seedSellerOfferWithShipping,
+} from "../../../helpers/split-order-checkout"
 
 jest.setTimeout(120000)
 
@@ -39,6 +42,7 @@ medusaIntegrationTestRunner({
           email: opts.email,
           name: opts.name,
         })
+        await approveSeller(appContainer, seller.id)
 
         const stockLocation = (
           await api.post(

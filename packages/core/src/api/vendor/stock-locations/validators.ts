@@ -43,7 +43,6 @@ export type VendorCreateStockLocationType = z.infer<
 export const VendorCreateStockLocation = z.object({
   name: z.preprocess((val: any) => val?.trim(), z.string().min(1)),
   address: VendorUpsertStockLocationAddress.optional(),
-  address_id: z.string().nullish(),
   metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 
@@ -55,7 +54,6 @@ export const VendorUpdateStockLocation = z.object({
     .preprocess((val: any) => val?.trim(), z.string().optional())
     .optional(),
   address: VendorUpsertStockLocationAddress.optional(),
-  address_id: z.string().nullish(),
   metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 

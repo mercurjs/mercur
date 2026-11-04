@@ -105,3 +105,75 @@ export const fetchPriceListPriceIdsForProduct = async (
 
   return productPrices.map((price: any) => price.id)
 }
+
+export const validatePriceListPrices = async (
+  scope: MedusaContainer,
+  priceListId: string,
+  priceIds: string[]
+) => {
+  const ids = Array.from(new Set(priceIds))
+  if (!ids.length) {
+    return
+  }
+
+  const query = scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const { data: prices } = await query.graph({
+    entity: "price",
+    filters: { id: ids, price_list_id: priceListId },
+    fields: ["id"],
+  })
+
+  const owned = new Set(prices.map((price) => price.id))
+  const missing = ids.find((id) => !owned.has(id))
+
+  if (missing) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `Price with id: ${missing} was not found`
+    )
+  }
+}
+
+type PriceWithOfferRule = {
+  variant_id?: string
+  rules?: Record<string, string>
+}
+
+export const validateSellerPriceListPriceOffers = async (
+  scope: MedusaContainer,
+  sellerId: string,
+  prices: PriceWithOfferRule[]
+) => {
+  const scoped = prices.filter((price) => price.rules?.offer_id)
+  if (!scoped.length) {
+    return
+  }
+
+  const offerIds = Array.from(
+    new Set(scoped.map((price) => price.rules!.offer_id))
+  )
+  const query = scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const { data: offers } = await query.graph({
+    entity: "offer",
+    filters: { id: offerIds, seller_id: sellerId },
+    fields: ["id", "variant_id"],
+  })
+
+  const variantByOffer = new Map(
+    offers.map((offer) => [offer.id, offer.variant_id])
+  )
+
+  for (const price of scoped) {
+    const offerId = price.rules!.offer_id
+    const variantId = variantByOffer.get(offerId)
+
+    if (!variantId || (price.variant_id && price.variant_id !== variantId)) {
+      throw new MedusaError(
+        MedusaError.Types.NOT_FOUND,
+        `Offer with id: ${offerId} was not found`
+      )
+    }
+  }
+}

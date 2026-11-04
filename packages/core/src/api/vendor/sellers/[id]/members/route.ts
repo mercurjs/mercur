@@ -2,9 +2,11 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
+import { SellerRole } from "@mercurjs/types"
 
 import { VendorInviteMemberType } from "../../validators"
+import { canAssignAdministration } from "../../helpers"
 import { createMemberInvitesWorkflow } from "../../../../../workflows/seller"
 
 export const GET = async (
@@ -34,6 +36,16 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorInviteMemberType>,
   res: MedusaResponse
 ) => {
+  if (
+    req.validatedBody.role_id === SellerRole.SELLER_ADMINISTRATION &&
+    !canAssignAdministration(req, req.seller_context!.seller_member.role_id)
+  ) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_ALLOWED,
+      "Only administrators can grant the administration role"
+    )
+  }
+
   const { result: invites } = await createMemberInvitesWorkflow(req.scope).run({
     input: [{
       seller_id: req.params.id,

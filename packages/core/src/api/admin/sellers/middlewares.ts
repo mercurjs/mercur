@@ -1,5 +1,10 @@
 import { requirePermission } from "../../utils"
-import { MiddlewareRoute } from "@medusajs/framework/http"
+import {
+  AuthenticatedMedusaRequest,
+  MedusaNextFunction,
+  MedusaResponse,
+  MiddlewareRoute,
+} from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
   validateAndTransformQuery,
@@ -31,6 +36,18 @@ import {
   AdminUpsertSellerPaymentDetails,
   AdminUpsertSellerProfessionalDetails,
 } from "./validators"
+
+const requirePremiumPermissionForPremiumChanges = (
+  req: AuthenticatedMedusaRequest<{ is_premium?: boolean }>,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  if (req.validatedBody?.is_premium === undefined) {
+    return next()
+  }
+
+  return requirePermission("sellers.premium", "edit")(req, res, next)
+}
 
 export const adminSellersMiddlewares: MiddlewareRoute[] = [
   {
@@ -73,6 +90,7 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       requirePermission("sellers", "edit"),
       validateAndTransformBody(AdminCreateSeller),
+      requirePremiumPermissionForPremiumChanges,
       validateAndTransformQuery(
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
@@ -104,6 +122,7 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       requirePermission("sellers", "edit"),
       validateAndTransformBody(AdminUpdateSeller),
+      requirePremiumPermissionForPremiumChanges,
       validateAndTransformQuery(
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve

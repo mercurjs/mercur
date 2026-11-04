@@ -11,6 +11,7 @@ import {
 import { HttpTypes } from "@mercurjs/types"
 
 import { validateSellerOrder } from "../orders/helpers"
+import { validateSellerStockLocations } from "../stock-locations/helpers"
 import { VendorGetReturnsParamsType, VendorPostReturnsReqType } from "./validators"
 
 export const GET = async (
@@ -43,6 +44,11 @@ export const POST = async (
     req.seller_context!.seller_id,
     req.validatedBody.order_id
   )
+  await validateSellerStockLocations(
+    req.scope,
+    req.seller_context!.seller_id,
+    req.validatedBody.location_id ? [req.validatedBody.location_id] : []
+  )
 
   const input = {
     ...req.validatedBody,
@@ -63,8 +69,8 @@ export const POST = async (
       entity: "return",
       fields: req.queryConfig.fields,
       filters: {
-        id: result.return_id,
         ...req.filterableFields,
+        id: result.return_id,
       },
     }),
   ])

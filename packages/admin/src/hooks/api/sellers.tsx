@@ -14,6 +14,7 @@ import { sdk } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
 import { regionsQueryKeys } from "./regions";
+import { SellerStatus } from "@mercurjs/types";
 
 const SELLERS_QUERY_KEY = "sellers" as const;
 export const sellersQueryKeys = queryKeysFactory(SELLERS_QUERY_KEY);
@@ -245,6 +246,68 @@ export const useUnterminateSeller = (
     ...options,
   });
 };
+
+const SELLER_STATUS_TRANSITIONS: Record<SellerStatus, SellerStatus[]> = {
+  [SellerStatus.PENDING_APPROVAL]: [SellerStatus.OPEN, SellerStatus.SUSPENDED, SellerStatus.TERMINATED],
+  [SellerStatus.OPEN]: [SellerStatus.SUSPENDED],
+  [SellerStatus.SUSPENDED]: [SellerStatus.OPEN, SellerStatus.TERMINATED],
+  [SellerStatus.TERMINATED]: [SellerStatus.OPEN],
+};
+
+export const SELLER_STATUS_LABELS: Record<SellerStatus, string> = {
+  [SellerStatus.OPEN]: "stores.status.open",
+  [SellerStatus.PENDING_APPROVAL]: "stores.status.pendingApproval",
+  [SellerStatus.SUSPENDED]: "stores.status.suspended",
+  [SellerStatus.TERMINATED]: "stores.status.terminated",
+};
+
+export const sellerStatusOptions = (from: SellerStatus): SellerStatus[] => [
+  from,
+  ...(SELLER_STATUS_TRANSITIONS[from] ?? []),
+];
+
+const runSellerStatusTransition = async (
+  id: string,
+  from: SellerStatus,
+  to: SellerStatus,
+) => {
+  switch (to) {
+    case SellerStatus.OPEN:
+      if (from === SellerStatus.PENDING_APPROVAL) {
+        await sdk.admin.sellers.$id.approve.mutate({ $id: id });
+      } else if (from === SellerStatus.SUSPENDED) {
+        await sdk.admin.sellers.$id.unsuspend.mutate({ $id: id });
+      } else {
+        await sdk.admin.sellers.$id.unterminate.mutate({ $id: id });
+      }
+      return;
+    case SellerStatus.SUSPENDED:
+      await sdk.admin.sellers.$id.suspend.mutate({ $id: id });
+      return;
+    case SellerStatus.TERMINATED:
+      await sdk.admin.sellers.$id.terminate.mutate({ $id: id });
+      return;
+    default:
+      throw new Error(`Cannot move a seller back to ${to}`);
+  }
+};
+
+export const transitionSellerStatus = async (
+  id: string,
+  from: SellerStatus,
+  to: SellerStatus,
+) => {
+  if (from === to) {
+    return;
+  }
+
+  await runSellerStatusTransition(id, from, to);
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: sellersQueryKeys.detail(id) }),
+    queryClient.invalidateQueries({ queryKey: sellersQueryKeys.lists() }),
+  ]);
+};
+
 
 export const useUpdateSeller = (
   id: string,

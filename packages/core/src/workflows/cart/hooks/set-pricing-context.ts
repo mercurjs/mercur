@@ -8,6 +8,7 @@ import {
   refreshCartItemsWorkflow,
   updateLineItemInCartWorkflow,
 } from "@medusajs/medusa/core-flows"
+import { removeOrphanSellerShippingMethods } from "../utils/remove-orphan-seller-shipping-methods"
 
 const readOfferIdFromItem = (
   item: { offer_id?: unknown; metadata?: Record<string, unknown> | null } | null
@@ -116,6 +117,12 @@ updateLineItemInCartWorkflow.hooks.setPricingContext(
 
 refreshCartItemsWorkflow.hooks.setPricingContext(
   async ({ cart_id, items }, { container }) => {
+    // This hook runs before the refresh re-reads the cart, so methods dropped
+    // here are gone from the shipping and payment-collection refreshes.
+    if (cart_id) {
+      await removeOrphanSellerShippingMethods(container, cart_id)
+    }
+
     const ids = new Set<string>()
     for (const id of collectFromInputItems(items)) ids.add(id)
     if (cart_id) {

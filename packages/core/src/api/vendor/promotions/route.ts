@@ -7,6 +7,7 @@ import { HttpTypes } from "@mercurjs/types"
 
 import { createSellerPromotionsWorkflow } from "../../../workflows/promotion"
 import { refetchPromotion } from "./helpers"
+import { validateSellerCampaign } from "../campaigns/helpers"
 import {
   VendorCreatePromotionType,
   VendorGetPromotionsParamsType,
@@ -38,6 +39,14 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.VendorPromotionResponse>
 ) => {
   const sellerId = req.seller_context!.seller_id
+
+  if (req.validatedBody.campaign_id) {
+    await validateSellerCampaign(
+      req.scope,
+      sellerId,
+      req.validatedBody.campaign_id
+    )
+  }
 
   const { result } = await createSellerPromotionsWorkflow(req.scope).run({
     input: {

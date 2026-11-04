@@ -6,6 +6,7 @@ import {
 import { MedusaError } from "@medusajs/framework/utils"
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { SellerDTO } from "@mercurjs/types"
+import { findOrphanSellerShippingMethods } from "../utils"
 
 type ValidateSellerCartShippingStepInput = {
     cart: Omit<CartWorkflowDTO, "items"> & {
@@ -21,6 +22,7 @@ type ValidateSellerCartShippingStepInput = {
         seller: SellerDTO
     })[]
 }
+
 
 export const validateSellerCartShippingStep = createStep(
     "validate-seller-shipping",
@@ -51,6 +53,20 @@ export const validateSellerCartShippingStep = createStep(
             (item) => item.requires_shipping
         )
         const shippingMethods = cart.shipping_methods ?? []
+
+        const orphanMethods = findOrphanSellerShippingMethods({
+            items: cart.items ?? [],
+            shippingMethods,
+            shippingOptions,
+        })
+        if (orphanMethods.length > 0) {
+            throw new MedusaError(
+                MedusaError.Types.INVALID_DATA,
+                `Shipping methods ${orphanMethods
+                    .map((method) => method.id)
+                    .join(", ")} belong to sellers with no items in the cart`
+            )
+        }
 
         if (itemsRequiringShipping.length > 0 && shippingMethods.length === 0) {
             throw new MedusaError(

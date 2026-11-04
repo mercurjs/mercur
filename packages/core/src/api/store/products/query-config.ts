@@ -1,3 +1,11 @@
+import {
+  buildAllowedFields,
+  prefixAllowedFields,
+} from "@medusajs/medusa/api/store/utils/allowed-fields"
+import { allowedStoreProductExtraFields } from "@medusajs/medusa/api/store/products/query-config"
+
+import { allowedStoreOfferFields } from "../offers/query-config"
+
 export const defaultStoreProductFields = [
   "id",
   "title",
@@ -55,14 +63,58 @@ export const defaultStoreProductFields = [
   "scoped_attributes.values.rank",
 ]
 
+const storeCategoryFields = [
+  "id",
+  "name",
+  "description",
+  "handle",
+  "rank",
+  "parent_category_id",
+  "metadata",
+]
+
+export const allowedStoreProductExtraMercurFields = [
+  "variants.offer_id",
+  "variants.offers",
+  ...prefixAllowedFields("variants.offers", allowedStoreOfferFields),
+  ...prefixAllowedFields("categories", storeCategoryFields),
+  "product_attribute_values",
+  "product_attribute_values.handle",
+  "product_attribute_values.metadata",
+  "product_attribute_values.attribute",
+  "product_attribute_values.attribute.description",
+  "product_attribute_values.attribute.is_filterable",
+  "product_attribute_values.attribute.metadata",
+  "product_attribute_values.attribute.values",
+  "product_attribute_values.attribute.values.handle",
+  "scoped_attributes",
+  "scoped_attributes.description",
+  "scoped_attributes.is_required",
+  "scoped_attributes.is_filterable",
+  "scoped_attributes.rank",
+  "scoped_attributes.metadata",
+  "scoped_attributes.values",
+  "scoped_attributes.values.handle",
+]
+
+export const allowedStoreProductFields = buildAllowedFields(
+  defaultStoreProductFields,
+  allowedStoreProductExtraFields,
+  allowedStoreProductExtraMercurFields
+)
+
 export const storeProductQueryConfig = {
   list: {
     defaults: defaultStoreProductFields,
+    allowed: allowedStoreProductFields,
+    storeRelationsLimit: 4,
     defaultLimit: 50,
     isList: true,
   },
   retrieve: {
     defaults: defaultStoreProductFields,
+    allowed: allowedStoreProductFields,
+    storeRelationsLimit: 4,
     isList: false,
   },
 }

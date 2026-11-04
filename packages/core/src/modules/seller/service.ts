@@ -219,6 +219,10 @@ class SellerModuleService extends MedusaService({
     )
   }
 
+  protected hashInviteToken(token: string): string {
+    return crypto.createHash("sha256").update(token).digest("hex")
+  }
+
   @InjectTransactionManager()
   // @ts-ignore
   async createMemberInvites<T extends any | any[]>(
@@ -273,26 +277,35 @@ class SellerModuleService extends MedusaService({
       }
     }
 
+    const rawTokens = new Map<string, string>()
     const input = inviteList.map((invite) => {
       const id = invite.id ?? `meminv_${crypto.randomUUID()}`
+      const token = this.generateInviteToken_(
+        {
+          id,
+          email: invite.email,
+          seller_name: sellerMap.get(invite.seller_id) ?? "",
+          existing_member: existingEmailSet.has(invite.email),
+        },
+        validDuration,
+      )
+      rawTokens.set(id, token)
+
       return {
         ...invite,
         id,
-        token: this.generateInviteToken_(
-          {
-            id,
-            email: invite.email,
-            seller_name: sellerMap.get(invite.seller_id) ?? "",
-            existing_member: existingEmailSet.has(invite.email),
-          },
-          validDuration,
-        ),
+        token_hash: this.hashInviteToken(token),
         accepted: invite.accepted ?? false,
         expires_at: invite.expires_at ?? new Date(Date.now() + validDuration * 1000),
       }
     })
 
-    const result = await super.createMemberInvites(input, sharedContext)
+    const created = await super.createMemberInvites(input, sharedContext)
+    const result = created.map((invite) => ({
+      ...invite,
+      token: rawTokens.get(invite.id),
+    }))
+
     return (Array.isArray(data) ? result : result[0]) as any
   }
 
@@ -318,6 +331,18 @@ class SellerModuleService extends MedusaService({
       {},
       sharedContext,
     ) as MemberInviteDTO
+
+    const presented = Buffer.from(this.hashInviteToken(token))
+    const stored = Buffer.from(invite.token_hash ?? "")
+    if (
+      presented.length !== stored.length ||
+      !crypto.timingSafeEqual(presented, stored)
+    ) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "Invalid invite token"
+      )
+    }
 
     if (invite.accepted) {
       throw new MedusaError(

@@ -1,7 +1,7 @@
 import { PayoutStatus, PayoutStatusReason } from "@mercurjs/types"
 
 import { fulfillmentReached } from "../fulfillment-status"
-import { decideOrderPayout, decideReversal } from "../payout-amounts"
+import { capturedNetOf, decideOrderPayout, decideReversal, grossTotalOf, planOrderPayouts } from "../payout-amounts"
 import { sentToProvider } from "../sent-to-provider"
 
 const order = (overrides: Partial<Parameters<typeof decideOrderPayout>[0]["order"]> = {}) => ({
@@ -105,6 +105,166 @@ describe("decideOrderPayout", () => {
     expect(Number(decision.amount)).toBe(162)
   })
 
+  it("caps the payout at what was captured when the total outgrew the payment", () => {
+    const decision = decideOrderPayout({ ...base, order: order({ total: 400 }), captured_total: 180 })
+    expect(decision.status).toBe(PayoutStatus.PENDING)
+    expect(Number(decision.amount)).toBe(162)
+  })
+
+  it("keeps total minus commission when the capture covers it", () => {
+    expect(Number(decideOrderPayout({ ...base, captured_total: 180 }).amount)).toBe(162)
+    expect(Number(decideOrderPayout({ ...base, captured_total: 250 }).amount)).toBe(162)
+  })
+
+  it("ignores an unknown or empty capture amount", () => {
+    expect(Number(decideOrderPayout({ ...base, captured_total: null }).amount)).toBe(162)
+    expect(Number(decideOrderPayout({ ...base, captured_total: 0 }).amount)).toBe(162)
+  })
+
+})
+
+describe("capturedNetOf", () => {
+  it("sums captures minus refunds on live payments only", () => {
+    const captured = capturedNetOf({
+      payment_collections: [
+        {
+          payments: [
+            {
+              id: "pay_1",
+              captured_at: new Date(),
+              canceled_at: null,
+              data: null,
+              amount: 180,
+              captures: [{ amount: 100 }, { amount: 80 }],
+              refunds: [{ id: "ref_1", amount: 30 }],
+            },
+            {
+              id: "pay_2",
+              captured_at: new Date(),
+              canceled_at: new Date(),
+              data: null,
+              amount: 50,
+              captures: [{ amount: 50 }],
+            },
+          ],
+        },
+      ],
+    })
+    expect(Number(captured)).toBe(150)
+  })
+})
+
+describe("planOrderPayouts", () => {
+  const payoutOrder = (total: number) => ({
+    id: "order_1",
+    status: "pending",
+    canceled_at: null,
+    total,
+    currency_code: "eur",
+    items: [{ id: "item_1", quantity: 1 }],
+    fulfillments: [{ canceled_at: null, shipped_at: null, delivered_at: null, items: [{ line_item_id: "item_1", quantity: 1 }] }],
+    shipping_methods: [],
+    seller: { id: "sel_1", payout_account: { id: "pacc_1", payouts_enabled: true } },
+    payment_collections: [
+      {
+        payments: [
+          { id: "pay_1", captured_at: new Date(), canceled_at: null, data: {}, amount: 180, captures: [{ amount: 180 }], refunds: [] },
+        ],
+      },
+    ],
+  })
+
+  it("never pays out more than the captured amount minus commission", () => {
+    const plan = planOrderPayouts({
+      orders: [payoutOrder(400) as unknown as Parameters<typeof planOrderPayouts>[0]["orders"][number]],
+      commission_lines: [{ amount: 18, item_id: "item_1" }],
+      payouts: [],
+      required_fulfillment_status: "fulfilled",
+    })
+    expect(plan.create).toHaveLength(1)
+    expect(plan.create[0].status).toBe(PayoutStatus.PENDING)
+    expect(plan.create[0].amount).toBe(162)
+  })
+})
+
+describe("grossTotalOf", () => {
+  it("adds refund credit lines back and leaves store credit deducted", () => {
+    const gross = grossTotalOf({
+      total: 100,
+      credit_lines: [
+        { amount: 30, reference: "payment_collection" },
+        { amount: 25, reference: "store_credit" },
+        { amount: 10, reference: null },
+        { amount: 5, reference: "Damaged in transit" },
+      ],
+    })
+    expect(Number(gross)).toBe(145)
+  })
+
+  it("is the total when nothing was refunded", () => {
+    expect(Number(grossTotalOf({ total: 100, credit_lines: [] }))).toBe(100)
+    expect(Number(grossTotalOf({ total: 100 }))).toBe(100)
+  })
+})
+
+describe("planOrderPayouts credit lines", () => {
+  const payoutOrder = (creditLines: { amount: number; reference: string | null }[]) => ({
+    id: "order_1",
+    status: "pending",
+    canceled_at: null,
+    total: 100,
+    currency_code: "eur",
+    credit_lines: creditLines,
+    items: [{ id: "item_1", quantity: 1 }],
+    shipping_methods: [],
+    fulfillments: [
+      { canceled_at: null, shipped_at: null, delivered_at: null, items: [{ line_item_id: "item_1", quantity: 1 }] },
+    ],
+    seller: { id: "sel_1", payout_account: { id: "pacc_1", payouts_enabled: true } },
+    payment_collections: [
+      {
+        payments: [
+          {
+            id: "pay_1",
+            amount: 100,
+            captured_at: new Date(),
+            canceled_at: null,
+            data: {},
+            captures: [{ amount: 100 }],
+            refunds: [],
+          },
+        ],
+      },
+    ],
+  })
+
+  it("pays the order total net of store credit, minus commission", () => {
+    const plan = planOrderPayouts({
+      orders: [payoutOrder([{ amount: 40, reference: "store_credit" }])],
+      commission_lines: [{ amount: 10, item_id: "item_1" }],
+      payouts: [],
+      required_fulfillment_status: "fulfilled",
+    })
+    expect(plan.create).toHaveLength(1)
+    expect(plan.create[0].status).toBe(PayoutStatus.PENDING)
+    expect(plan.create[0].amount).toBe(90)
+  })
+
+  it("keeps a refund that landed before the payout out of the amount", () => {
+    const order = payoutOrder([{ amount: 20, reference: "payment_collection" }])
+    const payment = order.payment_collections[0].payments[0]
+    payment.amount = 120
+    payment.captures = [{ amount: 120 }]
+    payment.refunds = [{ id: "ref_1", amount: 20 }]
+    const plan = planOrderPayouts({
+      orders: [order],
+      commission_lines: [{ amount: 12, item_id: "item_1" }],
+      payouts: [],
+      required_fulfillment_status: "fulfilled",
+    })
+    expect(plan.create[0].amount).toBe(90)
+    expect(plan.create[0].data.absorbed_refund_ids).toEqual(["ref_1"])
+  })
 })
 
 describe("fulfillmentReached", () => {

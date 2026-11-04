@@ -18,7 +18,7 @@ export const POST = async (
   await ensureSellerOwnsProducts(
     req.scope,
     req.seller_context!.seller_id,
-    add ?? []
+    [...(add ?? []), ...(remove ?? [])]
   )
 
   await linkProductsToSalesChannelWorkflow(req.scope).run({

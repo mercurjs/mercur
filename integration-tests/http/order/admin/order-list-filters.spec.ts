@@ -518,6 +518,14 @@ medusaIntegrationTestRunner({
                     expect(match.data.order_groups[0].id).toEqual(groupA)
                 })
 
+                it("rejects a page size of zero instead of dropping the limit", async () => {
+                    const response = await api
+                        .get(`/admin/order-groups?limit=0`, adminHeaders)
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
+                })
+
                 it("returns all groups when no seller filter is applied", async () => {
                     const { orderGroupId: groupA } = await completeCartCheckout(
                         seller1Seed.offer.id

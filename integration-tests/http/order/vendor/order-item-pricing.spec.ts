@@ -1,0 +1,474 @@
+import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
+import {
+    IRegionModuleService,
+    ISalesChannelModuleService,
+    MedusaContainer,
+} from "@medusajs/framework/types"
+import {
+    ContainerRegistrationKeys,
+    Modules,
+} from "@medusajs/framework/utils"
+import { MercurModules, SellerStatus } from "@mercurjs/types"
+import { createSellerUser } from "../../../helpers/create-seller-user"
+import { createShippingProfile } from "../../../helpers/create-shipping-profile"
+import { createCustomerUser } from "../../../helpers/create-customer-user"
+import { createVendorProduct } from "../../../helpers/create-product"
+import {
+    generatePublishableKey,
+    generateStoreHeaders,
+} from "../../../helpers/create-admin-user"
+
+jest.setTimeout(120000)
+
+const approveSeller = async (
+    container: MedusaContainer,
+    sellerId: string
+) => {
+    const sellerModule: any = container.resolve(MercurModules.SELLER)
+    await sellerModule.updateSellers({
+        id: sellerId,
+        status: SellerStatus.OPEN,
+    })
+}
+
+medusaIntegrationTestRunner({
+    testSuite: ({ getContainer, api }) => {
+        describe("Vendor - Order item pricing and offer attribution", () => {
+            let appContainer: MedusaContainer
+            let seller1Seed: any
+            let seller2Seed: any
+            let storeHeaders: any
+            let region: any
+            let salesChannel: any
+            let prerequisiteCounter = 0
+
+            const seedSellerOfferWithShipping = async (opts: {
+                email: string
+                name: string
+                stocked: number
+                offerPrice: number
+            }) => {
+                const result = await createSellerUser(appContainer, {
+                    email: opts.email,
+                    name: opts.name,
+                })
+                await approveSeller(appContainer, (result.seller as any).id)
+                const headers = result.headers
+                const tag = `_${opts.name}_${Date.now()}_${++prerequisiteCounter}`
+
+                const stockLocation = (
+                    await api.post(
+                        `/vendor/stock-locations`,
+                        { name: `Warehouse${tag}` },
+                        headers
+                    )
+                ).data.stock_location
+
+                await api.post(
+                    `/vendor/stock-locations/${stockLocation.id}/fulfillment-sets`,
+                    { name: `FS${tag}`, type: "shipping" },
+                    headers
+                )
+                const fulfillmentSet = (
+                    await api.get(
+                        `/vendor/stock-locations/${stockLocation.id}?fields=*fulfillment_sets`,
+                        headers
+                    )
+                ).data.stock_location.fulfillment_sets[0]
+                const serviceZone = (
+                    await api.post(
+                        `/vendor/fulfillment-sets/${fulfillmentSet.id}/service-zones`,
+                        {
+                            name: `SZ${tag}`,
+                            geo_zones: [{ type: "country", country_code: "us" }],
+                        },
+                        headers
+                    )
+                ).data.fulfillment_set.service_zones.find(
+                    (z: any) => z.name === `SZ${tag}`
+                )
+                const shippingProfile = await createShippingProfile(appContainer, {
+                    name: `SP${tag}`,
+                })
+
+                await api.post(
+                    `/vendor/stock-locations/${stockLocation.id}/fulfillment-providers`,
+                    { add: ["manual_manual"] },
+                    headers
+                )
+                await api.post(
+                    `/vendor/stock-locations/${stockLocation.id}/sales-channels`,
+                    { add: [salesChannel.id] },
+                    headers
+                )
+                await api.post(
+                    `/vendor/shipping-options`,
+                    {
+                        name: `Ship${tag}`,
+                        service_zone_id: serviceZone.id,
+                        shipping_profile_id: shippingProfile.id,
+                        provider_id: "manual_manual",
+                        price_type: "flat",
+                        type: {
+                            label: "Standard",
+                            description: "Standard",
+                            code: "standard",
+                        },
+                        prices: [{ currency_code: "usd", amount: 500 }],
+                        rules: [
+                            {
+                                attribute: "enabled_in_store",
+                                value: "true",
+                                operator: "eq",
+                            },
+                        ],
+                    },
+                    headers
+                )
+
+                const product = await createVendorProduct(api, headers, {
+                    title: `Prod${tag}`,
+                    sku: `V${tag}`,
+                })
+
+                await api.post(
+                    `/vendor/sales-channels/${salesChannel.id}/products`,
+                    { add: [product.id] },
+                    headers
+                )
+
+                const offer = (
+                    await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: `OF${tag}`,
+                            variant_id: product.variants[0].id,
+                            shipping_profile_id: shippingProfile.id,
+                            inventory_items: [
+                                {
+                                    title: `Inv${tag}`,
+                                    required_quantity: 1,
+                                    stock_levels: [
+                                        {
+                                            location_id: stockLocation.id,
+                                            stocked_quantity: opts.stocked,
+                                        },
+                                    ],
+                                },
+                            ],
+                            prices: [
+                                {
+                                    amount: opts.offerPrice,
+                                    currency_code: "usd",
+                                },
+                            ],
+                        },
+                        headers
+                    )
+                ).data.offer
+
+                return {
+                    sellerId: result.seller.id,
+                    headers,
+                    product,
+                    variant: product.variants[0],
+                    offer,
+                }
+            }
+
+            const completeCartCheckout = async (offerId: string) => {
+                const cart = (
+                    await api.post(
+                        `/store/carts`,
+                        {
+                            region_id: region.id,
+                            sales_channel_id: salesChannel.id,
+                            currency_code: "usd",
+                        },
+                        storeHeaders
+                    )
+                ).data.cart
+
+                await api.post(
+                    `/store/carts/${cart.id}/line-items`,
+                    { offer_id: offerId, quantity: 1 },
+                    storeHeaders
+                )
+
+                await api.post(
+                    `/store/carts/${cart.id}`,
+                    {
+                        email: "buyer@test.com",
+                        shipping_address: {
+                            first_name: "Buyer",
+                            last_name: "Test",
+                            address_1: "123 Main St",
+                            city: "New York",
+                            country_code: "us",
+                            postal_code: "10001",
+                        },
+                        billing_address: {
+                            first_name: "Buyer",
+                            last_name: "Test",
+                            address_1: "123 Main St",
+                            city: "New York",
+                            country_code: "us",
+                            postal_code: "10001",
+                        },
+                    },
+                    storeHeaders
+                )
+
+                const shippingOptionsResp = await api.get(
+                    `/store/shipping-options?cart_id=${cart.id}`,
+                    storeHeaders
+                )
+                const allOptions = Object.values(
+                    shippingOptionsResp.data.shipping_options as Record<
+                        string,
+                        any[]
+                    >
+                ).flat()
+                for (const opt of allOptions) {
+                    await api.post(
+                        `/store/carts/${cart.id}/shipping-methods`,
+                        { option_id: opt.id },
+                        storeHeaders
+                    )
+                }
+
+                const paymentCollection = (
+                    await api.post(
+                        `/store/payment-collections`,
+                        { cart_id: cart.id },
+                        storeHeaders
+                    )
+                ).data.payment_collection
+                await api.post(
+                    `/store/payment-collections/${paymentCollection.id}/payment-sessions`,
+                    { provider_id: "pp_system_default" },
+                    storeHeaders
+                )
+
+                const completeResp = await api.post(
+                    `/store/carts/${cart.id}/complete`,
+                    {},
+                    storeHeaders
+                )
+                const orderGroupId = completeResp.data.order_group.id
+                const query = appContainer.resolve(
+                    ContainerRegistrationKeys.QUERY
+                )
+                const { data: orderGroup } = await query.graph({
+                    entity: "order_group",
+                    filters: { id: orderGroupId },
+                    fields: ["id", "orders.id"],
+                })
+                return (orderGroup[0] as any).orders[0]
+            }
+
+            beforeAll(async () => {
+                appContainer = getContainer()
+            })
+
+            beforeEach(async () => {
+                const customerResult = await createCustomerUser(appContainer, {
+                    email: "editbuyer@test.com",
+                    first_name: "Edit",
+                    last_name: "Buyer",
+                })
+                const apiKey = await generatePublishableKey(appContainer)
+                const baseStoreHeaders = generateStoreHeaders({
+                    publishableKey: apiKey,
+                })
+                storeHeaders = {
+                    headers: {
+                        ...baseStoreHeaders.headers,
+                        ...customerResult.headers.headers,
+                    },
+                }
+
+                const salesChannelModule =
+                    appContainer.resolve<ISalesChannelModuleService>(
+                        Modules.SALES_CHANNEL
+                    )
+                salesChannel = await salesChannelModule.createSalesChannels({
+                    name: "Edit Channel",
+                })
+
+                const regionModule = appContainer.resolve<IRegionModuleService>(
+                    Modules.REGION
+                )
+                region = await regionModule.createRegions({
+                    name: "Edit Region",
+                    currency_code: "usd",
+                    countries: ["us"],
+                })
+
+                const link = appContainer.resolve(ContainerRegistrationKeys.LINK)
+                await link.create({
+                    [Modules.REGION]: { region_id: region.id },
+                    [Modules.PAYMENT]: { payment_provider_id: "pp_system_default" },
+                })
+
+                seller1Seed = await seedSellerOfferWithShipping({
+                    email: "edit-seller1@test.com",
+                    name: "EditS1",
+                    stocked: 20,
+                    offerPrice: 2500,
+                })
+
+                seller2Seed = await seedSellerOfferWithShipping({
+                    email: "edit-seller2@test.com",
+                    name: "EditS2",
+                    stocked: 20,
+                    offerPrice: 2500,
+                })
+            })
+
+
+            const beginEdit = async (orderId: string, headers: any) =>
+                api.post(`/vendor/order-edits`, { order_id: orderId }, headers)
+
+            const confirmEdit = async (orderId: string, headers: any) => {
+                await api.post(`/vendor/order-edits/${orderId}/request`, {}, headers)
+                await api.post(`/vendor/order-edits/${orderId}/confirm`, {}, headers)
+            }
+
+            const loadItems = async (orderId: string) => {
+                const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+                const { data: orders } = await query.graph({
+                    entity: "order",
+                    fields: [
+                        "id",
+                        "total",
+                        "items.id",
+                        "items.variant_id",
+                        "items.unit_price",
+                        "items.metadata",
+                        "items.offer.id",
+                    ],
+                    filters: { id: orderId },
+                })
+                return (orders[0] as any).items as Array<{
+                    id: string
+                    variant_id: string
+                    unit_price: number
+                    metadata: Record<string, unknown> | null
+                    offer: { id: string } | null
+                }>
+            }
+
+            describe("POST /vendor/order-edits/:id/items", () => {
+                it("ignores a vendor-supplied unit_price and charges the offer price", async () => {
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
+                    await beginEdit(order.id, seller1Seed.headers)
+
+                    const response = await api.post(
+                        `/vendor/order-edits/${order.id}/items`,
+                        {
+                            items: [
+                                {
+                                    offer_id: seller1Seed.offer.id,
+                                    quantity: 1,
+                                    unit_price: 999999,
+                                },
+                            ],
+                        },
+                        seller1Seed.headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    const added = response.data.order_preview.items.find(
+                        (i: any) => i.actions?.some((a: any) => a.action === "ITEM_ADD")
+                    )
+                    expect(added).toBeDefined()
+                    expect(Number(added.unit_price)).toEqual(2500)
+                })
+
+                it("ignores unit_price on a variant_id item and resolves it to the seller's offer", async () => {
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
+                    await beginEdit(order.id, seller1Seed.headers)
+
+                    const response = await api.post(
+                        `/vendor/order-edits/${order.id}/items`,
+                        {
+                            items: [
+                                {
+                                    variant_id: seller1Seed.variant.id,
+                                    quantity: 1,
+                                    unit_price: 999999,
+                                },
+                            ],
+                        },
+                        seller1Seed.headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    const added = response.data.order_preview.items.find(
+                        (i: any) => i.actions?.some((a: any) => a.action === "ITEM_ADD")
+                    )
+                    expect(Number(added.unit_price)).toEqual(2500)
+                })
+
+                it("rejects a variant_id the seller has no offer for", async () => {
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
+                    await beginEdit(order.id, seller1Seed.headers)
+
+                    const response = await api
+                        .post(
+                            `/vendor/order-edits/${order.id}/items`,
+                            {
+                                items: [
+                                    { variant_id: seller2Seed.variant.id, quantity: 1 },
+                                ],
+                            },
+                            seller1Seed.headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
+                })
+
+                it("strips a client metadata.offer_id and links the added item to the seller's own offer", async () => {
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
+                    await beginEdit(order.id, seller1Seed.headers)
+
+                    const addResp = await api.post(
+                        `/vendor/order-edits/${order.id}/items`,
+                        {
+                            items: [
+                                {
+                                    variant_id: seller1Seed.variant.id,
+                                    quantity: 1,
+                                    metadata: {
+                                        offer_id: seller2Seed.offer.id,
+                                        seller_id: seller2Seed.sellerId,
+                                        note: "keep me",
+                                    },
+                                },
+                            ],
+                        },
+                        seller1Seed.headers
+                    )
+                    expect(addResp.status).toEqual(200)
+
+                    await confirmEdit(order.id, seller1Seed.headers)
+
+                    let items = await loadItems(order.id)
+                    for (let i = 0; i < 100 && items.some((item) => !item.offer?.id); i++) {
+                        await new Promise((r) => setTimeout(r, 100))
+                        items = await loadItems(order.id)
+                    }
+                    expect(items).toHaveLength(2)
+                    for (const item of items) {
+                        expect(item.offer?.id).toEqual(seller1Seed.offer.id)
+                        expect(item.metadata?.seller_id).toBeUndefined()
+                    }
+                    const added = items.find((i) => i.metadata?.note === "keep me")
+                    expect(added).toBeDefined()
+                })
+            })
+        })
+    },
+})

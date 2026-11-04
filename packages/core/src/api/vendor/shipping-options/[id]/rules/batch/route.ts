@@ -6,7 +6,11 @@ import { BatchMethodRequest } from "@medusajs/framework/types"
 import { batchShippingOptionRulesWorkflow } from "@medusajs/core-flows"
 import { HttpTypes } from "@mercurjs/types"
 
-import { refetchBatchRules, validateSellerShippingOption } from "../../../helpers"
+import {
+  refetchBatchRules,
+  validateSellerShippingOption,
+  validateShippingOptionRules,
+} from "../../../helpers"
 import {
   VendorCreateShippingOptionRuleType,
   VendorUpdateShippingOptionRuleType,
@@ -25,6 +29,10 @@ export const POST = async (
   const id = req.params.id
 
   await validateSellerShippingOption(req.scope, sellerId, id)
+  await validateShippingOptionRules(req.scope, id, [
+    ...(req.validatedBody.update ?? []).map((rule) => rule.id),
+    ...(req.validatedBody.delete ?? []),
+  ])
 
   const { result } = await batchShippingOptionRulesWorkflow(req.scope).run({
     input: {

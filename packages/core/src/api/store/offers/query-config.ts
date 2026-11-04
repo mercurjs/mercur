@@ -1,3 +1,5 @@
+import { buildAllowedFields } from "@medusajs/medusa/api/store/utils/allowed-fields"
+
 export const defaultStoreOfferFields = [
   "id",
   "seller_id",
@@ -41,14 +43,57 @@ export const defaultStoreOfferFields = [
   "inventory_item_link.inventory_item.location_levels.reserved_quantity",
 ]
 
+const computedStoreOfferFields = [
+  "calculated_price",
+  "inventory_quantity",
+  "in_stock",
+  "effective_leadtime_to_ship",
+]
+
+export const allowedStoreOfferExtraFields = [
+  ...computedStoreOfferFields,
+  "condition.description",
+  "seller.description",
+  "seller.logo",
+  "seller.banner",
+  "seller.is_premium",
+  "seller.default_leadtime_to_ship",
+  "seller.closed_from",
+  "seller.closed_to",
+  "seller.closure_note",
+  "product.id",
+  "product.title",
+  "product.subtitle",
+  "product.handle",
+  "product.thumbnail",
+  "product.status",
+  "product_variant.barcode",
+  "product_variant.ean",
+  "product_variant.upc",
+  "product_variant.product_id",
+  "product_variant.options",
+  "product_variant.options.id",
+  "product_variant.options.value",
+  "shipping_profile.type",
+  "prices.price_set_id",
+  "prices.rules_count",
+]
+
+export const allowedStoreOfferFields = buildAllowedFields(
+  defaultStoreOfferFields,
+  allowedStoreOfferExtraFields
+)
+
 export const storeOfferQueryConfig = {
   list: {
     defaults: defaultStoreOfferFields,
+    allowed: allowedStoreOfferFields,
     defaultLimit: 50,
     isList: true,
   },
   retrieve: {
     defaults: defaultStoreOfferFields,
+    allowed: allowedStoreOfferFields,
     isList: false,
   },
 }

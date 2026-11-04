@@ -13,6 +13,7 @@ import {
     generateStoreHeaders,
 } from "../../../helpers/create-admin-user"
 import { createVendorProduct } from "../../../helpers/create-product"
+import { approveSeller } from "../../../helpers/split-order-checkout"
 
 jest.setTimeout(120000)
 
@@ -41,6 +42,7 @@ medusaIntegrationTestRunner({
                     appContainer,
                     { email: opts.email, name: opts.name }
                 )
+                await approveSeller(appContainer, seller.id)
 
                 const stockLocation = (
                     await api.post(
@@ -119,13 +121,17 @@ medusaIntegrationTestRunner({
                     inventory_items: [{ stocked: 100, required_quantity: 1 }],
                 })
                 const sharedItemId = base.offer.inventory_items[0].id
+                const packProduct = await createVendorProduct(api, base.headers, {
+                    title: `${name} Pack Product ${Date.now()}`,
+                    sku: `${name}-PACK-V-${Date.now()}`,
+                })
 
                 const pack = (
                     await api.post(
                         `/vendor/offers`,
                         {
                             sku: `${name}-PACK-${Date.now()}`,
-                            variant_id: base.product.variants[0].id,
+                            variant_id: packProduct.variants[0].id,
                             shipping_profile_id: base.shippingProfile.id,
                             inventory_items: [
                                 {

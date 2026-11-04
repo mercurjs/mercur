@@ -543,6 +543,30 @@ medusaIntegrationTestRunner({
       })
 
       describe("POST /vendor/sellers/:id", () => {
+        it.each([
+          ["logo", "javascript:alert(1)"],
+          ["banner", "data:text/html;base64,PHNjcmlwdD4="],
+          ["website_url", "javascript:alert(1)"],
+          ["website_url", "ftp://example.com"],
+        ])("rejects a non-http %s", async (field, value) => {
+          const response = await api
+            .post(`/vendor/sellers/${sellerA.id}`, { [field]: value }, headersA)
+            .catch((e: any) => e.response)
+
+          expect(response.status).toEqual(400)
+        })
+
+        it("accepts http(s) website urls", async () => {
+          const response = await api.post(
+            `/vendor/sellers/${sellerA.id}`,
+            { website_url: "https://example.com/shop" },
+            headersA
+          )
+
+          expect(response.status).toEqual(200)
+          expect(response.data.seller.website_url).toEqual("https://example.com/shop")
+        })
+
         it("should update name", async () => {
           const response = await api.post(
             `/vendor/sellers/${sellerA.id}`,
@@ -1208,6 +1232,50 @@ medusaIntegrationTestRunner({
         })
       })
 
+      describe("Seller status enforcement", () => {
+        it("locks a suspended seller out of the Vendor API except its own profile", async () => {
+          await api.post(`/admin/sellers/${sellerA.id}/suspend`, {}, adminHeaders)
+
+          const products = await api
+            .get(`/vendor/products`, headersA)
+            .catch((e) => e.response)
+          expect(products.status).toEqual(403)
+          expect(products.data.message).toContain("suspended")
+
+          const update = await api
+            .post(`/vendor/sellers/me`, { name: "Renamed" }, headersA)
+            .catch((e) => e.response)
+          expect(update.status).toEqual(403)
+
+          const me = await api.get(`/vendor/sellers/me`, headersA)
+          expect(me.status).toEqual(200)
+          expect(me.data.seller.status).toEqual("suspended")
+
+          await api.post(`/admin/sellers/${sellerA.id}/unsuspend`, {}, adminHeaders)
+          expect((await api.get(`/vendor/products`, headersA)).status).toEqual(200)
+        })
+
+        it("locks a terminated seller out of the Vendor API", async () => {
+          await api.post(`/admin/sellers/${sellerA.id}/suspend`, {}, adminHeaders)
+          await api.post(
+            `/admin/sellers/${sellerA.id}/terminate`,
+            {},
+            adminHeaders
+          )
+
+          const orders = await api
+            .get(`/vendor/orders`, headersA)
+            .catch((e) => e.response)
+          expect(orders.status).toEqual(403)
+          expect(orders.data.message).toContain("terminated")
+        })
+
+        it("keeps a pending seller on the Vendor API", async () => {
+          const response = await api.get(`/vendor/products`, headersB)
+          expect(response.status).toEqual(200)
+        })
+      })
+
       describe("Cross-seller field traversal", () => {
         const inviteIntoSellerA = async (email: string) => {
           await api.post(
@@ -1220,7 +1288,7 @@ medusaIntegrationTestRunner({
             data: [invite],
           } = await query.graph({
             entity: "member_invite",
-            fields: ["id", "token", "accepted"],
+            fields: ["id", "accepted"],
             filters: { email },
           })
           return invite
@@ -1264,7 +1332,7 @@ medusaIntegrationTestRunner({
 
         it("keeps the seller's own payment details readable while blocking traversal out of it", async () => {
           const response = await api.get(
-            `/vendor/sellers/me?fields=+customers.sellers.payment_details.*`,
+            `/vendor/sellers/${sellerA.id}?fields=+payment_details.*,+customers.sellers.payment_details.*`,
             headersA
           )
 

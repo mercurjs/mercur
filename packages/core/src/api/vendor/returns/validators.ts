@@ -24,7 +24,6 @@ export const VendorGetReturnsParams = createFindParams({
 
 export const VendorGetReturnsOrderParams = createSelectParams().merge(
   z.object({
-    id: z.union([z.string(), z.array(z.string())]).optional(),
     status: z.union([z.string(), z.array(z.string())]).optional(),
     created_at: createOperatorMap().optional(),
     updated_at: createOperatorMap().optional(),

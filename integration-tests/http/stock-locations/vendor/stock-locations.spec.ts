@@ -48,6 +48,41 @@ medusaIntegrationTestRunner({
                     expect(response.data.stock_location.name).toEqual("Main Warehouse")
                 })
 
+                it("should reject address_id on create and update", async () => {
+                    const withAddress = await api.post(
+                        `/vendor/stock-locations`,
+                        {
+                            name: "Addressed Warehouse",
+                            address: { address_1: "1 Main St", country_code: "us" },
+                        },
+                        seller2Headers
+                    )
+                    const foreignAddressId = withAddress.data.stock_location.address.id
+
+                    const created = await api
+                        .post(
+                            `/vendor/stock-locations`,
+                            { name: "Borrowed Address", address_id: foreignAddressId },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+                    expect(created.status).toEqual(400)
+
+                    const own = await api.post(
+                        `/vendor/stock-locations`,
+                        { name: "Own Warehouse" },
+                        seller1Headers
+                    )
+                    const updated = await api
+                        .post(
+                            `/vendor/stock-locations/${own.data.stock_location.id}`,
+                            { address_id: foreignAddressId },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+                    expect(updated.status).toEqual(400)
+                })
+
                 it("should create a stock location with address", async () => {
                     const response = await api.post(
                         `/vendor/stock-locations`,
