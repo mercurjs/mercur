@@ -14,6 +14,22 @@ session detail aggressively. The per-spec source of truth lives in
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
 
+## Session — Medusa 2.22.3 upgrade (2026-11-04), branch `chore/medusa-2-22-3`
+
+Every `@medusajs/*` pin moved 2.22.0 → 2.22.3 and every peer range `>=2.22.0` → `>=2.22.3` (packages,
+plugins, apps, integration-tests, e2e-tests, root, templates); `@medusajs/ui` stays on 4.2.3. `bun.lock`
+refreshed. Release notes 2.22.1–2.22.3 absorbed: 2.22.1 upstreamed the order cross-module count fix
+(medusajs/medusa#17471, same helper as ours), so `@medusajs+order@2.21.2-cross-module-count.patch` and the
+`@medusajs/order` dev dependency it needed are gone; the four core-flows patches apply unchanged (their
+target files are byte-identical in 2.22.3). 2.22.2 dependency round: `BigNumber`/`MathBN` now throw on
+invalid input instead of `NaN`, `bodyParser.sizeLimit` typos throw, `@tailwindcss/forms` dropped from
+`ui-preset` (nothing here loads it), Medusa admin on vite 7 (our panels run their own vite). 2.22.3 ships
+Medusa's own RBAC module behind `Modules.RBAC` with `/admin/users/:id/roles` routes; Mercur keeps its own
+roles module and never registers Medusa's, so those two stock routes 500 if called, nothing in our panels
+calls them. Gotcha: `bun test src/patches` fails the load-order fixtures with bun+tsx ("Cannot find module
+'./cjs/index.cjs'", the nested `@tanstack/react-virtual` the dashboard now pulls); Jest under node (the
+`test:unit` path CI uses) is fine.
+
 ## Session — Store offers on the Medusa index engine (2026-11-03), branch `feat/index-engine-store-offers`
 
 `GET /store/offers` goes through `api/utils/list-offers.ts` `listOffers()`: `query.index` with seller visibility

@@ -13,7 +13,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "zod": "4.6.6",
-    "@medusajs/icons": "2.22.0",
+    "@medusajs/icons": "2.22.3",
     "@medusajs/ui": "4.2.3",
     "@mercurjs/dashboard-sdk": "*",
     "@mercurjs/dashboard-shared": "*",
