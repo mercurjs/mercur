@@ -137,7 +137,11 @@ export class ProductChangeRepository extends DALUtils.mikroOrmBaseRepositoryFact
             WHERE r.product_id = pc.product_id
               AND r.deleted_at IS NULL
               AND r.action = ?
-              AND rc.created_at > pc.created_at
+              AND rc.created_at = (
+                SELECT MAX(lc.created_at)
+                FROM product_change lc
+                WHERE lc.product_id = pc.product_id AND lc.deleted_at IS NULL
+              )
           )
         )
       )`,

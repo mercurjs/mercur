@@ -184,6 +184,28 @@ medusaIntegrationTestRunner({
         expect(after.product_changes.map((c) => c.id)).toEqual([deleteId])
       })
 
+      it("brings the row back once the store resubmits after requested changes", async () => {
+        const productId = await createVendorProduct("Resubmitted")
+        await api.post(
+          `/admin/products/${productId}/request-changes`,
+          { message: "Add a description" },
+          adminHeaders,
+        )
+        expect((await listInbox()).count).toBe(0)
+
+        const res = await api.post(
+          `/vendor/products/${productId}`,
+          { description: "A proper description" },
+          sellerHeaders,
+        )
+        expect(res.status).toBe(202)
+
+        const { product_changes } = await listInbox()
+        expect(product_changes.map((c) => [c.product_id, c.type])).toEqual([
+          [productId, "new_product"],
+        ])
+      })
+
       it("ignores products created by operators", async () => {
         const res = await api.post(
           `/admin/products`,
