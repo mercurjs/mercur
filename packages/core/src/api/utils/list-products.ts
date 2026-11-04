@@ -37,23 +37,12 @@ const INDEXED_PRODUCT: IndexedShape = {
   external_id: true,
   created_at: true,
   updated_at: true,
-  variants: {
-    id: true,
-    sku: true,
-    product_id: true,
-    prices: {
-      id: true,
-      amount: true,
-      currency_code: true,
-      price_list_id: true,
-    },
-  },
+  variants: { id: true, sku: true, product_id: true },
   sales_channels: { id: true, is_disabled: true },
   product_seller: { id: true },
 }
 
 const CROSS_MODULE_KEYS = ["product_seller", "sales_channels"]
-const CROSS_MODULE_VARIANT_KEYS = ["prices"]
 const INDEX_LIST_CACHE_TTL = 5
 
 const needsIndex = (filters: Record<string, unknown>): boolean =>
@@ -62,24 +51,13 @@ const needsIndex = (filters: Record<string, unknown>): boolean =>
       const entries = Array.isArray(value) ? value : [value]
       return entries.some((entry) => isPlainObject(entry) && needsIndex(entry))
     }
-    if (CROSS_MODULE_KEYS.includes(key)) {
-      return true
-    }
-    return (
-      key === "variants" &&
-      isPlainObject(value) &&
-      Object.keys(value).some((k) => CROSS_MODULE_VARIANT_KEYS.includes(k))
-    )
+    return CROSS_MODULE_KEYS.includes(key)
   })
 
 const toIndexFilters = (
   filters: Record<string, unknown>
 ): Record<string, unknown> => {
-  const {
-    sales_channel_id: salesChannelId,
-    price_list_id: priceListId,
-    ...rest
-  } = filters
+  const { sales_channel_id: salesChannelId, ...rest } = filters
 
   const next: Record<string, unknown> = { ...rest }
 
@@ -88,12 +66,6 @@ const toIndexFilters = (
       ...(isPlainObject(next.sales_channels) ? next.sales_channels : {}),
       id: salesChannelId,
     }
-  }
-
-  if (isPresent(priceListId)) {
-    const variants = isPlainObject(next.variants) ? next.variants : {}
-    const prices = isPlainObject(variants.prices) ? variants.prices : {}
-    next.variants = { ...variants, prices: { ...prices, price_list_id: priceListId } }
   }
 
   return next

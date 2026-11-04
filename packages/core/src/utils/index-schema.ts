@@ -10,6 +10,13 @@ const listeners = (module: string, entity: string) =>
 // Medusa product types are repeated here (@medusajs/index keeps them private)
 // with the Mercur entities added. Offer -> Seller and Offer -> Product resolve
 // through the `offer_seller` / `offer_product` link tables.
+//
+// Every relation here must resolve through one link table whose foreign key
+// points at the related type itself. When it does not (Medusa's own
+// `ProductVariant.prices: [Price]` reaches Price through PriceSet), the index
+// searches every module schema for a path and, with the `offer_price` link
+// giving Price an `offer` field, it wandered Offer -> Seller -> Review ->
+// Product -> ProductVariant -> PriceSet and broke the Product sync.
 export const mercurIndexSchema = `
   type Product ${listeners(Modules.PRODUCT, "product")} {
     id: ID
@@ -31,15 +38,6 @@ export const mercurIndexSchema = `
     id: ID
     product_id: String
     sku: String
-
-    prices: [Price]
-  }
-
-  type Price ${listeners(Modules.PRICING, "price")} {
-    id: ID
-    amount: Float
-    currency_code: String
-    price_list_id: String
   }
 
   type SalesChannel ${listeners(Modules.SALES_CHANNEL, "sales-channel")} {
