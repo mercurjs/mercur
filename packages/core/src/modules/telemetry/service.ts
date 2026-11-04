@@ -51,17 +51,8 @@ class TelemetryModuleService extends MedusaService({ TelemetryInstallation }) {
   }
 
   async recordMilestone(name: string): Promise<boolean> {
-    const installation = await this.getOrCreateInstallation()
-    const milestones = (installation.milestones ?? {}) as Record<string, string>
-    if (milestones[name]) {
-      return false
-    }
-
-    await this.updateTelemetryInstallations({
-      id: TELEMETRY_INSTALLATION_ID,
-      milestones: { ...milestones, [name]: new Date().toISOString() },
-    })
-    return true
+    await this.getOrCreateInstallation()
+    return this.heartbeatRepository_.claimMilestone(name)
   }
 
   async setReportedVersion(version: string): Promise<void> {

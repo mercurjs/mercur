@@ -30,4 +30,23 @@ export class TelemetryHeartbeatRepository extends DALUtils.MikroOrmBase {
 
     return updated > 0
   }
+
+  /**
+   * Merges the flag in SQL instead of rewriting the whole `milestones` object,
+   * so concurrent subscribers can neither both claim one milestone nor erase
+   * each other's flags.
+   */
+  async claimMilestone(name: string, sharedContext: Context = {}): Promise<boolean> {
+    const knex = this.getActiveManager<SqlEntityManager>(sharedContext).getKnex()
+
+    const updated = await knex("telemetry_installation")
+      .where({ id: TELEMETRY_INSTALLATION_ID })
+      .andWhereRaw("coalesce(milestones, '{}'::jsonb) -> ? is null", [name])
+      .update({
+        milestones: knex.raw("coalesce(milestones, '{}'::jsonb) || jsonb_build_object(?::text, now())", [name]),
+        updated_at: knex.fn.now(),
+      })
+
+    return updated > 0
+  }
 }

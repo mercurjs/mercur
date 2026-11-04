@@ -1,3 +1,9 @@
+import {
+  checkPostgres,
+  classifyPostgresError,
+  hostAndPort,
+  printPostgresFix,
+} from "./check-postgres";
 import { getPackageManager } from "./get-package-manager";
 import { logger } from "./logger";
 import { manageEnvFiles } from "./manage-env-files";
@@ -9,8 +15,8 @@ import path from "path";
 import pg from "pg";
 import prompts from "prompts";
 
-const dbHost = "localhost";
-const dbPort = 5432;
+const DEFAULT_DB_HOST = "localhost";
+const DEFAULT_DB_PORT = 5432;
 const API_DIR = "packages/api";
 const ADMIN_EMAIL = "admin@mercur-test.com";
 
@@ -19,80 +25,93 @@ interface DbSetupArgs {
   spinner?: Ora;
 }
 
+export interface PreparedDatabase {
+  dbName: string;
+  connectionString: string;
+}
+
 export interface SetupDatabaseResult {
   success: boolean;
   dbName: string;
   connectionString: string | null;
-  alreadyExists?: boolean;
   inviteToken?: string | null;
   publishableKey?: string | null;
 }
 
-export async function setupDatabase(args: {
-  projectDir: string;
+/**
+ * Resolves credentials and creates the project database before anything is
+ * downloaded or installed, so a missing or misconfigured PostgreSQL fails in
+ * seconds instead of after the dependency install.
+ */
+export async function prepareDatabase(args: {
   projectName: string;
   dbConnectionString?: string;
   dbHost?: string;
   dbPort?: number;
   spinner?: Ora;
-}): Promise<SetupDatabaseResult> {
-  const dbName = args.projectName.replace(/[^a-zA-Z0-9]/g, "-");
+}): Promise<PreparedDatabase | null> {
+  const host = args.dbHost ?? DEFAULT_DB_HOST;
+  const port = args.dbPort ?? DEFAULT_DB_PORT;
 
-  const { client, dbConnectionString } = await getDbClient({
-    dbConnectionString: args.dbConnectionString,
-    dbHost: args.dbHost ?? dbHost,
-    dbPort: args.dbPort ?? dbPort,
-    dbName,
-    spinner: args.spinner,
-  });
-
-  if (!client || !dbConnectionString) {
-    return { success: false, dbName, connectionString: null };
+  if (args.dbConnectionString) {
+    const check = await checkPostgres({ connectionString: args.dbConnectionString });
+    if (!check.ok) {
+      args.spinner?.stop();
+      printPostgresFix(check, hostAndPort(args.dbConnectionString, { host, port }));
+      return null;
+    }
+    return {
+      dbName: databaseNameOf(args.dbConnectionString) ?? args.projectName,
+      connectionString: args.dbConnectionString,
+    };
   }
 
-  try {
-    if (args.spinner) {
-      args.spinner.text = "Checking if database exists...";
-    }
-    const exists = await doesDbExist(client, dbName);
+  const credentials = await resolveCredentials({ host, port, spinner: args.spinner });
+  if (!credentials) {
+    return null;
+  }
 
-    if (exists) {
-      await client.end();
-      return runPostDbSetup({
-        ...args,
-        dbName,
-        connectionString: dbConnectionString,
-        alreadyExists: true,
-      });
+  const { client } = credentials;
+  try {
+    const dbName = await pickDatabaseName(
+      client,
+      args.projectName.replace(/[^a-zA-Z0-9]/g, "-"),
+      args.spinner
+    );
+    if (!dbName) {
+      return null;
     }
 
     if (args.spinner) {
       args.spinner.text = `Creating database "${dbName}"...`;
     }
     await client.query(`CREATE DATABASE "${dbName}"`);
-    await client.end();
 
-    return runPostDbSetup({
-      ...args,
+    return {
       dbName,
-      connectionString: dbConnectionString,
-      alreadyExists: false,
-    });
+      connectionString: formatConnectionString({
+        user: credentials.user,
+        password: credentials.password,
+        host,
+        port,
+        db: dbName,
+      }),
+    };
   } catch (err) {
+    args.spinner?.stop();
     logger.error(
       `Error creating database${err instanceof Error ? `: ${err.message}` : ""}.`
     );
+    return null;
+  } finally {
     await client.end().catch(() => {});
-    return { success: false, dbName, connectionString: null };
   }
 }
 
-async function runPostDbSetup(args: DbSetupArgs & {
-  dbName: string;
-  connectionString: string;
-  alreadyExists: boolean;
-}): Promise<SetupDatabaseResult> {
-  const { projectDir, spinner, dbName, connectionString, alreadyExists } = args;
+export async function initializeDatabase(
+  args: DbSetupArgs & PreparedDatabase
+): Promise<SetupDatabaseResult> {
+  const { projectDir, spinner, dbName, connectionString } = args;
 
   // Medusa needs DATABASE_URL in .env before running migrations
   await manageEnvFiles({
@@ -100,7 +119,7 @@ async function runPostDbSetup(args: DbSetupArgs & {
     databaseUri: connectionString,
   });
 
-  const migrated = await runMigrations({ projectDir, spinner });
+  const migrated = await runMigrations({ projectDir, spinner, connectionString });
   if (!migrated) {
     return { success: false, dbName, connectionString: null };
   }
@@ -129,7 +148,6 @@ async function runPostDbSetup(args: DbSetupArgs & {
     success: true,
     dbName,
     connectionString,
-    alreadyExists,
     inviteToken,
     publishableKey,
   };
@@ -158,73 +176,85 @@ async function getPublishableKey({
   }
 }
 
-interface DbClientResult {
-  client: pg.Client | null;
-  dbConnectionString: string | null;
+interface Credentials {
+  client: pg.Client;
+  user: string;
+  password: string;
 }
 
-async function getDbClient({
-  dbConnectionString,
-  dbHost,
-  dbPort,
-  dbName,
+/**
+ * Connects to the `postgres` maintenance database, falling back to the
+ * connection's default database (Postgres resolves it to the username) on
+ * servers where `postgres` was dropped.
+ */
+async function connectToMaintenanceDb(connection: {
+  user: string;
+  password: string;
+  host: string;
+  port: number;
+}): Promise<pg.Client> {
+  const connect = async (database?: string) => {
+    const client = new pg.Client({ ...connection, database, connectionTimeoutMillis: 5000 });
+    try {
+      await client.connect();
+      return client;
+    } catch (err) {
+      await client.end().catch(() => {});
+      throw err;
+    }
+  };
+
+  try {
+    return await connect("postgres");
+  } catch (err) {
+    if (classifyPostgresError(err).reason !== "missing-database") {
+      throw err;
+    }
+    return connect();
+  }
+}
+
+async function resolveCredentials({
+  host,
+  port,
   spinner: spinnerRef,
 }: {
-  dbConnectionString?: string;
-  dbHost: string;
-  dbPort: number;
-  dbName: string;
+  host: string;
+  port: number;
   spinner?: Ora;
-}): Promise<DbClientResult> {
-  if (dbConnectionString) {
-    try {
-      const client = new pg.Client({ connectionString: dbConnectionString });
-      await client.connect();
-      return { client, dbConnectionString };
-    } catch (error) {
-      logger.error(
-        `Invalid database connection string${error instanceof Error ? `: ${error.message}` : ""}.`
-      );
-      return { client: null, dbConnectionString: null };
-    }
-  }
-
-  // Step 1: silent default attempt (postgres / no password)
+}): Promise<Credentials | null> {
   if (spinnerRef) {
-    spinnerRef.text = `Trying default connection (postgres@${dbHost}:${dbPort})...`;
+    spinnerRef.text = `Connecting to PostgreSQL at ${host}:${port}...`;
   }
 
   try {
-    const client = new pg.Client({
-      user: "postgres",
-      password: "",
-      host: dbHost,
-      port: dbPort,
-      database: "postgres",
-      connectionTimeoutMillis: 5000,
-    });
-    await client.connect();
-    return {
-      client,
-      dbConnectionString: formatConnectionString({
-        user: "postgres",
-        password: "",
-        host: dbHost,
-        port: dbPort,
-        db: dbName,
-      }),
-    };
-  } catch {
-    // Default connection failed — ask the user for credentials
+    const client = await connectToMaintenanceDb({ user: "postgres", password: "", host, port });
+    return { client, user: "postgres", password: "" };
+  } catch (err) {
+    const result = classifyPostgresError(err);
+    if (result.reason !== "auth") {
+      spinnerRef?.stop();
+      printPostgresFix(result, { host, port });
+      return null;
+    }
   }
 
   spinnerRef?.stop();
 
+  if (!process.stdin.isTTY) {
+    printPostgresFix(
+      { ok: false, reason: "auth", message: `user "postgres" without a password was rejected` },
+      { host, port }
+    );
+    return null;
+  }
+
   logger.break();
-  logger.log(`PostgreSQL is required. Make sure it is installed and running on ${dbHost}:${dbPort}.`);
+  logger.log(
+    `Couldn't connect to PostgreSQL at ${host}:${port} as "postgres" without a password. Enter the credentials Mercur should use to create the project database.`
+  );
   logger.break();
 
-  // Step 2: prompt with up to 3 retry attempts
   const MAX_ATTEMPTS = 3;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
@@ -240,57 +270,71 @@ async function getDbClient({
       {
         type: "password",
         name: "postgresPassword",
-        message: 'Enter your Postgres password (press Enter for "postgres")',
+        message: "Enter your Postgres password",
       },
     ]);
 
-    // User cancelled (Ctrl+C)
+    // User cancelled (Ctrl+C) or no TTY
     if (!answers.postgresUsername) {
-      return { client: null, dbConnectionString: null };
+      printPostgresFix(
+        { ok: false, reason: "auth", message: "no credentials entered" },
+        { host, port }
+      );
+      return null;
     }
 
-    const username = answers.postgresUsername as string;
-    const password = (answers.postgresPassword as string) || "postgres";
+    const user = answers.postgresUsername as string;
+    const password = (answers.postgresPassword as string | undefined) ?? "";
 
-    spinnerRef?.start("Connecting to database...");
+    spinnerRef?.start("Connecting to PostgreSQL...");
 
     try {
-      const client = new pg.Client({
-        user: username,
-        password,
-        host: dbHost,
-        port: dbPort,
-        database: "postgres",
-        connectionTimeoutMillis: 5000,
-      });
-      await client.connect();
-      return {
-        client,
-        dbConnectionString: formatConnectionString({
-          user: username,
-          password,
-          host: dbHost,
-          port: dbPort,
-          db: dbName,
-        }),
-      };
+      const client = await connectToMaintenanceDb({ user, password, host, port });
+      return { client, user, password };
     } catch (err) {
       spinnerRef?.stop();
-      const message = err instanceof Error ? err.message : String(err);
-
-      if (attempt < MAX_ATTEMPTS) {
-        logger.warn(`Attempt ${attempt}/${MAX_ATTEMPTS} failed: ${message}`);
-      } else {
-        logger.error(
-          `Couldn't connect to PostgreSQL: ${message}\n` +
-          `  → Is PostgreSQL running? Try: pg_isready -h ${dbHost} -p ${dbPort}\n` +
-          `  → Check your username, password, and that the server is accessible.`
-        );
+      const result = classifyPostgresError(err);
+      if (attempt < MAX_ATTEMPTS && result.reason === "auth") {
+        logger.warn(`Attempt ${attempt}/${MAX_ATTEMPTS} failed: ${result.message}`);
+        continue;
       }
+      printPostgresFix(result, { host, port });
+      return null;
     }
   }
 
-  return { client: null, dbConnectionString: null };
+  return null;
+}
+
+async function pickDatabaseName(
+  client: pg.Client,
+  initial: string,
+  spinnerRef?: Ora
+): Promise<string | null> {
+  let dbName = initial;
+
+  while (await doesDbExist(client, dbName)) {
+    spinnerRef?.stop();
+    const { newDbName } = !process.stdin.isTTY ? { newDbName: undefined } : await prompts({
+      type: "text",
+      name: "newDbName",
+      message: `A database named "${dbName}" already exists. Enter a name for the new database:`,
+      initial: `${initial}-2`,
+      validate: (input: string) => (input && input.trim().length > 0) || "Name is required",
+    });
+
+    if (!newDbName) {
+      logger.error(
+        `Database "${dbName}" already exists. Drop it (dropdb ${dbName}), choose another project name, or pass --db-connection-string to use it as is.`
+      );
+      return null;
+    }
+
+    dbName = (newDbName as string).trim();
+    spinnerRef?.start(`Checking database "${dbName}"...`);
+  }
+
+  return dbName;
 }
 
 async function doesDbExist(
@@ -298,16 +342,26 @@ async function doesDbExist(
   dbName: string
 ): Promise<boolean> {
   const result = await client.query(
-    `SELECT datname FROM pg_catalog.pg_database WHERE datname='${dbName}';`
+    "SELECT 1 FROM pg_catalog.pg_database WHERE datname = $1",
+    [dbName]
   );
   return (result.rowCount ?? 0) > 0;
+}
+
+function databaseNameOf(connectionString: string): string | null {
+  try {
+    const name = decodeURIComponent(new URL(connectionString).pathname.slice(1));
+    return name || null;
+  } catch {
+    return null;
+  }
 }
 
 function formatConnectionString({
   user,
   password,
   host,
-  port = dbPort,
+  port = DEFAULT_DB_PORT,
   db,
 }: {
   user: string;
@@ -317,10 +371,33 @@ function formatConnectionString({
   db: string;
 }): string {
   const encodedPassword = encodeURIComponent(password);
-  return `postgresql://${user}:${encodedPassword}@${host}:${port}/${db}`;
+  return `postgresql://${encodeURIComponent(user)}:${encodedPassword}@${host}:${port}/${db}`;
 }
 
-async function runMigrations({ projectDir, spinner: parentSpinner }: DbSetupArgs): Promise<boolean> {
+async function migrationsTableExists(connectionString: string): Promise<boolean> {
+  const client = new pg.Client({ connectionString });
+  try {
+    await client.connect();
+    const result = await client.query(
+      "SELECT to_regclass('public.mikro_orm_migrations') IS NOT NULL AS exists"
+    );
+    return Boolean(result.rows[0]?.exists);
+  } catch {
+    return false;
+  } finally {
+    await client.end().catch(() => {});
+  }
+}
+
+function lastLines(output: string, count = 20): string {
+  return output.trim().split("\n").slice(-count).join("\n");
+}
+
+async function runMigrations({
+  projectDir,
+  spinner: parentSpinner,
+  connectionString,
+}: DbSetupArgs & { connectionString: string }): Promise<boolean> {
   const apiDir = path.join(projectDir, API_DIR);
   const packageManager = await getPackageManager(apiDir);
   const migrationSpinner = parentSpinner || spinner("Running migrations...").start();
@@ -341,25 +418,44 @@ async function runMigrations({ projectDir, spinner: parentSpinner }: DbSetupArgs
         ? ["bunx"]
         : ["npx"];
 
+  let output = "";
   try {
     // Build first - compiles TypeScript so ts-node is not needed
     migrationSpinner.text = "Building project...";
     await execa(buildCmd[0], buildCmd.slice(1), { cwd: apiDir });
 
     migrationSpinner.text = "Running database migrations...";
-    await execa(runnerCmd[0], [...runnerCmd.slice(1), "medusa", "db:migrate"], { cwd: apiDir });
+    const result = await execa(
+      runnerCmd[0],
+      [...runnerCmd.slice(1), "medusa", "db:migrate"],
+      { cwd: apiDir, all: true }
+    );
+    output = result.all ?? "";
+  } catch (err) {
+    output =
+      (err as { all?: string }).all ?? (err instanceof Error ? err.message : String(err));
+  }
 
+  // `db:migrate` can exit 0 without migrating, so confirm against the database.
+  if (await migrationsTableExists(connectionString)) {
     if (!parentSpinner) {
       migrationSpinner.succeed("Migrations completed successfully.");
     }
     return true;
-  } catch (err) {
-    migrationSpinner.fail("Failed to run migrations.");
-    logger.error(
-      `Error running migrations${err instanceof Error ? `: ${err.message}` : ""}.`
-    );
-    return false;
   }
+
+  migrationSpinner.fail("Failed to run migrations.");
+  if (output) {
+    logger.log(lastLines(output));
+  }
+  const check = await checkPostgres({ connectionString });
+  if (!check.ok) {
+    printPostgresFix(
+      check,
+      hostAndPort(connectionString, { host: DEFAULT_DB_HOST, port: DEFAULT_DB_PORT })
+    );
+  }
+  return false;
 }
 
 async function createAdminInvite({ projectDir }: { projectDir: string }): Promise<string | null> {
