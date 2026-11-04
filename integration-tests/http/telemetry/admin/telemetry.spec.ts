@@ -157,6 +157,27 @@ medusaIntegrationTestRunner({
         expect(milestoneEvents("first_seller")).toHaveLength(1)
         expect(milestoneEvents("first_seller_approved")).toHaveLength(1)
       })
+
+      it("lets exactly one concurrent caller claim a milestone and keeps the others' flags", async () => {
+        const service = container.resolve<{
+          recordMilestone: (name: string) => Promise<boolean>
+          getOrCreateInstallation: () => Promise<{ milestones: Record<string, string> | null }>
+        }>(MercurModules.TELEMETRY)
+
+        const sameMilestone = await Promise.all(
+          Array.from({ length: 10 }, () => service.recordMilestone("first_commission_rule")),
+        )
+        expect(sameMilestone.filter(Boolean)).toHaveLength(1)
+
+        const distinct = ["first_offer", "first_order", "first_payout_paid"]
+        const claimed = await Promise.all(distinct.map((name) => service.recordMilestone(name)))
+        expect(claimed).toEqual([true, true, true])
+
+        const { milestones } = await service.getOrCreateInstallation()
+        for (const name of ["first_seller", "first_seller_approved", "first_commission_rule", ...distinct]) {
+          expect(milestones?.[name]).toEqual(expect.any(String))
+        }
+      })
     })
   },
 })

@@ -1,3 +1,4 @@
+import { checkPostgres, hostAndPort, printPostgresFix } from "./check-postgres";
 import { getPackageManager } from "./get-package-manager";
 import { logger } from "./logger";
 import { manageEnvFiles } from "./manage-env-files";
@@ -99,6 +100,16 @@ async function runPostDbSetup(args: DbSetupArgs & {
     projectDir,
     databaseUri: connectionString,
   });
+
+  if (spinner) {
+    spinner.text = `Checking connection to "${dbName}"...`;
+  }
+  const check = await checkPostgres({ connectionString });
+  if (!check.ok) {
+    spinner?.stop();
+    printPostgresFix(check, hostAndPort(connectionString, { host: dbHost, port: dbPort }));
+    return { success: false, dbName, connectionString: null };
+  }
 
   const migrated = await runMigrations({ projectDir, spinner });
   if (!migrated) {
