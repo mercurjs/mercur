@@ -2,9 +2,10 @@ import {
   MedusaResponse,
   MedusaStoreRequest,
 } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 import {
+  type EnrichableOffer,
+  type LeadtimeOffer,
   splitComputedOfferFields,
   wrapOffersWithCalculatedPrices,
   wrapOffersWithEffectiveLeadtime,
@@ -12,20 +13,21 @@ import {
   wrapOffersWithTaxPrices,
 } from "./helpers"
 import { StoreGetOffersParamsType } from "./validators"
+import { getStoreOfferVisibility, listOffers } from "../../utils/list-offers"
 
 export const GET = async (
   req: MedusaStoreRequest<StoreGetOffersParamsType>,
   res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
   const { fields, withCalculatedPrice, withInventoryQuantity, withEffectiveLeadtime } =
     splitComputedOfferFields(req.queryConfig.fields)
 
-  const { data: offers, metadata } = await query.graph({
-    entity: "offer",
-    fields: fields,
+  const { offers, count, estimate_count, offset, limit } = await listOffers<
+    EnrichableOffer & LeadtimeOffer
+  >(req.scope, {
+    fields,
     filters: req.filterableFields,
+    visibility: getStoreOfferVisibility(req.scope),
     pagination: req.queryConfig.pagination,
   })
 
@@ -47,8 +49,9 @@ export const GET = async (
 
   res.json({
     offers,
-    count: metadata?.count ?? 0,
-    offset: metadata?.skip ?? 0,
-    limit: metadata?.take ?? 0,
+    count,
+    ...(estimate_count !== undefined ? { estimate_count } : {}),
+    offset,
+    limit,
   })
 }

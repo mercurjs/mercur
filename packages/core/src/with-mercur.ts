@@ -9,6 +9,7 @@ import {
 import { assertPatchesDisabled } from "./patches"
 import { disableMedusaMiddlewares } from "./utils/disable-medusa-middlewares"
 import { STORE_RESTRICTED_FIELDS } from "./utils/store-restricted-fields"
+import { mercurIndexSchema } from "./utils/index-schema"
 
 type HttpConfig = NonNullable<NonNullable<InputConfigWithArrayModules["projectConfig"]>["http"]>
 
@@ -91,7 +92,12 @@ export function withMercur(config: MercurInputConfig = {}): InputConfigWithArray
   // entry wins, so any registration (or `disable`) in the project overrides them.
   const modules = [
     ...(featureFlags.index_engine
-      ? [{ resolve: MODULE_PACKAGE_NAMES[Modules.INDEX] }]
+      ? [
+          {
+            resolve: MODULE_PACKAGE_NAMES[Modules.INDEX],
+            options: { schema: mercurIndexSchema },
+          },
+        ]
       : []),
     ...(featureFlags.caching ? [cachingModule] : []),
     ...(config.modules ?? []),

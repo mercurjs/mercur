@@ -5,10 +5,12 @@ import OfferModule from "../modules/offer"
 export default defineLink(
   {
     linkable: OfferModule.linkable.offer,
-    field: "product_id",
+    isList: true,
   },
   ProductModule.linkable.product,
   {
-    readOnly: true,
+    database: {
+      table: "offer_product",
+    },
   }
 )

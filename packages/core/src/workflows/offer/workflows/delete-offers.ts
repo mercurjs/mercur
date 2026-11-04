@@ -6,9 +6,14 @@ import {
   type Hook,
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
-import { AdditionalData } from "@medusajs/framework/types"
-import { emitEventStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
-import { OfferDTO } from "@mercurjs/types"
+import { AdditionalData, LinkDefinition } from "@medusajs/framework/types"
+import {
+  dismissRemoteLinkStep,
+  emitEventStep,
+  useQueryGraphStep,
+} from "@medusajs/medusa/core-flows"
+import { Modules } from "@medusajs/framework/utils"
+import { MercurModules, OfferDTO } from "@mercurjs/types"
 
 import { deleteOffersStep } from "../steps"
 import { OfferWorkflowEvents } from "../../events"
@@ -44,6 +49,27 @@ export const deleteOffersWorkflow: ReturnWorkflow<
     })
 
     deleteOffersStep({ ids: input.ids })
+
+    const ownershipLinks = transform({ offers }, ({ offers }) => {
+      const links: LinkDefinition[] = []
+      for (const offer of offers) {
+        links.push({
+          [MercurModules.OFFER]: { offer_id: offer.id },
+          [MercurModules.SELLER]: { seller_id: offer.seller_id },
+        })
+        if (offer.product_id) {
+          links.push({
+            [MercurModules.OFFER]: { offer_id: offer.id },
+            [Modules.PRODUCT]: { product_id: offer.product_id },
+          })
+        }
+      }
+      return links
+    })
+
+    dismissRemoteLinkStep(ownershipLinks).config({
+      name: "dismiss-offer-ownership-links",
+    })
 
     const eventData = transform({ offers }, ({ offers }) =>
       offers.map((o) => ({ id: o.id, product_id: o.product_id })),
