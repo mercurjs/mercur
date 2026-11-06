@@ -38,7 +38,8 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { additional_data, ...commissionRate } = req.validatedBody
+  const { additional_data: _additionalData, ...commissionRate } =
+    req.validatedBody
 
   const { result } = await createCommissionRatesWorkflow(req.scope).run({
     input: [commissionRate],

@@ -62,7 +62,8 @@ export const useDeleteCommissionRuleAction = (rule: {
 
   const deleteDialog = (
     <Prompt open={open} onOpenChange={handleOpenChange} variant="danger">
-      <Prompt.Content>
+      {/* The dialog portals out, but React still bubbles its clicks to the table row link. */}
+      <Prompt.Content onClick={(e) => e.stopPropagation()}>
         <Form {...form}>
           <Prompt.Header className={hasCustomFields ? "pb-6" : undefined}>
             <Prompt.Title>{t("commissions.delete.title")}</Prompt.Title>

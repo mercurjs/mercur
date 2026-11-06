@@ -131,8 +131,7 @@ const CommissionRuleRowActions = ({ rule }: { rule: CommissionRate }) => {
           },
         ]}
       />
-      {/* The dialog portals out, but React still bubbles its clicks to the row link. */}
-      <div onClick={(e) => e.stopPropagation()}>{deleteDialog}</div>
+      {deleteDialog}
     </>
   );
 };
