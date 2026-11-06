@@ -285,19 +285,25 @@ export class ExtensionRegistry {
     return this.configsFor(model).flatMap((c) => c.activity?.(entity) ?? [])
   }
 
-  // Configs are ordered plugins first, host app last. Entries are keyed so a
-  // later config replaces an earlier one in place — including entries another
-  // config added — instead of stacking a duplicate.
+  // Configs are ordered plugins first, host app last. Entries are keyed per
+  // zone and tab so a later config replaces an earlier one in place —
+  // including entries another config added — instead of stacking a duplicate,
+  // while one field name can still appear in several zones.
   private resolveFormFields(model: string): ResolvedFormEntry[] {
-    const byName = new Map<string, ResolvedFormEntry>()
+    const byKey = new Map<string, ResolvedFormEntry>()
     for (const config of this.configsFor(model)) {
       for (const form of config.forms ?? []) {
         for (const [name, field] of Object.entries(form.fields ?? {})) {
-          byName.set(name, { name, field, zone: form.zone, tab: form.tab })
+          byKey.set(`${form.zone}\0${form.tab ?? ""}\0${name}`, {
+            name,
+            field,
+            zone: form.zone,
+            tab: form.tab,
+          })
         }
       }
     }
-    return [...byName.values()]
+    return [...byKey.values()]
   }
 
   // An entry without a tab belongs to every tab of its zone, unless the host
@@ -330,6 +336,21 @@ export class ExtensionRegistry {
     const builtIns = new Set(builtInFieldIds)
     return this.formEntriesFor(model, zone, tab, exactTab).flatMap(({ name, field }) =>
       field && !builtIns.has(name) ? [{ name, field }] : []
+    )
+  }
+
+  /**
+   * Custom fields of every tab of a zone, for a tabbed form's schema and
+   * defaults, which cover all its tabs at once.
+   */
+  getZoneFormFields(
+    model: string,
+    zone: string,
+    builtInFieldIds: string[] = []
+  ): ResolvedFormField[] {
+    const builtIns = new Set(builtInFieldIds)
+    return this.resolveFormFields(model).flatMap(({ name, field, zone: z }) =>
+      z === zone && field && !builtIns.has(name) ? [{ name, field }] : []
     )
   }
 

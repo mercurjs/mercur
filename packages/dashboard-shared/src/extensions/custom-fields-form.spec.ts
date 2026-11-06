@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest"
 import { z } from "zod"
 
 import {
+  buildAdditionalDataSchema,
   buildScopedAdditionalData,
   refineAdditionalData,
 } from "./custom-fields-form"
@@ -86,5 +87,32 @@ describe("buildScopedAdditionalData", () => {
       "additional_data.erp_id",
       "variants.0.additional_data.barcode",
     ])
+  })
+})
+
+describe("buildAdditionalDataSchema", () => {
+  test("keeps fields of every tab when the form spans the whole zone", () => {
+    const registry = new ExtensionRegistry({
+      customFields: {
+        configs: [
+          {
+            model: "commission_rate",
+            forms: [
+              {
+                zone: "create",
+                tab: "commission",
+                fields: { reason: { validation: z.string().min(1) } },
+              },
+            ],
+          },
+        ],
+      },
+    })
+
+    const schema = buildAdditionalDataSchema(registry, "commission_rate", "create")
+
+    expect(schema.parse({ reason: "Price change" })).toEqual({
+      reason: "Price change",
+    })
   })
 })
