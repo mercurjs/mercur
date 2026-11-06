@@ -64,6 +64,19 @@ export function resolveFormFieldType(field: CustomFormField): FormFieldInputType
   }
 }
 
+const resolveScopedFields = (
+  registry: ExtensionRegistry,
+  model: string,
+  zone?: string,
+  tab?: string,
+  builtInFieldIds?: string[]
+) => {
+  if (!zone) return registry.getAllFormFields(model)
+  return tab
+    ? registry.getFormFields(model, zone, tab, builtInFieldIds)
+    : registry.getZoneFormFields(model, zone, builtInFieldIds)
+}
+
 /**
  * Build the `additional_data` zod object for a model's custom fields, to merge
  * into a form's base schema. Custom-field values live under `additional_data`
@@ -77,9 +90,7 @@ export function buildAdditionalDataSchema(
   builtInFieldIds?: string[]
 ): z.ZodObject<Record<string, z.ZodTypeAny>> {
   const shape: Record<string, z.ZodTypeAny> = {}
-  const fields = zone
-    ? registry.getFormFields(model, zone, tab, builtInFieldIds)
-    : registry.getAllFormFields(model)
+  const fields = resolveScopedFields(registry, model, zone, tab, builtInFieldIds)
   for (const { name, field } of fields) {
     shape[name] = field.validation as unknown as z.ZodTypeAny
   }
@@ -96,9 +107,7 @@ export function buildAdditionalDataDefaults(
   builtInFieldIds?: string[]
 ): Record<string, unknown> {
   const defaults: Record<string, unknown> = {}
-  const fields = zone
-    ? registry.getFormFields(model, zone, tab, builtInFieldIds)
-    : registry.getAllFormFields(model)
+  const fields = resolveScopedFields(registry, model, zone, tab, builtInFieldIds)
   for (const { name, field } of fields) {
     if (typeof field.defaultValue === "function") {
       defaults[name] = (field.defaultValue as (d: unknown) => unknown)(data)

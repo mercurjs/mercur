@@ -333,14 +333,68 @@ describe("ExtensionRegistry", () => {
 
       expect(labels(registry.getFormFields("product", "create", "general"))).toEqual([
         ["brand", "Maker"],
+        ["erp", "ERP"],
       ])
       expect(labels(registry.getFormFields("product", "edit"))).toEqual([
         ["erp", "ERP id"],
       ])
       expect(labels(registry.getAllFormFields("product"))).toEqual([
         ["brand", "Maker"],
+        ["erp", "ERP"],
         ["erp", "ERP id"],
       ])
+    })
+
+    test("one field name can be added to several zones", () => {
+      const reason = { validation: {}, label: "Reason" }
+      const registry = new ExtensionRegistry({
+        customFields: {
+          configs: [
+            {
+              model: "commission_rate",
+              forms: [
+                { zone: "create", tab: "commission", fields: { reason } },
+                { zone: "edit-default", fields: { reason } },
+                { zone: "delete", fields: { reason } },
+              ],
+            },
+          ],
+        },
+      })
+
+      const names = (fields: { name: string }[]) => fields.map((f) => f.name)
+
+      expect(
+        names(registry.getFormFields("commission_rate", "create", "commission"))
+      ).toEqual(["reason"])
+      expect(names(registry.getFormFields("commission_rate", "edit-default"))).toEqual([
+        "reason",
+      ])
+      expect(names(registry.getFormFields("commission_rate", "delete"))).toEqual([
+        "reason",
+      ])
+    })
+
+    test("zone form fields span every tab of the zone", () => {
+      const validation = {}
+      const registry = new ExtensionRegistry({
+        customFields: {
+          configs: [
+            {
+              model: "commission_rate",
+              forms: [
+                { zone: "create", fields: { note: { validation } } },
+                { zone: "create", tab: "commission", fields: { reason: { validation } } },
+                { zone: "edit", fields: { other: { validation } } },
+              ],
+            },
+          ],
+        },
+      })
+
+      expect(
+        registry.getZoneFormFields("commission_rate", "create").map((f) => f.name)
+      ).toEqual(["note", "reason"])
     })
   })
 
