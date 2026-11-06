@@ -77,9 +77,9 @@ Id `stage-product-change`. Creates one `pending` change with the given actions, 
 | `created_by` | `string`, optional | The author. Also used as `confirmed_by` on auto-confirm |
 | `internal_note` | `string`, optional | Note for operators |
 | `external_note` | `string`, optional | Note for the seller |
-| `auto_confirm` | `boolean`, optional | Confirm and apply in the same run |
+| `auto_confirm` | `boolean`, optional | Confirm and apply in the same run. Overrides the hook and the default |
 
-No hooks. Returns the created `ProductChangeDTO`, without its actions.
+Hooks: `setAutoConfirm` with `{ product, product_change, actions, created_by }`. Return `{ auto_confirm }` to decide whether the change confirms in the same run. See [Status & auto-confirm](/platform/product-edit/concepts/status-and-auto-confirm#decide-auto-confirm-from-a-plugin). Returns the created `ProductChangeDTO`, without its actions.
 
 ### createProductChangeWorkflow
 
