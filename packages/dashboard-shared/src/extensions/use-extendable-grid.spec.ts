@@ -89,4 +89,65 @@ describe("applyGridExtension", () => {
     })
     expect(readOnly.map((c) => c.id)).toEqual([])
   })
+
+  describe("hidden columns and column groups", () => {
+    const groupRegistry = new ExtensionRegistry({
+      customFields: {
+        configs: [
+          {
+            model: "offer",
+            forms: [
+              {
+                zone: "create",
+                tab: "stockLevelsAndPrices",
+                fields: {
+                  shipping_profile: {
+                    validation: {},
+                    hidden: true,
+                    defaultValue: "sp_digital",
+                  },
+                  stock_locations: null,
+                  "stock_locations.sloc_keep": { validation: {}, type: "number" },
+                  internal_note: { validation: {}, hidden: true },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    })
+
+    const grouped = applyGridExtension<Row>(groupRegistry, {
+      model: "offer",
+      zone: "create",
+      tab: "stockLevelsAndPrices",
+      columns: [
+        column("title"),
+        column("shipping_profile"),
+        column("stock_locations.sloc_a"),
+        column("stock_locations.sloc_keep"),
+        column("prices.usd"),
+      ],
+      lockedColumnIds: ["title"],
+      getRowPath: (row) => `variants.${row.index}`,
+      createColumn: ({ id }) => ({ id }) as ColumnDef<Row, unknown>,
+    })
+    const ids = grouped.map((c) => c.id)
+
+    test("a hidden built-in column is dropped", () => {
+      expect(ids).not.toContain("shipping_profile")
+    })
+
+    test("a group key removes every column of the group", () => {
+      expect(ids).not.toContain("stock_locations.sloc_a")
+    })
+
+    test("an exact column id beats its group", () => {
+      expect(ids).toContain("stock_locations.sloc_keep")
+    })
+
+    test("group keys and hidden added fields don't become columns", () => {
+      expect(ids).toEqual(["title", "stock_locations.sloc_keep", "prices.usd"])
+    })
+  })
 })

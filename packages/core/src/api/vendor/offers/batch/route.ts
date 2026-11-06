@@ -29,6 +29,9 @@ export const POST = async (
     inventory_items: o.inventory_items,
     ean: o.ean ?? null,
     upc: o.upc ?? null,
+    manage_inventory: o.manage_inventory,
+    allow_backorder: o.allow_backorder,
+    condition_id: o.condition_id ?? null,
     leadtime_to_ship: o.leadtime_to_ship ?? null,
     metadata: o.metadata ?? null,
   }))

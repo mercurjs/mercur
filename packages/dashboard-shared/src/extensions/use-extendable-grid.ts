@@ -72,23 +72,29 @@ export function applyGridExtension<TData>(
   const locked = new Set(lockedColumnIds)
   const builtInIds = baseColumns.flatMap((c) => columnId(c) ?? [])
 
+  const overrideFor = (id: string) => {
+    const exact = extension.getFormFieldOverride(model, zone, id, tab, true)
+    const group = id.includes(".") ? id.slice(0, id.indexOf(".")) : null
+    if (exact.overridden || !group) return exact
+    return extension.getFormFieldOverride(model, zone, group, tab, true)
+  }
+
   const columns = baseColumns.flatMap((col) => {
     const id = columnId(col)
     if (!id || locked.has(id)) return [col]
-    const { overridden, field } = extension.getFormFieldOverride(
-      model,
-      zone,
-      id,
-      tab,
-      true
-    )
+    const { overridden, field } = overrideFor(id)
     if (!overridden) return [col]
-    if (!field) return []
+    if (!field || field.hidden) return []
     return [createColumn({ id, field, getFieldName: baseFieldName(col) })]
   })
 
+  const builtInGroups = builtInIds.flatMap((id) =>
+    id.includes(".") ? [id.slice(0, id.indexOf("."))] : []
+  )
   const added = allowAdd
-    ? extension.getFormFields(model, zone, tab, builtInIds, true)
+    ? extension
+        .getFormFields(model, zone, tab, [...builtInIds, ...builtInGroups], true)
+        .filter(({ field }) => !field.hidden)
     : []
   for (const { name, field } of added) {
     columns.push(
@@ -109,9 +115,11 @@ export function applyGridExtension<TData>(
 /**
  * Applies a form tab's `forms[].fields` to a data grid, the way
  * `<ExtendableFormField>` does for a regular form: a base column id + `null`
- * removes the column, a base id + field replaces how it renders (it keeps
- * editing the base column's form path), and any other key appends an editable
- * column bound to the row's `additional_data`.
+ * (or a field with `hidden`) removes the column, a base id + field replaces how
+ * it renders (it keeps editing the base column's form path), and any other key
+ * appends an editable column bound to the row's `additional_data`. Generated
+ * column ids like `stock_locations.<id>` also match their `stock_locations`
+ * prefix, so one key targets the whole group.
  */
 export function useExtendableGrid<TData>(
   props: UseExtendableGridProps<TData>

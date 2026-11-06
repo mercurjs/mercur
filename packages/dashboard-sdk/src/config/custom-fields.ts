@@ -68,8 +68,16 @@ export type CustomFormFieldOption = {
 export type CustomFormField<TData = unknown> = {
   /** Zod schema — drives the input type and validation. */
   validation: FieldValidation
-  /** Static default or a resolver from the loaded entity. */
+  /**
+   * Static default or a resolver from the loaded entity. On a built-in grid
+   * column the resolver may be async (e.g. fetch the id to preselect).
+   */
   defaultValue?: ((data: TData) => unknown) | unknown
+  /**
+   * Don't render the input but keep the value: on a built-in key the form
+   * still submits the base field, seeded from `defaultValue`.
+   */
+  hidden?: boolean
   label?: string
   description?: string
   placeholder?: string
@@ -119,8 +127,11 @@ export type CustomFormEntry<TModel> =
               tab?: CustomFormTab<TModel, TZone>
               /**
                * ADD (unknown key, stored under `additional_data`), REPLACE
-               * (built-in key + a field with a `component`), or REMOVE
-               * (built-in key + `null`) a form field or data-grid column.
+               * (built-in key + a field with a `component`), HIDE (built-in
+               * key + `hidden: true`, value seeded from `defaultValue`) or
+               * REMOVE (built-in key + `null`) a form field or data-grid
+               * column. In data grids a key before the first `.` of a column
+               * id (e.g. `stock_locations`) targets the whole column group.
                */
               fields?: Partial<
                 Record<ModelShape<TModel>["formFieldIds"], CustomFormField | null>

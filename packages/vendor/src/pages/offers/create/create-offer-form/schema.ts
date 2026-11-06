@@ -49,6 +49,7 @@ export const GRID_COLUMN_IDS = [
   "shipping_profile",
   "condition",
   "leadtime_to_ship",
+  "stock_locations",
 ]
 
 /** `CreateOfferSchema` with each row's custom-field `additional_data` shape. */
@@ -77,7 +78,12 @@ export const variantRowHasPrice = (
   currencyCodes.some((code) => numericOrZero(row.prices?.[code]) > 0) ||
   Object.values(row.region_prices ?? {}).some((v) => numericOrZero(v) > 0)
 
-// SKU is prefilled from the master variant, so it can't signal intent.
-export const variantRowHasPartialInput = (row: OfferVariantRow): boolean =>
-  !!row.shipping_profile_id ||
+// SKU and a configured default shipping profile are prefilled, so they can't
+// signal intent.
+export const variantRowHasPartialInput = (
+  row: OfferVariantRow,
+  defaultShippingProfileId?: string,
+): boolean =>
+  (!!row.shipping_profile_id &&
+    row.shipping_profile_id !== defaultShippingProfileId) ||
   Object.values(row.inventory ?? {}).some((v) => v.checked)

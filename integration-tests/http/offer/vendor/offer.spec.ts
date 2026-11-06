@@ -535,6 +535,44 @@ medusaIntegrationTestRunner({
                     })
                     expect(offers).toHaveLength(0)
                 })
+
+                it("should keep manage_inventory and allow_backorder of each item", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+
+                    const response = await api.post(
+                        `/vendor/offers/batch`,
+                        {
+                            offers: [
+                                {
+                                    sku: "BATCH-DIGITAL",
+                                    variant_id: deps.variant_id,
+                                    shipping_profile_id: deps.shipping_profile_id,
+                                    manage_inventory: false,
+                                    allow_backorder: true,
+                                    inventory_items: [{}],
+                                    prices: [{ amount: 2000, currency_code: "usd" }],
+                                },
+                            ],
+                        },
+                        seller1Headers
+                    )
+
+                    expect(response.status).toEqual(201)
+
+                    const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+                    const { data: offers } = await query.graph({
+                        entity: "offer",
+                        fields: ["manage_inventory", "allow_backorder"],
+                        filters: { id: response.data.offers[0].id },
+                    })
+
+                    expect(offers[0]).toEqual(
+                        expect.objectContaining({
+                            manage_inventory: false,
+                            allow_backorder: true,
+                        })
+                    )
+                })
             })
 
             describe("GET /vendor/offers", () => {

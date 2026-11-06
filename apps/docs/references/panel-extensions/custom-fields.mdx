@@ -119,7 +119,8 @@ Each field is a `CustomFormField`.
 | Field          | Type                             | Description                                                    |
 | -------------- | -------------------------------- | ------------------------------------------------------------- |
 | `validation`   | Zod schema                       | Drives both the default input type and validation.            |
-| `defaultValue` | `unknown \| ((data) => unknown)` | Static value or a resolver from the loaded entity.            |
+| `defaultValue` | `unknown \| ((data) => unknown)` | Static value or a resolver from the loaded entity. On a built-in spreadsheet column the resolver may be async. |
+| `hidden`       | `boolean` (optional)             | Don't render the input, but keep its value. On a built-in field the value comes from `defaultValue`. |
 | `label`        | `string` (optional)              | Field label.                                                  |
 | `description`  | `string` (optional)              | Help text below the input.                                    |
 | `placeholder`  | `string` (optional)              | Input placeholder.                                            |
@@ -200,6 +201,40 @@ forms: [
 
 Each row's values reach a workflow hook, keyed by the id of the record the row
 created or updated. Persist them from the hook.
+
+#### Hide a column but supply its value
+
+`null` drops a column together with any value the user would enter there. To
+hide a column whose value is still required, set `hidden: true` and give it a
+`defaultValue`. The resolver can be async, so it can fetch the value. Every row
+of the offer create form is seeded with it, for `shipping_profile`, `condition`
+and `leadtime_to_ship`.
+
+Generated column groups take one key: `stock_locations` targets every
+per-location stock column, whatever the location ids are. Removing the group
+creates offers with `manage_inventory: false` and no stock levels.
+
+```tsx
+forms: [
+  {
+    zone: "create",
+    tab: "stockLevelsAndPrices",
+    fields: {
+      shipping_profile: form.define({
+        validation: form.string(),
+        hidden: true,
+        defaultValue: () => fetchDigitalShippingProfileId(), // your own lookup
+      }),
+      stock_locations: null,
+    },
+  },
+]
+```
+
+Publish stays disabled until the async defaults resolve. If the resolver throws
+or returns nothing, the form shows an error instead of publishing rows without a
+shipping profile. An exact column id such as `stock_locations.sloc_123` wins
+over its group key.
 
 | Model     | Zone and tab                        | Spreadsheet                                  | Added columns reach                                                             |
 | --------- | ----------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------- |
