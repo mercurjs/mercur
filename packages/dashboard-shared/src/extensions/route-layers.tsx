@@ -36,6 +36,43 @@ function override<T extends LayeredRoute>(previous: T, next: T): T {
   }
 }
 
+type LazyModule = {
+  Component?: ComponentType<RenderDefaultProps> | null
+  handle?: unknown
+}
+
+const mergeHandles = (previous: unknown, next: unknown) =>
+  previous && next && typeof previous === "object" && typeof next === "object"
+    ? { ...previous, ...next }
+    : (next ?? previous)
+
+/**
+ * Overrides a built-in page's lazy route with an extension's, handing the
+ * built-in component to the extension as `renderDefault`. The built-in loader
+ * is kept unless the extension declares its own, so `renderDefault` still has
+ * the data it reads.
+ */
+export function overrideLazyRoute<T extends LazyModule>(
+  previous: () => Promise<T>,
+  next: () => Promise<T>
+): () => Promise<T> {
+  return async () => {
+    const [base, custom] = await Promise.all([previous(), next()])
+    const Previous = base.Component
+    const Next = custom.Component
+
+    if (!Previous || !Next) {
+      return { ...base, ...custom }
+    }
+
+    const Component = (props: RenderDefaultProps) =>
+      createElement(Next, { ...props, renderDefault: () => createElement(Previous) })
+    Component.displayName = Next.displayName ?? Next.name ?? "RouteOverride"
+
+    return { ...base, ...custom, Component, handle: mergeHandles(base.handle, custom.handle) }
+  }
+}
+
 /**
  * Collapses routes emitted in layer order so the last route at a path wins and
  * receives the previous page as `renderDefault`. Parallel (modal) children at
