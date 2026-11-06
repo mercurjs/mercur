@@ -113,6 +113,39 @@ await updateCommissionRatesWorkflow(container).run({
 
 This raises the baseline to 10% and turns on shipping commission. Only the global rate’s `include_shipping` produces shipping lines.
 
+## Add fields to the admin commission forms
+
+The admin commission forms are custom-field zones of the `commission_rate` model, so `defineCustomFieldsConfig` can add fields to them. Their values submit under `additional_data`, which `POST /admin/commission-rates`, `POST /admin/commission-rates/:id`, `POST /admin/commission-rates/:id/rules`, and `DELETE /admin/commission-rates/:id` accept.
+
+| Zone | Form |
+| --- | --- |
+| `create` | Create a commission rule. Tabs `details` and `commission` |
+| `edit` | Edit a rule's name, code, status, and scope |
+| `edit-default` | Edit the global commission |
+| `edit-value` | Edit a rule's commission value |
+| `delete` | The delete confirmation |
+
+```tsx title="src/admin/custom-fields/commission-rate.tsx"
+import { defineCustomFieldsConfig } from "@mercurjs/dashboard-sdk"
+import { createFormHelper } from "@mercurjs/dashboard-shared"
+
+const form = createFormHelper()
+
+export default defineCustomFieldsConfig({
+  model: "commission_rate",
+  forms: [
+    {
+      zone: "edit-value",
+      fields: {
+        reason: form.define({ validation: form.string().min(1), label: "Reason" }),
+      },
+    },
+  ],
+})
+```
+
+The create and update workflows take an array of rates and don't receive `additional_data`. To act on it, read it in your own route middleware, or use the `commissionRatesDeleted` hook for deletes.
+
 ## Next steps
 
 - [Scope rates with batchCommissionRulesWorkflow](/platform/commission/guides/batch-update-rules)

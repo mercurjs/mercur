@@ -277,6 +277,15 @@ declare module "@mercurjs/dashboard-sdk" {
       listZones: "list" | "products"
       listColumnIds: "categories" | "collection" | "handle" | "product" | "products" | "status" | "title" | "variants"
     }
+    "commission_rate": {
+      formZones: "create" | "delete" | "edit" | "edit-default" | "edit-value"
+      formTabs: Record<string, string>
+      formFieldIds: never
+      displayZones: never
+      displayFieldIds: never
+      listZones: never
+      listColumnIds: never
+    }
     "customer": {
       formZones: "edit"
       formTabs: Record<string, string>

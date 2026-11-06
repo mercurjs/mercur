@@ -683,6 +683,91 @@ medusaIntegrationTestRunner({
         })
       })
 
+      describe("additional_data", () => {
+        const additional_data = { reason: "Quarterly pricing review" }
+
+        it("should accept additional_data on create, update, rules and delete", async () => {
+          const createResponse = await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "Additional Data Rate",
+              code: "ADDITIONAL_DATA",
+              type: "percentage",
+              value: 10,
+              additional_data,
+            },
+            adminHeaders
+          )
+
+          expect(createResponse.status).toEqual(201)
+          expect(createResponse.data.commission_rate).toEqual(
+            expect.objectContaining({
+              id: expect.any(String),
+              code: "ADDITIONAL_DATA",
+              value: 10,
+            })
+          )
+          expect(createResponse.data.commission_rate).not.toHaveProperty(
+            "additional_data"
+          )
+
+          const rateId = createResponse.data.commission_rate.id
+
+          const updateResponse = await api.post(
+            `/admin/commission-rates/${rateId}`,
+            { value: 12, additional_data },
+            adminHeaders
+          )
+
+          expect(updateResponse.status).toEqual(200)
+          expect(updateResponse.data.commission_rate).toEqual(
+            expect.objectContaining({ id: rateId, value: 12 })
+          )
+
+          const rulesResponse = await api.post(
+            `/admin/commission-rates/${rateId}/rules`,
+            {
+              create: [{ reference: "seller", reference_id: seller.id }],
+              additional_data,
+            },
+            adminHeaders
+          )
+
+          expect(rulesResponse.status).toEqual(200)
+          expect(rulesResponse.data.created).toHaveLength(1)
+
+          const deleteResponse = await api.delete(
+            `/admin/commission-rates/${rateId}`,
+            { ...adminHeaders, data: { additional_data } }
+          )
+
+          expect(deleteResponse.status).toEqual(200)
+          expect(deleteResponse.data).toEqual({
+            id: rateId,
+            object: "commission_rate",
+            deleted: true,
+          })
+        })
+
+        it("should still reject unknown body fields", async () => {
+          const response = await api
+            .post(
+              `/admin/commission-rates`,
+              {
+                name: "Unknown Field Rate",
+                code: "UNKNOWN_FIELD",
+                type: "percentage",
+                value: 10,
+                reason: "Not a field",
+              },
+              adminHeaders
+            )
+            .catch((e) => e.response)
+
+          expect(response.status).toEqual(400)
+        })
+      })
+
       describe("Commission rate validation", () => {
         it("should require name field", async () => {
           const response = await api.post(

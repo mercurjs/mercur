@@ -1,4 +1,5 @@
 import { Heading } from "@medusajs/ui";
+import { FormExtensionZone } from "@mercurjs/dashboard-shared";
 import { useTranslation } from "react-i18next";
 
 import { Form } from "../../../../../components/common/form";
@@ -69,6 +70,13 @@ export const CreateCommissionRuleCommission = () => {
             description={t("commissions.fields.shippingIncludedHint")}
           />
         </div>
+        <FormExtensionZone
+          model="commission_rate"
+          zone="create"
+          tab="commission"
+          exactTab
+          control={form.control}
+        />
       </div>
     </div>
   );

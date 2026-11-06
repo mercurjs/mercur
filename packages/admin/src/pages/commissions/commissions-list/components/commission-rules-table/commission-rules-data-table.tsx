@@ -103,33 +103,37 @@ export const CommissionRulesDataTable = () => {
 
 const CommissionRuleRowActions = ({ rule }: { rule: CommissionRate }) => {
   const { t } = useTranslation();
-  const handleDelete = useDeleteCommissionRuleAction(rule);
+  const { handleDelete, deleteDialog } = useDeleteCommissionRuleAction(rule);
 
   return (
-    <ActionMenu
-      groups={[
-        {
-          actions: [
-            {
-              permission: "commission_rates:edit",
-              label: t("actions.edit"),
-              to: `/settings/commissions/${rule.id}/edit`,
-              icon: <PencilSquare />,
-            },
-          ],
-        },
-        {
-          actions: [
-            {
-              permission: "commission_rates:manage",
-              label: t("actions.delete"),
-              onClick: handleDelete,
-              icon: <Trash />,
-            },
-          ],
-        },
-      ]}
-    />
+    <>
+      <ActionMenu
+        groups={[
+          {
+            actions: [
+              {
+                permission: "commission_rates:edit",
+                label: t("actions.edit"),
+                to: `/settings/commissions/${rule.id}/edit`,
+                icon: <PencilSquare />,
+              },
+            ],
+          },
+          {
+            actions: [
+              {
+                permission: "commission_rates:manage",
+                label: t("actions.delete"),
+                onClick: handleDelete,
+                icon: <Trash />,
+              },
+            ],
+          },
+        ]}
+      />
+      {/* The dialog portals out, but React still bubbles its clicks to the row link. */}
+      <div onClick={(e) => e.stopPropagation()}>{deleteDialog}</div>
+    </>
   );
 };
 

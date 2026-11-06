@@ -1,8 +1,10 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Heading, Input, toast } from "@medusajs/ui";
+import {
+  FormExtensionZone,
+  useExtendableForm,
+} from "@mercurjs/dashboard-shared";
 import i18n from "i18next";
 import { useMemo } from "react";
-import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
 
@@ -32,10 +34,6 @@ const EditGlobalCommissionSchema = zod.object({
   include_shipping: zod.boolean(),
 });
 
-type EditGlobalCommissionSchemaType = zod.infer<
-  typeof EditGlobalCommissionSchema
->;
-
 const createEditGlobalCommissionSchema = (currencies: string[]) =>
   EditGlobalCommissionSchema.superRefine((data, ctx) => {
     addCommissionValueIssues(ctx, {
@@ -56,12 +54,17 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
     { value: "fixed", label: t("commissions.fields.type.fixed") },
   ];
 
-  const resolver = useMemo(
-    () => zodResolver(createEditGlobalCommissionSchema(currencies)),
+  const schema = useMemo(
+    () => createEditGlobalCommissionSchema(currencies),
     [currencies]
   );
 
-  const form = useForm<EditGlobalCommissionSchemaType>({
+  const form = useExtendableForm({
+    // Refined schemas are merged by intersection inside useExtendableForm.
+    schema: schema as unknown as typeof EditGlobalCommissionSchema,
+    model: "commission_rate",
+    zone: "edit-default",
+    data: rate,
     defaultValues: {
       code: rate.code,
       type: rate.type,
@@ -70,7 +73,6 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
       include_tax: rate.include_tax,
       include_shipping: rate.include_shipping,
     },
-    resolver,
   });
 
   const { mutateAsync, isPending } = useUpdateCommissionRule(rate.id);
@@ -86,6 +88,7 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
         : {}),
       include_tax: values.include_tax,
       include_shipping: values.include_shipping,
+      additional_data: values.additional_data,
     };
 
     await mutateAsync(payload, {
@@ -159,6 +162,12 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
               name="include_shipping"
               label={t("commissions.fields.shippingIncluded")}
               description={t("commissions.fields.shippingIncludedHint")}
+            />
+            <FormExtensionZone
+              model="commission_rate"
+              zone="edit-default"
+              control={form.control}
+              data={rate}
             />
           </div>
         </RouteDrawer.Body>

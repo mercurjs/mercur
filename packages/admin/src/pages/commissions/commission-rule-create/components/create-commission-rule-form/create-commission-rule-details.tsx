@@ -1,7 +1,7 @@
 import { Heading, Input } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
-import { usePermissionGate } from "@mercurjs/dashboard-shared";
+import { FormExtensionZone, usePermissionGate } from "@mercurjs/dashboard-shared";
 
 import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip";
 import { Combobox } from "../../../../../components/inputs/combobox";
@@ -229,6 +229,12 @@ export const CreateCommissionRuleDetails = () => {
           />
         )}
         </div>
+        <FormExtensionZone
+          model="commission_rate"
+          zone="create"
+          tab="details"
+          control={form.control}
+        />
       </div>
     </div>
   );

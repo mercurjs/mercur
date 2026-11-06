@@ -138,11 +138,12 @@ export const useDeleteCommissionRule = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.admin.commissionRates.$id.delete>,
     ClientError,
-    void
+    Omit<InferClientInput<typeof sdk.admin.commissionRates.$id.delete>, "$id"> | void
   >
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.commissionRates.$id.delete({ $id: id }),
+    mutationFn: (payload) =>
+      sdk.admin.commissionRates.$id.delete({ $id: id, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: commissionsQueryKeys.detail(id),
