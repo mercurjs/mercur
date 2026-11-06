@@ -9,7 +9,7 @@ import { MainLayout } from "@components/layout/main-layout";
 import { PublicLayout } from "@components/layout/public-layout";
 import { SettingsLayout } from "@components/layout/settings-layout";
 import { ErrorBoundary } from "@components/utilities/error-boundary";
-import { RoutePermissionGuard } from "@mercurjs/dashboard-shared";
+import { overrideLazyRoute, RoutePermissionGuard } from "@mercurjs/dashboard-shared";
 import {
   withLoaderPermission,
   withPermission,
@@ -21,7 +21,8 @@ import { taxRegionLoader } from "./pages/tax-regions/tax-region-detail/loader";
 /**
  * Merges custom routes into base routes. Custom routes with a matching path
  * override the base route (preserving base children unless the custom route
- * provides its own). Non-matching custom routes are appended.
+ * provides its own) and receive the base page as `renderDefault`.
+ * Non-matching custom routes are appended.
  */
 function mergeRoutes(
   baseRoutes: RouteObject[],
@@ -37,12 +38,17 @@ function mergeRoutes(
 
     if (existingIndex !== -1) {
       const { children: customChildren, ...customRest } = customRoute;
+      const baseLazy = result[existingIndex].lazy;
       const baseHandle = result[existingIndex].handle as object | undefined;
       const customHandle = customRest.handle as object | undefined;
       result[existingIndex] = {
         ...result[existingIndex],
         ...customRest,
         path: result[existingIndex].path,
+        lazy:
+          typeof baseLazy === "function" && typeof customRest.lazy === "function"
+            ? overrideLazyRoute(baseLazy, customRest.lazy)
+            : (customRest.lazy ?? baseLazy),
         // Merge rather than replace, so a custom route declaring only
         // `permissions` doesn't drop the base route's `breadcrumb`.
         handle:

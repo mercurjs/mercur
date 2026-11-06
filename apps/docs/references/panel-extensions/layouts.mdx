@@ -117,8 +117,9 @@ export default defineLayoutPreferences({
 
 ## Override a page
 
-A `page.tsx` at a path an earlier layer already serves replaces it. The component receives `renderDefault`,
-which renders the page it replaced:
+A `page.tsx` at a path an earlier layer already serves replaces it, and that includes the panel's built-in
+pages. The component receives `renderDefault`, which renders the page it replaced. The replaced page's
+loader keeps running unless your route exports its own `loader`:
 
 ```tsx
 export default function ProductDetail({ renderDefault }) {

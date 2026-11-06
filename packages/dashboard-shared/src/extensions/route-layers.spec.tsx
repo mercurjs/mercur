@@ -1,7 +1,7 @@
-import { createElement, type ReactNode } from "react"
+import { createElement, type ComponentType, type ReactNode } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, test } from "vitest"
-import { resolveRouteOverrides, type RenderDefaultProps } from "./route-layers"
+import { overrideLazyRoute, resolveRouteOverrides, type RenderDefaultProps } from "./route-layers"
 
 const Core = () => createElement("p", null, "core")
 const Plugin = ({ renderDefault }: RenderDefaultProps) =>
@@ -39,5 +39,40 @@ describe("resolveRouteOverrides", () => {
     expect(renderToStaticMarkup(createElement(merged.children![0].Component))).toBe(
       "<section>plugin<p>core</p></section>"
     )
+  })
+})
+
+type Page = {
+  Component: ComponentType<RenderDefaultProps>
+  loader?: () => null
+  handle?: Record<string, string>
+}
+
+describe("overrideLazyRoute", () => {
+  test("hands the built-in page to the extension as renderDefault", async () => {
+    const loader = () => null
+    const lazy = overrideLazyRoute<Page>(
+      async () => ({ Component: Core, loader, handle: { breadcrumb: "core" } }),
+      async () => ({ Component: Plugin, handle: { permissions: "products:view" } })
+    )
+
+    const route = await lazy()
+
+    expect(route.loader).toBe(loader)
+    expect(route.handle).toEqual({ breadcrumb: "core", permissions: "products:view" })
+    expect(renderToStaticMarkup(createElement(route.Component!))).toBe(
+      "<section>plugin<p>core</p></section>"
+    )
+  })
+
+  test("an extension loader replaces the built-in one", async () => {
+    const core = () => null
+    const plugin = () => null
+    const route = await overrideLazyRoute<Page>(
+      async () => ({ Component: Core, loader: core }),
+      async () => ({ Component: Plugin, loader: plugin })
+    )()
+
+    expect(route.loader).toBe(plugin)
   })
 })

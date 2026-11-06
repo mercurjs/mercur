@@ -16,7 +16,7 @@ export {
   type SectionWidgetMap,
   type FormFieldOverride,
 } from "./registry"
-export { resolveRouteOverrides, type RenderDefaultProps } from "./route-layers"
+export { overrideLazyRoute, resolveRouteOverrides, type RenderDefaultProps } from "./route-layers"
 export { mergeLayoutPreferences, navOverridesFromPreferences } from "./preferences"
 export {
   ExtensionProvider,
