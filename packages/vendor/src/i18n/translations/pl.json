@@ -1281,7 +1281,8 @@
       "priceRequired": "Enter a price to publish this row, or clear its stock and shipping profile to skip it.",
       "noPricedRows": "Enter a price for at least one variant. Variants without a price are skipped.",
       "duplicateBatchEntry": "Pozycja magazynowa może występować tylko w jednym koszyku (utwórz, aktualizuj lub usuń).",
-      "shippingProfileRequired": "Wybierz profil wysyłki, aby opublikować ten wiersz."
+      "shippingProfileRequired": "Wybierz profil wysyłki, aby opublikować ten wiersz.",
+      "defaultShippingProfileMissing": "Ten sklep nie ma domyślnego profilu wysyłki. Skontaktuj się z operatorem marketplace."
     },
     "variant": {
       "edit": {

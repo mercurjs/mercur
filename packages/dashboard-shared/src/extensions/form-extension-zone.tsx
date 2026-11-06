@@ -124,13 +124,9 @@ export const FormExtensionZone = <
   builtInFieldIds,
   exactTab,
 }: FormExtensionZoneProps<TFieldValues, TContext, TTransformed>) => {
-  const fields = useExtension().getFormFields(
-    model,
-    zone,
-    tab,
-    builtInFieldIds,
-    exactTab
-  )
+  const fields = useExtension()
+    .getFormFields(model, zone, tab, builtInFieldIds, exactTab)
+    .filter(({ field }) => !field.hidden)
   if (fields.length === 0) return null
 
   return (
@@ -167,7 +163,7 @@ export type ExtendableFormFieldProps<
 /**
  * Wraps one of a form's own fields so `forms[].fields[id]` can replace it (the
  * replacement binds to the same form key; validation stays the base schema's)
- * or remove it (`null`, the field keeps its default value).
+ * or remove it (`null` or `hidden`, the field keeps its default value).
  */
 export const ExtendableFormField = <
   TFieldValues extends FieldValues,
@@ -190,7 +186,7 @@ export const ExtendableFormField = <
   )
 
   if (!overridden) return <>{children}</>
-  if (!field) return null
+  if (!field || field.hidden) return null
 
   return (
     <ExtensionField

@@ -5371,6 +5371,9 @@
             "shippingProfileRequired": {
               "type": "string"
             },
+            "defaultShippingProfileMissing": {
+              "type": "string"
+            },
             "duplicateSku": {
               "type": "string"
             },
@@ -5402,6 +5405,7 @@
           "required": [
             "skuRequired",
             "shippingProfileRequired",
+            "defaultShippingProfileMissing",
             "duplicateSku",
             "duplicatePriceRule",
             "duplicateInventoryItem",

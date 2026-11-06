@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   buildScopedAdditionalData,
+  useBuiltInFieldDefaults,
   useCan,
   useExtension,
 } from "@mercurjs/dashboard-shared";
@@ -30,6 +31,21 @@ import {
 
 const GRID_ZONE = "create";
 const GRID_TAB = "stockLevelsAndPrices";
+const GRID_SCOPE = {
+  model: "offer",
+  zone: GRID_ZONE,
+  tab: GRID_TAB,
+  exactTab: true,
+};
+const SEEDED_COLUMN_IDS = ["shipping_profile", "condition", "leadtime_to_ship"];
+
+const asString = (value: unknown) =>
+  typeof value === "string" ? value : undefined;
+
+const asLeadtime = (value: unknown): number | "" =>
+  typeof value === "number" && Number.isInteger(value) && value >= 0
+    ? value
+    : "";
 
 const DEFAULTS: CreateOfferFormValues = {
   selected_product_ids: [],
@@ -90,6 +106,22 @@ export const CreateOfferForm = () => {
     [rowAdditionalData],
   );
   const rowAdditionalDataDefaults = rowAdditionalData.defaults;
+  const columnDefaults = useBuiltInFieldDefaults(GRID_SCOPE, SEEDED_COLUMN_IDS);
+  const defaultShippingProfileId = asString(
+    columnDefaults.values.shipping_profile,
+  );
+  const defaultLeadtime = asLeadtime(columnDefaults.values.leadtime_to_ship);
+  const shippingProfileHidden = !!columnDefaults.hidden.shipping_profile;
+  const stockOverride = extension.getFormFieldOverride(
+    GRID_SCOPE.model,
+    GRID_ZONE,
+    "stock_locations",
+    GRID_TAB,
+    true,
+  );
+  const stockHidden =
+    stockOverride.overridden &&
+    (!stockOverride.field || !!stockOverride.field.hidden);
   const form = useForm<CreateOfferFormValues>({
     defaultValues: DEFAULTS,
     resolver: zodResolver(schema),
@@ -104,7 +136,10 @@ export const CreateOfferForm = () => {
   );
 
   const { offer_conditions } = useOfferConditions();
-  const defaultConditionId = offer_conditions?.[0]?.id ?? "";
+  const defaultConditionId =
+    asString(columnDefaults.values.condition) ??
+    offer_conditions?.[0]?.id ??
+    "";
 
   const locationIds = (stock_locations ?? []).map((l) => l.id);
 
@@ -157,7 +192,13 @@ export const CreateOfferForm = () => {
           // didn't know about (e.g. store data arrived after build).
           next.push({
             ...previous,
+            shipping_profile_id:
+              previous.shipping_profile_id || defaultShippingProfileId || "",
             condition_id: previous.condition_id || defaultConditionId,
+            leadtime_to_ship:
+              previous.leadtime_to_ship === ""
+                ? defaultLeadtime
+                : previous.leadtime_to_ship,
             prices: { ...emptyPrices, ...(previous.prices ?? {}) },
             inventory: { ...emptyInventory, ...(previous.inventory ?? {}) },
           });
@@ -171,9 +212,9 @@ export const CreateOfferForm = () => {
           product_thumbnail: product.thumbnail ?? null,
           variant_sku: variant.sku ?? null,
           sku: variant.sku ?? "",
-          shipping_profile_id: "",
+          shipping_profile_id: defaultShippingProfileId ?? "",
           condition_id: defaultConditionId,
-          leadtime_to_ship: "",
+          leadtime_to_ship: defaultLeadtime,
           prices: { ...emptyPrices },
           region_prices: {},
           inventory: { ...emptyInventory },
@@ -192,6 +233,8 @@ export const CreateOfferForm = () => {
     currenciesKey,
     locationsKey,
     defaultConditionId,
+    defaultShippingProfileId,
+    defaultLeadtime,
     rowAdditionalDataDefaults,
     form,
   ]);
@@ -209,6 +252,7 @@ export const CreateOfferForm = () => {
     }
 
     let hasValidationError = false;
+    let missingHiddenShippingProfile = false;
     const skuSeen = new Map<string, number>();
     const rows: { row: OfferVariantRow; index: number; sku: string }[] = [];
 
@@ -216,7 +260,7 @@ export const CreateOfferForm = () => {
       const row = variants[i];
 
       if (!variantRowHasPrice(row, currencies)) {
-        if (variantRowHasPartialInput(row)) {
+        if (variantRowHasPartialInput(row, defaultShippingProfileId)) {
           form.setError(`variants.${i}.prices.${currencies[0]}`, {
             type: "manual",
             message: t("offers.validation.priceRequired"),
@@ -244,16 +288,23 @@ export const CreateOfferForm = () => {
       }
 
       if (!row.shipping_profile_id) {
-        form.setError(`variants.${i}.shipping_profile_id`, {
-          type: "manual",
-          message: t("offers.validation.shippingProfileRequired"),
-        });
+        if (shippingProfileHidden) {
+          missingHiddenShippingProfile = true;
+        } else {
+          form.setError(`variants.${i}.shipping_profile_id`, {
+            type: "manual",
+            message: t("offers.validation.shippingProfileRequired"),
+          });
+        }
         hasValidationError = true;
       }
 
       rows.push({ row, index: i, sku });
     }
 
+    if (missingHiddenShippingProfile) {
+      toast.error(t("offers.validation.defaultShippingProfileMissing"));
+    }
     if (hasValidationError) return;
 
     if (rows.length === 0) {
@@ -285,7 +336,9 @@ export const CreateOfferForm = () => {
       }
 
       const stock_levels: { location_id: string; stocked_quantity: number }[] = [];
-      for (const [locationId, level] of Object.entries(row.inventory ?? {})) {
+      for (const [locationId, level] of Object.entries(
+        stockHidden ? {} : (row.inventory ?? {}),
+      )) {
         if (!level?.checked) continue;
         stock_levels.push({
           location_id: locationId,
@@ -301,11 +354,12 @@ export const CreateOfferForm = () => {
         ...(row.leadtime_to_ship !== "" && row.leadtime_to_ship !== undefined
           ? { leadtime_to_ship: Number(row.leadtime_to_ship) }
           : {}),
+        ...(stockHidden ? { manage_inventory: false } : {}),
         prices,
         inventory_items: [
           {
             title: row.variant_title,
-            stock_levels,
+            ...(stockHidden ? {} : { stock_levels }),
           },
         ],
         ...(row.additional_data && Object.keys(row.additional_data).length
@@ -360,6 +414,7 @@ export const CreateOfferForm = () => {
               variant="primary"
               size="small"
               isLoading={isLoading}
+              disabled={columnDefaults.isLoading}
               data-testid="offer-create-publish"
             >
               {t("offers.create.publish")}
