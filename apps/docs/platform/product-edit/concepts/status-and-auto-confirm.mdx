@@ -49,10 +49,28 @@ With the flag off, every seller edit applies immediately and still leaves a conf
 
 ## When Mercur forces auto-confirm
 
-There’s no risk scoring: Mercur doesn’t classify edits as low or high risk. It forces auto-confirm in two places:
+There’s no risk scoring: Mercur doesn’t classify edits as low or high risk. It forces auto-confirm in three places:
 
+- **Unpublished edits**: `stageProductChangeWorkflow` confirms changes to a `draft` or `proposed` product, because the product is reviewed as a whole when it goes live
 - **Draft deletes**: `productEditDeleteProductWorkflow` defaults `auto_confirm` to `true` when the product is a `draft`
 - **Operator deletes**: the admin product delete route always passes `auto_confirm: true`
+
+## Decide auto-confirm from a plugin
+
+`stageProductChangeWorkflow` exposes a `setAutoConfirm` hook. It runs after the change and its actions are created, and before auto-confirm. Return `{ auto_confirm: true }` to confirm the change in the same run, `{ auto_confirm: false }` to keep it `pending`, or nothing to keep the default. An `auto_confirm` passed by the caller still wins over the hook.
+
+```ts title="src/workflows/hooks/hold-catalog-edits.ts"
+import { StepResponse } from "@medusajs/framework/workflows-sdk"
+import { stageProductChangeWorkflow } from "@mercurjs/core/workflows"
+
+stageProductChangeWorkflow.hooks.setAutoConfirm(({ product }) => {
+  if (product.status === "proposed") {
+    return new StepResponse({ auto_confirm: false })
+  }
+})
+```
+
+The hook receives `product` (`id` and `status`), the created `product_change`, its `actions`, and `created_by`. Product, variant, and attribute edits all stage through `stageProductChangeWorkflow`, so the hook covers each of them. `productEditDeleteProductWorkflow` always passes its own `auto_confirm`, so the hook doesn't change deletes. A workflow hook takes one handler.
 
 An auto-confirmed change goes through the same `confirmProductChangeWorkflow` as a manual approval. It emits `product-change.confirmed` and fires the same hooks, with `confirmed_by` set to the change’s author.
 
