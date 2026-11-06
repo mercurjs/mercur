@@ -3,8 +3,10 @@ import {
   createFindParams,
   createOperatorMap,
   createSelectParams,
+  WithAdditionalData,
 } from "@medusajs/medusa/api/utils/validators"
 import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
+import { AdditionalData } from "@medusajs/framework/types"
 import { CommissionRateType } from "@mercurjs/types"
 
 export type AdminGetCommissionRateParamsType = z.infer<
@@ -46,9 +48,10 @@ const CommissionRateValueSchema = z.object({
 })
 
 export type AdminCreateCommissionRateType = z.infer<
-  typeof AdminCreateCommissionRate
->
-export const AdminCreateCommissionRate = z.object({
+  typeof CreateCommissionRate
+> &
+  AdditionalData
+const CreateCommissionRate = z.object({
   name: z.string(),
   code: z.string().min(1),
   type: z.nativeEnum(CommissionRateType),
@@ -61,11 +64,13 @@ export const AdminCreateCommissionRate = z.object({
   rules: z.array(CommissionRuleSchema).optional(),
   values: z.array(CommissionRateValueSchema).optional(),
 })
+export const AdminCreateCommissionRate = WithAdditionalData(CreateCommissionRate)
 
 export type AdminUpdateCommissionRateType = z.infer<
-  typeof AdminUpdateCommissionRate
->
-export const AdminUpdateCommissionRate = z.object({
+  typeof UpdateCommissionRate
+> &
+  AdditionalData
+const UpdateCommissionRate = z.object({
   name: z.string().optional(),
   code: z.string().optional(),
   type: z.nativeEnum(CommissionRateType).optional(),
@@ -76,6 +81,10 @@ export const AdminUpdateCommissionRate = z.object({
   is_enabled: z.boolean().optional(),
   values: z.array(CommissionRateValueSchema).optional(),
 })
+export const AdminUpdateCommissionRate = WithAdditionalData(UpdateCommissionRate)
+
+export type AdminDeleteCommissionRateType = AdditionalData
+export const AdminDeleteCommissionRate = WithAdditionalData(z.object({}))
 
 const UpdateCommissionRuleSchema = z.object({
   id: z.string(),
@@ -84,10 +93,12 @@ const UpdateCommissionRuleSchema = z.object({
 })
 
 export type AdminBatchCommissionRulesType = z.infer<
-  typeof AdminBatchCommissionRules
->
-export const AdminBatchCommissionRules = z.object({
+  typeof BatchCommissionRules
+> &
+  AdditionalData
+const BatchCommissionRules = z.object({
   create: z.array(CommissionRuleSchema).optional(),
   update: z.array(UpdateCommissionRuleSchema).optional(),
   delete: z.array(z.string()).optional(),
 })
+export const AdminBatchCommissionRules = WithAdditionalData(BatchCommissionRules)

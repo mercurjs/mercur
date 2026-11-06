@@ -1,7 +1,6 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "@medusajs/ui";
+import { useExtendableForm } from "@mercurjs/dashboard-shared";
 import { useMemo } from "react";
-import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import { TabbedForm } from "../../../../../components/tabbed-form";
@@ -12,8 +11,8 @@ import { buildRulesFromScope, buildValuesPayload } from "../../../common/utils";
 import { CreateCommissionRuleCommission } from "./create-commission-rule-commission";
 import { CreateCommissionRuleDetails } from "./create-commission-rule-details";
 import {
+  baseCommissionRuleSchema,
   createCommissionRuleSchema,
-  CreateCommissionRuleSchemaType,
 } from "./schema";
 
 export const CreateCommissionRuleForm = () => {
@@ -21,12 +20,16 @@ export const CreateCommissionRuleForm = () => {
   const { handleSuccess } = useRouteModal();
   const { currencies } = useStoreCurrencies();
 
-  const resolver = useMemo(
-    () => zodResolver(createCommissionRuleSchema(currencies)),
+  const schema = useMemo(
+    () => createCommissionRuleSchema(currencies),
     [currencies]
   );
 
-  const form = useForm<CreateCommissionRuleSchemaType>({
+  const form = useExtendableForm({
+    // Refined schemas are merged by intersection inside useExtendableForm.
+    schema: schema as unknown as typeof baseCommissionRuleSchema,
+    model: "commission_rate",
+    zone: "create",
     defaultValues: {
       title: "",
       code: "",
@@ -40,7 +43,6 @@ export const CreateCommissionRuleForm = () => {
       include_tax: false,
       include_shipping: false,
     },
-    resolver,
   });
 
   const { mutateAsync, isPending } = useCreateCommissionRule();
@@ -67,6 +69,7 @@ export const CreateCommissionRuleForm = () => {
         include_shipping: values.include_shipping,
         is_enabled: true,
         ...(rules.length > 0 ? { rules } : {}),
+        additional_data: values.additional_data,
       },
       {
         onSuccess: ({ commission_rate }) => {

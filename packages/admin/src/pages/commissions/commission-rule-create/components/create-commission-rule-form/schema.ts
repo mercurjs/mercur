@@ -4,7 +4,7 @@ import * as zod from "zod";
 import { addCommissionValueIssues, optionalAmount } from "../../../common/schema";
 import { SCOPE_TYPE_DIMENSIONS } from "../../../common/types";
 
-const baseCommissionRuleSchema = zod.object({
+export const baseCommissionRuleSchema = zod.object({
   title: zod
     .string()
     .min(1, { message: i18n.t("commissions.validation.titleRequired") }),

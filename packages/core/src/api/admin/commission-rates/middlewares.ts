@@ -11,6 +11,7 @@ import {
   AdminGetCommissionRatesParams,
   AdminCreateCommissionRate,
   AdminUpdateCommissionRate,
+  AdminDeleteCommissionRate,
   AdminBatchCommissionRules,
 } from "./validators"
 
@@ -66,6 +67,7 @@ export const adminCommissionRatesMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/commission-rates/:id",
     middlewares: [
       requirePermission("commission_rates", "manage"),
+      validateAndTransformBody(AdminDeleteCommissionRate),
     ],
   },
   {

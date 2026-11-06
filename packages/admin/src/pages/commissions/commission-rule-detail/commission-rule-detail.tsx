@@ -21,7 +21,7 @@ import {
 
 const ScopeSection = ({ rule }: { rule: CommissionRate }) => {
   const { t } = useTranslation();
-  const handleDelete = useDeleteCommissionRuleAction(rule);
+  const { handleDelete, deleteDialog } = useDeleteCommissionRuleAction(rule);
   const statusProps = getIsActiveProps(rule.is_enabled, t);
 
   const { names } = useScopeReferenceNames(rule.rules);
@@ -62,6 +62,7 @@ const ScopeSection = ({ rule }: { rule: CommissionRate }) => {
               },
             ]}
           />
+          {deleteDialog}
         </div>
       </div>
       <SectionRow

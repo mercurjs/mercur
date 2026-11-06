@@ -45,10 +45,11 @@ Soft-deletes rates after checking that none of them is the global rate. Workflow
 | Input | Type | Description |
 | --- | --- | --- |
 | `ids` | `string[]` | Ids of the rates to delete |
+| `additional_data` | `Record<string, unknown>` | Optional. Passed through to the `commissionRatesDeleted` hook |
 
 - **Output**: none
 - **Steps**: `validateCommissionRatesDeletableStep`, which throws `NOT_ALLOWED` for an `is_default` rate, then `deleteCommissionRatesStep`, compensated by restoring the rates
-- **Hooks**: `commissionRatesDeleted`, with `{ ids }`
+- **Hooks**: `commissionRatesDeleted`, with `{ ids, additional_data }`
 
 ## batchCommissionRulesWorkflow
 

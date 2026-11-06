@@ -1,12 +1,14 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Heading, Input, Select, toast } from "@medusajs/ui";
 import i18n from "i18next";
-import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import * as zod from "zod";
 
-import { usePermissionGate } from "@mercurjs/dashboard-shared";
+import {
+  FormExtensionZone,
+  useExtendableForm,
+  usePermissionGate,
+} from "@mercurjs/dashboard-shared";
 
 import { ConditionalTooltip } from "../../../components/common/conditional-tooltip";
 import { Combobox } from "../../../components/inputs/combobox";
@@ -47,7 +49,9 @@ const EditCommissionRuleSchema = zod.object({
   stores: zod.array(zod.string()),
   productTypes: zod.array(zod.string()),
   categories: zod.array(zod.string()),
-}).superRefine((data, ctx) => {
+});
+
+const EditCommissionRuleRefinedSchema = EditCommissionRuleSchema.superRefine((data, ctx) => {
   const dimensions = SCOPE_TYPE_DIMENSIONS[data.scopeType];
 
   if (dimensions.includes("seller") && data.stores.length === 0) {
@@ -73,14 +77,17 @@ const EditCommissionRuleSchema = zod.object({
   }
 });
 
-type EditCommissionRuleSchemaType = zod.infer<typeof EditCommissionRuleSchema>;
-
 const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
   const direction = useDocumentDirection();
 
-  const form = useForm<EditCommissionRuleSchemaType>({
+  const form = useExtendableForm({
+    // Refined schemas are merged by intersection inside useExtendableForm.
+    schema: EditCommissionRuleRefinedSchema as unknown as typeof EditCommissionRuleSchema,
+    model: "commission_rate",
+    zone: "edit",
+    data: rule,
     defaultValues: {
       status: rule.is_enabled ? "active" : "inactive",
       name: rule.name,
@@ -90,7 +97,6 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
       productTypes: referenceIds(rule.rules, "product_type"),
       categories: referenceIds(rule.rules, "product_category"),
     },
-    resolver: zodResolver(EditCommissionRuleSchema),
   });
 
   const { mutateAsync: updateRule, isPending: isUpdating } =
@@ -151,12 +157,14 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
         name: values.name,
         code: values.code,
         is_enabled: values.status === "active",
+        additional_data: values.additional_data,
       });
 
       if (ruleDiff.create.length > 0 || ruleDiff.delete.length > 0) {
         await batchRules({
           create: ruleDiff.create,
           delete: ruleDiff.delete,
+          additional_data: values.additional_data,
         });
       }
 
@@ -370,6 +378,12 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
                 )}
               />
             )}
+            <FormExtensionZone
+              model="commission_rate"
+              zone="edit"
+              control={form.control}
+              data={rule}
+            />
           </div>
         </RouteDrawer.Body>
         <RouteDrawer.Footer>

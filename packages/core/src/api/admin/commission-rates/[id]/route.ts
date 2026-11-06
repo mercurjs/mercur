@@ -8,7 +8,10 @@ import {
 } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
-import { AdminUpdateCommissionRateType } from "../validators"
+import {
+  AdminDeleteCommissionRateType,
+  AdminUpdateCommissionRateType,
+} from "../validators"
 import { deleteCommissionRatesWorkflow, updateCommissionRatesWorkflow } from "../../../../workflows/commission"
 
 export const GET = async (
@@ -41,8 +44,10 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  const { additional_data: _additionalData, ...update } = req.validatedBody
+
   const { result } = await updateCommissionRatesWorkflow(req.scope).run({
-    input: [{ id: req.params.id, ...req.validatedBody }],
+    input: [{ id: req.params.id, ...update }],
   })
 
   const {
@@ -57,11 +62,14 @@ export const POST = async (
 }
 
 export const DELETE = async (
-  req: AuthenticatedMedusaRequest,
+  req: AuthenticatedMedusaRequest<AdminDeleteCommissionRateType>,
   res: MedusaResponse<HttpTypes.AdminCommissionRateDeleteResponse>
 ) => {
   await deleteCommissionRatesWorkflow(req.scope).run({
-    input: { ids: [req.params.id] },
+    input: {
+      ids: [req.params.id],
+      additional_data: req.validatedBody?.additional_data,
+    },
   })
 
   res.json({
