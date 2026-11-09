@@ -37,6 +37,9 @@ const OFFER_PICKER_FIELDS = [
   "product_variant.product.id",
   "product_variant.product.title",
   "product_variant.product.thumbnail",
+  "product_variant.product.categories.id",
+  "product_variant.product.categories.name",
+  "product_variant.product.collection.title",
   "product_variant.manage_inventory",
   "product_variant.inventory_quantity",
   "product_variant.inventory_items.required_quantity",
@@ -60,6 +63,11 @@ type AddOrderEditItemsTableProps = {
    * in this currency are filtered out by the picker defaults.
    */
   currencyCode?: string
+  /**
+   * Seller that owns the order. Only this seller's offers can be added,
+   * so the picker never lists offers from other stores.
+   */
+  sellerId?: string
   /**
    * Receives the picked rows as `{ variantId, offerId }` pairs. The admin
    * backend overrides at `packages/core/src/api/admin/order-edits/[id]/
@@ -91,6 +99,7 @@ const offerHasInventory = (offer: OfferPickerRowExtended): boolean => {
 
 export const AddOrderEditItemsTable = ({
   currencyCode,
+  sellerId,
   onSelectionChange,
 }: AddOrderEditItemsTableProps) => {
   const { t } = useTranslation()
@@ -106,9 +115,10 @@ export const AddOrderEditItemsTable = ({
   const offersResponse = useOffers(
     {
       ...searchParams,
+      seller_id: sellerId,
       fields: OFFER_PICKER_FIELDS,
     },
-    { enabled: canViewOffers }
+    { enabled: canViewOffers && !!sellerId }
   ) as unknown as {
     offers?: OfferPickerRowExtended[]
     count?: number

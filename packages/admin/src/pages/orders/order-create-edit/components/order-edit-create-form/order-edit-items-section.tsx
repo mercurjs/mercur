@@ -35,6 +35,10 @@ export const OrderEditItemsSection = ({
 
   const { mutateAsync: addItems, isPending } = useAddOrderEditItems(order.id);
 
+  // `seller` is the Mercur order↔seller link loaded via DEFAULT_FIELDS
+  // (`*seller`); Medusa's AdminOrder type doesn't know about it.
+  const sellerId = (order as { seller?: { id?: string } | null }).seller?.id;
+
   const onItemsSelected = async () => {
     await addItems(
       {
@@ -105,6 +109,7 @@ export const OrderEditItemsSection = ({
 
               <AddOrderEditItemsTable
                 currencyCode={order.currency_code}
+                sellerId={sellerId}
                 onSelectionChange={(finalSelection) => {
                   addedSelections = finalSelection;
                 }}

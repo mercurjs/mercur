@@ -15557,6 +15557,12 @@
         "variant": {
           "type": "string"
         },
+        "offer": {
+          "type": "string"
+        },
+        "variantTitle": {
+          "type": "string"
+        },
         "id": {
           "type": "string"
         },
@@ -15816,6 +15822,8 @@
         "location",
         "quantity",
         "variant",
+        "offer",
+        "variantTitle",
         "id",
         "parent",
         "minSubtotal",

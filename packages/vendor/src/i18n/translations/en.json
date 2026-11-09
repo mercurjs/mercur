@@ -4324,6 +4324,8 @@
     "location": "Location",
     "quantity": "Quantity",
     "variant": "Variant",
+    "offer": "Offer",
+    "variantTitle": "Variant Title",
     "id": "ID",
     "parent": "Parent",
     "minSubtotal": "Min. Subtotal",
