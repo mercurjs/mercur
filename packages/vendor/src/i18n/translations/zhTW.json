@@ -1586,7 +1586,14 @@
         "production_failure": "產品瑕疵",
         "other": "其他"
       },
-      "noteHint": "為此索賠新增內部備註（僅您的團隊可見）。"
+      "noteHint": "為此索賠新增內部備註（僅您的團隊可見）。",
+      "confirmTitle": "確認索賠",
+      "emptyItemsError": "請從訂單中至少新增一項商品",
+      "emptyState": {
+        "title": "尚無記錄",
+        "inboundDescription": "請至少從訂單中新增一件商品以建立索賠",
+        "outboundDescription": "您可以選擇新增要作為替換品寄送的商品"
+      }
     },
     "exchanges": {
       "create": "建立換貨",

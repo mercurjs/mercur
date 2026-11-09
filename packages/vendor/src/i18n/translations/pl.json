@@ -1782,7 +1782,14 @@
         "production_failure": "Wada produkcyjna",
         "other": "Inne"
       },
-      "noteHint": "Dodaj wewnętrzną notatkę do tej reklamacji (widoczną tylko dla Twojego zespołu)."
+      "noteHint": "Dodaj wewnętrzną notatkę do tej reklamacji (widoczną tylko dla Twojego zespołu).",
+      "confirmTitle": "Potwierdź reklamację",
+      "emptyItemsError": "Dodaj co najmniej jedną pozycję z zamówienia",
+      "emptyState": {
+        "title": "Brak rekordów",
+        "inboundDescription": "Dodaj co najmniej jedną pozycję z zamówienia, aby utworzyć reklamację",
+        "outboundDescription": "Opcjonalnie możesz dodać pozycje, które chcesz wysłać jako zamienniki"
+      }
     },
     "exchanges": {
       "create": "Utwórz wymianę",

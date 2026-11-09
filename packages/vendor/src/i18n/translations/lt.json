@@ -1550,7 +1550,14 @@
         "production_failure": "Gamybos gedimas",
         "other": "Kita"
       },
-      "noteHint": "Pridėkite vidinę pastabą šiai pretenzijai (matoma tik jūsų komandai)."
+      "noteHint": "Pridėkite vidinę pastabą šiai pretenzijai (matoma tik jūsų komandai).",
+      "confirmTitle": "Patvirtinti pretenziją",
+      "emptyItemsError": "Pridėkite bent vieną prekę iš užsakymo",
+      "emptyState": {
+        "title": "Kol kas nėra įrašų",
+        "inboundDescription": "Pridėkite bent vieną prekę iš užsakymo, kad sukurtumėte pretenziją",
+        "outboundDescription": "Pasirinktinai galite pridėti prekes, kurias norite išsiųsti kaip pakaitalus"
+      }
     },
     "exchanges": {
       "create": "Sukurti keitimą",

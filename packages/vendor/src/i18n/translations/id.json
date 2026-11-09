@@ -1549,7 +1549,14 @@
         "production_failure": "Kegagalan produksi",
         "other": "Lainnya"
       },
-      "noteHint": "Tambahkan catatan internal untuk klaim ini (hanya terlihat oleh tim Anda)."
+      "noteHint": "Tambahkan catatan internal untuk klaim ini (hanya terlihat oleh tim Anda).",
+      "confirmTitle": "Konfirmasi klaim",
+      "emptyItemsError": "Silakan tambahkan setidaknya satu item dari pesanan",
+      "emptyState": {
+        "title": "Belum ada data",
+        "inboundDescription": "Tambahkan setidaknya satu item dari pesanan untuk membuat klaim",
+        "outboundDescription": "Anda dapat menambahkan item yang ingin dikirim sebagai pengganti (opsional)"
+      }
     },
     "exchanges": {
       "create": "Buat Penukaran",

@@ -1790,6 +1790,13 @@
       "panel": {
         "title": "Claim initiated",
         "description": "There is an open claim request to be completed"
+      },
+      "confirmTitle": "Confirm claim",
+      "emptyItemsError": "Please add at least one item from the order",
+      "emptyState": {
+        "title": "No records yet",
+        "inboundDescription": "Add at least one item from the order to create the claim",
+        "outboundDescription": "You can optionally add items you want to send as replacements"
       }
     },
     "exchanges": {

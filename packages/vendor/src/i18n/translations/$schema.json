@@ -7151,6 +7151,32 @@
                 "description"
               ],
               "additionalProperties": false
+            },
+            "confirmTitle": {
+              "type": "string"
+            },
+            "emptyItemsError": {
+              "type": "string"
+            },
+            "emptyState": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "inboundDescription": {
+                  "type": "string"
+                },
+                "outboundDescription": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "inboundDescription",
+                "outboundDescription"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [
@@ -7169,7 +7195,10 @@
             "cancel",
             "tooltips",
             "toast",
-            "panel"
+            "panel",
+            "confirmTitle",
+            "emptyItemsError",
+            "emptyState"
           ],
           "additionalProperties": false
         },
