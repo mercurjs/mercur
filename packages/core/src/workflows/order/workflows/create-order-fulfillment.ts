@@ -112,6 +112,46 @@ function buildOfferInventoryByLineItem(
   return byLine
 }
 
+// The offer's inventory item links are the source of truth for what gets
+// shipped. A line item's reservations can point at a different inventory
+// item (an order placed before the offer got its own inventory item is still
+// reserved against the variant's), so when links exist they win over the
+// reservation's inventory_item_id.
+function resolveInventoryTargets(
+  reservations: ReservationItemDTO[],
+  offerByInventoryItem: Record<string, OfferInventoryLink> | undefined,
+): OfferInventoryLink[] {
+  const links = Object.values(offerByInventoryItem ?? {})
+  if (links.length) {
+    return links
+  }
+  return reservations.map((reservation) => ({
+    inventory_item_id: reservation.inventory_item_id as string,
+    required_quantity: 1,
+    inventory: null,
+  }))
+}
+
+function splitStaleReservations(
+  reservations: ReservationItemDTO[],
+  offerByInventoryItem: Record<string, OfferInventoryLink> | undefined,
+) {
+  const links = Object.values(offerByInventoryItem ?? {})
+  if (!links.length) {
+    return { matched: reservations, stale: [] as ReservationItemDTO[] }
+  }
+  const matched: ReservationItemDTO[] = []
+  const stale: ReservationItemDTO[] = []
+  for (const reservation of reservations) {
+    if (offerByInventoryItem![reservation.inventory_item_id as string]) {
+      matched.push(reservation)
+    } else {
+      stale.push(reservation)
+    }
+  }
+  return { matched, stale }
+}
+
 export const createOrderFulfillmentValidateOrderStepId =
   "mercur-create-order-fulfillment-validate-order"
 
@@ -246,7 +286,6 @@ function prepareFulfillmentData({
     .map((i) => {
       const orderItem = orderItemsMap.get(i.id)!
       const reservations = reservationItemMap.get(i.id)
-      const offerByInventoryItem = offerInventoryByLineItem[i.id]
 
       if (!reservations?.length) {
         return [
@@ -261,21 +300,22 @@ function prepareFulfillmentData({
         ] as FulfillmentWorkflow.CreateFulfillmentItemWorkflowDTO[]
       }
 
-      return reservations.map((r) => {
-        const link = offerByInventoryItem?.[r.inventory_item_id as string]
-        const requiredQuantity = link?.required_quantity ?? 1
+      return resolveInventoryTargets(
+        reservations,
+        offerInventoryByLineItem[i.id],
+      ).map((link) => {
         return {
           line_item_id: i.id,
-          inventory_item_id: r.inventory_item_id,
+          inventory_item_id: link.inventory_item_id,
           quantity: MathBN.mult(
-            requiredQuantity,
+            link.required_quantity,
             i.quantity,
           ) as BigNumberInput,
           title:
-            link?.inventory?.title ||
+            link.inventory?.title ||
             orderItem.variant_title ||
             orderItem.title,
-          sku: link?.inventory?.sku || orderItem.variant_sku || "",
+          sku: link.inventory?.sku || orderItem.variant_sku || "",
           barcode: orderItem.variant_barcode || "",
         } as FulfillmentWorkflow.CreateFulfillmentItemWorkflowDTO
       })
@@ -357,13 +397,15 @@ function prepareInventoryUpdate({
     }
 
     const inputQuantity = inputItemsMap[item.id]?.quantity ?? item.quantity
+    const { matched, stale } = splitStaleReservations(
+      reservations,
+      offerByInventoryItem,
+    )
 
-    reservations.forEach((reservation) => {
-      const link =
-        offerByInventoryItem?.[reservation.inventory_item_id as string]
-      const requiredQuantity = link?.required_quantity ?? 1
-
-      const adjustmentQuantity = MathBN.mult(inputQuantity, requiredQuantity)
+    const consumeReservation = (
+      reservation: ReservationItemDTO,
+      adjustmentQuantity: BigNumberInput,
+    ) => {
       const remainingReservationQuantity = MathBN.sub(
         reservation.quantity,
         adjustmentQuantity,
@@ -376,12 +418,6 @@ function prepareInventoryUpdate({
         )
       }
 
-      inventoryAdjustment.push({
-        inventory_item_id: reservation.inventory_item_id as string,
-        location_id: input.location_id ?? (reservation.location_id as string),
-        adjustment: MathBN.mult(adjustmentQuantity, -1),
-      })
-
       if (MathBN.eq(remainingReservationQuantity, 0)) {
         toDelete.push(reservation.id)
       } else {
@@ -391,6 +427,48 @@ function prepareInventoryUpdate({
           location_id: input.location_id ?? (reservation.location_id as string),
         })
       }
+    }
+
+    matched.forEach((reservation) => {
+      const link =
+        offerByInventoryItem?.[reservation.inventory_item_id as string]
+      const requiredQuantity = link?.required_quantity ?? 1
+      const adjustmentQuantity = MathBN.mult(inputQuantity, requiredQuantity)
+
+      inventoryAdjustment.push({
+        inventory_item_id: reservation.inventory_item_id as string,
+        location_id: input.location_id ?? (reservation.location_id as string),
+        adjustment: MathBN.mult(adjustmentQuantity, -1),
+      })
+
+      consumeReservation(reservation, adjustmentQuantity)
+    })
+
+    if (!stale.length) {
+      continue
+    }
+
+    const coveredInventoryItemIds = new Set(
+      matched.map((reservation) => reservation.inventory_item_id as string),
+    )
+    const locationId = input.location_id ?? (stale[0].location_id as string)
+
+    for (const link of Object.values(offerByInventoryItem ?? {})) {
+      if (coveredInventoryItemIds.has(link.inventory_item_id)) {
+        continue
+      }
+      inventoryAdjustment.push({
+        inventory_item_id: link.inventory_item_id,
+        location_id: locationId,
+        adjustment: MathBN.mult(
+          MathBN.mult(inputQuantity, link.required_quantity),
+          -1,
+        ),
+      })
+    }
+
+    stale.forEach((reservation) => {
+      consumeReservation(reservation, inputQuantity)
     })
   }
 

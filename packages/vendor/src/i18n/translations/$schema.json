@@ -7558,6 +7558,9 @@
                 },
                 "noLocation": {
                   "type": "string"
+                },
+                "noInventoryLevelAtLocation": {
+                  "type": "string"
                 }
               },
               "required": [
@@ -7565,7 +7568,8 @@
                 "wrongQuantity_other",
                 "noItems",
                 "noShippingOption",
-                "noLocation"
+                "noLocation",
+                "noInventoryLevelAtLocation"
               ],
               "additionalProperties": false
             },
