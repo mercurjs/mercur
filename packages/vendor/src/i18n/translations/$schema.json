@@ -6563,6 +6563,12 @@
             "addItems": {
               "type": "string"
             },
+            "offerNoPriceTooltip": {
+              "type": "string"
+            },
+            "offerOutOfStockTooltip": {
+              "type": "string"
+            },
             "amountPaid": {
               "type": "string"
             },
@@ -6650,6 +6656,8 @@
             "currentItemsDescription",
             "addItemsDescription",
             "addItems",
+            "offerNoPriceTooltip",
+            "offerOutOfStockTooltip",
             "amountPaid",
             "newTotal",
             "differenceDue",

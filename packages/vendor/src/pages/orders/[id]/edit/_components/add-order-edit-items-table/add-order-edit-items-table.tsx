@@ -23,8 +23,8 @@ const PREFIX = "rit";
 // items are submitted to the order-edit / exchange / claim "add items" routes.
 // `prices.*` + `product_variant.inventory_items.required_quantity` /
 // `inventory.location_levels.available_quantity` / `manage_inventory` feed the
-// picker defaults: only show offers that have a price in the order's currency
-// AND have inventory (or `manage_inventory=false`). The vendor
+// picker: only offers with a price in the order's currency AND inventory (or
+// `manage_inventory=false`) can be selected. The vendor
 // `sdk.vendor.offers.query` is seller-scoped at the API boundary, so the
 // "from selected store" rule is implicit — no extra param needed.
 const OFFER_PICKER_FIELDS = [
@@ -65,7 +65,7 @@ type OfferPickerRowExtended = OfferPickerRow &
 type AddOrderEditItemsTableProps = {
   /**
    * The currency of the order this picker is feeding. Offers without a
-   * matching price are filtered out by the picker defaults.
+   * matching price are listed but can't be selected.
    */
   currencyCode?: string;
   /**
@@ -136,30 +136,35 @@ export const AddOrderEditItemsTable = ({
     () => rawOffersSource ?? [],
     [rawOffersSource]
   );
-  const rawCount = (offersResponse as any).count ?? 0;
+  const count: number = (offersResponse as { count?: number }).count ?? 0;
 
-  // Picker defaults: only offers (1) with a price in the order's currency
-  // and (2) with stock. Filter client-side — the alternative is a
-  // `with_price` + `inventory_quantity_gte` backend param that doesn't
-  // exist on `GET /vendor/offers` today.
+  // Offers that can't be added stay listed but unselectable: hiding them
+  // client-side would break the server-side pagination and count.
   const offers = useMemo<OfferPickerRowExtended[]>(() => {
-    return rawOffers.filter((offer) => {
-      if (currencyCode) {
-        const hasPrice = (offer.prices ?? []).some(
-          (p) => p.currency_code === currencyCode
-        );
-        if (!hasPrice) return false;
-      }
-      return offerHasInventory(offer);
-    });
-  }, [rawOffers, currencyCode]);
+    return rawOffers.map((offer) => {
+      const hasPrice =
+        !currencyCode ||
+        (offer.prices ?? []).some((p) => p.currency_code === currencyCode);
 
-  // Surface the post-filter count so the pagination footer reflects what
-  // the seller actually sees. For pages where every offer is filtered out
-  // this will read "0 of 0"; rawCount on the response remains the unfiltered
-  // total in case it's needed for debugging.
-  const count = offers.length;
-  void rawCount;
+      if (!hasPrice) {
+        return {
+          ...offer,
+          unavailable_reason: t("orders.edits.offerNoPriceTooltip", {
+            currency: currencyCode?.toUpperCase(),
+          }),
+        };
+      }
+
+      if (!offerHasInventory(offer)) {
+        return {
+          ...offer,
+          unavailable_reason: t("orders.edits.offerOutOfStockTooltip"),
+        };
+      }
+
+      return offer;
+    });
+  }, [rawOffers, currencyCode, t]);
 
   const columns = useOrderEditItemsTableColumns();
   const filters = useOrderEditItemTableFilters();
@@ -174,7 +179,8 @@ export const AddOrderEditItemsTable = ({
     // resolve to variant_id + unit_price server-side).
     getRowId: (row) => row.id,
     pageSize: PAGE_SIZE,
-    enableRowSelection: () => true,
+    prefix: PREFIX,
+    enableRowSelection: (row) => !row.original.unavailable_reason,
     rowSelection: {
       state: rowSelection,
       updater,

@@ -1510,6 +1510,8 @@
       "currentItemsDescription": "Adjust item quantity or remove.",
       "addItemsDescription": "You can add new items to the order.",
       "addItems": "Add items",
+      "offerNoPriceTooltip": "This offer has no {{currency}} price",
+      "offerOutOfStockTooltip": "This offer is out of stock",
       "amountPaid": "Amount paid",
       "newTotal": "New total",
       "differenceDue": "Difference due",

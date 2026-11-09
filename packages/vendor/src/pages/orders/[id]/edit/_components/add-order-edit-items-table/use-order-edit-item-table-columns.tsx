@@ -1,4 +1,4 @@
-import { Checkbox, Text } from "@medusajs/ui"
+import { Checkbox, Text, Tooltip } from "@medusajs/ui"
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -23,6 +23,7 @@ export type OfferPickerRow = {
       collection?: { title?: string | null } | null
     } | null
   } | null
+  unavailable_reason?: string
 }
 
 const columnHelper = createColumnHelper<OfferPickerRow>()
@@ -58,16 +59,28 @@ export const useOrderEditItemsTableColumns = () => {
             }
           />
         ),
-        cell: ({ row }) => (
-          <Checkbox
-            disabled={!row.getCanSelect()}
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            onClick={(e) => {
-              e.stopPropagation()
-            }}
-          />
-        ),
+        cell: ({ row }) => {
+          const checkbox = (
+            <Checkbox
+              disabled={!row.getCanSelect()}
+              checked={row.getIsSelected()}
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              onClick={(e) => {
+                e.stopPropagation()
+              }}
+            />
+          )
+
+          if (!row.original.unavailable_reason) {
+            return checkbox
+          }
+
+          return (
+            <Tooltip content={row.original.unavailable_reason} side="right">
+              {checkbox}
+            </Tooltip>
+          )
+        },
       }),
       columnHelper.display({
         id: "offer",
