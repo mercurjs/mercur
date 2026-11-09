@@ -8,6 +8,43 @@ type LinkSellerInventoryItemStepInput = {
   inventory_item_ids: string[]
 }
 
+type LinkSellerInventoryItemsStepInput = LinkSellerInventoryItemStepInput[]
+
+const toLinks = (groups: LinkSellerInventoryItemsStepInput) =>
+  groups.flatMap((group) =>
+    group.inventory_item_ids.map((inventoryItemId) => ({
+      [Modules.INVENTORY]: {
+        inventory_item_id: inventoryItemId,
+      },
+      [MercurModules.SELLER]: {
+        seller_id: group.seller_id,
+      },
+    }))
+  )
+
+export const linkSellerInventoryItemsStep = createStep(
+  "link-seller-inventory-items",
+  async (input: LinkSellerInventoryItemsStepInput, { container }) => {
+    const groups = input.filter((group) => group.inventory_item_ids.length)
+    if (!groups.length) {
+      return new StepResponse(undefined, undefined)
+    }
+
+    const remoteLink: Link = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
+
+    await remoteLink.create(toLinks(groups))
+
+    return new StepResponse(undefined, groups)
+  },
+  async (groups, { container }) => {
+    if (!groups) return
+
+    const remoteLink: Link = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
+
+    await remoteLink.dismiss(toLinks(groups))
+  }
+)
+
 export const linkSellerInventoryItemStep = createStep(
   "link-seller-inventory-item",
   async (input: LinkSellerInventoryItemStepInput, { container }) => {
@@ -17,36 +54,15 @@ export const linkSellerInventoryItemStep = createStep(
 
     const remoteLink: Link = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
-    const links = input.inventory_item_ids.map((inventoryItemId) => ({
-      [Modules.INVENTORY]: {
-        inventory_item_id: inventoryItemId,
-      },
-      [MercurModules.SELLER]: {
-        seller_id: input.seller_id,
-      },
-    }))
+    await remoteLink.create(toLinks([input]))
 
-    await remoteLink.create(links)
-
-    return new StepResponse(undefined, {
-      seller_id: input.seller_id,
-      inventory_item_ids: input.inventory_item_ids,
-    })
+    return new StepResponse(undefined, input)
   },
   async (data, { container }) => {
     if (!data) return
 
     const remoteLink: Link = container.resolve(ContainerRegistrationKeys.REMOTE_LINK)
 
-    const links = data.inventory_item_ids.map((inventoryItemId) => ({
-      [Modules.INVENTORY]: {
-        inventory_item_id: inventoryItemId,
-      },
-      [MercurModules.SELLER]: {
-        seller_id: data.seller_id,
-      },
-    }))
-
-    await remoteLink.dismiss(links)
+    await remoteLink.dismiss(toLinks([data]))
   }
 )

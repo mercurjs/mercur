@@ -6,6 +6,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
 import { createSellerInventoryItemsWorkflow } from "../../../workflows/inventory-item"
+import { validateSellerStockLocations } from "../stock-locations/helpers"
 import { refetchInventoryItem } from "./helpers"
 import {
   VendorCreateInventoryItemType,
@@ -38,6 +39,12 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.VendorInventoryItemResponse>
 ) => {
   const sellerId = req.seller_context!.seller_id
+
+  await validateSellerStockLocations(
+    req.scope,
+    sellerId,
+    (req.validatedBody.location_levels ?? []).map((level) => level.location_id)
+  )
 
   const { result } = await createSellerInventoryItemsWorkflow(req.scope).run({
     input: {

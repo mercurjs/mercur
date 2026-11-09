@@ -28,7 +28,7 @@ import {
   validateOfferConditionsStep,
   validateOfferProductsStep,
 } from "../steps"
-import { linkSellerInventoryItemStep } from "../../inventory-item/steps"
+import { linkSellerInventoryItemsStep } from "../../inventory-item/steps"
 import { OfferWorkflowEvents } from "../../events"
 import { OFFER_PRICE_FIELDS, pickOfferPrices } from "./upsert-offer-prices"
 
@@ -168,15 +168,22 @@ export const createOffersWorkflow: ReturnWorkflow<
       ({ createdInventoryItems }) => createdInventoryItems.map((i) => i.id),
     )
 
-    const sellerId = transform(
-      { input },
-      ({ input }) => input.offers[0]?.seller_id ?? "",
+    const sellerInventoryLinks = transform(
+      { input, inventoryItemsToCreate, createdInventoryItemIds },
+      ({ input, inventoryItemsToCreate, createdInventoryItemIds }) =>
+        input.offers.map((offer, idx) => {
+          const span = inventoryItemsToCreate.offerSpans[idx]
+          return {
+            seller_id: offer.seller_id,
+            inventory_item_ids: createdInventoryItemIds.slice(
+              span.start,
+              span.start + span.length,
+            ),
+          }
+        }),
     )
 
-    linkSellerInventoryItemStep({
-      seller_id: sellerId,
-      inventory_item_ids: createdInventoryItemIds,
-    })
+    linkSellerInventoryItemsStep(sellerInventoryLinks)
 
     const stripped = transform(
       { input, variants, variantIds },
