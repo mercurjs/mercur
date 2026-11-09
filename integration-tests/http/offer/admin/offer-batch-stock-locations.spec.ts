@@ -78,6 +78,7 @@ medusaIntegrationTestRunner({
                         shipping_profile_id: shippingProfileId,
                         inventory_items: [
                             {
+                                sku,
                                 stock_levels: [
                                     { location_id: locationId, stocked_quantity: 5 },
                                 ],

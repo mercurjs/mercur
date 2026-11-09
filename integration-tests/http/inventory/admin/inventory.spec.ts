@@ -177,7 +177,13 @@ medusaIntegrationTestRunner({
           headers
         )
 
-        return { sellerId, sellerName: opts.name, offerSku: opts.offerSku }
+        return {
+          sellerId,
+          sellerName: opts.name,
+          offerSku: opts.offerSku,
+          headers,
+          stockLocationId: stockLocation.id as string,
+        }
       }
 
       const listItemForSeller = async (sellerId: string) => {
@@ -261,6 +267,108 @@ medusaIntegrationTestRunner({
         )
         expect(sellerIds.has(a.sellerId)).toBe(true)
         expect(sellerIds.size).toBe(1)
+      })
+
+      describe("location levels must stay within the item's store", () => {
+        const seedTwoStores = async () => {
+          const a = await seedSellerInventory({
+            email: `inv-match-a-${Date.now()}@medusa.js`,
+            name: "Match A",
+            productTitle: "Match Prod A",
+            offerSku: `OF-MATCH-A-${Date.now()}`,
+          })
+          const b = await seedSellerInventory({
+            email: `inv-match-b-${Date.now()}@medusa.js`,
+            name: "Match B",
+            productTitle: "Match Prod B",
+            offerSku: `OF-MATCH-B-${Date.now()}`,
+          })
+
+          const item = (await listItemForSeller(a.sellerId)) as { id: string }
+          expect(item).toBeDefined()
+
+          const secondLocation = (
+            await api.post(
+              `/vendor/stock-locations`,
+              { name: `WH-second-${Date.now()}` },
+              a.headers
+            )
+          ).data.stock_location
+
+          return {
+            itemId: item.id,
+            ownLocationId: secondLocation.id as string,
+            foreignLocationId: b.stockLocationId,
+          }
+        }
+
+        it("rejects a location level at another store's location", async () => {
+          const { itemId, foreignLocationId } = await seedTwoStores()
+
+          const res = await api
+            .post(
+              `/admin/inventory-items/${itemId}/location-levels`,
+              { location_id: foreignLocationId, stocked_quantity: 5 },
+              adminHeaders
+            )
+            .catch((e) => e.response)
+
+          expect(res.status).toEqual(400)
+          expect(res.data.message).toContain(foreignLocationId)
+        })
+
+        it("accepts a location level at the item's own store location", async () => {
+          const { itemId, ownLocationId } = await seedTwoStores()
+
+          const res = await api.post(
+            `/admin/inventory-items/${itemId}/location-levels?fields=id,*location_levels`,
+            { location_id: ownLocationId, stocked_quantity: 5 },
+            adminHeaders
+          )
+
+          expect(res.status).toEqual(200)
+          expect(
+            res.data.inventory_item.location_levels.map(
+              (l: { location_id: string }) => l.location_id
+            )
+          ).toContain(ownLocationId)
+        })
+
+        it("rejects cross-store locations on the per-item batch route", async () => {
+          const { itemId, foreignLocationId } = await seedTwoStores()
+
+          const res = await api
+            .post(
+              `/admin/inventory-items/${itemId}/location-levels/batch`,
+              { create: [{ location_id: foreignLocationId, stocked_quantity: 5 }] },
+              adminHeaders
+            )
+            .catch((e) => e.response)
+
+          expect(res.status).toEqual(400)
+        })
+
+        it("rejects cross-store locations on the global batch route", async () => {
+          const { itemId, foreignLocationId } = await seedTwoStores()
+
+          const res = await api
+            .post(
+              `/admin/inventory-items/location-levels/batch`,
+              {
+                create: [
+                  {
+                    inventory_item_id: itemId,
+                    location_id: foreignLocationId,
+                    stocked_quantity: 5,
+                  },
+                ],
+              },
+              adminHeaders
+            )
+            .catch((e) => e.response)
+
+          expect(res.status).toEqual(400)
+        })
       })
     })
   },
