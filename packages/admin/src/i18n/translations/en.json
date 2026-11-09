@@ -4172,7 +4172,8 @@
     "variant_attributes": "Variant attributes",
     "product_attributes": "Product attributes",
     "type_id": "Type",
-    "collection_id": "Collection"
+    "collection_id": "Collection",
+    "offer": "Offer"
   },
   "dateTime": {
     "years_one": "Year",

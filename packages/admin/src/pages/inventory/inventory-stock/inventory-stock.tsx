@@ -1,4 +1,3 @@
-import { HttpTypes } from "@medusajs/types"
 import { SectionNoAccess, isForbidden, useCan } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { useSearchParams } from "react-router-dom"
@@ -6,6 +5,7 @@ import { RouteFocusModal } from "../../../components/modals"
 import { useInventoryItems, useStockLocations } from "../../../hooks/api"
 import { INVENTORY_ITEM_IDS_KEY } from "../common/constants"
 import { InventoryStockForm } from "./components/inventory-stock-form"
+import { StockGridItem, StockGridLocation, scopeLocationsToItems } from "./utils"
 
 export const InventoryStock = () => {
   const { t } = useTranslation()
@@ -16,7 +16,8 @@ export const InventoryStock = () => {
 
   const { inventory_items, isPending, isError, error } = useInventoryItems({
     id: inventoryItemIds,
-    fields: "id,sku,title,*location_levels,offers.seller_id",
+    fields:
+      "id,sku,title,*location_levels,seller.id,offers.seller_id,offers.product_variant.product.title",
   })
 
   const {
@@ -50,18 +51,11 @@ export const InventoryStock = () => {
     throw errorStockLocations
   }
 
-  // Scope the location columns to the warehouses owned by the sellers behind
-  // the selected items' offers — a store can only stock at its own locations.
-  const sellerIds = new Set(
-    ((inventory_items ?? []) as Array<{ offers?: { seller_id: string }[] }>)
-      .flatMap((item) => item.offers ?? [])
-      .map((offer) => offer.seller_id)
+  const items = (inventory_items ?? []) as StockGridItem[]
+  const scopedLocations = scopeLocationsToItems(
+    items,
+    (stock_locations ?? []) as StockGridLocation[]
   )
-  const scopedLocations = (
-    (stock_locations ?? []) as Array<
-      HttpTypes.AdminStockLocation & { seller?: { id: string } }
-    >
-  ).filter((loc) => !!loc.seller?.id && sellerIds.has(loc.seller.id))
 
   return (
     <RouteFocusModal>
@@ -80,7 +74,7 @@ export const InventoryStock = () => {
         </>
       )}
       {ready && (
-        <InventoryStockForm items={inventory_items} locations={scopedLocations} />
+        <InventoryStockForm items={items} locations={scopedLocations} />
       )}
     </RouteFocusModal>
   )
