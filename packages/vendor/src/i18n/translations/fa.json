@@ -1564,6 +1564,11 @@
       "outboundShippingHint": "روشی که می‌خواهید استفاده کنید را انتخاب کنید.",
       "refundAmount": "تفاوت تخمینی",
       "activeChangeError": "یک تغییر فعال روی این سفارش وجود دارد. لطفاً ابتدا تغییر قبلی را تکمیل یا لغو کنید.",
+      "emptyOutboundItemsError": "لطفاً حداقل یک کالا برای ارسال در تعویض اضافه کنید",
+      "emptyState": {
+        "inboundDescription": "برای ایجاد تعویض، حداقل یک کالا از سفارش اضافه کنید",
+        "outboundDescription": "حداقل یک کالا که می‌خواهید در تعویض ارسال کنید اضافه کنید"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "تعویض با موفقیت لغو شد."

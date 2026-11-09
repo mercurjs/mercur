@@ -1554,6 +1554,11 @@
       "outboundShippingHint": "使用する方法を選択してください。",
       "refundAmount": "見積もり差額",
       "activeChangeError": "この注文にはアクティブな注文変更があります。前の変更を完了または破棄してください。",
+      "emptyOutboundItemsError": "交換で送付する商品を少なくとも1つ追加してください",
+      "emptyState": {
+        "inboundDescription": "交換を作成するには、注文から少なくとも1つの商品を追加してください",
+        "outboundDescription": "交換で送付する商品を少なくとも1つ追加してください"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "交換が正常にキャンセルされました。"

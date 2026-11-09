@@ -1563,6 +1563,11 @@
       "outboundShippingHint": "בחר את השיטה שברצונך להשתמש בה.",
       "refundAmount": "הפרש משוער",
       "activeChangeError": "יש שינוי פעיל בהזמנה זו. יש לסיים או לבטל את השינוי הקודם.",
+      "emptyOutboundItemsError": "יש להוסיף לפחות פריט אחד לשליחה בהחלפה",
+      "emptyState": {
+        "inboundDescription": "הוסף לפחות פריט אחד מההזמנה כדי ליצור את ההחלפה",
+        "outboundDescription": "הוסף לפחות פריט אחד שברצונך לשלוח בהחלפה"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "ההחלפה בוטלה בהצלחה."

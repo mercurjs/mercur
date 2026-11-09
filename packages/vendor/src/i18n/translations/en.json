@@ -1832,6 +1832,11 @@
       "carryOverPromotionHint": "Apply the order's promotions to the exchange items",
       "carryOverPromotionTooltip": "Only fixed type promotions with EACH allocation and percentage type promotions with EACH or ACROSS allocation can be carried over to outbound exchange items.",
       "activeChangeError": "There is an active order change on this order. Please finish or discard the previous change.",
+      "emptyOutboundItemsError": "Please add at least one item to send in the exchange",
+      "emptyState": {
+        "inboundDescription": "Add at least one item from the order to create the exchange",
+        "outboundDescription": "Add at least one item you want to send in the exchange"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "Exchange was successfully canceled."

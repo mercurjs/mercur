@@ -1603,6 +1603,11 @@
       "carryOverPromotionHint": "將原訂單的促銷套用至換貨商品",
       "carryOverPromotionTooltip": "僅有採「每個」的定額促銷，以及採「每個」或「跨越」的百分比促銷，可延續套用到換貨商品上。",
       "activeChangeError": "此訂單有活躍的訂單變更。請完成或放棄之前的變更。",
+      "emptyOutboundItemsError": "請至少新增一件要在換貨中寄送的商品",
+      "emptyState": {
+        "inboundDescription": "請從訂單中至少新增一件商品以建立換貨",
+        "outboundDescription": "請至少新增一件您要在換貨中寄送的商品"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "換貨已成功取消。"

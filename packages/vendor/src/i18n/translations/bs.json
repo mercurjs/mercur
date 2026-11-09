@@ -1563,6 +1563,11 @@
       "outboundShippingHint": "Izaberite koju metodu želite koristiti.",
       "refundAmount": "Procijenjena razlika",
       "activeChangeError": "Postoji aktivna promjena narudžbe na ovoj narudžbi. Molimo završite ili odbacite prethodnu promjenu.",
+      "emptyOutboundItemsError": "Dodajte barem jednu stavku za slanje u zamjeni",
+      "emptyState": {
+        "inboundDescription": "Dodajte barem jednu stavku iz narudžbe da biste kreirali zamjenu",
+        "outboundDescription": "Dodajte barem jednu stavku koju želite poslati u zamjeni"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "Zamjena je uspješno otkazana."

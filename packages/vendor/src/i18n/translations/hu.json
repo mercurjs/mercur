@@ -1563,6 +1563,11 @@
       "outboundShippingHint": "Válassza ki, melyik módszert szeretné használni.",
       "refundAmount": "Becsült különbség",
       "activeChangeError": "A rendelésen már van aktív rendelésmódosítás. Kérjük, fejezze be vagy törölje az előző módosítást.",
+      "emptyOutboundItemsError": "Adjon hozzá legalább egy tételt, amelyet a cserében elküld",
+      "emptyState": {
+        "inboundDescription": "Adjon hozzá legalább egy tételt a rendelésből a csere létrehozásához",
+        "outboundDescription": "Adjon hozzá legalább egy tételt, amelyet a cserében el szeretne küldeni"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "A csere sikeresen megszakítva."
