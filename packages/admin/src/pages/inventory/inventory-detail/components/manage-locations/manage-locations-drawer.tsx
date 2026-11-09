@@ -18,7 +18,7 @@ export const ManageLocationsDrawer = () => {
     isError,
     error,
   } = useInventoryItem(id!, {
-    fields: "id,sku,title,*location_levels,offers.seller_id",
+    fields: "id,sku,title,*location_levels,seller.id",
   })
 
   const canViewLocations = useCan("stock_locations")
@@ -34,9 +34,8 @@ export const ManageLocationsDrawer = () => {
     throw error
   }
 
-  const sellerId = (
-    inventoryItem as { offers?: { seller_id: string }[] } | undefined
-  )?.offers?.[0]?.seller_id
+  const sellerId = (inventoryItem as { seller?: { id: string } } | undefined)
+    ?.seller?.id
 
   return (
     <RouteDrawer data-testid="inventory-manage-locations-drawer">

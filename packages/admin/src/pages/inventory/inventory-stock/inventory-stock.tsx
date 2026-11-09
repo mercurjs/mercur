@@ -16,7 +16,7 @@ export const InventoryStock = () => {
 
   const { inventory_items, isPending, isError, error } = useInventoryItems({
     id: inventoryItemIds,
-    fields: "id,sku,title,*location_levels,offers.seller_id",
+    fields: "id,sku,title,*location_levels,seller.id",
   })
 
   const {
@@ -50,12 +50,10 @@ export const InventoryStock = () => {
     throw errorStockLocations
   }
 
-  // Scope the location columns to the warehouses owned by the sellers behind
-  // the selected items' offers — a store can only stock at its own locations.
   const sellerIds = new Set(
-    ((inventory_items ?? []) as Array<{ offers?: { seller_id: string }[] }>)
-      .flatMap((item) => item.offers ?? [])
-      .map((offer) => offer.seller_id)
+    ((inventory_items ?? []) as Array<{ seller?: { id: string } }>)
+      .map((item) => item.seller?.id)
+      .filter((id): id is string => !!id)
   )
   const scopedLocations = (
     (stock_locations ?? []) as Array<
