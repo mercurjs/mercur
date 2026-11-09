@@ -18,10 +18,11 @@ import {
   InventoryLocationsSchema,
   InventoryStockSchema,
 } from "../../schema"
+import { StockGridItem, StockGridLocation, isForeignLocation } from "../../utils"
 
 type InventoryStockFormProps = {
-  items: HttpTypes.AdminInventoryItem[]
-  locations: HttpTypes.AdminStockLocation[]
+  items: StockGridItem[]
+  locations: StockGridLocation[]
 }
 
 export const InventoryStockForm = ({
@@ -51,10 +52,26 @@ export const InventoryStockForm = ({
       force: true,
     }
 
+    const itemsById = new Map(items.map((item) => [item.id, item]))
+    const locationsById = new Map(
+      locations.map((location) => [location.id, location])
+    )
+
     for (const [inventory_item_id, item] of Object.entries(
       data.inventory_items
     )) {
       for (const [location_id, level] of Object.entries(item.locations)) {
+        const gridItem = itemsById.get(inventory_item_id)
+        const gridLocation = locationsById.get(location_id)
+
+        if (
+          !gridItem ||
+          !gridLocation ||
+          isForeignLocation(gridItem, gridLocation)
+        ) {
+          continue
+        }
+
         if (level.id) {
           const wasChecked =
             initialValues.current?.inventory_items?.[inventory_item_id]
@@ -144,8 +161,8 @@ export const InventoryStockForm = ({
 }
 
 function getDefaultValues(
-  items: HttpTypes.AdminInventoryItem[],
-  locations: HttpTypes.AdminStockLocation[]
+  items: StockGridItem[],
+  locations: StockGridLocation[]
 ): DefaultValues<InventoryStockSchema> {
   return {
     inventory_items: items.reduce((acc, item) => {
