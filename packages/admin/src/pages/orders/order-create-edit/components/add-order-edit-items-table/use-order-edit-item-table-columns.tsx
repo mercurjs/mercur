@@ -1,15 +1,12 @@
-import { Checkbox, Text } from "@medusajs/ui"
+import { Checkbox, Text, Tooltip } from "@medusajs/ui"
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Thumbnail } from "@components/common/thumbnail"
 import { PlaceholderCell } from "@components/table/table-cells/common/placeholder-cell"
+import { CategoryCell } from "@components/table/table-cells/product/category-cell/category-cell"
 
-// Row shape coming from `sdk.admin.offers.query` (subset). The `created_at` /
-// `updated_at` fields are surfaced so the `orderBy` keys on the picker
-// satisfy `keyof TData` — the offer model actually carries them; we just
-// don't render them.
 export type OfferPickerRow = {
   id: string
   sku?: string | null
@@ -22,11 +19,26 @@ export type OfferPickerRow = {
     product?: {
       title?: string | null
       thumbnail?: string | null
+      categories?: { id: string; name: string }[] | null
+      collection?: { title?: string | null } | null
     } | null
   } | null
+  unavailable_reason?: string
 }
 
 const columnHelper = createColumnHelper<OfferPickerRow>()
+
+const TextCell = ({ value }: { value?: string | null }) => {
+  if (!value) {
+    return <PlaceholderCell />
+  }
+
+  return (
+    <Text size="small" leading="compact" className="truncate" title={value}>
+      {value}
+    </Text>
+  )
+}
 
 export const useOrderEditItemsTableColumns = () => {
   const { t } = useTranslation()
@@ -48,11 +60,9 @@ export const useOrderEditItemsTableColumns = () => {
           />
         ),
         cell: ({ row }) => {
-          const isSelectable = row.getCanSelect()
-
-          return (
+          const checkbox = (
             <Checkbox
-              disabled={!isSelectable}
+              disabled={!row.getCanSelect()}
               checked={row.getIsSelected()}
               onCheckedChange={(value) => row.toggleSelected(!!value)}
               onClick={(e) => {
@@ -60,56 +70,63 @@ export const useOrderEditItemsTableColumns = () => {
               }}
             />
           )
-        },
-      }),
-      columnHelper.display({
-        id: "product",
-        header: t("fields.product"),
-        cell: ({ row }) => {
-          const variant = row.original.product_variant
-          const productTitle = variant?.product?.title
-          if (!productTitle) {
-            return <PlaceholderCell />
+
+          if (!row.original.unavailable_reason) {
+            return checkbox
           }
+
           return (
-            <div className="flex h-full w-full max-w-[300px] items-center gap-x-3 overflow-hidden">
-              <Thumbnail src={variant?.product?.thumbnail} />
-              <Text
-                size="small"
-                leading="compact"
-                className="truncate"
-                title={productTitle}
-              >
-                {productTitle}
-              </Text>
-            </div>
+            <Tooltip content={row.original.unavailable_reason} side="right">
+              {checkbox}
+            </Tooltip>
           )
         },
       }),
-      columnHelper.accessor("sku", {
-        header: t("fields.sku"),
-        cell: ({ getValue }) => {
-          const sku = getValue()
-          if (!sku) return <PlaceholderCell />
+      columnHelper.display({
+        id: "offer",
+        header: t("fields.offer"),
+        cell: ({ row }) => {
+          const product = row.original.product_variant?.product
+          if (!product?.title) {
+            return <PlaceholderCell />
+          }
+
           return (
-            <Text size="small" leading="compact" className="truncate">
-              {sku}
-            </Text>
+            <div className="flex h-full w-full max-w-[300px] items-center gap-x-3 overflow-hidden">
+              <Thumbnail src={product.thumbnail} />
+              <TextCell value={product.title} />
+            </div>
           )
         },
       }),
       columnHelper.display({
         id: "variant_title",
-        header: t("fields.title"),
-        cell: ({ row }) => {
-          const title = row.original.product_variant?.title
-          if (!title) return <PlaceholderCell />
-          return (
-            <Text size="small" leading="compact" className="truncate">
-              {title}
-            </Text>
-          )
-        },
+        header: t("fields.variantTitle"),
+        cell: ({ row }) => (
+          <TextCell value={row.original.product_variant?.title} />
+        ),
+      }),
+      columnHelper.accessor("sku", {
+        header: t("fields.sku"),
+        cell: ({ getValue }) => <TextCell value={getValue()} />,
+      }),
+      columnHelper.display({
+        id: "category",
+        header: t("fields.category"),
+        cell: ({ row }) => (
+          <CategoryCell
+            categories={row.original.product_variant?.product?.categories}
+          />
+        ),
+      }),
+      columnHelper.display({
+        id: "collection",
+        header: t("fields.collection"),
+        cell: ({ row }) => (
+          <TextCell
+            value={row.original.product_variant?.product?.collection?.title}
+          />
+        ),
       }),
     ],
     [t]

@@ -6563,6 +6563,12 @@
             "addItems": {
               "type": "string"
             },
+            "offerNoPriceTooltip": {
+              "type": "string"
+            },
+            "offerOutOfStockTooltip": {
+              "type": "string"
+            },
             "amountPaid": {
               "type": "string"
             },
@@ -6650,6 +6656,8 @@
             "currentItemsDescription",
             "addItemsDescription",
             "addItems",
+            "offerNoPriceTooltip",
+            "offerOutOfStockTooltip",
             "amountPaid",
             "newTotal",
             "differenceDue",
@@ -17086,6 +17094,12 @@
         "variant": {
           "type": "string"
         },
+        "offer": {
+          "type": "string"
+        },
+        "variantTitle": {
+          "type": "string"
+        },
         "id": {
           "type": "string"
         },
@@ -17349,6 +17363,8 @@
         "location",
         "quantity",
         "variant",
+        "offer",
+        "variantTitle",
         "id",
         "parent",
         "minSubtotal",

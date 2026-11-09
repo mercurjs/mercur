@@ -1,5 +1,6 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { MedusaContainer } from "@medusajs/framework/types"
+import { Modules } from "@medusajs/framework/utils"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createShippingProfile } from "../../../helpers/create-shipping-profile"
 import { createVendorProduct } from "../../../helpers/create-product"
@@ -241,6 +242,95 @@ medusaIntegrationTestRunner({
                     (row) => row.product_id === product.id
                 )
                 expect(productRows).toHaveLength(1)
+            })
+
+            it("scopes the flat offer list to a single store via seller_id with category and collection", async () => {
+                const product = await createVendorProduct(api, seller1Headers, {
+                    title: `Picker Product ${Date.now()}`,
+                    variants: [{ title: "EU 44" }],
+                })
+                const variantId = product.variants[0].id
+
+                const productModule = appContainer.resolve(Modules.PRODUCT)
+                const [collection] =
+                    await productModule.createProductCollections([
+                        { title: "Picker Collection" },
+                    ])
+                const [category] =
+                    await productModule.createProductCategories([
+                        { name: "Picker Category" },
+                    ])
+                await productModule.updateProducts(product.id, {
+                    collection_id: collection.id,
+                    category_ids: [category.id],
+                })
+
+                const sp1 = await createProfile("p1")
+                const sp2 = await createProfile("p2")
+
+                await api.post(
+                    `/vendor/offers`,
+                    {
+                        sku: "PICKER-S1",
+                        variant_id: variantId,
+                        shipping_profile_id: sp1,
+                        inventory_items: [{}],
+                        prices: [{ amount: 1000, currency_code: "usd" }],
+                    },
+                    seller1Headers
+                )
+                await api.post(
+                    `/vendor/offers`,
+                    {
+                        sku: "PICKER-S2",
+                        variant_id: variantId,
+                        shipping_profile_id: sp2,
+                        inventory_items: [{}],
+                        prices: [{ amount: 1500, currency_code: "usd" }],
+                    },
+                    seller2Headers
+                )
+
+                const fields = [
+                    "id",
+                    "sku",
+                    "seller_id",
+                    "product_variant.title",
+                    "product_variant.product.title",
+                    "product_variant.product.categories.id",
+                    "product_variant.product.categories.name",
+                    "product_variant.product.collection.title",
+                ].join(",")
+
+                const res = await api.get(
+                    `/admin/offers?seller_id=${seller1.id}&variant_id=${variantId}&fields=${fields}`,
+                    adminHeaders
+                )
+
+                expect(res.status).toEqual(200)
+                const offers = res.data.offers as any[]
+                expect(offers).toHaveLength(1)
+                expect(offers[0]).toEqual(
+                    expect.objectContaining({
+                        sku: "PICKER-S1",
+                        seller_id: seller1.id,
+                        product_variant: expect.objectContaining({
+                            title: "EU 44",
+                            product: expect.objectContaining({
+                                title: product.title,
+                                collection: expect.objectContaining({
+                                    title: "Picker Collection",
+                                }),
+                                categories: [
+                                    expect.objectContaining({
+                                        id: category.id,
+                                        name: "Picker Category",
+                                    }),
+                                ],
+                            }),
+                        }),
+                    })
+                )
             })
 
             it("scopes the product detail offers to a single store via seller_id", async () => {

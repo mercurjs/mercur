@@ -2,7 +2,7 @@ import { SectionNoAccess, useCan } from "@mercurjs/dashboard-shared"
 import { HttpTypes } from "@medusajs/types"
 import { OfferDTO } from "@mercurjs/types"
 import { OnChangeFn, RowSelectionState } from "@tanstack/react-table"
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { _DataTable } from "@components/table/data-table"
@@ -23,8 +23,8 @@ const PREFIX = "rit"
 // items are submitted to the order-edit / exchange / claim "add items" routes.
 // `prices.*` + `product_variant.inventory_items.required_quantity` /
 // `inventory.location_levels.available_quantity` / `manage_inventory` feed the
-// picker defaults: only show offers that have a price in the order's currency
-// AND have inventory (or `manage_inventory=false`).
+// picker: only offers with a price in the order's currency AND inventory (or
+// `manage_inventory=false`) can be selected.
 const OFFER_PICKER_FIELDS = [
   "id",
   "sku",
@@ -37,6 +37,9 @@ const OFFER_PICKER_FIELDS = [
   "product_variant.product.id",
   "product_variant.product.title",
   "product_variant.product.thumbnail",
+  "product_variant.product.categories.id",
+  "product_variant.product.categories.name",
+  "product_variant.product.collection.title",
   "product_variant.manage_inventory",
   "product_variant.inventory_quantity",
   "product_variant.inventory_items.required_quantity",
@@ -57,9 +60,14 @@ export type OfferPickerSelection = { variantId: string; offerId: string }
 type AddOrderEditItemsTableProps = {
   /**
    * Currency of the order this picker is feeding. Offers without a price
-   * in this currency are filtered out by the picker defaults.
+   * in this currency are listed but can't be selected.
    */
   currencyCode?: string
+  /**
+   * Seller that owns the order. Only this seller's offers can be added,
+   * so the picker never lists offers from other stores.
+   */
+  sellerId?: string
   /**
    * Receives the picked rows as `{ variantId, offerId }` pairs. The admin
    * backend overrides at `packages/core/src/api/admin/order-edits/[id]/
@@ -91,6 +99,7 @@ const offerHasInventory = (offer: OfferPickerRowExtended): boolean => {
 
 export const AddOrderEditItemsTable = ({
   currencyCode,
+  sellerId,
   onSelectionChange,
 }: AddOrderEditItemsTableProps) => {
   const { t } = useTranslation()
@@ -106,54 +115,65 @@ export const AddOrderEditItemsTable = ({
   const offersResponse = useOffers(
     {
       ...searchParams,
+      seller_id: sellerId,
       fields: OFFER_PICKER_FIELDS,
     },
-    { enabled: canViewOffers }
+    { enabled: canViewOffers && !!sellerId }
   ) as unknown as {
     offers?: OfferPickerRowExtended[]
     count?: number
   }
-  const rawCount = offersResponse.count ?? 0
+  const count = offersResponse.count ?? 0
 
+  // Offers that can't be added stay listed but unselectable: hiding them
+  // client-side would break the server-side pagination and count.
   const offers = useMemo<OfferPickerRowExtended[]>(() => {
-    const rawOffers = offersResponse.offers ?? []
-    return rawOffers.filter((offer) => {
-      if (currencyCode) {
-        const hasPrice = (offer.prices ?? []).some(
-          (p) => p.currency_code === currencyCode
-        )
-        if (!hasPrice) return false
-      }
-      return offerHasInventory(offer)
-    })
-  }, [offersResponse.offers, currencyCode])
+    return (offersResponse.offers ?? []).map((offer) => {
+      const hasPrice =
+        !currencyCode ||
+        (offer.prices ?? []).some((p) => p.currency_code === currencyCode)
 
-  const count = offers.length
-  void rawCount
+      if (!hasPrice) {
+        return {
+          ...offer,
+          unavailable_reason: t("orders.edits.offerNoPriceTooltip", {
+            currency: currencyCode?.toUpperCase(),
+          }),
+        }
+      }
+
+      if (!offerHasInventory(offer)) {
+        return {
+          ...offer,
+          unavailable_reason: t("orders.edits.offerOutOfStockTooltip"),
+        }
+      }
+
+      return offer
+    })
+  }, [offersResponse.offers, currencyCode, t])
 
   const columns = useOrderEditItemsTableColumns()
   const filters = useOrderEditItemTableFilters()
 
-  // Map offer id -> { variantId, offerId } so the row's selection state can be
-  // turned back into the `{ variantId, offerId }` pairs the parent submits.
-  const selectionByOfferId = useMemo(() => {
-    const map = new Map<string, OfferPickerSelection>()
-    for (const offer of offers) {
-      if (offer.id && offer.variant_id) {
-        map.set(offer.id, { variantId: offer.variant_id, offerId: offer.id })
-      }
+  // Selections can span pages, so keep every seen offer's variant id around
+  // to turn selected offer ids back into `{ variantId, offerId }` pairs.
+  const variantIdByOfferId = useRef(new Map<string, string>())
+  for (const offer of offers) {
+    if (offer.id && offer.variant_id) {
+      variantIdByOfferId.current.set(offer.id, offer.variant_id)
     }
-    return map
-  }, [offers])
+  }
 
   const updater: OnChangeFn<RowSelectionState> = (fn) => {
     const newState: RowSelectionState =
       typeof fn === "function" ? fn(rowSelection) : fn
 
     setRowSelection(newState)
-    const pairs = Object.keys(newState)
-      .map((offerId) => selectionByOfferId.get(offerId))
-      .filter((p): p is OfferPickerSelection => !!p)
+    const pairs = Object.keys(newState).flatMap((offerId) => {
+      const variantId = variantIdByOfferId.current.get(offerId)
+      return variantId ? [{ variantId, offerId }] : []
+    })
     onSelectionChange(pairs)
   }
 
@@ -168,7 +188,8 @@ export const AddOrderEditItemsTable = ({
     // admin override route can apply the offer's price + reservation math.
     getRowId: (row) => row.id ?? row.variant_id!,
     pageSize: PAGE_SIZE,
-    enableRowSelection: () => true,
+    prefix: PREFIX,
+    enableRowSelection: (row) => !row.original.unavailable_reason,
     rowSelection: {
       state: rowSelection,
       updater,
