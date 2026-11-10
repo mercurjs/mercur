@@ -115,14 +115,15 @@ const AttributeValue = ({ attribute }: { attribute: ProductAttributeDTO }) => {
 
   if (["single_select", "multi_select"].includes(attribute.type)) {
     return (
-      <div className="flex flex-wrap gap-1">
+      <div className="flex min-w-0 flex-wrap gap-1">
         {values.map((val) => (
           <Badge
             key={val}
             size="2xsmall"
-            className="flex min-w-[20px] items-center justify-center"
+            className="flex min-w-[20px] max-w-full items-center justify-center"
+            title={val}
           >
-            {val}
+            <span className="truncate">{val}</span>
           </Badge>
         ))}
       </div>
@@ -199,13 +200,19 @@ const AttributeGroup = ({
                 }
               >
                 <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_28px] items-center gap-4 px-3 py-2 bg-ui-bg-component">
-                  <div className="flex items-center gap-x-2 text-ui-fg-subtle">
-                    <Text size="small" weight="plus" leading="compact">
+                  <div className="flex min-w-0 items-center gap-x-2 text-ui-fg-subtle">
+                    <Text
+                      size="small"
+                      weight="plus"
+                      leading="compact"
+                      className="truncate"
+                      title={attr.name}
+                    >
                       {attr.name}
                     </Text>
                     {attr.description && (
                       <Tooltip content={attr.description}>
-                        <span className="text-ui-fg-muted flex items-center">
+                        <span className="text-ui-fg-muted flex shrink-0 items-center">
                           <InformationCircleSolid />
                         </span>
                       </Tooltip>
@@ -214,7 +221,7 @@ const AttributeGroup = ({
                       <Tooltip
                         content={t("products.attributeRequiredByMarketplace")}
                       >
-                        <span className="text-ui-fg-muted flex items-center">
+                        <span className="text-ui-fg-muted flex shrink-0 items-center">
                           <InformationCircleSolid />
                         </span>
                       </Tooltip>
