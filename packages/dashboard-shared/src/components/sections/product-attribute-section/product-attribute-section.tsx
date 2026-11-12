@@ -205,6 +205,11 @@ const AttributeGroup = ({
                     <Text size="small" weight="plus" leading="compact">
                       {attr.name}
                     </Text>
+                    {attr.is_internal && (
+                      <Badge size="2xsmall" color="blue">
+                        {t("attributes.fields.visibility.internal")}
+                      </Badge>
+                    )}
                     {attr.description && (
                       <Tooltip content={attr.description}>
                         <span className="text-ui-fg-muted flex items-center">

@@ -1,5 +1,12 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
-import { Badge, Container, Heading, toast, usePrompt } from "@medusajs/ui"
+import {
+  Badge,
+  Container,
+  Heading,
+  StatusBadge,
+  toast,
+  usePrompt,
+} from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
@@ -7,6 +14,7 @@ import { ProductAttributeDTO } from "@mercurjs/types"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { SectionRow } from "../../../../../components/common/section/section-row"
 import { useDeleteProductAttribute } from "../../../../../hooks/api"
+import { getIsInternalProps } from "../../../common/utils"
 
 type AttributeGeneralSectionProps = {
   attribute: ProductAttributeDTO
@@ -60,6 +68,7 @@ export const AttributeGeneralSection = ({
   const typeLabel = typeLabelKey ? t(typeLabelKey) : attribute.type
 
   const isGlobal = !(attribute.categories && attribute.categories.length > 0)
+  const internalProps = getIsInternalProps(!!attribute.is_internal, t)
 
   return (
     <Container
@@ -73,7 +82,14 @@ export const AttributeGeneralSection = ({
         <Heading data-testid="attribute-general-section-heading">
           {attribute.name}
         </Heading>
-        <ActionMenu
+        <div className="flex items-center gap-x-4">
+          <StatusBadge
+            color={internalProps.color}
+            data-testid="attribute-general-section-visibility-badge"
+          >
+            {internalProps.label}
+          </StatusBadge>
+          <ActionMenu
           groups={[
             {
               actions: [
@@ -97,7 +113,8 @@ export const AttributeGeneralSection = ({
             },
           ]}
           data-testid="attribute-general-section-action-menu"
-        />
+          />
+        </div>
       </div>
 
       <SectionRow
@@ -132,6 +149,12 @@ export const AttributeGeneralSection = ({
           attribute.is_required ? t("fields.yes") : t("fields.no")
         }
         data-testid="attribute-general-section-required"
+      />
+
+      <SectionRow
+        title={t("attributes.fields.visibility.label")}
+        value={internalProps.label}
+        data-testid="attribute-general-section-visibility"
       />
 
       <SectionRow

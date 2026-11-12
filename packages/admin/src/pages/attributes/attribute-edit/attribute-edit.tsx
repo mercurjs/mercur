@@ -39,6 +39,7 @@ const AttributeEditForm = ({ attribute }: AttributeEditFormProps) => {
       description: attribute.description ?? "",
       is_filterable: attribute.is_filterable ?? false,
       is_required: attribute.is_required ?? false,
+      is_internal: attribute.is_internal ?? false,
       validation_pattern: attribute.validation?.pattern ?? "",
       validation_message: attribute.validation?.message ?? "",
     },
@@ -159,6 +160,14 @@ const AttributeEditForm = ({ attribute }: AttributeEditFormProps) => {
                 "If checked, buyers will be able to filter products using this attribute.",
               )}
               data-testid="attribute-edit-filterable-switch"
+            />
+
+            <SwitchBox
+              control={form.control}
+              name="is_internal"
+              label={t("attributes.fields.isInternal")}
+              description={t("attributes.fields.isInternalHint")}
+              data-testid="attribute-edit-internal-switch"
             />
           </div>
         </RouteDrawer.Body>

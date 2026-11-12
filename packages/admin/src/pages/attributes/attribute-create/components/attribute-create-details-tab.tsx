@@ -14,6 +14,7 @@ type AttributeCreateFormValues = {
   handle?: string;
   description?: string;
   is_filterable: boolean;
+  is_internal: boolean;
   is_required: boolean;
   is_variant_axis: boolean;
   is_global: boolean;
@@ -109,6 +110,14 @@ const Root = () => {
               "If checked, customers will be able to filter products using this attribute.",
             )}
             data-testid="attribute-create-filterable-switch"
+          />
+
+          <SwitchBox
+            control={form.control}
+            name="is_internal"
+            label={t("attributes.fields.isInternal")}
+            description={t("attributes.fields.isInternalHint")}
+            data-testid="attribute-create-internal-switch"
           />
 
           <SwitchBox

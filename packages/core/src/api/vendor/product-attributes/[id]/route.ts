@@ -19,7 +19,7 @@ export const GET = async (
   } = await query.graph({
     entity: "product_attribute",
     fields: req.queryConfig.fields,
-    filters: { id: req.params.id },
+    filters: { ...req.filterableFields, id: req.params.id },
   })
 
   if (!product_attribute) {

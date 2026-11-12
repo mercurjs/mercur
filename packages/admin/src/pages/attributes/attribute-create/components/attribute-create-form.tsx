@@ -37,6 +37,7 @@ export const AttributeCreateForm = ({ children }: AttributeCreateFormProps) => {
       handle: "",
       type: AttributeType.SINGLE_SELECT,
       is_filterable: false,
+      is_internal: false,
       is_required: false,
       is_variant_axis: false,
       is_global: true,

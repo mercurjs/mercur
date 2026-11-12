@@ -329,6 +329,84 @@ medusaIntegrationTestRunner({
      * matching the direct batch engine. This is the vendor approval-queue apply
      * path.
      */
+    describe("Admin - internal attributes", () => {
+      beforeEach(async () => {
+        await createAdminUser(dbConnection, adminHeaders, appContainer)
+      })
+
+      it("create + update: persists is_internal and defaults it to false", async () => {
+        const internal = await api.post(
+          "/admin/product-attributes",
+          {
+            name: "Sourcing Tier",
+            type: "single_select",
+            is_internal: true,
+            values: [{ name: "A" }],
+          },
+          adminHeaders,
+        )
+        expect(internal.status).toBe(200)
+        expect(internal.data.product_attribute.is_internal).toBe(true)
+
+        const plain = await api.post(
+          "/admin/product-attributes",
+          { name: "Finish Grade", type: "text" },
+          adminHeaders,
+        )
+        expect(plain.data.product_attribute.is_internal).toBe(false)
+
+        const updated = await api.post(
+          `/admin/product-attributes/${plain.data.product_attribute.id}`,
+          { is_internal: true },
+          adminHeaders,
+        )
+        expect(updated.data.product_attribute.is_internal).toBe(true)
+
+        const reverted = await api.post(
+          `/admin/product-attributes/${internal.data.product_attribute.id}`,
+          { is_internal: false },
+          adminHeaders,
+        )
+        expect(reverted.data.product_attribute.is_internal).toBe(false)
+      })
+
+      it("list: filters by is_internal", async () => {
+        await api.post(
+          "/admin/product-attributes",
+          { name: "Margin Band", type: "text", is_internal: true },
+          adminHeaders,
+        )
+        await api.post(
+          "/admin/product-attributes",
+          { name: "Public Note", type: "text" },
+          adminHeaders,
+        )
+
+        const internalOnly = await api.get(
+          "/admin/product-attributes?is_internal=true",
+          adminHeaders,
+        )
+        const names = internalOnly.data.product_attributes.map(
+          (a: any) => a.name,
+        )
+        expect(names).toContain("Margin Band")
+        expect(names).not.toContain("Public Note")
+        expect(
+          internalOnly.data.product_attributes.every((a: any) => a.is_internal),
+        ).toBe(true)
+
+        const publicOnly = await api.get(
+          "/admin/product-attributes?is_internal=false",
+          adminHeaders,
+        )
+        const publicNames = publicOnly.data.product_attributes.map(
+          (a: any) => a.name,
+        )
+        expect(publicNames).toContain("Public Note")
+        expect(publicNames).not.toContain("Margin Band")
+      })
+    })
+
     describe("SPEC-014 applyProductAttributeChangeActionsWorkflow", () => {
       const createAttr = async (opts: {
         name: string

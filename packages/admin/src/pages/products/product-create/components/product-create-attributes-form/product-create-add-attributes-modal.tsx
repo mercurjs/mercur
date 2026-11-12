@@ -300,6 +300,16 @@ const useColumns = () => {
       }),
       columnHelper.accessor("name", {
         header: t("attributes.fields.productAttribute"),
+        cell: (info) => (
+          <div className="flex items-center gap-x-2">
+            <span>{info.getValue()}</span>
+            {info.row.original.is_internal && (
+              <Badge size="2xsmall" color="blue">
+                {t("attributes.fields.visibility.internal")}
+              </Badge>
+            )}
+          </div>
+        ),
       }),
       columnHelper.accessor("handle", {
         header: t("attributes.fields.handle"),

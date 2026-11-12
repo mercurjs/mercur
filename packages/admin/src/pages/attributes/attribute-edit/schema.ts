@@ -42,6 +42,7 @@ export const createAttributeSchema = (t: TFunction) =>
     handle: z.string().optional(),
     is_filterable: z.boolean().default(false),
     is_required: z.boolean().default(false),
+    is_internal: z.boolean().default(false),
     is_variant_axis: z.boolean().default(false),
     is_global: z.boolean().default(true),
     type: z
@@ -112,6 +113,7 @@ export const UpdateAttributeSchema = z.object({
   handle: z.string().optional(),
   is_filterable: z.boolean().optional(),
   is_required: z.boolean().optional(),
+  is_internal: z.boolean().optional(),
   values: z
     .array(
       z.object({

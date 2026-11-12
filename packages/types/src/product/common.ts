@@ -97,6 +97,7 @@ export interface ProductAttributeDTO {
   type: AttributeType
   is_required: boolean
   is_filterable: boolean
+  is_internal: boolean
   is_variant_axis: boolean
   rank: number
   is_active: boolean
@@ -145,6 +146,7 @@ export interface WrappedProductAttributeDTO {
   type?: AttributeType
   is_variant_axis?: boolean
   is_required?: boolean
+  is_internal?: boolean
   rank?: number
   /**
    * `true` when this is a product-scoped (inline) attribute — one created on
