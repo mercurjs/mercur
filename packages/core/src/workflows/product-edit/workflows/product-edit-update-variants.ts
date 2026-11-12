@@ -1,9 +1,11 @@
 import { AdditionalData } from "@medusajs/framework/types"
 import {
+  createHook,
   createWorkflow,
+  type Hook,
+  type ReturnWorkflow,
   transform,
   WorkflowResponse,
-  type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
 import {
@@ -42,6 +44,10 @@ export type ProductEditUpdateVariantsWorkflowInput = {
   operations: ProductEditVariantOperation[]
 } & AdditionalData
 
+export type ProductEditUpdateVariantsWorkflowHooks = [
+  Hook<"validate", { input: ProductEditUpdateVariantsWorkflowInput }, unknown>,
+]
+
 export const productEditUpdateVariantsWorkflowId =
   "product-edit-update-variants"
 
@@ -50,10 +56,12 @@ const NON_EDITABLE_VARIANT_FIELDS = new Set(["manage_inventory"])
 export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
   ProductEditUpdateVariantsWorkflowInput,
   ProductChangeDTO,
-  []
+  ProductEditUpdateVariantsWorkflowHooks
 > = createWorkflow(
   productEditUpdateVariantsWorkflowId,
   function (input: ProductEditUpdateVariantsWorkflowInput) {
+    const validate = createHook("validate", { input })
+
     validateNoPendingProductChangeStep(
       transform({ input }, ({ input }) => ({
         product_ids: [input.product_id],
@@ -255,6 +263,8 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
       })),
     })
 
-    return new WorkflowResponse(change)
+    return new WorkflowResponse(change, {
+      hooks: [validate],
+    })
   },
 )
