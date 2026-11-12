@@ -46,6 +46,14 @@ export type ProductEditUpdateVariantsWorkflowInput = {
 
 export type ProductEditUpdateVariantsWorkflowHooks = [
   Hook<"validate", { input: ProductEditUpdateVariantsWorkflowInput }, unknown>,
+  Hook<
+    "productChangeCreated",
+    {
+      product_change: ProductChangeDTO
+      additional_data: Record<string, unknown> | undefined
+    },
+    unknown
+  >,
 ]
 
 export const productEditUpdateVariantsWorkflowId =
@@ -263,8 +271,13 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
       })),
     })
 
+    const productChangeCreated = createHook("productChangeCreated", {
+      product_change: change,
+      additional_data: input.additional_data,
+    })
+
     return new WorkflowResponse(change, {
-      hooks: [validate],
+      hooks: [validate, productChangeCreated],
     })
   },
 )
