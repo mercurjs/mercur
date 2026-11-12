@@ -1,6 +1,6 @@
 import { useQueryParams } from "../../../../../hooks/use-query-params"
 
-export const useProductInboxTableQuery = ({
+export const useProductRequestsTableQuery = ({
   pageSize = 20,
   prefix,
 }: {

@@ -34,7 +34,7 @@ const SORTABLE_COLUMNS: Record<string, string> = {
   seller_name: "s.name",
 }
 
-const INBOX_TYPE_SQL = `
+const REQUEST_TYPE_SQL = `
   CASE
     WHEN acts.is_add THEN 'new_product'
     WHEN acts.is_delete THEN 'delete'
@@ -103,10 +103,10 @@ export class ProductChangeRepository extends DALUtils.mikroOrmBaseRepositoryFact
     findOptions.where = { ...(findOptions.where ?? {}) }
 
     const filters = findOptions.where
-    const inbox = filters.inbox === true
-    delete filters.inbox
+    const requests = filters.requests === true
+    delete filters.requests
 
-    if (!inbox) {
+    if (!requests) {
       return super.findAndCount(findOptions, sharedContext)
     }
 
@@ -157,7 +157,7 @@ export class ProductChangeRepository extends DALUtils.mikroOrmBaseRepositoryFact
       this.pushFilter("s.id", filters.seller_id, whereClauses, params)
     }
     if (filters.type) {
-      this.pushFilter(`(${INBOX_TYPE_SQL})`, filters.type, whereClauses, params)
+      this.pushFilter(`(${REQUEST_TYPE_SQL})`, filters.type, whereClauses, params)
     }
     if (filters.created_at) {
       this.pushFilter("pc.created_at", filters.created_at, whereClauses, params)
@@ -202,7 +202,7 @@ export class ProductChangeRepository extends DALUtils.mikroOrmBaseRepositoryFact
     let query = `
       SELECT
         pc.*,
-        ${INBOX_TYPE_SQL} AS type,
+        ${REQUEST_TYPE_SQL} AS type,
         acts.action_count,
         p.title AS product_title,
         p.thumbnail AS product_thumbnail,

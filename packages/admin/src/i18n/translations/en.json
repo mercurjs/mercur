@@ -888,9 +888,9 @@
         }
       }
     },
-    "inbox": {
-      "domain": "Inbox",
-      "subtitle": "Review products and updates submitted by stores.",
+    "requests": {
+      "domain": "Requests",
+      "subtitle": "Review new products, updates and deletions requested by stores.",
       "fields": {
         "store": "Store",
         "type": "Type",
@@ -905,8 +905,8 @@
       "changeCount_one": "{{count}} change",
       "changeCount_other": "{{count}} changes",
       "empty": {
-        "heading": "Inbox is empty",
-        "description": "There is nothing waiting for review."
+        "heading": "No requests",
+        "description": "There are no store requests waiting for review."
       }
     }
   },

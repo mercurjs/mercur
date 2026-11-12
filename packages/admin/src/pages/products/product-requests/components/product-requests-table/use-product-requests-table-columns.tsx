@@ -17,11 +17,11 @@ import {
   ProductStatusCell,
   ProductStatusHeader,
 } from "../../../../../components/table/table-cells/product/product-status-cell"
-import { INBOX_TYPE_COLORS } from "../../../common/inbox"
+import { REQUEST_TYPE_COLORS } from "../../../common/requests"
 
-const columnHelper = createColumnHelper<HttpTypes.AdminProductChangeInboxItem>()
+const columnHelper = createColumnHelper<HttpTypes.AdminProductChangeRequestItem>()
 
-export const useProductInboxTableColumns = () => {
+export const useProductRequestsTableColumns = () => {
   const { t } = useTranslation()
 
   return useMemo(
@@ -39,7 +39,7 @@ export const useProductInboxTableColumns = () => {
         ),
       }),
       columnHelper.accessor("seller_name", {
-        header: t("products.inbox.fields.store"),
+        header: t("products.requests.fields.store"),
         cell: ({ getValue }) => (
           <Text size="small" leading="compact" className="truncate">
             {getValue()}
@@ -47,10 +47,10 @@ export const useProductInboxTableColumns = () => {
         ),
       }),
       columnHelper.accessor("type", {
-        header: t("products.inbox.fields.type"),
+        header: t("products.requests.fields.type"),
         cell: ({ getValue }) => (
-          <StatusCell color={INBOX_TYPE_COLORS[getValue()]}>
-            {t(`products.inbox.types.${getValue()}`)}
+          <StatusCell color={REQUEST_TYPE_COLORS[getValue()]}>
+            {t(`products.requests.types.${getValue()}`)}
           </StatusCell>
         ),
       }),
@@ -59,15 +59,15 @@ export const useProductInboxTableColumns = () => {
         cell: ({ getValue }) => <ProductStatusCell status={getValue()} />,
       }),
       columnHelper.accessor("action_count", {
-        header: t("products.inbox.fields.changes"),
+        header: t("products.requests.fields.changes"),
         cell: ({ getValue }) => (
           <Text size="small" leading="compact">
-            {t("products.inbox.changeCount", { count: getValue() })}
+            {t("products.requests.changeCount", { count: getValue() })}
           </Text>
         ),
       }),
       columnHelper.accessor("created_at", {
-        header: t("products.inbox.fields.submitted"),
+        header: t("products.requests.fields.submitted"),
         cell: ({ getValue }) => <DateCell date={getValue()} />,
       }),
       columnHelper.accessor("updated_at", {

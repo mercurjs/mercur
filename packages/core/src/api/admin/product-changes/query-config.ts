@@ -1,4 +1,4 @@
-export const adminProductChangeInboxFields = [
+export const adminProductChangeRequestFields = [
   "id",
   "product_id",
   "status",
@@ -19,7 +19,7 @@ export const adminProductChangeInboxFields = [
 
 export const adminProductChangeQueryConfig = {
   list: {
-    defaults: adminProductChangeInboxFields,
+    defaults: adminProductChangeRequestFields,
     isList: true,
   },
 }

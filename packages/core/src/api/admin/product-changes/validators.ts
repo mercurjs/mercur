@@ -28,7 +28,7 @@ export type AdminCancelProductChangeType = z.infer<
   AdditionalData
 export const AdminCancelProductChange = WithAdditionalData(CancelProductChange)
 
-const InboxType = z.enum(["new_product", "update", "delete"])
+const RequestType = z.enum(["new_product", "update", "delete"])
 
 export type AdminGetProductChangesParamsType = z.infer<
   typeof AdminGetProductChangesParams
@@ -42,7 +42,7 @@ export const AdminGetProductChangesParams = createFindParams({
     id: z.union([z.string(), z.array(z.string())]).optional(),
     product_id: z.union([z.string(), z.array(z.string())]).optional(),
     seller_id: z.union([z.string(), z.array(z.string())]).optional(),
-    type: z.union([InboxType, z.array(InboxType)]).optional(),
+    type: z.union([RequestType, z.array(RequestType)]).optional(),
     created_at: createOperatorMap().optional(),
     updated_at: createOperatorMap().optional(),
   })

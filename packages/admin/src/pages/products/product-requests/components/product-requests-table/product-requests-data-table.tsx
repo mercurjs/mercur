@@ -4,24 +4,24 @@ import { useTranslation } from "react-i18next"
 import { _DataTable } from "../../../../../components/table/data-table"
 import { useProductChanges } from "../../../../../hooks/api/product-changes"
 import { useDataTable } from "../../../../../hooks/use-data-table"
-import { useProductInboxTableColumns } from "./use-product-inbox-table-columns"
-import { useProductInboxTableFilters } from "./use-product-inbox-table-filters"
-import { useProductInboxTableQuery } from "./use-product-inbox-table-query"
+import { useProductRequestsTableColumns } from "./use-product-requests-table-columns"
+import { useProductRequestsTableFilters } from "./use-product-requests-table-filters"
+import { useProductRequestsTableQuery } from "./use-product-requests-table-query"
 
 const PAGE_SIZE = 20
 
-export const ProductInboxDataTable = () => {
+export const ProductRequestsDataTable = () => {
   const { t } = useTranslation()
 
-  const { raw, searchParams } = useProductInboxTableQuery({
+  const { raw, searchParams } = useProductRequestsTableQuery({
     pageSize: PAGE_SIZE,
   })
 
   const { product_changes, count, isLoading, isError, error } =
     useProductChanges(searchParams, { placeholderData: keepPreviousData })
 
-  const columns = useProductInboxTableColumns()
-  const filters = useProductInboxTableFilters()
+  const columns = useProductRequestsTableColumns()
+  const filters = useProductRequestsTableFilters()
 
   const { table } = useDataTable({
     data: product_changes ?? [],
@@ -48,16 +48,16 @@ export const ProductInboxDataTable = () => {
       filters={filters}
       queryObject={raw}
       orderBy={[
-        { key: "created_at", label: t("products.inbox.fields.submitted") },
+        { key: "created_at", label: t("products.requests.fields.submitted") },
         { key: "updated_at", label: t("fields.updatedAt") },
         { key: "product_title", label: t("fields.product") },
-        { key: "seller_name", label: t("products.inbox.fields.store") },
+        { key: "seller_name", label: t("products.requests.fields.store") },
       ]}
       defaultOrder="-created_at"
       navigateTo={(row) => `/products/${row.original.product_id}`}
       noRecords={{
-        title: t("products.inbox.empty.heading"),
-        message: t("products.inbox.empty.description"),
+        title: t("products.requests.empty.heading"),
+        message: t("products.requests.empty.description"),
       }}
     />
   )
