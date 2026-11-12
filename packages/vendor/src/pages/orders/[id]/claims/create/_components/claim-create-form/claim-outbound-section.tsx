@@ -2,11 +2,7 @@ import { Button, Heading } from "@medusajs/ui"
 import { useFieldArray, UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import {
-  RouteFocusModal,
-  StackedFocusModal,
-  useStackedModal,
-} from "@components/modals"
+import { StackedFocusModal, useStackedModal } from "@components/modals"
 
 import { AddClaimOutboundItemsTable } from "../add-claim-outbound-items-table"
 import { ClaimOutboundItem } from "./claim-outbound-item"
@@ -110,15 +106,15 @@ export const ClaimOutboundSection = ({
 
         <StackedFocusModal id={STACKED_MODAL_ID}>
           <StackedFocusModal.Trigger asChild>
-            {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid */}
-            <a
-              href="#"
-              onClick={(e) => e.preventDefault()}
-              className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400"
+            <Button
+              type="button"
+              variant="secondary"
+              size="small"
+              disabled={disabled}
               data-testid="claim-add-outbound-trigger"
             >
               {t("orders.claims.addOutboundItems")}
-            </a>
+            </Button>
           </StackedFocusModal.Trigger>
           <StackedFocusModal.Content>
             <StackedFocusModal.Header />
@@ -141,7 +137,12 @@ export const ClaimOutboundSection = ({
         </StackedFocusModal>
       </div>
 
-      {showOutboundItemsPlaceholder && <ItemPlaceholder />}
+      {showOutboundItemsPlaceholder && (
+        <ItemPlaceholder
+          description={t("orders.claims.emptyState.outboundDescription")}
+          data-testid="claim-outbound-empty-state"
+        />
+      )}
 
       {outboundItems.map((item, index) => (
         <ClaimOutboundItem
@@ -151,8 +152,6 @@ export const ClaimOutboundSection = ({
           onRemove={() => remove(index)}
         />
       ))}
-      {/* Mirrors the admin prop surface for "disabled while creating draft" */}
-      <span className="sr-only">{disabled ? "" : ""}</span>
     </div>
   )
 }
@@ -188,7 +187,7 @@ const PickerBody = ({
       </div>
       <StackedFocusModal.Footer>
         <div className="flex w-full items-center justify-end gap-x-2">
-          <RouteFocusModal.Close asChild>
+          <StackedFocusModal.Close asChild>
             <Button
               type="button"
               variant="secondary"
@@ -197,7 +196,7 @@ const PickerBody = ({
             >
               {t("actions.cancel")}
             </Button>
-          </RouteFocusModal.Close>
+          </StackedFocusModal.Close>
           <Button
             key="submit-button"
             type="button"

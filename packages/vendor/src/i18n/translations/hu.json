@@ -1549,7 +1549,14 @@
         "production_failure": "Gyártási hiba",
         "other": "Egyéb"
       },
-      "noteHint": "Adjon hozzá belső megjegyzést ehhez a reklamációhoz (csak a csapata számára látható)."
+      "noteHint": "Adjon hozzá belső megjegyzést ehhez a reklamációhoz (csak a csapata számára látható).",
+      "confirmTitle": "Reklamáció megerősítése",
+      "emptyItemsError": "Adjon hozzá legalább egy tételt a rendelésből",
+      "emptyState": {
+        "title": "Még nincsenek rekordok",
+        "inboundDescription": "Adjon hozzá legalább egy tételt a rendelésből a reklamáció létrehozásához",
+        "outboundDescription": "Opcionálisan hozzáadhat tételeket, amelyeket cserként szeretne küldeni"
+      }
     },
     "exchanges": {
       "create": "Csere létrehozása",

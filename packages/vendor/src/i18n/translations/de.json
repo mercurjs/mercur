@@ -1526,7 +1526,14 @@
         "production_failure": "Produktionsfehler",
         "other": "Sonstiges"
       },
-      "noteHint": "Fügen Sie eine interne Notiz für diese Reklamation hinzu (nur für Ihr Team sichtbar)."
+      "noteHint": "Fügen Sie eine interne Notiz für diese Reklamation hinzu (nur für Ihr Team sichtbar).",
+      "confirmTitle": "Reklamation bestätigen",
+      "emptyItemsError": "Bitte fügen Sie mindestens einen Artikel aus der Bestellung hinzu",
+      "emptyState": {
+        "title": "Noch keine Einträge",
+        "inboundDescription": "Fügen Sie mindestens einen Artikel aus der Bestellung hinzu, um die Reklamation zu erstellen",
+        "outboundDescription": "Optional können Sie Artikel hinzufügen, die Sie als Ersatz senden möchten"
+      }
     },
     "exchanges": {
       "create": "Exchange erstellen",

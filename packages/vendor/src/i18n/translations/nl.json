@@ -1549,7 +1549,14 @@
         "production_failure": "Productiefout",
         "other": "Overig"
       },
-      "noteHint": "Voeg een interne notitie toe voor deze claim (alleen zichtbaar voor je team)."
+      "noteHint": "Voeg een interne notitie toe voor deze claim (alleen zichtbaar voor je team).",
+      "confirmTitle": "Claim bevestigen",
+      "emptyItemsError": "Voeg ten minste één artikel uit de bestelling toe",
+      "emptyState": {
+        "title": "Nog geen records",
+        "inboundDescription": "Voeg minstens één artikel uit de bestelling toe om de claim aan te maken",
+        "outboundDescription": "Je kunt optioneel artikelen toevoegen die je als vervanging wilt verzenden"
+      }
     },
     "exchanges": {
       "create": "Omruiling aanmaken",

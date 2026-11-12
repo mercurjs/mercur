@@ -1549,7 +1549,14 @@
         "production_failure": "生产缺陷",
         "other": "其他"
       },
-      "noteHint": "为此索赔添加内部备注（仅您的团队可见）。"
+      "noteHint": "为此索赔添加内部备注（仅您的团队可见）。",
+      "confirmTitle": "确认索赔",
+      "emptyItemsError": "请从订单中至少添加一件商品",
+      "emptyState": {
+        "title": "暂无记录",
+        "inboundDescription": "请至少从订单中添加一件商品以创建索赔",
+        "outboundDescription": "您可以选择添加要作为替换品寄送的商品"
+      }
     },
     "exchanges": {
       "create": "创建换货",

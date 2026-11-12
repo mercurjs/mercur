@@ -1574,7 +1574,14 @@
         "production_failure": "Lỗi sản xuất",
         "other": "Khác"
       },
-      "noteHint": "Thêm ghi chú nội bộ cho khiếu nại này (chỉ nhóm của bạn nhìn thấy)."
+      "noteHint": "Thêm ghi chú nội bộ cho khiếu nại này (chỉ nhóm của bạn nhìn thấy).",
+      "confirmTitle": "Xác nhận khiếu nại",
+      "emptyItemsError": "Vui lòng thêm ít nhất một mặt hàng từ đơn hàng",
+      "emptyState": {
+        "title": "Chưa có bản ghi nào",
+        "inboundDescription": "Thêm ít nhất một mặt hàng từ đơn hàng để tạo khiếu nại",
+        "outboundDescription": "Bạn có thể tùy chọn thêm các mặt hàng muốn gửi thay thế"
+      }
     },
     "exchanges": {
       "create": "Tạo đổi hàng",

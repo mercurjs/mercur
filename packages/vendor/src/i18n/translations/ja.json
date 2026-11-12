@@ -1540,7 +1540,14 @@
         "production_failure": "製造不良",
         "other": "その他"
       },
-      "noteHint": "このクレームに社内メモを追加します（チーム内のみ表示）。"
+      "noteHint": "このクレームに社内メモを追加します（チーム内のみ表示）。",
+      "confirmTitle": "クレームを確定",
+      "emptyItemsError": "注文から少なくとも1つのアイテムを追加してください",
+      "emptyState": {
+        "title": "レコードがまだありません",
+        "inboundDescription": "クレームを作成するには、注文から少なくとも1つのアイテムを追加してください",
+        "outboundDescription": "必要に応じて、代替品として送るアイテムを追加できます"
+      }
     },
     "exchanges": {
       "create": "交換を作成",
