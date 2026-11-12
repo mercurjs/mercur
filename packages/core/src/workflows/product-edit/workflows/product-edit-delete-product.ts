@@ -1,9 +1,11 @@
 import { AdditionalData } from "@medusajs/framework/types"
 import {
+  createHook,
   createWorkflow,
+  type Hook,
+  type ReturnWorkflow,
   transform,
   WorkflowResponse,
-  type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
 import {
@@ -21,16 +23,22 @@ export type ProductEditDeleteProductWorkflowInput = {
   auto_confirm?: boolean
 } & AdditionalData
 
+export type ProductEditDeleteProductWorkflowHooks = [
+  Hook<"validate", { input: ProductEditDeleteProductWorkflowInput }, unknown>,
+]
+
 export const productEditDeleteProductWorkflowId =
   "product-edit-delete-product"
 
 export const productEditDeleteProductWorkflow: ReturnWorkflow<
   ProductEditDeleteProductWorkflowInput,
   ProductChangeDTO,
-  []
+  ProductEditDeleteProductWorkflowHooks
 > = createWorkflow(
   productEditDeleteProductWorkflowId,
   function (input: ProductEditDeleteProductWorkflowInput) {
+    const validate = createHook("validate", { input })
+
     validateNoPendingProductChangeStep(
       transform({ input }, ({ input }) => ({
         product_ids: [input.product_id],
@@ -61,6 +69,8 @@ export const productEditDeleteProductWorkflow: ReturnWorkflow<
       })),
     })
 
-    return new WorkflowResponse(change)
+    return new WorkflowResponse(change, {
+      hooks: [validate],
+    })
   },
 )
