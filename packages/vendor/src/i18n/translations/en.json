@@ -1918,7 +1918,8 @@
         "noItems": "There are no items to fulfill.",
         "exceedsReservedQuantity": "The quantity you want to fulfill exceeds the reserved quantity for items. Please review your fulfillment.",
         "noShippingOption": "Shipping option is required",
-        "noLocation": "Location is required"
+        "noLocation": "Location is required",
+        "noInventoryLevelAtLocation": "Some items have no inventory level at the selected location. Choose a location that stocks them or add an inventory level first."
       },
       "status": {
         "notFulfilled": "Not fulfilled",

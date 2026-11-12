@@ -201,6 +201,11 @@ export function OrderCreateFulfillmentForm({
         return
       }
 
+      if (/^Inventory level for item .* not found/.test(message)) {
+        toast.error(t("orders.fulfillment.error.noInventoryLevelAtLocation"))
+        return
+      }
+
       toast.error(message)
     }
   })
