@@ -28,6 +28,8 @@ import {
 import {
   createProductAttributesStep,
   createProductAttributeValuesStep,
+  SCALAR_VALUE_TYPES,
+  validateProductAttributeValuesStep,
 } from "../steps"
 
 export type AddProductAttributesToProductWorkflowInput = {
@@ -69,11 +71,46 @@ export const addProductAttributesToProductWorkflow = createWorkflow(
         "is_variant_axis",
         "product_id",
         "product_option_id",
+        "validation",
         "values.id",
         "values.name",
         "values.product_option_value_id",
       ],
     }).config({ name: "add-pa-attributes" })
+
+    validateProductAttributeValuesStep(
+      transform({ items, attributesQuery }, ({ items, attributesQuery }) => {
+        const attrsById = new Map(
+          ((attributesQuery.data ?? []) as ProductAttributeDTO[]).map((a) => [
+            a.id,
+            a,
+          ]),
+        )
+        return items.flatMap((it) =>
+          it.add.flatMap((ref) => {
+            if (ref.value === undefined) {
+              return []
+            }
+            if (!isExisting(ref)) {
+              return ref.type && SCALAR_VALUE_TYPES.includes(ref.type)
+                ? [{ name: ref.title, type: ref.type, value: ref.value }]
+                : []
+            }
+            const attr = attrsById.get(ref.id)
+            return attr && SCALAR_VALUE_TYPES.includes(attr.type)
+              ? [
+                  {
+                    name: attr.name,
+                    type: attr.type,
+                    validation: attr.validation,
+                    value: ref.value,
+                  },
+                ]
+              : []
+          }),
+        )
+      }),
+    )
 
     const optionsPlan = transform({ items }, ({ items }) => {
       const inlineAxisOptions: ProductTypes.CreateProductOptionDTO[] = []
@@ -191,8 +228,7 @@ export const addProductAttributesToProductWorkflow = createWorkflow(
             const attr = attrsById.get(ref.id)
             if (
               attr &&
-              (attr.type === AttributeType.TEXT ||
-                attr.type === AttributeType.UNIT) &&
+              SCALAR_VALUE_TYPES.includes(attr.type) &&
               ref.value !== undefined
             ) {
               rows.push({ name: String(ref.value), attribute_id: ref.id })

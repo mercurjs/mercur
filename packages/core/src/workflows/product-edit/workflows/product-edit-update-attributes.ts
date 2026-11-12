@@ -14,11 +14,16 @@ import {
   CreateProductChangeActionDTO,
   ProductAttributeBatchAdd,
   ProductAttributeBatchUpdate,
+  ProductAttributeDTO,
   ProductAttributeValueSnapshot,
   ProductChangeActionType,
   ProductChangeDTO,
 } from "@mercurjs/types"
 
+import {
+  SCALAR_VALUE_TYPES,
+  validateProductAttributeValuesStep,
+} from "../../product-attribute/steps"
 import { validateNoPendingProductChangeStep } from "../steps"
 import { stageProductChangeWorkflow } from "./stage-product-change"
 
@@ -54,11 +59,12 @@ type LinkedValue = {
 const SCALAR_TYPES = [
   AttributeType.TEXT,
   AttributeType.UNIT,
+  AttributeType.DATE,
   AttributeType.TOGGLE,
 ]
 
 /**
- * `text` / `unit` / `toggle` selections are stored as a linked value row whose
+ * `text` / `unit` / `date` / `toggle` selections are stored as a linked value row whose
  * `name` carries the scalar, so the scalar is read back off the link.
  */
 const readScalar = (
@@ -88,6 +94,50 @@ export const productEditUpdateAttributesWorkflow: ReturnWorkflow<
         product_ids: [input.product_id],
         created_by: input.created_by,
       })),
+    )
+
+    const { data: touchedAttributes } = useQueryGraphStep({
+      entity: "product_attribute",
+      fields: ["id", "name", "type", "validation"],
+      filters: transform({ input }, ({ input }) => ({
+        id: [
+          ...(input.add ?? []).flatMap((ref) => ("id" in ref ? [ref.id] : [])),
+          ...(input.update ?? []).map((ref) => ref.id),
+        ],
+      })),
+    }).config({ name: "load-touched-attributes-for-validation" })
+
+    validateProductAttributeValuesStep(
+      transform(
+        { input, touchedAttributes },
+        ({ input, touchedAttributes }) => {
+          const attrsById = new Map(
+            (touchedAttributes as ProductAttributeDTO[]).map((a) => [a.id, a]),
+          )
+          const refs = [...(input.add ?? []), ...(input.update ?? [])]
+          return refs.flatMap((ref) => {
+            if (ref.value === undefined) {
+              return []
+            }
+            if (!("id" in ref)) {
+              return ref.type && SCALAR_VALUE_TYPES.includes(ref.type)
+                ? [{ name: ref.title, type: ref.type, value: ref.value }]
+                : []
+            }
+            const attr = attrsById.get(ref.id)
+            return attr && SCALAR_VALUE_TYPES.includes(attr.type)
+              ? [
+                  {
+                    name: attr.name,
+                    type: attr.type,
+                    validation: attr.validation,
+                    value: ref.value,
+                  },
+                ]
+              : []
+          })
+        },
+      ),
     )
 
     const { data: currentProducts } = useQueryGraphStep({

@@ -9,7 +9,10 @@ import { AttributeType } from "@mercurjs/types";
 import { RouteFocusModal, useRouteModal } from "../../../../components/modals";
 import { TabbedForm } from "../../../../components/tabbed-form/tabbed-form";
 import { useCreateProductAttribute } from "../../../../hooks/api";
-import { createAttributeSchema } from "../../attribute-edit/schema";
+import {
+  createAttributeSchema,
+  toAttributeValidation,
+} from "../../attribute-edit/schema";
 import { AttributeCreateDetailsTab } from "./attribute-create-details-tab";
 import { AttributeCreateTypeTab } from "./attribute-create-type-tab";
 
@@ -39,6 +42,8 @@ export const AttributeCreateForm = ({ children }: AttributeCreateFormProps) => {
       is_global: true,
       values: [],
       category_ids: [],
+      validation_pattern: "",
+      validation_message: "",
       metadata: {},
     },
     resolver: zodResolver(schema),
@@ -51,7 +56,8 @@ export const AttributeCreateForm = ({ children }: AttributeCreateFormProps) => {
       .filter((value) => value.name.trim().length > 0)
       .map((value, index) => ({ ...value, rank: index }));
 
-    const { is_global, ...rest } = values;
+    const { is_global, validation_pattern, validation_message, ...rest } =
+      values;
 
     await mutateAsync(
       {
@@ -59,6 +65,11 @@ export const AttributeCreateForm = ({ children }: AttributeCreateFormProps) => {
         handle: values.handle ? values.handle : undefined,
         values: cleanedValues,
         category_ids: is_global ? [] : (values.category_ids ?? []),
+        validation: toAttributeValidation(
+          values.type,
+          validation_pattern,
+          validation_message,
+        ),
       },
       {
         onSuccess: () => {

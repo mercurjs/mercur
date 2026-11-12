@@ -7,13 +7,19 @@ import { Form } from "../../../../components/common/form"
 import { SwitchBox } from "../../../../components/common/switch-box"
 import { useTabbedForm } from "../../../../components/tabbed-form/tabbed-form"
 import { defineTabMeta } from "../../../../components/tabbed-form/types"
-import { ATTRIBUTE_TYPE_OPTIONS } from "../../attribute-edit/schema"
+import {
+  ATTRIBUTE_TYPE_OPTIONS,
+  PATTERN_TYPES,
+} from "../../attribute-edit/schema"
+import { AttributeValidationFields } from "../../common/components/attribute-validation-fields"
 import { PossibleValuesList } from "./possible-values-list"
 
 type AttributeCreateFormValues = {
   type: string
   is_variant_axis: boolean
   values?: { name: string; rank: number }[]
+  validation_pattern?: string
+  validation_message?: string
 }
 
 const ATTRIBUTE_TYPE_LABELS: Record<string, string> = {
@@ -22,6 +28,7 @@ const ATTRIBUTE_TYPE_LABELS: Record<string, string> = {
   [AttributeType.UNIT]: "attributes.type.unit",
   [AttributeType.TOGGLE]: "attributes.type.toggle",
   [AttributeType.TEXT]: "attributes.type.text_area",
+  [AttributeType.DATE]: "attributes.type.date",
 }
 
 const Root = () => {
@@ -92,6 +99,10 @@ const Root = () => {
           />
         )}
 
+        {PATTERN_TYPES.includes(type) && (
+          <AttributeValidationFields />
+        )}
+
         {showValues && (
           <div data-testid="attribute-create-values-section">
             <PossibleValuesList />
@@ -105,7 +116,7 @@ const Root = () => {
 Root._tabMeta = defineTabMeta<AttributeCreateFormValues>({
   id: "type",
   labelKey: "attributes.create.tabs.type",
-  validationFields: ["type", "values"],
+  validationFields: ["type", "values", "validation_pattern"],
 })
 
 export const AttributeCreateTypeTab = Root

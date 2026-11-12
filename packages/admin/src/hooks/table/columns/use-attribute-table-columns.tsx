@@ -28,6 +28,7 @@ const ATTRIBUTE_TYPE_LABELS: Record<string, string> = {
   unit: "attributes.type.unit",
   toggle: "attributes.type.toggle",
   text: "attributes.type.text_area",
+  date: "attributes.type.date",
 }
 
 // --- Filterable Toggle ---
@@ -257,14 +258,24 @@ export const useAttributeTableColumns = () => {
           const visible = values.slice(0, MAX_VISIBLE_VALUES)
           const remaining = values.length - MAX_VISIBLE_VALUES
           return (
-            <div className="flex items-center gap-x-1">
+            <div className="flex min-w-0 items-center gap-x-1 overflow-hidden">
               {visible.map((v) => (
-                <Badge key={v.id} size="2xsmall" color="grey">
-                  {v.name}
+                <Badge
+                  key={v.id}
+                  size="2xsmall"
+                  color="grey"
+                  className="min-w-0 max-w-[140px] whitespace-nowrap"
+                  title={v.name}
+                >
+                  <span className="truncate">{v.name}</span>
                 </Badge>
               ))}
               {remaining > 0 && (
-                <Badge size="2xsmall" color="grey">
+                <Badge
+                  size="2xsmall"
+                  color="grey"
+                  className="shrink-0 whitespace-nowrap"
+                >
                   +{remaining}
                 </Badge>
               )}

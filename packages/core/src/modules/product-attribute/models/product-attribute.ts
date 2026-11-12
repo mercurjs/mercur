@@ -21,6 +21,7 @@ const ProductAttribute = model
     // /product-attributes catalogue). Null = global attribute.
     product_id: model.text().nullable(),
     product_option_id: model.text().nullable(),
+    validation: model.json().nullable(),
     metadata: model.json().nullable(),
 
     values: model.hasMany(() => ProductAttributeValue, {

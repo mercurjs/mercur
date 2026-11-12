@@ -15,8 +15,13 @@ import {
   useProductAttribute,
   useUpdateProductAttribute,
 } from "../../../hooks/api/product-attributes";
-import { UpdateAttributeSchema } from "./schema";
-import type { UpdateAttributeFormValues } from "./types";
+import { AttributeValidationFields } from "../common/components/attribute-validation-fields";
+import {
+  createUpdateAttributeSchema,
+  PATTERN_TYPES,
+  toAttributeValidation,
+} from "./schema";
+import type { EditAttributeFormValues } from "./types";
 
 type AttributeEditFormProps = {
   attribute: ProductAttributeDTO;
@@ -26,23 +31,39 @@ const AttributeEditForm = ({ attribute }: AttributeEditFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
 
-  const form = useForm<UpdateAttributeFormValues>({
-    resolver: zodResolver(UpdateAttributeSchema),
+  const form = useForm<EditAttributeFormValues>({
+    resolver: zodResolver(createUpdateAttributeSchema(t)),
     defaultValues: {
       name: attribute.name ?? "",
       handle: attribute.handle ?? "",
       description: attribute.description ?? "",
       is_filterable: attribute.is_filterable ?? false,
       is_required: attribute.is_required ?? false,
+      validation_pattern: attribute.validation?.pattern ?? "",
+      validation_message: attribute.validation?.message ?? "",
     },
   });
+
+  const supportsPattern = PATTERN_TYPES.includes(attribute.type);
 
   const { mutateAsync, isPending: isMutating } = useUpdateProductAttribute(
     attribute.id,
   );
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    await mutateAsync(data, {
+    const { validation_pattern, validation_message, ...rest } = data;
+    const payload = supportsPattern
+      ? {
+          ...rest,
+          validation: toAttributeValidation(
+            attribute.type,
+            validation_pattern,
+            validation_message,
+          ),
+        }
+      : rest;
+
+    await mutateAsync(payload, {
       onSuccess: () => {
         toast.success(
           t("attributes.edit.successToast", {
@@ -114,6 +135,7 @@ const AttributeEditForm = ({ attribute }: AttributeEditFormProps) => {
               )}
             />
 
+            {supportsPattern && <AttributeValidationFields />}
           </div>
 
           <div className="flex flex-col gap-y-4">

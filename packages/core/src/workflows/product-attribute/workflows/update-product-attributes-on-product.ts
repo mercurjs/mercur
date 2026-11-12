@@ -27,7 +27,9 @@ import {
 import {
   createProductAttributeValuesStep,
   detachProductOptionValuesFromProductStep,
+  SCALAR_VALUE_TYPES,
   updateProductAttributeValuesStep,
+  validateProductAttributeValuesStep,
 } from "../steps"
 import { createProductAttributeValuesWorkflow } from "./create-product-attribute-values"
 import { deleteProductAttributeValuesWorkflow } from "./delete-product-attribute-values"
@@ -58,15 +60,46 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
       },
       fields: [
         "id",
+        "name",
         "type",
         "is_variant_axis",
         "product_id",
         "product_option_id",
+        "validation",
         "values.id",
         "values.name",
         "values.product_option_value_id",
       ],
     }).config({ name: "upd-pa-attributes" })
+
+    validateProductAttributeValuesStep(
+      transform({ input, attributesQuery }, ({ input, attributesQuery }) => {
+        const attrsById = new Map(
+          ((attributesQuery.data ?? []) as ProductAttributeDTO[]).map((a) => [
+            a.id,
+            a,
+          ]),
+        )
+        return input.update.flatMap((ref) => {
+          const attr = attrsById.get(ref.id)
+          if (
+            ref.value === undefined ||
+            !attr ||
+            !SCALAR_VALUE_TYPES.includes(attr.type)
+          ) {
+            return []
+          }
+          return [
+            {
+              name: attr.name,
+              type: attr.type,
+              validation: attr.validation,
+              value: ref.value,
+            },
+          ]
+        })
+      }),
+    )
 
     const productQuery = useQueryGraphStep({
       entity: "product",
@@ -244,10 +277,7 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
           if (!attr) {
             continue
           }
-          if (
-            attr.type === AttributeType.TEXT ||
-            attr.type === AttributeType.UNIT
-          ) {
+          if (SCALAR_VALUE_TYPES.includes(attr.type)) {
             const linkedValueIds = linkedByAttr.get(ref.id) ?? []
             if (linkedValueIds.length > 0) {
               for (const vid of linkedValueIds) {

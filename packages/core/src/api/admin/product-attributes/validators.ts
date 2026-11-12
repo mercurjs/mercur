@@ -14,6 +14,25 @@ import { AdditionalData } from "@medusajs/framework/types"
 
 const typeEnum = z.nativeEnum(AttributeType)
 
+const compiles = (pattern: string) => {
+  try {
+    new RegExp(pattern)
+    return true
+  } catch {
+    return false
+  }
+}
+
+const AttributeValidation = z
+  .object({
+    pattern: z
+      .string()
+      .refine(compiles, { message: "Invalid regular expression" })
+      .nullish(),
+    message: z.string().nullish(),
+  })
+  .strict()
+
 export type AdminGetProductAttributeParamsType = z.infer<
   typeof AdminGetProductAttributeParams
 >
@@ -68,6 +87,7 @@ const CreateProductAttribute = z.object({
   is_active: z.boolean().optional(),
   category_ids: z.array(z.string()).optional(),
   values: z.array(CreateProductAttributeValueInline).optional(),
+  validation: AttributeValidation.nullish(),
   metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 export const AdminCreateProductAttribute =
@@ -88,6 +108,7 @@ const UpdateProductAttribute = z.object({
   rank: z.number().nonnegative().optional(),
   is_active: z.boolean().optional(),
   category_ids: z.array(z.string()).optional(),
+  validation: AttributeValidation.nullish(),
   metadata: z.record(z.string(), z.unknown()).nullish(),
 })
 export const AdminUpdateProductAttribute =

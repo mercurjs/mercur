@@ -45,6 +45,7 @@ export {
   type ProductCategoryDTO,
   type ProductAttributeDTO,
   type ProductAttributeValueDTO,
+  type ProductAttributeValidation,
   type WrappedProductAttributeDTO,
   type WrappedProductAttributeValueDTO,
   type ProductChangeDTO,

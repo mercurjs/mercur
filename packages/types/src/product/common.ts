@@ -19,6 +19,17 @@ export enum AttributeType {
   UNIT = "unit",
   TOGGLE = "toggle",
   TEXT = "text",
+  DATE = "date",
+}
+
+/**
+ * Format rule for the free-form value of a `text` or `unit` attribute.
+ * `pattern` is a JavaScript regular expression the whole value must match;
+ * `message` replaces the default error when it does not.
+ */
+export interface ProductAttributeValidation {
+  pattern?: string | null
+  message?: string | null
 }
 
 /**
@@ -99,6 +110,7 @@ export interface ProductAttributeDTO {
    */
   product_id?: string | null
   product_option_id: string | null
+  validation: ProductAttributeValidation | null
   metadata: Record<string, unknown> | null
   values?: ProductAttributeValueDTO[]
   /**
