@@ -1,5 +1,5 @@
 import { clx } from "@medusajs/ui"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react"
 import { Controller, ControllerRenderProps } from "react-hook-form"
 
 import { useCombinedRefs } from "../../../hooks/use-combined-refs"
@@ -9,7 +9,10 @@ import { DataGridCellContainer } from "./data-grid-cell-container"
 
 export const DataGridMultilineCell = <TData, TValue = any>({
   context,
-}: DataGridCellProps<TData, TValue>) => {
+  outerComponent,
+}: DataGridCellProps<TData, TValue> & {
+  outerComponent?: ReactNode
+}) => {
   const { field, control, renderProps } = useDataGridCell({
     context,
   })
@@ -23,7 +26,12 @@ export const DataGridMultilineCell = <TData, TValue = any>({
       name={field}
       render={({ field }) => {
         return (
-          <DataGridCellContainer {...container} {...errorProps} isMultiLine>
+          <DataGridCellContainer
+            {...container}
+            {...errorProps}
+            outerComponent={outerComponent}
+            isMultiLine
+          >
             <Inner field={field} inputProps={input} />
           </DataGridCellContainer>
         )
