@@ -11,6 +11,7 @@ import {
   type CreateProductsWorkflowInput,
 } from "../../../workflows/product/workflows/create-products"
 import {
+  assertProductAttributesNotInternal,
   enrichProductAttributes,
   listProducts,
   wrapProductVariantsWithOffers,
@@ -47,7 +48,9 @@ export const GET = async (
     exactCount: true,
   })
 
-  await enrichProductAttributes(req.scope, products as any[])
+  await enrichProductAttributes(req.scope, products as any[], {
+    hideInternal: true,
+  })
   await enrichProductChangeRequests(
     req.scope,
     products as Parameters<typeof enrichProductChangeRequests>[1]
@@ -73,6 +76,11 @@ export const POST = async (
 
   const { additional_data, ...payload } = req.validatedBody
 
+  await assertProductAttributesNotInternal(
+    req.scope,
+    (payload.attributes ?? []).flatMap((ref) => ("id" in ref ? [ref.id] : []))
+  )
+
   const productInput = {
     ...payload,
     status: payload.status ?? ProductStatus.PROPOSED,
@@ -96,7 +104,9 @@ export const POST = async (
     filters: { id: createdId },
   })
 
-  await enrichProductAttributes(req.scope, [product])
+  await enrichProductAttributes(req.scope, [product], {
+    hideInternal: true,
+  })
 
   res.status(201).json({ product })
 }

@@ -32,6 +32,16 @@ const renameCategoryIdFilter = (
   return next()
 }
 
+const hideInternalAttributes = (
+  req: MedusaRequest,
+  _: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  req.filterableFields = req.filterableFields ?? {}
+  req.filterableFields.is_internal = false
+  return next()
+}
+
 export const vendorProductAttributesMiddlewares: MiddlewareRoute[] = [
   {
     method: ["GET"],
@@ -42,6 +52,7 @@ export const vendorProductAttributesMiddlewares: MiddlewareRoute[] = [
         VendorGetProductAttributesParams,
         vendorProductAttributeQueryConfig.list
       ),
+      hideInternalAttributes,
       renameCategoryIdFilter,
       filterAttributesByCategoryLinkOrGlobal,
     ],
@@ -55,6 +66,7 @@ export const vendorProductAttributesMiddlewares: MiddlewareRoute[] = [
         VendorGetProductAttributeParams,
         vendorProductAttributeQueryConfig.retrieve
       ),
+      hideInternalAttributes,
     ],
   },
 ]

@@ -22,13 +22,52 @@ const toValue = (
   v: ProductAttributeValueDTO,
 ): WrappedProductAttributeValueDTO => ({ id: v.id, name: v.name, rank: v.rank })
 
-export function wrapProductWithProductAttributes(products: any[]): void {
+export type EnrichProductAttributesOptions = {
+  /**
+   * Drop internal (admin-only) attributes from the wrapped `attributes` and
+   * from the raw `product_attribute_values` / `scoped_attributes` arrays that
+   * also reach the response. Used by the vendor and store surfaces.
+   */
+  hideInternal?: boolean
+}
+
+const isInternalAttribute = (
+  attribute: Pick<ProductAttributeDTO, "is_internal"> | null | undefined,
+): boolean => !!attribute?.is_internal
+
+export function wrapProductWithProductAttributes(
+  products: any[],
+  options: EnrichProductAttributesOptions = {},
+): void {
   if (!products?.length) return
 
   for (const product of products) {
     if (!product) continue
 
     const attrsById = new Map<string, WrappedProductAttributeDTO>()
+
+    if (options.hideInternal) {
+      if (Array.isArray(product.scoped_attributes)) {
+        product.scoped_attributes = product.scoped_attributes.filter(
+          (scoped: ProductAttributeDTO) => !isInternalAttribute(scoped),
+        )
+        for (const scoped of product.scoped_attributes) {
+          delete scoped.is_internal
+        }
+      }
+      if (Array.isArray(product.product_attribute_values)) {
+        product.product_attribute_values =
+          product.product_attribute_values.filter(
+            (value: ProductAttributeValueDTO) =>
+              !isInternalAttribute(value.attribute),
+          )
+        for (const value of product.product_attribute_values) {
+          if (value.attribute) {
+            delete value.attribute.is_internal
+          }
+        }
+      }
+    }
 
     const scopedAttributes: ProductAttributeDTO[] =
       product.scoped_attributes ?? []
@@ -41,6 +80,7 @@ export function wrapProductWithProductAttributes(products: any[]): void {
         type: scoped.type,
         is_variant_axis: !!scoped.is_variant_axis,
         is_required: !!scoped.is_required,
+        is_internal: !!scoped.is_internal,
         rank: scoped.rank,
         is_scoped: true,
         all_values: (scoped.values ?? []).map(toValue),
@@ -65,6 +105,7 @@ export function wrapProductWithProductAttributes(products: any[]): void {
           type: attribute?.type,
           is_variant_axis: !!attribute?.is_variant_axis,
           is_required: !!attribute?.is_required,
+          is_internal: !!attribute?.is_internal,
           rank: attribute?.rank,
           is_scoped: false,
           all_values: (attribute?.values ?? []).map(toValue),
@@ -100,8 +141,9 @@ export function wrapProductWithProductAttributes(products: any[]): void {
 export async function enrichProductAttributes(
   scope: MedusaContainer,
   products: any[],
+  options: EnrichProductAttributesOptions = {},
 ): Promise<void> {
-  wrapProductWithProductAttributes(products)
+  wrapProductWithProductAttributes(products, options)
   if (!products?.length) return
 
   const missingIds = new Set<string>()

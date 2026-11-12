@@ -6,6 +6,7 @@ export const adminProductAttributeFields = [
   "type",
   "is_required",
   "is_filterable",
+  "is_internal",
   "is_variant_axis",
   "is_active",
   "created_by",

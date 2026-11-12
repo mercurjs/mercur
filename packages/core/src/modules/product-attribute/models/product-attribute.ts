@@ -12,6 +12,7 @@ const ProductAttribute = model
     type: model.enum(AttributeType),
     is_required: model.boolean().default(false),
     is_filterable: model.boolean().default(false),
+    is_internal: model.boolean().default(false),
     is_variant_axis: model.boolean().default(false),
     rank: model.number().default(0),
     is_active: model.boolean().default(true),

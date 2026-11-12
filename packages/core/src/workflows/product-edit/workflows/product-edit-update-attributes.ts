@@ -22,6 +22,7 @@ import {
 
 import {
   SCALAR_VALUE_TYPES,
+  validateProductAttributesNotInternalStep,
   validateProductAttributeValuesStep,
 } from "../../product-attribute/steps"
 import { validateNoPendingProductChangeStep } from "../steps"
@@ -98,14 +99,25 @@ export const productEditUpdateAttributesWorkflow: ReturnWorkflow<
 
     const { data: touchedAttributes } = useQueryGraphStep({
       entity: "product_attribute",
-      fields: ["id", "name", "type", "validation"],
+      fields: ["id", "name", "type", "validation", "is_internal"],
       filters: transform({ input }, ({ input }) => ({
         id: [
           ...(input.add ?? []).flatMap((ref) => ("id" in ref ? [ref.id] : [])),
           ...(input.update ?? []).map((ref) => ref.id),
+          ...(input.remove ?? []),
         ],
       })),
     }).config({ name: "load-touched-attributes-for-validation" })
+
+    validateProductAttributesNotInternalStep(
+      transform({ touchedAttributes }, ({ touchedAttributes }) =>
+        (touchedAttributes as ProductAttributeDTO[]).map((a) => ({
+          id: a.id,
+          name: a.name,
+          is_internal: a.is_internal,
+        })),
+      ),
+    )
 
     validateProductAttributeValuesStep(
       transform(

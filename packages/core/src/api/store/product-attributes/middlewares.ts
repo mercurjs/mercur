@@ -10,6 +10,7 @@ import {
 const applyAttributeFilters = (req, _, next) => {
   req.filterableFields = req.filterableFields ?? {}
   req.filterableFields.is_active = true
+  req.filterableFields.is_internal = false
   req.filterableFields.product_id = null
   next()
 }

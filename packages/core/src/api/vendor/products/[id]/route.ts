@@ -48,7 +48,9 @@ export const GET = async (
     )
   }
 
-  await enrichProductAttributes(req.scope, [product])
+  await enrichProductAttributes(req.scope, [product], {
+    hideInternal: true,
+  })
   await enrichProductChangeRequests(
     req.scope,
     [product] as Parameters<typeof enrichProductChangeRequests>[1]

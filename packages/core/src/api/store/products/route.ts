@@ -40,7 +40,9 @@ export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
     }
   )
 
-  await enrichProductAttributes(req.scope, products as any[])
+  await enrichProductAttributes(req.scope, products as any[], {
+    hideInternal: true,
+  })
 
   if (withCalculatedPrice) {
     await wrapProductVariantsWithOfferPrice(req, products as any[])

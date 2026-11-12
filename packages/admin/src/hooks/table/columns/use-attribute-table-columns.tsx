@@ -12,6 +12,8 @@ import {
 import { PencilSquare, Trash } from "@medusajs/icons"
 import { ProductAttributeDTO } from "@mercurjs/types"
 import { TextCell } from "../../../components/table/table-cells/common/text-cell"
+import { StatusCell } from "../../../components/table/table-cells/common/status-cell"
+import { getIsInternalProps } from "../../../pages/attributes/common/utils"
 import { ActionMenu } from "../../../components/common/action-menu"
 import {
   useDeleteProductAttribute,
@@ -239,6 +241,13 @@ export const useAttributeTableColumns = () => {
           const type = getValue()
           const labelKey = ATTRIBUTE_TYPE_LABELS[type]
           return <TextCell text={labelKey ? t(labelKey) : type} />
+        },
+      }),
+      columnHelper.accessor("is_internal", {
+        header: () => t("attributes.fields.visibility.label"),
+        cell: ({ getValue }) => {
+          const { color, label } = getIsInternalProps(!!getValue(), t)
+          return <StatusCell color={color}>{label}</StatusCell>
         },
       }),
       columnHelper.accessor("is_variant_axis", {

@@ -3609,6 +3609,13 @@
       "isRequiredHint": "If checked, a value must be set to this attribute.",
       "isFilterable": "Filterable attribute",
       "isFilterableHint": "If checked, customers will be able to filter products using this attribute.",
+      "isInternal": "Internal attribute",
+      "isInternalHint": "If checked, only admins can see and set this attribute. Vendors and the storefront never see it.",
+      "visibility": {
+        "label": "Visibility",
+        "internal": "Internal",
+        "public": "Public"
+      },
       "isGlobal": "Global attribute",
       "isGlobalHint": "If checked, this attribute applies to all products across all categories.",
       "isVariantAxis": "Use for variants",

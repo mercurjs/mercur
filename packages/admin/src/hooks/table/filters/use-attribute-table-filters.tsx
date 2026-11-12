@@ -20,6 +20,22 @@ export const useAttributeTableFilters = () => {
     ],
   }
 
+  const internalFilter: Filter = {
+    key: "is_internal",
+    label: t("attributes.fields.visibility.label"),
+    type: "select",
+    options: [
+      {
+        label: t("attributes.fields.visibility.internal"),
+        value: "true",
+      },
+      {
+        label: t("attributes.fields.visibility.public"),
+        value: "false",
+      },
+    ],
+  }
+
   const dateFilters: Filter[] = [
     { label: t("fields.createdAt"), key: "created_at" },
     { label: t("fields.updatedAt"), key: "updated_at" },
@@ -29,5 +45,5 @@ export const useAttributeTableFilters = () => {
     type: "date" as const,
   }))
 
-  return [filterableFilter, ...dateFilters]
+  return [filterableFilter, internalFilter, ...dateFilters]
 }

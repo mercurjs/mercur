@@ -435,6 +435,16 @@ const useColumns = () => {
       columnHelper.select(),
       columnHelper.accessor("name", {
         header: t("attributes.fields.name"),
+        cell: (info) => (
+          <div className="flex items-center gap-x-2">
+            <span>{info.getValue()}</span>
+            {info.row.original.is_internal && (
+              <Badge size="2xsmall" color="blue">
+                {t("attributes.fields.visibility.internal")}
+              </Badge>
+            )}
+          </div>
+        ),
         enableSorting: false,
       }),
       columnHelper.accessor("type", {
