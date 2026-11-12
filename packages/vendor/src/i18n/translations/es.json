@@ -1615,6 +1615,11 @@
       "outboundShippingHint": "Elige el método que deseas utilizar.",
       "refundAmount": "Diferencia estimada",
       "activeChangeError": "Hay un cambio de pedido activo en este pedido. Por favor, termina o descarta el cambio anterior.",
+      "emptyOutboundItemsError": "Añade al menos un artículo para enviar en el cambio",
+      "emptyState": {
+        "inboundDescription": "Añade al menos un artículo del pedido para crear el cambio",
+        "outboundDescription": "Añade al menos un artículo que quieras enviar en el cambio"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "Intercambio cancelado correctamente."

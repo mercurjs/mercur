@@ -1563,6 +1563,11 @@
       "outboundShippingHint": "사용할 방법을 선택하세요.",
       "refundAmount": "예상 차액",
       "activeChangeError": "이 주문에 활성 주문 변경이 있습니다. 이전 변경을 완료하거나 취소하세요.",
+      "emptyOutboundItemsError": "교환으로 보낼 상품을 하나 이상 추가하세요",
+      "emptyState": {
+        "inboundDescription": "교환을 생성하려면 주문에서 상품을 하나 이상 추가하세요",
+        "outboundDescription": "교환으로 보낼 상품을 하나 이상 추가하세요"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "교환이 성공적으로 취소되었습니다."

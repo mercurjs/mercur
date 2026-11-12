@@ -1564,6 +1564,11 @@
       "outboundShippingHint": "Alegeți ce metodă doriți să utilizați.",
       "refundAmount": "Diferenta estimata",
       "activeChangeError": "Există o modificare activă a comenzii pentru această comandă. ",
+      "emptyOutboundItemsError": "Adăugați cel puțin un articol de trimis în schimb",
+      "emptyState": {
+        "inboundDescription": "Adăugați cel puțin un articol din comandă pentru a crea schimbul",
+        "outboundDescription": "Adăugați cel puțin un articol pe care doriți să îl trimiteți în schimb"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "Schimbul a fost anulat cu succes."

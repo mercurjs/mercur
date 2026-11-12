@@ -1588,6 +1588,11 @@
       "outboundShippingHint": "Chọn phương thức bạn muốn sử dụng.",
       "refundAmount": "Chênh lệch ước tính",
       "activeChangeError": "Có một thay đổi đang hoạt động trên đơn hàng này. Vui lòng hoàn tất hoặc hủy thay đổi trước đó.",
+      "emptyOutboundItemsError": "Vui lòng thêm ít nhất một sản phẩm để gửi trong lần đổi hàng",
+      "emptyState": {
+        "inboundDescription": "Thêm ít nhất một sản phẩm từ đơn hàng để tạo đổi hàng",
+        "outboundDescription": "Thêm ít nhất một sản phẩm bạn muốn gửi trong lần đổi hàng"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "Đổi hàng đã được hủy thành công."
