@@ -48,6 +48,7 @@ const ATTRIBUTE_TYPE_LABELS: Record<string, string> = {
   unit: "attributes.type.unit",
   toggle: "attributes.type.toggle",
   text: "attributes.type.text_area",
+  date: "attributes.type.date",
 };
 
 // --- Zod schema for values step ---

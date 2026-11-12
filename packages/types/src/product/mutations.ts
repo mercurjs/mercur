@@ -1,7 +1,11 @@
 import type {
   CreateProductDTO as UpstreamCreateProductDTO,
 } from "@medusajs/types"
-import { AttributeType, ProductChangeStatus } from "./common"
+import {
+  AttributeType,
+  ProductAttributeValidation,
+  ProductChangeStatus,
+} from "./common"
 
 // --- ProductAttributeValue (Mercur-only) ---
 
@@ -43,6 +47,7 @@ export interface CreateProductAttributeDTO {
   created_by?: string | null
   product_id?: string | null
   product_option_id?: string | null
+  validation?: ProductAttributeValidation | null
   metadata?: Record<string, unknown> | null
   values?: CreateProductAttributeValueDTO[]
 }
@@ -58,6 +63,7 @@ export interface UpdateProductAttributeDTO {
   rank?: number
   is_active?: boolean
   product_option_id?: string | null
+  validation?: ProductAttributeValidation | null
   metadata?: Record<string, unknown> | null
 }
 

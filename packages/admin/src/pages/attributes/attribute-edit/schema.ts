@@ -8,7 +8,31 @@ export const ATTRIBUTE_TYPE_OPTIONS = [
   AttributeType.UNIT,
   AttributeType.TOGGLE,
   AttributeType.TEXT,
+  AttributeType.DATE,
 ] as const
+
+export const PATTERN_TYPES: string[] = [AttributeType.TEXT, AttributeType.UNIT]
+
+const isValidPattern = (pattern?: string) => {
+  if (!pattern) {
+    return true
+  }
+  try {
+    new RegExp(pattern)
+    return true
+  } catch {
+    return false
+  }
+}
+
+export const toAttributeValidation = (
+  type: string | undefined,
+  pattern?: string,
+  message?: string
+) =>
+  type && PATTERN_TYPES.includes(type) && pattern
+    ? { pattern, message: message || null }
+    : null
 
 export const createAttributeSchema = (t: TFunction) =>
   z
@@ -27,8 +51,16 @@ export const createAttributeSchema = (t: TFunction) =>
         AttributeType.UNIT,
         AttributeType.TOGGLE,
         AttributeType.TEXT,
+        AttributeType.DATE,
       ])
       .default(AttributeType.SINGLE_SELECT),
+    validation_pattern: z
+      .string()
+      .optional()
+      .refine(isValidPattern, {
+        message: t("attributes.fields.invalidPattern"),
+      }),
+    validation_message: z.string().optional(),
     values: z
       .array(
         z.object({
@@ -61,6 +93,17 @@ export const createAttributeSchema = (t: TFunction) =>
         path: ["category_ids"],
       })
     }
+  })
+
+export const createUpdateAttributeSchema = (t: TFunction) =>
+  UpdateAttributeSchema.extend({
+    validation_pattern: z
+      .string()
+      .optional()
+      .refine(isValidPattern, {
+        message: t("attributes.fields.invalidPattern"),
+      }),
+    validation_message: z.string().optional(),
   })
 
 export const UpdateAttributeSchema = z.object({

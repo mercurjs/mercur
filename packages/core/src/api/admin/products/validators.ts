@@ -137,6 +137,7 @@ const AttributeTypeEnum = z.enum([
   "text",
   "toggle",
   "unit",
+  "date",
 ])
 
 const AttributeScalar = z.union([z.string(), z.number(), z.boolean()])

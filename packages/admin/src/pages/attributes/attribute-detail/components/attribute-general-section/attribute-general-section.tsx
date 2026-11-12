@@ -53,6 +53,7 @@ export const AttributeGeneralSection = ({
     unit: "attributes.type.unit",
     toggle: "attributes.type.toggle",
     text: "attributes.type.text_area",
+    date: "attributes.type.date",
   }
 
   const typeLabelKey = ATTRIBUTE_TYPE_LABELS[attribute.type]

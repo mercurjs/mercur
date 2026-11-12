@@ -47,6 +47,7 @@ const ATTRIBUTE_TYPE_LABELS: Record<string, string> = {
   [AttributeType.UNIT]: "attributes.type.unit",
   [AttributeType.TOGGLE]: "attributes.type.toggle",
   [AttributeType.TEXT]: "attributes.type.text_area",
+  [AttributeType.DATE]: "attributes.type.date",
 }
 
 export const AttributeForm = forwardRef<AttributeFormRef, AttributeFormProps>(

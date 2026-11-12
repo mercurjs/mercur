@@ -3548,6 +3548,7 @@
         "details": "Details",
         "type": "Type"
       },
+      "typeDescription": "Choose how values for this attribute are entered and validated.",
       "titleRequired": "Please enter a title",
       "possibleValuesRequired": "Please add at least one value",
       "categoriesRequired": "Please select at least one category",
@@ -3611,14 +3612,21 @@
       "isGlobal": "Global attribute",
       "isGlobalHint": "If checked, this attribute applies to all products across all categories.",
       "isVariantAxis": "Use for variants",
-      "isVariantAxisHint": "If checked, this attribute will define product variants (e.g. size, color)."
+      "isVariantAxisHint": "If checked, this attribute will define product variants (e.g. size, color).",
+      "typePlaceholder": "Select a type",
+      "pattern": "Validation pattern",
+      "patternHint": "A regular expression the whole value must match, e.g. ^\\d{4}-Q[1-4]$ for 2026-Q4.",
+      "patternMessage": "Validation message",
+      "patternMessageHint": "Shown when a value does not match the pattern.",
+      "invalidPattern": "This is not a valid regular expression."
     },
     "type": {
       "select": "Single Select",
       "multivalue": "Multi Select",
       "unit": "Unit",
       "toggle": "Toggle",
-      "text_area": "Text Area"
+      "text_area": "Text Area",
+      "date": "Date"
     },
     "selectCategory": {
       "title": "Select category",

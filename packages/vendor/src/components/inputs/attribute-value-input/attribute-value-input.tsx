@@ -1,8 +1,18 @@
-import { Input, Select, Textarea } from "@medusajs/ui"
+import { DatePicker, Input, Select, Textarea } from "@medusajs/ui"
 import { AttributeType } from "@mercurjs/types"
 import { useTranslation } from "react-i18next"
 
 import { Combobox } from "../combobox"
+
+const toIsoDate = (date: Date) => {
+  const pad = (n: number) => String(n).padStart(2, "0")
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+}
+
+const fromIsoDate = (value: string) => {
+  const [y, m, d] = value.split("-").map(Number)
+  return y && m && d ? new Date(y, m - 1, d) : null
+}
 
 type AttributeValueInputProps = {
   type: AttributeType | string
@@ -74,6 +84,16 @@ export const AttributeValueInput = ({
           </Select.Content>
         </Select>
       )
+
+    case AttributeType.DATE: {
+      const raw = typeof value === "string" ? value : value?.[0] ?? ""
+      return (
+        <DatePicker
+          value={raw ? fromIsoDate(raw) : null}
+          onChange={(date) => onChange(date ? toIsoDate(date) : "")}
+        />
+      )
+    }
 
     case AttributeType.TEXT:
       return (

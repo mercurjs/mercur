@@ -855,5 +855,165 @@ medusaIntegrationTestRunner({
         },
       )
     })
+    describe("Admin - date attributes and value patterns", () => {
+      beforeEach(async () => {
+        await createAdminUser(dbConnection, adminHeaders, appContainer)
+      })
+
+      const createAttribute = async (body: Record<string, unknown>) => {
+        const res = await api.post(
+          "/admin/product-attributes",
+          body,
+          adminHeaders,
+        )
+        return res.data.product_attribute as {
+          id: string
+          type: string
+          validation: { pattern?: string; message?: string } | null
+          values: unknown[]
+        }
+      }
+
+      const batch = (productId: string, body: Record<string, unknown>) =>
+        api
+          .post(
+            `/admin/products/${productId}/attributes/batch`,
+            body,
+            adminHeaders,
+          )
+          .catch((e) => e.response)
+
+      const linkedNames = async (productId: string, attrId: string) => {
+        const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+        const { data } = await query.graph({
+          entity: "product",
+          fields: [
+            "product_attribute_values.name",
+            "product_attribute_values.attribute.id",
+          ],
+          filters: { id: productId },
+        })
+        return (
+          (data[0]?.product_attribute_values ?? []) as {
+            name: string
+            attribute?: { id: string }
+          }[]
+        )
+          .filter((v) => v.attribute?.id === attrId)
+          .map((v) => v.name)
+      }
+
+      it("stores a date value as a single scalar row", async () => {
+        const attr = await createAttribute({
+          name: "Availability date",
+          type: "date",
+        })
+        expect(attr.type).toBe("date")
+        expect(attr.values).toEqual([])
+
+        const productId = await createProduct("Dated product")
+        const res = await batch(productId, {
+          add: [{ id: attr.id, value: "2026-11-30" }],
+        })
+        expect(res.status).toBe(200)
+        expect(await linkedNames(productId, attr.id)).toEqual(["2026-11-30"])
+
+        const upd = await batch(productId, {
+          update: [{ id: attr.id, value: "2027-01-15" }],
+        })
+        expect(upd.status).toBe(200)
+        expect(await linkedNames(productId, attr.id)).toEqual(["2027-01-15"])
+      })
+
+      it.each(["30.11.2026", "2026-02-30", "2026-11"])(
+        "rejects the malformed date %s",
+        async (value) => {
+          const attr = await createAttribute({
+            name: `Date ${value}`,
+            type: "date",
+          })
+          const productId = await createProduct(`Bad date ${value}`)
+
+          const res = await batch(productId, {
+            add: [{ id: attr.id, value }],
+          })
+          expect(res.status).toBe(400)
+          expect(res.data.message).toContain("YYYY-MM-DD")
+          expect(await linkedNames(productId, attr.id)).toEqual([])
+        },
+      )
+
+      it("persists a validation pattern and enforces it on add and update", async () => {
+        const attr = await createAttribute({
+          name: "Availability quarter",
+          type: "text",
+          validation: {
+            pattern: "\\d{4}-Q[1-4]",
+            message: "Use the YYYY-Qn format",
+          },
+        })
+        expect(attr.validation).toEqual({
+          pattern: "\\d{4}-Q[1-4]",
+          message: "Use the YYYY-Qn format",
+        })
+
+        const productId = await createProduct("Quarter product")
+
+        const bad = await batch(productId, {
+          add: [{ id: attr.id, value: "Q4 2026" }],
+        })
+        expect(bad.status).toBe(400)
+        expect(bad.data.message).toContain("Use the YYYY-Qn format")
+
+        // The pattern is anchored, so a valid prefix is not enough.
+        const partial = await batch(productId, {
+          add: [{ id: attr.id, value: "2026-Q4x" }],
+        })
+        expect(partial.status).toBe(400)
+
+        const ok = await batch(productId, {
+          add: [{ id: attr.id, value: "2026-Q4" }],
+        })
+        expect(ok.status).toBe(200)
+
+        const badUpdate = await batch(productId, {
+          update: [{ id: attr.id, value: "2026-Q5" }],
+        })
+        expect(badUpdate.status).toBe(400)
+        expect(await linkedNames(productId, attr.id)).toEqual(["2026-Q4"])
+      })
+
+      it("updates and clears the validation pattern", async () => {
+        const attr = await createAttribute({ name: "Batch code", type: "unit" })
+        expect(attr.validation).toBeNull()
+
+        const set = await api.post(
+          `/admin/product-attributes/${attr.id}`,
+          { validation: { pattern: "[A-Z]{3}" } },
+          adminHeaders,
+        )
+        expect(set.data.product_attribute.validation).toEqual({
+          pattern: "[A-Z]{3}",
+        })
+
+        const cleared = await api.post(
+          `/admin/product-attributes/${attr.id}`,
+          { validation: null },
+          adminHeaders,
+        )
+        expect(cleared.data.product_attribute.validation).toBeNull()
+      })
+
+      it("rejects a pattern that is not a valid regular expression", async () => {
+        const res = await api
+          .post(
+            "/admin/product-attributes",
+            { name: "Broken", type: "text", validation: { pattern: "([a-z" } },
+            adminHeaders,
+          )
+          .catch((e) => e.response)
+        expect(res.status).toBe(400)
+      })
+    })
   },
 })

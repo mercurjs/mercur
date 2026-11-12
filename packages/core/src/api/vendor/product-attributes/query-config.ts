@@ -10,6 +10,7 @@ export const vendorProductAttributeFields = [
   "is_active",
   "created_by",
   "product_id",
+  "validation",
   "rank",
   "metadata",
   "created_at",

@@ -25,6 +25,7 @@ import {
 import { useTranslation } from "react-i18next"
 
 import { Form } from "@components/common/form"
+import { AttributeValueInput } from "@components/inputs/attribute-value-input"
 import { ChipInput } from "@components/inputs/chip-input"
 import { Combobox } from "@components/inputs/combobox"
 import { StackedFocusModal, useStackedModal } from "@components/modals"
@@ -382,6 +383,18 @@ const SelectedAttributes = ({
                     </Select>
                   )}
                 />
+              ) : attrType === AttributeType.DATE ? (
+                <Controller
+                  control={form.control}
+                  name={`attributes.${index}.values`}
+                  render={({ field: { onChange, value } }) => (
+                    <AttributeValueInput
+                      type={AttributeType.DATE}
+                      value={value ?? ""}
+                      onChange={onChange}
+                    />
+                  )}
+                />
               ) : attrType === AttributeType.TEXT ? (
                 <Controller
                   control={form.control}
@@ -632,6 +645,12 @@ const RequiredAttributeField = ({
                 placeholder={t(
                   "products.create.attributes.selectValues"
                 )}
+              />
+            ) : attribute.type === AttributeType.DATE ? (
+              <AttributeValueInput
+                type={AttributeType.DATE}
+                value={value ?? ""}
+                onChange={onChange}
               />
             ) : attribute.type === AttributeType.TEXT ? (
               <Input

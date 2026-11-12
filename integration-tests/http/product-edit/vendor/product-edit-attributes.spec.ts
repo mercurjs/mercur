@@ -103,6 +103,41 @@ medusaIntegrationTestRunner({
         )
       }
 
+      it("rejects a staged value that breaks the attribute pattern", async () => {
+        const service: any = container.resolve(MercurModules.PRODUCT_ATTRIBUTE)
+        const [attribute] = await service.createProductAttributes([
+          {
+            name: "Availability month",
+            handle: "availability-month",
+            type: "text",
+            validation: { pattern: "\\d{4}-(0[1-9]|1[0-2])" },
+          },
+        ])
+
+        const product = await createVendorProduct(api, sellerHeaders, {
+          title: "Monthly Product",
+        })
+
+        const res = await api
+          .post(
+            `/vendor/products/${product.id}/attributes/batch`,
+            { add: [{ id: attribute.id, value: "2026-13" }] },
+            sellerHeaders,
+          )
+          .catch((e) => e.response)
+        expect(res.status).toBe(400)
+        expect(res.data.message).toContain("Availability month")
+
+        const actions = await actionsOf(product.id, {
+          add: [{ id: attribute.id, value: "2026-12" }],
+        })
+        expect(
+          actions.some(
+            (a) => a.action === ProductChangeActionType.ATTRIBUTE_ADD,
+          ),
+        ).toBe(true)
+      })
+
       it("records previous_value on an attribute update", async () => {
         const material = await createGlobalAttribute({
           name: "Material",
