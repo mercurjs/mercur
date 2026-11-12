@@ -416,7 +416,7 @@ const Header = () => {
 
 const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
   const { t } = useTranslation();
-  const inboxEnabled = useFeatureFlag("product_request");
+  const requestsEnabled = useFeatureFlag("product_request");
 
   return [
     {
@@ -436,8 +436,8 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       label: t("products.domain"),
       to: "/products",
       items: [
-        ...(inboxEnabled
-          ? [{ label: t("products.inbox.domain"), to: "/products/inbox" }]
+        ...(requestsEnabled
+          ? [{ label: t("products.requests.domain"), to: "/products/requests" }]
           : []),
         {
           label: t("offers.domain"),

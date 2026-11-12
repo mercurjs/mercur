@@ -9,11 +9,11 @@ import {
   useFeatureFlagContext,
 } from "../../../providers/feature-flag-provider"
 import {
-  ProductInboxDataTable,
-  ProductInboxHeader,
-  ProductInboxTable,
-  ProductInboxTitle,
-} from "./components/product-inbox-table"
+  ProductRequestsDataTable,
+  ProductRequestsHeader,
+  ProductRequestsTable,
+  ProductRequestsTitle,
+} from "./components/product-requests-table"
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { isLoading } = useFeatureFlagContext()
@@ -29,18 +29,18 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
   return (
     <SingleColumnPage>
-      <WidgetZone id="products.inbox">
-        {Children.count(children) > 0 ? children : <ProductInboxTable />}
+      <WidgetZone id="products.requests">
+        {Children.count(children) > 0 ? children : <ProductRequestsTable />}
       </WidgetZone>
     </SingleColumnPage>
   )
 }
 
-export const ProductInboxPage = Object.assign(Root, {
-  Table: ProductInboxTable,
-  Header: ProductInboxHeader,
-  HeaderTitle: ProductInboxTitle,
-  DataTable: ProductInboxDataTable,
+export const ProductRequestsPage = Object.assign(Root, {
+  Table: ProductRequestsTable,
+  Header: ProductRequestsHeader,
+  HeaderTitle: ProductRequestsTitle,
+  DataTable: ProductRequestsDataTable,
 })
 
 export const Component = Root

@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next"
 
 import { Filter } from "../../../../../components/table/data-table"
 import { useSellers } from "../../../../../hooks/api/sellers"
-import { INBOX_TYPES } from "../../../common/inbox"
+import { REQUEST_TYPES } from "../../../common/requests"
 
-export const useProductInboxTableFilters = (): Filter[] => {
+export const useProductRequestsTableFilters = (): Filter[] => {
   const { t } = useTranslation()
   const { can } = usePermissions()
   const { sellers } = useSellers({ limit: 1000 }, { enabled: can("sellers") })
@@ -14,10 +14,10 @@ export const useProductInboxTableFilters = (): Filter[] => {
     {
       type: "select",
       key: "type",
-      label: t("products.inbox.fields.type"),
+      label: t("products.requests.fields.type"),
       multiple: true,
-      options: INBOX_TYPES.map((type) => ({
-        label: t(`products.inbox.types.${type}`),
+      options: REQUEST_TYPES.map((type) => ({
+        label: t(`products.requests.types.${type}`),
         value: type,
       })),
     },
@@ -27,7 +27,7 @@ export const useProductInboxTableFilters = (): Filter[] => {
     filters.push({
       type: "select",
       key: "seller_id",
-      label: t("products.inbox.fields.store"),
+      label: t("products.requests.fields.store"),
       multiple: true,
       searchable: true,
       options: sellers.map((s: { id: string; name?: string | null }) => ({

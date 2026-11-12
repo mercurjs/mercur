@@ -105,12 +105,12 @@ export function getRouteMap({
                 },
                 children: [
                   {
-                    path: "inbox",
+                    path: "requests",
                     handle: {
-                      breadcrumb: () => t("products.inbox.domain"),
+                      breadcrumb: () => t("products.requests.domain"),
                       permissions: ["product_changes:view", "products:view"],
                     },
-                    lazy: () => import("./pages/products/product-inbox"),
+                    lazy: () => import("./pages/products/product-requests"),
                   },
                   {
                     path: "",

@@ -74,13 +74,13 @@ export interface VendorDeleteResponse {
 export interface VendorProduct extends ProductDTO {
   sales_channels?: SalesChannelDTO[];
 }
-export type AdminProductChangeInboxType = "new_product" | "update" | "delete"
+export type AdminProductChangeRequestType = "new_product" | "update" | "delete"
 
-export interface AdminProductChangeInboxItem {
+export interface AdminProductChangeRequestItem {
   id: string
   product_id: string
   status: ProductChangeStatus
-  type: AdminProductChangeInboxType
+  type: AdminProductChangeRequestType
   action_count: number
   product_title: string
   product_thumbnail: string | null
@@ -95,6 +95,6 @@ export interface AdminProductChangeInboxItem {
   updated_at: string
 }
 
-export type AdminProductChangeInboxListResponse = PaginatedResponse<{
-  product_changes: AdminProductChangeInboxItem[]
+export type AdminProductChangeRequestListResponse = PaginatedResponse<{
+  product_changes: AdminProductChangeRequestItem[]
 }>

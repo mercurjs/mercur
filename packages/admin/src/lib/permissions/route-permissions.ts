@@ -13,7 +13,7 @@ import type { Permission } from "@mercurjs/dashboard-sdk"
 export const ROUTE_PERMISSIONS: Record<string, Permission | Permission[]> = {
   "/orders": "orders:view",
   "/products": "products:view",
-  "/products/inbox": ["product_changes:view", "products:view"],
+  "/products/requests": ["product_changes:view", "products:view"],
   // An offer is always shown with its master product.
   "/offers": ["offers:view", "products:view"],
   "/collections": "product_collections:view",

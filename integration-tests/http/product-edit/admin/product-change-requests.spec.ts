@@ -16,7 +16,7 @@ jest.setTimeout(60_000)
 
 medusaIntegrationTestRunner({
   testSuite: ({ getContainer, dbConnection, api }) => {
-    describe("GET /admin/product-changes (inbox)", () => {
+    describe("GET /admin/product-changes (requests)", () => {
       let container: MedusaContainer
       let sellerHeaders: { headers: Record<string, string> }
       let otherSellerHeaders: { headers: Record<string, string> }
@@ -30,13 +30,13 @@ medusaIntegrationTestRunner({
       beforeEach(async () => {
         await createAdminUser(dbConnection, adminHeaders, container)
         const a = await createSellerUser(container, {
-          email: "inbox-seller@test.com",
-          name: "Inbox Seller",
+          email: "requests-seller@test.com",
+          name: "Requests Seller",
         })
         sellerHeaders = a.headers
         sellerId = sellerHeaders.headers["x-seller-id"]
         const b = await createSellerUser(container, {
-          email: "inbox-other@test.com",
+          email: "requests-other@test.com",
           name: "Other Seller",
         })
         otherSellerHeaders = b.headers
@@ -79,7 +79,7 @@ medusaIntegrationTestRunner({
         return change.id as string
       }
 
-      const listInbox = async (query = "") => {
+      const listRequests = async (query = "") => {
         const res = await api.get(`/admin/product-changes${query}`, adminHeaders)
         expect(res.status).toBe(200)
         return res.data as {
@@ -102,7 +102,7 @@ medusaIntegrationTestRunner({
       it("lists a vendor-proposed product as a new_product row", async () => {
         const productId = await createVendorProduct("Awaiting Review")
 
-        const { product_changes, count } = await listInbox()
+        const { product_changes, count } = await listRequests()
 
         expect(count).toBe(1)
         expect(product_changes[0]).toEqual(
@@ -113,7 +113,7 @@ medusaIntegrationTestRunner({
             product_title: "Awaiting Review",
             product_status: "proposed",
             seller_id: sellerId,
-            seller_name: "Inbox Seller",
+            seller_name: "Requests Seller",
           }),
         )
       })
@@ -129,7 +129,7 @@ medusaIntegrationTestRunner({
         )
         await api.post(`/admin/products/${rejectedId}/reject`, {}, adminHeaders)
 
-        const { product_changes } = await listInbox()
+        const { product_changes } = await listRequests()
         expect(product_changes).toHaveLength(0)
       })
 
@@ -142,7 +142,7 @@ medusaIntegrationTestRunner({
           adminHeaders,
         )
 
-        const { product_changes } = await listInbox()
+        const { product_changes } = await listRequests()
         expect(product_changes).toHaveLength(0)
       })
 
@@ -168,7 +168,7 @@ medusaIntegrationTestRunner({
           { action: ProductChangeActionType.PRODUCT_DELETE },
         ])
 
-        const { product_changes } = await listInbox("?order=created_at")
+        const { product_changes } = await listRequests("?order=created_at")
         expect(product_changes.map((c) => [c.id, c.type, c.action_count])).toEqual([
           [updateId, "update", 2],
           [deleteId, "delete", 1],
@@ -180,7 +180,7 @@ medusaIntegrationTestRunner({
           adminHeaders,
         )
 
-        const after = await listInbox()
+        const after = await listRequests()
         expect(after.product_changes.map((c) => c.id)).toEqual([deleteId])
       })
 
@@ -191,7 +191,7 @@ medusaIntegrationTestRunner({
           { message: "Add a description" },
           adminHeaders,
         )
-        expect((await listInbox()).count).toBe(0)
+        expect((await listRequests()).count).toBe(0)
 
         const res = await api.post(
           `/vendor/products/${productId}`,
@@ -200,7 +200,7 @@ medusaIntegrationTestRunner({
         )
         expect(res.status).toBe(202)
 
-        const { product_changes } = await listInbox()
+        const { product_changes } = await listRequests()
         expect(product_changes.map((c) => [c.product_id, c.type])).toEqual([
           [productId, "new_product"],
         ])
@@ -214,7 +214,7 @@ medusaIntegrationTestRunner({
         )
         expect(res.status).toBe(200)
 
-        const { count } = await listInbox()
+        const { count } = await listRequests()
         expect(count).toBe(0)
       })
 
@@ -234,20 +234,20 @@ medusaIntegrationTestRunner({
           { action: ProductChangeActionType.UPDATE, details: { field: "title" } },
         ])
 
-        const byType = await listInbox("?type=update")
+        const byType = await listRequests("?type=update")
         expect(byType.product_changes.map((c) => c.id)).toEqual([updateId])
 
-        const bySeller = await listInbox(`?seller_id=${otherSellerId}`)
+        const bySeller = await listRequests(`?seller_id=${otherSellerId}`)
         expect(bySeller.product_changes.map((c) => c.product_id)).toEqual([
           otherProposedId,
         ])
 
-        const bySearch = await listInbox("?q=alpha")
+        const bySearch = await listRequests("?q=alpha")
         expect(bySearch.product_changes.map((c) => c.product_id)).toEqual([
           proposedId,
         ])
 
-        const byStore = await listInbox("?q=Other%20Seller")
+        const byStore = await listRequests("?q=Other%20Seller")
         expect(byStore.product_changes.map((c) => c.product_id)).toEqual([
           otherProposedId,
         ])
@@ -258,14 +258,14 @@ medusaIntegrationTestRunner({
         await createVendorProduct("Alpha")
         await createVendorProduct("Bravo")
 
-        const asc = await listInbox("?order=product_title")
+        const asc = await listRequests("?order=product_title")
         expect(asc.product_changes.map((c) => c.product_title)).toEqual([
           "Alpha",
           "Bravo",
           "Charlie",
         ])
 
-        const desc = await listInbox("?order=-product_title&limit=2")
+        const desc = await listRequests("?order=-product_title&limit=2")
         expect(desc.count).toBe(3)
         expect(desc.limit).toBe(2)
         expect(desc.product_changes.map((c) => c.product_title)).toEqual([
@@ -273,7 +273,7 @@ medusaIntegrationTestRunner({
           "Bravo",
         ])
 
-        const page2 = await listInbox("?order=-product_title&limit=2&offset=2")
+        const page2 = await listRequests("?order=-product_title&limit=2&offset=2")
         expect(page2.offset).toBe(2)
         expect(page2.product_changes.map((c) => c.product_title)).toEqual([
           "Alpha",

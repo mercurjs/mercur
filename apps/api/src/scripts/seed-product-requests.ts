@@ -10,12 +10,12 @@ import {
 } from "@mercurjs/types"
 
 /**
- * Fill the admin Products → Inbox with work for the operator: a few
+ * Fill the admin Products → Requests with work for the operator: a few
  * vendor-submitted (proposed) products per store plus pending edit and
  * deletion requests on products those stores already sell.
  *
  * Run:
- *   bun --cwd apps/api run medusa exec ./src/scripts/seed-product-inbox.ts
+ *   bun --cwd apps/api run medusa exec ./src/scripts/seed-product-requests.ts
  */
 const PROPOSED_PER_SELLER = 2
 
@@ -37,7 +37,7 @@ type ProductRow = {
   sellers?: SellerRow[] | null
 }
 
-export default async function seedProductInbox({ container }: ExecArgs) {
+export default async function seedProductRequests({ container }: ExecArgs) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const productEdit = container.resolve(MercurModules.PRODUCT_EDIT)

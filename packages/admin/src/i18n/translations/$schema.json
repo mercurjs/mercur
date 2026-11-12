@@ -2628,7 +2628,7 @@
           ],
           "additionalProperties": false
         },
-        "inbox": {
+        "requests": {
           "type": "object",
           "properties": {
             "domain": {
@@ -3659,7 +3659,7 @@
         "deleteVariantWarning",
         "productStatus",
         "request",
-        "inbox",
+        "requests",
         "edits",
         "columns",
         "fields",

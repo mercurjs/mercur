@@ -1,13 +1,13 @@
 import { HttpTypes } from "@mercurjs/types"
 
-export const INBOX_TYPES = [
+export const REQUEST_TYPES = [
   "new_product",
   "update",
   "delete",
-] as const satisfies HttpTypes.AdminProductChangeInboxType[]
+] as const satisfies HttpTypes.AdminProductChangeRequestType[]
 
-export const INBOX_TYPE_COLORS: Record<
-  HttpTypes.AdminProductChangeInboxType,
+export const REQUEST_TYPE_COLORS: Record<
+  HttpTypes.AdminProductChangeRequestType,
   "blue" | "orange" | "red"
 > = {
   new_product: "blue",
