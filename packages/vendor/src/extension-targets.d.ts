@@ -4,40 +4,59 @@ import "@mercurjs/dashboard-sdk"
 
 declare module "@mercurjs/dashboard-sdk" {
   interface WidgetZoneRegistry {
+    "campaigns.detail": true
+    "campaigns.detail.main": true
     "campaigns.detail.main.after": true
     "campaigns.detail.main.before": true
+    "campaigns.detail.side": true
     "campaigns.detail.side.after": true
     "campaigns.detail.side.before": true
     "campaigns.list.after": true
     "campaigns.list.before": true
+    "categories.detail": true
+    "categories.detail.main": true
     "categories.detail.main.after": true
     "categories.detail.main.before": true
+    "categories.detail.side": true
     "categories.detail.side.after": true
     "categories.detail.side.before": true
     "categories.list.after": true
     "categories.list.before": true
+    "collections.detail": true
+    "collections.detail.main": true
     "collections.detail.main.after": true
     "collections.detail.main.before": true
     "collections.list.after": true
     "collections.list.before": true
+    "customer-groups.detail": true
+    "customer-groups.detail.main": true
     "customer-groups.detail.main.after": true
     "customer-groups.detail.main.before": true
     "customer-groups.list.after": true
     "customer-groups.list.before": true
+    "customers.detail": true
+    "customers.detail.main": true
     "customers.detail.main.after": true
     "customers.detail.main.before": true
+    "customers.detail.side": true
     "customers.detail.side.after": true
     "customers.detail.side.before": true
     "customers.list.after": true
     "customers.list.before": true
+    "inventory.detail": true
+    "inventory.detail.main": true
     "inventory.detail.main.after": true
     "inventory.detail.main.before": true
+    "inventory.detail.side": true
     "inventory.detail.side.after": true
     "inventory.detail.side.before": true
     "inventory.list.after": true
     "inventory.list.before": true
+    "locations.detail": true
+    "locations.detail.main": true
     "locations.detail.main.after": true
     "locations.detail.main.before": true
+    "locations.detail.side": true
     "locations.detail.side.after": true
     "locations.detail.side.before": true
     "locations.list.after": true
@@ -50,8 +69,11 @@ declare module "@mercurjs/dashboard-sdk" {
     "login.before.before": true
     "login.logo.after": true
     "login.logo.before": true
+    "offer-variants.detail": true
+    "offer-variants.detail.main": true
     "offer-variants.detail.main.after": true
     "offer-variants.detail.main.before": true
+    "offer-variants.detail.side": true
     "offer-variants.detail.side.after": true
     "offer-variants.detail.side.before": true
     "offers.detail": true
@@ -63,58 +85,86 @@ declare module "@mercurjs/dashboard-sdk" {
     "offers.detail.side.before": true
     "offers.list.after": true
     "offers.list.before": true
+    "orders.detail": true
     "orders.detail.item.after": true
     "orders.detail.item.before": true
+    "orders.detail.main": true
     "orders.detail.main.after": true
     "orders.detail.main.before": true
+    "orders.detail.side": true
     "orders.detail.side.after": true
     "orders.detail.side.before": true
     "orders.detail.summary.after": true
     "orders.detail.summary.before": true
     "orders.list.after": true
     "orders.list.before": true
+    "payouts.detail": true
+    "payouts.detail.main": true
     "payouts.detail.main.after": true
     "payouts.detail.main.before": true
+    "payouts.detail.side": true
     "payouts.detail.side.after": true
     "payouts.detail.side.before": true
     "payouts.list.after": true
     "payouts.list.before": true
+    "price-lists.detail": true
+    "price-lists.detail.main": true
     "price-lists.detail.main.after": true
     "price-lists.detail.main.before": true
+    "price-lists.detail.side": true
     "price-lists.detail.side.after": true
     "price-lists.detail.side.before": true
     "price-lists.list.after": true
     "price-lists.list.before": true
+    "product-tags.detail": true
+    "product-tags.detail.main": true
     "product-tags.detail.main.after": true
     "product-tags.detail.main.before": true
     "product-tags.list.after": true
     "product-tags.list.before": true
+    "product-types.detail": true
+    "product-types.detail.main": true
     "product-types.detail.main.after": true
     "product-types.detail.main.before": true
     "product-types.list.after": true
     "product-types.list.before": true
+    "product-variants.detail": true
+    "product-variants.detail.main": true
     "product-variants.detail.main.after": true
     "product-variants.detail.main.before": true
+    "product.detail": true
+    "product.detail.main": true
     "product.detail.main.after": true
     "product.detail.main.before": true
+    "product.detail.side": true
     "product.detail.side.after": true
     "product.detail.side.before": true
     "product.list.after": true
     "product.list.before": true
+    "profile.detail": true
+    "profile.detail.main": true
     "profile.detail.main.after": true
     "profile.detail.main.before": true
+    "promotions.detail": true
+    "promotions.detail.main": true
     "promotions.detail.main.after": true
     "promotions.detail.main.before": true
+    "promotions.detail.side": true
     "promotions.detail.side.after": true
     "promotions.detail.side.before": true
     "promotions.list.after": true
     "promotions.list.before": true
+    "regions.detail": true
+    "regions.detail.main": true
     "regions.detail.main.after": true
     "regions.detail.main.before": true
     "regions.list.after": true
     "regions.list.before": true
+    "reservations.detail": true
+    "reservations.detail.main": true
     "reservations.detail.main.after": true
     "reservations.detail.main.before": true
+    "reservations.detail.side": true
     "reservations.detail.side.after": true
     "reservations.detail.side.before": true
     "reservations.list.after": true
@@ -123,14 +173,20 @@ declare module "@mercurjs/dashboard-sdk" {
     "return-reasons.list.before": true
     "seller.setup.after": true
     "seller.setup.before": true
+    "shipping-profiles.detail": true
+    "shipping-profiles.detail.main": true
     "shipping-profiles.detail.main.after": true
     "shipping-profiles.detail.main.before": true
     "shipping-profiles.list.after": true
     "shipping-profiles.list.before": true
+    "tax-regions.detail": true
+    "tax-regions.detail.main": true
     "tax-regions.detail.main.after": true
     "tax-regions.detail.main.before": true
     "tax-regions.list.after": true
     "tax-regions.list.before": true
+    "tax-regions.province.detail": true
+    "tax-regions.province.detail.main": true
     "tax-regions.province.detail.main.after": true
     "tax-regions.province.detail.main.before": true
     "team.list.after": true
@@ -140,10 +196,89 @@ declare module "@mercurjs/dashboard-sdk" {
   }
 
   interface LayoutEntryRegistry {
+    "core:ActiveOrderClaimSection": true
+    "core:ActiveOrderExchangeSection": true
+    "core:ActiveOrderReturnSection": true
+    "core:AssociatedOffersSection": true
+    "core:CampaignBudget": true
+    "core:CampaignConfigurationSection": true
+    "core:CampaignGeneralSection": true
+    "core:CampaignPromotionSection": true
+    "core:CampaignSection": true
+    "core:CategoryGeneralSection": true
+    "core:CategoryIconSection": true
+    "core:CategoryMediaSection": true
+    "core:CategoryOrganizeSection": true
+    "core:CategoryProductSection": true
+    "core:CollectionGeneralSection": true
+    "core:CollectionIconSection": true
+    "core:CollectionMediaSection": true
+    "core:CollectionProductSection": true
+    "core:CustomerAddressSection": true
+    "core:CustomerGeneralSection": true
+    "core:CustomerGroupCustomerSection": true
+    "core:CustomerGroupGeneralSection": true
+    "core:CustomerGroupSection": true
+    "core:CustomerOrderSection": true
+    "core:InventoryItemAttributeSection": true
+    "core:InventoryItemGeneralSection": true
+    "core:InventoryItemLocationLevelsSection": true
+    "core:InventoryItemReservationsSection": true
+    "core:JsonViewSection": true
+    "core:LocationGeneralSection": true
+    "core:LocationsFulfillmentProvidersSection": true
+    "core:MetadataSection": true
     "core:OfferAssociatedProductSection": true
     "core:OfferDetailGeneralSection": true
+    "core:OfferInventorySection": true
+    "core:OfferPricingSection": true
+    "core:OfferVariantGeneralSection": true
+    "core:OfferVariantShippingSection": true
     "core:OfferVariantsSection": true
+    "core:OrderActiveEditSection": true
+    "core:OrderActivitySection": true
+    "core:OrderCustomerSection": true
+    "core:OrderFulfillmentSection": true
+    "core:OrderGeneralSection": true
+    "core:OrderPaymentSection": true
+    "core:OrderSummarySection": true
+    "core:PayoutGeneralSection": true
+    "core:PayoutReferencesSection": true
+    "core:PayoutReversalsSection": true
+    "core:PayoutStatusAlert": true
+    "core:PriceListConfigurationSection": true
+    "core:PriceListCustomerAvailabilitySection": true
+    "core:PriceListGeneralSection": true
+    "core:PriceListProductSection": true
+    "core:ProductActiveEditSection": true
+    "core:ProductAttributeSection": true
+    "core:ProductChangeRequestSection": true
+    "core:ProductGeneralSection": true
     "core:ProductMediaSection": true
+    "core:ProductOrganizationSection": true
+    "core:ProductTagGeneralSection": true
+    "core:ProductTagProductSection": true
+    "core:ProductTypeGeneralSection": true
+    "core:ProductTypeProductSection": true
+    "core:ProductVariantSection": true
+    "core:ProfileGeneralSection": true
+    "core:PromotionBuyRulesConditionsSection": true
+    "core:PromotionGeneralSection": true
+    "core:PromotionRulesConditionsSection": true
+    "core:PromotionTargetRulesConditionsSection": true
+    "core:RegionCountrySection": true
+    "core:RegionGeneralSection": true
+    "core:ReservationGeneralSection": true
+    "core:ReservationInventorySection": true
+    "core:ShippingProfileGeneralSection": true
+    "core:TaxRegionDetailSection": true
+    "core:TaxRegionOverrideSection": true
+    "core:TaxRegionProvinceDetailSection": true
+    "core:TaxRegionProvinceOverrideSection": true
+    "core:TaxRegionProvinceSection": true
+    "core:TaxRegionSublevelAlert": true
+    "core:VariantGeneralSection": true
+    "core:VariantMediaSection": true
   }
 
   interface NavItemRegistry {

@@ -1,16 +1,15 @@
-import { Children, ReactNode } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { SingleColumnPageSkeleton } from "@components/common/skeleton";
-import { SingleColumnPage } from "@components/layout/pages";
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
+import { LayoutComposer } from "@mercurjs/dashboard-shared";
 import { useShippingProfile } from "@hooks/api/shipping-profiles";
 
 import { ShippingProfileGeneralSection } from "./_components/shipping-profile-general-section";
 
 import type { shippingProfileLoader } from "./loader";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const ShippingProfileDetailPage = () => {
   const { shipping_profile_id } = useParams();
 
   const initialData = useLoaderData() as Awaited<
@@ -34,18 +33,17 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return (
-    <SingleColumnPage data={shipping_profile}>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <WidgetZone id="shipping-profiles.detail.main" data={shipping_profile}>
-          <ShippingProfileGeneralSection profile={shipping_profile} />
-        </WidgetZone>
-      )}
-    </SingleColumnPage>
+    <LayoutComposer
+      widgetsZonePrefix="shipping-profiles.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={shipping_profile}
+      sections={{
+        main: (
+          <LayoutComposer.Entry id="ShippingProfileGeneralSection">
+            <ShippingProfileGeneralSection profile={shipping_profile} />
+          </LayoutComposer.Entry>
+        ),
+      }}
+    />
   );
 };
-
-export const ShippingProfileDetailPage = Object.assign(Root, {
-  GeneralSection: ShippingProfileGeneralSection,
-});

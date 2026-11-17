@@ -1,9 +1,8 @@
-import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import { LayoutComposer } from "@mercurjs/dashboard-shared"
 import { TwoColumnPageSkeleton } from "../../../../../components/common/skeleton"
-import { TwoColumnPage } from "../../../../../components/layout/pages"
 import { useOffer } from "../../../../../hooks/api/offers"
 import { OfferDTO } from "@mercurjs/types"
 import { OFFER_VARIANT_DETAIL_FIELDS } from "../../../common/constants"
@@ -18,7 +17,7 @@ import {
 import { OfferVariantShippingSection } from "./_components/offer-variant-shipping-section"
 import { loader } from "./loader"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const OfferVariantDetailPage = () => {
   const { offer_id } = useParams()
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>
 
@@ -46,38 +45,37 @@ const Root = ({ children }: { children?: ReactNode }) => {
     Pick<OfferDTO, "shipping_profile">
 
   return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage data={typed} hasOutlet>
-          <TwoColumnPage.Main>
-            <WidgetZone id="offer-variants.detail.main" data={typed}>
+    <LayoutComposer
+      widgetsZonePrefix="offer-variants.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
+      data={typed}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="OfferVariantGeneralSection">
               <OfferVariantGeneralSection offer={typed} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="OfferInventorySection">
               <OfferInventorySection offer={typed} />
-            </WidgetZone>
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            <WidgetZone id="offer-variants.detail.side" data={typed}>
+            </LayoutComposer.Entry>
+          </>
+        ),
+        side: (
+          <>
+            <LayoutComposer.Entry id="OfferVariantShippingSection">
               <OfferVariantShippingSection offer={typed} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="OfferPricingSection">
               <OfferPricingSection offer={typed} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="OfferStoreSidebar">
               <OfferStoreSidebar seller={typed.seller} />
-            </WidgetZone>
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </>
+            </LayoutComposer.Entry>
+          </>
+        ),
+      }}
+    />
   )
 }
 
-export const OfferVariantDetailPage = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  General: OfferVariantGeneralSection,
-  Inventory: OfferInventorySection,
-  Shipping: OfferVariantShippingSection,
-  Pricing: OfferPricingSection,
-  Store: OfferStoreSidebar,
-})
-
-export const Component = Root
+export const Component = OfferVariantDetailPage

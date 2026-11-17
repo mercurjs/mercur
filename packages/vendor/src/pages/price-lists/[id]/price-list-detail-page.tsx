@@ -1,9 +1,8 @@
-import { Children, ReactNode } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
-import { TwoColumnPage } from "@components/layout/pages";
-import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
+import { LayoutComposer, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { usePriceList } from "@hooks/api/price-lists";
 
 import { PriceListConfigurationSection } from "./_components/price-list-configuration-section";
@@ -13,7 +12,7 @@ import { PriceListProductSection } from "./_components/price-list-product-sectio
 
 import type { loader } from "./loader";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const PriceListDetailPage = () => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>;
   const { id } = useParams();
 
@@ -33,34 +32,30 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage hasOutlet data={price_list}>
-          <TwoColumnPage.Main>
-            <WidgetZone id="price-lists.detail.main" data={price_list}>
+    <LayoutComposer
+      widgetsZonePrefix="price-lists.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
+      data={price_list}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="PriceListGeneralSection">
               <PriceListGeneralSection priceList={price_list} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="PriceListCustomerAvailabilitySection">
               <PriceListCustomerAvailabilitySection priceList={price_list} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="PriceListProductSection">
               <PriceListProductSection priceList={price_list} />
-            </WidgetZone>
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            <WidgetZone id="price-lists.detail.side" data={price_list}>
-              <PriceListConfigurationSection priceList={price_list} />
-            </WidgetZone>
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </>
+            </LayoutComposer.Entry>
+          </>
+        ),
+        side: (
+          <LayoutComposer.Entry id="PriceListConfigurationSection">
+            <PriceListConfigurationSection priceList={price_list} />
+          </LayoutComposer.Entry>
+        ),
+      }}
+    />
   );
 };
-
-export const PriceListDetailPage = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  MainGeneralSection: PriceListGeneralSection,
-  MainCustomerAvailabilitySection: PriceListCustomerAvailabilitySection,
-  MainProductSection: PriceListProductSection,
-  SidebarConfigurationSection: PriceListConfigurationSection,
-});

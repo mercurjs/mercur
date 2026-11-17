@@ -1,16 +1,18 @@
-import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
+import {
+  LayoutComposer,
+  detailPageDefaultEntries,
+} from "@mercurjs/dashboard-shared";
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton";
-import { SingleColumnPage } from "../../../components/layout/pages";
 import { useProductAttribute } from "../../../hooks/api";
 
 import { AttributeGeneralSection } from "./components/attribute-general-section";
 import { AttributePossibleValuesSection } from "./components/attribute-possible-values-section";
 import { attributeDetailLoader } from "./loader";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const AttributeDetailPage = () => {
   const { id } = useParams();
 
   const initialData = useLoaderData() as Awaited<
@@ -38,21 +40,24 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
-  return Children.count(children) > 0 ? (
-    <SingleColumnPage hasOutlet showJSON data={attribute}>
-      {children}
-    </SingleColumnPage>
-  ) : (
-    <SingleColumnPage hasOutlet showJSON data={attribute}>
-      <WidgetZone id="attributes.detail.main" data={attribute}>
-        <AttributeGeneralSection attribute={attribute} />
-        <AttributePossibleValuesSection attribute={attribute} />
-      </WidgetZone>
-    </SingleColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="attributes.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={attribute}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="AttributeGeneralSection">
+              <AttributeGeneralSection attribute={attribute} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="AttributePossibleValuesSection">
+              <AttributePossibleValuesSection attribute={attribute} />
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(attribute, { metadata: false })}
+          </>
+        ),
+      }}
+    />
   );
 };
-
-export const AttributeDetailPage = Object.assign(Root, {
-  GeneralSection: AttributeGeneralSection,
-  PossibleValuesSection: AttributePossibleValuesSection,
-});

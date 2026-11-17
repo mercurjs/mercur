@@ -1,10 +1,14 @@
-import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { PermissionGuard, WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import {
+  LayoutComposer,
+  PermissionGuard,
+  detailPageDefaultEntries,
+  useLinkQuery,
+} from "@mercurjs/dashboard-shared"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
-import { SingleColumnPage } from "../../../components/layout/pages"
 import { useCollection } from "../../../hooks/api/collections"
 import { CollectionGeneralSection } from "./components/collection-general-section"
 import { CollectionIconSection } from "./components/collection-icon-section"
@@ -12,7 +16,7 @@ import { CollectionMediaSection } from "./components/collection-media-section"
 import { CollectionProductSection } from "./components/collection-product-section"
 import { collectionLoader } from "./loader"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const CollectionDetailPage = () => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof collectionLoader>
   >;
@@ -34,27 +38,32 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
-  return Children.count(children) > 0 ? (
-    <SingleColumnPage showJSON showMetadata data={collection}>
-      {children}
-    </SingleColumnPage>
-  ) : (
-    <SingleColumnPage showJSON showMetadata data={collection}>
-      <WidgetZone id="collections.detail.main" data={collection}>
-        <CollectionGeneralSection collection={collection} />
-        <CollectionMediaSection collection={collection} />
-        <CollectionIconSection collection={collection} />
-        <PermissionGuard permission="products:view">
-          <CollectionProductSection collection={collection} />
-        </PermissionGuard>
-      </WidgetZone>
-    </SingleColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="collections.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={collection}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="CollectionGeneralSection">
+              <CollectionGeneralSection collection={collection} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="CollectionMediaSection">
+              <CollectionMediaSection collection={collection} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="CollectionIconSection">
+              <CollectionIconSection collection={collection} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="CollectionProductSection">
+              <PermissionGuard permission="products:view">
+                <CollectionProductSection collection={collection} />
+              </PermissionGuard>
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(collection)}
+          </>
+        ),
+      }}
+    />
   );
 };
-
-export const CollectionDetailPage = Object.assign(Root, {
-  GeneralSection: CollectionGeneralSection,
-  MediaSection: CollectionMediaSection,
-  IconSection: CollectionIconSection,
-  ProductSection: CollectionProductSection,
-});

@@ -1,8 +1,8 @@
 import { useLoaderData, useParams } from "react-router-dom";
 
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
+import { LayoutComposer } from "@mercurjs/dashboard-shared";
 
-import { SingleColumnPage } from "@components/layout/pages";
 import { useTaxRegion } from "@hooks/api/tax-regions";
 import { TaxRegionDetailSection } from "./_components/tax-region-detail-section";
 import { TaxRegionProvinceSection } from "./_components/tax-region-province-section";
@@ -37,21 +37,36 @@ const TaxRegionDetail = () => {
   }
 
   return (
-    <SingleColumnPage data={taxRegion}>
-      <WidgetZone id="tax-regions.detail.main" data={taxRegion}>
-        <TaxRegionSublevelAlert
-          taxRegion={taxRegion}
-          showSublevelRegions={showSublevelRegions}
-          setShowSublevelRegions={setShowSublevelRegions}
-        />
-        <TaxRegionDetailSection taxRegion={taxRegion} />
-        <TaxRegionProvinceSection
-          taxRegion={taxRegion}
-          showSublevelRegions={showSublevelRegions}
-        />
-        <TaxRegionOverrideSection taxRegion={taxRegion} />
-      </WidgetZone>
-    </SingleColumnPage>
+    <LayoutComposer
+      widgetsZonePrefix="tax-regions.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={taxRegion}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="TaxRegionSublevelAlert">
+              <TaxRegionSublevelAlert
+                taxRegion={taxRegion}
+                showSublevelRegions={showSublevelRegions}
+                setShowSublevelRegions={setShowSublevelRegions}
+              />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="TaxRegionDetailSection">
+              <TaxRegionDetailSection taxRegion={taxRegion} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="TaxRegionProvinceSection">
+              <TaxRegionProvinceSection
+                taxRegion={taxRegion}
+                showSublevelRegions={showSublevelRegions}
+              />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="TaxRegionOverrideSection">
+              <TaxRegionOverrideSection taxRegion={taxRegion} />
+            </LayoutComposer.Entry>
+          </>
+        ),
+      }}
+    />
   );
 };
 

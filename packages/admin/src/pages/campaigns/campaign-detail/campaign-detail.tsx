@@ -1,11 +1,11 @@
-import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
-import { TwoColumnPage } from "../../../components/layout/pages"
 import {
+  LayoutComposer,
   PermissionGuard,
-  WidgetZone,
+  detailPageDefaultEntries,
   useLinkQuery,
 } from "@mercurjs/dashboard-shared"
 import { useCampaign } from "../../../hooks/api/campaigns"
@@ -16,7 +16,7 @@ import { CampaignPromotionSection } from "./components/campaign-promotion-sectio
 import { campaignLoader } from "./loader"
 import { CAMPAIGN_DETAIL_FIELDS } from "./constants"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const CampaignDetailPage = () => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof campaignLoader>
   >
@@ -44,35 +44,37 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return Children.count(children) > 0 ? (
-    <TwoColumnPage hasOutlet showJSON showMetadata data={campaign} data-testid="campaign-detail-page">
-      {children}
-    </TwoColumnPage>
-  ) : (
-    <TwoColumnPage hasOutlet showJSON showMetadata data={campaign} data-testid="campaign-detail-page">
-      <TwoColumnPage.Main>
-        <WidgetZone id="campaigns.detail.main" data={campaign}>
-          <CampaignGeneralSection campaign={campaign} />
-          <PermissionGuard permission="promotions:view">
-            <CampaignPromotionSection campaign={campaign} />
-          </PermissionGuard>
-        </WidgetZone>
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar>
-        <WidgetZone id="campaigns.detail.side" data={campaign}>
-          <CampaignConfigurationSection campaign={campaign} />
-          <CampaignBudget campaign={campaign} />
-        </WidgetZone>
-      </TwoColumnPage.Sidebar>
-    </TwoColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="campaigns.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
+      data={campaign}
+      data-testid="campaign-detail-page"
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="CampaignGeneralSection">
+              <CampaignGeneralSection campaign={campaign} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="CampaignPromotionSection">
+              <PermissionGuard permission="promotions:view">
+                <CampaignPromotionSection campaign={campaign} />
+              </PermissionGuard>
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(campaign)}
+          </>
+        ),
+        side: (
+          <>
+            <LayoutComposer.Entry id="CampaignConfigurationSection">
+              <CampaignConfigurationSection campaign={campaign} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="CampaignBudget">
+              <CampaignBudget campaign={campaign} />
+            </LayoutComposer.Entry>
+          </>
+        ),
+      }}
+    />
   )
 }
-
-export const CampaignDetailPage = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  MainGeneralSection: CampaignGeneralSection,
-  MainPromotionSection: CampaignPromotionSection,
-  SidebarConfigurationSection: CampaignConfigurationSection,
-  SidebarBudgetSection: CampaignBudget,
-})

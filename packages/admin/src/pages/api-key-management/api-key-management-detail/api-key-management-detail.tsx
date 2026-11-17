@@ -1,16 +1,19 @@
-import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { PermissionGuard, WidgetZone } from "@mercurjs/dashboard-shared"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import {
+  LayoutComposer,
+  PermissionGuard,
+  detailPageDefaultEntries,
+} from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
-import { SingleColumnPage } from "../../../components/layout/pages"
 import { useApiKey } from "../../../hooks/api/api-keys"
 import { ApiKeyType } from "../common/constants"
 import { ApiKeyGeneralSection } from "./components/api-key-general-section"
 import { ApiKeySalesChannelSection } from "./components/api-key-sales-channel-section"
 import { apiKeyLoader } from "./loader"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const ApiKeyManagementDetailPage = () => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof apiKeyLoader>
   >
@@ -31,35 +34,29 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
   const isPublishable = api_key.type === ApiKeyType.PUBLISHABLE
 
-  return Children.count(children) > 0 ? (
-    <SingleColumnPage
-      hasOutlet
-      showJSON
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="api-keys.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
       data={api_key}
       data-testid={`${api_key.type}-api-key-detail-page`}
-    >
-      {children}
-    </SingleColumnPage>
-  ) : (
-    <SingleColumnPage
-      hasOutlet
-      showJSON
-      data={api_key}
-      data-testid={`${api_key.type}-api-key-detail-page`}
-    >
-      <WidgetZone id="api-keys.detail.main" data={api_key}>
-        <ApiKeyGeneralSection apiKey={api_key} />
-        {isPublishable && (
-          <PermissionGuard permission="sales_channels:view">
-            <ApiKeySalesChannelSection apiKey={api_key} />
-          </PermissionGuard>
-        )}
-      </WidgetZone>
-    </SingleColumnPage>
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="ApiKeyGeneralSection">
+              <ApiKeyGeneralSection apiKey={api_key} />
+            </LayoutComposer.Entry>
+            {isPublishable && (
+              <LayoutComposer.Entry id="ApiKeySalesChannelSection">
+                <PermissionGuard permission="sales_channels:view">
+                  <ApiKeySalesChannelSection apiKey={api_key} />
+                </PermissionGuard>
+              </LayoutComposer.Entry>
+            )}
+            {detailPageDefaultEntries(api_key, { metadata: false })}
+          </>
+        ),
+      }}
+    />
   )
 }
-
-export const ApiKeyManagementDetailPage = Object.assign(Root, {
-  GeneralSection: ApiKeyGeneralSection,
-  SalesChannelSection: ApiKeySalesChannelSection,
-})

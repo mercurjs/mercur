@@ -1,9 +1,12 @@
-import { Children, ReactNode } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
-import { TwoColumnPage } from "@components/layout/pages";
-import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
+import {
+  detailPageDefaultEntries,
+  LayoutComposer,
+  useLinkQuery,
+} from "@mercurjs/dashboard-shared";
 import { useInventoryItem } from "@hooks/api/inventory";
 
 import { InventoryItemAttributeSection } from "./_components/inventory-item-attributes/attributes-section";
@@ -15,7 +18,7 @@ import { INVENTORY_DETAIL_FIELDS } from "./constants";
 
 import { loader } from "./loader";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const InventoryDetailPage = () => {
   const { id } = useParams();
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>;
   const {
@@ -45,44 +48,44 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage data={inventory_item} showJSON showMetadata>
-          <TwoColumnPage.Main>
-            <WidgetZone id="inventory.detail.main" data={inventory_item}>
+    <LayoutComposer
+      widgetsZonePrefix="inventory.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
+      data={inventory_item}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="InventoryItemGeneralSection">
               <InventoryItemGeneralSection inventoryItem={inventory_item} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="InventoryItemLocationLevelsSection">
               <InventoryItemLocationLevelsSection
                 inventoryItem={inventory_item}
               />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="InventoryItemReservationsSection">
               <InventoryItemReservationsSection
                 inventoryItem={inventory_item}
               />
-            </WidgetZone>
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            <WidgetZone id="inventory.detail.side" data={inventory_item}>
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(inventory_item)}
+          </>
+        ),
+        side: (
+          <>
+            <LayoutComposer.Entry id="AssociatedOffersSection">
               <AssociatedOffersSection
                 offers={(inventory_item as any).offers}
               />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="InventoryItemAttributeSection">
               <InventoryItemAttributeSection
                 inventoryItem={inventory_item as any}
               />
-            </WidgetZone>
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </>
+            </LayoutComposer.Entry>
+          </>
+        ),
+      }}
+    />
   );
 };
-
-export const InventoryDetailPage = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  MainGeneralSection: InventoryItemGeneralSection,
-  MainLocationLevelsSection: InventoryItemLocationLevelsSection,
-  MainReservationsSection: InventoryItemReservationsSection,
-  SidebarOffersSection: AssociatedOffersSection,
-  SidebarAttributeSection: InventoryItemAttributeSection,
-});

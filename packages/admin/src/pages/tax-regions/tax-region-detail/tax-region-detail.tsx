@@ -1,8 +1,11 @@
-import { ReactNode, useState, Children } from "react";
+import { useState } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
-import { WidgetZone } from "@mercurjs/dashboard-shared";
-import { SingleColumnPage } from "../../../components/layout/pages";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
+import {
+  LayoutComposer,
+  detailPageDefaultEntries,
+} from "@mercurjs/dashboard-shared";
 import { useTaxRegion } from "../../../hooks/api/tax-regions";
 import { TaxRegionDetailSection } from "./components/tax-region-detail-section";
 import { TaxRegionProvinceSection } from "./components/tax-region-province-section";
@@ -13,7 +16,7 @@ import { TaxRegionSublevelAlert } from "./components/tax-region-sublevel-alert";
 import { TaxRegionProviderSection } from "./tax-region-provider-section";
 import { taxRegionLoader } from "./loader";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const TaxRegionDetailPage = () => {
   const { id } = useParams();
   const [showSublevelRegions, setShowSublevelRegions] = useState(false);
 
@@ -36,34 +39,40 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return Children.count(children) > 0 ? (
-    <SingleColumnPage data={taxRegion} showJSON showMetadata>
-      {children}
-    </SingleColumnPage>
-  ) : (
-    <SingleColumnPage data={taxRegion} showJSON showMetadata>
-      <WidgetZone id="tax-regions.detail.main" data={taxRegion}>
-        <TaxRegionSublevelAlert
-          taxRegion={taxRegion}
-          showSublevelRegions={showSublevelRegions}
-          setShowSublevelRegions={setShowSublevelRegions}
-        />
-        <TaxRegionDetailSection taxRegion={taxRegion} />
-        <TaxRegionProvinceSection
-          taxRegion={taxRegion}
-          showSublevelRegions={showSublevelRegions}
-        />
-        <TaxRegionOverrideSection taxRegion={taxRegion} />
-        <TaxRegionProviderSection taxRegion={taxRegion} />
-      </WidgetZone>
-    </SingleColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="tax-regions.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={taxRegion}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="TaxRegionSublevelAlert">
+              <TaxRegionSublevelAlert
+                taxRegion={taxRegion}
+                showSublevelRegions={showSublevelRegions}
+                setShowSublevelRegions={setShowSublevelRegions}
+              />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="TaxRegionDetailSection">
+              <TaxRegionDetailSection taxRegion={taxRegion} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="TaxRegionProvinceSection">
+              <TaxRegionProvinceSection
+                taxRegion={taxRegion}
+                showSublevelRegions={showSublevelRegions}
+              />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="TaxRegionOverrideSection">
+              <TaxRegionOverrideSection taxRegion={taxRegion} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="TaxRegionProviderSection">
+              <TaxRegionProviderSection taxRegion={taxRegion} />
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(taxRegion)}
+          </>
+        ),
+      }}
+    />
   );
 };
-
-export const TaxRegionDetailPage = Object.assign(Root, {
-  SublevelAlert: TaxRegionSublevelAlert,
-  DetailSection: TaxRegionDetailSection,
-  ProvinceSection: TaxRegionProvinceSection,
-  OverrideSection: TaxRegionOverrideSection,
-  ProviderSection: TaxRegionProviderSection,
-});

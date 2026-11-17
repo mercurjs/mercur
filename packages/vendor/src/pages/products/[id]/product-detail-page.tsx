@@ -1,9 +1,8 @@
-import { Children, ReactNode } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
-import { TwoColumnPage } from "@components/layout/pages";
-import { WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
+import { LayoutComposer, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { useProduct } from "@hooks/api";
 
 import { PRODUCT_DETAIL_QUERY } from "../common/constants";
@@ -16,10 +15,8 @@ import { ProductMediaSection } from "./_components/product-media-section";
 import { ProductOrganizationSection } from "./_components/product-organization-section";
 import { ProductVariantSection } from "./_components/product-variant-section";
 import { ProductAttributeSection } from "./_components/product-attribute-section";
-import { ProductShippingProfileSection } from "./_components/product-shipping-profile-section";
-import { ProductSalesChannelSection } from "./_components/product-sales-channel-section";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const ProductDetailPage = () => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>;
 
   const { id } = useParams();
@@ -36,41 +33,43 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
-  return Children.count(children) > 0 ? (
-    <TwoColumnPage data={product} data-testid="product-detail-page">
-      {children}
-    </TwoColumnPage>
-  ) : (
-    <TwoColumnPage data={product} data-testid="product-detail-page">
-      <TwoColumnPage.Main data-testid="product-detail-main">
-        <WidgetZone id="product.detail.main" data={product}>
-          <ProductChangeRequestSection product={product} />
-          <ProductActiveEditSection product={product} />
-          <ProductGeneralSection product={product} />
-          <ProductMediaSection product={product} />
-          <ProductVariantSection product={product} />
-        </WidgetZone>
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar data-testid="product-detail-sidebar">
-        <WidgetZone id="product.detail.side" data={product}>
-          <ProductOrganizationSection product={product} />
-          <ProductAttributeSection product={product} />
-        </WidgetZone>
-      </TwoColumnPage.Sidebar>
-    </TwoColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="product.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
+      data={product}
+      data-testid="product-detail-page"
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="ProductChangeRequestSection">
+              <ProductChangeRequestSection product={product} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="ProductActiveEditSection">
+              <ProductActiveEditSection product={product} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="ProductGeneralSection">
+              <ProductGeneralSection product={product} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="ProductMediaSection">
+              <ProductMediaSection product={product} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="ProductVariantSection">
+              <ProductVariantSection product={product} />
+            </LayoutComposer.Entry>
+          </>
+        ),
+        side: (
+          <>
+            <LayoutComposer.Entry id="ProductOrganizationSection">
+              <ProductOrganizationSection product={product} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="ProductAttributeSection">
+              <ProductAttributeSection product={product} />
+            </LayoutComposer.Entry>
+          </>
+        ),
+      }}
+    />
   );
 };
-
-export const ProductDetailPage = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  MainChangeRequestSection: ProductChangeRequestSection,
-  MainActiveEditSection: ProductActiveEditSection,
-  MainGeneralSection: ProductGeneralSection,
-  MainMediaSection: ProductMediaSection,
-  MainVariantSection: ProductVariantSection,
-  MainAttributeSection: ProductAttributeSection,
-  SidebarShippingProfileSection: ProductShippingProfileSection,
-  SidebarOrganizationSection: ProductOrganizationSection,
-  SidebarSalesChannelSection: ProductSalesChannelSection,
-});

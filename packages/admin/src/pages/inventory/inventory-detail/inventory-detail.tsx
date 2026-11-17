@@ -1,10 +1,14 @@
-import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { PermissionGuard, useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import {
+  LayoutComposer,
+  PermissionGuard,
+  detailPageDefaultEntries,
+  useLinkQuery,
+} from "@mercurjs/dashboard-shared"
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
-import { TwoColumnPage } from "@components/layout/pages"
 import { useInventoryItem } from "@hooks/api"
 
 import { InventoryItemAttributeSection } from "./components/inventory-item-attributes/attributes-section"
@@ -16,7 +20,7 @@ import { INVENTORY_DETAIL_FIELDS } from "./constants"
 
 import type { inventoryItemLoader } from "./loader"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const InventoryDetailPage = () => {
   const { id } = useParams()
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof inventoryItemLoader>
@@ -50,39 +54,44 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return Children.count(children) > 0 ? (
-    <TwoColumnPage data={inventory_item} showJSON showMetadata data-testid="inventory-detail-page">
-      {children}
-    </TwoColumnPage>
-  ) : (
-    <TwoColumnPage data={inventory_item} showJSON showMetadata data-testid="inventory-detail-page">
-      <TwoColumnPage.Main data-testid="inventory-detail-main">
-        <WidgetZone id="inventory.detail.main" data={inventory_item}>
-          <InventoryItemGeneralSection inventoryItem={inventory_item} />
-          <InventoryItemLocationLevelsSection
-            inventoryItem={inventory_item}
-          />
-          <PermissionGuard permission="reservations:view">
-            <InventoryItemReservationsSection inventoryItem={inventory_item} />
-          </PermissionGuard>
-        </WidgetZone>
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar data-testid="inventory-detail-sidebar">
-        <WidgetZone id="inventory.detail.side" data={inventory_item}>
-          <AssociatedOffersSection offers={inventory_item.offers} />
-          <InventoryItemAttributeSection inventoryItem={inventory_item} />
-        </WidgetZone>
-      </TwoColumnPage.Sidebar>
-    </TwoColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="inventory.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
+      data={inventory_item}
+      data-testid="inventory-detail-page"
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="InventoryItemGeneralSection">
+              <InventoryItemGeneralSection inventoryItem={inventory_item} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="InventoryItemLocationLevelsSection">
+              <InventoryItemLocationLevelsSection
+                inventoryItem={inventory_item}
+              />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="InventoryItemReservationsSection">
+              <PermissionGuard permission="reservations:view">
+                <InventoryItemReservationsSection
+                  inventoryItem={inventory_item}
+                />
+              </PermissionGuard>
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(inventory_item)}
+          </>
+        ),
+        side: (
+          <>
+            <LayoutComposer.Entry id="AssociatedOffersSection">
+              <AssociatedOffersSection offers={inventory_item.offers} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="InventoryItemAttributeSection">
+              <InventoryItemAttributeSection inventoryItem={inventory_item} />
+            </LayoutComposer.Entry>
+          </>
+        ),
+      }}
+    />
   )
 }
-
-export const InventoryDetailPage = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  MainGeneralSection: InventoryItemGeneralSection,
-  MainLocationLevelsSection: InventoryItemLocationLevelsSection,
-  MainReservationsSection: InventoryItemReservationsSection,
-  SidebarOffersSection: AssociatedOffersSection,
-  SidebarAttributeSection: InventoryItemAttributeSection,
-})

@@ -1,9 +1,11 @@
-import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import {
+  LayoutComposer,
+  detailPageDefaultEntries,
+} from "@mercurjs/dashboard-shared"
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
-import { TwoColumnPage } from "../../../components/layout/pages"
 import { usePayoutAccount } from "../../../hooks/api/payout-accounts"
 import { PayoutAccountCapabilitiesSection } from "./components/payout-account-capabilities-section"
 import { PayoutAccountGeneralSection } from "./components/payout-account-general-section"
@@ -12,7 +14,7 @@ import { PayoutAccountStatusAlert } from "./components/payout-account-status-ale
 import { PayoutAccountStoreSection } from "./components/payout-account-store-section"
 import { payoutAccountLoader } from "./loader"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const PayoutAccountDetailPage = () => {
   const { id } = useParams()
 
   const initialData = useLoaderData() as Awaited<
@@ -35,39 +37,41 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return Children.count(children) > 0 ? (
-    <TwoColumnPage data={payout_account} showJSON>
-      {children}
-    </TwoColumnPage>
-  ) : (
-    <TwoColumnPage data={payout_account} showJSON>
-      <TwoColumnPage.Main>
-        <WidgetZone id="payout_accounts.detail.main" data={payout_account}>
-          <PayoutAccountStatusAlert account={payout_account} />
-          <PayoutAccountGeneralSection account={payout_account} />
-          <PayoutsSection
-            scope={{ account_id: payout_account.id }}
-            prefix="pacpay"
-            data-testid="payout-account-payouts-section"
-          />
-        </WidgetZone>
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar>
-        <WidgetZone id="payout_accounts.detail.side" data={payout_account}>
-          <PayoutAccountStoreSection account={payout_account} />
-          <PayoutAccountCapabilitiesSection account={payout_account} />
-        </WidgetZone>
-      </TwoColumnPage.Sidebar>
-    </TwoColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="payout_accounts.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
+      data={payout_account}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="PayoutAccountStatusAlert">
+              <PayoutAccountStatusAlert account={payout_account} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="PayoutAccountGeneralSection">
+              <PayoutAccountGeneralSection account={payout_account} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="PayoutsSection">
+              <PayoutsSection
+                scope={{ account_id: payout_account.id }}
+                prefix="pacpay"
+                data-testid="payout-account-payouts-section"
+              />
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(payout_account, { metadata: false })}
+          </>
+        ),
+        side: (
+          <>
+            <LayoutComposer.Entry id="PayoutAccountStoreSection">
+              <PayoutAccountStoreSection account={payout_account} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="PayoutAccountCapabilitiesSection">
+              <PayoutAccountCapabilitiesSection account={payout_account} />
+            </LayoutComposer.Entry>
+          </>
+        ),
+      }}
+    />
   )
 }
-
-export const PayoutAccountDetailPage = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  MainStatusAlert: PayoutAccountStatusAlert,
-  MainGeneralSection: PayoutAccountGeneralSection,
-  MainPayoutsSection: PayoutsSection,
-  SidebarStoreSection: PayoutAccountStoreSection,
-  SidebarCapabilitiesSection: PayoutAccountCapabilitiesSection,
-})

@@ -1,15 +1,17 @@
-import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import {
+  LayoutComposer,
+  detailPageDefaultEntries,
+} from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { useShippingProfile } from "../../../hooks/api/shipping-profiles"
 import { ShippingProfileGeneralSection } from "./components/shipping-profile-general-section"
 
-import { SingleColumnPage } from "../../../components/layout/pages"
 import { shippingProfileLoader } from "./loader"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const ShippingProfileDetailPage = () => {
   const { shipping_profile_id } = useParams()
 
   const initialData = useLoaderData() as Awaited<
@@ -30,19 +32,21 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return Children.count(children) > 0 ? (
-    <SingleColumnPage showMetadata showJSON data={shipping_profile}>
-      {children}
-    </SingleColumnPage>
-  ) : (
-    <SingleColumnPage showMetadata showJSON data={shipping_profile}>
-      <WidgetZone id="shipping-profiles.detail.main" data={shipping_profile}>
-        <ShippingProfileGeneralSection profile={shipping_profile} />
-      </WidgetZone>
-    </SingleColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="shipping-profiles.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={shipping_profile}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="ShippingProfileGeneralSection">
+              <ShippingProfileGeneralSection profile={shipping_profile} />
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(shipping_profile)}
+          </>
+        ),
+      }}
+    />
   )
 }
-
-export const ShippingProfileDetailPage = Object.assign(Root, {
-  GeneralSection: ShippingProfileGeneralSection,
-})

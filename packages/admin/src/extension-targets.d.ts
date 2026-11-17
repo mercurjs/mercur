@@ -4,108 +4,160 @@ import "@mercurjs/dashboard-sdk"
 
 declare module "@mercurjs/dashboard-sdk" {
   interface WidgetZoneRegistry {
+    "api-keys.detail": true
+    "api-keys.detail.main": true
     "api-keys.detail.main.after": true
     "api-keys.detail.main.before": true
     "api-keys.list.after": true
     "api-keys.list.before": true
+    "attributes.detail": true
+    "attributes.detail.main": true
     "attributes.detail.main.after": true
     "attributes.detail.main.before": true
     "attributes.list.after": true
     "attributes.list.before": true
+    "campaigns.detail": true
+    "campaigns.detail.main": true
     "campaigns.detail.main.after": true
     "campaigns.detail.main.before": true
+    "campaigns.detail.side": true
     "campaigns.detail.side.after": true
     "campaigns.detail.side.before": true
     "campaigns.list.after": true
     "campaigns.list.before": true
+    "categories.detail": true
+    "categories.detail.main": true
     "categories.detail.main.after": true
     "categories.detail.main.before": true
+    "categories.detail.side": true
     "categories.detail.side.after": true
     "categories.detail.side.before": true
     "categories.list.after": true
     "categories.list.before": true
+    "collections.detail": true
+    "collections.detail.main": true
     "collections.detail.main.after": true
     "collections.detail.main.before": true
     "collections.list.after": true
     "collections.list.before": true
+    "commissions.detail": true
+    "commissions.detail.main": true
     "commissions.detail.main.after": true
     "commissions.detail.main.before": true
     "commissions.list.after": true
     "commissions.list.before": true
+    "customer-groups.detail": true
+    "customer-groups.detail.main": true
     "customer-groups.detail.main.after": true
     "customer-groups.detail.main.before": true
     "customer-groups.list.after": true
     "customer-groups.list.before": true
+    "customers.detail": true
+    "customers.detail.main": true
     "customers.detail.main.after": true
     "customers.detail.main.before": true
+    "customers.detail.side": true
     "customers.detail.side.after": true
     "customers.detail.side.before": true
     "customers.list.after": true
     "customers.list.before": true
+    "inventory.detail": true
+    "inventory.detail.main": true
     "inventory.detail.main.after": true
     "inventory.detail.main.before": true
+    "inventory.detail.side": true
     "inventory.detail.side.after": true
     "inventory.detail.side.before": true
     "inventory.list.after": true
     "inventory.list.before": true
+    "locations.detail": true
+    "locations.detail.main": true
     "locations.detail.main.after": true
     "locations.detail.main.before": true
+    "locations.detail.side": true
     "locations.detail.side.after": true
     "locations.detail.side.before": true
     "locations.list.after": true
     "locations.list.before": true
     "locations.list.item.after": true
     "locations.list.item.before": true
+    "marketplace.detail": true
+    "marketplace.detail.main": true
     "marketplace.detail.main.after": true
     "marketplace.detail.main.before": true
     "offer-conditions.list.after": true
     "offer-conditions.list.before": true
+    "offer-variants.detail": true
+    "offer-variants.detail.main": true
     "offer-variants.detail.main.after": true
     "offer-variants.detail.main.before": true
+    "offer-variants.detail.side": true
     "offer-variants.detail.side.after": true
     "offer-variants.detail.side.before": true
+    "offers.detail": true
+    "offers.detail.main": true
     "offers.detail.main.after": true
     "offers.detail.main.before": true
+    "offers.detail.side": true
     "offers.detail.side.after": true
     "offers.detail.side.before": true
     "offers.list.after": true
     "offers.list.before": true
+    "orders.detail": true
     "orders.detail.item.after": true
     "orders.detail.item.before": true
+    "orders.detail.main": true
     "orders.detail.main.after": true
     "orders.detail.main.before": true
+    "orders.detail.side": true
     "orders.detail.side.after": true
     "orders.detail.side.before": true
     "orders.list.after": true
     "orders.list.before": true
+    "payout_accounts.detail": true
+    "payout_accounts.detail.main": true
     "payout_accounts.detail.main.after": true
     "payout_accounts.detail.main.before": true
+    "payout_accounts.detail.side": true
     "payout_accounts.detail.side.after": true
     "payout_accounts.detail.side.before": true
     "payout_accounts.list.after": true
     "payout_accounts.list.before": true
+    "payouts.detail": true
+    "payouts.detail.main": true
     "payouts.detail.main.after": true
     "payouts.detail.main.before": true
+    "payouts.detail.side": true
     "payouts.detail.side.after": true
     "payouts.detail.side.before": true
     "payouts.list.after": true
     "payouts.list.before": true
+    "price-lists.detail": true
+    "price-lists.detail.main": true
     "price-lists.detail.main.after": true
     "price-lists.detail.main.before": true
+    "price-lists.detail.side": true
     "price-lists.detail.side.after": true
     "price-lists.detail.side.before": true
     "price-lists.list.after": true
     "price-lists.list.before": true
+    "product-tags.detail": true
+    "product-tags.detail.main": true
     "product-tags.detail.main.after": true
     "product-tags.detail.main.before": true
     "product-tags.list.after": true
     "product-tags.list.before": true
+    "product-types.detail": true
+    "product-types.detail.main": true
     "product-types.detail.main.after": true
     "product-types.detail.main.before": true
     "product-types.list.after": true
     "product-types.list.before": true
+    "product-variants.detail": true
+    "product-variants.detail.main": true
     "product-variants.detail.main.after": true
     "product-variants.detail.main.before": true
+    "product-variants.detail.side": true
     "product-variants.detail.side.after": true
     "product-variants.detail.side.before": true
     "product.detail": true
@@ -115,60 +167,85 @@ declare module "@mercurjs/dashboard-sdk" {
     "product.detail.side": true
     "product.detail.side.after": true
     "product.detail.side.before": true
-    "products.requests.after": true
-    "products.requests.before": true
     "products.list.after": true
     "products.list.before": true
+    "products.requests.after": true
+    "products.requests.before": true
+    "profile.detail": true
+    "profile.detail.main": true
     "profile.detail.main.after": true
     "profile.detail.main.before": true
+    "promotions.detail": true
+    "promotions.detail.main": true
     "promotions.detail.main.after": true
     "promotions.detail.main.before": true
+    "promotions.detail.side": true
     "promotions.detail.side.after": true
     "promotions.detail.side.before": true
     "promotions.list.after": true
     "promotions.list.before": true
     "refund-reasons.list.after": true
     "refund-reasons.list.before": true
+    "regions.detail": true
+    "regions.detail.main": true
     "regions.detail.main.after": true
     "regions.detail.main.before": true
     "regions.list.after": true
     "regions.list.before": true
+    "reservation.detail": true
+    "reservation.detail.main": true
     "reservation.detail.main.after": true
     "reservation.detail.main.before": true
+    "reservation.detail.side": true
     "reservation.detail.side.after": true
     "reservation.detail.side.before": true
     "reservation.list.after": true
     "reservation.list.before": true
     "return-reasons.list.after": true
     "return-reasons.list.before": true
+    "sales-channels.detail": true
+    "sales-channels.detail.main": true
     "sales-channels.detail.main.after": true
     "sales-channels.detail.main.before": true
     "sales-channels.list.after": true
     "sales-channels.list.before": true
+    "shipping-option-types.detail": true
+    "shipping-option-types.detail.main": true
     "shipping-option-types.detail.main.after": true
     "shipping-option-types.detail.main.before": true
     "shipping-option-types.list.after": true
     "shipping-option-types.list.before": true
+    "shipping-profiles.detail": true
+    "shipping-profiles.detail.main": true
     "shipping-profiles.detail.main.after": true
     "shipping-profiles.detail.main.before": true
     "shipping-profiles.list.after": true
     "shipping-profiles.list.before": true
+    "stores.detail": true
+    "stores.detail.main": true
     "stores.detail.main.after": true
     "stores.detail.main.before": true
+    "stores.detail.side": true
     "stores.detail.side.after": true
     "stores.detail.side.before": true
     "stores.detail.tabs.after": true
     "stores.detail.tabs.before": true
     "stores.list.after": true
     "stores.list.before": true
+    "tax-regions.detail": true
+    "tax-regions.detail.main": true
     "tax-regions.detail.main.after": true
     "tax-regions.detail.main.before": true
     "tax-regions.list.after": true
     "tax-regions.list.before": true
+    "tax-regions.province.detail": true
+    "tax-regions.province.detail.main": true
     "tax-regions.province.detail.main.after": true
     "tax-regions.province.detail.main.before": true
     "topbar.after": true
     "topbar.before": true
+    "users.detail": true
+    "users.detail.main": true
     "users.detail.main.after": true
     "users.detail.main.before": true
     "users.list.after": true
@@ -176,15 +253,119 @@ declare module "@mercurjs/dashboard-sdk" {
   }
 
   interface LayoutEntryRegistry {
+    "core:ActiveOrderClaimSection": true
+    "core:ActiveOrderExchangeSection": true
+    "core:ActiveOrderReturnSection": true
+    "core:ApiKeyGeneralSection": true
+    "core:ApiKeySalesChannelSection": true
+    "core:AssociatedOffersSection": true
+    "core:AttributeGeneralSection": true
+    "core:AttributePossibleValuesSection": true
+    "core:CampaignBudget": true
+    "core:CampaignConfigurationSection": true
+    "core:CampaignGeneralSection": true
+    "core:CampaignPromotionSection": true
+    "core:CampaignSection": true
+    "core:CategoryGeneralSection": true
+    "core:CategoryIconSection": true
+    "core:CategoryMediaSection": true
+    "core:CategoryOrganizeSection": true
+    "core:CategoryProductSection": true
+    "core:CollectionGeneralSection": true
+    "core:CollectionIconSection": true
+    "core:CollectionMediaSection": true
+    "core:CollectionProductSection": true
+    "core:CommissionSection": true
+    "core:CustomerAddressSection": true
+    "core:CustomerGeneralSection": true
+    "core:CustomerGroupCustomerSection": true
+    "core:CustomerGroupGeneralSection": true
+    "core:CustomerGroupSection": true
+    "core:CustomerOrderSection": true
+    "core:InventoryItemAttributeSection": true
+    "core:InventoryItemGeneralSection": true
+    "core:InventoryItemLocationLevelsSection": true
+    "core:InventoryItemReservationsSection": true
     "core:JsonViewSection": true
+    "core:LocationGeneralSection": true
+    "core:LocationsFulfillmentProvidersSection": true
+    "core:LocationsSalesChannelsSection": true
+    "core:MarketplaceCurrencySection": true
+    "core:MarketplaceGeneralSection": true
     "core:MetadataSection": true
+    "core:OfferAssociatedProductSection": true
+    "core:OfferDetailGeneralSection": true
+    "core:OfferDetailStoreSection": true
+    "core:OfferInventorySection": true
+    "core:OfferPricingSection": true
+    "core:OfferStoreSidebar": true
+    "core:OfferVariantGeneralSection": true
+    "core:OfferVariantShippingSection": true
+    "core:OfferVariantsSection": true
+    "core:OrderActiveEditSection": true
+    "core:OrderActivitySection": true
+    "core:OrderCustomerSection": true
+    "core:OrderFulfillmentSection": true
+    "core:OrderGeneralSection": true
+    "core:OrderPaymentSection": true
+    "core:OrderRemainingOrdersGroupSection": true
+    "core:OrderSummarySection": true
+    "core:PayoutAccountCapabilitiesSection": true
+    "core:PayoutAccountGeneralSection": true
+    "core:PayoutAccountStatusAlert": true
+    "core:PayoutAccountStoreSection": true
+    "core:PayoutGeneralSection": true
+    "core:PayoutReferencesSection": true
+    "core:PayoutReversalsSection": true
+    "core:PayoutStatusAlert": true
+    "core:PayoutsSection": true
+    "core:PriceListConfigurationSection": true
+    "core:PriceListCustomerAvailabilitySection": true
+    "core:PriceListGeneralSection": true
+    "core:PriceListProductSection": true
     "core:ProductActiveEditSection": true
     "core:ProductActiveRequestSection": true
     "core:ProductAttributeSection": true
     "core:ProductGeneralSection": true
     "core:ProductMediaSection": true
     "core:ProductOrganizationSection": true
+    "core:ProductTagGeneralSection": true
+    "core:ProductTagProductSection": true
+    "core:ProductTypeGeneralSection": true
+    "core:ProductTypeProductSection": true
     "core:ProductVariantSection": true
+    "core:ProfileGeneralSection": true
+    "core:PromotionBuyConditionsSection": true
+    "core:PromotionConditionsSection": true
+    "core:PromotionGeneralSection": true
+    "core:PromotionTargetConditionsSection": true
+    "core:RegionCountrySection": true
+    "core:RegionGeneralSection": true
+    "core:RegionSellerSection": true
+    "core:ReservationGeneralSection": true
+    "core:ReservationInventorySection": true
+    "core:SalesChannelGeneralSection": true
+    "core:SalesChannelProductSection": true
+    "core:ScopeSection": true
+    "core:ShippingOptionTypeGeneralSection": true
+    "core:ShippingProfileGeneralSection": true
+    "core:StoreAddressSection": true
+    "core:StoreCompanyDetailsSection": true
+    "core:StoreGeneralSection": true
+    "core:StorePaymentDetailsSection": true
+    "core:StorePayoutAccountSection": true
+    "core:StoreRegionsSection": true
+    "core:StoreRequestSection": true
+    "core:StoreTabsSection": true
+    "core:TaxRegionDetailSection": true
+    "core:TaxRegionOverrideSection": true
+    "core:TaxRegionProviderSection": true
+    "core:TaxRegionProvinceDetailSection": true
+    "core:TaxRegionProvinceOverrideSection": true
+    "core:TaxRegionProvinceSection": true
+    "core:TaxRegionSublevelAlert": true
+    "core:UserGeneralSection": true
+    "core:VariantGeneralSection": true
   }
 
   interface NavItemRegistry {

@@ -1,17 +1,20 @@
-import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
-import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
+import {
+  LayoutComposer,
+  detailPageDefaultEntries,
+  useLinkQuery,
+} from "@mercurjs/dashboard-shared";
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
-import { TwoColumnPage } from "../../../components/layout/pages";
 import { usePromotion, usePromotionRules } from "../../../hooks/api/promotions";
 import { CampaignSection } from "./components/campaign-section";
 import { PromotionConditionsSection } from "./components/promotion-conditions-section";
 import { PromotionGeneralSection } from "./components/promotion-general-section";
 import { PROMOTION_DETAIL_BASE_FIELDS, promotionLoader } from "./loader";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const PromotionDetailPage = () => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof promotionLoader>
   >;
@@ -37,48 +40,51 @@ const Root = ({ children }: { children?: ReactNode }) => {
     );
   }
 
-  return Children.count(children) > 0 ? (
-    <TwoColumnPage data={promotion} hasOutlet showJSON data-testid="promotion-detail-page">
-      {children}
-    </TwoColumnPage>
-  ) : (
-    <TwoColumnPage data={promotion} hasOutlet showJSON data-testid="promotion-detail-page">
-      <TwoColumnPage.Main>
-        <WidgetZone id="promotions.detail.main" data={promotion}>
-          <PromotionGeneralSection promotion={promotion} />
-          <PromotionConditionsSection
-            rules={rules || []}
-            ruleType={"rules"}
-          />
-          <PromotionConditionsSection
-            rules={targetRules || []}
-            ruleType={"target-rules"}
-            applicationMethodTargetType={
-              promotion.application_method?.target_type || "items"
-            }
-          />
-          {promotion.type === "buyget" && (
-            <PromotionConditionsSection
-              rules={buyRules || []}
-              ruleType={"buy-rules"}
-              applicationMethodTargetType={"items"}
-            />
-          )}
-        </WidgetZone>
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar>
-        <WidgetZone id="promotions.detail.side" data={promotion}>
-          <CampaignSection campaign={promotion.campaign!} promotion={promotion} />
-        </WidgetZone>
-      </TwoColumnPage.Sidebar>
-    </TwoColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="promotions.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
+      data={promotion}
+      data-testid="promotion-detail-page"
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="PromotionGeneralSection">
+              <PromotionGeneralSection promotion={promotion} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="PromotionConditionsSection">
+              <PromotionConditionsSection
+                rules={rules || []}
+                ruleType={"rules"}
+              />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="PromotionTargetConditionsSection">
+              <PromotionConditionsSection
+                rules={targetRules || []}
+                ruleType={"target-rules"}
+                applicationMethodTargetType={
+                  promotion.application_method?.target_type || "items"
+                }
+              />
+            </LayoutComposer.Entry>
+            {promotion.type === "buyget" && (
+              <LayoutComposer.Entry id="PromotionBuyConditionsSection">
+                <PromotionConditionsSection
+                  rules={buyRules || []}
+                  ruleType={"buy-rules"}
+                  applicationMethodTargetType={"items"}
+                />
+              </LayoutComposer.Entry>
+            )}
+            {detailPageDefaultEntries(promotion, { metadata: false })}
+          </>
+        ),
+        side: (
+          <LayoutComposer.Entry id="CampaignSection">
+            <CampaignSection campaign={promotion.campaign!} promotion={promotion} />
+          </LayoutComposer.Entry>
+        ),
+      }}
+    />
   );
 };
-
-export const PromotionDetailPage = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  MainGeneralSection: PromotionGeneralSection,
-  MainConditionsSection: PromotionConditionsSection,
-  SidebarCampaignSection: CampaignSection,
-});

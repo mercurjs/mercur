@@ -1,8 +1,11 @@
-import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
-import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import {
+  LayoutComposer,
+  detailPageDefaultEntries,
+  useLinkQuery,
+} from "@mercurjs/dashboard-shared"
 
-import { SingleColumnPage } from "../../../components/layout/pages"
 import { useCustomerGroup } from "../../../hooks/api/customer-groups"
 import { CustomerGroupCustomerSection } from "./components/customer-group-customer-section"
 import { CustomerGroupGeneralSection } from "./components/customer-group-general-section"
@@ -11,7 +14,7 @@ import { customerGroupLoader } from "./loader"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { CUSTOMER_GROUP_DETAIL_FIELDS } from "./constants"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const CustomerGroupDetailPage = () => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof customerGroupLoader>
   >
@@ -32,21 +35,24 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return Children.count(children) > 0 ? (
-    <SingleColumnPage showJSON showMetadata data={customer_group}>
-      {children}
-    </SingleColumnPage>
-  ) : (
-    <SingleColumnPage showJSON showMetadata data={customer_group}>
-      <WidgetZone id="customer-groups.detail.main" data={customer_group}>
-        <CustomerGroupGeneralSection group={customer_group} />
-        <CustomerGroupCustomerSection group={customer_group} />
-      </WidgetZone>
-    </SingleColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="customer-groups.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={customer_group}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="CustomerGroupGeneralSection">
+              <CustomerGroupGeneralSection group={customer_group} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="CustomerGroupCustomerSection">
+              <CustomerGroupCustomerSection group={customer_group} />
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(customer_group)}
+          </>
+        ),
+      }}
+    />
   )
 }
-
-export const CustomerGroupDetailPage = Object.assign(Root, {
-  GeneralSection: CustomerGroupGeneralSection,
-  CustomerSection: CustomerGroupCustomerSection,
-})
