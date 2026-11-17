@@ -17699,12 +17699,29 @@
             "variant"
           ],
           "additionalProperties": false
+        },
+        "scopeDescription": {
+          "type": "object",
+          "properties": {
+            "product": {
+              "type": "string"
+            },
+            "variant": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "product",
+            "variant"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
         "fields",
         "type",
-        "scope"
+        "scope",
+        "scopeDescription"
       ],
       "additionalProperties": false
     },

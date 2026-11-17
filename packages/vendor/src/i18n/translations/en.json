@@ -4453,6 +4453,10 @@
     "scope": {
       "product": "Product",
       "variant": "Variant"
+    },
+    "scopeDescription": {
+      "product": "One value for the whole product. Variant axes always live here.",
+      "variant": "A separate value on each variant, like battery capacity or finish."
     }
   },
   "permissions": {
