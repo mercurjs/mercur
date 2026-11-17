@@ -21,6 +21,7 @@ Product attributes extend the master catalog with structured, typed data — "Ma
 |-------|-------------|
 | `name` / `handle` | Display name and unique handle |
 | `type` | One of the types above |
+| `scope` | `product` (default) or `variant` — the level the value is set on. See [Product-level vs variant-level](#product-level-vs-variant-level) |
 | `is_variant_axis` | Whether the attribute generates product variants — only allowed for `multi_select` |
 | `is_filterable` | Whether the attribute is exposed as a storefront filter |
 | `is_required` | Whether products must set a value |
@@ -46,6 +47,15 @@ Because axes are real product options, variants are built with Medusa's standard
 
 Only `multi_select` attributes can be variant axes — an axis needs an enumerable set of values to combine into variants.
 
+## Product-level vs variant-level
+
+Every attribute has a `scope`:
+
+- **`product`** attributes describe the whole product and are attached to the master product. Variant axes are always product-level.
+- **`variant`** attributes hold one value per product variant — think battery capacity, finish, or a per-size weight class. They never attach to the product itself, and a variant-level attribute cannot be a variant axis.
+
+The scope is chosen when the attribute is created and cannot be changed afterwards. In the dashboards, product forms only offer product-level attributes and the variant detail page only offers variant-level ones.
+
 ## Attaching attributes to products
 
 Products manage their attributes through a single **batch** endpoint that adds, removes, and updates in one request:
@@ -66,6 +76,22 @@ curl -X POST "http://localhost:9000/vendor/products/prod_123/attributes/batch" \
 An entry either references an **existing** attribute by `id` (with the selected `value_ids`, or a `value` for text/unit/toggle types) or defines an **inline** one by `title` — created product-scoped on the fly.
 
 At product create time, the same shape is passed as a unified `attributes[]` array.
+
+Variant-level attributes use the same `add` / `remove` / `update` body against a variant:
+
+```bash
+curl -X POST "http://localhost:9000/vendor/products/prod_123/variants/variant_456/attributes/batch" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "add": [
+      { "id": "pattr_finish", "value_ids": ["pattrval_matte"] },
+      { "id": "pattr_battery_capacity", "value": "4000" }
+    ]
+  }'
+```
+
+Only catalog attributes with `scope: "variant"` are accepted here — there are no inline variant attributes. The resolved values come back as `variant.attributes` on the Admin, Vendor and Store product and variant responses. Vendor calls are staged as `VARIANT_ATTRIBUTE_ADD` / `VARIANT_ATTRIBUTE_UPDATE` / `VARIANT_ATTRIBUTE_REMOVE` product-change actions, exactly like product-level edits.
 
 ## Who manages what
 

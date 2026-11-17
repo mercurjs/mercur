@@ -9,6 +9,7 @@ import {
 
 import {
   enrichProductAttributes,
+  enrichProductVariantAttributes,
   wrapProductVariantsWithOfferPrice,
 } from "../../../utils"
 import { splitComputedVariantFields } from "../helpers"
@@ -68,6 +69,9 @@ export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
   }
 
   await enrichProductAttributes(req.scope, [product], {
+    hideInternal: true,
+  })
+  await enrichProductVariantAttributes(req.scope, [product], {
     hideInternal: true,
   })
 

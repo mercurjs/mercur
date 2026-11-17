@@ -498,6 +498,7 @@ const RequiredAttributes = () => {
     {
       category_id: categoryId,
       is_required: true,
+      scope: "product",
     },
     { enabled: !!categoryId && canViewAttributes }
   )

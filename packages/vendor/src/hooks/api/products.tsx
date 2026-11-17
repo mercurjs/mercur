@@ -6,6 +6,7 @@ import {
 import {
   ProductAttributeBatchInput,
   ProductChangeDTO,
+  VariantAttributeBatchInput,
 } from "@mercurjs/types";
 import {
   InfiniteData,
@@ -445,6 +446,44 @@ export const useBatchProductAttributes = (
       queryClient.invalidateQueries({
         queryKey: productAttributesQueryKeys.lists(),
       });
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: productChangeQueryKeys.detail(productId),
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export type VariantAttributeBatchPayload = Omit<
+  VariantAttributeBatchInput,
+  "product_id" | "variant_id"
+>;
+
+export const useBatchVariantAttributes = (
+  productId: string,
+  variantId: string,
+  options?: UseMutationOptions<
+    ProductChangeResponse,
+    ClientError,
+    VariantAttributeBatchPayload
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.vendor.products.$id.variants.$variantId.attributes.batch.mutate({
+        $id: productId,
+        $variantId: variantId,
+        ...payload,
+      }) as Promise<ProductChangeResponse>,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: variantsQueryKeys.detail(variantId),
+      });
+      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.detail(productId),
       });

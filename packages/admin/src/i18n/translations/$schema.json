@@ -3389,6 +3389,42 @@
                 "toast"
               ],
               "additionalProperties": false
+            },
+            "attributes": {
+              "type": "object",
+              "properties": {
+                "header": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "empty": {
+                  "type": "string"
+                },
+                "editHint": {
+                  "type": "string"
+                },
+                "addSuccessToast": {
+                  "type": "string"
+                },
+                "updateSuccessToast": {
+                  "type": "string"
+                },
+                "deleteSuccessToast": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "header",
+                "description",
+                "empty",
+                "editHint",
+                "addSuccessToast",
+                "updateSuccessToast",
+                "deleteSuccessToast"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [
@@ -3399,7 +3435,8 @@
             "tableItemAvailable",
             "tableItem_one",
             "tableItem_other",
-            "inventory"
+            "inventory",
+            "attributes"
           ],
           "additionalProperties": false
         },

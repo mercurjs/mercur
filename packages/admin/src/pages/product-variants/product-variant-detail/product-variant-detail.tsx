@@ -7,6 +7,7 @@ import { useProductVariant } from "../../../hooks/api/products";
 import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
+import { VariantAttributeSection } from "./components/variant-attribute-section";
 import { VariantGeneralSection } from "./components/variant-general-section";
 import { variantLoader } from "./loader";
 
@@ -54,7 +55,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
         <WidgetZone id="product-variants.detail.side" data={variant}>
-          {null}
+          <VariantAttributeSection variant={variant} productId={id!} />
         </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
@@ -65,4 +66,5 @@ export const ProductVariantDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainGeneralSection: VariantGeneralSection,
+  SidebarAttributeSection: VariantAttributeSection,
 });

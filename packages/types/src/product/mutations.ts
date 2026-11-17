@@ -2,6 +2,7 @@ import type {
   CreateProductDTO as UpstreamCreateProductDTO,
 } from "@medusajs/types"
 import {
+  AttributeScope,
   AttributeType,
   ProductAttributeValidation,
   ProductChangeStatus,
@@ -39,6 +40,7 @@ export interface CreateProductAttributeDTO {
   name: string
   description?: string | null
   type: AttributeType
+  scope?: AttributeScope
   is_required?: boolean
   is_filterable?: boolean
   is_internal?: boolean
@@ -58,6 +60,7 @@ export interface UpdateProductAttributeDTO {
   name?: string
   description?: string | null
   type?: AttributeType
+  scope?: AttributeScope
   is_required?: boolean
   is_filterable?: boolean
   is_internal?: boolean
@@ -208,6 +211,25 @@ export type ProductAttributeBatchInput = {
    */
   remove?: string[]
   /** The attribute selections to mutate. See {@link ProductAttributeBatchUpdate}. */
+  update?: ProductAttributeBatchUpdate[]
+}
+
+/**
+ * Batch input for variant-level attributes. Only catalog attributes with
+ * `scope: "variant"` may be referenced, so `add` entries are always the
+ * `{ id, value_ids | value }` form — there are no inline (`title`) variant
+ * attributes and no axis handling.
+ */
+export type VariantAttributeBatchAdd = Extract<
+  ProductAttributeBatchAdd,
+  { id: string }
+>
+
+export type VariantAttributeBatchInput = {
+  product_id: string
+  variant_id: string
+  add?: VariantAttributeBatchAdd[]
+  remove?: string[]
   update?: ProductAttributeBatchUpdate[]
 }
 

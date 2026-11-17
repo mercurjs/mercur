@@ -415,3 +415,22 @@ export const VendorBatchProductAttributes = z
     update: z.array(VendorBatchAttributeUpdate).optional(),
   })
   .strict()
+
+const VendorBatchVariantAttributeAdd = z
+  .object({
+    id: z.string(),
+    value_ids: z.array(z.string()).optional(),
+    value: VendorBatchAttributeScalar.optional(),
+  })
+  .strict()
+
+export type VendorBatchVariantAttributesType = z.infer<
+  typeof VendorBatchVariantAttributes
+>
+export const VendorBatchVariantAttributes = z
+  .object({
+    add: z.array(VendorBatchVariantAttributeAdd).optional(),
+    remove: z.array(z.string()).optional(),
+    update: z.array(VendorBatchAttributeUpdate).optional(),
+  })
+  .strict()

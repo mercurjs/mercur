@@ -7,6 +7,7 @@ import { useProductVariant } from "@hooks/api/products"
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
 import { SingleColumnPage } from "@components/layout/pages"
+import { VariantAttributeSection } from "./components/variant-attribute-section"
 import { VariantGeneralSection } from "./components/variant-general-section"
 import { VariantMediaSection } from "./components/variant-media-section"
 import { variantLoader, VARIANT_DETAIL_FIELDS } from "./loader"
@@ -43,6 +44,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
         <WidgetZone id="product-variants.detail.main" data={variant}>
           <VariantGeneralSection variant={variant} />
           <VariantMediaSection variant={variant} />
+          <VariantAttributeSection variant={variant} productId={productId!} />
         </WidgetZone>
       )}
     </SingleColumnPage>
@@ -52,4 +54,5 @@ const Root = ({ children }: { children?: ReactNode }) => {
 export const ProductVariantDetail = Object.assign(Root, {
   GeneralSection: VariantGeneralSection,
   MediaSection: VariantMediaSection,
+  AttributeSection: VariantAttributeSection,
 })

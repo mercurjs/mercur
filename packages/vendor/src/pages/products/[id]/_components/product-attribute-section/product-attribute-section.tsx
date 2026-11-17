@@ -30,7 +30,7 @@ export const ProductAttributeSection = ({
 
   const categoryId = product.categories?.[0]?.id;
   const { product_attributes } = useProductAttributes(
-    { category_id: categoryId, is_required: true },
+    { category_id: categoryId, is_required: true, scope: "product" },
     { enabled: !!categoryId && canViewAttributes },
   );
 

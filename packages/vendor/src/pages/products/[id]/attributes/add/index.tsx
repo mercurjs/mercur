@@ -106,9 +106,10 @@ const Content = ({ productId }: { productId: string }) => {
     prefix: PREFIX,
   })
   const { product_attributes, count, isLoading, isError, error } =
-    useProductAttributes(searchParams, {
-      placeholderData: keepPreviousData,
-    })
+    useProductAttributes(
+      { ...searchParams, scope: "product" },
+      { placeholderData: keepPreviousData }
+    )
 
   const { product } = useProduct(productId, PRODUCT_DETAIL_QUERY)
 

@@ -23,6 +23,16 @@ export enum AttributeType {
 }
 
 /**
+ * The level an attribute is set on. `product` attributes (including every
+ * variant axis) are attached to the master product; `variant` attributes carry
+ * a value per product variant.
+ */
+export enum AttributeScope {
+  PRODUCT = "product",
+  VARIANT = "variant",
+}
+
+/**
  * Format rule for the free-form value of a `text` or `unit` attribute.
  * `pattern` is a JavaScript regular expression the whole value must match;
  * `message` replaces the default error when it does not.
@@ -59,6 +69,9 @@ export enum ProductChangeActionType {
   ATTRIBUTE_ADD = "ATTRIBUTE_ADD",
   ATTRIBUTE_REMOVE = "ATTRIBUTE_REMOVE",
   ATTRIBUTE_UPDATE = "ATTRIBUTE_UPDATE",
+  VARIANT_ATTRIBUTE_ADD = "VARIANT_ATTRIBUTE_ADD",
+  VARIANT_ATTRIBUTE_REMOVE = "VARIANT_ATTRIBUTE_REMOVE",
+  VARIANT_ATTRIBUTE_UPDATE = "VARIANT_ATTRIBUTE_UPDATE",
   PRODUCT_ADD = "PRODUCT_ADD",
   PRODUCT_DELETE = "PRODUCT_DELETE",
   /**
@@ -95,6 +108,7 @@ export interface ProductAttributeDTO {
   name: string
   description: string | null
   type: AttributeType
+  scope: AttributeScope
   is_required: boolean
   is_filterable: boolean
   is_internal: boolean
@@ -144,6 +158,7 @@ export interface WrappedProductAttributeDTO {
   name?: string
   handle?: string | null
   type?: AttributeType
+  scope?: AttributeScope
   is_variant_axis?: boolean
   is_required?: boolean
   is_internal?: boolean

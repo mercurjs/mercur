@@ -307,6 +307,9 @@ export type Routes = {
                         inventoryItems: typeof import("@medusajs/medusa/api/admin/products/[id]/variants/[variant_id]/inventory-items/route") & {
                             $inventoryItemId: typeof import("@medusajs/medusa/api/admin/products/[id]/variants/[variant_id]/inventory-items/[inventory_item_id]/route");
                         };
+                        attributes: {
+                            batch: typeof import("../src/api/admin/products/[id]/variants/[variant_id]/attributes/batch/route");
+                        };
                     };
                     batch: typeof import("@medusajs/medusa/api/admin/products/[id]/variants/batch/route");
                     inventoryItems: {
@@ -848,7 +851,11 @@ export type Routes = {
                 cancel: typeof import("../src/api/vendor/products/[id]/cancel/route");
                 preview: typeof import("../src/api/vendor/products/[id]/preview/route");
                 variants: typeof import("../src/api/vendor/products/[id]/variants/route") & {
-                    $variantId: typeof import("../src/api/vendor/products/[id]/variants/[variant_id]/route");
+                    $variantId: typeof import("../src/api/vendor/products/[id]/variants/[variant_id]/route") & {
+                        attributes: {
+                            batch: typeof import("../src/api/vendor/products/[id]/variants/[variant_id]/attributes/batch/route");
+                        };
+                    };
                 };
             };
         };

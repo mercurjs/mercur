@@ -1,6 +1,7 @@
 import { model } from "@medusajs/framework/utils"
 
 import ProductAttribute from "./product-attribute"
+import ProductVariantAttributeValue from "./product-variant-attribute-value"
 
 const ProductAttributeValue = model
   .define("ProductAttributeValue", {
@@ -15,7 +16,11 @@ const ProductAttributeValue = model
     attribute: model.belongsTo(() => ProductAttribute, {
       mappedBy: "values",
     }),
+    variant_links: model.hasMany(() => ProductVariantAttributeValue, {
+      mappedBy: "value",
+    }),
   })
+  .cascades({ delete: ["variant_links"] })
   .indexes([
     {
       name: "IDX_product_attribute_value_handle_unique",

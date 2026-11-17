@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { AttributeType } from "@mercurjs/types";
+import { AttributeScope, AttributeType } from "@mercurjs/types";
 
 import { RouteFocusModal, useRouteModal } from "../../../../components/modals";
 import { TabbedForm } from "../../../../components/tabbed-form/tabbed-form";
@@ -41,6 +41,7 @@ export const AttributeCreateForm = ({ children }: AttributeCreateFormProps) => {
       is_required: false,
       is_variant_axis: false,
       is_global: true,
+      scope: AttributeScope.PRODUCT,
       values: [],
       category_ids: [],
       validation_pattern: "",
@@ -63,6 +64,8 @@ export const AttributeCreateForm = ({ children }: AttributeCreateFormProps) => {
     await mutateAsync(
       {
         ...rest,
+        is_variant_axis:
+          values.scope === AttributeScope.VARIANT ? false : values.is_variant_axis,
         handle: values.handle ? values.handle : undefined,
         values: cleanedValues,
         category_ids: is_global ? [] : (values.category_ids ?? []),

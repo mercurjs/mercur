@@ -1,5 +1,5 @@
 import { model } from "@medusajs/framework/utils"
-import { AttributeType } from "@mercurjs/types"
+import { AttributeScope, AttributeType } from "@mercurjs/types"
 
 import ProductAttributeValue from "./product-attribute-value"
 
@@ -10,6 +10,7 @@ const ProductAttribute = model
     name: model.text().searchable(),
     description: model.text().nullable(),
     type: model.enum(AttributeType),
+    scope: model.enum(AttributeScope).default(AttributeScope.PRODUCT),
     is_required: model.boolean().default(false),
     is_filterable: model.boolean().default(false),
     is_internal: model.boolean().default(false),
@@ -40,6 +41,12 @@ const ProductAttribute = model
     {
       name: "IDX_product_attribute_type",
       on: ["type"],
+      unique: false,
+      where: "deleted_at IS NULL",
+    },
+    {
+      name: "IDX_product_attribute_scope",
+      on: ["scope"],
       unique: false,
       where: "deleted_at IS NULL",
     },

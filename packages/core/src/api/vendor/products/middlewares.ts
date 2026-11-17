@@ -22,6 +22,7 @@ import {
 import {
   VendorAddProductVariant,
   VendorBatchProductAttributes,
+  VendorBatchVariantAttributes,
   VendorCancelProductChange,
   VendorCreateProduct,
   VendorGetProductParams,
@@ -225,6 +226,17 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
       requirePermission("products", "manage"),
       ensureProductVisibleToSeller,
       ensureVariantBelongsToProduct],
+  },
+
+  {
+    method: ["POST"],
+    matcher: "/vendor/products/:id/variants/:variant_id/attributes/batch",
+    middlewares: [
+      requirePermission("products", "edit"),
+      ensureProductVisibleToSeller,
+      ensureVariantBelongsToProduct,
+      validateAndTransformBody(VendorBatchVariantAttributes),
+    ],
   },
 
   {

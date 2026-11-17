@@ -432,3 +432,23 @@ export type AdminBatchProductAttributesType = z.infer<
   AdditionalData
 export const AdminBatchProductAttributes =
   WithAdditionalData(BatchProductAttributes)
+
+const BatchVariantAttributeAdd = z
+  .object({
+    id: z.string(),
+    value_ids: z.array(z.string()).optional(),
+    value: BatchAttributeScalar.optional(),
+  })
+  .strict()
+
+const BatchVariantAttributes = z.object({
+  add: z.array(BatchVariantAttributeAdd).optional(),
+  remove: z.array(z.string()).optional(),
+  update: z.array(BatchAttributeUpdate).optional(),
+})
+export type AdminBatchVariantAttributesType = z.infer<
+  typeof BatchVariantAttributes
+> &
+  AdditionalData
+export const AdminBatchVariantAttributes =
+  WithAdditionalData(BatchVariantAttributes)

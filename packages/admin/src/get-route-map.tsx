@@ -259,6 +259,18 @@ export function getRouteMap({
                                 lazy: () =>
                                   import("./pages/product-variants/product-variant-metadata"),
                               },
+                              {
+                                path: "attributes/add",
+                                handle: { permissions: "products:edit" },
+                                lazy: () =>
+                                  import("./pages/product-variants/product-variant-add-attributes"),
+                              },
+                              {
+                                path: "attributes/:attribute_id/edit",
+                                handle: { permissions: "products:edit" },
+                                lazy: () =>
+                                  import("./pages/product-variants/product-variant-edit-attribute"),
+                              },
                             ],
                           },
                         ],

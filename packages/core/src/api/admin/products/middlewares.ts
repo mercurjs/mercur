@@ -14,6 +14,7 @@ import {
 } from "./query-config"
 import {
   AdminBatchProductAttributes,
+  AdminBatchVariantAttributes,
   AdminBatchProducts,
   AdminCreateProduct,
   AdminCreateProductVariant,
@@ -199,6 +200,19 @@ const overrides: MiddlewareRoute[] = [
       validateAndTransformQuery(
         AdminGetProductParams,
         adminProductQueryConfig.retrieve
+      ),
+    ],
+  },
+
+  {
+    method: ["POST"],
+    matcher: "/admin/products/:id/variants/:variant_id/attributes/batch",
+    middlewares: [
+      requirePermission("products", "edit"),
+      validateAndTransformBody(AdminBatchVariantAttributes),
+      validateAndTransformQuery(
+        AdminGetProductVariantParams,
+        adminProductVariantQueryConfig.retrieve
       ),
     ],
   },

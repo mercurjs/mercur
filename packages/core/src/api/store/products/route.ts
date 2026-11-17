@@ -4,6 +4,7 @@ import {
 } from "@medusajs/framework/http"
 import {
   enrichProductAttributes,
+  enrichProductVariantAttributes,
   listProducts,
   wrapProductVariantsWithOfferPrice,
 } from "../../utils"
@@ -41,6 +42,9 @@ export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
   )
 
   await enrichProductAttributes(req.scope, products as any[], {
+    hideInternal: true,
+  })
+  await enrichProductVariantAttributes(req.scope, products as any[], {
     hideInternal: true,
   })
 

@@ -11,14 +11,19 @@ import {
   MedusaService,
   toHandle,
 } from "@medusajs/framework/utils"
-import { AttributeType } from "@mercurjs/types"
+import { AttributeScope, AttributeType } from "@mercurjs/types"
 
 import { joinerConfig } from "./joiner-config"
-import { ProductAttribute, ProductAttributeValue } from "./models"
+import {
+  ProductAttribute,
+  ProductAttributeValue,
+  ProductVariantAttributeValue,
+} from "./models"
 
 class ProductAttributeModuleService extends MedusaService({
   ProductAttribute,
   ProductAttributeValue,
+  ProductVariantAttributeValue,
 }) {
   __joinerConfig(): ModuleJoinerConfig {
     return joinerConfig
@@ -33,6 +38,13 @@ class ProductAttributeModuleService extends MedusaService({
     const input = (Array.isArray(data) ? data : [data]).map((attribute) => {
       if (!attribute.handle && !attribute.product_id && attribute.name) {
         attribute.handle = toHandle(attribute.name)
+      }
+
+      if (attribute.scope === AttributeScope.VARIANT && attribute.is_variant_axis) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          `Attribute "${attribute.name}" cannot be both a variant axis and a variant-level attribute.`,
+        )
       }
 
       return attribute
@@ -64,29 +76,35 @@ class ProductAttributeModuleService extends MedusaService({
   ): Promise<T extends any[] ? any[] : any> {
     const updates = Array.isArray(data) ? data : [data]
 
-    const idsWithType = updates
-      .filter((u) => u.id && u.type !== undefined)
+    const guardedIds = updates
+      .filter((u) => u.id && (u.type !== undefined || u.scope !== undefined))
       .map((u) => u.id as string)
 
-    if (idsWithType.length) {
+    if (guardedIds.length) {
       const existing = await this.listProductAttributes(
-        { id: idsWithType },
-        { select: ["id", "type"] },
+        { id: guardedIds },
+        { select: ["id", "type", "scope"] },
         sharedContext,
       )
-      const typeById = new Map<string, string>(
-        existing.map((a) => [a.id, a.type]),
+      const byId = new Map<string, { type: string; scope: string }>(
+        existing.map((a) => [a.id, a]),
       )
 
       for (const update of updates) {
-        if (!update.id || update.type === undefined) {
+        const current = update.id ? byId.get(update.id) : undefined
+        if (!current) {
           continue
         }
-        const currentType = typeById.get(update.id)
-        if (currentType !== undefined && update.type !== currentType) {
+        if (update.type !== undefined && update.type !== current.type) {
           throw new MedusaError(
             MedusaError.Types.INVALID_DATA,
-            `Cannot change the type of an existing attribute (${update.id}): "${currentType}" -> "${update.type}".`,
+            `Cannot change the type of an existing attribute (${update.id}): "${current.type}" -> "${update.type}".`,
+          )
+        }
+        if (update.scope !== undefined && update.scope !== current.scope) {
+          throw new MedusaError(
+            MedusaError.Types.INVALID_DATA,
+            `Cannot change the scope of an existing attribute (${update.id}): "${current.scope}" -> "${update.scope}".`,
           )
         }
       }

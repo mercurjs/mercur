@@ -13,6 +13,7 @@ import { productEditDeleteProductWorkflow } from "../../../../workflows/product-
 import { productEditUpdateProductWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-update-product"
 import {
   enrichProductAttributes,
+  enrichProductVariantAttributes,
   wrapProductVariantsWithOffers,
 } from "../../../utils"
 import { enrichProductChangeRequests } from "../helpers"
@@ -49,6 +50,9 @@ export const GET = async (
   }
 
   await enrichProductAttributes(req.scope, [product], {
+    hideInternal: true,
+  })
+  await enrichProductVariantAttributes(req.scope, [product], {
     hideInternal: true,
   })
   await enrichProductChangeRequests(

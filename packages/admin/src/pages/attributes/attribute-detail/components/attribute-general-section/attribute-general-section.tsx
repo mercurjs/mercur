@@ -136,6 +136,12 @@ export const AttributeGeneralSection = ({
       />
 
       <SectionRow
+        title={t("attributes.fields.scope")}
+        value={t(`attributes.scope.${attribute.scope ?? "product"}`)}
+        data-testid="attribute-general-section-scope"
+      />
+
+      <SectionRow
         title={t("attributes.fields.filterable")}
         value={
           attribute.is_filterable ? t("fields.yes") : t("fields.no")

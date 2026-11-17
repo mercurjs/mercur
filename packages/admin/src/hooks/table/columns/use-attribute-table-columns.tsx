@@ -250,6 +250,12 @@ export const useAttributeTableColumns = () => {
           return <StatusCell color={color}>{label}</StatusCell>
         },
       }),
+      columnHelper.accessor("scope", {
+        header: () => t("attributes.fields.scope"),
+        cell: ({ getValue }) => (
+          <TextCell text={t(`attributes.scope.${getValue() ?? "product"}`)} />
+        ),
+      }),
       columnHelper.accessor("is_variant_axis", {
         header: () => t("attributes.fields.variantAxis"),
         cell: ({ getValue }) => (

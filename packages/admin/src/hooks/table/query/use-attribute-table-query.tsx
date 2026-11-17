@@ -10,7 +10,16 @@ export const useAttributeTableQuery = ({
   pageSize = 20,
 }: UseAttributeTableQueryProps) => {
   const queryObject = useQueryParams(
-    ["offset", "q", "order", "created_at", "updated_at", "is_filterable", "is_internal"],
+    [
+      "offset",
+      "q",
+      "order",
+      "created_at",
+      "updated_at",
+      "is_filterable",
+      "is_internal",
+      "scope",
+    ],
     prefix,
   );
 
@@ -22,6 +31,7 @@ export const useAttributeTableQuery = ({
     updated_at,
     is_filterable,
     is_internal,
+    scope,
   } = queryObject;
 
   const searchParams: Record<string, any> = {
@@ -33,6 +43,7 @@ export const useAttributeTableQuery = ({
     is_filterable:
       is_filterable !== undefined ? is_filterable === "true" : undefined,
     is_internal: is_internal !== undefined ? is_internal === "true" : undefined,
+    scope,
     q,
   };
 
