@@ -23,6 +23,7 @@ Updates the attribute's details; only the provided fields are changed.
 <ParamField body="is_required" type="boolean">Whether a value is required on products.</ParamField>
 <ParamField body="is_filterable" type="boolean">Whether the attribute can be used as a storefront filter.</ParamField>
 <ParamField body="is_variant_axis" type="boolean">Whether the attribute drives variant generation; only valid for `multi_select`.</ParamField>
+<ParamField body="is_internal" type="boolean">Whether the attribute is internal. Internal attributes are visible only to operators; the vendor and store APIs never return them. Defaults to `false`.</ParamField>
 <ParamField body="rank" type="number">Sort rank of the attribute; must be non-negative.</ParamField>
 <ParamField body="is_active" type="boolean">Whether the attribute is active.</ParamField>
 <ParamField body="category_ids" type="string[]">IDs of categories to link the attribute to; replaces the existing links.</ParamField>

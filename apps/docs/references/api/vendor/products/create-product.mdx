@@ -10,6 +10,10 @@ Creates a product; when no status is provided it is created with status `propose
   When the product request flow is enabled, `status` may only be `draft` or `proposed`. Publishing requires operator approval.
 </Note>
 
+<Warning>
+  Referencing an internal attribute in `attributes` returns a `400`. Internal attributes are managed by operators only.
+</Warning>
+
 ## Query parameters
 
 <ParamField query="fields" type="string">

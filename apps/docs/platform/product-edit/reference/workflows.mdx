@@ -37,7 +37,7 @@ An update stages only the fields that differ, and `manage_inventory` is never st
 
 ### productEditUpdateAttributesWorkflow
 
-Id `product-edit-update-attributes`. Stages `ATTRIBUTE_ADD`, `ATTRIBUTE_UPDATE`, and `ATTRIBUTE_REMOVE` actions, skipping entries that wouldn’t change the product.
+Id `product-edit-update-attributes`. Stages `ATTRIBUTE_ADD`, `ATTRIBUTE_UPDATE`, and `ATTRIBUTE_REMOVE` actions, skipping entries that wouldn’t change the product. It throws `NOT_ALLOWED` when an entry in `add`, `update`, or `remove` references an [internal attribute](/platform/attribute/concepts/global-vs-inline#internal-attributes).
 
 | Input | Type | Description |
 | --- | --- | --- |

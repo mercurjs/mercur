@@ -19,6 +19,7 @@ Creates a shared attribute that products across the catalog can use.
 <ParamField body="is_required" type="boolean">Whether a value is required on products.</ParamField>
 <ParamField body="is_filterable" type="boolean">Whether the attribute can be used as a storefront filter.</ParamField>
 <ParamField body="is_variant_axis" type="boolean">Whether the attribute drives variant generation; only valid for `multi_select`.</ParamField>
+<ParamField body="is_internal" type="boolean">Whether the attribute is internal. Internal attributes are visible only to operators; the vendor and store APIs never return them. Defaults to `false`.</ParamField>
 <ParamField body="rank" type="number">Sort rank of the attribute; must be non-negative.</ParamField>
 <ParamField body="is_active" type="boolean">Whether the attribute is active.</ParamField>
 <ParamField body="category_ids" type="string[]">IDs of categories to link the attribute to; omit for a global attribute.</ParamField>
@@ -46,6 +47,7 @@ Creates a shared attribute that products across the catalog can use.
     <ResponseField name="is_required" type="boolean">Whether a value is required on products.</ResponseField>
     <ResponseField name="is_filterable" type="boolean">Whether the attribute can be used as a storefront filter.</ResponseField>
     <ResponseField name="is_variant_axis" type="boolean">Whether the attribute drives variant generation.</ResponseField>
+    <ResponseField name="is_internal" type="boolean">Whether the attribute is internal, visible only to operators.</ResponseField>
     <ResponseField name="is_active" type="boolean">Whether the attribute is active.</ResponseField>
     <ResponseField name="values" type="object[]">The attribute's values.</ResponseField>
     <ResponseField name="categories" type="object[]">Linked categories with `id`, `name`, and `handle`.</ResponseField>
@@ -88,6 +90,7 @@ const { product_attribute } = await client.admin.productAttributes.mutate({
     "is_required": false,
     "is_filterable": true,
     "is_variant_axis": false,
+    "is_internal": false,
     "is_active": true,
     "values": [
       { "id": "pattrval_01HXYZABCDEF", "name": "Linen", "rank": 0 },

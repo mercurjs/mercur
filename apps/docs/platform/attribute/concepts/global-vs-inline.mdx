@@ -1,7 +1,7 @@
 ---
 title: "Global and inline attributes"
 sidebarTitle: "Global vs inline"
-description: "Catalog-wide attributes, attributes scoped to one product, category scoping, and storefront filters."
+description: "Catalog-wide attributes, attributes scoped to one product, category scoping, storefront filters, and internal attributes."
 ---
 
 Every attribute is either global, a catalog entry any product can reuse, or inline, a one-off field created on a single product. Global attributes keep the catalog consistent across stores. Inline attributes cover the odd field one product needs without adding noise to the shared vocabulary.
@@ -64,6 +64,38 @@ Shoppers filter `GET /store/products` with `attributes[<handle>]=value` query pa
 <Tip>
   Mark axes such as Size and Color as filterable. Descriptive `text` attributes such as care instructions aren’t variant options, so the product filter can’t match them.
 </Tip>
+
+## Internal attributes
+
+Set `is_internal` on an attribute to keep it for operators only, for example a sourcing code, a compliance flag, or a merchandising tag your team uses but stores and shoppers shouldn’t see. It works like an internal product category in Medusa: the attribute stays in the catalog, and only the admin API exposes it.
+
+| Surface | Behavior |
+| --- | --- |
+| Admin API | Lists, filters (`is_internal`), and returns internal attributes like any other |
+| Vendor attribute routes | `GET /vendor/product-attributes` leaves them out, and `GET /vendor/product-attributes/:id` returns `404` |
+| Store attribute routes | `GET /store/product-attributes` leaves them out, and `GET /store/product-attributes/:id` returns `404` |
+| Vendor and store product responses | Internal attributes are removed from `attributes`, `product_attribute_values`, and `scoped_attributes` |
+| Vendor writes | `POST /vendor/products` and the attribute batch reject any entry that references an internal attribute with `400` |
+
+The flag is set on global attributes through `createProductAttributesWorkflow` and `updateProductAttributesWorkflow`, and on inline attributes through an `add` entry with `is_internal: true`. Only the admin routes accept it, so only operators can create or change an internal attribute or its values on a product.
+
+```ts
+await createProductAttributesWorkflow(container).run({
+  input: {
+    attributes: [
+      {
+        name: "Sourcing code",
+        type: AttributeType.TEXT,
+        is_internal: true,
+      },
+    ],
+  },
+})
+```
+
+<Note>
+  The vendor guard lives in `validateProductAttributesNotInternalStep`, which `productEditUpdateAttributesWorkflow` runs before staging a change. Run the step in your own workflows when they apply attribute changes on a store’s behalf.
+</Note>
 
 ## Related
 

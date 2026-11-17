@@ -33,7 +33,7 @@ Returns a single product with its images, variants, and attribute assignments.
     <ResponseField name="collection" type="object">The associated collection with `id`, `title`, and `handle`.</ResponseField>
     <ResponseField name="categories" type="object[]">Associated categories with `id`, `name`, and `handle`.</ResponseField>
     <ResponseField name="variants" type="object[]">Variants with `id`, `title`, `sku`, `manage_inventory`, `allow_backorder`, and `variant_rank`.</ResponseField>
-    <ResponseField name="attributes" type="object[]">Product attributes grouped per attribute with their selected values.</ResponseField>
+    <ResponseField name="attributes" type="object[]">Product attributes grouped per attribute with their selected values. Internal attributes are omitted.</ResponseField>
     <ResponseField name="metadata" type="object">Custom key-value pairs.</ResponseField>
   </Expandable>
 </ResponseField>

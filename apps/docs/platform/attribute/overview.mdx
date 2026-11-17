@@ -24,6 +24,7 @@ The Product Attribute module covers the full life of a catalog attribute:
 - **Global or inline**: define an attribute once for the whole catalog, or create a one-off attribute on a single product
 - **Category scoping**: link an attribute to product categories so it’s offered only for products in them
 - **Storefront filters**: shoppers filter products by axis values, and `is_filterable` tells your storefront which attributes to show as facets
+- **Internal attributes**: `is_internal` keeps an attribute operator-only, hidden from stores and the storefront
 - **One batch workflow**: attach, detach, and update all of a product’s attributes in a single run
 - **Hooks and events**: catalog workflows expose hooks and emit `product-attribute.*` and `product-attribute-value.*` events
 
@@ -48,7 +49,7 @@ Learn how attributes, values, and axes fit together.
     How an axis attribute mirrors a Medusa `ProductOption`.
   </Card>
   <Card title="Global vs inline" icon="layer-group" href="/platform/attribute/concepts/global-vs-inline">
-    Catalog attributes, product-scoped attributes, categories, and filters.
+    Catalog attributes, product-scoped attributes, categories, filters, and internal attributes.
   </Card>
 </CardGroup>
 
