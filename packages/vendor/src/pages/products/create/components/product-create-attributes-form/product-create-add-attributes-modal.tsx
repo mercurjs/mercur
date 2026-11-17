@@ -58,7 +58,11 @@ export const ProductCreateAddAttributesModal = () => {
     prefix: ADD_ATTRIBUTES_MODAL_ID,
   })
   const attributesQuery = useMemo(
-    () => ({ ...searchParams, category_id: categoryId || undefined }),
+    () => ({
+      ...searchParams,
+      category_id: categoryId || undefined,
+      scope: "product",
+    }),
     [searchParams, categoryId]
   )
   const { product_attributes, count, isLoading, isError, error } =

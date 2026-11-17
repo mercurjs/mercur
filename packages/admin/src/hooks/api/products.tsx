@@ -3,6 +3,7 @@ import {
   HttpTypes,
   ProductAttributeBatchInput,
   ProductChangeDTO,
+  VariantAttributeBatchInput,
 } from "@mercurjs/types";
 import {
   QueryKey,
@@ -559,6 +560,42 @@ export const useRemoveAttributeFromProduct = (
       queryClient.invalidateQueries({
         queryKey: scopedProductAttributesQueryKeys.lists(),
       });
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+/** Applies `add` / `remove` / `update` to one variant's attributes. */
+export type VariantAttributeBatchPayload = Omit<
+  VariantAttributeBatchInput,
+  "product_id" | "variant_id"
+>;
+
+export const useBatchVariantAttributes = (
+  productId: string,
+  variantId: string,
+  options?: UseMutationOptions<
+    HttpTypes.AdminProductVariantResponse,
+    ClientError,
+    VariantAttributeBatchPayload
+  >,
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.admin.products.$id.variants.$variantId.attributes.batch.mutate({
+        $id: productId,
+        $variantId: variantId,
+        ...payload,
+      }) as Promise<HttpTypes.AdminProductVariantResponse>,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: variantsQueryKeys.detail(variantId),
+      });
+      queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.detail(productId),
       });

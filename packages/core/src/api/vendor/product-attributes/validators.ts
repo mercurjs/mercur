@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { AttributeType } from "@mercurjs/types"
+import { AttributeScope, AttributeType } from "@mercurjs/types"
 import {
   createFindParams,
   createOperatorMap,
@@ -13,6 +13,7 @@ import {
 import { AdditionalData } from "@medusajs/framework/types"
 
 const typeEnum = z.nativeEnum(AttributeType)
+const scopeEnum = z.nativeEnum(AttributeScope)
 
 export type VendorGetProductAttributeParamsType = z.infer<
   typeof VendorGetProductAttributeParams
@@ -24,6 +25,7 @@ const VendorProductAttributesParamsFields = z.object({
   id: z.union([z.string(), z.array(z.string())]).optional(),
   handle: z.union([z.string(), z.array(z.string())]).optional(),
   type: z.union([typeEnum, z.array(typeEnum)]).optional(),
+  scope: z.union([scopeEnum, z.array(scopeEnum)]).optional(),
   is_required: booleanString().optional(),
   is_variant_axis: booleanString().optional(),
   is_filterable: booleanString().optional(),

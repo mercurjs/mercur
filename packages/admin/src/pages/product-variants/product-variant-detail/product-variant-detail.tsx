@@ -9,6 +9,7 @@ import {
   detailPageDefaultEntries,
 } from "@mercurjs/dashboard-shared";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
+import { VariantAttributeSection } from "./components/variant-attribute-section";
 import { VariantGeneralSection } from "./components/variant-general-section";
 import { variantLoader } from "./loader";
 
@@ -32,7 +33,7 @@ export const ProductVariantDetailPage = () => {
     return (
       <TwoColumnPageSkeleton
         mainSections={1}
-        sidebarSections={0}
+        sidebarSections={1}
         showJSON
         showMetadata
       />
@@ -57,7 +58,11 @@ export const ProductVariantDetailPage = () => {
             {detailPageDefaultEntries(variant)}
           </>
         ),
-        side: null,
+        side: (
+          <LayoutComposer.Entry id="VariantAttributeSection">
+            <VariantAttributeSection variant={variant} productId={id!} />
+          </LayoutComposer.Entry>
+        ),
       }}
     />
   );

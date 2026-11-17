@@ -11,6 +11,7 @@ import { HttpTypes } from "@mercurjs/types"
 
 import { updateProductVariantsWorkflow } from "@medusajs/medusa/core-flows"
 import { deleteProductVariantsWorkflow } from "@medusajs/medusa/core-flows"
+import { enrichVariantAttributes } from "../../../../../utils"
 import { AdminUpdateProductVariantType } from "../../../validators"
 
 export const GET = async (
@@ -33,6 +34,8 @@ export const GET = async (
       `Variant with id ${req.params.variant_id} was not found on product ${req.params.id}`
     )
   }
+
+  await enrichVariantAttributes(req.scope, [variant])
 
   res.json({ variant })
 }

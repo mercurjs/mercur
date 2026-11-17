@@ -1,6 +1,6 @@
 import { TFunction } from "i18next"
 import { z } from "zod"
-import { AttributeType } from "@mercurjs/types"
+import { AttributeScope, AttributeType } from "@mercurjs/types"
 
 export const ATTRIBUTE_TYPE_OPTIONS = [
   AttributeType.SINGLE_SELECT,
@@ -9,6 +9,11 @@ export const ATTRIBUTE_TYPE_OPTIONS = [
   AttributeType.TOGGLE,
   AttributeType.TEXT,
   AttributeType.DATE,
+] as const
+
+export const ATTRIBUTE_SCOPE_OPTIONS = [
+  AttributeScope.PRODUCT,
+  AttributeScope.VARIANT,
 ] as const
 
 export const PATTERN_TYPES: string[] = [AttributeType.TEXT, AttributeType.UNIT]
@@ -45,6 +50,9 @@ export const createAttributeSchema = (t: TFunction) =>
     is_internal: z.boolean().default(false),
     is_variant_axis: z.boolean().default(false),
     is_global: z.boolean().default(true),
+    scope: z
+      .enum([AttributeScope.PRODUCT, AttributeScope.VARIANT])
+      .default(AttributeScope.PRODUCT),
     type: z
       .enum([
         AttributeType.SINGLE_SELECT,

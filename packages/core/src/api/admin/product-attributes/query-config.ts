@@ -4,6 +4,7 @@ export const adminProductAttributeFields = [
   "handle",
   "description",
   "type",
+  "scope",
   "is_required",
   "is_filterable",
   "is_internal",

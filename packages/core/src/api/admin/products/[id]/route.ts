@@ -15,6 +15,7 @@ import { HttpTypes } from "@mercurjs/types"
 import { updateProductsWorkflow } from "@medusajs/medusa/core-flows"
 import {
   enrichProductAttributes,
+  enrichProductVariantAttributes,
   wrapProductVariantsWithOffers,
 } from "../../../utils"
 import { productEditDeleteProductWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-delete-product"
@@ -52,6 +53,7 @@ export const GET = async (
   }
 
   await enrichProductAttributes(req.scope, [product])
+  await enrichProductVariantAttributes(req.scope, [product])
 
   if (withOffers) {
     await wrapProductVariantsWithOffers(

@@ -2,7 +2,7 @@ import { Heading, Select, Text } from "@medusajs/ui"
 import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { AttributeType } from "@mercurjs/types"
+import { AttributeScope, AttributeType } from "@mercurjs/types"
 import { Form } from "../../../../components/common/form"
 import { SwitchBox } from "../../../../components/common/switch-box"
 import { useTabbedForm } from "../../../../components/tabbed-form/tabbed-form"
@@ -16,6 +16,7 @@ import { PossibleValuesList } from "./possible-values-list"
 
 type AttributeCreateFormValues = {
   type: string
+  scope: AttributeScope
   is_variant_axis: boolean
   values?: { name: string; rank: number }[]
   validation_pattern?: string
@@ -36,6 +37,7 @@ const Root = () => {
   const form = useTabbedForm<AttributeCreateFormValues>()
 
   const type = useWatch({ control: form.control, name: "type" })
+  const scope = useWatch({ control: form.control, name: "scope" })
 
   const showValues =
     type === AttributeType.SINGLE_SELECT ||
@@ -89,7 +91,7 @@ const Root = () => {
           )}
         />
 
-        {type === AttributeType.MULTI_SELECT && (
+        {type === AttributeType.MULTI_SELECT && scope !== AttributeScope.VARIANT && (
           <SwitchBox
             control={form.control}
             name="is_variant_axis"

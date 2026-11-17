@@ -17,6 +17,8 @@ import {
   ProductAttributeBatchAdd,
   ProductAttributeBatchUpdate,
   ProductChangeActionType,
+  VariantAttributeBatchAdd,
+  VariantAttributeBatchInput,
 } from "@mercurjs/types"
 
 import {
@@ -26,6 +28,7 @@ import {
 } from "../steps"
 import { deleteOffersWorkflow } from "../../offer/workflows/delete-offers"
 import { applyProductAttributeChangeActionsWorkflow } from "./apply-product-attribute-change-actions"
+import { applyVariantAttributeChangeActionsWorkflow } from "./apply-variant-attribute-change-actions"
 
 export type ApplyProductChangeActionsWorkflowInput = {
   change_ids: string[]
@@ -43,6 +46,7 @@ type BucketedActions = {
     remove: string[]
     update: ProductAttributeBatchUpdate[]
   } | null
+  variantAttributeBatches: VariantAttributeBatchInput[]
   productsToDelete: string[]
   pendingActionIds: string[]
 }
@@ -56,6 +60,9 @@ const HANDLED_ACTION_TYPES = new Set<string>([
   ProductChangeActionType.ATTRIBUTE_ADD,
   ProductChangeActionType.ATTRIBUTE_REMOVE,
   ProductChangeActionType.ATTRIBUTE_UPDATE,
+  ProductChangeActionType.VARIANT_ATTRIBUTE_ADD,
+  ProductChangeActionType.VARIANT_ATTRIBUTE_REMOVE,
+  ProductChangeActionType.VARIANT_ATTRIBUTE_UPDATE,
   ProductChangeActionType.PRODUCT_DELETE,
 ])
 
@@ -98,6 +105,24 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
           update: [],
         }
         return attributeBatch
+      }
+      const variantAttributeBatches = new Map<string, VariantAttributeBatchInput>()
+      const ensureVariantAttributeBatch = (
+        productId: string,
+        variantId: string,
+      ) => {
+        let batch = variantAttributeBatches.get(variantId)
+        if (!batch) {
+          batch = {
+            product_id: productId,
+            variant_id: variantId,
+            add: [],
+            remove: [],
+            update: [],
+          }
+          variantAttributeBatches.set(variantId, batch)
+        }
+        return batch as Required<VariantAttributeBatchInput>
       }
       const productsToDelete = new Set<string>()
       const pendingActionIds: string[] = []
@@ -192,6 +217,35 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
             ensureAttributeBatch(productId).update.push(update)
             break
           }
+          case ProductChangeActionType.VARIANT_ATTRIBUTE_ADD: {
+            const { variant_id, attribute } = details as {
+              variant_id?: string
+              attribute?: VariantAttributeBatchAdd
+            }
+            if (!variant_id || !attribute) break
+            ensureVariantAttributeBatch(productId, variant_id).add.push(attribute)
+            break
+          }
+          case ProductChangeActionType.VARIANT_ATTRIBUTE_REMOVE: {
+            const { variant_id, attribute_id } = details as {
+              variant_id?: string
+              attribute_id?: string
+            }
+            if (!variant_id || !attribute_id) break
+            ensureVariantAttributeBatch(productId, variant_id).remove.push(
+              attribute_id,
+            )
+            break
+          }
+          case ProductChangeActionType.VARIANT_ATTRIBUTE_UPDATE: {
+            const { variant_id, update } = details as {
+              variant_id?: string
+              update?: ProductAttributeBatchUpdate
+            }
+            if (!variant_id || !update) break
+            ensureVariantAttributeBatch(productId, variant_id).update.push(update)
+            break
+          }
           case ProductChangeActionType.PRODUCT_DELETE: {
             productsToDelete.add(productId)
             break
@@ -208,6 +262,7 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
         variantImageLinks,
         variantDeletes,
         attributeBatch,
+        variantAttributeBatches: Array.from(variantAttributeBatches.values()),
         productsToDelete: Array.from(productsToDelete),
         pendingActionIds,
       }
@@ -271,6 +326,12 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
         add: buckets.attributeBatch?.add ?? [],
         remove: buckets.attributeBatch?.remove ?? [],
         update: buckets.attributeBatch?.update ?? [],
+      })),
+    })
+
+    applyVariantAttributeChangeActionsWorkflow.runAsStep({
+      input: transform({ buckets }, ({ buckets }) => ({
+        batches: buckets.variantAttributeBatches,
       })),
     })
 

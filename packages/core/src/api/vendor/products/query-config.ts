@@ -50,6 +50,7 @@ export const vendorProductFields = [
   "product_attribute_values.attribute.name",
   "product_attribute_values.attribute.handle",
   "product_attribute_values.attribute.type",
+  "product_attribute_values.attribute.scope",
   "product_attribute_values.attribute.is_variant_axis",
   "product_attribute_values.attribute.is_required",
   "product_attribute_values.attribute.is_internal",

@@ -6,6 +6,7 @@ import { LayoutComposer } from "@mercurjs/dashboard-shared"
 import { useProductVariant } from "@hooks/api/products"
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
+import { VariantAttributeSection } from "./components/variant-attribute-section"
 import { VariantGeneralSection } from "./components/variant-general-section"
 import { VariantMediaSection } from "./components/variant-media-section"
 import { variantLoader, VARIANT_DETAIL_FIELDS } from "./loader"
@@ -27,7 +28,7 @@ export const ProductVariantDetail = () => {
   )
 
   if (isLoading || !variant) {
-    return <TwoColumnPageSkeleton mainSections={2} sidebarSections={0} />
+    return <TwoColumnPageSkeleton mainSections={3} sidebarSections={0} />
   }
 
   if (isError) {
@@ -47,6 +48,12 @@ export const ProductVariantDetail = () => {
             </LayoutComposer.Entry>
             <LayoutComposer.Entry id="VariantMediaSection">
               <VariantMediaSection variant={variant} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="VariantAttributeSection">
+              <VariantAttributeSection
+                variant={variant}
+                productId={productId!}
+              />
             </LayoutComposer.Entry>
           </>
         ),

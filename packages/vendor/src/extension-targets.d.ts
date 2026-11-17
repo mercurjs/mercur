@@ -277,6 +277,7 @@ declare module "@mercurjs/dashboard-sdk" {
     "core:TaxRegionProvinceOverrideSection": true
     "core:TaxRegionProvinceSection": true
     "core:TaxRegionSublevelAlert": true
+    "core:VariantAttributeSection": true
     "core:VariantGeneralSection": true
     "core:VariantMediaSection": true
   }

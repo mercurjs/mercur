@@ -878,7 +878,15 @@
       "tableItemAvailable": "{{availableCount}} available",
       "tableItem_one": "{{availableCount}} available at {{locationCount}} location",
       "tableItem_other": "{{availableCount}} available at {{locationCount}} locations",
-      "inventory": {}
+      "inventory": {},
+      "attributes": {
+        "header": "Variant attributes",
+        "description": "Attributes that describe this variant only",
+        "editHint": "Update the value of this attribute on the variant.",
+        "addSuccessToast": "Variant attributes added successfully.",
+        "updateSuccessToast": "Variant attribute updated successfully.",
+        "deleteSuccessToast": "Variant attribute removed successfully."
+      }
     },
     "options": {
       "header": "Options",
@@ -4430,7 +4438,9 @@
       "type": "Type",
       "values": "Values",
       "variantAxis": "Use for Variants",
-      "filterable": "Filterable"
+      "filterable": "Filterable",
+      "scope": "Level",
+      "scopeHint": "Product-level attributes describe the whole product. Variant-level attributes hold one value per variant."
     },
     "type": {
       "select": "Single Select",
@@ -4439,6 +4449,14 @@
       "toggle": "Toggle",
       "text_area": "Text Area",
       "date": "Date"
+    },
+    "scope": {
+      "product": "Product",
+      "variant": "Variant"
+    },
+    "scopeDescription": {
+      "product": "One value for the whole product. Variant axes always live here.",
+      "variant": "A separate value on each variant, like battery capacity or finish."
     }
   },
   "permissions": {

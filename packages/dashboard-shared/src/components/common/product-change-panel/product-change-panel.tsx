@@ -301,9 +301,20 @@ const attributeDisplay = (
   const name = entry?.name ?? change.inlineTitle ?? change.attributeId ?? "-";
   const resolveIds = (ids: string[]): string[] =>
     ids.map((id) => entry?.valueNameById.get(id) ?? id);
+  // Variant-level actions snapshot the previous selection themselves; the
+  // product payload only knows product-level selections.
+  const selectedNames = (): string[] => {
+    if (change.previousValueIds === undefined) {
+      return entry?.selectedNames ?? [];
+    }
+    if (change.previousScalar !== undefined && change.previousScalar !== null) {
+      return [formatFieldValue(change.previousScalar, undefined, booleanLabels)];
+    }
+    return resolveIds(change.previousValueIds);
+  };
 
   if (change.kind === "removed") {
-    const prev = entry?.selectedNames ?? [];
+    const prev = selectedNames();
     return { name, previous: prev.length ? prev.join(", ") : null, next: "" };
   }
 
@@ -321,14 +332,14 @@ const attributeDisplay = (
 
   // updated
   if (change.scalarValue !== undefined && change.scalarValue !== null) {
-    const prev = entry?.selectedNames?.[0];
+    const prev = selectedNames()[0];
     return {
       name,
       previous: prev ?? null,
       next: formatFieldValue(change.scalarValue, undefined, booleanLabels),
     };
   }
-  const prevNames = entry?.selectedNames ?? [];
+  const prevNames = selectedNames();
   const removedNames = resolveIds(change.removeValueIds);
   const addedNames = [
     ...change.addValueNames,
@@ -466,7 +477,11 @@ export const ProductChangePanel = ({
   // Attribute ids that are not already on the product (added-by-id needs a fetch).
   const attributeIdsToFetch = useMemo(() => {
     const ids = new Set<string>();
-    for (const change of view.attributes) {
+    const changes = [
+      ...view.attributes,
+      ...view.variantGroups.flatMap((group) => group.attributes),
+    ];
+    for (const change of changes) {
       if (
         change.attributeId &&
         !productAttributesById.has(change.attributeId)
@@ -475,7 +490,7 @@ export const ProductChangePanel = ({
       }
     }
     return Array.from(ids);
-  }, [view.attributes, productAttributesById]);
+  }, [view.attributes, view.variantGroups, productAttributesById]);
 
   // Variant ids needing identity resolution (removed + grouped updates) that
   // are not already carried inline on the product payload.
@@ -783,6 +798,8 @@ export const ProductChangePanel = ({
               removedLabel={t("labels.removed")}
               fieldLabel={fieldLabel}
               lookups={lookups}
+              attributeLabel={typeAttribute}
+              attributeLookup={attributeLookup}
             />
           ))}
         </div>
@@ -810,6 +827,8 @@ const VariantGroupBlock = ({
   removedLabel,
   fieldLabel,
   lookups,
+  attributeLabel,
+  attributeLookup,
 }: {
   group: VariantGroup;
   variant?: ProductChangeVariant;
@@ -826,8 +845,15 @@ const VariantGroupBlock = ({
     categories: NameLookup;
     tags: NameLookup;
   };
+  attributeLabel: string;
+  attributeLookup: Map<string, AttributeLookupEntry>;
 }) => {
   const media: MediaDiff = group.media;
+  const attrsByKind = (kind: AttributeChange["kind"]) =>
+    group.attributes.filter((a) => a.kind === kind);
+  const updatedAttributes = attrsByKind("updated");
+  const addedAttributes = attrsByKind("added");
+  const removedAttributes = attrsByKind("removed");
   return (
     <div className="divide-y divide-dashed">
       <div
@@ -845,7 +871,7 @@ const VariantGroupBlock = ({
         </div>
       </div>
 
-      {group.fieldDiffs.length > 0 && (
+      {(group.fieldDiffs.length > 0 || updatedAttributes.length > 0) && (
         <GroupRow label={updatedLabel}>
           {group.fieldDiffs.map((diff, idx) => (
             <ItemRow
@@ -855,22 +881,50 @@ const VariantGroupBlock = ({
               <FieldDiffValue diff={diff} lookups={lookups} />
             </ItemRow>
           ))}
+          {updatedAttributes.map((change, idx) => (
+            <ItemRow
+              key={`vua-${change.attributeId ?? idx}`}
+              label={attributeLabel}
+            >
+              <AttributeValue change={change} lookup={attributeLookup} />
+            </ItemRow>
+          ))}
         </GroupRow>
       )}
 
-      {media.added.length > 0 && (
+      {(media.added.length > 0 || addedAttributes.length > 0) && (
         <GroupRow label={addedLabel}>
-          <ItemRow label={mediaLabel}>
-            <ImageStrip images={media.added} />
-          </ItemRow>
+          {media.added.length > 0 && (
+            <ItemRow label={mediaLabel}>
+              <ImageStrip images={media.added} />
+            </ItemRow>
+          )}
+          {addedAttributes.map((change, idx) => (
+            <ItemRow
+              key={`vaa-${change.attributeId ?? idx}`}
+              label={attributeLabel}
+            >
+              <AttributeValue change={change} lookup={attributeLookup} />
+            </ItemRow>
+          ))}
         </GroupRow>
       )}
 
-      {media.removed.length > 0 && (
+      {(media.removed.length > 0 || removedAttributes.length > 0) && (
         <GroupRow label={removedLabel}>
-          <ItemRow label={mediaLabel}>
-            <ImageStrip images={media.removed} />
-          </ItemRow>
+          {media.removed.length > 0 && (
+            <ItemRow label={mediaLabel}>
+              <ImageStrip images={media.removed} />
+            </ItemRow>
+          )}
+          {removedAttributes.map((change, idx) => (
+            <ItemRow
+              key={`vra-${change.attributeId ?? idx}`}
+              label={attributeLabel}
+            >
+              <AttributeValue change={change} lookup={attributeLookup} />
+            </ItemRow>
+          ))}
         </GroupRow>
       )}
     </div>

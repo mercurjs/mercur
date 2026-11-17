@@ -30,12 +30,20 @@ export type AttributeChange = {
   removeValueIds: string[]
   /** Free-form scalar for text / unit / toggle attributes. */
   scalarValue?: string | number | boolean
+  /**
+   * Snapshot of the selection before the change, when the action carries one
+   * (variant-level attributes). Product-level changes resolve the previous
+   * side from the product payload instead.
+   */
+  previousValueIds?: string[]
+  previousScalar?: string | number | boolean | null
 }
 
 export type VariantGroup = {
   variantId: string
   fieldDiffs: FieldDiff[]
   media: MediaDiff
+  attributes: AttributeChange[]
 }
 
 export type ProductChangeView = {
@@ -273,6 +281,33 @@ const toAttributeUpdate = (
   }
 }
 
+const withPrevious = (
+  change: AttributeChange,
+  details: Record<string, unknown>
+): AttributeChange => {
+  const previous = details.previous_value as
+    | { value_ids?: unknown; value?: unknown }
+    | null
+    | undefined
+  if (!previous) {
+    return { ...change, previousValueIds: [], previousScalar: null }
+  }
+  return {
+    ...change,
+    previousValueIds: Array.isArray(previous.value_ids)
+      ? (previous.value_ids as unknown[]).filter(
+          (v): v is string => typeof v === "string"
+        )
+      : [],
+    previousScalar: previous.value as AttributeChange["previousScalar"],
+  }
+}
+
+const variantIdOf = (details: Record<string, unknown>): string | undefined =>
+  details.variant_id !== undefined && details.variant_id !== null
+    ? String(details.variant_id)
+    : undefined
+
 export const buildProductChangeView = (
   actions: ProductChangeActionDTO[]
 ): ProductChangeView => {
@@ -287,7 +322,12 @@ export const buildProductChangeView = (
   const variantGroup = (variantId: string): VariantGroup => {
     let group = variantGroupMap.get(variantId)
     if (!group) {
-      group = { variantId, fieldDiffs: [], media: { added: [], removed: [] } }
+      group = {
+        variantId,
+        fieldDiffs: [],
+        media: { added: [], removed: [] },
+        attributes: [],
+      }
       variantGroupMap.set(variantId, group)
     }
     return group
@@ -379,6 +419,41 @@ export const buildProductChangeView = (
         if (change) attributes.push(change)
         break
       }
+      case ProductChangeActionType.VARIANT_ATTRIBUTE_ADD: {
+        const variantId = variantIdOf(details)
+        if (!variantId) break
+        variantGroup(variantId).attributes.push(
+          withPrevious(toAttributeAdd(details), details)
+        )
+        break
+      }
+      case ProductChangeActionType.VARIANT_ATTRIBUTE_REMOVE: {
+        const variantId = variantIdOf(details)
+        if (!variantId) break
+        variantGroup(variantId).attributes.push(
+          withPrevious(
+            {
+              kind: "removed",
+              attributeId:
+                typeof details.attribute_id === "string"
+                  ? details.attribute_id
+                  : undefined,
+              addValueIds: [],
+              addValueNames: [],
+              removeValueIds: [],
+            },
+            details
+          )
+        )
+        break
+      }
+      case ProductChangeActionType.VARIANT_ATTRIBUTE_UPDATE: {
+        const variantId = variantIdOf(details)
+        const change = toAttributeUpdate(details)
+        if (!variantId || !change) break
+        variantGroup(variantId).attributes.push(withPrevious(change, details))
+        break
+      }
       case ProductChangeActionType.PRODUCT_DELETE:
         deleteRequested = true
         break
@@ -390,7 +465,8 @@ export const buildProductChangeView = (
   }
 
   const variantGroups = Array.from(variantGroupMap.values()).filter(
-    (g) => g.fieldDiffs.length > 0 || hasMedia(g.media)
+    (g) =>
+      g.fieldDiffs.length > 0 || hasMedia(g.media) || g.attributes.length > 0
   )
 
   return {

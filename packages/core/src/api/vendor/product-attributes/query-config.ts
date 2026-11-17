@@ -4,6 +4,7 @@ export const vendorProductAttributeFields = [
   "handle",
   "description",
   "type",
+  "scope",
   "is_required",
   "is_filterable",
   "is_variant_axis",

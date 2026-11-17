@@ -37,6 +37,7 @@ export * from "./review"
 // boolean derived from `ProductChange`.
 export { ProductStatus } from "./product/status"
 export {
+  AttributeScope,
   AttributeType,
   ProductChangeStatus,
   ProductChangeActionType,
@@ -60,6 +61,8 @@ export {
   type ProductAttributeBatchAdd,
   type ProductAttributeBatchUpdate,
   type ProductAttributeBatchInput,
+  type VariantAttributeBatchAdd,
+  type VariantAttributeBatchInput,
   type ProductAttributeValueSnapshot,
   type CreateProductChangeDTO,
   type CreateProductChangeActionDTO,

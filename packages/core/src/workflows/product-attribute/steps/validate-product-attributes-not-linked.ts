@@ -14,7 +14,7 @@ export const validateProductAttributesNotLinkedStep = createStep(
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
     const { data } = await query.graph({
       entity: "product_attribute_value",
-      fields: ["id", "attribute_id", "products.id"],
+      fields: ["id", "attribute_id", "products.id", "variant_links.id"],
       filters: { attribute_id: ids },
     })
 
@@ -22,8 +22,12 @@ export const validateProductAttributesNotLinkedStep = createStep(
     for (const value of (data ?? []) as {
       attribute_id: string | null
       products?: { id: string }[] | null
+      variant_links?: { id: string }[] | null
     }[]) {
-      if (value.attribute_id && (value.products?.length ?? 0) > 0) {
+      const inUse =
+        (value.products?.length ?? 0) > 0 ||
+        (value.variant_links?.length ?? 0) > 0
+      if (value.attribute_id && inUse) {
         linkedAttributeIds.add(value.attribute_id)
       }
     }
@@ -33,7 +37,7 @@ export const validateProductAttributesNotLinkedStep = createStep(
         MedusaError.Types.NOT_ALLOWED,
         `Cannot delete product attribute(s) ${[...linkedAttributeIds].join(
           ", ",
-        )}: they are in use on one or more products.`,
+        )}: they are in use on one or more products or variants.`,
       )
     }
 

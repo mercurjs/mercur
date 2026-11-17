@@ -1,6 +1,7 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import type { MedusaContainer } from "@medusajs/framework/types"
 import {
+  AttributeScope,
   AttributeType,
   type ProductAttributeDTO,
   type ProductAttributeValueDTO,
@@ -78,6 +79,7 @@ export function wrapProductWithProductAttributes(
         name: scoped.name,
         handle: scoped.handle ?? null,
         type: scoped.type,
+        scope: scoped.scope ?? AttributeScope.PRODUCT,
         is_variant_axis: !!scoped.is_variant_axis,
         is_required: !!scoped.is_required,
         is_internal: !!scoped.is_internal,
@@ -103,6 +105,7 @@ export function wrapProductWithProductAttributes(
           name: attribute?.name,
           handle: attribute?.handle ?? null,
           type: attribute?.type,
+          scope: attribute?.scope ?? AttributeScope.PRODUCT,
           is_variant_axis: !!attribute?.is_variant_axis,
           is_required: !!attribute?.is_required,
           is_internal: !!attribute?.is_internal,
@@ -182,4 +185,83 @@ export async function enrichProductAttributes(
       }
     }
   }
+}
+
+type VariantAttributeJoinRow = {
+  variant_id: string
+  value?: (ProductAttributeValueDTO & { attribute?: ProductAttributeDTO }) | null
+}
+
+const VARIANT_ATTRIBUTE_VALUE_FIELDS = [
+  "variant_id",
+  "value.id",
+  "value.name",
+  "value.rank",
+  "value.attribute_id",
+  "value.attribute.id",
+  "value.attribute.name",
+  "value.attribute.handle",
+  "value.attribute.type",
+  "value.attribute.scope",
+  "value.attribute.is_variant_axis",
+  "value.attribute.is_required",
+  "value.attribute.is_internal",
+  "value.attribute.rank",
+  "value.attribute.values.id",
+  "value.attribute.values.name",
+  "value.attribute.values.rank",
+]
+
+/**
+ * Variant-level attribute values live on `product_variant_attribute_value`
+ * join rows inside the product-attribute module. There is no module link to
+ * the stock variant, so the rows are read in-module per variant id and merged
+ * into `variant.attributes` with the same shape products get.
+ */
+export async function enrichVariantAttributes(
+  scope: MedusaContainer,
+  variants: any[],
+  options: EnrichProductAttributesOptions = {},
+): Promise<void> {
+  const targets = (variants ?? []).filter((v) => v?.id)
+  if (!targets.length) return
+
+  const query = scope.resolve(ContainerRegistrationKeys.QUERY)
+  const { data } = await query.graph({
+    entity: "product_variant_attribute_value",
+    fields: VARIANT_ATTRIBUTE_VALUE_FIELDS,
+    filters: { variant_id: targets.map((v) => v.id as string) },
+  })
+
+  const valuesByVariant = new Map<string, ProductAttributeValueDTO[]>()
+  for (const row of (data ?? []) as VariantAttributeJoinRow[]) {
+    if (!row.value?.attribute) continue
+    const list = valuesByVariant.get(row.variant_id) ?? []
+    list.push(row.value)
+    valuesByVariant.set(row.variant_id, list)
+  }
+
+  for (const variant of targets) {
+    variant.product_attribute_values = valuesByVariant.get(variant.id) ?? []
+  }
+
+  await enrichProductAttributes(scope, targets, options)
+
+  for (const variant of targets) {
+    delete variant.product_attribute_values
+  }
+}
+
+/**
+ * Enriches every variant nested under the given products.
+ */
+export async function enrichProductVariantAttributes(
+  scope: MedusaContainer,
+  products: any[],
+  options: EnrichProductAttributesOptions = {},
+): Promise<void> {
+  const variants = (products ?? []).flatMap((p) =>
+    Array.isArray(p?.variants) ? p.variants : [],
+  )
+  await enrichVariantAttributes(scope, variants, options)
 }

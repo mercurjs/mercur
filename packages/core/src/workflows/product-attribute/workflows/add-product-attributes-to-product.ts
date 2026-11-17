@@ -17,6 +17,7 @@ import {
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 import {
+  AttributeScope,
   AttributeType,
   CreateProductAttributeDTO,
   CreateProductAttributeValueDTO,
@@ -29,6 +30,7 @@ import {
   createProductAttributesStep,
   createProductAttributeValuesStep,
   SCALAR_VALUE_TYPES,
+  validateProductAttributesScopeStep,
   validateProductAttributeValuesStep,
 } from "../steps"
 
@@ -68,6 +70,7 @@ export const addProductAttributesToProductWorkflow = createWorkflow(
         "id",
         "name",
         "type",
+        "scope",
         "is_variant_axis",
         "product_id",
         "product_option_id",
@@ -77,6 +80,21 @@ export const addProductAttributesToProductWorkflow = createWorkflow(
         "values.product_option_value_id",
       ],
     }).config({ name: "add-pa-attributes" })
+
+    validateProductAttributesScopeStep(
+      transform({ attributesQuery }, ({ attributesQuery }) => {
+        const attributes = (attributesQuery.data ?? []) as ProductAttributeDTO[]
+        return {
+          expected: AttributeScope.PRODUCT,
+          requested_ids: attributes.map((a) => a.id),
+          attributes: attributes.map((a) => ({
+            id: a.id,
+            name: a.name,
+            scope: a.scope,
+          })),
+        }
+      }),
+    )
 
     validateProductAttributeValuesStep(
       transform({ items, attributesQuery }, ({ items, attributesQuery }) => {

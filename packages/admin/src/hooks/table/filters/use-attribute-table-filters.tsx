@@ -36,6 +36,16 @@ export const useAttributeTableFilters = () => {
     ],
   }
 
+  const scopeFilter: Filter = {
+    key: "scope",
+    label: t("attributes.fields.scope"),
+    type: "select",
+    options: [
+      { label: t("attributes.scope.product"), value: "product" },
+      { label: t("attributes.scope.variant"), value: "variant" },
+    ],
+  }
+
   const dateFilters: Filter[] = [
     { label: t("fields.createdAt"), key: "created_at" },
     { label: t("fields.updatedAt"), key: "updated_at" },
@@ -45,5 +55,5 @@ export const useAttributeTableFilters = () => {
     type: "date" as const,
   }))
 
-  return [filterableFilter, internalFilter, ...dateFilters]
+  return [filterableFilter, internalFilter, scopeFilter, ...dateFilters]
 }

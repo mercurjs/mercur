@@ -177,4 +177,63 @@ describe("buildProductChangeView", () => {
       "type_id",
     ])
   })
+
+  test("groups VARIANT_ATTRIBUTE_* actions under their variant with the previous snapshot", () => {
+    const view = buildProductChangeView([
+      act(ProductChangeActionType.VARIANT_ATTRIBUTE_ADD, {
+        variant_id: "var_1",
+        attribute: { id: "attr_1", value_ids: ["val_a"] },
+        attribute_id: "attr_1",
+        previous_value: null,
+      }),
+      act(
+        ProductChangeActionType.VARIANT_ATTRIBUTE_UPDATE,
+        {
+          variant_id: "var_1",
+          update: { id: "attr_2", value: "5000" },
+          attribute_id: "attr_2",
+          value: "5000",
+          previous_value: { attribute_id: "attr_2", value_ids: ["val_x"], value: "4000" },
+        },
+        "act_2"
+      ),
+      act(
+        ProductChangeActionType.VARIANT_ATTRIBUTE_REMOVE,
+        {
+          variant_id: "var_2",
+          attribute_id: "attr_3",
+          previous_value: { attribute_id: "attr_3", value_ids: ["val_z"], value: null },
+        },
+        "act_3"
+      ),
+    ])
+
+    expect(view.attributes).toHaveLength(0)
+    expect(view.variantGroups.map((g) => g.variantId)).toEqual(["var_1", "var_2"])
+
+    const [first, second] = view.variantGroups
+    expect(first.attributes).toEqual([
+      expect.objectContaining({
+        kind: "added",
+        attributeId: "attr_1",
+        addValueIds: ["val_a"],
+        previousValueIds: [],
+        previousScalar: null,
+      }),
+      expect.objectContaining({
+        kind: "updated",
+        attributeId: "attr_2",
+        scalarValue: "5000",
+        previousValueIds: ["val_x"],
+        previousScalar: "4000",
+      }),
+    ])
+    expect(second.attributes).toEqual([
+      expect.objectContaining({
+        kind: "removed",
+        attributeId: "attr_3",
+        previousValueIds: ["val_z"],
+      }),
+    ])
+  })
 })

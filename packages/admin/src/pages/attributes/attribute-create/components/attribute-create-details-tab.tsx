@@ -1,6 +1,7 @@
-import { Heading, Input, Textarea } from "@medusajs/ui";
+import { clx, Heading, Input, RadioGroup, Textarea } from "@medusajs/ui";
 import { useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { AttributeScope } from "@mercurjs/types";
 
 import { Form } from "../../../../components/common/form";
 import { SwitchBox } from "../../../../components/common/switch-box";
@@ -8,6 +9,8 @@ import { HandleInput } from "../../../../components/inputs/handle-input";
 import { CategoryCombobox } from "../../../products/common/components/category-combobox";
 import { useTabbedForm } from "../../../../components/tabbed-form/tabbed-form";
 import { defineTabMeta } from "../../../../components/tabbed-form/types";
+import { useDocumentDirection } from "../../../../hooks/use-document-direction";
+import { ATTRIBUTE_SCOPE_OPTIONS } from "../../attribute-edit/schema";
 
 type AttributeCreateFormValues = {
   name: string;
@@ -18,6 +21,7 @@ type AttributeCreateFormValues = {
   is_required: boolean;
   is_variant_axis: boolean;
   is_global: boolean;
+  scope: AttributeScope;
   category_ids?: string[];
 };
 
@@ -25,6 +29,7 @@ const Root = () => {
   const { t } = useTranslation();
   const form = useTabbedForm<AttributeCreateFormValues>();
   const isGlobal = useWatch({ control: form.control, name: "is_global" });
+  const direction = useDocumentDirection();
 
   return (
     <div
@@ -83,6 +88,40 @@ const Root = () => {
                   {...field}
                   data-testid="attribute-create-description-input"
                 />
+              </Form.Control>
+              <Form.ErrorMessage />
+            </Form.Item>
+          )}
+        />
+
+        <Form.Field
+          control={form.control}
+          name="scope"
+          render={({ field }) => (
+            <Form.Item data-testid="attribute-create-scope-item">
+              <Form.Label tooltip={t("attributes.fields.scopeHint")}>
+                {t("attributes.fields.scope")}
+              </Form.Label>
+              <Form.Control>
+                <RadioGroup
+                  dir={direction}
+                  className="flex gap-y-3"
+                  {...field}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  data-testid="attribute-create-scope-radio-group"
+                >
+                  {ATTRIBUTE_SCOPE_OPTIONS.map((option) => (
+                    <RadioGroup.ChoiceBox
+                      key={option}
+                      value={option}
+                      label={t(`attributes.scope.${option}`)}
+                      description={t(`attributes.scopeDescription.${option}`)}
+                      className={clx("basis-1/2")}
+                      data-testid={`attribute-create-scope-option-${option}`}
+                    />
+                  ))}
+                </RadioGroup>
               </Form.Control>
               <Form.ErrorMessage />
             </Form.Item>
@@ -167,7 +206,7 @@ const Root = () => {
 Root._tabMeta = defineTabMeta<AttributeCreateFormValues>({
   id: "details",
   labelKey: "attributes.create.tabs.details",
-  validationFields: ["name", "category_ids"],
+  validationFields: ["name", "scope", "category_ids"],
 });
 
 export const AttributeCreateDetailsTab = Root;
