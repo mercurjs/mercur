@@ -48,7 +48,8 @@ import { LayoutComposer, detailPageDefaultEntries } from "@mercurjs/dashboard-sh
 ```
 
 The page's own sections become entries `core:ProductGeneralSection`, `core:MetadataSection` and so on;
-widgets become `widget:<id>`. Use the same component on your own pages and the build emits their zones and
+widgets become `widget:<id>`. Every built-in detail page in both panels renders this way, under the same
+`<domain>.detail` prefix its widget zones already use, and each entry id is the section component's name. Use the same component on your own pages and the build emits their zones and
 entry ids into `extension-targets.d.ts`, so the next layer gets autocompletion for them.
 
 ## Place a widget

@@ -1,18 +1,17 @@
-import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import { LayoutComposer } from "@mercurjs/dashboard-shared"
 
 import { useProductVariant } from "@hooks/api/products"
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
-import { SingleColumnPage } from "@components/layout/pages"
 import { VariantAttributeSection } from "./components/variant-attribute-section"
 import { VariantGeneralSection } from "./components/variant-general-section"
 import { VariantMediaSection } from "./components/variant-media-section"
 import { variantLoader, VARIANT_DETAIL_FIELDS } from "./loader"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const ProductVariantDetail = () => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof variantLoader>
   >
@@ -29,7 +28,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   )
 
   if (isLoading || !variant) {
-    return <TwoColumnPageSkeleton mainSections={2} sidebarSections={0} />
+    return <TwoColumnPageSkeleton mainSections={3} sidebarSections={0} />
   }
 
   if (isError) {
@@ -37,22 +36,28 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return (
-    <SingleColumnPage data={variant} hasOutlet>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <WidgetZone id="product-variants.detail.main" data={variant}>
-          <VariantGeneralSection variant={variant} />
-          <VariantMediaSection variant={variant} />
-          <VariantAttributeSection variant={variant} productId={productId!} />
-        </WidgetZone>
-      )}
-    </SingleColumnPage>
+    <LayoutComposer
+      widgetsZonePrefix="product-variants.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={variant}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="VariantGeneralSection">
+              <VariantGeneralSection variant={variant} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="VariantMediaSection">
+              <VariantMediaSection variant={variant} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="VariantAttributeSection">
+              <VariantAttributeSection
+                variant={variant}
+                productId={productId!}
+              />
+            </LayoutComposer.Entry>
+          </>
+        ),
+      }}
+    />
   )
 }
-
-export const ProductVariantDetail = Object.assign(Root, {
-  GeneralSection: VariantGeneralSection,
-  MediaSection: VariantMediaSection,
-  AttributeSection: VariantAttributeSection,
-})

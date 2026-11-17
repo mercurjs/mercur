@@ -1,4 +1,3 @@
-import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { useRegion } from "../../../hooks/api/regions";
@@ -7,13 +6,18 @@ import { RegionGeneralSection } from "./components/region-general-section";
 import { RegionSellerSection } from "./components/region-seller-section";
 import { regionLoader } from "./loader";
 
-import { WidgetZone, isForbidden, useCan } from "@mercurjs/dashboard-shared";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
+import {
+  LayoutComposer,
+  detailPageDefaultEntries,
+  isForbidden,
+  useCan,
+} from "@mercurjs/dashboard-shared";
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton";
-import { SingleColumnPage } from "../../../components/layout/pages";
 import { usePricePreferences } from "../../../hooks/api/price-preferences";
 import { REGION_DETAIL_FIELDS } from "./constants";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const RegionDetailPage = () => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof regionLoader>
   >
@@ -65,28 +69,32 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw preferencesError
   }
 
-  return Children.count(children) > 0 ? (
-    <SingleColumnPage data={region} showMetadata showJSON>
-      {children}
-    </SingleColumnPage>
-  ) : (
-    <SingleColumnPage data={region} showMetadata showJSON>
-      <WidgetZone id="regions.detail.main" data={region}>
-        <RegionGeneralSection
-          region={region}
-          pricePreferences={
-            preferencesForbidden ? undefined : (pricePreferences ?? [])
-          }
-        />
-        <RegionCountrySection region={region} />
-        <RegionSellerSection region={region} />
-      </WidgetZone>
-    </SingleColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="regions.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={region}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="RegionGeneralSection">
+              <RegionGeneralSection
+                region={region}
+                pricePreferences={
+                  preferencesForbidden ? undefined : (pricePreferences ?? [])
+                }
+              />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="RegionCountrySection">
+              <RegionCountrySection region={region} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="RegionSellerSection">
+              <RegionSellerSection region={region} />
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(region)}
+          </>
+        ),
+      }}
+    />
   );
 };
-
-export const RegionDetailPage = Object.assign(Root, {
-  GeneralSection: RegionGeneralSection,
-  CountrySection: RegionCountrySection,
-  SellerSection: RegionSellerSection,
-});

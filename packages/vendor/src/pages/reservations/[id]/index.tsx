@@ -3,8 +3,13 @@ import { useParams } from "react-router-dom"
 import { HttpTypes } from "@medusajs/types"
 import { UIMatch } from "react-router-dom"
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
-import { TwoColumnPage } from "@components/layout/pages"
-import { useCan, useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import {
+  detailPageDefaultEntries,
+  LayoutComposer,
+  useCan,
+  useLinkQuery,
+} from "@mercurjs/dashboard-shared"
 import { useReservationItem } from "@hooks/api/reservations"
 import { useInventoryItem } from "@hooks/api"
 import { ReservationGeneralSection } from "./_components/reservation-general-section"
@@ -60,19 +65,25 @@ export const Component = () => {
   }
 
   return (
-    <TwoColumnPage data={reservation} showJSON showMetadata>
-      <TwoColumnPage.Main>
-        <WidgetZone id="reservations.detail.main" data={reservation}>
-          <ReservationGeneralSection reservation={reservation} />
-        </WidgetZone>
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar>
-        <WidgetZone id="reservations.detail.side" data={reservation}>
-          {inventory_item && (
+    <LayoutComposer
+      widgetsZonePrefix="reservations.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
+      data={reservation}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="ReservationGeneralSection">
+              <ReservationGeneralSection reservation={reservation} />
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(reservation)}
+          </>
+        ),
+        side: inventory_item && (
+          <LayoutComposer.Entry id="ReservationInventorySection">
             <ReservationInventorySection inventoryItem={inventory_item!} />
-          )}
-        </WidgetZone>
-      </TwoColumnPage.Sidebar>
-    </TwoColumnPage>
+          </LayoutComposer.Entry>
+        ),
+      }}
+    />
   )
 }

@@ -1,15 +1,17 @@
-import { ReactNode, Children } from "react"
 import { useLoaderData } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import {
+  LayoutComposer,
+  detailPageDefaultEntries,
+} from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
-import { SingleColumnPage } from "../../../components/layout/pages"
 import { useStore } from "../../../hooks/api/store"
 import { MarketplaceCurrencySection } from "./components/marketplace-currency-section"
 import { MarketplaceGeneralSection } from "./components/marketplace-general-section"
 import { storeLoader } from "./loader"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const MarketplaceDetailPage = () => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof storeLoader>>
 
   const { store, isPending, isError, error } = useStore(undefined, {
@@ -24,21 +26,24 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return Children.count(children) > 0 ? (
-    <SingleColumnPage data={store} hasOutlet showMetadata showJSON>
-      {children}
-    </SingleColumnPage>
-  ) : (
-    <SingleColumnPage data={store} hasOutlet showMetadata showJSON>
-      <WidgetZone id="marketplace.detail.main" data={store}>
-        <MarketplaceGeneralSection store={store} />
-        <MarketplaceCurrencySection store={store} />
-      </WidgetZone>
-    </SingleColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="marketplace.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={store}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="MarketplaceGeneralSection">
+              <MarketplaceGeneralSection store={store} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="MarketplaceCurrencySection">
+              <MarketplaceCurrencySection store={store} />
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(store)}
+          </>
+        ),
+      }}
+    />
   )
 }
-
-export const MarketplaceDetailPage = Object.assign(Root, {
-  GeneralSection: MarketplaceGeneralSection,
-  CurrencySection: MarketplaceCurrencySection,
-})

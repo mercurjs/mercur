@@ -21,6 +21,7 @@ import { usePermissionGate } from "@mercurjs/dashboard-shared";
 import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip";
 import { Form } from "../../../../../components/common/form";
 import { DeprecatedPercentageInput } from "../../../../../components/inputs/percentage-input";
+import { SwitchBox } from "../../../../../components/common/switch-box";
 import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form";
 import { defineTabMeta } from "../../../../../components/tabbed-form/types";
 import { Combobox } from "../../../../../components/inputs/combobox";
@@ -33,7 +34,6 @@ import {
 } from "../../../../../lib/data/currencies";
 import { RulesFormField } from "../../../common/edit-rules/components/rules-form-field";
 import { CreatePromotionSchemaType } from "./form-schema";
-import { SwitchBox } from "@mercurjs/dashboard-shared";
 
 type AllocationMode = "each" | "across" | "once";
 

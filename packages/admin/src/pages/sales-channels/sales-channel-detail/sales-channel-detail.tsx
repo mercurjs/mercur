@@ -1,15 +1,18 @@
-import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { PermissionGuard, WidgetZone } from "@mercurjs/dashboard-shared"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import {
+  LayoutComposer,
+  PermissionGuard,
+  detailPageDefaultEntries,
+} from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
-import { SingleColumnPage } from "../../../components/layout/pages"
 import { useSalesChannel } from "../../../hooks/api/sales-channels"
 import { SalesChannelGeneralSection } from "./components/sales-channel-general-section"
 import { SalesChannelProductSection } from "./components/sales-channel-product-section"
 import { salesChannelLoader } from "./loader"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const SalesChannelDetailPage = () => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof salesChannelLoader>
   >
@@ -23,23 +26,26 @@ const Root = ({ children }: { children?: ReactNode }) => {
     return <SingleColumnPageSkeleton sections={2} showJSON showMetadata />
   }
 
-  return Children.count(children) > 0 ? (
-    <SingleColumnPage showJSON showMetadata data={sales_channel}>
-      {children}
-    </SingleColumnPage>
-  ) : (
-    <SingleColumnPage showJSON showMetadata data={sales_channel}>
-      <WidgetZone id="sales-channels.detail.main" data={sales_channel}>
-        <SalesChannelGeneralSection salesChannel={sales_channel} />
-        <PermissionGuard permission="products:view">
-          <SalesChannelProductSection salesChannel={sales_channel} />
-        </PermissionGuard>
-      </WidgetZone>
-    </SingleColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="sales-channels.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={sales_channel}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="SalesChannelGeneralSection">
+              <SalesChannelGeneralSection salesChannel={sales_channel} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="SalesChannelProductSection">
+              <PermissionGuard permission="products:view">
+                <SalesChannelProductSection salesChannel={sales_channel} />
+              </PermissionGuard>
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(sales_channel)}
+          </>
+        ),
+      }}
+    />
   )
 }
-
-export const SalesChannelDetailPage = Object.assign(Root, {
-  GeneralSection: SalesChannelGeneralSection,
-  ProductSection: SalesChannelProductSection,
-})
