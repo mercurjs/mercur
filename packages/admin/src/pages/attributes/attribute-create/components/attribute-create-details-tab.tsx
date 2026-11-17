@@ -1,6 +1,7 @@
-import { Heading, Input, Textarea } from "@medusajs/ui";
+import { Heading, Input, Select, Textarea } from "@medusajs/ui";
 import { useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { AttributeScope } from "@mercurjs/types";
 
 import { Form } from "../../../../components/common/form";
 import { SwitchBox } from "../../../../components/common/switch-box";
@@ -8,6 +9,7 @@ import { HandleInput } from "../../../../components/inputs/handle-input";
 import { CategoryCombobox } from "../../../products/common/components/category-combobox";
 import { useTabbedForm } from "../../../../components/tabbed-form/tabbed-form";
 import { defineTabMeta } from "../../../../components/tabbed-form/types";
+import { ATTRIBUTE_SCOPE_OPTIONS } from "../../attribute-edit/schema";
 
 type AttributeCreateFormValues = {
   name: string;
@@ -18,6 +20,7 @@ type AttributeCreateFormValues = {
   is_required: boolean;
   is_variant_axis: boolean;
   is_global: boolean;
+  scope: AttributeScope;
   category_ids?: string[];
 };
 
@@ -83,6 +86,44 @@ const Root = () => {
                   {...field}
                   data-testid="attribute-create-description-input"
                 />
+              </Form.Control>
+              <Form.ErrorMessage />
+            </Form.Item>
+          )}
+        />
+
+        <Form.Field
+          control={form.control}
+          name="scope"
+          render={({ field: { ref, onChange, ...field } }) => (
+            <Form.Item>
+              <Form.Label tooltip={t("attributes.fields.scopeHint")}>
+                {t("attributes.fields.scope")}
+              </Form.Label>
+              <Form.Control>
+                <Select
+                  {...field}
+                  onValueChange={onChange}
+                  data-testid="attribute-create-scope-select"
+                >
+                  <Select.Trigger
+                    ref={ref}
+                    data-testid="attribute-create-scope-trigger"
+                  >
+                    <Select.Value />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {ATTRIBUTE_SCOPE_OPTIONS.map((option) => (
+                      <Select.Item
+                        key={option}
+                        value={option}
+                        data-testid={`attribute-create-scope-option-${option}`}
+                      >
+                        {t(`attributes.scope.${option}`)}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
               </Form.Control>
               <Form.ErrorMessage />
             </Form.Item>
@@ -167,7 +208,7 @@ const Root = () => {
 Root._tabMeta = defineTabMeta<AttributeCreateFormValues>({
   id: "details",
   labelKey: "attributes.create.tabs.details",
-  validationFields: ["name", "category_ids"],
+  validationFields: ["name", "scope", "category_ids"],
 });
 
 export const AttributeCreateDetailsTab = Root;

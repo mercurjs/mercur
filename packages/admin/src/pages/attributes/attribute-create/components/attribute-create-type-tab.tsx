@@ -8,7 +8,6 @@ import { SwitchBox } from "../../../../components/common/switch-box"
 import { useTabbedForm } from "../../../../components/tabbed-form/tabbed-form"
 import { defineTabMeta } from "../../../../components/tabbed-form/types"
 import {
-  ATTRIBUTE_SCOPE_OPTIONS,
   ATTRIBUTE_TYPE_OPTIONS,
   PATTERN_TYPES,
 } from "../../attribute-edit/schema"
@@ -92,41 +91,6 @@ const Root = () => {
           )}
         />
 
-        <Form.Field
-          control={form.control}
-          name="scope"
-          render={({ field }) => (
-            <Form.Item data-testid="attribute-create-scope-field">
-              <Form.Label tooltip={t("attributes.fields.scopeHint")}>
-                {t("attributes.fields.scope")}
-              </Form.Label>
-              <Form.Control>
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  data-testid="attribute-create-scope-select"
-                >
-                  <Select.Trigger data-testid="attribute-create-scope-trigger">
-                    <Select.Value />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {ATTRIBUTE_SCOPE_OPTIONS.map((option) => (
-                      <Select.Item
-                        key={option}
-                        value={option}
-                        data-testid={`attribute-create-scope-option-${option}`}
-                      >
-                        {t(`attributes.scope.${option}`)}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-              </Form.Control>
-              <Form.ErrorMessage />
-            </Form.Item>
-          )}
-        />
-
         {type === AttributeType.MULTI_SELECT && scope !== AttributeScope.VARIANT && (
           <SwitchBox
             control={form.control}
@@ -154,7 +118,7 @@ const Root = () => {
 Root._tabMeta = defineTabMeta<AttributeCreateFormValues>({
   id: "type",
   labelKey: "attributes.create.tabs.type",
-  validationFields: ["type", "scope", "values", "validation_pattern"],
+  validationFields: ["type", "values", "validation_pattern"],
 })
 
 export const AttributeCreateTypeTab = Root
