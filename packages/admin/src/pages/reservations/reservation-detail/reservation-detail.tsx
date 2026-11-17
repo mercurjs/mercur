@@ -1,10 +1,14 @@
-import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
-import { useCan, useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
+import {
+  LayoutComposer,
+  detailPageDefaultEntries,
+  useCan,
+  useLinkQuery,
+} from "@mercurjs/dashboard-shared";
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
-import { TwoColumnPage } from "../../../components/layout/pages";
 import { useInventoryItem } from "../../../hooks/api";
 import { useReservationItem } from "../../../hooks/api/reservations";
 
@@ -12,7 +16,7 @@ import { ReservationGeneralSection } from "./components/reservation-general-sect
 import { ReservationInventorySection } from "./components/reservation-inventory-section";
 import { reservationItemLoader } from "./loader";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const ReservationDetailPage = () => {
   const { id } = useParams();
 
   const initialData = useLoaderData() as Awaited<
@@ -51,41 +55,27 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
-  return Children.count(children) > 0 ? (
-    <TwoColumnPage
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="reservation.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
       data={reservation}
-      showJSON
-      showMetadata
       data-testid="reservation-detail-page"
-    >
-      {children}
-    </TwoColumnPage>
-  ) : (
-    <TwoColumnPage
-      data={reservation}
-      showJSON
-      showMetadata
-      data-testid="reservation-detail-page"
-    >
-      <TwoColumnPage.Main>
-        <WidgetZone id="reservation.detail.main" data={reservation}>
-          <ReservationGeneralSection reservation={reservation} />
-        </WidgetZone>
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar>
-        <WidgetZone id="reservation.detail.side" data={reservation}>
-          {inventory_item && (
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="ReservationGeneralSection">
+              <ReservationGeneralSection reservation={reservation} />
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(reservation)}
+          </>
+        ),
+        side: inventory_item && (
+          <LayoutComposer.Entry id="ReservationInventorySection">
             <ReservationInventorySection inventoryItem={inventory_item} />
-          )}
-        </WidgetZone>
-      </TwoColumnPage.Sidebar>
-    </TwoColumnPage>
+          </LayoutComposer.Entry>
+        ),
+      }}
+    />
   );
 };
-
-export const ReservationDetailPage = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  MainGeneralSection: ReservationGeneralSection,
-  SidebarInventorySection: ReservationInventorySection,
-});

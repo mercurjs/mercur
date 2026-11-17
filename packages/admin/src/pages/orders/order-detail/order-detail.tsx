@@ -1,9 +1,12 @@
-import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
-import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
+import {
+  LayoutComposer,
+  detailPageDefaultEntries,
+  useLinkQuery,
+} from "@mercurjs/dashboard-shared";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
-import { TwoColumnPage } from "../../../components/layout/pages";
 import { useOrder, useOrderPreview } from "../../../hooks/api/orders";
 import { ActiveOrderClaimSection } from "./components/active-order-claim-section";
 import { ActiveOrderExchangeSection } from "./components/active-order-exchange-section";
@@ -19,7 +22,7 @@ import { DEFAULT_FIELDS } from "./constants";
 import { orderLoader } from "./loader";
 import { OrderRemainingOrdersGroupSection } from "./components/order-remaining-orders-group-section";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const OrderDetailPage = () => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof orderLoader>
   >;
@@ -66,59 +69,56 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
-  return Children.count(children) > 0 ? (
-    <TwoColumnPage
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="orders.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
       data={order}
-      showJSON
-      showMetadata
-      hasOutlet
       data-testid="order-detail-page"
-    >
-      {children}
-    </TwoColumnPage>
-  ) : (
-    <TwoColumnPage
-      data={order}
-      showJSON
-      showMetadata
-      hasOutlet
-      data-testid="order-detail-page"
-    >
-      <TwoColumnPage.Main data-testid="order-detail-main">
-        <WidgetZone id="orders.detail.main" data={order}>
-          <OrderActiveEditSection order={order} />
-          <ActiveOrderClaimSection orderPreview={orderPreview!} />
-          <ActiveOrderExchangeSection orderPreview={orderPreview!} />
-          <ActiveOrderReturnSection orderPreview={orderPreview!} />
-          <OrderGeneralSection order={order} />
-          <OrderSummarySection order={order} />
-          <OrderPaymentSection order={order} />
-          <OrderFulfillmentSection order={order} />
-        </WidgetZone>
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar data-testid="order-detail-sidebar">
-        <WidgetZone id="orders.detail.side" data={order}>
-          <OrderCustomerSection order={order} />
-          <OrderActivitySection order={order} />
-          <OrderRemainingOrdersGroupSection />
-        </WidgetZone>
-      </TwoColumnPage.Sidebar>
-    </TwoColumnPage>
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="OrderActiveEditSection">
+              <OrderActiveEditSection order={order} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="ActiveOrderClaimSection">
+              <ActiveOrderClaimSection orderPreview={orderPreview!} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="ActiveOrderExchangeSection">
+              <ActiveOrderExchangeSection orderPreview={orderPreview!} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="ActiveOrderReturnSection">
+              <ActiveOrderReturnSection orderPreview={orderPreview!} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="OrderGeneralSection">
+              <OrderGeneralSection order={order} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="OrderSummarySection">
+              <OrderSummarySection order={order} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="OrderPaymentSection">
+              <OrderPaymentSection order={order} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="OrderFulfillmentSection">
+              <OrderFulfillmentSection order={order} />
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(order)}
+          </>
+        ),
+        side: (
+          <>
+            <LayoutComposer.Entry id="OrderCustomerSection">
+              <OrderCustomerSection order={order} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="OrderActivitySection">
+              <OrderActivitySection order={order} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="OrderRemainingOrdersGroupSection">
+              <OrderRemainingOrdersGroupSection />
+            </LayoutComposer.Entry>
+          </>
+        ),
+      }}
+    />
   );
 };
-
-export const OrderDetailPage = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  MainActiveEditSection: OrderActiveEditSection,
-  MainActiveClaimSection: ActiveOrderClaimSection,
-  MainActiveExchangeSection: ActiveOrderExchangeSection,
-  MainActiveReturnSection: ActiveOrderReturnSection,
-  MainGeneralSection: OrderGeneralSection,
-  MainSummarySection: OrderSummarySection,
-  MainPaymentSection: OrderPaymentSection,
-  MainFulfillmentSection: OrderFulfillmentSection,
-  SidebarCustomerSection: OrderCustomerSection,
-  SidebarActivitySection: OrderActivitySection,
-  SidebarOrderGroupSection: OrderRemainingOrdersGroupSection,
-});

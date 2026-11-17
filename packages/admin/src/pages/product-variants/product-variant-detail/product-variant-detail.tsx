@@ -1,16 +1,18 @@
-import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { HttpTypes } from "@medusajs/types";
 import { useProductVariant } from "../../../hooks/api/products";
 
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
+import {
+  LayoutComposer,
+  detailPageDefaultEntries,
+} from "@mercurjs/dashboard-shared";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
-import { TwoColumnPage } from "../../../components/layout/pages";
 import { VariantGeneralSection } from "./components/variant-general-section";
 import { variantLoader } from "./loader";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const ProductVariantDetailPage = () => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof variantLoader>
   >;
@@ -41,28 +43,22 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
-  return Children.count(children) > 0 ? (
-    <TwoColumnPage data={variant} showJSON showMetadata hasOutlet>
-      {children}
-    </TwoColumnPage>
-  ) : (
-    <TwoColumnPage data={variant} showJSON showMetadata hasOutlet>
-      <TwoColumnPage.Main>
-        <WidgetZone id="product-variants.detail.main" data={variant}>
-          <VariantGeneralSection variant={variant} />
-        </WidgetZone>
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar>
-        <WidgetZone id="product-variants.detail.side" data={variant}>
-          {null}
-        </WidgetZone>
-      </TwoColumnPage.Sidebar>
-    </TwoColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="product-variants.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
+      data={variant}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="VariantGeneralSection">
+              <VariantGeneralSection variant={variant} />
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(variant)}
+          </>
+        ),
+        side: null,
+      }}
+    />
   );
 };
-
-export const ProductVariantDetailPage = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  MainGeneralSection: VariantGeneralSection,
-});

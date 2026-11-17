@@ -1,14 +1,16 @@
-import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import {
+  LayoutComposer,
+  detailPageDefaultEntries,
+} from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
-import { SingleColumnPage } from "../../../components/layout/pages"
 import { useUser } from "../../../hooks/api/users"
 import { UserGeneralSection } from "./components/user-general-section"
 import { userLoader } from "./loader"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const UserDetailPage = () => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof userLoader>>
 
   const { id } = useParams()
@@ -29,19 +31,21 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return Children.count(children) > 0 ? (
-    <SingleColumnPage data={user} showJSON showMetadata>
-      {children}
-    </SingleColumnPage>
-  ) : (
-    <SingleColumnPage data={user} showJSON showMetadata>
-      <WidgetZone id="users.detail.main" data={user}>
-        <UserGeneralSection user={user} />
-      </WidgetZone>
-    </SingleColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="users.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={user}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="UserGeneralSection">
+              <UserGeneralSection user={user} />
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(user)}
+          </>
+        ),
+      }}
+    />
   )
 }
-
-export const UserDetailPage = Object.assign(Root, {
-  GeneralSection: UserGeneralSection,
-})

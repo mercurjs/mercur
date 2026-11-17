@@ -1,9 +1,11 @@
-import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import {
+  LayoutComposer,
+  detailPageDefaultEntries,
+} from "@mercurjs/dashboard-shared"
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
-import { TwoColumnPage } from "../../../components/layout/pages"
 import { usePayout } from "../../../hooks/api/payouts"
 import { PayoutGeneralSection } from "./components/payout-general-section"
 import { PayoutReferencesSection } from "./components/payout-references-section"
@@ -11,7 +13,7 @@ import { PayoutReversalsSection } from "./components/payout-reversals-section"
 import { PayoutStatusAlert } from "./components/payout-status-alert"
 import { payoutLoader } from "./loader"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const PayoutDetailPage = () => {
   const { id } = useParams()
 
   const initialData = useLoaderData() as Awaited<ReturnType<typeof payoutLoader>>
@@ -30,33 +32,32 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return Children.count(children) > 0 ? (
-    <TwoColumnPage data={payout} showJSON showMetadata>
-      {children}
-    </TwoColumnPage>
-  ) : (
-    <TwoColumnPage data={payout} showJSON showMetadata>
-      <TwoColumnPage.Main>
-        <WidgetZone id="payouts.detail.main" data={payout}>
-          <PayoutStatusAlert payout={payout} />
-          <PayoutGeneralSection payout={payout} />
-          <PayoutReversalsSection payout={payout} />
-        </WidgetZone>
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar>
-        <WidgetZone id="payouts.detail.side" data={payout}>
-          <PayoutReferencesSection payout={payout} />
-        </WidgetZone>
-      </TwoColumnPage.Sidebar>
-    </TwoColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="payouts.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
+      data={payout}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="PayoutStatusAlert">
+              <PayoutStatusAlert payout={payout} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="PayoutGeneralSection">
+              <PayoutGeneralSection payout={payout} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="PayoutReversalsSection">
+              <PayoutReversalsSection payout={payout} />
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(payout)}
+          </>
+        ),
+        side: (
+          <LayoutComposer.Entry id="PayoutReferencesSection">
+            <PayoutReferencesSection payout={payout} />
+          </LayoutComposer.Entry>
+        ),
+      }}
+    />
   )
 }
-
-export const PayoutDetailPage = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  MainStatusAlert: PayoutStatusAlert,
-  MainGeneralSection: PayoutGeneralSection,
-  MainReversalsSection: PayoutReversalsSection,
-  SidebarReferencesSection: PayoutReferencesSection,
-})

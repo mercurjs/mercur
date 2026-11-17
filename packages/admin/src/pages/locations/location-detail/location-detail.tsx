@@ -1,4 +1,3 @@
-import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { useStockLocation } from "../../../hooks/api/stock-locations";
@@ -6,13 +5,16 @@ import { LocationGeneralSection } from "./components/location-general-section";
 import LocationsSalesChannelsSection from "./components/location-sales-channels-section/locations-sales-channels-section";
 import { locationLoader } from "./loader";
 
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
+import {
+  LayoutComposer,
+  detailPageDefaultEntries,
+} from "@mercurjs/dashboard-shared";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
-import { TwoColumnPage } from "../../../components/layout/pages";
 import LocationsFulfillmentProvidersSection from "./components/location-fulfillment-providers-section/location-fulfillment-providers-section";
 import { LOCATION_DETAILS_FIELD } from "./constants";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const LocationDetailPage = () => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof locationLoader>
   >;
@@ -39,41 +41,32 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
-  return Children.count(children) > 0 ? (
-    <TwoColumnPage
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="locations.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
       data={location}
-      showJSON
-      hasOutlet
       data-testid="location-detail-page"
-    >
-      {children}
-    </TwoColumnPage>
-  ) : (
-    <TwoColumnPage
-      data={location}
-      showJSON
-      hasOutlet
-      data-testid="location-detail-page"
-    >
-      <TwoColumnPage.Main data-testid="location-detail-main">
-        <WidgetZone id="locations.detail.main" data={location}>
-          <LocationGeneralSection location={location} />
-        </WidgetZone>
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar data-testid="location-detail-sidebar">
-        <WidgetZone id="locations.detail.side" data={location}>
-          <LocationsSalesChannelsSection location={location} />
-          <LocationsFulfillmentProvidersSection location={location} />
-        </WidgetZone>
-      </TwoColumnPage.Sidebar>
-    </TwoColumnPage>
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="LocationGeneralSection">
+              <LocationGeneralSection location={location} />
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(location, { metadata: false })}
+          </>
+        ),
+        side: (
+          <>
+            <LayoutComposer.Entry id="LocationsSalesChannelsSection">
+              <LocationsSalesChannelsSection location={location} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="LocationsFulfillmentProvidersSection">
+              <LocationsFulfillmentProvidersSection location={location} />
+            </LayoutComposer.Entry>
+          </>
+        ),
+      }}
+    />
   );
 };
-
-export const LocationDetailPage = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  MainGeneralSection: LocationGeneralSection,
-  SidebarSalesChannelsSection: LocationsSalesChannelsSection,
-  SidebarFulfillmentProvidersSection: LocationsFulfillmentProvidersSection,
-});

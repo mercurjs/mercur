@@ -1,11 +1,10 @@
-import { Children, ReactNode } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { SingleColumnPageSkeleton } from "@components/common/skeleton";
-import { SingleColumnPage } from "@components/layout/pages";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
 import {
+  LayoutComposer,
   PermissionGuard,
-  WidgetZone,
   useLinkQuery,
 } from "@mercurjs/dashboard-shared";
 import { useCollection } from "@hooks/api/collections";
@@ -17,7 +16,7 @@ import { CollectionProductSection } from "./_components/collection-product-secti
 
 import type { loader } from "./loader";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const CollectionDetailPage = () => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>;
   const { id } = useParams();
   const { collection, isLoading, isError, error } = useCollection(
@@ -35,28 +34,30 @@ const Root = ({ children }: { children?: ReactNode }) => {
   if (isError) throw error;
 
   return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <SingleColumnPage data={collection}>
-          <WidgetZone id="collections.detail.main" data={collection}>
-            <CollectionGeneralSection collection={collection} />
-            <CollectionMediaSection collection={collection} />
-            <CollectionIconSection collection={collection} />
-            <PermissionGuard permission="products:view">
-              <CollectionProductSection collection={collection} />
-            </PermissionGuard>
-          </WidgetZone>
-        </SingleColumnPage>
-      )}
-    </>
+    <LayoutComposer
+      widgetsZonePrefix="collections.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={collection}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="CollectionGeneralSection">
+              <CollectionGeneralSection collection={collection} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="CollectionMediaSection">
+              <CollectionMediaSection collection={collection} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="CollectionIconSection">
+              <CollectionIconSection collection={collection} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="CollectionProductSection">
+              <PermissionGuard permission="products:view">
+                <CollectionProductSection collection={collection} />
+              </PermissionGuard>
+            </LayoutComposer.Entry>
+          </>
+        ),
+      }}
+    />
   );
 };
-
-export const CollectionDetailPage = Object.assign(Root, {
-  GeneralSection: CollectionGeneralSection,
-  MediaSection: CollectionMediaSection,
-  IconSection: CollectionIconSection,
-  ProductSection: CollectionProductSection,
-});

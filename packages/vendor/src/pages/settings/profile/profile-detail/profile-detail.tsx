@@ -1,12 +1,10 @@
-import { ReactNode, Children } from "react"
-
-import { WidgetZone, useExtension } from "@mercurjs/dashboard-shared"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import { LayoutComposer, useExtension } from "@mercurjs/dashboard-shared"
 
 import { useMe } from "../../../../hooks/api"
-import { SingleColumnPage } from "../../../../components/layout/pages"
 import { ProfileGeneralSection } from "./components/profile-general-section"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const ProfileDetailPage = () => {
   const memberLinks = useExtension().getLinks("member")
   const meQuery = memberLinks.length
     ? { fields: memberLinks.map((link) => `+member.${link}.*`).join(",") }
@@ -15,19 +13,18 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const { seller_member } = useMe(meQuery)
   const member = seller_member?.member
 
-  return Children.count(children) > 0 ? (
-    <SingleColumnPage>
-      {children}
-    </SingleColumnPage>
-  ) : (
-    <SingleColumnPage>
-      <WidgetZone id="profile.detail.main" data={member}>
-        <ProfileGeneralSection />
-      </WidgetZone>
-    </SingleColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="profile.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={member}
+      sections={{
+        main: (
+          <LayoutComposer.Entry id="ProfileGeneralSection">
+            <ProfileGeneralSection />
+          </LayoutComposer.Entry>
+        ),
+      }}
+    />
   )
 }
-
-export const ProfileDetailPage = Object.assign(Root, {
-  GeneralSection: ProfileGeneralSection,
-})

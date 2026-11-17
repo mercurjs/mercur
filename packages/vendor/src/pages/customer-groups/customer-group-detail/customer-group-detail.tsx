@@ -1,12 +1,12 @@
-import { Children, ReactNode } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { SingleColumnPageSkeleton } from "@components/common/skeleton";
-import { SingleColumnPage } from "@components/layout/pages";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
 import {
+  detailPageDefaultEntries,
+  LayoutComposer,
   PermissionGuard,
   useLinkQuery,
-  WidgetZone,
 } from "@mercurjs/dashboard-shared";
 import { useCustomerGroup } from "@hooks/api/customer-groups";
 
@@ -15,7 +15,7 @@ import { CustomerGroupGeneralSection } from "./components/customer-group-general
 import { CUSTOMER_GROUP_DETAIL_FIELDS } from "./constants";
 import { customerGroupLoader } from "./loader";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const CustomerGroupDetailPage = () => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof customerGroupLoader>
   >;
@@ -36,23 +36,26 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
-  return Children.count(children) > 0 ? (
-    <SingleColumnPage showJSON data={customer_group} hasOutlet>
-      {children}
-    </SingleColumnPage>
-  ) : (
-    <SingleColumnPage showJSON data={customer_group} hasOutlet>
-      <WidgetZone id="customer-groups.detail.main" data={customer_group}>
-        <CustomerGroupGeneralSection group={customer_group} />
-        <PermissionGuard permission="customers:view">
-          <CustomerGroupCustomerSection group={customer_group} />
-        </PermissionGuard>
-      </WidgetZone>
-    </SingleColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="customer-groups.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={customer_group}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="CustomerGroupGeneralSection">
+              <CustomerGroupGeneralSection group={customer_group} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="CustomerGroupCustomerSection">
+              <PermissionGuard permission="customers:view">
+                <CustomerGroupCustomerSection group={customer_group} />
+              </PermissionGuard>
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(customer_group, { metadata: false })}
+          </>
+        ),
+      }}
+    />
   );
 };
-
-export const CustomerGroupDetailPage = Object.assign(Root, {
-  GeneralSection: CustomerGroupGeneralSection,
-  CustomerSection: CustomerGroupCustomerSection,
-});

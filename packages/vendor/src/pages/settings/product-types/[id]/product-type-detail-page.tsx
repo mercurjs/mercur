@@ -1,9 +1,8 @@
-import { Children, ReactNode } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { SingleColumnPageSkeleton } from "@components/common/skeleton";
-import { SingleColumnPage } from "@components/layout/pages";
-import { PermissionGuard, WidgetZone } from "@mercurjs/dashboard-shared";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
+import { LayoutComposer, PermissionGuard } from "@mercurjs/dashboard-shared";
 import { useProductType } from "@hooks/api/product-types";
 
 import { ProductTypeGeneralSection } from "./_components/product-type-general-section";
@@ -11,7 +10,7 @@ import { ProductTypeProductSection } from "./_components/product-type-product-se
 
 import type { productTypeLoader } from "./loader";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const ProductTypeDetailPage = () => {
   const { id } = useParams();
 
   const initialData = useLoaderData() as Awaited<
@@ -35,22 +34,24 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return (
-    <SingleColumnPage data={product_type}>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <WidgetZone id="product-types.detail.main" data={product_type}>
-          <ProductTypeGeneralSection productType={product_type} />
-          <PermissionGuard permission="products:view">
-            <ProductTypeProductSection productType={product_type} />
-          </PermissionGuard>
-        </WidgetZone>
-      )}
-    </SingleColumnPage>
+    <LayoutComposer
+      widgetsZonePrefix="product-types.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={product_type}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="ProductTypeGeneralSection">
+              <ProductTypeGeneralSection productType={product_type} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="ProductTypeProductSection">
+              <PermissionGuard permission="products:view">
+                <ProductTypeProductSection productType={product_type} />
+              </PermissionGuard>
+            </LayoutComposer.Entry>
+          </>
+        ),
+      }}
+    />
   );
 };
-
-export const ProductTypeDetailPage = Object.assign(Root, {
-  GeneralSection: ProductTypeGeneralSection,
-  ProductSection: ProductTypeProductSection,
-});

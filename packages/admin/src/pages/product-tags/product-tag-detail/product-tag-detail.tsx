@@ -1,16 +1,19 @@
-import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { PermissionGuard, WidgetZone } from "@mercurjs/dashboard-shared"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import {
+  LayoutComposer,
+  PermissionGuard,
+  detailPageDefaultEntries,
+} from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
-import { SingleColumnPage } from "../../../components/layout/pages"
 import { useProductTag } from "../../../hooks/api"
 
 import { ProductTagGeneralSection } from "./components/product-tag-general-section"
 import { ProductTagProductSection } from "./components/product-tag-product-section"
 import { productTagLoader } from "./loader"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const ProductTagDetailPage = () => {
   const { id } = useParams()
 
   const initialData = useLoaderData() as Awaited<
@@ -33,23 +36,26 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return Children.count(children) > 0 ? (
-    <SingleColumnPage showJSON showMetadata data={product_tag}>
-      {children}
-    </SingleColumnPage>
-  ) : (
-    <SingleColumnPage showJSON showMetadata data={product_tag}>
-      <WidgetZone id="product-tags.detail.main" data={product_tag}>
-        <ProductTagGeneralSection productTag={product_tag} />
-        <PermissionGuard permission="products:view">
-          <ProductTagProductSection productTag={product_tag} />
-        </PermissionGuard>
-      </WidgetZone>
-    </SingleColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="product-tags.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={product_tag}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="ProductTagGeneralSection">
+              <ProductTagGeneralSection productTag={product_tag} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="ProductTagProductSection">
+              <PermissionGuard permission="products:view">
+                <ProductTagProductSection productTag={product_tag} />
+              </PermissionGuard>
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(product_tag)}
+          </>
+        ),
+      }}
+    />
   )
 }
-
-export const ProductTagDetailPage = Object.assign(Root, {
-  GeneralSection: ProductTagGeneralSection,
-  ProductSection: ProductTagProductSection,
-})

@@ -1,12 +1,11 @@
-import { Children, ReactNode } from "react";
 import { useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
-import { TwoColumnPage } from "@components/layout/pages";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
 import {
+  LayoutComposer,
   PermissionGuard,
   useLinkQuery,
-  WidgetZone,
 } from "@mercurjs/dashboard-shared";
 import { useProductCategory } from "@hooks/api";
 
@@ -16,7 +15,7 @@ import { CategoryMediaSection } from "./_components/category-media-section";
 import { CategoryOrganizeSection } from "./_components/category-organize-section";
 import { CategoryProductSection } from "./_components/category-product-section";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const CategoryDetailPage = () => {
   const { id } = useParams();
 
   const linkQuery = useLinkQuery("category", "+is_active,+is_internal");
@@ -44,38 +43,35 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage data={product_category}>
-          <TwoColumnPage.Main>
-            <WidgetZone id="categories.detail.main" data={product_category}>
+    <LayoutComposer
+      widgetsZonePrefix="categories.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
+      data={product_category}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="CategoryGeneralSection">
               <CategoryGeneralSection category={product_category} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="CategoryMediaSection">
               <CategoryMediaSection category={product_category} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="CategoryIconSection">
               <CategoryIconSection category={product_category} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="CategoryProductSection">
               <PermissionGuard permission="products:view">
                 <CategoryProductSection category={product_category} />
               </PermissionGuard>
-            </WidgetZone>
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            <WidgetZone id="categories.detail.side" data={product_category}>
-              <CategoryOrganizeSection category={product_category} />
-            </WidgetZone>
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </>
+            </LayoutComposer.Entry>
+          </>
+        ),
+        side: (
+          <LayoutComposer.Entry id="CategoryOrganizeSection">
+            <CategoryOrganizeSection category={product_category} />
+          </LayoutComposer.Entry>
+        ),
+      }}
+    />
   );
 };
-
-export const CategoryDetailPage = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  MainGeneralSection: CategoryGeneralSection,
-  MainMediaSection: CategoryMediaSection,
-  MainIconSection: CategoryIconSection,
-  MainProductSection: CategoryProductSection,
-  SidebarOrganizeSection: CategoryOrganizeSection,
-});

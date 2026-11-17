@@ -1,11 +1,11 @@
-import { Children, ReactNode } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
-import { TwoColumnPage } from "@components/layout/pages";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
 import {
+  detailPageDefaultEntries,
+  LayoutComposer,
   PermissionGuard,
-  WidgetZone,
   useLinkQuery,
 } from "@mercurjs/dashboard-shared";
 import { useCustomer } from "@hooks/api/customers";
@@ -17,7 +17,7 @@ import { CustomerOrderSection } from "./_components/customer-order-section";
 
 import type { loader } from "./loader";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const CustomerDetailPage = () => {
   const { id } = useParams();
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>;
   const query = useLinkQuery("customer", "*groups, *groups.customers");
@@ -31,38 +31,35 @@ const Root = ({ children }: { children?: ReactNode }) => {
   if (isError) throw error;
 
   return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage data={customer} showJSON hasOutlet>
-          <TwoColumnPage.Main>
-            <WidgetZone id="customers.detail.main" data={customer}>
+    <LayoutComposer
+      widgetsZonePrefix="customers.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
+      data={customer}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="CustomerGeneralSection">
               <CustomerGeneralSection customer={customer} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="CustomerOrderSection">
               <PermissionGuard permission="orders:view">
                 <CustomerOrderSection customer={customer} />
               </PermissionGuard>
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="CustomerGroupSection">
               <PermissionGuard permission="customer_groups:view">
                 <CustomerGroupSection customer={customer} />
               </PermissionGuard>
-            </WidgetZone>
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            <WidgetZone id="customers.detail.side" data={customer}>
-              <CustomerAddressSection customer={customer} />
-            </WidgetZone>
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </>
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(customer, { metadata: false })}
+          </>
+        ),
+        side: (
+          <LayoutComposer.Entry id="CustomerAddressSection">
+            <CustomerAddressSection customer={customer} />
+          </LayoutComposer.Entry>
+        ),
+      }}
+    />
   );
 };
-
-export const CustomerDetailPage = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  GeneralSection: CustomerGeneralSection,
-  OrderSection: CustomerOrderSection,
-  GroupSection: CustomerGroupSection,
-  AddressSection: CustomerAddressSection,
-});

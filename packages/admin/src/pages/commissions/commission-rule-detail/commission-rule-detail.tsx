@@ -3,10 +3,10 @@ import { Container, Heading, StatusBadge } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
+import { LayoutComposer } from "@mercurjs/dashboard-shared";
 import { ActionMenu } from "../../../components/common/action-menu";
 import { SectionRow } from "../../../components/common/section";
-import { SingleColumnPage } from "../../../components/layout/pages";
 import { useCommissionRule } from "../../../hooks/api/commissions";
 import { useDeleteCommissionRuleAction } from "../common/hooks/use-delete-commission-rule-action";
 import { useScopeReferenceNames } from "../common/hooks/use-scope-reference-names";
@@ -177,11 +177,22 @@ export const CommissionRuleDetail = () => {
   }
 
   return (
-    <SingleColumnPage hasOutlet data={commission_rate}>
-      <WidgetZone id="commissions.detail.main" data={commission_rate}>
-        <ScopeSection rule={commission_rate} />
-        <CommissionSection rule={commission_rate} />
-      </WidgetZone>
-    </SingleColumnPage>
+    <LayoutComposer
+      widgetsZonePrefix="commissions.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={commission_rate}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="ScopeSection">
+              <ScopeSection rule={commission_rate} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="CommissionSection">
+              <CommissionSection rule={commission_rate} />
+            </LayoutComposer.Entry>
+          </>
+        ),
+      }}
+    />
   );
 };

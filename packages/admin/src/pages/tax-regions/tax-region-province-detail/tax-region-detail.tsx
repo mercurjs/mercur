@@ -1,8 +1,10 @@
-import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
-import { SingleColumnPage } from "../../../components/layout/pages"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import {
+  LayoutComposer,
+  detailPageDefaultEntries,
+} from "@mercurjs/dashboard-shared"
 import { useTaxRegion } from "../../../hooks/api/tax-regions"
 import { TaxRegionProvinceDetailSection } from "./components/tax-region-province-detail-section"
 
@@ -10,7 +12,7 @@ import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TaxRegionProvinceOverrideSection } from "./components/tax-region-province-override-section"
 import { taxRegionLoader } from "./loader"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const TaxRegionProvinceDetailPage = () => {
   const { province_id } = useParams()
 
   const initialData = useLoaderData() as Awaited<
@@ -32,21 +34,24 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return Children.count(children) > 0 ? (
-    <SingleColumnPage data={taxRegion} showJSON>
-      {children}
-    </SingleColumnPage>
-  ) : (
-    <SingleColumnPage data={taxRegion} showJSON>
-      <WidgetZone id="tax-regions.province.detail.main" data={taxRegion}>
-        <TaxRegionProvinceDetailSection taxRegion={taxRegion} />
-        <TaxRegionProvinceOverrideSection taxRegion={taxRegion} />
-      </WidgetZone>
-    </SingleColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="tax-regions.province.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={taxRegion}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="TaxRegionProvinceDetailSection">
+              <TaxRegionProvinceDetailSection taxRegion={taxRegion} />
+            </LayoutComposer.Entry>
+            <LayoutComposer.Entry id="TaxRegionProvinceOverrideSection">
+              <TaxRegionProvinceOverrideSection taxRegion={taxRegion} />
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(taxRegion, { metadata: false })}
+          </>
+        ),
+      }}
+    />
   )
 }
-
-export const TaxRegionProvinceDetailPage = Object.assign(Root, {
-  DetailSection: TaxRegionProvinceDetailSection,
-  OverrideSection: TaxRegionProvinceOverrideSection,
-})

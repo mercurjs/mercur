@@ -1,14 +1,16 @@
-import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk"
+import {
+  LayoutComposer,
+  detailPageDefaultEntries,
+} from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
-import { SingleColumnPage } from "../../../components/layout/pages"
 import { useShippingOptionType } from "../../../hooks/api"
 import { ShippingOptionTypeGeneralSection } from "./components/shipping-option-type-general-section"
 import { shippingOptionTypeLoader } from "./loader"
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const ShippingOptionTypeDetailPage = () => {
   const { id } = useParams()
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof shippingOptionTypeLoader>
@@ -27,21 +29,23 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error
   }
 
-  return Children.count(children) > 0 ? (
-    <SingleColumnPage showJSON showMetadata data={shipping_option_type}>
-      {children}
-    </SingleColumnPage>
-  ) : (
-    <SingleColumnPage showJSON showMetadata data={shipping_option_type}>
-      <WidgetZone id="shipping-option-types.detail.main" data={shipping_option_type}>
-        <ShippingOptionTypeGeneralSection
-          shippingOptionType={shipping_option_type}
-        />
-      </WidgetZone>
-    </SingleColumnPage>
+  return (
+    <LayoutComposer
+      widgetsZonePrefix="shipping-option-types.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.SINGLE_COLUMN}
+      data={shipping_option_type}
+      sections={{
+        main: (
+          <>
+            <LayoutComposer.Entry id="ShippingOptionTypeGeneralSection">
+              <ShippingOptionTypeGeneralSection
+                shippingOptionType={shipping_option_type}
+              />
+            </LayoutComposer.Entry>
+            {detailPageDefaultEntries(shipping_option_type)}
+          </>
+        ),
+      }}
+    />
   )
 }
-
-export const ShippingOptionTypeDetailPage = Object.assign(Root, {
-  GeneralSection: ShippingOptionTypeGeneralSection,
-})

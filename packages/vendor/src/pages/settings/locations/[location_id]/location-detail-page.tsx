@@ -1,9 +1,8 @@
-import { Children, ReactNode } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
-import { TwoColumnPage } from "@components/layout/pages";
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { CORE_LAYOUT_IDS } from "@mercurjs/dashboard-sdk";
+import { LayoutComposer } from "@mercurjs/dashboard-shared";
 import { useStockLocation } from "@hooks/api/stock-locations";
 
 import { LocationGeneralSection } from "./_components/location-general-section";
@@ -12,7 +11,7 @@ import { LOCATION_DETAILS_FIELD } from "./constants";
 
 import type { locationLoader } from "./loader";
 
-const Root = ({ children }: { children?: ReactNode }) => {
+export const LocationDetailPage = () => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof locationLoader>
   >;
@@ -40,30 +39,22 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return (
-    <>
-      {Children.count(children) > 0 ? (
-        children
-      ) : (
-        <TwoColumnPage data={location} hasOutlet>
-          <TwoColumnPage.Main>
-            <WidgetZone id="locations.detail.main" data={location}>
-              <LocationGeneralSection location={location} />
-            </WidgetZone>
-          </TwoColumnPage.Main>
-          <TwoColumnPage.Sidebar>
-            <WidgetZone id="locations.detail.side" data={location}>
-              <LocationsFulfillmentProvidersSection location={location} />
-            </WidgetZone>
-          </TwoColumnPage.Sidebar>
-        </TwoColumnPage>
-      )}
-    </>
+    <LayoutComposer
+      widgetsZonePrefix="locations.detail"
+      preferredLayoutId={CORE_LAYOUT_IDS.TWO_COLUMN}
+      data={location}
+      sections={{
+        main: (
+          <LayoutComposer.Entry id="LocationGeneralSection">
+            <LocationGeneralSection location={location} />
+          </LayoutComposer.Entry>
+        ),
+        side: (
+          <LayoutComposer.Entry id="LocationsFulfillmentProvidersSection">
+            <LocationsFulfillmentProvidersSection location={location} />
+          </LayoutComposer.Entry>
+        ),
+      }}
+    />
   );
 };
-
-export const LocationDetailPage = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  MainGeneralSection: LocationGeneralSection,
-  SidebarFulfillmentProvidersSection: LocationsFulfillmentProvidersSection,
-});
