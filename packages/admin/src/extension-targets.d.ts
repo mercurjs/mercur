@@ -115,10 +115,10 @@ declare module "@mercurjs/dashboard-sdk" {
     "product.detail.side": true
     "product.detail.side.after": true
     "product.detail.side.before": true
-    "products.requests.after": true
-    "products.requests.before": true
     "products.list.after": true
     "products.list.before": true
+    "products.requests.after": true
+    "products.requests.before": true
     "profile.detail.main.after": true
     "profile.detail.main.before": true
     "promotions.detail.main.after": true
