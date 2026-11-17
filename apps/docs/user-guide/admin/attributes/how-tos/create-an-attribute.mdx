@@ -27,6 +27,7 @@ In the "Details" step:
 4. Set the switches as needed:
    - "Required attribute". If checked, a value must be set for this attribute on every product.
    - "Filterable attribute". If checked, customers can filter products by this attribute on the storefront.
+   - "Internal attribute". If checked, only admins can see and set this attribute. Sellers and the storefront never see it.
    - "Global attribute". If checked, the attribute applies to all products across all categories. If unchecked, choose the "Categories" it applies to.
 5. Click "Continue".
 
@@ -49,7 +50,11 @@ In the "Type" step:
 
 ## Step 4: Create
 
-Click "Create". The new attribute appears in the list and is available to sellers.
+Click "Create". The new attribute appears in the list and is available to sellers, unless you marked it internal.
+
+<Tip>
+  The "Visibility" column in the attributes list shows whether each attribute is "Public" or "Internal", and you can filter the list by it. You can change the "Internal attribute" switch later by editing the attribute.
+</Tip>
 
 <Note>
   Only a "Multi Select" attribute can be used as a variant axis. Choose "Use for variants" when the attribute should split a product into separately purchasable variants.

@@ -49,8 +49,8 @@ Returns a single published product; a `404` is returned if the product is unpubl
     <ResponseField name="variants" type="object[]">
       Product variants; `calculated_price` and `offer_id` are added when requested and reflect the cheapest offer.
     </ResponseField>
-    <ResponseField name="product_attribute_values" type="object[]">Attribute values assigned to the product.</ResponseField>
-    <ResponseField name="scoped_attributes" type="object[]">Attributes scoped to this product, with their values.</ResponseField>
+    <ResponseField name="product_attribute_values" type="object[]">Attribute values assigned to the product. Values of internal attributes are omitted.</ResponseField>
+    <ResponseField name="scoped_attributes" type="object[]">Attributes scoped to this product, with their values. Internal attributes are omitted.</ResponseField>
     <ResponseField name="metadata" type="object | null">Custom key-value data.</ResponseField>
   </Expandable>
 </ResponseField>

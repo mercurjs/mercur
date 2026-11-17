@@ -10,6 +10,10 @@ Stages attribute operations as a pending change request instead of applying them
   The endpoint responds with `202 Accepted` and a `product_change` record containing `ATTRIBUTE_ADD` / `ATTRIBUTE_REMOVE` / `ATTRIBUTE_UPDATE` actions.
 </Note>
 
+<Warning>
+  Adding, updating, or removing an internal attribute returns a `400`. Internal attributes are managed by operators only.
+</Warning>
+
 ## Path parameters
 
 <ParamField path="id" type="string" required>

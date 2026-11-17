@@ -26,6 +26,7 @@ Returns a single attribute with its values and linked categories.
     <ResponseField name="is_required" type="boolean">Whether a value is required on products.</ResponseField>
     <ResponseField name="is_filterable" type="boolean">Whether the attribute can be used as a storefront filter.</ResponseField>
     <ResponseField name="is_variant_axis" type="boolean">Whether the attribute drives variant generation.</ResponseField>
+    <ResponseField name="is_internal" type="boolean">Whether the attribute is internal, visible only to operators.</ResponseField>
     <ResponseField name="is_active" type="boolean">Whether the attribute is active.</ResponseField>
     <ResponseField name="created_by" type="string">ID of the actor who created the attribute.</ResponseField>
     <ResponseField name="product_id" type="string">Owning product's ID for product-scoped attributes, otherwise `null`.</ResponseField>
@@ -71,6 +72,7 @@ const { product_attribute } = await client.admin.productAttributes.$id.query({
     "is_required": false,
     "is_filterable": true,
     "is_variant_axis": false,
+    "is_internal": false,
     "is_active": true,
     "values": [
       { "id": "pattrval_01HXYZABCDEF", "name": "Linen", "rank": 0 }

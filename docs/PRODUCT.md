@@ -57,7 +57,7 @@ The product has three audiences:
 
 ### Catalog & Inventory
 - Marketplace-wide master products, variants, collections, categories, tags, and types; sellers list via offers (see above), which carry vendor-scoped price, inventory, and shipping.
-- **Product attributes** — an operator-managed, typed attribute catalog with five types: `multi_select`, `single_select`, `text`, `unit`, `toggle`. A `multi_select` attribute marked `is_variant_axis` generates product variants (backed by native Medusa `ProductOption`). Attributes can be global (shared catalog) or inline/product-scoped (one-off); an `is_filterable` flag exposes them as storefront filters. Products attach attributes through a single batch endpoint.
+- **Product attributes** — an operator-managed, typed attribute catalog with five types: `multi_select`, `single_select`, `text`, `unit`, `toggle`. A `multi_select` attribute marked `is_variant_axis` generates product variants (backed by native Medusa `ProductOption`). Attributes can be global (shared catalog) or inline/product-scoped (one-off); an `is_filterable` flag exposes them as storefront filters, and an `is_internal` flag keeps an attribute operator-only (hidden from the Vendor and Store APIs, and rejected in vendor writes). Products attach attributes through a single batch endpoint.
 - Price lists and price preferences per vendor and region.
 - Inventory items and stock locations (offer-scoped stock).
 - Bulk product CSV import / export.

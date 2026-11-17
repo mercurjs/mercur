@@ -117,7 +117,7 @@ Returns products the seller created plus published products that are not restric
     <ResponseField name="collection" type="object">The associated collection with `id`, `title`, and `handle`.</ResponseField>
     <ResponseField name="categories" type="object[]">Associated categories with `id`, `name`, and `handle`.</ResponseField>
     <ResponseField name="variants" type="object[]">The product's variants with `id`, `title`, `sku`, `manage_inventory`, `allow_backorder`, and `variant_rank`.</ResponseField>
-    <ResponseField name="attributes" type="object[]">Product attributes grouped per attribute with their selected values.</ResponseField>
+    <ResponseField name="attributes" type="object[]">Product attributes grouped per attribute with their selected values. Internal attributes are omitted.</ResponseField>
   </Expandable>
 </ResponseField>
 
