@@ -1,5 +1,5 @@
 import { Plus, SquaresPlus } from "@medusajs/icons";
-import { Container, Heading, Text } from "@medusajs/ui";
+import { Container, Heading } from "@medusajs/ui";
 import { ProductAttributeDTO } from "@mercurjs/types";
 import { useTranslation } from "react-i18next";
 
@@ -54,13 +54,7 @@ export const VariantAttributeSection = ({
         />
       </div>
 
-      {isEmpty ? (
-        <div className="px-6 pb-4">
-          <Text size="small" leading="compact" className="text-ui-fg-subtle">
-            {t("products.variant.attributes.empty")}
-          </Text>
-        </div>
-      ) : (
+      {!isEmpty && (
         <AttributeGroup
           icon={<SquaresPlus />}
           title={t("products.variant.attributes.header")}

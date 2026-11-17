@@ -3399,9 +3399,6 @@
                 "description": {
                   "type": "string"
                 },
-                "empty": {
-                  "type": "string"
-                },
                 "editHint": {
                   "type": "string"
                 },
@@ -3418,7 +3415,6 @@
               "required": [
                 "header",
                 "description",
-                "empty",
                 "editHint",
                 "addSuccessToast",
                 "updateSuccessToast",

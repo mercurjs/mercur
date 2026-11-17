@@ -835,7 +835,6 @@
       "attributes": {
         "header": "Variant attributes",
         "description": "Attributes that describe this variant only",
-        "empty": "No variant attributes set yet.",
         "editHint": "Update the value of this attribute on the variant.",
         "addSuccessToast": "Variant attributes added successfully.",
         "updateSuccessToast": "Variant attribute updated successfully.",
