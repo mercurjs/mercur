@@ -307,7 +307,8 @@ export class ExtensionRegistry {
   }
 
   // An entry without a tab belongs to every tab of its zone, unless the host
-  // asks for `exactTab` (a data grid tab only takes fields aimed at it).
+  // asks for `exactTab` (a data grid tab only takes fields aimed at it). A host
+  // without a tab is the whole zone, so untabbed entries are its exact match.
   private formEntriesFor(
     model: string,
     zone: string,
@@ -316,7 +317,7 @@ export class ExtensionRegistry {
   ) {
     return this.resolveFormFields(model).filter((entry) => {
       if (entry.zone !== zone) return false
-      if (!entry.tab) return !exactTab
+      if (!entry.tab) return !exactTab || !tab
       return !!tab && entry.tab === tab
     })
   }
