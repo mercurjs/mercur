@@ -1540,6 +1540,11 @@
       "outboundShippingHint": "Wählen Sie die Methode aus, die Sie verwenden möchten.",
       "refundAmount": "Geschätzter Unterschied",
       "activeChangeError": "Für diese Bestellung liegt eine aktive Bestelländerung vor. Bitte schließen Sie die vorherige Änderung ab oder verwerfen Sie sie.",
+      "emptyOutboundItemsError": "Bitte fügen Sie mindestens einen Artikel hinzu, der im Umtausch versendet werden soll",
+      "emptyState": {
+        "inboundDescription": "Fügen Sie mindestens einen Artikel aus der Bestellung hinzu, um den Umtausch zu erstellen",
+        "outboundDescription": "Fügen Sie mindestens einen Artikel hinzu, den Sie im Umtausch versenden möchten"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "Der Umtausch wurde erfolgreich abgebrochen."

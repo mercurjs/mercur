@@ -1563,6 +1563,11 @@
       "outboundShippingHint": "Pilih metode yang ingin Anda gunakan.",
       "refundAmount": "Perkiraan selisih",
       "activeChangeError": "Ada perubahan pesanan aktif pada pesanan ini. Selesaikan atau buang perubahan sebelumnya.",
+      "emptyOutboundItemsError": "Tambahkan setidaknya satu item untuk dikirim dalam penukaran",
+      "emptyState": {
+        "inboundDescription": "Tambahkan setidaknya satu item dari pesanan untuk membuat penukaran",
+        "outboundDescription": "Tambahkan setidaknya satu item yang ingin Anda kirim dalam penukaran"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "Penukaran berhasil dibatalkan."

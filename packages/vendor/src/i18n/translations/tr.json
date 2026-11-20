@@ -1540,6 +1540,11 @@
       "outboundShippingHint": "Hangi yöntemi kullanmak istediğinizi seçin.",
       "refundAmount": "Tahmini fark",
       "activeChangeError": "Bu siparişte aktif bir değişiklik işlemi var. Lütfen önceki değişikliği tamamlayın veya iptal edin.",
+      "emptyOutboundItemsError": "Lütfen değişimde gönderilecek en az bir ürün ekleyin",
+      "emptyState": {
+        "inboundDescription": "Değişimi oluşturmak için siparişten en az bir ürün ekleyin",
+        "outboundDescription": "Değişimde göndermek istediğiniz en az bir ürün ekleyin"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "Değişim başarıyla iptal edildi."

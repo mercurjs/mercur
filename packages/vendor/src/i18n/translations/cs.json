@@ -1588,6 +1588,11 @@
       "outboundShippingHint": "Vyberte, kterou metodu chcete použít.",
       "refundAmount": "Odhadovaný rozdíl",
       "activeChangeError": "Na této objednávce probíhá aktivní změna objednávky. Dokončete nebo zrušte předchozí změnu.",
+      "emptyOutboundItemsError": "Přidejte alespoň jednu položku k odeslání ve výměně",
+      "emptyState": {
+        "inboundDescription": "Přidejte alespoň jednu položku z objednávky pro vytvoření výměny",
+        "outboundDescription": "Přidejte alespoň jednu položku, kterou chcete odeslat ve výměně"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "Výměna byla úspěšně zrušena."

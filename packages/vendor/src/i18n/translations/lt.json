@@ -1564,6 +1564,11 @@
       "outboundShippingHint": "Pasirinkite norimą siuntimo būdą.",
       "refundAmount": "Numatomas skirtumas",
       "activeChangeError": "Jau yra vykdomas užsakymo keitimas (grąžinimas, pretenzija, keitimas, kt.). Užbaikite arba atšaukite keitimą.",
+      "emptyOutboundItemsError": "Pridėkite bent vieną prekę, kurią išsiųsite keičiant",
+      "emptyState": {
+        "inboundDescription": "Pridėkite bent vieną prekę iš užsakymo, kad sukurtumėte keitimą",
+        "outboundDescription": "Pridėkite bent vieną prekę, kurią norite išsiųsti keičiant"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "Keitimas sėkmingai atšauktas."

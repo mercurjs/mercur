@@ -42,9 +42,25 @@ export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
   const { t } = useTranslation()
   const extensionActivity = useExtensionActivity("order", order)
 
-  const { order_changes: orderChanges = [] } = useOrderChanges(order.id)
+  const { order_changes: orderChanges = [] } = useOrderChanges(order.id, {
+    fields: "+exchange_id,+claim_id",
+  })
 
-  
+  const draftChangeIds = useMemo(() => {
+    const ids = new Set<string>()
+    for (const change of orderChanges) {
+      if (change.status !== "pending") {
+        continue
+      }
+      if (change.exchange_id) {
+        ids.add(change.exchange_id)
+      }
+      if (change.claim_id) {
+        ids.add(change.claim_id)
+      }
+    }
+    return ids
+  }, [orderChanges])
 
   const itemsMap = useMemo(() => {
     return new Map<string, ExtendedAdminOrderLineItemWithInventory>(
@@ -228,6 +244,10 @@ export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
     }
 
     for (const claim of claims) {
+      if (draftChangeIds.has(claim.id)) {
+        continue
+      }
+
       const claimReturn = returnMap.get(claim.return_id!)
 
       items.push({
@@ -248,6 +268,10 @@ export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
     }
 
     for (const exchange of exchanges) {
+      if (draftChangeIds.has(exchange.id)) {
+        continue
+      }
+
       const exchangeReturn = returnMap.get(exchange.return_id!)
 
       items.push({
@@ -441,6 +465,7 @@ export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
 	order,
 	exchanges,
 	orderChanges,
+	draftChangeIds,
 	payments,
 	isLoading,
 	itemsMap,

@@ -1563,6 +1563,11 @@
       "outboundShippingHint": "Kies welke methode u wilt gebruiken.",
       "refundAmount": "Geschat verschil",
       "activeChangeError": "Er is een actieve bestellingswijziging voor deze bestelling. Voltooi of annuleer de vorige wijziging eerst.",
+      "emptyOutboundItemsError": "Voeg ten minste één artikel toe om te verzenden bij de omruiling",
+      "emptyState": {
+        "inboundDescription": "Voeg ten minste één artikel uit de bestelling toe om de omruiling aan te maken",
+        "outboundDescription": "Voeg ten minste één artikel toe dat je wilt verzenden bij de omruiling"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "Omruiling is succesvol geannuleerd."

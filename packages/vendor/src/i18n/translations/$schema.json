@@ -7256,6 +7256,25 @@
             "carryOverPromotionTooltip": {
               "type": "string"
             },
+            "emptyOutboundItemsError": {
+              "type": "string"
+            },
+            "emptyState": {
+              "type": "object",
+              "properties": {
+                "inboundDescription": {
+                  "type": "string"
+                },
+                "outboundDescription": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "inboundDescription",
+                "outboundDescription"
+              ],
+              "additionalProperties": false
+            },
             "activeChangeError": {
               "type": "string"
             },
@@ -7356,6 +7375,8 @@
             "carryOverPromotionHint",
             "carryOverPromotionTooltip",
             "activeChangeError",
+            "emptyOutboundItemsError",
+            "emptyState",
             "actions",
             "cancel",
             "tooltips",

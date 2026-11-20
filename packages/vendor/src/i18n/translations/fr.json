@@ -1540,6 +1540,11 @@
       "outboundShippingHint": "Choose which method you want to use.",
       "refundAmount": "Différence estimée",
       "activeChangeError": "Il existe déjà une édition active sur la commande (retour, réclamation, échange etc.). Veuillez terminer ou annuler l'édition avant d'éditer la commande.",
+      "emptyOutboundItemsError": "Veuillez ajouter au moins un article à envoyer dans l'échange",
+      "emptyState": {
+        "inboundDescription": "Ajoutez au moins un article de la commande pour créer l'échange",
+        "outboundDescription": "Ajoutez au moins un article que vous souhaitez envoyer dans l'échange"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "Échange annulé avec succès."
