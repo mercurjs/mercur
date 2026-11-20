@@ -15,6 +15,7 @@ import { AdditionalData } from "@medusajs/framework/types"
 
 import { ProductWorkflowEvents } from "../events"
 import { validateProductsStatusStep } from "../steps/validate-products-status"
+import { validateProductsRequiredAttributesStep } from "../steps/validate-products-required-attributes"
 import { recordProductAuditChangeWorkflow } from "../../product-edit/workflows/record-product-audit-change"
 
 export const confirmProductsWorkflowId = "mercur-confirm-products"
@@ -39,6 +40,8 @@ export const confirmProductsWorkflow = createWorkflow(
       products,
       expected_status: ProductStatus.PROPOSED,
     })
+
+    validateProductsRequiredAttributesStep({ product_ids: input.product_ids })
 
     recordProductAuditChangeWorkflow.runAsStep({
       input: transform({ products, input }, ({ products, input }) => ({

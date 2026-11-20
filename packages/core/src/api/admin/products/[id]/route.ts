@@ -20,6 +20,7 @@ import {
 } from "../../../utils"
 import { productEditDeleteProductWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-delete-product"
 import { ProductWorkflowEvents } from "../../../../workflows/product/events"
+import { assertProductsHaveRequiredAttributes } from "../../../../workflows/product/steps/validate-products-required-attributes"
 import { AdminUpdateProductType } from "../validators"
 
 export const GET = async (
@@ -82,6 +83,15 @@ export const POST = async (
         filters: { id: req.params.id },
       })).data[0]?.status === ProductStatus.PUBLISHED
     : false
+
+  if (publishing && !wasPublished) {
+    await assertProductsHaveRequiredAttributes(req.scope, {
+      product_ids: [req.params.id],
+      category_ids_by_product: update.categories
+        ? { [req.params.id]: update.categories.map((c) => c.id) }
+        : undefined,
+    })
+  }
 
   await updateProductsWorkflow(req.scope).run({
     input: {
