@@ -29,6 +29,7 @@ import { addProductAttributesToProductWorkflow } from "../../product-attribute/w
 import { recordProductAuditChangeWorkflow } from "../../product-edit/workflows/record-product-audit-change"
 import {
   associateSellersWithProductStep,
+  validateProductsRequiredAttributesStep,
 } from "../steps"
 import { ProductWorkflowEvents } from "../events"
 
@@ -146,6 +147,14 @@ export const createProductsWorkflow: ReturnWorkflow<
         input: attributeItems,
       }),
     )
+
+    validateProductsRequiredAttributesStep({
+      product_ids: transform({ createdProducts }, ({ createdProducts }) =>
+        createdProducts
+          .filter((p) => p.status === ProductStatus.PUBLISHED)
+          .map((p) => p.id as string),
+      ),
+    })
 
     const defaultOptionRemovals = transform(
       { hasAxisByIndex, createdProducts },
