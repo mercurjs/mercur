@@ -29,14 +29,6 @@ export const vendorOrderFields = [
   "shipping_address.*",
   "billing_address.*",
   "shipping_methods.*",
-  // The payment collection is shared across all split orders of a cart and is
-  // therefore not linked directly to an order; reach it through the cart. The
-  // vendor order routes normalize this back onto `payment_collections`.
-  "cart.payment_collection.*",
-  "cart.payment_collection.payments.*",
-  "cart.payment_collection.payments.refunds.*",
-  "cart.payment_collection.payments.refunds.refund_reason.*",
-  "cart.payment_collection.payment_sessions.*",
   "fulfillments.*",
   "returns.*",
   "returns.items.*",
