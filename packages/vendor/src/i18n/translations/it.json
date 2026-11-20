@@ -1526,7 +1526,14 @@
         "production_failure": "Difetto di produzione",
         "other": "Altro"
       },
-      "noteHint": "Aggiungi una nota interna per questo reclamo (visibile solo al tuo team)."
+      "noteHint": "Aggiungi una nota interna per questo reclamo (visibile solo al tuo team).",
+      "confirmTitle": "Conferma reclamo",
+      "emptyItemsError": "Aggiungi almeno un articolo dall'ordine",
+      "emptyState": {
+        "title": "Nessun record ancora",
+        "inboundDescription": "Aggiungi almeno un articolo dell'ordine per creare il reclamo",
+        "outboundDescription": "Facoltativamente puoi aggiungere articoli da inviare in sostituzione"
+      }
     },
     "exchanges": {
       "create": "Crea Scambio",

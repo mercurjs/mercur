@@ -1526,7 +1526,14 @@
         "production_failure": "Défaut de fabrication",
         "other": "Autre"
       },
-      "noteHint": "Ajoutez une note interne pour cette réclamation (visible uniquement par votre équipe)."
+      "noteHint": "Ajoutez une note interne pour cette réclamation (visible uniquement par votre équipe).",
+      "confirmTitle": "Confirmer la réclamation",
+      "emptyItemsError": "Veuillez ajouter au moins un article de la commande",
+      "emptyState": {
+        "title": "Aucun enregistrement pour le moment",
+        "inboundDescription": "Ajoutez au moins un article de la commande pour créer la réclamation",
+        "outboundDescription": "Vous pouvez éventuellement ajouter des articles à envoyer en remplacement"
+      }
     },
     "exchanges": {
       "create": "Créer un échange",

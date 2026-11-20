@@ -1526,7 +1526,14 @@
         "production_failure": "Üretim hatası",
         "other": "Diğer"
       },
-      "noteHint": "Bu talep için dahili bir not ekleyin (yalnızca ekibiniz tarafından görülebilir)."
+      "noteHint": "Bu talep için dahili bir not ekleyin (yalnızca ekibiniz tarafından görülebilir).",
+      "confirmTitle": "Talebi onayla",
+      "emptyItemsError": "Lütfen siparişten en az bir ürün ekleyin",
+      "emptyState": {
+        "title": "Henüz kayıt yok",
+        "inboundDescription": "Talebi oluşturmak için siparişten en az bir ürün ekleyin",
+        "outboundDescription": "İsteğe bağlı olarak yedek olarak göndermek istediğiniz ürünleri ekleyebilirsiniz"
+      }
     },
     "exchanges": {
       "create": "Değişim Oluştur",

@@ -1549,7 +1549,14 @@
         "production_failure": "Greška u proizvodnji",
         "other": "Ostalo"
       },
-      "noteHint": "Dodajte internu napomenu za ovu reklamaciju (vidljivo samo vašem timu)."
+      "noteHint": "Dodajte internu napomenu za ovu reklamaciju (vidljivo samo vašem timu).",
+      "confirmTitle": "Potvrdi reklamaciju",
+      "emptyItemsError": "Dodajte najmanje jedan artikal iz narudžbe",
+      "emptyState": {
+        "title": "Još nema zapisa",
+        "inboundDescription": "Dodajte barem jednu stavku iz narudžbe da biste kreirali reklamaciju",
+        "outboundDescription": "Opcionalno možete dodati stavke koje želite poslati kao zamjenu"
+      }
     },
     "exchanges": {
       "create": "Kreiraj zamjenu",
