@@ -15,9 +15,7 @@ export const POST = async (
   const sellerId = req.seller_context!.seller_id
   const { id } = req.params
 
-  await validateSellerPayment(req.scope, sellerId, id, {
-    requireAllOrders: true,
-  })
+  await validateSellerPayment(req.scope, sellerId, id)
 
   await capturePaymentWorkflow(req.scope).run({
     input: {

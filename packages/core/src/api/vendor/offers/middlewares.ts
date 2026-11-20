@@ -1,4 +1,8 @@
-import { requirePermission } from "../../utils"
+import {
+  requirePermission,
+  restrictVendorFields,
+  VENDOR_SELLER_PRIVATE_FIELD_SEGMENTS,
+} from "../../utils"
 import {
   AuthenticatedMedusaRequest,
   MedusaNextFunction,
@@ -20,6 +24,13 @@ import {
   VendorUpdateOffer,
 } from "./validators"
 
+// `line_items` are the cart line items that reference the offer: buyers' open
+// carts, not the seller's orders.
+const restrictVendorOfferFields = restrictVendorFields([
+  ...VENDOR_SELLER_PRIVATE_FIELD_SEGMENTS,
+  "line_items",
+])
+
 const applySellerOfferFilter = (
   req: AuthenticatedMedusaRequest,
   _res: MedusaResponse,
@@ -35,6 +46,7 @@ export const vendorOffersMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/offers",
     middlewares: [
       requirePermission("offers", "view"),
+      restrictVendorOfferFields,
       validateAndTransformQuery(
         VendorGetOffersParams,
         vendorOfferQueryConfig.list
@@ -48,6 +60,7 @@ export const vendorOffersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       requirePermission("offers", "edit"),
       validateAndTransformBody(VendorCreateOffer),
+      restrictVendorOfferFields,
       validateAndTransformQuery(
         VendorGetOfferParams,
         vendorOfferQueryConfig.retrieve
@@ -60,6 +73,7 @@ export const vendorOffersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       requirePermission("offers", "edit"),
       validateAndTransformBody(VendorCreateOffersBatch),
+      restrictVendorOfferFields,
       validateAndTransformQuery(
         VendorGetOfferParams,
         vendorOfferQueryConfig.list
@@ -71,6 +85,7 @@ export const vendorOffersMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/offers/:id",
     middlewares: [
       requirePermission("offers", "view"),
+      restrictVendorOfferFields,
       validateAndTransformQuery(
         VendorGetOfferParams,
         vendorOfferQueryConfig.retrieve
@@ -83,6 +98,7 @@ export const vendorOffersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       requirePermission("offers", "edit"),
       validateAndTransformBody(VendorUpdateOffer),
+      restrictVendorOfferFields,
       validateAndTransformQuery(
         VendorGetOfferParams,
         vendorOfferQueryConfig.retrieve
@@ -102,6 +118,7 @@ export const vendorOffersMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       requirePermission("offers", "edit"),
       validateAndTransformBody(VendorBatchOfferInventoryItems),
+      restrictVendorOfferFields,
       validateAndTransformQuery(
         VendorGetOfferParams,
         vendorOfferQueryConfig.retrieve

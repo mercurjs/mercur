@@ -40,9 +40,17 @@ export const VENDOR_CATALOG_FIELD_SEGMENTS = [
   "price_sets",
 ]
 
+/**
+ * A cart belongs to the buyer: its id unlocks it on the public store API, and a
+ * multi-seller cart carries every seller's items and the whole purchase total.
+ * Matches `cart`, `cart_id`, `carts` and the cart link entities
+ * (`order_cart`, `cart_payment_collection`, ...) on every vendor route.
+ */
+export const VENDOR_CART_FIELD_PATTERN = /(^|_)carts?(_|$)/
+
 export const restrictVendorFields =
-  (disallowed: string[]) =>
+  (disallowed: (string | RegExp)[]) =>
   (req: MedusaRequest, _res: MedusaResponse, next: MedusaNextFunction) => {
-    req.disallowed = disallowed
+    req.disallowed = [VENDOR_CART_FIELD_PATTERN, ...disallowed]
     next()
   }

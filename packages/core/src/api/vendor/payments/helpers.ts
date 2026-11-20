@@ -25,8 +25,7 @@ export const refetchPayment = async (
 export const validateSellerPayment = async (
   scope: MedusaContainer,
   sellerId: string,
-  paymentId: string,
-  options: { requireAllOrders?: boolean } = {}
+  paymentId: string
 ) => {
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -95,10 +94,12 @@ export const validateSellerPayment = async (
     )
   }
 
-  if (options.requireAllOrders && sellerIds.some((id) => id !== sellerId)) {
+  // A cart payment shared with other sellers' orders carries the whole
+  // purchase, so only the marketplace operator may read or move it.
+  if (sellerIds.some((id) => id !== sellerId)) {
     throw new MedusaError(
       MedusaError.Types.NOT_ALLOWED,
-      `Payment with id: ${paymentId} is shared with other sellers' orders and can only be captured by the marketplace operator`
+      `Payment with id: ${paymentId} is shared with other sellers' orders and can only be managed by the marketplace operator`
     )
   }
 }

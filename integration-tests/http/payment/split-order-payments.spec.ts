@@ -297,6 +297,112 @@ medusaIntegrationTestRunner({
                 })
             })
 
+            describe("vendor payment access", () => {
+                it("does not let a seller read the shared payment of a multi-seller cart", async () => {
+                    const { orderA } = await checkoutBothSellers()
+                    const payment = await cartPayment(orderA)
+
+                    const response = await api
+                        .get(`/vendor/payments/${payment.id}`, sellerA.headers)
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
+                    expect(response.data.payment).toBeUndefined()
+                })
+
+                it("does not let a seller refund the shared payment of a multi-seller cart", async () => {
+                    const { orderA, orderB } = await checkoutBothSellers()
+                    const payment = await cartPayment(orderA)
+                    await capture(payment.id)
+
+                    const response = await api
+                        .post(
+                            `/vendor/payments/${payment.id}/refund`,
+                            { amount: 500 },
+                            sellerA.headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
+                    expect(
+                        transactionsOf(await getOrder(orderA), "refund")
+                    ).toEqual([])
+                    expect(
+                        transactionsOf(await getOrder(orderB), "refund")
+                    ).toEqual([])
+                })
+
+                it("never returns the provider data of a seller's own payment", async () => {
+                    const { orderA } = await checkout([sellerA.offer.id])
+                    const payment = await cartPayment(orderA)
+
+                    const response = await api.get(
+                        `/vendor/payments/${payment.id}?fields=id,amount,data,payment_session.data,payment_session.context`,
+                        sellerA.headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.payment.id).toEqual(payment.id)
+                    expect(response.data.payment.data).toBeUndefined()
+                    expect(
+                        response.data.payment.payment_session?.data
+                    ).toBeUndefined()
+                    expect(
+                        response.data.payment.payment_session?.context
+                    ).toBeUndefined()
+                })
+            })
+
+            describe("vendor access to the buyer's cart", () => {
+                it("does not expose the cart through an offer's line items", async () => {
+                    const { orderA } = await checkoutBothSellers()
+                    expect(orderA).toBeDefined()
+
+                    const response = await api.get(
+                        `/vendor/offers/${sellerA.offer.id}?fields=id,line_items.id,line_items.cart_id,line_items.cart.payment_collection.amount,line_items.cart.payment_collection_link.payment_collection.amount`,
+                        sellerA.headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.offer.id).toEqual(sellerA.offer.id)
+                    expect(response.data.offer.line_items).toBeUndefined()
+                    expect(JSON.stringify(response.data)).not.toMatch(/"cart(_id)?":/)
+                })
+
+                it("does not expose the cart or its id on the seller's order", async () => {
+                    const { orderA } = await checkoutBothSellers()
+
+                    const response = await api.get(
+                        `/vendor/orders/${orderA}?fields=+cart.id,+cart.email,+cart.payment_collection.amount`,
+                        sellerA.headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.order.cart).toBeUndefined()
+                    expect(JSON.stringify(response.data)).not.toMatch(/"cart(_id)?":/)
+                })
+
+                it("strips provider data from the payment sessions on the seller's order", async () => {
+                    const { orderA } = await checkout([sellerA.offer.id])
+
+                    const response = await api.get(
+                        `/vendor/orders/${orderA}`,
+                        sellerA.headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    const [collection] = response.data.order.payment_collections
+                    expect(collection.payments.length).toBeGreaterThan(0)
+                    collection.payments.forEach((p: any) =>
+                        expect(p.data).toBeUndefined()
+                    )
+                    collection.payment_sessions.forEach((s: any) => {
+                        expect(s.data).toBeUndefined()
+                        expect(s.context).toBeUndefined()
+                    })
+                })
+            })
+
             describe("before capture", () => {
                 it("keeps the orders on the cart's shared payment collection", async () => {
                     const { orderA, orderB } = await checkoutBothSellers()

@@ -7,7 +7,7 @@ import { OrderDTO } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
 import {
-  normalizeOrderPaymentCollections,
+  normalizeVendorOrderPayments,
   withCartPaymentCollectionFields,
 } from "./helpers"
 
@@ -36,7 +36,7 @@ export const GET = async (
     metadata: any
   }
 
-  rows.forEach((order) => normalizeOrderPaymentCollections(order as never))
+  rows.forEach((order) => normalizeVendorOrderPayments(order as never))
 
   res.json({
     orders: rows as unknown as HttpTypes.VendorOrderListResponse["orders"],

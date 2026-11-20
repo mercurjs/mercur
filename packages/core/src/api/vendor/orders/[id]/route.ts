@@ -6,7 +6,7 @@ import {
 import { HttpTypes } from "@mercurjs/types"
 
 import {
-  normalizeOrderPaymentCollections,
+  normalizeVendorOrderPayments,
   validateSellerOrder,
   withCartPaymentCollectionFields,
 } from "../helpers"
@@ -27,7 +27,7 @@ export const GET = async (
     },
   })
 
-  normalizeOrderPaymentCollections(result as never)
+  normalizeVendorOrderPayments(result as never)
 
   res.json({ order: result as HttpTypes.VendorOrderResponse["order"] })
 }

@@ -4,10 +4,34 @@ import {
   MedusaError,
 } from "@medusajs/framework/utils"
 
-export {
-  normalizeOrderPaymentCollections,
-  withCartPaymentCollectionFields,
-} from "../../utils/split-order-payment-status"
+import { normalizeOrderPaymentCollections } from "../../utils/split-order-payment-status"
+
+export { withCartPaymentCollectionFields } from "../../utils/split-order-payment-status"
+
+type VendorOrderPaymentCollection = {
+  payments?: { data?: unknown }[] | null
+  payment_sessions?: { data?: unknown; context?: unknown }[] | null
+}
+
+// Provider data holds the buyer's payment-page tokens and secrets.
+export const normalizeVendorOrderPayments = <
+  T extends Parameters<typeof normalizeOrderPaymentCollections>[0]
+>(
+  order: T
+): T => {
+  normalizeOrderPaymentCollections(order)
+
+  for (const collection of (order.payment_collections ??
+    []) as VendorOrderPaymentCollection[]) {
+    collection.payments?.forEach((payment) => delete payment.data)
+    collection.payment_sessions?.forEach((session) => {
+      delete session.data
+      delete session.context
+    })
+  }
+
+  return order
+}
 
 export const validateSellerOrder = async (
   scope: MedusaContainer,
