@@ -90,6 +90,42 @@ describe("applyGridExtension", () => {
     expect(readOnly.map((c) => c.id)).toEqual([])
   })
 
+  describe("a grid without a tab", () => {
+    const untabbedRegistry = new ExtensionRegistry({
+      customFields: {
+        configs: [
+          {
+            model: "offer",
+            forms: [
+              {
+                zone: "pricing",
+                fields: { region_prices: null, note: { validation: {}, type: "text" } },
+              },
+              { zone: "pricing", tab: "other", fields: { title: null } },
+            ],
+          },
+        ],
+      },
+    })
+    const grid = (allowAdd: boolean) =>
+      applyGridExtension<Row>(untabbedRegistry, {
+        model: "offer",
+        zone: "pricing",
+        columns: [column("title"), column("prices.eur"), column("region_prices.reg_eu")],
+        allowAdd,
+        getRowPath: (row) => `prices.${row.index}`,
+        createColumn: ({ id }) => ({ id }) as ColumnDef<Row, unknown>,
+      }).map((c) => c.id)
+
+    test("untabbed entries of the zone apply", () => {
+      expect(grid(true)).toEqual(["title", "prices.eur", "note"])
+    })
+
+    test("entries aimed at a tab don't reach it", () => {
+      expect(grid(false)).toEqual(["title", "prices.eur"])
+    })
+  })
+
   describe("hidden columns and column groups", () => {
     const groupRegistry = new ExtensionRegistry({
       customFields: {

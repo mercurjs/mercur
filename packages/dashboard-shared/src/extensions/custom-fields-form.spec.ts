@@ -64,6 +64,16 @@ describe("buildScopedAdditionalData", () => {
     expect(defaults).toEqual({ barcode: "SKU-1" })
   })
 
+  test("a grid without a tab takes the zone's untabbed fields", () => {
+    const { schema } = buildScopedAdditionalData(registry, {
+      model: "product",
+      zone: "create",
+      exactTab: true,
+      builtInFieldIds: ["title"],
+    })
+    expect(Object.keys(schema.shape)).toEqual(["erp_id"])
+  })
+
   test("refineAdditionalData reports form and row errors in place", () => {
     const base = z
       .object({ title: z.string(), variants: z.array(z.object({ create: z.boolean() }).passthrough()) })
