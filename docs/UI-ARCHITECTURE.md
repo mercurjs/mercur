@@ -106,7 +106,7 @@ import {
 packages/admin/src/
   app.tsx                         App root + providers
   get-route-map.tsx               Static route map merged with virtual:mercur/routes
-  index.ts                        Re-exports (TabbedForm, Form, DataTable, ...)
+  index.ts                        Re-exports (TabbedForm, Form, DataTable, CategoryCombobox, SingleCategoryCombobox, ...)
   assets/                         Static assets
   i18n/                           i18next config + translations per language
   providers/                      ThemeProvider, KeybindProvider, SearchProvider, SidebarProvider
@@ -139,7 +139,7 @@ Operator-specific characteristics:
 packages/vendor/src/
   app.tsx                         Same App shape as admin
   get-route-map.tsx               Vendor route map merged with virtual:mercur/routes
-  index.ts                        Re-exports (TabbedForm, Notifications)
+  index.ts                        Re-exports (TabbedForm, CategoryCombobox, SingleCategoryCombobox, ...)
   assets/, i18n/, providers/      Same shape as admin
   lib/                            client/ (sdk.vendor.*), query-client, query-key-factory
   hooks/                          api/<domain>.tsx — uses sdk.vendor.* + TanStack Query
