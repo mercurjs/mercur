@@ -25,8 +25,9 @@ export type UseExtendableGridProps<TData> = {
   /** Base column ids that can't be removed or replaced (e.g. the row title). */
   lockedColumnIds?: string[]
   /**
-   * Whether config fields the grid doesn't ship become columns. Off for grids
-   * whose rows have nowhere to save `additional_data`.
+   * Whether editable config fields the grid doesn't ship become columns. Off
+   * for grids whose rows have nowhere to save `additional_data`; fields with a
+   * `component` render read-only and are added either way.
    */
   allowAdd?: boolean
   /**
@@ -91,11 +92,9 @@ export function applyGridExtension<TData>(
   const builtInGroups = builtInIds.flatMap((id) =>
     id.includes(".") ? [id.slice(0, id.indexOf("."))] : []
   )
-  const added = allowAdd
-    ? extension
-        .getFormFields(model, zone, tab, [...builtInIds, ...builtInGroups], true)
-        .filter(({ field }) => !field.hidden)
-    : []
+  const added = extension
+    .getFormFields(model, zone, tab, [...builtInIds, ...builtInGroups], true)
+    .filter(({ field }) => !field.hidden && (allowAdd || field.component))
   for (const { name, field } of added) {
     columns.push(
       createColumn({
