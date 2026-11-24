@@ -77,7 +77,7 @@ describe("applyGridExtension", () => {
     expect(columns.map((c) => c.id)).not.toContain("erp_id")
   })
 
-  test("allowAdd: false keeps overrides but drops added columns", () => {
+  test("allowAdd: false keeps overrides but drops added editable columns", () => {
     const readOnly = applyGridExtension<Row>(registry, {
       model: "offer",
       zone: "create",
@@ -88,6 +88,41 @@ describe("applyGridExtension", () => {
       createColumn: ({ id }) => ({ id }) as ColumnDef<Row, unknown>,
     })
     expect(readOnly.map((c) => c.id)).toEqual([])
+  })
+
+  test("allowAdd: false still adds columns with a component", () => {
+    const Payout = () => null
+    const componentRegistry = new ExtensionRegistry({
+      customFields: {
+        configs: [
+          {
+            model: "offer",
+            forms: [
+              {
+                zone: "pricing",
+                fields: {
+                  payout: { validation: {}, component: Payout },
+                  note: { validation: {}, type: "text" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    })
+    const readOnly = applyGridExtension<Row>(componentRegistry, {
+      model: "offer",
+      zone: "pricing",
+      columns: [column("title")],
+      allowAdd: false,
+      createColumn: ({ id, getFieldName }) =>
+        ({ id, meta: { field: getFieldName } }) as ColumnDef<Row, unknown>,
+    })
+    expect(readOnly.map((c) => c.id)).toEqual(["title", "payout"])
+    const meta = readOnly[1].meta as {
+      field: (ctx: CellContext<Row, unknown>) => string | null
+    }
+    expect(meta.field(contextFor({ id: "p", index: 0 }))).toBeNull()
   })
 
   describe("a grid without a tab", () => {
