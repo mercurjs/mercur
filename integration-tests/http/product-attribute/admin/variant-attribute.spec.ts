@@ -1,7 +1,10 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { MedusaContainer } from "@medusajs/framework/types"
-import { createProductsWorkflow } from "@mercurjs/core/workflows"
+import {
+  batchUpdateVariantAttributesWorkflow,
+  createProductsWorkflow,
+} from "@mercurjs/core/workflows"
 
 import {
   adminHeaders,
@@ -319,6 +322,169 @@ medusaIntegrationTestRunner({
           .delete(`/admin/product-attributes/${battery.id}`, adminHeaders)
           .catch((e) => e.response)
         expect(res.status).toBe(400)
+      })
+    })
+
+    describe("Admin - batch variant attributes across variants", () => {
+      const variantAttributes = async (productId: string, variantId: string) => {
+        const res = await api.get(
+          `/admin/products/${productId}/variants/${variantId}`,
+          adminHeaders,
+        )
+        return attributesOf(res.data.variant)
+      }
+
+      it("writes every variant's values in one run and keeps them apart", async () => {
+        const finish = await createAttr({
+          name: "Finish",
+          type: "single_select",
+          scope: "variant",
+          values: [{ name: "Matte" }, { name: "Glossy" }],
+        })
+        const wireless = await createAttr({
+          name: "Wireless",
+          type: "toggle",
+          scope: "variant",
+        })
+        const battery = await createAttr({
+          name: "Battery capacity",
+          type: "unit",
+          scope: "variant",
+        })
+        const { productId, a, b } = await createProductWithVariants()
+
+        await batchUpdateVariantAttributesWorkflow(appContainer).run({
+          input: {
+            variants: [
+              {
+                product_id: productId,
+                variant_id: a,
+                add: [
+                  { id: finish.id, value_ids: [finish.byName.get("Matte")!] },
+                  { id: wireless.id, value: true },
+                  { id: battery.id, value: "4000" },
+                ],
+              },
+              {
+                product_id: productId,
+                variant_id: b,
+                add: [
+                  { id: finish.id, value_ids: [finish.byName.get("Glossy")!] },
+                  { id: battery.id, value: "5000" },
+                ],
+              },
+            ],
+          },
+          throwOnError: true,
+        })
+
+        const attrsA = await variantAttributes(productId, a)
+        expect(Object.keys(attrsA).sort()).toEqual(
+          [finish.id, wireless.id, battery.id].sort(),
+        )
+        expect(attrsA[finish.id].values.map((v) => v.id)).toEqual([
+          finish.byName.get("Matte"),
+        ])
+        expect(attrsA[wireless.id].values[0].name).toBe("true")
+        expect(attrsA[battery.id].values[0].name).toBe("4000")
+
+        const attrsB = await variantAttributes(productId, b)
+        expect(Object.keys(attrsB).sort()).toEqual([finish.id, battery.id].sort())
+        expect(attrsB[finish.id].values.map((v) => v.id)).toEqual([
+          finish.byName.get("Glossy"),
+        ])
+        expect(attrsB[battery.id].values[0].name).toBe("5000")
+
+        const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+        const { data: batteryRows } = await query.graph({
+          entity: "product_attribute_value",
+          fields: ["id", "name"],
+          filters: { attribute_id: battery.id },
+        })
+        expect(batteryRows.map((row) => row.name).sort()).toEqual(["4000", "5000"])
+      })
+
+      it("updates and removes per variant, matching the single-variant batch", async () => {
+        const finish = await createAttr({
+          name: "Finish",
+          type: "multi_select",
+          scope: "variant",
+          values: [{ name: "Matte" }, { name: "Glossy" }],
+        })
+        const battery = await createAttr({
+          name: "Battery capacity",
+          type: "unit",
+          scope: "variant",
+        })
+        const { productId, a, b } = await createProductWithVariants()
+        await batch(productId, a, {
+          add: [
+            { id: finish.id, value_ids: [finish.byName.get("Matte")!] },
+            { id: battery.id, value: "4000" },
+          ],
+        })
+        await batch(productId, b, { add: [{ id: battery.id, value: "4000" }] })
+
+        await batchUpdateVariantAttributesWorkflow(appContainer).run({
+          input: {
+            variants: [
+              {
+                product_id: productId,
+                variant_id: a,
+                update: [
+                  {
+                    id: finish.id,
+                    add: [finish.byName.get("Glossy")!],
+                    remove: [finish.byName.get("Matte")!],
+                  },
+                  { id: battery.id, value: "5000" },
+                ],
+              },
+              { product_id: productId, variant_id: b, remove: [battery.id] },
+            ],
+          },
+          throwOnError: true,
+        })
+
+        const attrsA = await variantAttributes(productId, a)
+        expect(attrsA[finish.id].values.map((v) => v.id)).toEqual([
+          finish.byName.get("Glossy"),
+        ])
+        expect(attrsA[battery.id].values).toHaveLength(1)
+        expect(attrsA[battery.id].values[0].name).toBe("5000")
+        expect(await variantAttributes(productId, b)).toEqual({})
+
+        const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+        const { data: batteryRows } = await query.graph({
+          entity: "product_attribute_value",
+          fields: ["id", "name"],
+          filters: { attribute_id: battery.id },
+        })
+        expect(batteryRows.map((row) => row.name)).toEqual(["5000"])
+      })
+
+      it("writes nothing when one variant's attribute is product-scoped", async () => {
+        const material = await createAttr({ name: "Material", type: "text" })
+        const battery = await createAttr({
+          name: "Battery capacity",
+          type: "unit",
+          scope: "variant",
+        })
+        const { productId, a, b } = await createProductWithVariants()
+
+        const { errors } = await batchUpdateVariantAttributesWorkflow(appContainer).run({
+          input: {
+            variants: [
+              { product_id: productId, variant_id: a, add: [{ id: battery.id, value: "4000" }] },
+              { product_id: productId, variant_id: b, add: [{ id: material.id, value: "Steel" }] },
+            ],
+          },
+          throwOnError: false,
+        })
+        expect(errors[0].error.message).toContain("Material")
+
+        expect(await variantAttributes(productId, a)).toEqual({})
+        expect(await variantAttributes(productId, b)).toEqual({})
       })
     })
   },

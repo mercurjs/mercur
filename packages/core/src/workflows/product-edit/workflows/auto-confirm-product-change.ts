@@ -14,6 +14,7 @@ export type AutoConfirmProductChangeWorkflowInput = {
   change_id: string
   confirmed_by?: string
   force?: boolean
+  no_notification?: boolean
 }
 
 export const autoConfirmProductChangeWorkflowId = "auto-confirm-product-change"
@@ -35,6 +36,7 @@ export const autoConfirmProductChangeWorkflow: ReturnWorkflow<
         input: transform({ input }, ({ input }) => ({
           ids: [input.change_id],
           confirmed_by: input.confirmed_by,
+          no_notification: input.no_notification,
         })),
       })
     })

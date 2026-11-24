@@ -11,8 +11,6 @@ import {
 import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
 import {
   AttributeScope,
-  AttributeType,
-  CreateProductAttributeValueDTO,
   ProductAttributeDTO,
   VariantAttributeBatchInput,
 } from "@mercurjs/types"
@@ -28,6 +26,10 @@ import {
   validateProductAttributesScopeStep,
   validateProductAttributeValuesStep,
 } from "../steps"
+import {
+  planVariantAttributeChanges,
+  type VariantAttributeJoinRow,
+} from "../utils"
 
 export type UpdateVariantAttributesWorkflowInput = VariantAttributeBatchInput &
   AdditionalData
@@ -46,17 +48,6 @@ export type UpdateVariantAttributesWorkflowHooks = [
 ]
 
 export const updateVariantAttributesWorkflowId = "update-variant-attributes"
-
-type JoinRow = {
-  id: string
-  value_id: string
-  value?: { id: string; name: string; attribute_id: string } | null
-}
-
-const SELECT_TYPES: AttributeType[] = [
-  AttributeType.SINGLE_SELECT,
-  AttributeType.MULTI_SELECT,
-]
 
 /**
  * Applies a remove → add → update attribute batch to a single product variant.
@@ -155,156 +146,29 @@ export const updateVariantAttributesWorkflow: ReturnWorkflow<
     const currentQuery = useQueryGraphStep({
       entity: "product_variant_attribute_value",
       filters: { variant_id: input.variant_id },
-      fields: ["id", "value_id", "value.id", "value.name", "value.attribute_id"],
+      fields: [
+        "id",
+        "variant_id",
+        "value_id",
+        "value.id",
+        "value.name",
+        "value.attribute_id",
+      ],
     }).config({ name: "upd-va-current" })
 
     const plan = transform(
       { input, attributesQuery, currentQuery },
-      ({ input, attributesQuery, currentQuery }) => {
-        const attrsById = new Map(
-          ((attributesQuery.data ?? []) as ProductAttributeDTO[]).map((a) => [
-            a.id,
-            a,
-          ]),
-        )
-        const current = ((currentQuery.data ?? []) as JoinRow[]).filter(
-          (row) => row.value?.attribute_id,
-        )
-
-        const heldByAttr = new Map<string, { join_id: string; value_id: string; name: string }[]>()
-        for (const row of current) {
-          const attributeId = row.value!.attribute_id
-          const list = heldByAttr.get(attributeId) ?? []
-          list.push({ join_id: row.id, value_id: row.value_id, name: row.value!.name })
-          heldByAttr.set(attributeId, list)
-        }
-
-        const deleteJoinIds = new Set<string>()
-        const deleteValueIds = new Set<string>()
-        const attachValueIds = new Set<string>()
-        const newValueRows: (CreateProductAttributeValueDTO & {
-          attribute_id: string
-        })[] = []
-        const renameValueRows: { id: string; name: string }[] = []
-
-        const detachAll = (attributeId: string, dropScalarRows: boolean) => {
-          for (const held of heldByAttr.get(attributeId) ?? []) {
-            deleteJoinIds.add(held.join_id)
-            if (dropScalarRows) {
-              deleteValueIds.add(held.value_id)
-            }
-          }
-          heldByAttr.set(attributeId, [])
-        }
-
-        for (const attributeId of input.remove ?? []) {
-          const attr = attrsById.get(attributeId)
-          if (!attr) continue
-          detachAll(attributeId, SCALAR_VALUE_TYPES.includes(attr.type))
-        }
-
-        const setSelection = (attributeId: string, desired: string[]) => {
-          const held = heldByAttr.get(attributeId) ?? []
-          const desiredSet = new Set(desired)
-          for (const h of held) {
-            if (!desiredSet.has(h.value_id)) {
-              deleteJoinIds.add(h.join_id)
-            }
-          }
-          const heldIds = new Set(held.map((h) => h.value_id))
-          for (const id of desired) {
-            if (!heldIds.has(id)) {
-              attachValueIds.add(id)
-            }
-          }
-          heldByAttr.set(
-            attributeId,
-            held
-              .filter((h) => desiredSet.has(h.value_id))
-              .concat(
-                desired
-                  .filter((id) => !heldIds.has(id))
-                  .map((id) => ({ join_id: "", value_id: id, name: "" })),
-              ),
-          )
-        }
-
-        const applyScalar = (attr: ProductAttributeDTO, value: unknown) => {
-          const name = String(value)
-          const held = heldByAttr.get(attr.id) ?? []
-          if (held.length > 0) {
-            for (const h of held) {
-              if (h.name !== name) {
-                renameValueRows.push({ id: h.value_id, name })
-              }
-            }
-            return
-          }
-          newValueRows.push({ name, attribute_id: attr.id })
-        }
-
-        const applyToggle = (attr: ProductAttributeDTO, value: unknown) => {
-          const seeded = (attr.values ?? []).find((v) => v.name === String(value))
-          setSelection(attr.id, seeded ? [seeded.id] : [])
-        }
-
-        for (const ref of input.add ?? []) {
-          const attr = attrsById.get(ref.id)
-          if (!attr) continue
-          if (SELECT_TYPES.includes(attr.type)) {
-            if (ref.value_ids) {
-              const allowed = new Set((attr.values ?? []).map((v) => v.id))
-              setSelection(
-                attr.id,
-                ref.value_ids.filter((id) => allowed.has(id)),
-              )
-            }
-          } else if (attr.type === AttributeType.TOGGLE) {
-            if (ref.value !== undefined) applyToggle(attr, ref.value)
-          } else if (ref.value !== undefined) {
-            applyScalar(attr, ref.value)
-          }
-        }
-
-        for (const ref of input.update ?? []) {
-          const attr = attrsById.get(ref.id)
-          if (!attr) continue
-          if (SELECT_TYPES.includes(attr.type)) {
-            const allowed = new Set((attr.values ?? []).map((v) => v.id))
-            const held = (heldByAttr.get(attr.id) ?? []).map((h) => h.value_id)
-            let desired: string[] | undefined
-            if (ref.value_ids) {
-              desired = ref.value_ids
-            } else if (ref.add || ref.remove) {
-              const removeSet = new Set(ref.remove ?? [])
-              const adds = (ref.add ?? []).filter(
-                (a): a is string => typeof a === "string",
-              )
-              desired = Array.from(
-                new Set([...held.filter((id) => !removeSet.has(id)), ...adds]),
-              )
-            }
-            if (desired) {
-              setSelection(
-                attr.id,
-                desired.filter((id) => allowed.has(id)),
-              )
-            }
-          } else if (attr.type === AttributeType.TOGGLE) {
-            if (ref.value !== undefined) applyToggle(attr, ref.value)
-          } else if (ref.value !== undefined) {
-            applyScalar(attr, ref.value)
-          }
-        }
-
-        return {
-          deleteJoinIds: Array.from(deleteJoinIds),
-          deleteValueIds: Array.from(deleteValueIds),
-          attachValueIds: Array.from(attachValueIds),
-          newValueRows,
-          renameValueRows,
-        }
-      },
+      ({ input, attributesQuery, currentQuery }) =>
+        planVariantAttributeChanges(
+          input,
+          new Map(
+            ((attributesQuery.data ?? []) as ProductAttributeDTO[]).map((a) => [
+              a.id,
+              a,
+            ]),
+          ),
+          (currentQuery.data ?? []) as VariantAttributeJoinRow[],
+        ),
     )
 
     when({ plan }, ({ plan }) => plan.deleteJoinIds.length > 0).then(() =>

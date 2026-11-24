@@ -24,6 +24,7 @@ export type ConfirmProductChangeWorkflowInput = {
   confirmed_by?: string
   internal_note?: string
   external_note?: string
+  no_notification?: boolean
 } & AdditionalData
 
 export type ConfirmProductChangeWorkflowHooks = [
@@ -79,7 +80,7 @@ export const confirmProductChangeWorkflow: ReturnWorkflow<
     emitEventStep({
       eventName: ProductChangeWorkflowEvents.CONFIRMED,
       data: transform({ input }, ({ input }) =>
-        input.ids.map((id) => ({ id })),
+        input.ids.map((id) => ({ id, no_notification: input.no_notification })),
       ),
     })
 

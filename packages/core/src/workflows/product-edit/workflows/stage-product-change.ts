@@ -29,6 +29,7 @@ export type StageProductChangeWorkflowInput = {
   internal_note?: string
   external_note?: string
   auto_confirm?: boolean
+  no_notification?: boolean
 }
 
 export const stageProductChangeWorkflowId = "stage-product-change"
@@ -83,8 +84,9 @@ export const stageProductChangeWorkflow = createWorkflow(
 
     emitEventStep({
       eventName: ProductChangeWorkflowEvents.CREATED,
-      data: transform({ changes }, ({ changes }) => ({
+      data: transform({ input, changes }, ({ input, changes }) => ({
         id: changes[0]?.id,
+        no_notification: input.no_notification,
       })),
     })
 
@@ -106,6 +108,7 @@ export const stageProductChangeWorkflow = createWorkflow(
         ({ changes, input, products, setAutoConfirmResult }) => ({
           change_id: changes[0]?.id as string,
           confirmed_by: input.created_by,
+          no_notification: input.no_notification,
           force:
             input.auto_confirm ??
             setAutoConfirmResult?.auto_confirm ??
