@@ -38,6 +38,7 @@ import { ProductWorkflowEvents } from "../events"
 export type CreateProductsWorkflowInput = {
   products: (CreateProductDTO & { seller_ids?: string[] })[]
   created_by: string
+  no_notification?: boolean
 } & AdditionalData
 
 export const createProductsWorkflowId = "mercur-create-products"
@@ -314,17 +315,22 @@ export const createProductsWorkflow: ReturnWorkflow<
 
     emitEventStep({
       eventName: ProductWorkflowEvents.CREATED,
-      data: transform({ createdProducts }, ({ createdProducts }) =>
-        createdProducts.map((p) => ({ id: p.id })),
+      data: transform({ input, createdProducts }, ({ input, createdProducts }) =>
+        createdProducts.map((p) => ({
+          id: p.id,
+          no_notification: input.no_notification,
+        })),
       ),
     })
 
     // Only the review flow emitted this, so a product an admin creates as published never reached
     // the subscribers that mirror published products elsewhere.
-    const publishedIds = transform({ createdProducts }, ({ createdProducts }) =>
-      createdProducts
-        .filter((p) => p.status === ProductStatus.PUBLISHED)
-        .map((p) => ({ id: p.id })),
+    const publishedIds = transform(
+      { input, createdProducts },
+      ({ input, createdProducts }) =>
+        createdProducts
+          .filter((p) => p.status === ProductStatus.PUBLISHED)
+          .map((p) => ({ id: p.id, no_notification: input.no_notification })),
     )
     when(publishedIds, (ids) => ids.length > 0).then(() => {
       emitEventStep({
