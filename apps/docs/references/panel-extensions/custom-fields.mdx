@@ -120,7 +120,7 @@ Each field is a `CustomFormField`.
 | -------------- | -------------------------------- | ------------------------------------------------------------- |
 | `validation`   | Zod schema                       | Drives both the default input type and validation.            |
 | `defaultValue` | `unknown \| ((data) => unknown)` | Static value or a resolver from the loaded entity. On a built-in spreadsheet column the resolver may be async. |
-| `hidden`       | `boolean` (optional)             | Don't render the input, but keep its value. On a built-in field the value comes from `defaultValue`. |
+| `hidden`       | `boolean` (optional)             | Don't render the input, but keep its form value. A configured `defaultValue` applies where the form supports it. |
 | `label`        | `string` (optional)              | Field label.                                                  |
 | `description`  | `string` (optional)              | Help text below the input.                                    |
 | `placeholder`  | `string` (optional)              | Input placeholder.                                            |
@@ -156,6 +156,29 @@ forms: [
 The overridable field ids are typed per model and autocomplete in your editor.
 Validation of a built-in field stays the built-in schema's. A hidden field keeps
 its default value, so hide a required field only when that default is valid.
+
+The Vendor's variant forms expose SKU as `product_variant`, in the `create`
+and `edit` zones. For example, a marketplace that manages catalog SKUs through
+an import can hide the input in both forms:
+
+```tsx apps/vendor/src/custom-fields/product-variant.ts
+import { defineCustomFieldsConfig } from "@mercurjs/dashboard-sdk"
+
+export default defineCustomFieldsConfig({
+  model: "product_variant",
+  forms: [
+    { zone: "create", fields: { sku: null } },
+    { zone: "edit", fields: { sku: null } },
+  ],
+})
+```
+
+These zones expose only the built-in SKU input. A replacement receives the
+product as `data` on create and the variant on edit. With `sku: null`, each form
+keeps its own initial value and normal request normalization: no SKU on create,
+the loaded SKU on edit, or `null` if it was empty. A configured `defaultValue` is
+not applied to this field.
+Rendering overrides do not change API permissions or validation.
 
 ### Fields in tabbed create forms
 
