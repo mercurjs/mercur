@@ -45,3 +45,15 @@ describe("detail-page table zones", () => {
     expect(modelBlock("collection")).toMatch(/listColumnIds: [^\n]*"status"/)
   })
 })
+
+describe("variant form fields", () => {
+  test.each(["create", "edit"])("registers the %s form zone", (zone: string) => {
+    expect(modelBlock("product_variant")).toMatch(
+      new RegExp(`formZones: [^\\n]*"${zone}"`)
+    )
+  })
+
+  test("registers the built-in SKU field", () => {
+    expect(modelBlock("product_variant")).toMatch(/formFieldIds: [^\n]*"sku"/)
+  })
+})

@@ -90,7 +90,6 @@
     "tailwindcss": "^4.3.2",
     "tsup": "^8.0.2",
     "typescript": "5.9.3",
-    "vitest": "^4.1.11",
     "@medusajs/types": "2.22.3",
     "@mercurjs/core": "2.4.2-canary.8",
     "@mercurjs/dashboard-sdk": "2.4.2-canary.8",

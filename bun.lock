@@ -792,7 +792,6 @@
         "tailwindcss": "^4.3.2",
         "tsup": "^8.0.2",
         "typescript": "5.9.3",
-        "vitest": "^4.1.11",
       },
       "peerDependencies": {
         "react": "^18.0.0",
