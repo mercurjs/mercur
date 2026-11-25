@@ -120,7 +120,7 @@ Each field is a `CustomFormField`.
 | -------------- | -------------------------------- | ------------------------------------------------------------- |
 | `validation`   | Zod schema                       | Drives both the default input type and validation.            |
 | `defaultValue` | `unknown \| ((data) => unknown)` | Static value or a resolver from the loaded entity. On a built-in spreadsheet column the resolver may be async. |
-| `hidden`       | `boolean` (optional)             | Don't render the input, but keep its form value. A configured `defaultValue` applies where the form supports it. |
+| `hidden`       | `boolean` (optional)             | Don't render the input, but keep its value in form state. |
 | `label`        | `string` (optional)              | Field label.                                                  |
 | `description`  | `string` (optional)              | Help text below the input.                                    |
 | `placeholder`  | `string` (optional)              | Input placeholder.                                            |
