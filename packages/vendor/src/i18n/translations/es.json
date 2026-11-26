@@ -1601,7 +1601,14 @@
         "production_failure": "Fallo de producción",
         "other": "Otro"
       },
-      "noteHint": "Añade una nota interna para esta reclamación (visible solo para tu equipo)."
+      "noteHint": "Añade una nota interna para esta reclamación (visible solo para tu equipo).",
+      "confirmTitle": "Confirmar reclamación",
+      "emptyItemsError": "Añade al menos un artículo del pedido",
+      "emptyState": {
+        "title": "Aún no hay registros",
+        "inboundDescription": "Añade al menos un artículo del pedido para crear la reclamación",
+        "outboundDescription": "Opcionalmente puedes añadir artículos que quieras enviar como reemplazo"
+      }
     },
     "exchanges": {
       "create": "Crear Intercambio",

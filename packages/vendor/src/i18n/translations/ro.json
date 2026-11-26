@@ -1550,7 +1550,14 @@
         "production_failure": "Defect de producție",
         "other": "Altul"
       },
-      "noteHint": "Adăugați o notă internă pentru această reclamație (vizibilă doar echipei dumneavoastră)."
+      "noteHint": "Adăugați o notă internă pentru această reclamație (vizibilă doar echipei dumneavoastră).",
+      "confirmTitle": "Confirmă reclamația",
+      "emptyItemsError": "Vă rugăm adăugați cel puțin un articol din comandă",
+      "emptyState": {
+        "title": "Nicio înregistrare încă",
+        "inboundDescription": "Adaugă cel puțin un articol din comandă pentru a crea reclamația",
+        "outboundDescription": "Opțional, poți adăuga articole pe care vrei să le trimiți ca înlocuire"
+      }
     },
     "exchanges": {
       "create": "Creați Exchange",

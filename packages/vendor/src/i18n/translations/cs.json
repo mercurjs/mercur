@@ -1574,7 +1574,14 @@
         "production_failure": "Výrobní vada",
         "other": "Jiné"
       },
-      "noteHint": "Přidejte interní poznámku k této reklamaci (viditelná pouze pro váš tým)."
+      "noteHint": "Přidejte interní poznámku k této reklamaci (viditelná pouze pro váš tým).",
+      "confirmTitle": "Potvrdit reklamaci",
+      "emptyItemsError": "Přidejte prosím alespoň jednu položku z objednávky",
+      "emptyState": {
+        "title": "Zatím žádné záznamy",
+        "inboundDescription": "Přidejte alespoň jednu položku z objednávky pro vytvoření reklamace",
+        "outboundDescription": "Volitelně můžete přidat položky, které chcete odeslat jako náhradu"
+      }
     },
     "exchanges": {
       "create": "Vytvořit výměnu",

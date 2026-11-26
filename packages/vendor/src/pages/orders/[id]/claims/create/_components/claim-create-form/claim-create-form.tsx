@@ -47,6 +47,7 @@ import { KeyboundForm } from "@components/utilities/keybound-form"
 import {
   useAddClaimInboundItems,
   useAddClaimInboundShipping,
+  useAddClaimOutboundItems,
   useCancelClaimRequest,
   useClaimConfirmRequest,
   useDeleteClaimInboundShipping,
@@ -76,6 +77,7 @@ type ClaimCreateFormProps = {
 let itemsToAdd: string[] = []
 let itemsToRemove: string[] = []
 let IS_CANCELING = false
+let OUTBOUND_SUBMITTED_FOR: string | null = null
 
 export const ClaimCreateForm = ({
   order,
@@ -123,6 +125,9 @@ export const ClaimCreateForm = ({
   const { mutateAsync: addInboundItem, isPending: isAddingInboundItem } =
     useAddClaimInboundItems(claim.id, order.id)
 
+  const { mutateAsync: addOutboundItems, isPending: isAddingOutboundItems } =
+    useAddClaimOutboundItems(claim.id, order.id)
+
   const { mutateAsync: updateInboundItem, isPending: isUpdatingInboundItem } =
     useUpdateClaimInboundItem(claim.id, order.id)
 
@@ -138,6 +143,7 @@ export const ClaimCreateForm = ({
     isAddingInboundItem ||
     isRemovingInboundItem ||
     isUpdatingInboundItem ||
+    isAddingOutboundItems ||
     isUpdating
 
   /**
@@ -309,12 +315,29 @@ export const ClaimCreateForm = ({
   /* oxlint-enable react-hooks/exhaustive-deps */
 
   const showInboundItemsPlaceholder = !inboundPreviewItems.length
+  const inboundItemsError = form.formState.errors.inbound_items?.message
+
+  useEffect(() => {
+    if (inboundPreviewItems.length) {
+      form.clearErrors("inbound_items")
+    }
+    /* oxlint-disable react-hooks/exhaustive-deps */
+  }, [inboundPreviewItems.length])
+  /* oxlint-enable react-hooks/exhaustive-deps */
 
   const prompt = usePrompt()
 
   const handleSubmit = form.handleSubmit(async (data) => {
+    if (!inboundPreviewItems.length) {
+      form.setError("inbound_items", {
+        type: "manual",
+        message: t("orders.claims.emptyItemsError"),
+      })
+      return
+    }
+
     const res = await prompt({
-      title: t("general.areYouSure"),
+      title: t("orders.claims.confirmTitle"),
       description: t("orders.claims.confirmText"),
       confirmText: t("actions.continue"),
       cancelText: t("actions.cancel"),
@@ -323,6 +346,23 @@ export const ClaimCreateForm = ({
 
     if (!res) {
       return
+    }
+
+    if (data.outbound_items.length && OUTBOUND_SUBMITTED_FOR !== claim.id) {
+      try {
+        await addOutboundItems({
+          items: data.outbound_items.map((item) => ({
+            offer_id: item.offer_id,
+            quantity: item.quantity,
+          })),
+        })
+        OUTBOUND_SUBMITTED_FOR = claim.id
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : t("general.error")
+        )
+        return
+      }
     }
 
     await confirmClaimRequest(
@@ -340,34 +380,31 @@ export const ClaimCreateForm = ({
   })
 
   const onItemsSelected = async () => {
-    if (itemsToAdd.length) {
-      await addInboundItem(
-        {
+    try {
+      if (itemsToAdd.length) {
+        await addInboundItem({
           items: itemsToAdd.map((id) => ({
             id,
             quantity: 1,
           })),
-        } as never,
-        {
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
-      )
-    }
-
-    for (const itemToRemove of itemsToRemove) {
-      const actionId = previewItems
-        .find((i) => i.id === itemToRemove)
-        ?.actions?.find((a) => a.action === "RETURN_ITEM")?.id
-
-      if (actionId) {
-        await removeInboundItem(actionId, {
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        })
+        } as never)
       }
+
+      for (const itemToRemove of itemsToRemove) {
+        const actionId = previewItems
+          .find((i) => i.id === itemToRemove)
+          ?.actions?.find((a) => a.action === "RETURN_ITEM")?.id
+
+        if (actionId) {
+          await removeInboundItem(actionId)
+        }
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t("general.error"))
+      return
+    } finally {
+      itemsToAdd = []
+      itemsToRemove = []
     }
 
     setIsOpen("inbound-items", false)
@@ -470,55 +507,66 @@ export const ClaimCreateForm = ({
 
               <StackedFocusModal id="inbound-items">
                 <StackedFocusModal.Trigger asChild>
-                  {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid */}
-                  <a
-                    href="#"
-                    onClick={(e) => e.preventDefault()}
-                    className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400"
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="small"
+                    data-testid="claim-add-inbound-trigger"
                   >
                     {t("actions.addItems")}
-                  </a>
+                  </Button>
                 </StackedFocusModal.Trigger>
                 <StackedFocusModal.Content>
                   <StackedFocusModal.Header />
+                  <StackedFocusModal.Title asChild>
+                    <span className="sr-only">{t("actions.addItems")}</span>
+                  </StackedFocusModal.Title>
+                  <StackedFocusModal.Description className="sr-only">
+                    {t("orders.claims.title")}
+                  </StackedFocusModal.Description>
 
-                  <AddClaimItemsTable
-                    items={order.items!}
-                    selectedItems={inboundItems.map((i) => i.item_id)}
-                    currencyCode={currencyCode}
-                    onSelectionChange={(finalSelection) => {
-                      const alreadySelected = inboundItems.map(
-                        (i) => i.item_id
-                      )
+                  <StackedFocusModal.Body className="size-full overflow-hidden">
+                    <AddClaimItemsTable
+                      items={order.items!}
+                      selectedItems={inboundItems.map((i) => i.item_id)}
+                      currencyCode={currencyCode}
+                      onSelectionChange={(finalSelection) => {
+                        const alreadySelected = inboundItems.map(
+                          (i) => i.item_id
+                        )
 
-                      itemsToAdd = finalSelection.filter(
-                        (selection) => !alreadySelected.includes(selection)
-                      )
-                      itemsToRemove = alreadySelected.filter(
-                        (selection) => !finalSelection.includes(selection)
-                      )
-                    }}
-                  />
+                        itemsToAdd = finalSelection.filter(
+                          (selection) => !alreadySelected.includes(selection)
+                        )
+                        itemsToRemove = alreadySelected.filter(
+                          (selection) => !finalSelection.includes(selection)
+                        )
+                      }}
+                    />
+                  </StackedFocusModal.Body>
 
                   <StackedFocusModal.Footer>
                     <div className="flex w-full items-center justify-end gap-x-4">
                       <div className="flex items-center justify-end gap-x-2">
-                        <RouteFocusModal.Close asChild>
+                        <StackedFocusModal.Close asChild>
                           <Button
                             type="button"
                             variant="secondary"
                             size="small"
+                            data-testid="claim-add-inbound-cancel"
                           >
                             {t("actions.cancel")}
                           </Button>
-                        </RouteFocusModal.Close>
+                        </StackedFocusModal.Close>
 
                         <Button
                           key="submit-button"
-                          type="submit"
+                          type="button"
                           variant="primary"
                           size="small"
-                          onClick={async () => await onItemsSelected()}
+                          isLoading={isAddingInboundItem || isRemovingInboundItem}
+                          data-testid="claim-add-inbound-save"
+                          onClick={onItemsSelected}
                         >
                           {t("actions.save")}
                         </Button>
@@ -528,7 +576,13 @@ export const ClaimCreateForm = ({
                 </StackedFocusModal.Content>
               </StackedFocusModal>
             </div>
-            {showInboundItemsPlaceholder && <ItemPlaceholder />}
+            {showInboundItemsPlaceholder && (
+              <ItemPlaceholder
+                description={t("orders.claims.emptyState.inboundDescription")}
+                error={inboundItemsError}
+                data-testid="claim-inbound-empty-state"
+              />
+            )}
             {inboundItems.map(
               (item, index) =>
                 previewItemsMap.get(item.item_id) &&
