@@ -1563,6 +1563,11 @@
       "outboundShippingHint": "选择您想使用的方式。",
       "refundAmount": "预计差额",
       "activeChangeError": "此订单有活动的订单变更。请先完成或放弃之前的变更。",
+      "emptyOutboundItemsError": "请至少添加一件要在换货中寄送的商品",
+      "emptyState": {
+        "inboundDescription": "请从订单中至少添加一件商品以创建换货",
+        "outboundDescription": "请至少添加一件您要在换货中寄送的商品"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "换货已成功取消。"

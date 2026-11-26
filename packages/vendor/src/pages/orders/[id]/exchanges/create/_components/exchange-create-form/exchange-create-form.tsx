@@ -152,16 +152,6 @@ export const ExchangeCreateForm = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preview, orderId, exchangeId])
 
-  const inboundItemsWatch = form.watch("inbound_items")
-  const outboundItemsWatch = form.watch("outbound_items")
-
-  const hasSelection = useMemo(
-    () =>
-      (inboundItemsWatch?.length ?? 0) > 0 ||
-      (outboundItemsWatch?.length ?? 0) > 0,
-    [inboundItemsWatch, outboundItemsWatch]
-  )
-
   // Mirror admin's totals math, scoped to this exchange.
   const previewItems = useMemo<PreviewItem[]>(() => {
     if (!exchangeId) return []
@@ -185,6 +175,21 @@ export const ExchangeCreateForm = () => {
       ),
     [previewItems]
   )
+
+  const inboundItemsError = form.formState.errors.inbound_items?.message
+  const outboundItemsError = form.formState.errors.outbound_items?.message
+
+  useEffect(() => {
+    if (inboundPreviewItems.length) {
+      form.clearErrors("inbound_items")
+    }
+  }, [inboundPreviewItems.length, form])
+
+  useEffect(() => {
+    if (outboundPreviewItems.length) {
+      form.clearErrors("outbound_items")
+    }
+  }, [outboundPreviewItems.length, form])
 
   const currencyCode = order?.currency_code ?? ""
 
@@ -240,6 +245,27 @@ export const ExchangeCreateForm = () => {
    */
   const handleSubmit = form.handleSubmit(async (data) => {
     if (!exchangeId) {
+      return
+    }
+
+    const isInboundEmpty = !inboundPreviewItems.length
+    const isOutboundEmpty = !outboundPreviewItems.length
+
+    if (isInboundEmpty) {
+      form.setError("inbound_items", {
+        type: "manual",
+        message: t("orders.returns.emptyItemsError"),
+      })
+    }
+
+    if (isOutboundEmpty) {
+      form.setError("outbound_items", {
+        type: "manual",
+        message: t("orders.exchanges.emptyOutboundItemsError"),
+      })
+    }
+
+    if (isInboundEmpty || isOutboundEmpty) {
       return
     }
 
@@ -317,6 +343,7 @@ export const ExchangeCreateForm = () => {
                   preview={preview as never}
                   order={order!}
                   exchange={{ id: exchangeId }}
+                  itemsError={inboundItemsError}
                 />
 
                 <ExchangeOutboundSection
@@ -324,6 +351,7 @@ export const ExchangeCreateForm = () => {
                   preview={preview as never}
                   order={order!}
                   exchange={{ id: exchangeId }}
+                  itemsError={outboundItemsError}
                 />
 
                 {/* TOTALS SECTION */}
@@ -434,7 +462,7 @@ export const ExchangeCreateForm = () => {
                 variant="primary"
                 size="small"
                 isLoading={submitting || isConfirming}
-                disabled={!exchangeId || canceling || !hasSelection}
+                disabled={!exchangeId || canceling}
                 data-testid="exchange-confirm"
               >
                 {t("orders.exchanges.confirm")}

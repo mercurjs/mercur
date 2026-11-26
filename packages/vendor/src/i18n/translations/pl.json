@@ -1796,6 +1796,11 @@
       "outboundShippingHint": "Wybierz metodę, której chcesz użyć.",
       "refundAmount": "Oszacowana różnica",
       "activeChangeError": "Na tym zamówieniu jest aktywna zmiana. Zakończ lub anuluj poprzednią zmianę.",
+      "emptyOutboundItemsError": "Dodaj co najmniej jeden produkt do wysłania w ramach wymiany",
+      "emptyState": {
+        "inboundDescription": "Dodaj co najmniej jeden produkt z zamówienia, aby utworzyć wymianę",
+        "outboundDescription": "Dodaj co najmniej jeden produkt, który chcesz wysłać w ramach wymiany"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "Wymiana została pomyślnie anulowana."

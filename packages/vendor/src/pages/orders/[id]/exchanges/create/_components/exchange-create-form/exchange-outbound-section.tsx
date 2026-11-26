@@ -1,16 +1,12 @@
 import { HttpTypes } from "@medusajs/types"
 import { Button, Heading, toast } from "@medusajs/ui"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useFieldArray, UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { Form } from "@components/common/form"
 import { Combobox } from "@components/inputs/combobox"
-import {
-  RouteFocusModal,
-  StackedFocusModal,
-  useStackedModal,
-} from "@components/modals"
+import { StackedFocusModal, useStackedModal } from "@components/modals"
 import {
   useAddExchangeOutboundItems,
   useAddExchangeOutboundShipping,
@@ -19,8 +15,8 @@ import {
 } from "@hooks/api/exchanges"
 
 import { AddExchangeOutboundItemsTable } from "../add-exchange-outbound-items-table"
-import { ItemPlaceholder } from "../../../../claims/create/_components/claim-create-form/item-placeholder"
 import { ExchangeOutboundItem } from "./exchange-outbound-item"
+import { ItemPlaceholder } from "./item-placeholder"
 import { CreateExchangeSchemaType } from "./schema"
 
 // See `exchange-inbound-section.tsx` for the rationale on the inlined
@@ -29,6 +25,7 @@ type ExchangePreview = {
   items?: Array<{
     id: string
     variant_id?: string | null
+    metadata?: Record<string, unknown> | null
     detail?: { quantity?: number }
     actions?: Array<{
       id?: string
@@ -60,6 +57,7 @@ type ExchangeOutboundSectionProps = {
   exchange: { id: string }
   preview: ExchangePreview
   form: UseFormReturn<CreateExchangeSchemaType>
+  itemsError?: string
 }
 
 // See admin: module-scoped scratch buffers populated by the picker
@@ -90,8 +88,10 @@ export const ExchangeOutboundSection = ({
   preview,
   exchange,
   form,
+  itemsError,
 }: ExchangeOutboundSectionProps) => {
   const { t } = useTranslation()
+  const [isSaving, setIsSaving] = useState(false)
 
   const { setIsOpen } = useStackedModal()
 
@@ -166,6 +166,10 @@ export const ExchangeOutboundSection = ({
             item_id: i.id,
             quantity: requested,
             variant_id: i.variant_id ?? undefined,
+            offer_id:
+              typeof i.metadata?.offer_id === "string"
+                ? i.metadata.offer_id
+                : undefined,
           },
           { shouldFocus: false }
         )
@@ -183,46 +187,38 @@ export const ExchangeOutboundSection = ({
   const showOutboundItemsPlaceholder = !outboundItems.length
 
   const onItemsSelected = async () => {
-    if (offersToAdd.length) {
-      await addOutboundItem(
-        {
-          // Vendor route resolves `offer_id` server-side.
+    setIsSaving(true)
+    try {
+      if (offersToAdd.length) {
+        await addOutboundItem({
           items: offersToAdd.map((offer_id) => ({
             offer_id,
             quantity: 1,
-          })) as never,
-        } as never,
-        {
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
-      )
-    }
-
-    // Admin uses variant_id to find rows to remove; vendor's picker
-    // is offer-based. We match on offer_id stored in the form field.
-    for (const offerToRemove of offersToRemove) {
-      const field = outboundItems.find(
-        (f) => (f as { offer_id?: string | null }).offer_id === offerToRemove
-      )
-      const previewMatch = field
-        ? previewOutboundItems.find((i) => i.id === field.item_id)
-        : undefined
-      const actionId = previewMatch?.actions?.find(
-        (a) => a.action === "ITEM_ADD"
-      )?.id
-
-      if (actionId) {
-        await removeOutboundItem(actionId, {
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        })
+          })),
+        } as never)
       }
-    }
 
-    setIsOpen("outbound-items", false)
+      for (const offerToRemove of offersToRemove) {
+        const field = outboundItems.find((f) => f.offer_id === offerToRemove)
+        const actionId = previewOutboundItems
+          .find((i) => i.id === field?.item_id)
+          ?.actions?.find((a) => a.action === "ITEM_ADD")?.id
+
+        if (actionId) {
+          await removeOutboundItem(actionId)
+        }
+      }
+
+      setIsOpen("outbound-items", false)
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : t("general.error")
+      )
+    } finally {
+      offersToAdd = []
+      offersToRemove = []
+      setIsSaving(false)
+    }
   }
 
   useEffect(() => {
@@ -261,27 +257,37 @@ export const ExchangeOutboundSection = ({
 
         <StackedFocusModal id="outbound-items">
           <StackedFocusModal.Trigger asChild>
-            {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid */}
-            <a
-              href="#"
-              onClick={(e) => e.preventDefault()}
-              className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400"
+            <Button
+              type="button"
+              variant="secondary"
+              size="small"
+              onClick={() => {
+                offersToAdd = []
+                offersToRemove = []
+              }}
+              data-testid="exchange-add-outbound-trigger"
             >
               {t("actions.addItems")}
-            </a>
+            </Button>
           </StackedFocusModal.Trigger>
           <StackedFocusModal.Content>
             <StackedFocusModal.Header />
+            <StackedFocusModal.Title className="sr-only">
+              {t("actions.addItems")}
+            </StackedFocusModal.Title>
+            <StackedFocusModal.Description className="sr-only">
+              {t("orders.exchanges.emptyState.outboundDescription")}
+            </StackedFocusModal.Description>
 
             <AddExchangeOutboundItemsTable
-              selectedItems={outboundItems
-                .map((i) => (i as { offer_id?: string | null }).offer_id)
-                .filter(Boolean) as string[]}
+              selectedItems={outboundItems.flatMap((i) =>
+                i.offer_id ? [i.offer_id] : []
+              )}
               currencyCode={order.currency_code}
               onSelectionChange={(finalSelection) => {
-                const alreadySelected = outboundItems
-                  .map((i) => (i as { offer_id?: string | null }).offer_id)
-                  .filter(Boolean) as string[]
+                const alreadySelected = outboundItems.flatMap((i) =>
+                  i.offer_id ? [i.offer_id] : []
+                )
 
                 offersToAdd = finalSelection.filter(
                   (selection) => !alreadySelected.includes(selection)
@@ -295,17 +301,19 @@ export const ExchangeOutboundSection = ({
             <StackedFocusModal.Footer>
               <div className="flex w-full items-center justify-end gap-x-4">
                 <div className="flex items-center justify-end gap-x-2">
-                  <RouteFocusModal.Close asChild>
+                  <StackedFocusModal.Close asChild>
                     <Button type="button" variant="secondary" size="small">
                       {t("actions.cancel")}
                     </Button>
-                  </RouteFocusModal.Close>
+                  </StackedFocusModal.Close>
                   <Button
                     key="submit-button"
-                    type="submit"
+                    type="button"
                     variant="primary"
                     size="small"
-                    onClick={async () => await onItemsSelected()}
+                    isLoading={isSaving}
+                    onClick={onItemsSelected}
+                    data-testid="exchange-outbound-items-save"
                   >
                     {t("actions.save")}
                   </Button>
@@ -316,7 +324,13 @@ export const ExchangeOutboundSection = ({
         </StackedFocusModal>
       </div>
 
-      {showOutboundItemsPlaceholder && <ItemPlaceholder />}
+      {showOutboundItemsPlaceholder && (
+        <ItemPlaceholder
+          description={t("orders.exchanges.emptyState.outboundDescription")}
+          error={itemsError}
+          data-testid="exchange-outbound-empty-state"
+        />
+      )}
 
       {outboundItems.map((item, index) => {
         const previewItem = previewItemsMap.get(item.item_id)

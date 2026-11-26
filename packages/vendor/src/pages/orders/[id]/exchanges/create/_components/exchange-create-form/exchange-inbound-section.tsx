@@ -2,17 +2,13 @@ import { HttpTypes } from "@medusajs/types"
 import { usePermissionGate } from "@mercurjs/dashboard-shared"
 import { ConditionalTooltip } from "@components/common/conditional-tooltip"
 import { Button, Heading, Text, toast } from "@medusajs/ui"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useFieldArray, UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { Form } from "@components/common/form"
 import { Combobox } from "@components/inputs/combobox"
-import {
-  RouteFocusModal,
-  StackedFocusModal,
-  useStackedModal,
-} from "@components/modals"
+import { StackedFocusModal, useStackedModal } from "@components/modals"
 import {
   useAddExchangeInboundItems,
   useAddExchangeInboundShipping,
@@ -23,8 +19,8 @@ import { useShippingOptions } from "@hooks/api/shipping-options"
 import { useStockLocations } from "@hooks/api/stock-locations"
 
 import { AddExchangeInboundItemsTable } from "../add-exchange-inbound-items-table"
-import { ItemPlaceholder } from "../../../../claims/create/_components/claim-create-form/item-placeholder"
 import { ExchangeInboundItem } from "./exchange-inbound-item"
+import { ItemPlaceholder } from "./item-placeholder"
 import { CreateExchangeSchemaType } from "./schema"
 
 // `AdminOrderPreview` isn't exported as a named type from the Mercur
@@ -65,6 +61,7 @@ type ExchangeInboundSectionProps = {
   exchange: { id: string }
   preview: ExchangePreview
   form: UseFormReturn<CreateExchangeSchemaType>
+  itemsError?: string
 }
 
 // Module-scoped scratch matches admin's pattern: the StackedFocusModal
@@ -101,8 +98,10 @@ export const ExchangeInboundSection = ({
   exchange,
   form,
   orderReturn,
+  itemsError,
 }: ExchangeInboundSectionProps) => {
   const { t } = useTranslation()
+  const [isSaving, setIsSaving] = useState(false)
 
   const { setIsOpen } = useStackedModal()
 
@@ -261,37 +260,37 @@ export const ExchangeInboundSection = ({
   const showInboundItemsPlaceholder = !inboundItems.length
 
   const onItemsSelected = async () => {
-    if (itemsToAdd.length) {
-      await addInboundItem(
-        {
+    setIsSaving(true)
+    try {
+      if (itemsToAdd.length) {
+        await addInboundItem({
           items: itemsToAdd.map((id) => ({
             id,
             quantity: 1,
           })),
-        } as never,
-        {
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
-      )
-    }
-
-    for (const itemToRemove of itemsToRemove) {
-      const actionId = previewInboundItems
-        .find((i) => i.id === itemToRemove)
-        ?.actions?.find((a) => a.action === "RETURN_ITEM")?.id
-
-      if (actionId) {
-        await removeInboundItem(actionId, {
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        })
+        } as never)
       }
-    }
 
-    setIsOpen("inbound-items", false)
+      for (const itemToRemove of itemsToRemove) {
+        const actionId = previewInboundItems
+          .find((i) => i.id === itemToRemove)
+          ?.actions?.find((a) => a.action === "RETURN_ITEM")?.id
+
+        if (actionId) {
+          await removeInboundItem(actionId)
+        }
+      }
+
+      setIsOpen("inbound-items", false)
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : t("general.error")
+      )
+    } finally {
+      itemsToAdd = []
+      itemsToRemove = []
+      setIsSaving(false)
+    }
   }
 
   // Vendor: `useUpdateReturn` isn't exposed here. Location changes only
@@ -327,18 +326,28 @@ export const ExchangeInboundSection = ({
 
         <StackedFocusModal id="inbound-items">
           <StackedFocusModal.Trigger asChild>
-            {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid */}
-            <a
-              href="#"
-              onClick={(e) => e.preventDefault()}
-              className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400"
+            <Button
+              type="button"
+              variant="secondary"
+              size="small"
+              onClick={() => {
+                itemsToAdd = []
+                itemsToRemove = []
+              }}
+              data-testid="exchange-add-inbound-trigger"
             >
               {t("actions.addItems")}
-            </a>
+            </Button>
           </StackedFocusModal.Trigger>
 
           <StackedFocusModal.Content>
             <StackedFocusModal.Header />
+            <StackedFocusModal.Title className="sr-only">
+              {t("actions.addItems")}
+            </StackedFocusModal.Title>
+            <StackedFocusModal.Description className="sr-only">
+              {t("orders.exchanges.emptyState.inboundDescription")}
+            </StackedFocusModal.Description>
 
             <AddExchangeInboundItemsTable
               items={order.items ?? []}
@@ -359,17 +368,19 @@ export const ExchangeInboundSection = ({
             <StackedFocusModal.Footer>
               <div className="flex w-full items-center justify-end gap-x-4">
                 <div className="flex items-center justify-end gap-x-2">
-                  <RouteFocusModal.Close asChild>
+                  <StackedFocusModal.Close asChild>
                     <Button type="button" variant="secondary" size="small">
                       {t("actions.cancel")}
                     </Button>
-                  </RouteFocusModal.Close>
+                  </StackedFocusModal.Close>
                   <Button
                     key="submit-button"
-                    type="submit"
+                    type="button"
                     variant="primary"
                     size="small"
-                    onClick={async () => await onItemsSelected()}
+                    isLoading={isSaving}
+                    onClick={onItemsSelected}
+                    data-testid="exchange-inbound-items-save"
                   >
                     {t("actions.save")}
                   </Button>
@@ -380,7 +391,13 @@ export const ExchangeInboundSection = ({
         </StackedFocusModal>
       </div>
 
-      {showInboundItemsPlaceholder && <ItemPlaceholder />}
+      {showInboundItemsPlaceholder && (
+        <ItemPlaceholder
+          description={t("orders.exchanges.emptyState.inboundDescription")}
+          error={itemsError}
+          data-testid="exchange-inbound-empty-state"
+        />
+      )}
 
       {inboundItems.map((item, index) => {
         const previewItem = inboundItemsMap.get(item.item_id)

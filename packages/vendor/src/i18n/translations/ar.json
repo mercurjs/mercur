@@ -1564,6 +1564,11 @@
       "outboundShippingHint": "اختر الطريقة التي تريد استخدامها.",
       "refundAmount": "الفرق المقدر",
       "activeChangeError": "هناك تغيير نشط في الطلب على هذا الطلب. يرجى إنهاء أو إلغاء التغيير السابق.",
+      "emptyOutboundItemsError": "يرجى إضافة عنصر واحد على الأقل لإرساله في الاستبدال",
+      "emptyState": {
+        "inboundDescription": "أضف عنصرًا واحدًا على الأقل من الطلب لإنشاء الاستبدال",
+        "outboundDescription": "أضف عنصرًا واحدًا على الأقل تريد إرساله في الاستبدال"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "تم إلغاء التبادل بنجاح."

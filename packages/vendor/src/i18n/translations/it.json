@@ -1540,6 +1540,11 @@
       "outboundShippingHint": "Scegli quale metodo vuoi utilizzare.",
       "refundAmount": "Differenza stimata",
       "activeChangeError": "C'è un cambiamento attivo sull'ordine. Completa o scarta il cambiamento precedente.",
+      "emptyOutboundItemsError": "Aggiungi almeno un articolo da inviare nel cambio",
+      "emptyState": {
+        "inboundDescription": "Aggiungi almeno un articolo dell'ordine per creare il cambio",
+        "outboundDescription": "Aggiungi almeno un articolo che vuoi inviare nel cambio"
+      },
       "actions": {
         "cancelExchange": {
           "successToast": "Scambio annullato con successo."
