@@ -47,6 +47,7 @@ medusaIntegrationTestRunner({
                 offerPrice: number
                 required_quantity?: number
                 existingProduct?: any
+                variantTitles?: string[]
             }) => {
                 const result = await createSellerUser(appContainer, {
                     email: opts.email,
@@ -135,6 +136,21 @@ medusaIntegrationTestRunner({
                     (await createVendorProduct(api, headers, {
                         title: `Prod${uniqueSuffix}`,
                         sku: `V${uniqueSuffix}`,
+                        ...(opts.variantTitles && {
+                            attributes: [
+                                {
+                                    title: "Edition",
+                                    type: "multi_select" as const,
+                                    values: opts.variantTitles,
+                                    is_variant_axis: true,
+                                },
+                            ],
+                            variants: opts.variantTitles.map((title) => ({
+                                title,
+                                sku: `V${uniqueSuffix}_${title}`,
+                                options: { Edition: title },
+                            })),
+                        }),
                     }))
 
                 if (!opts.existingProduct) {
@@ -145,16 +161,16 @@ medusaIntegrationTestRunner({
                     )
                 }
 
-                const offer = (
-                    await api.post(
+                const createOffer = async (variant: { id: string }) => {
+                    const { data } = await api.post(
                         `/vendor/offers`,
                         {
-                            sku: `OF${uniqueSuffix}`,
-                            variant_id: product.variants[0].id,
+                            sku: `OF${uniqueSuffix}_${variant.id}`,
+                            variant_id: variant.id,
                             shipping_profile_id: shippingProfile.id,
                             inventory_items: [
                                 {
-                                    title: `Inv${uniqueSuffix}`,
+                                    title: `Inv${uniqueSuffix}_${variant.id}`,
                                     required_quantity:
                                         opts.required_quantity ?? 1,
                                     stock_levels: [
@@ -174,24 +190,36 @@ medusaIntegrationTestRunner({
                         },
                         headers
                     )
-                ).data.offer
+                    return {
+                        offer: data.offer,
+                        variant,
+                        inventoryItemId: data.offer.inventory_items[0]
+                            .id as string,
+                    }
+                }
+
+                const offeredVariants = opts.variantTitles
+                    ? product.variants
+                    : [product.variants[0]]
+                const offers: Awaited<ReturnType<typeof createOffer>>[] = []
+                for (const variant of offeredVariants) {
+                    offers.push(await createOffer(variant))
+                }
+                const { offer, inventoryItemId } = offers[0]
 
                 return {
                     sellerId: result.seller.id,
                     headers,
                     stockLocation,
-                    inventoryItemId: offer.inventory_items[0].id as string,
+                    inventoryItemId,
                     product,
-                    variant: product.variants[0],
                     offer,
-                    requiredQuantity: opts.required_quantity ?? 1,
+                    offers,
                 }
             }
 
             const completeCartCheckout = async (
-                offerId: string,
-                variantId: string,
-                quantity: number
+                lines: Array<{ offerId: string; quantity: number }>
             ) => {
                 const cart = (
                     await api.post(
@@ -205,11 +233,13 @@ medusaIntegrationTestRunner({
                     )
                 ).data.cart
 
-                await api.post(
-                    `/store/carts/${cart.id}/line-items`,
-                    { offer_id: offerId, quantity },
-                    storeHeaders
-                )
+                for (const line of lines) {
+                    await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        { offer_id: line.offerId, quantity: line.quantity },
+                        storeHeaders
+                    )
+                }
 
                 await api.post(
                     `/store/carts/${cart.id}`,
@@ -330,50 +360,77 @@ medusaIntegrationTestRunner({
                     name: "Mirror",
                     stocked: 20,
                     offerPrice: 2500,
+                    variantTitles: ["Standard", "Deluxe"],
                 })
-
-                const { completeResp } = await completeCartCheckout(
-                    seed.offer.id,
-                    seed.variant.id,
-                    2
-                )
-                expect(completeResp.status).toEqual(200)
-                expect(completeResp.data.type).toEqual("order_group")
-                expect(completeResp.data.order_group.orders).toHaveLength(1)
-                expect(completeResp.data.order_group.orders[0]).toEqual(
-                    expect.objectContaining({
-                        id: expect.any(String),
-                        display_id: expect.any(Number),
-                        status: expect.any(String),
-                        seller: expect.objectContaining({
-                            id: expect.any(String),
-                            name: expect.any(String),
-                        }),
-                    })
+                const [standard, deluxe] = seed.offers
+                const offerIdByVariantId = new Map(
+                    seed.offers.map((o) => [o.variant.id, o.offer.id])
                 )
 
                 const query = appContainer.resolve(
                     ContainerRegistrationKeys.QUERY
                 )
-                const { data: orderGroup } = await query.graph({
-                    entity: "order_group",
-                    filters: { id: completeResp.data.order_group.id },
-                    fields: [
-                        "id",
-                        "orders.id",
-                        "orders.items.id",
-                        "orders.items.offer.id",
-                        "orders.items.offer.sku",
-                    ],
-                })
 
-                const orders = (orderGroup[0] as any).orders
-                expect(orders.length).toBeGreaterThan(0)
-                const items = orders.flatMap((o: any) => o.items)
-                expect(items.length).toEqual(1)
-                expect(items[0].offer).toEqual(
-                    expect.objectContaining({ id: seed.offer.id })
+                // order.items come back in no defined order, so a single
+                // checkout can pair lines to offers correctly by chance.
+                const CHECKOUTS = 6
+                for (let i = 0; i < CHECKOUTS; i++) {
+                    const { completeResp } = await completeCartCheckout([
+                        { offerId: standard.offer.id, quantity: 2 },
+                        { offerId: deluxe.offer.id, quantity: 1 },
+                    ])
+                    expect(completeResp.status).toEqual(200)
+                    expect(completeResp.data.type).toEqual("order_group")
+                    expect(completeResp.data.order_group.orders).toHaveLength(1)
+                    expect(completeResp.data.order_group.orders[0]).toEqual(
+                        expect.objectContaining({
+                            id: expect.any(String),
+                            display_id: expect.any(Number),
+                            status: expect.any(String),
+                            seller: expect.objectContaining({
+                                id: seed.sellerId,
+                                name: expect.any(String),
+                            }),
+                        })
+                    )
+
+                    const { data: orderGroup } = await query.graph({
+                        entity: "order_group",
+                        filters: { id: completeResp.data.order_group.id },
+                        fields: [
+                            "orders.items.variant_id",
+                            "orders.items.offer.id",
+                        ],
+                    })
+
+                    const [{ orders }] = orderGroup as Array<{
+                        orders: Array<{
+                            items: Array<{
+                                variant_id: string
+                                offer?: { id: string } | null
+                            }>
+                        }>
+                    }>
+                    const items = orders.flatMap((o) => o.items)
+                    expect(items).toHaveLength(2)
+                    for (const item of items) {
+                        expect(item.offer?.id).toBeDefined()
+                        expect(item.offer?.id).toEqual(
+                            offerIdByVariantId.get(item.variant_id)
+                        )
+                    }
+                }
+
+                const standardLevel = await readLevel(
+                    standard.inventoryItemId,
+                    seed.stockLocation.id
                 )
+                const deluxeLevel = await readLevel(
+                    deluxe.inventoryItemId,
+                    seed.stockLocation.id
+                )
+                expect(standardLevel.reserved).toEqual(2 * CHECKOUTS)
+                expect(deluxeLevel.reserved).toEqual(CHECKOUTS)
             })
 
             it("should reserve qty × required_quantity per inventory_item on placement", async () => {
@@ -385,11 +442,9 @@ medusaIntegrationTestRunner({
                     required_quantity: 3,
                 })
 
-                const { completeResp } = await completeCartCheckout(
-                    seed.offer.id,
-                    seed.variant.id,
-                    2
-                )
+                const { completeResp } = await completeCartCheckout([
+                    { offerId: seed.offer.id, quantity: 2 },
+                ])
                 expect(completeResp.status).toEqual(200)
 
                 const query = appContainer.resolve(
@@ -599,11 +654,9 @@ medusaIntegrationTestRunner({
                         required_quantity: 3,
                     })
 
-                    const { completeResp } = await completeCartCheckout(
-                        seed.offer.id,
-                        seed.variant.id,
-                        2
-                    )
+                    const { completeResp } = await completeCartCheckout([
+                        { offerId: seed.offer.id, quantity: 2 },
+                    ])
                     expect(completeResp.status).toEqual(200)
 
                     const before = await readLevel(
@@ -649,11 +702,9 @@ medusaIntegrationTestRunner({
                         required_quantity: 3,
                     })
 
-                    const { completeResp } = await completeCartCheckout(
-                        seed.offer.id,
-                        seed.variant.id,
-                        2
-                    )
+                    const { completeResp } = await completeCartCheckout([
+                        { offerId: seed.offer.id, quantity: 2 },
+                    ])
                     const { orderId, itemId } = await fetchOrderId(
                         completeResp.data.order_group.id
                     )
@@ -698,11 +749,9 @@ medusaIntegrationTestRunner({
                         required_quantity: 3,
                     })
 
-                    const { completeResp } = await completeCartCheckout(
-                        seed.offer.id,
-                        seed.variant.id,
-                        2
-                    )
+                    const { completeResp } = await completeCartCheckout([
+                        { offerId: seed.offer.id, quantity: 2 },
+                    ])
                     const { orderId, itemId } = await fetchOrderId(
                         completeResp.data.order_group.id
                     )
@@ -792,11 +841,9 @@ medusaIntegrationTestRunner({
                     sellerA.offer.shipping_profile_id
                 )
 
-                const { completeResp } = await completeCartCheckout(
-                    sellerB.offer.id,
-                    sellerB.variant.id,
-                    1
-                )
+                const { completeResp } = await completeCartCheckout([
+                    { offerId: sellerB.offer.id, quantity: 1 },
+                ])
 
                 expect(completeResp.status).toEqual(200)
                 expect(completeResp.data.type).toEqual("order_group")

@@ -259,7 +259,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
 
             const orderStatusResult = setOrderStatus.getResult()
 
-            const { ordersToCreate, sellerOrdersMap, offerIdsByOrderId } = transform({ cart: cartData.data, shippingOptionsData: shippingOptionsData.data, orderStatusResult, promotionSellerIds }, ({ cart, shippingOptionsData, orderStatusResult, promotionSellerIds }) => {
+            const { ordersToCreate, sellerOrdersMap, orderLineOfferPairs } = transform({ cart: cartData.data, shippingOptionsData: shippingOptionsData.data, orderStatusResult, promotionSellerIds }, ({ cart, shippingOptionsData, orderStatusResult, promotionSellerIds }) => {
                 const statusResult = orderStatusResult as SetOrderStatusHookResult
                 const sellerIdOfPromotion = (promotionId?: string | null) =>
                     promotionId ? ((promotionSellerIds as PromotionSellerIds)[promotionId] ?? null) : null
@@ -284,7 +284,10 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
 
                 const sellerOrdersMap: Record<string, string> = {}
                 const ordersToCreate: (CreateOrderDTO & { id: string })[] = []
-                const offerIdsByOrderId: Record<string, (string | null)[]> = {}
+                const orderLineOfferPairs: Array<{
+                    order_line_item_id: string
+                    offer_id: string
+                }> = []
 
                 const sellerIds = Array.from(cartSellerIds)
                 const itemsOfSeller = (sellerId: string) =>
@@ -341,7 +344,17 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                             taxLines: item.tax_lines ?? [],
                             adjustments: sellerAdjustments(item.adjustments ?? [], sellerId),
                         }
-                        return prepareLineItemData(input)
+                        const lineItem = prepareLineItemData(input)
+                        // createOrders returns order.items in no defined order, so pair by
+                        // the line id generated here, not by position.
+                        const offerId = (item as { offer?: { id: string } | null }).offer?.id
+                        if (offerId) {
+                            orderLineOfferPairs.push({
+                                order_line_item_id: lineItem.id,
+                                offer_id: offerId,
+                            })
+                        }
+                        return lineItem
                     })
 
                     const shippingMethods = sellerCartShippingMethods.map((sm) => {
@@ -415,16 +428,12 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                     })
 
                     sellerOrdersMap[sellerId] = orderId
-                    offerIdsByOrderId[orderId] = sellerCartItems.map(
-                        (item: any) =>
-                            (item.offer?.id as string | undefined) ?? null,
-                    )
                 })
 
                 return {
                     sellerOrdersMap,
                     ordersToCreate,
-                    offerIdsByOrderId,
+                    orderLineOfferPairs,
                 }
             })
 
@@ -445,30 +454,6 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             const createdOrderGroup = createOrderGroupStep(orderGroupData)
 
             const createdOrders = createOrdersStep(ordersToCreate)
-
-            const orderLineOfferPairs = transform(
-                { createdOrders, offerIdsByOrderId },
-                ({ createdOrders, offerIdsByOrderId }) => {
-                    const pairs: Array<{
-                        order_line_item_id: string
-                        offer_id: string
-                    }> = []
-                    for (const order of createdOrders) {
-                        const offerIds = offerIdsByOrderId[order.id] ?? []
-                        const items = order.items ?? []
-                        for (let i = 0; i < items.length; i++) {
-                            const offerId = offerIds[i]
-                            if (offerId) {
-                                pairs.push({
-                                    order_line_item_id: items[i].id,
-                                    offer_id: offerId,
-                                })
-                            }
-                        }
-                    }
-                    return pairs
-                }
-            )
 
             const offerReservationItems = transform(
                 { createdOrders, orderLineOfferPairs },
