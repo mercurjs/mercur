@@ -5,7 +5,7 @@ import {
   TrianglesMini,
   XMarkMini,
 } from "@medusajs/icons";
-import { AdminProductCategoryResponse } from "@medusajs/types";
+import { ProductCategoryDTO } from "@medusajs/types";
 import { Divider, Text, clx } from "@medusajs/ui";
 import { Popover as RadixPopover } from "radix-ui";
 import { usePermissionGate } from "@mercurjs/dashboard-shared";
@@ -28,14 +28,12 @@ import { TextSkeleton } from "../../../../../components/common/skeleton";
 import { useProductCategories } from "../../../../../hooks/api/categories";
 import { useDebouncedSearch } from "../../../../../hooks/use-debounced-search";
 
-interface CategoryComboboxProps extends Omit<
+export interface CategoryComboboxProps extends Omit<
   ComponentPropsWithoutRef<"input">,
   "value" | "defaultValue" | "onChange"
 > {
   value: string[];
   onChange: (value: string[]) => void;
-  isSingleSelect?: boolean;
-  allowClear?: boolean;
 }
 
 type Level = {
@@ -49,7 +47,7 @@ const TAG_BASE_WIDTH = 28;
 export const CategoryCombobox = forwardRef<
   HTMLInputElement,
   CategoryComboboxProps
->(({ value, onChange, className, isSingleSelect: _isSingleSelect, allowClear: _allowClear, ...props }, ref) => {
+>(({ value, onChange, className, ...props }, ref) => {
   const innerRef = useRef<HTMLInputElement>(null);
 
   useImperativeHandle<HTMLInputElement | null, HTMLInputElement | null>(
@@ -506,7 +504,7 @@ function getParentLabel(level: Level[]): string | null {
 }
 
 function getOptions(
-  categories: AdminProductCategoryResponse["product_category"][],
+  categories: ProductCategoryDTO[],
 ): ProductCategoryOption[] {
   return categories.map((cat) => {
     return {

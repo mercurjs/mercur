@@ -8,6 +8,8 @@ export { SwitchBox } from './components/common/switch-box'
 export { FileUpload } from './components/common/file-upload'
 export type { FileType, FileUploadProps } from './components/common/file-upload'
 export { ChipInput } from './components/inputs/chip-input'
+export { CategoryCombobox, SingleCategoryCombobox } from './pages/products/common/components/category-combobox'
+export type { CategoryComboboxProps, SingleCategoryComboboxProps } from './pages/products/common/components/category-combobox'
 
 // Table components
 export { _DataTable as DataTable } from './components/table/data-table'

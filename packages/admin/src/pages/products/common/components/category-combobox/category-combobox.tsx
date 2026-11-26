@@ -5,7 +5,7 @@ import {
   TrianglesMini,
   XMarkMini,
 } from "@medusajs/icons"
-import { AdminProductCategoryResponse } from "@medusajs/types"
+import { ProductCategoryDTO } from "@medusajs/types"
 import { Divider, Text, clx } from "@medusajs/ui"
 import { usePermissionGate } from "@mercurjs/dashboard-shared"
 import { Popover as RadixPopover } from "radix-ui"
@@ -28,7 +28,7 @@ import { TextSkeleton } from "../../../../../components/common/skeleton"
 import { useProductCategories } from "../../../../../hooks/api/categories"
 import { useDebouncedSearch } from "../../../../../hooks/use-debounced-search"
 
-interface CategoryComboboxProps
+export interface CategoryComboboxProps
   extends Omit<
     ComponentPropsWithoutRef<"input">,
     "value" | "defaultValue" | "onChange"
@@ -495,7 +495,7 @@ function getParentLabel(level: Level[]): string | null {
 }
 
 function getOptions(
-  categories: AdminProductCategoryResponse["product_category"][]
+  categories: ProductCategoryDTO[]
 ): ProductCategoryOption[] {
   return categories.map((cat) => {
     return {
