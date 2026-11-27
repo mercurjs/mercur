@@ -94,6 +94,7 @@ All configuration lives in the panel app's Vite config. There is no separate `me
 | `i18n` | `object` | Internationalization settings (`{ defaultLanguage }`) |
 | `enableSellerRegistration` | `boolean` | Enable the public seller registration flow (vendor portal) |
 | `imageLimit` | `number` | Max upload size for images in bytes (default: 2 MB) |
+| `imageFormats` | `Record<string, string[]>` | Allowed MIME types for product media uploads in the Vendor portal, mapped to the extensions displayed in validation errors. Defaults to JPEG, PNG, WebP and HEIC. Admin product forms retain their built-in formats, including GIF. |
 
 ## Widgets
 

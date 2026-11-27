@@ -4,6 +4,7 @@ import fs from "fs";
 import { createRequire } from "module";
 import { getFileExports } from "./utils";
 import {
+    DEFAULT_IMAGE_FORMATS,
     LAYOUT_PREFERENCES_FILE,
     NAVIGATION_FILE,
     RESOLVED_ROUTES_MODULE,
@@ -371,6 +372,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                 projectDir,
                 pluginExtensions,
                 imageLimit,
+                imageFormats: pluginConfig.imageFormats ?? DEFAULT_IMAGE_FORMATS,
             };
 
             return {

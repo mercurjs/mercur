@@ -55,6 +55,8 @@ export interface MercurConfig {
      * @default 2_097_152 // 2 MB
      */
     imageLimit?: number;
+    /** Vendor product media MIME types and error extensions; Admin keeps its built-in formats. */
+    imageFormats?: Record<string, string[]>;
 }
 
 export interface BuiltMercurConfig extends MercurConfig {
@@ -71,6 +73,7 @@ export interface BuiltMercurConfig extends MercurConfig {
     /** Prebuilt plugin entries, in `medusa-config` plugin order. */
     pluginExtensions: string[]
     imageLimit: number
+    imageFormats: Record<string, string[]>
 }
 
 export type RouteConfig = {
