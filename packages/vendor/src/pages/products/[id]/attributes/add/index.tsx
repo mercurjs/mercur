@@ -39,6 +39,7 @@ import { useBatchProductAttributes, useProduct } from "@hooks/api/products"
 import { useAttributeTableQuery } from "@hooks/table/query/use-attribute-table-query"
 import { useAttributeTableFilters } from "@hooks/table/filters/use-attribute-table-filters"
 import { PRODUCT_DETAIL_QUERY } from "../../../common/constants"
+import { buildAddExistingAttributesQuery } from "./query"
 
 const PAGE_SIZE = 20
 const PREFIX = "add-existing-attrs"
@@ -105,13 +106,19 @@ const Content = ({ productId }: { productId: string }) => {
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
-  const { product_attributes, count, isLoading, isError, error } =
-    useProductAttributes(
-      { ...searchParams, scope: "product" },
-      { placeholderData: keepPreviousData }
-    )
-
   const { product } = useProduct(productId, PRODUCT_DETAIL_QUERY)
+  const categoryId = (product as any)?.categories?.[0]?.id as
+    | string
+    | undefined
+
+  const attributesQuery = buildAddExistingAttributesQuery(
+    searchParams,
+    categoryId
+  )
+  const { product_attributes, count, isLoading, isError, error } =
+    useProductAttributes(attributesQuery, {
+      placeholderData: keepPreviousData,
+    })
 
   const assignedIds = useMemo(
     () =>
