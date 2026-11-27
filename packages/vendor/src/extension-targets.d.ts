@@ -429,6 +429,15 @@ declare module "@mercurjs/dashboard-sdk" {
       listZones: "list" | "variants"
       listColumnIds: "categories" | "collection" | "product" | "sku" | "status" | "title" | "variants"
     }
+    "product_variant": {
+      formZones: "create" | "edit"
+      formTabs: Record<string, string>
+      formFieldIds: "sku"
+      displayZones: never
+      displayFieldIds: never
+      listZones: never
+      listColumnIds: never
+    }
     "promotion": {
       formZones: "edit"
       formTabs: Record<string, string>

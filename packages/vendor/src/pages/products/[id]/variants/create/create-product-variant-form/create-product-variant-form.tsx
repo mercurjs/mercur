@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { ExtendableFormField } from "@mercurjs/dashboard-shared"
 import { Button, Heading, Input, toast } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -136,24 +137,32 @@ export const CreateProductVariantForm = ({
                 }}
               />
 
-              <Form.Field
+              <ExtendableFormField
+                model="product_variant"
+                zone="create"
+                id="sku"
                 control={form.control}
-                name="sku"
-                render={({ field }) => {
-                  return (
-                    <Form.Item>
-                      <Form.Label optional>{t("fields.sku")}</Form.Label>
-                      <Form.Control>
-                        <Input
-                          {...field}
-                          data-testid="create-variant-sku-input"
-                        />
-                      </Form.Control>
-                      <Form.ErrorMessage />
-                    </Form.Item>
-                  )
-                }}
-              />
+                data={product}
+              >
+                <Form.Field
+                  control={form.control}
+                  name="sku"
+                  render={({ field }) => {
+                    return (
+                      <Form.Item>
+                        <Form.Label optional>{t("fields.sku")}</Form.Label>
+                        <Form.Control>
+                          <Input
+                            {...field}
+                            data-testid="create-variant-sku-input"
+                          />
+                        </Form.Control>
+                        <Form.ErrorMessage />
+                      </Form.Item>
+                    )
+                  }}
+                />
+              </ExtendableFormField>
 
               {variantAttributes.map((attribute) => {
                 const fieldKey = attribute.handle ?? attribute.id

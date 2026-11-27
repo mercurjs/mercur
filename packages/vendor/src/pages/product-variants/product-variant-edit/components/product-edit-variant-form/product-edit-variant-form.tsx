@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { ExtendableFormField } from "@mercurjs/dashboard-shared"
 import { InformationCircleSolid } from "@medusajs/icons"
 import { Button, Divider, Heading, Input, Tooltip, toast } from "@medusajs/ui"
 import i18next from "i18next"
@@ -212,21 +213,29 @@ export const ProductEditVariantForm = ({
           <Divider />
           <div className="flex flex-col gap-y-8">
             <div className="flex flex-col gap-y-4">
-              <Form.Field
+              <ExtendableFormField
+                model="product_variant"
+                zone="edit"
+                id="sku"
                 control={form.control}
-                name="sku"
-                render={({ field }) => {
-                  return (
-                    <Form.Item>
-                      <Form.Label optional>{t("fields.sku")}</Form.Label>
-                      <Form.Control>
-                        <Input {...field} />
-                      </Form.Control>
-                      <Form.ErrorMessage />
-                    </Form.Item>
-                  )
-                }}
-              />
+                data={variant}
+              >
+                <Form.Field
+                  control={form.control}
+                  name="sku"
+                  render={({ field }) => {
+                    return (
+                      <Form.Item>
+                        <Form.Label optional>{t("fields.sku")}</Form.Label>
+                        <Form.Control>
+                          <Input {...field} />
+                        </Form.Control>
+                        <Form.ErrorMessage />
+                      </Form.Item>
+                    )
+                  }}
+                />
+              </ExtendableFormField>
               <Form.Field
                 control={form.control}
                 name="ean"
